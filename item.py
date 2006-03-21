@@ -22,6 +22,19 @@ class Item(object):
         self._canvas = canvas
         self.dirty = True
 
+    def _set_canvas(self, canvas):
+        assert not canvas or not self._canvas or self._canvas is canvas
+        self._canvas = canvas
+
+    def _del_canvas(self):
+        self._canvas = None
+
+    canvas = property(lambda s: s._canvas, _set_canvas, _del_canvas)
+
+    def request_update(self):
+        if self._canvas:
+            self._canvas.request_update(self)
+
     def pre_update(self, context):
         """Do small things that have to be done before the "real" update.
         Context has the following attributes:
@@ -40,7 +53,6 @@ class Item(object):
     def render(self, context):
         """Render the item to a canvas view.
         Context contains the following attributes:
-         - canvas: the owning canvas
          - matrix_i2w: Item to World transformation matrix (no need to)
          - cairo: the Cairo Context use this one to draw.
         """
@@ -51,4 +63,11 @@ class Item(object):
         """
         return iter()
 
-
+    def point(self, context, x, y):
+        """Get the distance from a point (@x, @y) to the item.
+	@x and @y are in item coordinates.
+        Context contains the following attributes:
+         - matrix_i2w: Item to World transformation matrix (no need to)
+         - cairo: the Cairo Context use this one to draw.
+	"""
+	pass

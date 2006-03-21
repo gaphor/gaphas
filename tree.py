@@ -18,6 +18,8 @@ class Tree(object):
         # Per entry a list of children is maintained.
         self._children = { None: [] }
 
+    nodes = property(lambda s: list(s._nodes))
+
     def get_parent(self, node):
         """Return the parent item of @node.
         """
