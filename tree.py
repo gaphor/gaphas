@@ -1,5 +1,6 @@
 """
-The canvas base class.
+Simple class containing the tree structure for the canvas items.
+
 """
 
 

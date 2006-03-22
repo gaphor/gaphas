@@ -1,11 +1,15 @@
-2006-03-21      Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+2006-03-22  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * canvas.py: new file. This class maintains a set of items.
+	* tool.py: new file. base class for view tools.
 
-2006-03-18      Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+2006-03-21  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * item.py: Canvas item
-        * solver.py, constraint.py: Constraint solver implementation
-        * tree.py: Tree structure for use in the canvas. Items do not
-          maintain parent/child relationships themselves.
+	* canvas.py: new file. This class maintains a set of items.
+
+2006-03-18  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* item.py: Canvas item
+	* solver.py, constraint.py: Constraint solver implementation
+	* tree.py: Tree structure for use in the canvas. Items do not
+	  maintain parent/child relationships themselves.
 
