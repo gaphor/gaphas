@@ -41,7 +41,6 @@ class Canvas(object):
         >>> c._tree.nodes
         []
         >>> i._canvas
-        None
         """
         self._tree.remove(item)
         item.canvas = None
@@ -64,11 +63,11 @@ class Canvas(object):
 
     def update_needed(self):
         """Returns True or False depending on if an update is needed.
-        >>> c=canvas.Canvas()
+        >>> c=Canvas()
         >>> c.update_needed()
         False
         >>> import item
-        >>> i = Item()
+        >>> i = item.Item()
         >>> c.add(i)
         >>> c.update_needed()
         True
@@ -94,4 +93,6 @@ class Canvas(object):
             self._dirty_items.clear()
             self._in_update = False
 
-    
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
