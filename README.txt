@@ -16,6 +16,9 @@ The basic idea is:
 
 Status
 ======
+
+Canvas independent classes:
+
 tree.py:
 	Central tree structure (no more CanvasGroupable)
 solver.py:
@@ -23,4 +26,14 @@ solver.py:
 constraint.py:
 	Constraint implementation.
 
+Canvas classes:
+
+item.py:
+	Canvas item and handle
+canvas.py:
+	Canvas class
+view.py:
+	Canvas view (renderer) class
+tool.py:
+	Base class for Tools (which handle events on the view).
 
