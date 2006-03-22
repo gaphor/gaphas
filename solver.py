@@ -1,4 +1,6 @@
 
+from __future__ import division
+
 from operator import isCallable
 from constraint import Constraint
 
@@ -14,10 +16,13 @@ class Variable(object):
     """Representation of a variable in the constraint solver.
     Each Variable has a @value and a @strength. Ina constraint the
     weakest variables are changed.
+    
+    You can even do some calculating with it. The Variable always represents
+    a float variable.
     """
 
     def __init__(self, value=0.0, strength=NORMAL):
-        self._value = value
+        self._value = float(value)
         self._strength = strength
 
         # These variables are set by the Solver:
@@ -27,7 +32,7 @@ class Variable(object):
     strength = property(lambda s: s._strength)
 
     def set_value(self, value):
-        self._value = value
+        self._value = float(value)
         if self._solver:
             self._solver.mark_dirty(self)
 
@@ -36,6 +41,144 @@ class Variable(object):
     def __str__(self):
         return 'Variable(%f, %d)' % (self._value, self._strength)
     __repr__ = __str__
+
+    def __float__(self):
+        return float(self._value)
+
+    def __coerce__(self, other):
+        return self._value.__coerce__(other)
+
+    def __add__(self, other):
+        """
+        >>> Variable(5) + 4
+        9.0
+        """
+        return self._value.__add__(other)
+
+    def __sub__(self, other):
+        """
+        >>> Variable(5) - 4
+        1.0
+        """
+        return self._value.__sub__(other)
+
+    def __mul__(self, other):
+        """
+        >>> Variable(5) * 4
+        20.0
+        """
+        return self._value.__mul__(other)
+
+    def __floordiv__(self, other):
+        """
+        >>> Variable(21) // 4
+        5.0
+        """
+        return self._value.__floordiv__(other)
+
+    def __mod__(self, other):
+        """
+        >>> Variable(5) % 4
+        1.0
+        """
+        return self._value.__mod__(other)
+
+    def __divmod__(self, other):
+        """
+        >>> divmod(Variable(21), 4)
+        (5.0, 1.0)
+        """
+        return self._value.__divmod__(other)
+
+    def __pow__(self, other):
+        """
+        >>> pow(Variable(5), 4)
+        625.0
+        """
+        return self._value.__pow__(other)
+
+    def __div__(self, other):
+        """
+        >>> Variable(5) / 4.
+        1.25
+        """
+        return self._value.__div__(other)
+
+    def __truediv__(self, other):
+        """
+        #>>> from __future__ import division
+        >>> Variable(5.) / 4
+        1.25
+        >>> 10 / Variable(5.)
+        2.0
+        """
+        return self._value.__truediv__(other)
+
+    # .. And the other way around:
+
+    def __radd__(self, other):
+        """
+        >>> 4 + Variable(5)
+        9.0
+        """
+        return self._value.__radd__(other)
+
+    def __rsub__(self, other):
+        """
+        >>> 6 - Variable(5)
+        1.0
+        """
+        return self._value.__rsub__(other)
+
+    def __rmul__(self, other):
+        """
+        >>> 4 * Variable(5)
+        20.0
+        """
+        return self._value.__rmul__(other)
+
+    def __rfloordiv__(self, other):
+        """
+        >>> 21 // Variable(4)
+        5.0
+        """
+        return self._value.__rfloordiv__(other)
+
+    def __rmod__(self, other):
+        """
+        >>> 5 % Variable(4)
+        1.0
+        """
+        return self._value.__rmod__(other)
+
+    def __rdivmod__(self, other):
+        """
+        >>> divmod(21, Variable(4))
+        (5.0, 1.0)
+        """
+        return self._value.__rdivmod__(other)
+
+    def __rpow__(self, other):
+        """
+        >>> pow(4, Variable(5))
+        1024.0
+        """
+        return self._value.__rpow__(other)
+
+    def __rdiv__(self, other):
+        """
+        >>> 5 / Variable(4.)
+        1.25
+        """
+        return self._value.__rdiv__(other)
+
+    def __rtruediv__(self, other):
+        """
+        #>>> from __future__ import division
+        >>> 5. / Variable(4)
+        1.25
+        """
+        return self._value.__rtruediv__(other)
 
 
 class Solver(object):
@@ -178,6 +321,48 @@ class Solver(object):
 
         self._marked_cons = []
         self._marked_vars = []
+
+class solvable(object):
+    """Easy-to-use drop Variable descriptor.
+
+    >>> class A(object):
+    ...     x = solvable(varname='_v_x')
+    ...     y = solvable(STRONG)
+    ...     def __init__(self):
+    ...         self.x = 12
+    >>> a = A()
+    >>> a.x
+    Variable(12.000000, 20)
+    >>> a._v_x
+    Variable(12.000000, 20)
+    >>> a.x = 3
+    >>> a.x 
+    Variable(3.000000, 20)
+    >>> a.y 
+    Variable(0.000000, 30)
+    """
+
+    def __init__(self, strength=NORMAL, varname=None):
+        self._strength = strength
+        self._varname = varname or '_variable_%x' % id(self)
+
+    def __get__(self, obj, class_=None):
+        if not obj:
+            return self
+        try:
+            return getattr(obj, self._varname)
+        except AttributeError:
+            setattr(obj, self._varname, Variable(strength=self._strength))
+            return getattr(obj, self._varname)
+
+    def __set__(self, obj, value):
+        try:
+            getattr(obj, self._varname).value = float(value)
+        except AttributeError:
+            v = Variable(strength=self._strength)
+            setattr(obj, self._varname, v)
+            v.value = value
+
 
 if __name__ == '__main__':
     import doctest

@@ -1,6 +1,8 @@
 2006-03-22  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* tool.py: new file. base class for view tools.
+        * solver.py: made Variable work in expressions
+          Added solvable descriptor.
 
 2006-03-21  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
