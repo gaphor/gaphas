@@ -93,6 +93,9 @@ class Canvas(object):
             self._dirty_items.clear()
             self._in_update = False
 
+    def get_matrix_i2w(self, item):
+	matrix = item.matrix
+	
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
