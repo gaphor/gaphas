@@ -12,6 +12,14 @@ def matrix_identity():
 
 def matrix_multiply(m1, m2):
     """Multiply two transformation matrices.
+    >>> m1 = ( 1.0, 0.0, 0.0, 1.0, 0.0, 0.0 )
+    >>> m2 = ( 1.0, 0.0, 0.0, 1.0, 0.0, 0.0 )
+    >>> matrix_multiply(m1, m2)
+    (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+    >>> m1 = ( 1.2, 0.0, 0.7, 1.0, 0.0, 0.0 )
+    >>> m2 = ( 1.0, 0.4, 0.0, 1.0, 8.0, 0.0 )
+    >>> matrix_multiply(m1, m2)
+    (1.2, 0.47999999999999998, 0.69999999999999996, 1.28, 8.0, 0.0)
     """
     d0 = m1[0] * m2[0] + m1[1] * m2[2];
     d1 = m1[0] * m2[1] + m1[1] * m2[3];
@@ -24,14 +32,17 @@ def matrix_multiply(m1, m2):
 
 def matrix_invert(m):
     """
+    >>> m1 = ( 1.0, 0.4, 0.0, 1.0, 8.0, 0.0 )
+    >>> matrix_invert(m1)
+    (1.0, -0.40000000000000002, 0.0, 1.0, -8.0, 3.2000000000000002)
     """
     r_det = 1.0 / (m[0] * m[3] - m[1] * m[2]);
     dst0 = m[3] * r_det;
     dst1 = -m[1] * r_det;
     dst2 = -m[2] * r_det;
     dst3 = m[0] * r_det;
-    dst4 = -m[4] * dst[0] - m[5] * dst[2];
-    dst5 = -m[4] * dst[1] - m[5] * dst[3];
+    dst4 = -m[4] * dst0 - m[5] * dst2;
+    dst5 = -m[4] * dst1 - m[5] * dst3;
     return (dst0, dst1, dst2, dst3, dst4, dst5)
 
 def matrix_scale(m, sx, sy):
@@ -55,7 +66,7 @@ def matrix_shear(m, radians):
     m2 = (1.0, 0.0, t, 1.0, 0.0, 0.0)
     return matrix_multiply(m, m2)
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
