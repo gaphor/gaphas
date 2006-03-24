@@ -5,6 +5,7 @@ and a constraint solver.
 
 import tree
 import solver
+from geometry import matrix_multiply
 
 class Canvas(object):
     """Container class for Items.
@@ -14,6 +15,7 @@ class Canvas(object):
         self._tree = tree.Tree()
         self._solver = solver.Solver()
         self._dirty_items = set()
+        self._dirty_matrix_items = set()
         self._in_update = False
 
     def add(self, item, parent=None):
@@ -30,6 +32,7 @@ class Canvas(object):
         item.canvas = self
         self._tree.add(item, parent)
         self._dirty_items.add(item)
+        self._dirty_matrix_items.add(item)
 
     def remove(self, item):
         """Remove item from the canvas
@@ -45,13 +48,26 @@ class Canvas(object):
         self._tree.remove(item)
         item.canvas = None
         self._dirty_items.discard(item)
+        self._dirty_matrix_items.discard(item)
         
 
     def request_update(self, item):
         """Set an update request for the item. 
+        >>> c = Canvas()
+        >>> import item
+        >>> i = item.Item()
+        >>> ii = item.Item()
+        >>> c.add(i)
+        >>> c.add(ii, i)
+        >>> len(c._dirty_items)
+        2
+        >>> c.update_now()
+        >>> len(c._dirty_items)
+        0
         """
         if not self._in_update:
             self._dirty_items.add(item)
+            self._dirty_matrix_items.add(item)
 
             # Also add update requests for parents of item
             parent = self._tree.get_parent(item)
@@ -60,6 +76,11 @@ class Canvas(object):
                 parent = self._tree.get_parent(parent)
 
         # TODO: Schedule update, directly or through a view.
+
+    def request_matrix_update(self, item):
+        """Schedule only the matrix to be updated.
+        """
+        self._dirty_matrix_items.add(item)
 
     def update_needed(self):
         """Returns True or False depending on if an update is needed.
@@ -81,11 +102,15 @@ class Canvas(object):
         try:
             dirty_items = [ item for item in reversed(self._tree.nodes) \
                                  if item in self._dirty_items ]
+            context = {}
             for item in dirty_items:
-                # TODO: calculate context.matrix_i2w
                 item.pre_update(context)
 
+            self.update_matrices()
+
             self._solver.solve()
+
+            self.update_matrices()
 
             for item in dirty_items:
                 item.update(context)
@@ -93,9 +118,51 @@ class Canvas(object):
             self._dirty_items.clear()
             self._in_update = False
 
-    def get_matrix_i2w(self, item):
-	matrix = item.matrix
-	
+    def update_matrices(self):
+        """Update the matrix of the items scheduled to be updated
+        *and* their sub-items.
+        >>> c = Canvas()
+        >>> import item
+        >>> i = item.Item()
+        >>> ii = item.Item()
+        >>> c.add(i)
+        >>> i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
+        >>> c.add(ii, i)
+        >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
+        >>> c.update_matrices()
+        >>> i._matrix_w2i
+        (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
+        >>> ii._matrix_w2i
+        (1.0, 0.0, 0.0, 1.0, 5.0, 8.0)
+        >>> len(c._dirty_items)
+        2
+        """
+        dirty_items = self._dirty_matrix_items
+        while dirty_items:
+            item = dirty_items.pop()
+            self.update_matrix_w2i(item)
+
+    def update_matrix_w2i(self, item, recursive=True):
+        """Update the World-to-Item (w2i) matrix for @item.
+        This is stored as @item._matrix_w2i.
+        @recursive == True will also update child objects.
+        """
+        parent = self._tree.get_parent(item)
+
+        # First remove from the to-be-updated set.
+        self._dirty_matrix_items.discard(item)
+
+        if parent:
+            if parent in self._dirty_matrix_items:
+                self.update_matrix_w2i(parent)
+            item._matrix_w2i = matrix_multiply(parent._matrix_w2i, item.matrix)
+        else:
+            item._matrix_w2i = tuple(item.matrix)
+
+        if recursive:
+            for child in self._tree.get_children(item):
+                self.update_matrix_w2i(child, recursive)
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

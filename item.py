@@ -1,8 +1,13 @@
 """ Item and Handle.
 """
 
+from geometry import matrix_identity
+
+
 class Handle(object):
-    
+    """Handles are used to support modifications of Items.
+    """
+
     def __init__(self, pos=(0,0)):
         self._pos = pos
     
@@ -20,7 +25,7 @@ class Item(object):
 
     def __init__(self, canvas=None):
         self._canvas = canvas
-        self.dirty = True
+        self.matrix = matrix_identity()
 
     def _set_canvas(self, canvas):
         assert not canvas or not self._canvas or self._canvas is canvas

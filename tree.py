@@ -28,6 +28,9 @@ class Tree(object):
             if node in children:
                 return item
 
+    def get_children(self, node):
+        return self._children[node]
+
     def get_siblings(self, node):
         parent = self.get_parent(node)
         return self._children[parent]
