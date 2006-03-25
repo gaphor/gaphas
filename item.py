@@ -1,8 +1,7 @@
 """ Item and Handle.
 """
 
-from geometry import matrix_identity
-
+from geometry import Matrix
 
 class Handle(object):
     """Handles are used to support modifications of Items.
@@ -23,9 +22,9 @@ class Handle(object):
 
 class Item(object):
 
-    def __init__(self, canvas=None):
-        self._canvas = canvas
-        self.matrix = matrix_identity()
+    def __init__(self):
+        self._canvas = None
+        self.matrix = Matrix()
 
     def _set_canvas(self, canvas):
         assert not canvas or not self._canvas or self._canvas is canvas
@@ -55,7 +54,7 @@ class Item(object):
         """
         pass
 
-    def render(self, context):
+    def draw(self, context):
         """Render the item to a canvas view.
         Context contains the following attributes:
          - matrix_i2w: Item to World transformation matrix (no need to)

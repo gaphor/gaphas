@@ -5,7 +5,24 @@ and a constraint solver.
 
 import tree
 import solver
-from geometry import matrix_multiply
+from geometry import Matrix
+
+class Context(object):
+    """Context used for updating and drawing items in a drawing canvas.
+    >>> c=Context(one=1,two='two')
+    >>> c.one
+    1
+    >>> c.two
+    'two'
+    >>> try: c.one = 2
+    ... except: 'got exc'
+    'got exc'
+    """
+    def __init__(self, **kwargs):
+        self.__dict__.update(**kwargs)
+
+    def __setattr__(self, key, value):
+        raise 'ContextError', 'context is not writable'
 
 class Canvas(object):
     """Container class for Items.
@@ -82,15 +99,15 @@ class Canvas(object):
         """
         self._dirty_matrix_items.add(item)
 
-    def update_needed(self):
+    def require_update(self):
         """Returns True or False depending on if an update is needed.
         >>> c=Canvas()
-        >>> c.update_needed()
+        >>> c.require_update()
         False
         >>> import item
         >>> i = item.Item()
         >>> c.add(i)
-        >>> c.update_needed()
+        >>> c.require_update()
         True
         """
         return len(self._dirty_items) > 0
@@ -131,9 +148,9 @@ class Canvas(object):
         >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
         >>> c.update_matrices()
         >>> i._matrix_w2i
-        (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
+        cairo.Matrix(1, 0, 0, 1, 5, 0)
         >>> ii._matrix_w2i
-        (1.0, 0.0, 0.0, 1.0, 5.0, 8.0)
+        cairo.Matrix(1, 0, 0, 1, 5, 8)
         >>> len(c._dirty_items)
         2
         """
@@ -155,13 +172,29 @@ class Canvas(object):
         if parent:
             if parent in self._dirty_matrix_items:
                 self.update_matrix_w2i(parent)
-            item._matrix_w2i = matrix_multiply(parent._matrix_w2i, item.matrix)
+            item._matrix_w2i = Matrix(*item.matrix)
+            item._matrix_w2i *= parent._matrix_w2i
         else:
-            item._matrix_w2i = tuple(item.matrix)
+            item._matrix_w2i = Matrix(*item.matrix)
 
         if recursive:
             for child in self._tree.get_children(item):
                 self.update_matrix_w2i(child, recursive)
+
+    def get_all_items(self):
+        """Get a list of all items
+        """
+        return self._tree.nodes
+    
+    def get_root_items(self):
+        """Return the root items of the canvas.
+        """
+        return self._tree.get_children(None)
+
+    def get_children(self, item):
+        """
+        """
+        return self._tree.get_children(item)
 
 if __name__ == '__main__':
     import doctest

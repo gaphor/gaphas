@@ -1,3 +1,9 @@
+2006-03-25  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * geometry.py: use Cairo for matrix stuff
+        * view.py: first working render demo
+        * canvas.py: update methods
+
 2006-03-22  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* tool.py: new file. base class for view tools.
