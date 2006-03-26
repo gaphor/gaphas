@@ -18,10 +18,12 @@ class DrawContext(Context):
         self.view._draw_items(self.children, self.cairo)
 
 class View(gtk.DrawingArea):
+    # just defined a name to make GTK register this entity.
     __gtype_name__ = 'GaphasView'
 
     def __init__(self, canvas=None):
         super(View, self).__init__()
+        self.set_flags(gtk.CAN_FOCUS)
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK
                         | gtk.gdk.BUTTON_RELEASE_MASK
                         | gtk.gdk.POINTER_MOTION_MASK
@@ -54,8 +56,25 @@ class View(gtk.DrawingArea):
                 item.draw(DrawContext(view=self,
                                       cairo=cairo_context,
                                       children=self._canvas.get_children(item)))
+                self._draw_handles(item, cairo_context)
             finally:
                 cairo_context.restore()
+
+    def _draw_handles(self, item, cairo_context):
+        size = 7
+        cairo_context.save()
+        cairo_context.rectangle(0, 0, size, size)
+        cairo_context.set_source_rgba(0, 1, 0, .6)
+        cairo_context.fill_preserve()
+        cairo_context.move_to(2, 2)
+        cairo_context.line_to(5, 5)
+        cairo_context.move_to(5, 2)
+        cairo_context.line_to(2, 5)
+        cairo_context.set_source_rgba(0, 0, 0, 0.6)
+        cairo_context.set_line_width(1.0)
+        cairo_context.stroke()
+
+        cairo_context.restore()
 
     def do_expose_event(self, event):
         """Render some text to the screen.
@@ -66,6 +85,8 @@ class View(gtk.DrawingArea):
 
         viewport = self.get_allocation()
         area = event.area
+        self.window.draw_rectangle(self.style.white_gc, True, area.x, area.y, area.width, area.height)
+
         print 'expose', area.x, area.y, area.width, area.height, event.count
         if self._canvas:
             context = self.window.cairo_create()
@@ -107,8 +128,13 @@ if __name__ == '__main__':
     w.connect('destroy', gtk.main_quit)
     w.show_all()
 
+    gtk.rc_parse_string("""
+    style "background" { bg[NORMAL] = "white" fg[NORMAL] = "white" }
+    class "GaphasView" style "background"
+    """)
     c=Canvas()
     v.canvas = c
+    print 'view', v
     b=Box()
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
     b._width=b._height = 40

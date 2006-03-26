@@ -2,15 +2,26 @@
 """
 
 from geometry import Matrix
+from solver import solvable
 
 class Handle(object):
     """Handles are used to support modifications of Items.
     """
 
-    def __init__(self, pos=(0,0)):
-        self._pos = pos
-    
-    pos = property(lambda s: s._pos)
+    x = solvable()
+    y = solvable()
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        # Flags.. can't have enough of those
+        self._connectable = True
+        self._movable = True
+        self._visible = True
+
+    def _set_pos(self, pos):
+        self.x, self.y = pos
+
+    pos = property(lambda s: (s.x, s.y), _set_pos)
 
     def update(self, context):
         """Update the handle. @context has the following attributes:

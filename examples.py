@@ -15,6 +15,6 @@ class Box(Item):
         print 'Box.draw'
         c = context.cairo
         c.rectangle(0,0, self._width, self._height)
-        c.set_source_rgb(0,0,0)
+        c.set_source_rgb(0,0,80)
         c.stroke()
         context.draw_children()
