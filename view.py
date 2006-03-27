@@ -120,6 +120,7 @@ class View(gtk.DrawingArea):
             try:
                 cairo_context.set_matrix(item._matrix_w2i)
                 #cairo_context.transform(Matrix(*item.matrix))
+
                 if self._calculate_bounding_box:
                     wrapper = CairoContextWrapper(cairo_context)
                 else:
