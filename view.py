@@ -7,10 +7,14 @@ if __name__ == '__main__':
     pygtk.require('2.0') 
 
 import gtk
-from cairo import Matrix
+from cairo import Matrix, ANTIALIAS_NONE
 from canvas import Context
 
 class DrawContext(Context):
+    """Special context for draw()'ing the item. The draw-context contains
+    stuff like the view, the cairo context and properties like selected and
+    focused.
+    """
 
     def __init__(self, **kwargs):
         super(DrawContext, self).__init__(**kwargs)
@@ -44,41 +48,35 @@ class CairoContextWrapper(object):
             self._bounds = (min(b[0], bounds[0]), min(b[1], bounds[1]),
                             max(b[2], bounds[2]), max(b[3], bounds[3]))
 
-    def fill(self):
+    def _extents(self, funcname):
         ctx = self._cairo_context
         ctx.save()
         ctx.identity_matrix()
-        self._update_bounds(ctx.fill_extents())
+        self._update_bounds(getattr(ctx, funcname)())
         ctx.restore()
-        return ctx.fill()
+        
+    def fill(self):
+        self._extents('fill_extents')
+        return self._cairo_context.fill()
 
     def fill_preserve(self):
-        ctx = self._cairo_context
-        ctx.save()
-        ctx.identity_matrix()
-        self._update_bounds(ctx.fill_extents())
-        ctx.restore()
-        return ctx.fill_preserve()
+        self._extents('fill_extents')
+        return self._cairo_context.fill_preserve()
 
     def stroke(self):
-        ctx = self._cairo_context
-        ctx.save()
-        ctx.identity_matrix()
-        self._update_bounds(ctx.stroke_extents())
-        ctx.restore()
-        return ctx.stroke()
+        self._extents('fill_extents')
+        return self._cairo_context.stroke()
 
     def stroke_preserve(self):
-        ctx = self._cairo_context
-        ctx.save()
-        ctx.identity_matrix()
-        self._update_bounds(ctx.stroke_extents())
-        ctx.restore()
-        return ctx.stroke_preserve()
+        self._extents('fill_extents')
+        return self._cairo_context.stroke_preserve()
 
-    def text_show(self, utf8):
+    def show_text(self, utf8):
+        ctx = self._cairo_context
         e = self._cairo_context.text_extents(utf8)
-        # Do something with it
+        x0, y0 = ctx.user_to_device(e[0], e[1])
+        x1, y1 = ctx.user_to_device(e[0]+e[2], e[1]+e[3])
+        self._update_bounds((x0, y0, x1, y1))
         return ctx.show_text(utf8)
 
 
@@ -133,7 +131,7 @@ class View(gtk.DrawingArea):
 
                 if self._calculate_bounding_box:
                     item._view_bounds = wrapper._bounds
-                    #print item, wrapper._bounds
+                    print item, wrapper._bounds
 
                 if self._debug_draw_bounding_box:
                     ctx = cairo_context
@@ -151,16 +149,20 @@ class View(gtk.DrawingArea):
                 cairo_context.restore()
 
     def _draw_handles(self, item, cairo_context):
+        """Draw handles for an item.
+        The handles are drawn in non-antialiased mode for clearity.
+        """
         for handle in item.handles():
             cairo_context.save()
+            cairo_context.set_antialias(ANTIALIAS_NONE)
             cairo_context.translate(handle.x - 4, handle.y - 4)
-            cairo_context.rectangle(0, 0, 9, 9)
+            cairo_context.rectangle(0, 0, 8, 8)
             cairo_context.set_source_rgba(0, 1, 0, .6)
             cairo_context.fill_preserve()
             cairo_context.move_to(2, 2)
             cairo_context.line_to(7, 7)
-            cairo_context.move_to(7, 2)
-            cairo_context.line_to(2, 7)
+            cairo_context.move_to(7, 1)
+            cairo_context.line_to(2, 6)
             cairo_context.set_source_rgba(0, .2, 0, 0.9)
             cairo_context.set_line_width(1.1)
             cairo_context.stroke()
@@ -169,7 +171,6 @@ class View(gtk.DrawingArea):
     def do_expose_event(self, event):
         """Render some text to the screen.
         """
-
         # Set this to some idle function
         if self._canvas.require_update():
             self._canvas.update_now()
@@ -177,7 +178,8 @@ class View(gtk.DrawingArea):
 
         viewport = self.get_allocation()
         area = event.area
-        self.window.draw_rectangle(self.style.white_gc, True, area.x, area.y, area.width, area.height)
+        self.window.draw_rectangle(self.style.white_gc, True,
+                                   area.x, area.y, area.width, area.height)
 
         print 'expose', area.x, area.y, area.width, area.height, event.count
         if self._canvas:
@@ -215,7 +217,7 @@ class View(gtk.DrawingArea):
 
 if __name__ == '__main__':
     from canvas import Canvas
-    from examples import Box
+    from examples import Box, Text
     import math
     w = gtk.Window()
     v = View()
@@ -243,5 +245,7 @@ if __name__ == '__main__':
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)
     c.add(bb, parent=b)
-
+    t=Text()
+    t.matrix.translate(70,70)
+    c.add(t)
     gtk.main()

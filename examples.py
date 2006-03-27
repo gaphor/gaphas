@@ -25,3 +25,16 @@ class Box(Item):
         c.set_source_rgb(0,0,0.8)
         c.stroke()
         context.draw_children()
+
+
+class Text(Item):
+    def __init__(self):
+        super(Text, self).__init__()
+
+
+    def draw(self, context):
+        print 'Text.draw', self
+        c = context.cairo
+        c.show_text('Hello')
+        context.draw_children()
+

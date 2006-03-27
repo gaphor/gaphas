@@ -77,7 +77,7 @@ class Item(object):
     def handles(self):
         """Return an iterator for the handles owned by the item.
         """
-        return iter()
+        return iter([])
 
     def point(self, context, x, y):
         """Get the distance from a point (@x, @y) to the item.
