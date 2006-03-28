@@ -10,6 +10,9 @@ import gtk
 from cairo import Matrix, ANTIALIAS_NONE
 from canvas import Context
 
+# Handy debug flag for drawing bounding boxes around the items.
+DEBUG_DRAW_BOUNDING_BOX = True
+
 class DrawContext(Context):
     """Special context for draw()'ing the item. The draw-context contains
     stuff like the view, the cairo context and properties like selected and
@@ -64,11 +67,11 @@ class CairoContextWrapper(object):
         return self._cairo_context.fill_preserve()
 
     def stroke(self):
-        self._extents('fill_extents')
+        self._extents('stroke_extents')
         return self._cairo_context.stroke()
 
     def stroke_preserve(self):
-        self._extents('fill_extents')
+        self._extents('stroke_extents')
         return self._cairo_context.stroke_preserve()
 
     def show_text(self, utf8):
@@ -93,17 +96,60 @@ class View(gtk.DrawingArea):
                         | gtk.gdk.KEY_PRESS_MASK
                         | gtk.gdk.KEY_RELEASE_MASK)
         self._canvas = canvas
-        self._cairo_context = None
+
+        # Handling selections.
+        self._selected_items = set()
+        self._focused_item = None
+        self._hover_item = None
+
         self._tool = None
         self._calculate_bounding_box = False
-
-        # Handy debug flag for drawing bounding boxes around the items.
-        self._debug_draw_bounding_box = True
 
     def _set_canvas(self, canvas):
         self._canvas = canvas
 
     canvas = property(lambda s: s._canvas, _set_canvas)
+
+    def select_item(self, item):
+        self._selected_items.add(item)
+
+    def _del_selected_items(self):
+        """Clearing the selected_item also clears the focused_item.
+        """
+        self._selected_items.clear()
+        self._hover_item = None
+
+    selected_items = property(lambda s: set(s._selected_items),
+                              select_item, _del_selected_items,
+                              "Items selected by the view")
+
+    def _set_focused_item(self, item):
+        """Set the focused item, this item is also added to the selected_items
+        set.
+        """
+        # TODO: do some focus/unfocus ritual?
+        self._selected_items = item
+        self._focused_item = item
+
+    def _del_focused_item(self):
+        """Items that loose focus remain selected.
+        """
+        self._focused_item = None
+        
+    focused_item = property(lambda s: s._focused_item,
+                            _set_focused_item, _del_focused_item,
+                            "The item with focus (receives key events a.o.)")
+
+    def _set_hover_item(self, item):
+        # TODO: do some focus/unfocus ritual?
+        self._hover_item = item
+
+    def _del_hover_item(self):
+        self._hover_item = None
+        
+    hover_item = property(lambda s: s._hover_item,
+                            _set_hover_item, _del_hover_item,
+                            "The item directly under the mouse pointer")
 
 #    def do_size_allocate(self, allocation):
 #        super(View, self).do_size_allocate(allocation);
@@ -120,20 +166,24 @@ class View(gtk.DrawingArea):
                 #cairo_context.transform(Matrix(*item.matrix))
 
                 if self._calculate_bounding_box:
-                    wrapper = CairoContextWrapper(cairo_context)
+                    the_context = CairoContextWrapper(cairo_context)
                 else:
                     # No wrapper:
-                    wrapper = cairo_context
+                    the_context = cairo_context
 
                 item.draw(DrawContext(view=self,
-                                      cairo=wrapper,
-                                      children=self._canvas.get_children(item)))
+                                      cairo=the_context,
+                                      parent=self._canvas.get_parent(item),
+                                      children=self._canvas.get_children(item),
+                                      selected=(item in self._selected_items),
+                                      focused=(item is self._focused_item),
+                                      hovered=(item is self._hover_item)))
 
                 if self._calculate_bounding_box:
-                    item._view_bounds = wrapper._bounds
-                    print item, wrapper._bounds
+                    item._view_bounds = the_context._bounds
+                    print item, the_context._bounds
 
-                if self._debug_draw_bounding_box:
+                if DEBUG_DRAW_BOUNDING_BOX:
                     ctx = cairo_context
                     ctx.save()
                     ctx.identity_matrix()
@@ -143,8 +193,6 @@ class View(gtk.DrawingArea):
                     ctx.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
                     ctx.stroke()
                     ctx.restore()
-
-                self._draw_handles(item, cairo_context)
             finally:
                 cairo_context.restore()
 
@@ -152,6 +200,8 @@ class View(gtk.DrawingArea):
         """Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
         """
+        cairo_context.save()
+        cairo_context.set_matrix(item._matrix_w2i)
         for handle in item.handles():
             cairo_context.save()
             cairo_context.set_antialias(ANTIALIAS_NONE)
@@ -167,6 +217,7 @@ class View(gtk.DrawingArea):
             cairo_context.set_line_width(1.1)
             cairo_context.stroke()
             cairo_context.restore()
+        cairo_context.restore()
 
     def do_expose_event(self, event):
         """Render some text to the screen.
@@ -189,8 +240,12 @@ class View(gtk.DrawingArea):
             context.rectangle(area.x, area.y, area.width, area.height)
             context.clip()
             # TODO: add move/zoom matrix
-            self._draw_items(self._canvas.get_root_items(), context)
 
+            self._draw_items(self._canvas.get_root_items(), context)
+            # Draw handles of selected items on top of the items.
+            # Conpare with canvas.get_all_items() to determine drawing order.
+            for item in (i for i in self._canvas.get_all_items() if i in self._selected_items):
+                self._draw_handles(item, context)
         self._calculate_bounding_box = False
 
         return False
@@ -225,10 +280,6 @@ if __name__ == '__main__':
     w.connect('destroy', gtk.main_quit)
     w.show_all()
 
-    gtk.rc_parse_string("""
-    style "background" { bg[NORMAL] = "white" fg[NORMAL] = "white" }
-    class "GaphasView" style "background"
-    """)
     c=Canvas()
     v.canvas = c
     print 'view', v
@@ -241,6 +292,7 @@ if __name__ == '__main__':
     print 'box', bb
     bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
     c.add(bb, parent=b)
+    v.selected_items = bb
     bb=Box()
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)

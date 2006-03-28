@@ -68,6 +68,26 @@ class Canvas(object):
         self._dirty_matrix_items.discard(item)
         
 
+    def get_all_items(self):
+        """Get a list of all items
+        """
+        return self._tree.nodes
+    
+    def get_root_items(self):
+        """Return the root items of the canvas.
+        """
+        return self._tree.get_children(None)
+
+    def get_parent(self, item):
+        """
+        """
+        return self._tree.get_parent(item)
+
+    def get_children(self, item):
+        """
+        """
+        return self._tree.get_children(item)
+
     def request_update(self, item):
         """Set an update request for the item. 
         >>> c = Canvas()
@@ -119,9 +139,12 @@ class Canvas(object):
         try:
             dirty_items = [ item for item in reversed(self._tree.nodes) \
                                  if item in self._dirty_items ]
-            context = {}
+            context_map = dict()
             for item in dirty_items:
-                item.pre_update(context)
+                c = Context(parent=self._tree.get_parent(item),
+                            children=self._tree.get_children(item))
+                context_map[item] = c
+                item.pre_update(c)
 
             self.update_matrices()
 
@@ -130,7 +153,7 @@ class Canvas(object):
             self.update_matrices()
 
             for item in dirty_items:
-                item.update(context)
+                item.update(context_map[item])
         finally:
             self._dirty_items.clear()
             self._in_update = False
@@ -180,21 +203,6 @@ class Canvas(object):
         if recursive:
             for child in self._tree.get_children(item):
                 self.update_matrix_w2i(child, recursive)
-
-    def get_all_items(self):
-        """Get a list of all items
-        """
-        return self._tree.nodes
-    
-    def get_root_items(self):
-        """Return the root items of the canvas.
-        """
-        return self._tree.get_children(None)
-
-    def get_children(self, item):
-        """
-        """
-        return self._tree.get_children(item)
 
 if __name__ == '__main__':
     import doctest
