@@ -9,9 +9,10 @@ if __name__ == '__main__':
 import gtk
 from cairo import Matrix, ANTIALIAS_NONE
 from canvas import Context
+from geometry import Rectangle
 
 # Handy debug flag for drawing bounding boxes around the items.
-DEBUG_DRAW_BOUNDING_BOX = True
+DEBUG_DRAW_BOUNDING_BOX = False
 
 class DrawContext(Context):
     """Special context for draw()'ing the item. The draw-context contains
@@ -112,7 +113,7 @@ class View(gtk.DrawingArea):
         # Handling selections.
         self._selected_items = set()
         self._focused_item = None
-        self._hover_item = None
+        self._hovered_item = None
 
         self._tool = None
         self._calculate_bounding_box = False
@@ -123,13 +124,20 @@ class View(gtk.DrawingArea):
     canvas = property(lambda s: s._canvas, _set_canvas)
 
     def select_item(self, item):
+        """Select an item. This adds @item to the set of selected items. Do
+           del view.selected_items
+        to clear the selected items list
+        
+        """
+        self.queue_draw_item(item)
         self._selected_items.add(item)
 
     def _del_selected_items(self):
         """Clearing the selected_item also clears the focused_item.
         """
+        self.queue_draw_item(*self._selected_items)
         self._selected_items.clear()
-        self._hover_item = None
+        self._focused_item = None
 
     selected_items = property(lambda s: set(s._selected_items),
                               select_item, _del_selected_items,
@@ -139,34 +147,59 @@ class View(gtk.DrawingArea):
         """Set the focused item, this item is also added to the selected_items
         set.
         """
-        # TODO: do some focus/unfocus ritual?
+        if not item is self._focused_item:
+            self.queue_draw_item(self._focused_item, item)
+
         self._selected_items = item
         self._focused_item = item
 
     def _del_focused_item(self):
         """Items that loose focus remain selected.
         """
+        if self._focused_item:
+            self.queue_draw_item(self._focused_item)
         self._focused_item = None
         
     focused_item = property(lambda s: s._focused_item,
                             _set_focused_item, _del_focused_item,
                             "The item with focus (receives key events a.o.)")
 
-    def _set_hover_item(self, item):
-        # TODO: do some focus/unfocus ritual?
-        self._hover_item = item
+    def _set_hovered_item(self, item):
+        if not item is self._hovered_item:
+            self.queue_draw_item(self._hovered_item, item)
+        self._hovered_item = item
 
-    def _del_hover_item(self):
-        self._hover_item = None
+    def _del_hovered_item(self):
+        self._hovered_item = None
         
-    hover_item = property(lambda s: s._hover_item,
-                            _set_hover_item, _del_hover_item,
+    hovered_item = property(lambda s: s._hovered_item,
+                            _set_hovered_item, _del_hovered_item,
                             "The item directly under the mouse pointer")
 
     def _set_tool(self, tool):
         self._tool = tool
 
     tool = property(lambda s: s._tool, _set_tool)
+
+    def get_item_at_point(self, x, y):
+        point = (x, y)
+        for item in reversed(self._canvas.get_all_items()):
+            if point in item._view_bounds:
+                return item
+        return None
+
+    def queue_draw_item(self, *items):
+        """Like DrawingArea.queue_draw_area, but use the bounds of the
+        item as update areas. Of course with a pythonic flavor: update
+        any number of items at once.
+        """
+        for item in items:
+            try:
+                b = item._view_bounds
+            except AttributeError:
+                pass # No bounds calculated yet? bummer.
+            else:
+                self.queue_draw_area(b[0], b[1], b[2] - b[0], b[3] - b[1])
 
 #    def do_size_allocate(self, allocation):
 #        super(View, self).do_size_allocate(allocation);
@@ -194,10 +227,10 @@ class View(gtk.DrawingArea):
                                       children=self._canvas.get_children(item),
                                       selected=(item in self._selected_items),
                                       focused=(item is self._focused_item),
-                                      hovered=(item is self._hover_item)))
+                                      hovered=(item is self._hovered_item)))
 
                 if self._calculate_bounding_box:
-                    item._view_bounds = the_context._bounds
+                    item._view_bounds = Rectangle(*the_context._bounds)
                     print item, the_context._bounds
 
                 if DEBUG_DRAW_BOUNDING_BOX:
@@ -278,7 +311,7 @@ class View(gtk.DrawingArea):
 if __name__ == '__main__':
     from canvas import Canvas
     from examples import Box, Text
-    from tool import Tool
+    from tool import DefaultTool
     import math
     w = gtk.Window()
     v = View()
@@ -288,7 +321,7 @@ if __name__ == '__main__':
 
     c=Canvas()
     v.canvas = c
-    v.tool = Tool()
+    v.tool = DefaultTool()
     b=Box()
     print 'box', b
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)

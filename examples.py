@@ -22,6 +22,11 @@ class Box(Item):
         print 'Box.draw', self
         c = context.cairo
         c.rectangle(0,0, self._width, self._height)
+        if context.hovered:
+            c.set_source_rgba(.8,.8,1, 1)
+        else:
+            c.set_source_rgba(1,1,1, 1)
+        c.fill_preserve()
         c.set_source_rgb(0,0,0.8)
         c.stroke()
         context.draw_children()

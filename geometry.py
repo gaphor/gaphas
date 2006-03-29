@@ -61,6 +61,13 @@ class Rectangle(object):
         """
         return iter((self.x0, self.y0, self.x1, self.y1))
 
+    def __getitem__(self, index):
+        """
+        >>> Rectangle(1,2,3,4)[1]
+        2
+        """
+        return (self.x0, self.y0, self.x1, self.y1)[index]
+
     def __nonzero__(self):
         """
         >>> r=Rectangle(1,2,3,4)

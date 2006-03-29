@@ -3,6 +3,7 @@
 
 DEBUG_TOOL = False
 
+
 class Tool(object):
 
     def __init__(self):
@@ -71,3 +72,15 @@ class Tool(object):
         if DEBUG_TOOL: print 'on_key_release', view, event
         pass
 
+
+class DefaultTool(Tool):
+
+    def __init__(self):
+        pass
+
+    def on_motion_notify(self, view, event):
+        """
+        """
+        old_hovered = view.hovered_item
+        view.hovered_item = view.get_item_at_point(event.x, event.y)
+        return True
