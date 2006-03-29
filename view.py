@@ -83,10 +83,22 @@ class CairoContextWrapper(object):
         return ctx.show_text(utf8)
 
 
+# Map GDK events to tool methods
+event_handlers = {
+    gtk.gdk.BUTTON_PRESS: 'on_button_press',
+    gtk.gdk.BUTTON_RELEASE: 'on_button_release',
+    gtk.gdk._2BUTTON_PRESS: 'on_double_click',
+    gtk.gdk._3BUTTON_PRESS: 'on_triple_click',
+    gtk.gdk.MOTION_NOTIFY: 'on_motion_notify',
+    gtk.gdk.KEY_PRESS: 'on_key_press',
+    gtk.gdk.KEY_RELEASE: 'on_key_release'
+}
+
+
 class View(gtk.DrawingArea):
     # just defined a name to make GTK register this entity.
     __gtype_name__ = 'GaphasView'
-
+    
     def __init__(self, canvas=None):
         super(View, self).__init__()
         self.set_flags(gtk.CAN_FOCUS)
@@ -150,6 +162,11 @@ class View(gtk.DrawingArea):
     hover_item = property(lambda s: s._hover_item,
                             _set_hover_item, _del_hover_item,
                             "The item directly under the mouse pointer")
+
+    def _set_tool(self, tool):
+        self._tool = tool
+
+    tool = property(lambda s: s._tool, _set_tool)
 
 #    def do_size_allocate(self, allocation):
 #        super(View, self).do_size_allocate(allocation);
@@ -250,29 +267,18 @@ class View(gtk.DrawingArea):
 
         return False
 
-    def do_button_press_event(self, event):
-        print 'do button press', event
-        return False
-
-    def do_button_release_event(self, event):
-        print 'do button release', event
-        return False
-
-    def do_motion_notify_event(self, event):
-        #print 'do motion notify', event
-        return False
-
-    def do_key_press_event(self, event):
-        print 'do key press', event
-        return False
-
-    def do_key_release_event(self, event):
-        print 'do key release', event
+    def do_event(self, event):
+        """Handle GDK events. Events are delegated to a Tool.
+        """
+        handler = event_handlers.get(event.type)
+        if self._tool and handler:
+            return getattr(self._tool, handler)(self, event) and True or False
         return False
 
 if __name__ == '__main__':
     from canvas import Canvas
     from examples import Box, Text
+    from tool import Tool
     import math
     w = gtk.Window()
     v = View()
@@ -282,7 +288,7 @@ if __name__ == '__main__':
 
     c=Canvas()
     v.canvas = c
-    print 'view', v
+    v.tool = Tool()
     b=Box()
     print 'box', b
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
