@@ -1,6 +1,8 @@
 """Tools are used to add interactive behavior to a View.
 """
 
+import gtk
+
 DEBUG_TOOL = False
 
 
@@ -78,9 +80,11 @@ class DefaultTool(Tool):
         pass
 
     def on_button_press(self, view, event):
+        print dir(event)
         if view.hovered_item:
-            del view.selected_items
-            view.selected_items = view.hovered_item
+            if not event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK):
+                del view.selected_items
+            view.focused_item = view.hovered_item
 
     def on_motion_notify(self, view, event):
         """

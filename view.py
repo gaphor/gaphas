@@ -150,7 +150,7 @@ class View(gtk.DrawingArea):
         if not item is self._focused_item:
             self.queue_draw_item(self._focused_item, item, handles=True)
 
-        self._selected_items = item
+        self._selected_items.add(item)
         self._focused_item = item
 
     def _del_focused_item(self):
@@ -258,12 +258,13 @@ class View(gtk.DrawingArea):
         cairo_context.save()
         cairo_context.identity_matrix()
         m = item._matrix_w2i
+        opacity = (item is self._focused_item) and .7 or .4
         for h in item.handles():
             cairo_context.save()
             cairo_context.set_antialias(ANTIALIAS_NONE)
             cairo_context.translate(*m.transform_point(h.x, h.y))
             cairo_context.rectangle(-4, -4, 8, 8)
-            cairo_context.set_source_rgba(0, 1, 0, .6)
+            cairo_context.set_source_rgba(0, 1, 0, opacity)
             cairo_context.fill_preserve()
             cairo_context.move_to(-2, -2)
             cairo_context.line_to(2, 3)
