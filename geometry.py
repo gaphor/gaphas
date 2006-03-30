@@ -45,6 +45,12 @@ class Rectangle(object):
 
     height = property(lambda s: s.y1 - s.y0, _set_heigth)
 
+    def expand(self, delta):
+        self.x0 -= delta
+        self.y0 -= delta
+        self.x1 += delta
+        self.y1 += delta
+        
     def __repr__(self):
         """
         >>> Rectangle(5,7,20,25)

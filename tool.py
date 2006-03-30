@@ -31,7 +31,6 @@ class Tool(object):
                 on_button_release
         """
         if DEBUG_TOOL: print 'on_button_press', view, event
-        pass
 
     def on_button_release(self, view, event):
         """Button release event, that follows on a button press event.
@@ -78,9 +77,16 @@ class DefaultTool(Tool):
     def __init__(self):
         pass
 
+    def on_button_press(self, view, event):
+        if view.hovered_item:
+            del view.selected_items
+            view.selected_items = view.hovered_item
+
     def on_motion_notify(self, view, event):
         """
         """
         old_hovered = view.hovered_item
         view.hovered_item = view.get_item_at_point(event.x, event.y)
         return True
+
+# vim: sw=4:et:ai

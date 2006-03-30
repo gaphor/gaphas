@@ -129,13 +129,13 @@ class View(gtk.DrawingArea):
         to clear the selected items list
         
         """
-        self.queue_draw_item(item)
+        self.queue_draw_item(item, handles=True)
         self._selected_items.add(item)
 
     def _del_selected_items(self):
         """Clearing the selected_item also clears the focused_item.
         """
-        self.queue_draw_item(*self._selected_items)
+        self.queue_draw_item(handles=True, *self._selected_items)
         self._selected_items.clear()
         self._focused_item = None
 
@@ -148,7 +148,7 @@ class View(gtk.DrawingArea):
         set.
         """
         if not item is self._focused_item:
-            self.queue_draw_item(self._focused_item, item)
+            self.queue_draw_item(self._focused_item, item, handles=True)
 
         self._selected_items = item
         self._focused_item = item
@@ -157,7 +157,7 @@ class View(gtk.DrawingArea):
         """Items that loose focus remain selected.
         """
         if self._focused_item:
-            self.queue_draw_item(self._focused_item)
+            self.queue_draw_item(self._focused_item, handles=True)
         self._focused_item = None
         
     focused_item = property(lambda s: s._focused_item,
@@ -188,11 +188,12 @@ class View(gtk.DrawingArea):
                 return item
         return None
 
-    def queue_draw_item(self, *items):
+    def queue_draw_item(self, *items, **kwargs):
         """Like DrawingArea.queue_draw_area, but use the bounds of the
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
         """
+        handles = kwargs.get('handles')
         for item in items:
             try:
                 b = item._view_bounds
@@ -200,6 +201,10 @@ class View(gtk.DrawingArea):
                 pass # No bounds calculated yet? bummer.
             else:
                 self.queue_draw_area(b[0], b[1], b[2] - b[0], b[3] - b[1])
+		if handles:
+                    for h in item.handles():
+                        x, y = item._matrix_w2i.transform_point(h.x, h.y)
+                        self.queue_draw_area(x - 5, y - 5, 10, 10)
 
 #    def do_size_allocate(self, allocation):
 #        super(View, self).do_size_allocate(allocation);
@@ -251,20 +256,21 @@ class View(gtk.DrawingArea):
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo_context.save()
-        cairo_context.set_matrix(item._matrix_w2i)
-        for handle in item.handles():
+        cairo_context.identity_matrix()
+        m = item._matrix_w2i
+        for h in item.handles():
             cairo_context.save()
             cairo_context.set_antialias(ANTIALIAS_NONE)
-            cairo_context.translate(handle.x - 4, handle.y - 4)
-            cairo_context.rectangle(0, 0, 8, 8)
+            cairo_context.translate(*m.transform_point(h.x, h.y))
+            cairo_context.rectangle(-4, -4, 8, 8)
             cairo_context.set_source_rgba(0, 1, 0, .6)
             cairo_context.fill_preserve()
-            cairo_context.move_to(2, 2)
-            cairo_context.line_to(7, 7)
-            cairo_context.move_to(7, 1)
-            cairo_context.line_to(2, 6)
+            cairo_context.move_to(-2, -2)
+            cairo_context.line_to(2, 3)
+            cairo_context.move_to(2, -2)
+            cairo_context.line_to(-2, 3)
             cairo_context.set_source_rgba(0, .2, 0, 0.9)
-            cairo_context.set_line_width(1.1)
+            cairo_context.set_line_width(1)
             cairo_context.stroke()
             cairo_context.restore()
         cairo_context.restore()
@@ -331,7 +337,7 @@ if __name__ == '__main__':
     print 'box', bb
     bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
     c.add(bb, parent=b)
-    v.selected_items = bb
+    #v.selected_items = bb
     bb=Box()
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)
@@ -340,3 +346,6 @@ if __name__ == '__main__':
     t.matrix.translate(70,70)
     c.add(t)
     gtk.main()
+
+
+# vim: sw=4:et:
