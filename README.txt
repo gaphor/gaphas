@@ -79,8 +79,8 @@ In addition to draw_children(), the context has the following properties:
 
 The View automatically calculates the bounding box for the item, based on the
 items drawn in the draw(context) function (this is only done once after each
-Item.update()). The bounding box is stored on the item as Item._view_bounds.
-The bounding box is in world coordinates.
+Item.update()). The bounding box is stored on the item as Item._view_bounds
+as a geometry.Rectangle object. The bounding box is in world coordinates.
 
 
 Files

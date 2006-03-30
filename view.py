@@ -12,7 +12,7 @@ from canvas import Context
 from geometry import Rectangle
 
 # Handy debug flag for drawing bounding boxes around the items.
-DEBUG_DRAW_BOUNDING_BOX = False
+DEBUG_DRAW_BOUNDING_BOX = True
 
 class DrawContext(Context):
     """Special context for draw()'ing the item. The draw-context contains
@@ -38,19 +38,16 @@ class CairoContextWrapper(object):
 
     def __init__(self, cairo_context):
         self._cairo_context = cairo_context
-        self._bounds = None
+        self._bounds = None # a Rectangle object
 
     def __getattr__(self, key):
         return getattr(self._cairo_context, key)
 
     def _update_bounds(self, bounds):
-        #print 'bounds', bounds
         if not self._bounds:
-            self._bounds = bounds
+            self._bounds = Rectangle(*bounds)
         else:
-            b = self._bounds
-            self._bounds = (min(b[0], bounds[0]), min(b[1], bounds[1]),
-                            max(b[2], bounds[2]), max(b[3], bounds[3]))
+            self._bounds += bounds
 
     def _extents(self, funcname):
         ctx = self._cairo_context
@@ -218,7 +215,6 @@ class View(gtk.DrawingArea):
             cairo_context.save()
             try:
                 cairo_context.set_matrix(item._matrix_w2i)
-                #cairo_context.transform(Matrix(*item.matrix))
 
                 if self._calculate_bounding_box:
                     the_context = CairoContextWrapper(cairo_context)
@@ -235,7 +231,7 @@ class View(gtk.DrawingArea):
                                       hovered=(item is self._hovered_item)))
 
                 if self._calculate_bounding_box:
-                    item._view_bounds = Rectangle(*the_context._bounds)
+                    item._view_bounds = the_context._bounds
                     print item, the_context._bounds
 
                 if DEBUG_DRAW_BOUNDING_BOX:
@@ -299,6 +295,7 @@ class View(gtk.DrawingArea):
             # TODO: add move/zoom matrix
 
             self._draw_items(self._canvas.get_root_items(), context)
+
             # Draw handles of selected items on top of the items.
             # Conpare with canvas.get_all_items() to determine drawing order.
             for item in (i for i in self._canvas.get_all_items() if i in self._selected_items):
