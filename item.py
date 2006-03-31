@@ -36,7 +36,7 @@ class Item(object):
 
     def __init__(self):
         self._canvas = None
-        self.matrix = Matrix()
+        self._matrix = Matrix()
 
     def _set_canvas(self, canvas):
         assert not canvas or not self._canvas or self._canvas is canvas
@@ -46,6 +46,13 @@ class Item(object):
         self._canvas = None
 
     canvas = property(lambda s: s._canvas, _set_canvas, _del_canvas)
+
+    def _set_matrix(self, matrix):
+        if not isinstance(matrix, Matrix):
+            matrix = Matrix(*matrix)
+        self._matrix = matrix
+
+    matrix = property(lambda s: s._matrix, _set_matrix)
 
     def request_update(self):
         if self._canvas:

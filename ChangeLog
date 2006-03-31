@@ -1,3 +1,7 @@
+2006-03-31  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * tool.py: Made item select and move work.
+
 2006-03-29  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * view.py, examples.py, tool.py: Added first bit of behavior.

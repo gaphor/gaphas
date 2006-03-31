@@ -12,7 +12,7 @@ from canvas import Context
 from geometry import Rectangle
 
 # Handy debug flag for drawing bounding boxes around the items.
-DEBUG_DRAW_BOUNDING_BOX = True
+DEBUG_DRAW_BOUNDING_BOX = False
 
 class DrawContext(Context):
     """Special context for draw()'ing the item. The draw-context contains
@@ -203,6 +203,11 @@ class View(gtk.DrawingArea):
                         x, y = item._matrix_w2i.transform_point(h.x, h.y)
                         self.queue_draw_area(x - 5, y - 5, 10, 10)
 
+    def queue_draw_area(self, x, y, w, h):
+        """Wrap draw_area to convert all values to ints.
+        """
+        super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
+
 #    def do_size_allocate(self, allocation):
 #        super(View, self).do_size_allocate(allocation);
 #        # TODO: update adjustments (v+h)
@@ -232,7 +237,8 @@ class View(gtk.DrawingArea):
 
                 if self._calculate_bounding_box:
                     item._view_bounds = the_context._bounds
-                    print item, the_context._bounds
+                    item._view_bounds.x1 += 1
+                    item._view_bounds.y1 += 1
 
                 if DEBUG_DRAW_BOUNDING_BOX:
                     ctx = cairo_context
@@ -285,7 +291,7 @@ class View(gtk.DrawingArea):
         self.window.draw_rectangle(self.style.white_gc, True,
                                    area.x, area.y, area.width, area.height)
 
-        print 'expose', area.x, area.y, area.width, area.height, event.count
+        #print 'expose', area.x, area.y, area.width, area.height, event.count
         if self._canvas:
             context = self.window.cairo_create()
 

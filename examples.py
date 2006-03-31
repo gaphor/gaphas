@@ -25,7 +25,7 @@ class Box(Item):
         self._handles[2].y = self._handles[3].y = self._height
 
     def draw(self, context):
-        print 'Box.draw', self
+        #print 'Box.draw', self
         c = context.cairo
         c.rectangle(0,0, self._width, self._height)
         if context.hovered:
@@ -44,7 +44,7 @@ class Text(Item):
 
 
     def draw(self, context):
-        print 'Text.draw', self
+        #print 'Text.draw', self
         c = context.cairo
         c.show_text('Hello')
         context.draw_children()

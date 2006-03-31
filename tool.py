@@ -1,6 +1,7 @@
 """Tools are used to add interactive behavior to a View.
 """
 
+import cairo
 import gtk
 
 DEBUG_TOOL = False
@@ -77,20 +78,48 @@ class Tool(object):
 class DefaultTool(Tool):
 
     def __init__(self):
-        pass
+        self.last_x = 0
+        self.last_y = 0
 
     def on_button_press(self, view, event):
-        print dir(event)
+        self.last_x, self.last_y = event.x, event.y
+        # Deselect all items unless CTRL or SHIFT is pressed
+        # or the item is already selected.
+        if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
+                or view.hovered_item in view.selected_items) :
+            del view.selected_items
         if view.hovered_item:
-            if not event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK):
-                del view.selected_items
             view.focused_item = view.hovered_item
 
     def on_motion_notify(self, view, event):
+        """Normally, just check which item is under the mouse pointer
+        and make it the view.hovered_item.
+        
         """
-        """
-        old_hovered = view.hovered_item
-        view.hovered_item = view.get_item_at_point(event.x, event.y)
+        if event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            for i in view.selected_items:
+                # Set a redraw request before the item is updated
+                view.queue_draw_item(i, handles=True)
+
+                # Calculate the distance the item has to be moved
+                inverse = cairo.Matrix(*tuple(i._matrix_w2i))
+                inverse.invert()
+                dx, dy = event.x - self.last_x, event.y - self.last_y
+                # Move the item and schedule it for an update
+                i.matrix.translate(*inverse.transform_distance(dx, dy))
+                i.request_update()
+                i.canvas.update_matrices()
+                b = i._view_bounds
+                view.queue_draw_item(i, handles=True)
+                view.queue_draw_area(b[0] + dx, b[1] + dy, b[2] - b[0], b[3] - b[1])
+        else:
+            old_hovered = view.hovered_item
+            view.hovered_item = view.get_item_at_point(event.x, event.y)
+        self.last_x, self.last_y = event.x, event.y
         return True
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
 
 # vim: sw=4:et:ai
