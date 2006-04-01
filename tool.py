@@ -97,9 +97,15 @@ class DefaultTool(Tool):
         
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            # Move selected items
             for i in view.selected_items:
                 # Set a redraw request before the item is updated
                 view.queue_draw_item(i, handles=True)
+
+                # Do not move subitems of selected items
+                anc = set(view.canvas._tree.get_ancestors(i))
+                if anc.intersection(view.selected_items):
+                    continue
 
                 # Calculate the distance the item has to be moved
                 inverse = cairo.Matrix(*tuple(i._matrix_w2i))
@@ -113,6 +119,7 @@ class DefaultTool(Tool):
                 view.queue_draw_item(i, handles=True)
                 view.queue_draw_area(b[0] + dx, b[1] + dy, b[2] - b[0], b[3] - b[1])
         else:
+            # Default behavior
             old_hovered = view.hovered_item
             view.hovered_item = view.get_item_at_point(event.x, event.y)
         self.last_x, self.last_y = event.x, event.y

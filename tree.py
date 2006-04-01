@@ -45,6 +45,13 @@ class Tree(object):
         siblings = self._children[parent]
         return siblings[siblings.index(node) - 1]
 
+    def get_ancestors(self, node):
+        """Iterate all parents and parents of parents, etc.
+        """
+        parent = self.get_parent(node)
+        while parent:
+            yield parent
+            parent = self.get_parent(parent)
 
     def _add_to_nodes(self, node, parent):
         """Called only from add()
