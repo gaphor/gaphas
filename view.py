@@ -200,7 +200,7 @@ class View(gtk.DrawingArea):
                 self.queue_draw_area(b[0], b[1], b[2] - b[0], b[3] - b[1])
 		if handles:
                     for h in item.handles():
-                        x, y = item._matrix_w2i.transform_point(h.x, h.y)
+                        x, y = item._matrix_i2w.transform_point(h.x, h.y)
                         self.queue_draw_area(x - 5, y - 5, 10, 10)
 
     def queue_draw_area(self, x, y, w, h):
@@ -219,7 +219,7 @@ class View(gtk.DrawingArea):
         for item in items:
             cairo_context.save()
             try:
-                cairo_context.set_matrix(item._matrix_w2i)
+                cairo_context.set_matrix(item._matrix_i2w)
 
                 if self._calculate_bounding_box:
                     the_context = CairoContextWrapper(cairo_context)
@@ -259,7 +259,7 @@ class View(gtk.DrawingArea):
         """
         cairo_context.save()
         cairo_context.identity_matrix()
-        m = item._matrix_w2i
+        m = item._matrix_i2w
         opacity = (item is self._focused_item) and .7 or .4
         for h in item.handles():
             cairo_context.save()
@@ -321,7 +321,7 @@ class View(gtk.DrawingArea):
 if __name__ == '__main__':
     from canvas import Canvas
     from examples import Box, Text
-    from tool import DefaultTool
+    from tool import DefaultTool, HandleTool
     import math
     w = gtk.Window()
     v = View()
@@ -331,7 +331,8 @@ if __name__ == '__main__':
 
     c=Canvas()
     v.canvas = c
-    v.tool = DefaultTool()
+#    v.tool = DefaultTool()
+    v.tool = HandleTool()
     b=Box()
     print 'box', b
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)

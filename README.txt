@@ -83,6 +83,16 @@ Item.update()). The bounding box is stored on the item as Item._view_bounds
 as a geometry.Rectangle object. The bounding box is in world coordinates.
 
 
+Tools
+-----
+Behavior is added to the canvas(-view) by tools.
+
+Tools can be chained together in order to provide more complex behavior.
+
+DefaultTool
+HandleTool
+ChainTool (connect behavior of tools)
+
 Files
 =====
 

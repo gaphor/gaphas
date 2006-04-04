@@ -86,7 +86,7 @@ class DefaultTool(Tool):
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
         if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
-                or view.hovered_item in view.selected_items) :
+                or view.hovered_item in view.selected_items):
             del view.selected_items
         if view.hovered_item:
             view.focused_item = view.hovered_item
@@ -98,21 +98,24 @@ class DefaultTool(Tool):
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
             # Move selected items
+
+            # First request redraws for all items, before enything is
+            # changed.
             for i in view.selected_items:
                 # Set a redraw request before the item is updated
                 view.queue_draw_item(i, handles=True)
 
+            # Now do the actual moving.
+            for i in view.selected_items:
                 # Do not move subitems of selected items
-                anc = set(view.canvas._tree.get_ancestors(i))
+                anc = set(view.canvas.get_ancestors(i))
                 if anc.intersection(view.selected_items):
                     continue
 
                 # Calculate the distance the item has to be moved
-                inverse = cairo.Matrix(*tuple(i._matrix_w2i))
-                inverse.invert()
                 dx, dy = event.x - self.last_x, event.y - self.last_y
                 # Move the item and schedule it for an update
-                i.matrix.translate(*inverse.transform_distance(dx, dy))
+                i.matrix.translate(*i._matrix_w2i.transform_distance(dx, dy))
                 i.request_update()
                 i.canvas.update_matrices()
                 b = i._view_bounds
@@ -124,6 +127,30 @@ class DefaultTool(Tool):
             view.hovered_item = view.get_item_at_point(event.x, event.y)
         self.last_x, self.last_y = event.x, event.y
         return True
+
+
+class HandleTool(Tool):
+
+    def __init__(self):
+        pass
+
+    def on_button_press(self, view, event):
+        for item in reversed(view.canvas.get_all_items()):
+            x, y = item._matrix_w2i.transform_point(event.x, event.y)
+            print event.x, event.y, x, y
+            for h in item.handles():
+                if abs(x - h.x) < 5 and abs(y - h.y) < 5:
+                    self._grabbed_handle = h
+                    self.last_x, self.last_y = event.x, event.y
+                    # Deselect all items unless CTRL or SHIFT is pressed
+                    # or the item is already selected.
+                    if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
+                            or view.hovered_item in view.selected_items):
+                        del view.selected_items
+                        view.focused_item = item
+                    print 'Grab handle', h, 'of', item
+                    return True
+
 
 if __name__ == '__main__':
     import doctest

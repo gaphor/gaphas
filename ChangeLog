@@ -1,3 +1,7 @@
+2006-04-02  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * tool.py: Made handle tool partly work.
+
 2006-03-31  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * tool.py: Made item select and move work.
