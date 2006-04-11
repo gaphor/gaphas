@@ -1,6 +1,6 @@
 """Tools are used to add interactive behavior to a View.
 
-Tools can either not act on an event (NOTHING), just handle the event
+Tools can either not act on an event (None), just handle the event
 (HANDLED) or grab the event and all successive events until the tool is done
 (GRAB, UNGRAB; e.g. on a button press/release).
 """
@@ -10,7 +10,6 @@ import gtk
 
 DEBUG_TOOL = False
 
-NOTHING = None
 HANDLED = 1
 GRAB = 2
 UNGRAB = 3
@@ -81,6 +80,55 @@ class Tool(object):
         """
         if DEBUG_TOOL: print 'on_key_release', view, event
         pass
+
+
+class ToolChain(Tool):
+    """A ToolChain can be used to chain tools together, for example HoverTool,
+    HandleTool, SelectionTool.
+    """
+
+    def __init__(self):
+        self._tools = []
+        self._grabbed_tool = None
+
+    def add(self, tool, place=0):
+        self._tools.insert(place, tool)
+
+    def handle(self, func, view, event):
+        """Handle the event by calling each tool until the event is handled
+        or grabbed.
+        """
+        if self._grabbed_tool:
+            if getattr(self._grabbed_tool, func)(view, event) in (UNGRAB, None):
+                self._grabbed_tool = None
+        else:
+            for tool in self._tools:
+                rt = getattr(tool, func)(view, event)
+                if rt == GRAB:
+                    self._grabbed_tool = tool
+                if rt in (HANDLED, GRAB):
+                    return rt
+        
+    def on_button_press(self, view, event):
+        self.handle('on_button_press', view, event)
+
+    def on_button_release(self, view, event):
+        self.handle('on_button_release', view, event)
+
+    def on_double_click(self, view, event):
+        self.handle('on_double_click', view, event)
+
+    def on_triple_click(self, view, event):
+        self.handle('on_triple_click', view, event)
+
+    def on_motion_notify(self, view, event):
+        self.handle('on_motion_notify', view, event)
+
+    def on_key_press(self, view, event):
+        self.handle('on_key_press', view, event)
+
+    def on_key_release(self, view, event):
+        self.handle('on_key_release', view, event)
 
 
 class DefaultTool(Tool):
