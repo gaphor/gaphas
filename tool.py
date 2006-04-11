@@ -1,4 +1,8 @@
 """Tools are used to add interactive behavior to a View.
+
+Tools can either not act on an event (NOTHING), just handle the event
+(HANDLED) or grab the event and all successive events until the tool is done
+(GRAB, UNGRAB; e.g. on a button press/release).
 """
 
 import cairo
@@ -6,6 +10,10 @@ import gtk
 
 DEBUG_TOOL = False
 
+NOTHING = None
+HANDLED = 1
+GRAB = 2
+UNGRAB = 3
 
 class Tool(object):
 

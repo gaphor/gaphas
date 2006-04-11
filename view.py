@@ -331,8 +331,8 @@ if __name__ == '__main__':
 
     c=Canvas()
     v.canvas = c
-#    v.tool = DefaultTool()
-    v.tool = HandleTool()
+    v.tool = DefaultTool()
+#    v.tool = HandleTool()
     b=Box()
     print 'box', b
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
