@@ -37,6 +37,11 @@ class Box(Item):
         c.stroke()
         context.draw_children()
 
+    def point(self, context, x, y):
+        if 0.0 < x < float(self._width) and 0.0 < y < float(self._height):
+            return 0
+        else:
+            return 100
 
 class Text(Item):
     def __init__(self):
@@ -48,5 +53,8 @@ class Text(Item):
         c = context.cairo
         c.show_text('Hello')
         context.draw_children()
+
+    def point(self, context, x, y):
+        return 0
 
 # vim: sw=4:et:ai

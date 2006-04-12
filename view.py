@@ -182,7 +182,10 @@ class View(gtk.DrawingArea):
         point = (x, y)
         for item in reversed(self._canvas.get_all_items()):
             if point in item._view_bounds:
-                return item
+                context = {}
+                ix, iy = item._matrix_w2i.transform_point(x, y)
+                if item.point(context, ix, iy) < 0.5:
+                    return item
         return None
 
     def queue_draw_item(self, *items, **kwargs):
