@@ -321,7 +321,7 @@ class View(gtk.DrawingArea):
 if __name__ == '__main__':
     from canvas import Canvas
     from examples import Box, Text
-    from tool import DefaultTool, HandleTool
+    from tool import DefaultToolChain
     import math
     w = gtk.Window()
     v = View()
@@ -331,7 +331,7 @@ if __name__ == '__main__':
 
     c=Canvas()
     v.canvas = c
-    v.tool = DefaultTool()
+    v.tool = DefaultToolChain()
 #    v.tool = HandleTool()
     b=Box()
     print 'box', b

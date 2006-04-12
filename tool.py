@@ -3,6 +3,22 @@
 Tools can either not act on an event (None), just handle the event
 (HANDLED) or grab the event and all successive events until the tool is done
 (GRAB, UNGRAB; e.g. on a button press/release).
+
+The tools in this module are made to work properly in a ToolChain.
+
+Current tools:
+    ToolChain - for chaining individual tools together.
+    HoverTool - make the item under the mouse cursor the "hovered item"
+    ItemTool - handle selection and movement of items
+    HandleTool - handle selection and movement of handles
+
+Required:
+    PlacementTool - for placing items on the canvas
+    RubberBandTool - for Rubber band selection
+
+Maybe even:
+    TextEditTool - for editing text on canvas items (that support it)
+    
 """
 
 import cairo
@@ -91,47 +107,70 @@ class ToolChain(Tool):
         self._tools = []
         self._grabbed_tool = None
 
-    def add(self, tool, place=0):
-        self._tools.insert(place, tool)
+    def append(self, tool):
+        self._tools.append(tool)
 
-    def handle(self, func, view, event):
+    def prepend(self, tool):
+        self._tools.insert(0, tool)
+
+    def _handle(self, func, view, event):
         """Handle the event by calling each tool until the event is handled
         or grabbed.
         """
         if self._grabbed_tool:
             if getattr(self._grabbed_tool, func)(view, event) in (UNGRAB, None):
+                if DEBUG_TOOL: print 'UNgrab tool', self._grabbed_tool
                 self._grabbed_tool = None
         else:
             for tool in self._tools:
                 rt = getattr(tool, func)(view, event)
                 if rt == GRAB:
+                    if DEBUG_TOOL: print 'Grab tool', tool
                     self._grabbed_tool = tool
                 if rt in (HANDLED, GRAB):
                     return rt
         
     def on_button_press(self, view, event):
-        self.handle('on_button_press', view, event)
+        self._handle('on_button_press', view, event)
 
     def on_button_release(self, view, event):
-        self.handle('on_button_release', view, event)
+        self._handle('on_button_release', view, event)
 
     def on_double_click(self, view, event):
-        self.handle('on_double_click', view, event)
+        self._handle('on_double_click', view, event)
 
     def on_triple_click(self, view, event):
-        self.handle('on_triple_click', view, event)
+        self._handle('on_triple_click', view, event)
 
     def on_motion_notify(self, view, event):
-        self.handle('on_motion_notify', view, event)
+        self._handle('on_motion_notify', view, event)
 
     def on_key_press(self, view, event):
-        self.handle('on_key_press', view, event)
+        self._handle('on_key_press', view, event)
 
     def on_key_release(self, view, event):
-        self.handle('on_key_release', view, event)
+        self._handle('on_key_release', view, event)
 
 
-class DefaultTool(Tool):
+class HoverTool(Tool):
+    """Make the item under the mouse cursor the "hovered item".
+    """
+    
+    def __init__(self):
+        pass
+
+    def on_motion_notify(self, view, event):
+        old_hovered = view.hovered_item
+        view.hovered_item = view.get_item_at_point(event.x, event.y)
+        return True
+
+
+class ItemTool(Tool):
+    """ItemTool does selection and dragging of items. On a button click,
+    the currently "hovered item" is selected. If CTRL or SHIFT are pressed,
+    already selected items remain selected. The last selected item gets the
+    focus (e.g. receives key press events).
+    """
 
     def __init__(self):
         self.last_x = 0
@@ -146,11 +185,14 @@ class DefaultTool(Tool):
             del view.selected_items
         if view.hovered_item:
             view.focused_item = view.hovered_item
+        return GRAB
+
+    def on_button_release(self, view, event):
+        return UNGRAB
 
     def on_motion_notify(self, view, event):
         """Normally, just check which item is under the mouse pointer
         and make it the view.hovered_item.
-        
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
             # Move selected items
@@ -177,12 +219,9 @@ class DefaultTool(Tool):
                 b = i._view_bounds
                 view.queue_draw_item(i, handles=True)
                 view.queue_draw_area(b[0] + dx, b[1] + dy, b[2] - b[0], b[3] - b[1])
-        else:
-            # Default behavior
-            old_hovered = view.hovered_item
-            view.hovered_item = view.get_item_at_point(event.x, event.y)
-        self.last_x, self.last_y = event.x, event.y
-        return True
+            self.last_x, self.last_y = event.x, event.y
+            return GRAB
+        return HANDLED
 
 
 class HandleTool(Tool):
@@ -206,6 +245,15 @@ class HandleTool(Tool):
                         view.focused_item = item
                     print 'Grab handle', h, 'of', item
                     return True
+
+
+def DefaultToolChain():
+    """The default tool chain build from HoverTool, ItemTool and HandleTool.
+    """
+    chain = ToolChain()
+    chain.append(HoverTool())
+    chain.append(ItemTool())
+    return chain
 
 
 if __name__ == '__main__':
