@@ -227,31 +227,57 @@ class ItemTool(Tool):
 class HandleTool(Tool):
 
     def __init__(self):
-        pass
+        self._grabbed_handle = None
+        self._grabbed_item = None
 
     def on_button_press(self, view, event):
+        self._grabbed_handle = None
+        self._grabbed_item = None
         for item in reversed(view.canvas.get_all_items()):
             x, y = view.canvas.get_matrix_w2i(item).transform_point(event.x, event.y)
-            print event.x, event.y, x, y
             for h in item.handles():
                 if abs(x - h.x) < 5 and abs(y - h.y) < 5:
                     self._grabbed_handle = h
+                    self._grabbed_item = item
                     self.last_x, self.last_y = event.x, event.y
                     # Deselect all items unless CTRL or SHIFT is pressed
                     # or the item is already selected.
                     if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                             or view.hovered_item in view.selected_items):
                         del view.selected_items
-                        view.focused_item = item
+                    view.focused_item = item
                     print 'Grab handle', h, 'of', item
                     return True
 
+    def on_motion_notify(self, view, event):
+        if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            # Calculate the distance the item has to be moved
+            dx, dy = event.x - self.last_x, event.y - self.last_y
+            item = self._grabbed_item
+            handle = self._grabbed_handle
+
+            view.queue_draw_item(item, handles=True)
+
+            # Move the item and schedule it for an update
+            dx, dy = view.canvas.get_matrix_w2i(item).transform_distance(dx, dy)
+            print 'movement', dx, dy
+            handle.x += dx
+            handle.y += dy
+            
+            item.request_update()
+            item.canvas.update_matrices()
+
+            view.queue_draw_item(item, handles=True)
+
+        self.last_x, self.last_y = event.x, event.y
+            
 
 def DefaultToolChain():
     """The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
     chain = ToolChain()
     chain.append(HoverTool())
+    chain.append(HandleTool())
     chain.append(ItemTool())
     return chain
 

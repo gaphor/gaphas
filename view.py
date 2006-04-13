@@ -339,7 +339,7 @@ if __name__ == '__main__':
     b=Box()
     print 'box', b
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
-    b._width=b._height = 40
+    b.width=b.height = 40
     c.add(b)
     bb=Box()
     print 'box', bb

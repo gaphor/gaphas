@@ -35,6 +35,8 @@ class Canvas(object):
         self._dirty_matrix_items = set()
         self._in_update = False
 
+    solver = property(lambda s: s._solver)
+
     def add(self, item, parent=None):
         """Add an item to the canvas
         >>> c = Canvas()
@@ -191,9 +193,9 @@ class Canvas(object):
         dirty_items = self._dirty_matrix_items
         while dirty_items:
             item = dirty_items.pop()
-            self.update_canvas_matrix_i2w(item)
+            self.update_matrix(item)
 
-    def update_canvas_matrix_i2w(self, item, recursive=True):
+    def update_matrix(self, item, recursive=True):
         """Update the World-to-Item (w2i) matrix for @item.
         This is stored as @item._canvas_matrix_i2w.
         @recursive == True will also update child objects.
@@ -205,7 +207,7 @@ class Canvas(object):
 
         if parent:
             if parent in self._dirty_matrix_items:
-                self.update_canvas_matrix_i2w(parent)
+                self.update_matrix(parent)
             item._canvas_matrix_i2w = Matrix(*item.matrix)
             item._canvas_matrix_i2w *= parent._canvas_matrix_i2w
         else:
@@ -217,7 +219,7 @@ class Canvas(object):
 
         if recursive:
             for child in self._tree.get_children(item):
-                self.update_canvas_matrix_i2w(child, recursive)
+                self.update_matrix(child, recursive)
 
 if __name__ == '__main__':
     import doctest

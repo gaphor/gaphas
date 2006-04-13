@@ -40,12 +40,22 @@ class Item(object):
 
     def _set_canvas(self, canvas):
         assert not canvas or not self._canvas or self._canvas is canvas
+        if self._canvas:
+            self.teardown_canvas()
         self._canvas = canvas
+        if canvas:
+            self.setup_canvas()
 
     def _del_canvas(self):
         self._canvas = None
 
     canvas = property(lambda s: s._canvas, _set_canvas, _del_canvas)
+
+    def setup_canvas(self):
+        pass
+
+    def teardown_canvas(self):
+        pass
 
     def _set_matrix(self, matrix):
         if not isinstance(matrix, Matrix):

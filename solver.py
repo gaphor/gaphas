@@ -39,7 +39,7 @@ class Variable(object):
     value = property(lambda s: s._value, set_value)
 
     def __str__(self):
-        return 'Variable(%f, %d)' % (self._value, self._strength)
+        return 'Variable(%g, %d)' % (self._value, self._strength)
     __repr__ = __str__
 
     def __float__(self):
@@ -207,13 +207,13 @@ class Solver(object):
         [Constraint(<lambda>,a=None,b=None)]
         >>> a.value=5.0
         >>> s._marked_vars
-        [Variable(5.000000, 20)]
+        [Variable(5, 20)]
         >>> b.value=2.0
         >>> s._marked_vars
-        [Variable(5.000000, 20), Variable(2.000000, 20)]
+        [Variable(5, 20), Variable(2, 20)]
         >>> a.value=5.0
         >>> s._marked_vars
-        [Variable(2.000000, 20), Variable(5.000000, 20)]
+        [Variable(2, 20), Variable(5, 20)]
         """
         if variable in self._marked_vars:
             self._marked_vars.remove(variable)
@@ -233,6 +233,8 @@ class Solver(object):
         >>> a, b = Variable(), Variable(2.0)
         >>> s.add_constraint(lambda a, b: a -b, a=a, b=b)
         Constraint(<lambda>,a=None,b=None)
+        >>> len(s._constraints)
+        1
         >>> a.value
         0.0
         >>> b.value
@@ -263,7 +265,7 @@ class Solver(object):
 	Example:
 	>>> s = Solver()
 	>>> s.weakest_variable({'a': Variable(2.0, 30), 'b': Variable(2.0, 20)})
-	('b', Variable(2.000000, 20))
+	('b', Variable(2, 20))
         >>> a,b,c = Variable(), Variable(), Variable()
         >>> s._marked_vars = [a, b, c]
         """
@@ -332,14 +334,14 @@ class solvable(object):
     ...         self.x = 12
     >>> a = A()
     >>> a.x
-    Variable(12.000000, 20)
+    Variable(12, 20)
     >>> a._v_x
-    Variable(12.000000, 20)
+    Variable(12, 20)
     >>> a.x = 3
     >>> a.x 
-    Variable(3.000000, 20)
+    Variable(3, 20)
     >>> a.y 
-    Variable(0.000000, 30)
+    Variable(0, 30)
     """
 
     def __init__(self, strength=NORMAL, varname=None):
