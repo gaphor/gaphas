@@ -1,31 +1,39 @@
+2006-04-13  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* tool.py: added ToolChain. split DefaultTool in HoverTool and
+	ItemTool.
+	* canvas.py, view.py, tool.py: access W2I and I2w matrices through
+	access methods Canvas.get_matrix_(w2i|i2w)().
+	* view.py, examples.py: use Item.point in View.get_item_at_point().
+
 2006-04-02  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * tool.py: Made handle tool partly work.
+	* tool.py: Made handle tool partly work.
 
 2006-03-31  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * tool.py: Made item select and move work.
+	* tool.py: Made item select and move work.
 
 2006-03-29  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * view.py, examples.py, tool.py: Added first bit of behavior.
+	* view.py, examples.py, tool.py: Added first bit of behavior.
 
 2006-03-27  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * view.py: made bounding box calculation work
-        * examples.py: added simple Text class.
+	* view.py: made bounding box calculation work
+	* examples.py: added simple Text class.
 
 2006-03-25  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * geometry.py: use Cairo for matrix stuff
-        * view.py: first working render demo
-        * canvas.py: update methods
+	* geometry.py: use Cairo for matrix stuff
+	* view.py: first working render demo
+	* canvas.py: update methods
 
 2006-03-22  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* tool.py: new file. base class for view tools.
-        * solver.py: made Variable work in expressions
-          Added solvable descriptor.
+	* solver.py: made Variable work in expressions
+	  Added solvable descriptor.
 
 2006-03-21  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 

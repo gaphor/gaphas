@@ -213,7 +213,7 @@ class ItemTool(Tool):
                 # Calculate the distance the item has to be moved
                 dx, dy = event.x - self.last_x, event.y - self.last_y
                 # Move the item and schedule it for an update
-                i.matrix.translate(*i._matrix_w2i.transform_distance(dx, dy))
+                i.matrix.translate(*view.canvas.get_matrix_w2i(i).transform_distance(dx, dy))
                 i.request_update()
                 i.canvas.update_matrices()
                 b = i._view_bounds
@@ -231,7 +231,7 @@ class HandleTool(Tool):
 
     def on_button_press(self, view, event):
         for item in reversed(view.canvas.get_all_items()):
-            x, y = item._matrix_w2i.transform_point(event.x, event.y)
+            x, y = view.canvas.get_matrix_w2i(item).transform_point(event.x, event.y)
             print event.x, event.y, x, y
             for h in item.handles():
                 if abs(x - h.x) < 5 and abs(y - h.y) < 5:

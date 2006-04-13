@@ -183,7 +183,7 @@ class View(gtk.DrawingArea):
         for item in reversed(self._canvas.get_all_items()):
             if point in item._view_bounds:
                 context = {}
-                ix, iy = item._matrix_w2i.transform_point(x, y)
+                ix, iy = self._canvas.get_matrix_w2i(item).transform_point(x, y)
                 if item.point(context, ix, iy) < 0.5:
                     return item
         return None
@@ -203,7 +203,7 @@ class View(gtk.DrawingArea):
                 self.queue_draw_area(b[0], b[1], b[2] - b[0], b[3] - b[1])
 		if handles:
                     for h in item.handles():
-                        x, y = item._matrix_i2w.transform_point(h.x, h.y)
+                        x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
                         self.queue_draw_area(x - 5, y - 5, 10, 10)
 
     def queue_draw_area(self, x, y, w, h):
@@ -222,7 +222,7 @@ class View(gtk.DrawingArea):
         for item in items:
             cairo_context.save()
             try:
-                cairo_context.set_matrix(item._matrix_i2w)
+                cairo_context.set_matrix(self._canvas.get_matrix_i2w(item))
 
                 if self._calculate_bounding_box:
                     the_context = CairoContextWrapper(cairo_context)
@@ -262,7 +262,7 @@ class View(gtk.DrawingArea):
         """
         cairo_context.save()
         cairo_context.identity_matrix()
-        m = item._matrix_i2w
+        m = self._canvas.get_matrix_i2w(item)
         opacity = (item is self._focused_item) and .7 or .4
         for h in item.handles():
             cairo_context.save()

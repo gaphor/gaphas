@@ -93,6 +93,12 @@ class Canvas(object):
         """
         return self._tree.get_children(item)
 
+    def get_matrix_i2w(self, item):
+	return item._canvas_matrix_i2w
+
+    def get_matrix_w2i(self, item):
+	return item._canvas_matrix_w2i
+
     def request_update(self, item):
         """Set an update request for the item. 
         >>> c = Canvas()
@@ -175,9 +181,9 @@ class Canvas(object):
         >>> c.add(ii, i)
         >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
         >>> c.update_matrices()
-        >>> i._matrix_i2w
+        >>> i._canvas_matrix_i2w
         cairo.Matrix(1, 0, 0, 1, 5, 0)
-        >>> ii._matrix_i2w
+        >>> ii._canvas_matrix_i2w
         cairo.Matrix(1, 0, 0, 1, 5, 8)
         >>> len(c._dirty_items)
         2
@@ -185,11 +191,11 @@ class Canvas(object):
         dirty_items = self._dirty_matrix_items
         while dirty_items:
             item = dirty_items.pop()
-            self.update_matrix_i2w(item)
+            self.update_canvas_matrix_i2w(item)
 
-    def update_matrix_i2w(self, item, recursive=True):
+    def update_canvas_matrix_i2w(self, item, recursive=True):
         """Update the World-to-Item (w2i) matrix for @item.
-        This is stored as @item._matrix_i2w.
+        This is stored as @item._canvas_matrix_i2w.
         @recursive == True will also update child objects.
         """
         parent = self._tree.get_parent(item)
@@ -199,19 +205,19 @@ class Canvas(object):
 
         if parent:
             if parent in self._dirty_matrix_items:
-                self.update_matrix_i2w(parent)
-            item._matrix_i2w = Matrix(*item.matrix)
-            item._matrix_i2w *= parent._matrix_i2w
+                self.update_canvas_matrix_i2w(parent)
+            item._canvas_matrix_i2w = Matrix(*item.matrix)
+            item._canvas_matrix_i2w *= parent._canvas_matrix_i2w
         else:
-            item._matrix_i2w = Matrix(*item.matrix)
+            item._canvas_matrix_i2w = Matrix(*item.matrix)
 
         # It's nice to have the W2I matrix present too:
-        item._matrix_w2i = Matrix(*item._matrix_i2w)
-        item._matrix_w2i.invert()
+        item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
+        item._canvas_matrix_w2i.invert()
 
         if recursive:
             for child in self._tree.get_children(item):
-                self.update_matrix_i2w(child, recursive)
+                self.update_canvas_matrix_i2w(child, recursive)
 
 if __name__ == '__main__':
     import doctest
