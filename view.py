@@ -309,6 +309,10 @@ class View(gtk.DrawingArea):
             # Conpare with canvas.get_all_items() to determine drawing order.
             for item in (i for i in self._canvas.get_all_items() if i in self._selected_items):
                 self._draw_handles(item, context)
+
+            if self._tool:
+                self._tool.draw(Context(view=self, cairo=context))
+
         self._calculate_bounding_box = False
 
         return False

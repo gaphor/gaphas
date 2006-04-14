@@ -18,9 +18,12 @@ class Box(Item):
 
     def __init__(self, width=10, height=10):
         super(Box, self).__init__()
-        self._handles = [Handle(0, 0), Handle(width, 0),
-                         Handle(0, height), Handle(width, height)]
+        #self._handles = [Handle(0, 0), Handle(width, 0),
+        #                 Handle(0, height), Handle(width, height)]
+        self._handles = [ h() for h in [Handle]*4 ]
         self._constraints = []
+        self.width = width
+        self.height = height
 
     def _set_width(self, width):
         """
@@ -30,15 +33,15 @@ class Box(Item):
         20.0
         >>> b._handles[NW].x
         Variable(0, 20)
-        >>> b._handles[NE].x
+        >>> b._handles[SE].x
         Variable(20, 20)
         """
         h = self._handles
-        h[NE].x = h[NW].x + width
+        h[SE].x = h[NW].x + width
 
     def _get_width(self):
         h = self._handles
-        return float(h[NE].x) - float(h[NW].x)
+        return float(h[SE].x) - float(h[NW].x)
 
     width = property(_get_width, _set_width)
 
@@ -50,25 +53,17 @@ class Box(Item):
         20.0
         >>> b._handles[NW].y
         Variable(0, 20)
-        >>> b._handles[SW].y
+        >>> b._handles[SE].y
         Variable(20, 20)
         """
         h = self._handles
-        h[SW].y = h[NW].y + height
+        h[SE].y = h[NW].y + height
 
     def _get_height(self):
         h = self._handles
-        return float(h[SW].y) - float(h[NW].y)
+        return float(h[SE].y) - float(h[NW].y)
 
     height = property(_get_height, _set_height)
-
-    def _set_canvas(self, canvas):
-        print 'box canvas'
-        if self.canvasio:
-            self.teardown_constraints()
-        super(Box, self)._set_canvas(canvas)
-        if self.canvas:
-            self.setup_constraints()
 
     def setup_canvas(self):
         """
@@ -82,8 +77,23 @@ class Box(Item):
         True
         >>> len(c.solver._constraints)
         4
+        >>> len(c.solver._marked_cons)
+        4
+        >>> c.solver.solve()
+        >>> len(c.solver._constraints)
+        4
+        >>> len(c.solver._marked_cons)
+        0
+        >>> b._handles[SE].pos = (25,30)
+        >>> len(c.solver._marked_cons)
+        2
+        >>> c.solver.solve()
+        >>> float(b._handles[NE].x)
+        25.0
+        >>> float(b._handles[SW].y)
+        30.0
         """
-        def equal(a,b): a - b
+        def equal(a,b): return a - b
         h=self._handles
         self._constraints = [
             self.canvas.solver.add_constraint(equal, a=h[NW].y, b=h[NE].y),
@@ -91,7 +101,11 @@ class Box(Item):
             self.canvas.solver.add_constraint(equal, a=h[NW].x, b=h[SW].x),
             self.canvas.solver.add_constraint(equal, a=h[NE].x, b=h[SE].x)
             ]
-
+        self.canvas.solver.mark_dirty(h[NW].x)
+        self.canvas.solver.mark_dirty(h[NW].y)
+        self.canvas.solver.mark_dirty(h[SE].x)
+        self.canvas.solver.mark_dirty(h[SE].y)
+        
     def teardown_canvas(self):
         for c in self._constraints:
             self.canvas.solver.remove(c)
@@ -105,7 +119,8 @@ class Box(Item):
     def draw(self, context):
         #print 'Box.draw', self
         c = context.cairo
-        c.rectangle(0,0, self.width, self.height)
+        nw = self._handles[NW]
+        c.rectangle(nw.x, nw.y, self.width, self.height)
         if context.hovered:
             c.set_source_rgba(.8,.8,1, 1)
         else:

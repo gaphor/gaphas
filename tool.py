@@ -19,6 +19,9 @@ Required:
 Maybe even:
     TextEditTool - for editing text on canvas items (that support it)
     
+TODO:
+    use context in stead of 'view' in event handlers
+    (context.view = view; context.grab() to grab, context.ungrab() to ungrab)
 """
 
 import cairo
@@ -97,6 +100,16 @@ class Tool(object):
         if DEBUG_TOOL: print 'on_key_release', view, event
         pass
 
+    def draw(self, context):
+        """Some tools (such as Rubberband selection) may need to draw something
+        on the canvas. This can be done through the draw() method. This is
+        called after all items are drawn.
+        The context contains the following fields:
+         - view: the view to render
+         - cairo: the Cairo drawing context
+        """
+        pass
+        
 
 class ToolChain(Tool):
     """A ToolChain can be used to chain tools together, for example HoverTool,
@@ -123,6 +136,7 @@ class ToolChain(Tool):
                 self._grabbed_tool = None
         else:
             for tool in self._tools:
+                print 'tool', tool
                 rt = getattr(tool, func)(view, event)
                 if rt == GRAB:
                     if DEBUG_TOOL: print 'Grab tool', tool
@@ -245,9 +259,13 @@ class HandleTool(Tool):
                     if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                             or view.hovered_item in view.selected_items):
                         del view.selected_items
+                    view.hovered_item = item
                     view.focused_item = item
                     print 'Grab handle', h, 'of', item
-                    return True
+                    return GRAB
+
+    def on_button_release(self, view, event):
+        return UNGRAB
 
     def on_motion_notify(self, view, event):
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
@@ -260,7 +278,6 @@ class HandleTool(Tool):
 
             # Move the item and schedule it for an update
             dx, dy = view.canvas.get_matrix_w2i(item).transform_distance(dx, dy)
-            print 'movement', dx, dy
             handle.x += dx
             handle.y += dy
             
@@ -268,9 +285,9 @@ class HandleTool(Tool):
             item.canvas.update_matrices()
 
             view.queue_draw_item(item, handles=True)
+            self.last_x, self.last_y = event.x, event.y
+            return GRAB
 
-        self.last_x, self.last_y = event.x, event.y
-            
 
 def DefaultToolChain():
     """The default tool chain build from HoverTool, ItemTool and HandleTool.

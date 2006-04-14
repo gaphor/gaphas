@@ -24,12 +24,12 @@ class Handle(object):
 
     pos = property(lambda s: (s.x, s.y), _set_pos)
 
-    def update(self, context):
-        """Update the handle. @context has the following attributes:
-         - item: the owning item
-         - matrix_i2w: Item to World transformation matrix
-        """
-        pass
+#    def update(self, context):
+#        """Update the handle. @context has the following attributes:
+#         - item: the owning item
+#         - matrix_i2w: Item to World transformation matrix
+#        """
+#        pass
 
 
 class Item(object):
@@ -88,6 +88,8 @@ class Item(object):
         Context contains the following attributes:
          - matrix_i2w: Item to World transformation matrix (no need to)
          - cairo: the Cairo Context use this one to draw.
+	 - view: the view that is to be rendered to
+	 - selected, focused, hovered: view state of items.
         """
         pass
 

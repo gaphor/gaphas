@@ -191,6 +191,7 @@ class Solver(object):
         self._constraints = {}
         self._marked_vars = []
         self._marked_cons = []
+        self._solving = False
 
     def mark_dirty(self, variable):
         """Mark a variable as "dirty". This means it it solved the next time
@@ -215,13 +216,20 @@ class Solver(object):
         >>> s._marked_vars
         [Variable(2, 20), Variable(5, 20)]
         """
-        if variable in self._marked_vars:
-            self._marked_vars.remove(variable)
-        self._marked_vars.append(variable)
+        if not self._solving:
+            if variable in self._marked_vars:
+                self._marked_vars.remove(variable)
+            self._marked_vars.append(variable)
+        elif variable not in self._marked_vars:
+            self._marked_vars.append(variable)
+
         for c in variable._constraints:
-            if c in self._marked_cons:
-                self._marked_cons.remove(c)
-            self._marked_cons.append(c)
+            if not self._solving:
+                if c in self._marked_cons:
+                    self._marked_cons.remove(c)
+                self._marked_cons.append(c)
+            elif c not in self._marked_cons:
+                self._marked_cons.append(c)
 
     def add_constraint(self, constraint, **variables):
         """Add a constraint.
@@ -249,6 +257,7 @@ class Solver(object):
         for v in variables.values():
             v._constraints.add(constraint)
             v._solver = self
+        #print 'added constraint', constraint
         return constraint
 
     def remove_constraint(self, constraint):
@@ -262,10 +271,10 @@ class Solver(object):
     def weakest_variable(self, variables):
         """Returns the name(!) of the weakest variable.
 
-	Example:
-	>>> s = Solver()
-	>>> s.weakest_variable({'a': Variable(2.0, 30), 'b': Variable(2.0, 20)})
-	('b', Variable(2, 20))
+        Example:
+        >>> s = Solver()
+        >>> s.weakest_variable({'a': Variable(2.0, 30), 'b': Variable(2.0, 20)})
+        ('b', Variable(2, 20))
         >>> a,b,c = Variable(), Variable(), Variable()
         >>> s._marked_vars = [a, b, c]
         """
@@ -303,26 +312,36 @@ class Solver(object):
         >>> s.solve()
         >>> b._value
         -5.0
+        >>> a.value = 10
+        >>> s.solve()
+        >>> c._value
+        10.0
         """
         constraints = self._constraints
         marked_cons = self._marked_cons
 
-        # Solve each constraint. Using a counter makes it
-        # possible to also solve constraints that are marked as
-        # a result of other variabled being solved.
-        n = 0
-        while n < len(marked_cons):
-            c = marked_cons[n]
-            wname, wvar = self.weakest_variable(constraints[c])
-            xx = {}
-            for nm, v in constraints[c].items():
-              xx[nm] = v.value
-            c.set(**xx)
-            wvar.value = c.solve_for(wname)
-            n += 1
+        try:
+            self._solving = True
 
-        self._marked_cons = []
-        self._marked_vars = []
+            # Solve each constraint. Using a counter makes it
+            # possible to also solve constraints that are marked as
+            # a result of other variabled being solved.
+            n = 0
+            while n < len(self._marked_cons):
+                c = marked_cons[n]
+                wname, wvar = self.weakest_variable(constraints[c])
+                xx = {}
+                for nm, v in constraints[c].items():
+                  xx[nm] = v.value
+                c.set(**xx)
+                #print 'solving', c, 'for', wname, n, len(marked_cons)
+                wvar.value = c.solve_for(wname)
+                n += 1
+
+            self._marked_cons = []
+            self._marked_vars = []
+        finally:
+            self._solving = False
 
 class solvable(object):
     """Easy-to-use drop Variable descriptor.
@@ -369,3 +388,5 @@ class solvable(object):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+# vim:sw=4:et:ai

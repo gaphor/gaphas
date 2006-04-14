@@ -1,3 +1,8 @@
+2006-04-14  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* tool.py: Made handle tool work, added it to the ToolChain.
+	* canvas.py, item.py, solver.py: made constraint solver work w/ items
+	
 2006-04-13  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* tool.py: added ToolChain. split DefaultTool in HoverTool and
