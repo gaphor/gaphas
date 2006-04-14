@@ -176,7 +176,7 @@ class HoverTool(Tool):
     def on_motion_notify(self, view, event):
         old_hovered = view.hovered_item
         view.hovered_item = view.get_item_at_point(event.x, event.y)
-        return True
+        return None
 
 
 class ItemTool(Tool):
@@ -247,7 +247,14 @@ class HandleTool(Tool):
     def on_button_press(self, view, event):
         self._grabbed_handle = None
         self._grabbed_item = None
-        for item in reversed(view.canvas.get_all_items()):
+        itemlist = view.canvas.get_all_items()
+        # The focused item is the prefered item for handle grabbing
+        if view.focused_item:
+            # We can savely do this, since the list is a copy of the list
+            # maintained by the canvas
+            itemlist.append(view.focused_item)
+
+        for item in reversed(itemlist):
             x, y = view.canvas.get_matrix_w2i(item).transform_point(event.x, event.y)
             for h in item.handles():
                 if abs(x - h.x) < 5 and abs(y - h.y) < 5:

@@ -113,6 +113,13 @@ class Box(Item):
     def handles(self):
         return iter(self._handles)
 
+    def pre_update(self, context):
+        h = self._handles
+        if h[NW].x > h[NE].x:
+            h[NE].x = h[NW].x
+        if h[NW].y > h[SW].y:
+            h[SW].y = h[NW].y
+
     def update(self, context):
         pass
 
@@ -131,7 +138,9 @@ class Box(Item):
         context.draw_children()
 
     def point(self, context, x, y):
-        if 0.0 < x < float(self.width) and 0.0 < y < float(self.height):
+        h = self._handles
+        if float(h[NW].x) < x < float(h[SE].x) \
+           and float(h[NW].y) < y < float(h[SE].y):
             return 0
         else:
             return 100
