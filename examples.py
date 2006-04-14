@@ -115,9 +115,9 @@ class Box(Item):
 
     def pre_update(self, context):
         h = self._handles
-        if h[NW].x > h[NE].x:
+        if float(h[NW].x) > float(h[NE].x):
             h[NE].x = h[NW].x
-        if h[NW].y > h[SW].y:
+        if float(h[NW].y) > float(h[SW].y):
             h[SW].y = h[NW].y
 
     def update(self, context):
@@ -129,9 +129,9 @@ class Box(Item):
         nw = self._handles[NW]
         c.rectangle(nw.x, nw.y, self.width, self.height)
         if context.hovered:
-            c.set_source_rgba(.8,.8,1, 1)
+            c.set_source_rgba(.8,.8,1, .8)
         else:
-            c.set_source_rgba(1,1,1, 1)
+            c.set_source_rgba(1,1,1, .8)
         c.fill_preserve()
         c.set_source_rgb(0,0,0.8)
         c.stroke()
