@@ -1,6 +1,7 @@
 2006-04-18  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * demo.py: moved demo code from view.py to demo.py
+	* view.py: implemented adjustment objects (for scrollbars). 1st attempt.
 
 2006-04-14  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 

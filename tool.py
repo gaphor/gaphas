@@ -136,7 +136,7 @@ class ToolChain(Tool):
                 self._grabbed_tool = None
         else:
             for tool in self._tools:
-                print 'tool', tool
+                if DEBUG_TOOL: print 'tool', tool
                 rt = getattr(tool, func)(view, event)
                 if rt == GRAB:
                     if DEBUG_TOOL: print 'Grab tool', tool

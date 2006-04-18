@@ -24,6 +24,8 @@ def nonrecursive(func):
     ...         self.a(x+1)
     >>> A().a()
     1
+    >>> A().a()
+    1
     """
     def wrapper(*args, **kwargs):
         try:
@@ -131,6 +133,7 @@ class View(gtk.DrawingArea):
                         | gtk.gdk.KEY_PRESS_MASK
                         | gtk.gdk.KEY_RELEASE_MASK)
         self._canvas = canvas
+        self._bounds = Rectangle()
 
         # Handling selections.
         self._selected_items = set()
@@ -222,7 +225,6 @@ class View(gtk.DrawingArea):
                     return item
         return None
 
-    @nonrecursive
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
         """
         >>> v = View()
@@ -233,20 +235,31 @@ class View(gtk.DrawingArea):
         (20.0, 20.0, 10.0)
         """
         size = min(canvas_size, viewport_size)
-        adjustment.page_size = size
-        adjustment.page_increment = size
-        adjustment.step_increment = size/10
-        adjustment.upper = canvas_size
-        adjustment.lower = 0
-        #adjustment.changed()
+        if size != adjustment.page_size or canvas_size != adjustment.upper:
+            adjustment.page_size = size
+            adjustment.page_increment = size
+            adjustment.step_increment = size/10
+            adjustment.upper = canvas_size
+            adjustment.lower = 0
+            adjustment.changed()
         
         value = max(0, min(value, canvas_size - size))
         if value != adjustment.value:
             adjustment.value = value
-            #adjustment.value_changed()
+            adjustment.value_changed()
 
-    def update_adjustments(self):
-        pass
+    def update_adjustments(self, allocation=None):
+        """Update the allocation objects (for scrollbars)
+        """
+        if not allocation: allocation = self.allocation
+        self._update_adjustment(self._hadjustment,
+                                value = self._hadjustment.value,
+                                canvas_size=self._bounds.x1,
+                                viewport_size=allocation.width)
+        self._update_adjustment(self._vadjustment,
+                                value = self._vadjustment.value,
+                                canvas_size=self._bounds.y1,
+                                viewport_size=allocation.height)
 
     def queue_draw_item(self, *items, **kwargs):
         """Like DrawingArea.queue_draw_area, but use the bounds of the
@@ -276,13 +289,7 @@ class View(gtk.DrawingArea):
         """Allocate the widget size (x, y, width, height).
         """
         gtk.DrawingArea.do_size_allocate(self, allocation)
-        #super(View, self).do_size_allocate(self, allocation);
-        # TODO: update adjustments (v+h)
-        self._update_adjustment(self._hadjustment,
-                                value = self._hadjustment.value,
-                                canvas_size=allocation.width * 2,
-                                viewport_size=allocation.width)
-        #print dir(allocation)
+        self.update_adjustments(allocation)
        
     def _draw_items(self, items, cairo_context):
         """Draw the items. This method can also be called from DrawContext
@@ -311,6 +318,7 @@ class View(gtk.DrawingArea):
                     item._view_bounds = the_context._bounds
                     item._view_bounds.x1 += 1
                     item._view_bounds.y1 += 1
+                    self._bounds += item._view_bounds
 
                 if DEBUG_DRAW_BOUNDING_BOX:
                     ctx = cairo_context
@@ -367,11 +375,14 @@ class View(gtk.DrawingArea):
         if self._canvas:
             context = self.window.cairo_create()
 
+            if self._calculate_bounding_box:
+                self._bounds = Rectangle()
+
             # Draw no more than nessesary.
             context.rectangle(area.x, area.y, area.width, area.height)
             context.clip()
             # TODO: add move/zoom matrix
-
+            
             self._draw_items(self._canvas.get_root_items(), context)
 
             # Draw handles of selected items on top of the items.
@@ -382,8 +393,19 @@ class View(gtk.DrawingArea):
             if self._tool:
                 self._tool.draw(Context(view=self, cairo=context))
 
-        self._calculate_bounding_box = False
+	if DEBUG_DRAW_BOUNDING_BOX:
+	    context.save()
+	    context.identity_matrix()
+	    context.set_source_rgb(0,.8, 0)
+	    context.set_line_width(1.0)
+	    b = self._bounds
+	    context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+	    context.stroke()
+	    context.restore()
 
+        if self._calculate_bounding_box:
+            self.update_adjustments()
+        self._calculate_bounding_box = False
         return False
 
     def do_event(self, event):
