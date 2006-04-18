@@ -15,10 +15,11 @@ The basic idea is:
 
 To do
 =====
- - gtk.Adjustment for x/y movement
+ - gtk.Adjustment for x/y movement (partly done)
  - Line item class
  - Connect item protocol
  - Text edit protocol (gtk.Edit in popup window?)
+ - make update cycle independant from render (expose) event.
 
 How it Works
 ============

@@ -38,7 +38,7 @@ class Tool(object):
     def __init__(self):
         pass
 
-    def on_button_press(self, view, event):
+    def on_button_press(self, context, event):
         """Mouse (pointer) button click. A button press is normally followed by
         a button release. Double and triple clicks should work together with
         the button methods.
@@ -59,45 +59,45 @@ class Tool(object):
                 on_triple_click
                 on_button_release
         """
-        if DEBUG_TOOL: print 'on_button_press', view, event
+        if DEBUG_TOOL: print 'on_button_press', context, event
 
-    def on_button_release(self, view, event):
+    def on_button_release(self, context, event):
         """Button release event, that follows on a button press event.
         Not that double and tripple clicks'...
         """
-        if DEBUG_TOOL: print 'on_button_release', view, event
+        if DEBUG_TOOL: print 'on_button_release', context, event
         pass
 
-    def on_double_click(self, view, event):
+    def on_double_click(self, context, event):
         """Event emited when the user does a double click (click-click)
         on the View.
         """
-        if DEBUG_TOOL: print 'on_double_click', view, event
+        if DEBUG_TOOL: print 'on_double_click', context, event
         pass
 
-    def on_triple_click(self, view, event):
+    def on_triple_click(self, context, event):
         """Event emited when the user does a triple click (click-click-click)
         on the View.
         """
-        if DEBUG_TOOL: print 'on_triple_click', view, event
+        if DEBUG_TOOL: print 'on_triple_click', context, event
         pass
 
-    def on_motion_notify(self, view, event):
+    def on_motion_notify(self, context, event):
         """Mouse (pointer) is moved.
         """
-        if DEBUG_TOOL: print 'on_motion_notify', view, event
+        if DEBUG_TOOL: print 'on_motion_notify', context, event
         pass
 
-    def on_key_press(self, view, event):
+    def on_key_press(self, context, event):
         """Keyboard key is pressed.
         """
-        if DEBUG_TOOL: print 'on_key_press', view, event
+        if DEBUG_TOOL: print 'on_key_press', context, event
         pass
 
-    def on_key_release(self, view, event):
+    def on_key_release(self, context, event):
         """Keyboard key is released again (follows a key press normally).
         """
-        if DEBUG_TOOL: print 'on_key_release', view, event
+        if DEBUG_TOOL: print 'on_key_release', context, event
         pass
 
     def draw(self, context):
@@ -105,7 +105,7 @@ class Tool(object):
         on the canvas. This can be done through the draw() method. This is
         called after all items are drawn.
         The context contains the following fields:
-         - view: the view to render
+         - context: the render context (contains context.view and context.cairo)
          - cairo: the Cairo drawing context
         """
         pass
@@ -126,44 +126,44 @@ class ToolChain(Tool):
     def prepend(self, tool):
         self._tools.insert(0, tool)
 
-    def _handle(self, func, view, event):
+    def _handle(self, func, context, event):
         """Handle the event by calling each tool until the event is handled
         or grabbed.
         """
         if self._grabbed_tool:
-            if getattr(self._grabbed_tool, func)(view, event) in (UNGRAB, None):
+            if getattr(self._grabbed_tool, func)(context, event) in (UNGRAB, None):
                 if DEBUG_TOOL: print 'UNgrab tool', self._grabbed_tool
                 self._grabbed_tool = None
         else:
             for tool in self._tools:
                 if DEBUG_TOOL: print 'tool', tool
-                rt = getattr(tool, func)(view, event)
+                rt = getattr(tool, func)(context, event)
                 if rt == GRAB:
                     if DEBUG_TOOL: print 'Grab tool', tool
                     self._grabbed_tool = tool
                 if rt in (HANDLED, GRAB):
                     return rt
         
-    def on_button_press(self, view, event):
-        self._handle('on_button_press', view, event)
+    def on_button_press(self, context, event):
+        self._handle('on_button_press', context, event)
 
-    def on_button_release(self, view, event):
-        self._handle('on_button_release', view, event)
+    def on_button_release(self, context, event):
+        self._handle('on_button_release', context, event)
 
-    def on_double_click(self, view, event):
-        self._handle('on_double_click', view, event)
+    def on_double_click(self, context, event):
+        self._handle('on_double_click', context, event)
 
-    def on_triple_click(self, view, event):
-        self._handle('on_triple_click', view, event)
+    def on_triple_click(self, context, event):
+        self._handle('on_triple_click', context, event)
 
-    def on_motion_notify(self, view, event):
-        self._handle('on_motion_notify', view, event)
+    def on_motion_notify(self, context, event):
+        self._handle('on_motion_notify', context, event)
 
-    def on_key_press(self, view, event):
-        self._handle('on_key_press', view, event)
+    def on_key_press(self, context, event):
+        self._handle('on_key_press', context, event)
 
-    def on_key_release(self, view, event):
-        self._handle('on_key_release', view, event)
+    def on_key_release(self, context, event):
+        self._handle('on_key_release', context, event)
 
 
 class HoverTool(Tool):
@@ -173,7 +173,8 @@ class HoverTool(Tool):
     def __init__(self):
         pass
 
-    def on_motion_notify(self, view, event):
+    def on_motion_notify(self, context, event):
+        view = context.view
         old_hovered = view.hovered_item
         view.hovered_item = view.get_item_at_point(event.x, event.y)
         return None
@@ -190,7 +191,8 @@ class ItemTool(Tool):
         self.last_x = 0
         self.last_y = 0
 
-    def on_button_press(self, view, event):
+    def on_button_press(self, context, event):
+        view = context.view
         self.last_x, self.last_y = event.x, event.y
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
@@ -199,16 +201,19 @@ class ItemTool(Tool):
             del view.selected_items
         if view.hovered_item:
             view.focused_item = view.hovered_item
+        context.grab()
         return GRAB
 
-    def on_button_release(self, view, event):
+    def on_button_release(self, context, event):
+        context.ungrab()
         return UNGRAB
 
-    def on_motion_notify(self, view, event):
+    def on_motion_notify(self, context, event):
         """Normally, just check which item is under the mouse pointer
         and make it the view.hovered_item.
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            view = context.view
             # Move selected items
 
             # First request redraws for all items, before enything is
@@ -234,6 +239,7 @@ class ItemTool(Tool):
                 view.queue_draw_item(i, handles=True)
                 view.queue_draw_area(b[0] + dx, b[1] + dy, b[2] - b[0], b[3] - b[1])
             self.last_x, self.last_y = event.x, event.y
+            context.grab()
             return GRAB
         return HANDLED
 
@@ -244,7 +250,8 @@ class HandleTool(Tool):
         self._grabbed_handle = None
         self._grabbed_item = None
 
-    def on_button_press(self, view, event):
+    def on_button_press(self, context, event):
+        view = context.view
         self._grabbed_handle = None
         self._grabbed_item = None
         itemlist = view.canvas.get_all_items()
@@ -269,13 +276,16 @@ class HandleTool(Tool):
                     view.hovered_item = item
                     view.focused_item = item
                     print 'Grab handle', h, 'of', item
+                    context.grab()
                     return GRAB
 
-    def on_button_release(self, view, event):
+    def on_button_release(self, context, event):
+        context.ungrab()
         return UNGRAB
 
-    def on_motion_notify(self, view, event):
+    def on_motion_notify(self, context, event):
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            view = context.view
             # Calculate the distance the item has to be moved
             dx, dy = event.x - self.last_x, event.y - self.last_y
             item = self._grabbed_item

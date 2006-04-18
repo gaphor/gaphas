@@ -2,6 +2,7 @@
 
         * demo.py: moved demo code from view.py to demo.py
 	* view.py: implemented adjustment objects (for scrollbars). 1st attempt.
+	* view.py, tool.py: use a context in stead of view directly.
 
 2006-04-14  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 

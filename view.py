@@ -41,6 +41,7 @@ def nonrecursive(func):
             del func._executing
     return wrapper
 
+
 class DrawContext(Context):
     """Special context for draw()'ing the item. The draw-context contains
     stuff like the view, the cairo context and properties like selected and
@@ -55,6 +56,24 @@ class DrawContext(Context):
         the Item.draw() method.
         """
         self.view._draw_items(self.children, self.cairo)
+
+
+class ToolContext(Context):
+    """Special context for tools.
+    """
+
+    def __init__(self, **kwargs):
+        super(ToolContext, self).__init__(**kwargs)
+
+    def grab(self):
+        """Grab the view (or tool, depending on the implementation).
+        """
+        self.view.grab_focus()
+
+    def ungrab(self):
+        """Ungrab the view.
+        """
+        pass
 
 
 class CairoContextWrapper(object):
@@ -413,7 +432,7 @@ class View(gtk.DrawingArea):
         """
         handler = event_handlers.get(event.type)
         if self._tool and handler:
-            return getattr(self._tool, handler)(self, event) and True or False
+            return getattr(self._tool, handler)(ToolContext(view=self), event) and True or False
         return False
 
 
