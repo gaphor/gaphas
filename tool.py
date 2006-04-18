@@ -177,6 +177,7 @@ class HoverTool(Tool):
         view = context.view
         old_hovered = view.hovered_item
         view.hovered_item = view.get_item_at_point(event.x, event.y)
+        #view.hovered_item = view.get_item_at_point(context.wx, context.wy)
         return None
 
 
@@ -261,8 +262,14 @@ class HandleTool(Tool):
             # maintained by the canvas
             itemlist.append(view.focused_item)
 
+        # TODO: move to separate function
+        inverse = cairo.Matrix(*view._matrix)
+        inverse.invert()
+        wx, wy = inverse.transform_point(event.x, event.y)
+
         for item in reversed(itemlist):
-            x, y = view.canvas.get_matrix_w2i(item).transform_point(event.x, event.y)
+            #x, y = view.canvas.get_matrix_w2i(item).transform_point(event.x, event.y)
+            x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
             for h in item.handles():
                 if abs(x - h.x) < 5 and abs(y - h.y) < 5:
                     self._grabbed_handle = h

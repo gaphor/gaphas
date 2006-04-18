@@ -161,8 +161,8 @@ class View(gtk.DrawingArea):
 
         self._matrix = Matrix()
 
-        self._hadjustment = gtk.Adjustment()
-        self._vadjustment = gtk.Adjustment()
+        self.hadjustment = gtk.Adjustment()
+        self.vadjustment = gtk.Adjustment()
 
         self._tool = None
         self._calculate_bounding_box = False
@@ -230,16 +230,31 @@ class View(gtk.DrawingArea):
 
     tool = property(lambda s: s._tool, _set_tool)
 
-    hadjustment = property(lambda s: s._hadjustment)
+    def _set_hadjustment(self, adj):
+        #if self._hadjustment:
+        #    self._hadjustment.disconnect(self.on_adjustment_changed)
+        self._hadjustment = adj
+        adj.connect('value_changed', self.on_adjustment_changed)
 
-    vadjustment = property(lambda s: s._vadjustment)
+    hadjustment = property(lambda s: s._hadjustment, _set_hadjustment)
+
+    def _set_vadjustment(self, adj):
+        #if self._vadjustment:
+        #    self._vadjustment.disconnect(self.on_adjustment_changed)
+        self._vadjustment = adj
+        adj.connect('value_changed', self.on_adjustment_changed)
+
+    vadjustment = property(lambda s: s._vadjustment, _set_vadjustment)
 
     def get_item_at_point(self, x, y):
         point = (x, y)
         for item in reversed(self._canvas.get_all_items()):
             if point in item._view_bounds:
                 context = {}
-                ix, iy = self._canvas.get_matrix_w2i(item).transform_point(x, y)
+                inverse = Matrix(*self._matrix)
+                inverse.invert()
+                wx, wy = inverse.transform_point(x, y)
+                ix, iy = self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
                 if item.point(context, ix, iy) < 0.5:
                     return item
         return None
@@ -254,6 +269,7 @@ class View(gtk.DrawingArea):
         (20.0, 20.0, 10.0)
         """
         size = min(canvas_size, viewport_size)
+        canvas_size += viewport_size
         if size != adjustment.page_size or canvas_size != adjustment.upper:
             adjustment.page_size = size
             adjustment.page_increment = size
@@ -268,16 +284,17 @@ class View(gtk.DrawingArea):
             adjustment.value_changed()
 
     def update_adjustments(self, allocation=None):
-        """Update the allocation objects (for scrollbars)
+        """Update the allocation objects (for scrollbars).
         """
         if not allocation: allocation = self.allocation
+        #print 'canvas_size', allocation.x, self._bounds.x1
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
-                                canvas_size=self._bounds.x1,
+                                canvas_size=allocation.x + self._bounds.x1,
                                 viewport_size=allocation.width)
         self._update_adjustment(self._vadjustment,
                                 value = self._vadjustment.value,
-                                canvas_size=self._bounds.y1,
+                                canvas_size=allocation.y + self._bounds.y1,
                                 viewport_size=allocation.height)
 
     def queue_draw_item(self, *items, **kwargs):
@@ -296,6 +313,7 @@ class View(gtk.DrawingArea):
 		if handles:
                     for h in item.handles():
                         x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
+                        x, y = self._matrix.transform_point(x, y)
                         self.queue_draw_area(x - 5, y - 5, 10, 10)
 
     def queue_draw_area(self, x, y, w, h):
@@ -308,6 +326,7 @@ class View(gtk.DrawingArea):
         """Allocate the widget size (x, y, width, height).
         """
         gtk.DrawingArea.do_size_allocate(self, allocation)
+        # doesn't work: super(View, self).do_size_allocate(allocation)
         self.update_adjustments(allocation)
        
     def _draw_items(self, items, cairo_context):
@@ -317,7 +336,9 @@ class View(gtk.DrawingArea):
         for item in items:
             cairo_context.save()
             try:
-                cairo_context.set_matrix(self._canvas.get_matrix_i2w(item))
+                #cairo_context.set_matrix(self._canvas.get_matrix_i2w(item))
+                cairo_context.set_matrix(self._matrix)
+                cairo_context.transform(self._canvas.get_matrix_i2w(item))
 
                 if self._calculate_bounding_box:
                     the_context = CairoContextWrapper(cairo_context)
@@ -357,7 +378,8 @@ class View(gtk.DrawingArea):
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo_context.save()
-        cairo_context.identity_matrix()
+        #cairo_context.identity_matrix()
+        cairo_context.set_matrix(self._matrix)
         m = self._canvas.get_matrix_i2w(item)
         opacity = (item is self._focused_item) and .7 or .4
         for h in item.handles():
@@ -385,7 +407,6 @@ class View(gtk.DrawingArea):
             self._canvas.update_now()
             self._calculate_bounding_box = True
 
-        viewport = self.get_allocation()
         area = event.area
         self.window.draw_rectangle(self.style.white_gc, True,
                                    area.x, area.y, area.width, area.height)
@@ -400,8 +421,7 @@ class View(gtk.DrawingArea):
             # Draw no more than nessesary.
             context.rectangle(area.x, area.y, area.width, area.height)
             context.clip()
-            # TODO: add move/zoom matrix
-            
+
             self._draw_items(self._canvas.get_root_items(), context)
 
             # Draw handles of selected items on top of the items.
@@ -434,6 +454,21 @@ class View(gtk.DrawingArea):
         if self._tool and handler:
             return getattr(self._tool, handler)(ToolContext(view=self), event) and True or False
         return False
+
+    def on_adjustment_changed(self, adj):
+        """Change the transformation matrix of the view to reflect the
+        value of the x/y adjustment (scrollbar).
+        """
+        if adj is self._hadjustment:
+            self._matrix.translate( - self._matrix[4] - adj.value , 0)
+        elif adj is self._vadjustment:
+            self._matrix.translate(0, - self._matrix[5] - adj.value )
+
+        # Force recalculation of the bounding boxes:
+        self._calculate_bounding_box = True
+
+        a = self.allocation
+        super(View, self).queue_draw_area(a.x, a.y, a.width, a.height)
 
 
 if __name__ == '__main__':
