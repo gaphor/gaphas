@@ -2,6 +2,7 @@
 This module contains everything to display a Canvas on a screen.
 """
 
+# for doctesting:
 if __name__ == '__main__':
     import pygtk
     pygtk.require('2.0') 
@@ -13,6 +14,30 @@ from geometry import Rectangle
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
+
+def nonrecursive(func):
+    """
+    >>> class A(object):
+    ...     @nonrecursive
+    ...     def a(self, x=1):
+    ...         print x
+    ...         self.a(x+1)
+    >>> A().a()
+    1
+    """
+    def wrapper(*args, **kwargs):
+        try:
+            if func._executing:
+                return
+        except AttributeError:
+            # _executed not present
+            pass
+        try:
+            func._executing = True
+            return func(*args, **kwargs)
+        finally:
+            del func._executing
+    return wrapper
 
 class DrawContext(Context):
     """Special context for draw()'ing the item. The draw-context contains
@@ -112,6 +137,11 @@ class View(gtk.DrawingArea):
         self._focused_item = None
         self._hovered_item = None
 
+        self._matrix = Matrix()
+
+        self._hadjustment = gtk.Adjustment()
+        self._vadjustment = gtk.Adjustment()
+
         self._tool = None
         self._calculate_bounding_box = False
 
@@ -178,6 +208,10 @@ class View(gtk.DrawingArea):
 
     tool = property(lambda s: s._tool, _set_tool)
 
+    hadjustment = property(lambda s: s._hadjustment)
+
+    vadjustment = property(lambda s: s._vadjustment)
+
     def get_item_at_point(self, x, y):
         point = (x, y)
         for item in reversed(self._canvas.get_all_items()):
@@ -187,6 +221,32 @@ class View(gtk.DrawingArea):
                 if item.point(context, ix, iy) < 0.5:
                     return item
         return None
+
+    @nonrecursive
+    def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
+        """
+        >>> v = View()
+        >>> a = gtk.Adjustment()
+        >>> v._hadjustment = a
+        >>> v._update_adjustment(a, 10, 100, 20)
+        >>> a.page_size, a.page_increment, a.value
+        (20.0, 20.0, 10.0)
+        """
+        size = min(canvas_size, viewport_size)
+        adjustment.page_size = size
+        adjustment.page_increment = size
+        adjustment.step_increment = size/10
+        adjustment.upper = canvas_size
+        adjustment.lower = 0
+        #adjustment.changed()
+        
+        value = max(0, min(value, canvas_size - size))
+        if value != adjustment.value:
+            adjustment.value = value
+            #adjustment.value_changed()
+
+    def update_adjustments(self):
+        pass
 
     def queue_draw_item(self, *items, **kwargs):
         """Like DrawingArea.queue_draw_area, but use the bounds of the
@@ -211,9 +271,18 @@ class View(gtk.DrawingArea):
         """
         super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
-#    def do_size_allocate(self, allocation):
-#        super(View, self).do_size_allocate(allocation);
-#        # TODO: update adjustments (v+h)
+    @nonrecursive
+    def do_size_allocate(self, allocation):
+        """Allocate the widget size (x, y, width, height).
+        """
+        gtk.DrawingArea.do_size_allocate(self, allocation)
+        #super(View, self).do_size_allocate(self, allocation);
+        # TODO: update adjustments (v+h)
+        self._update_adjustment(self._hadjustment,
+                                value = self._hadjustment.value,
+                                canvas_size=allocation.width * 2,
+                                viewport_size=allocation.width)
+        #print dir(allocation)
        
     def _draw_items(self, items, cairo_context):
         """Draw the items. This method can also be called from DrawContext
@@ -325,39 +394,10 @@ class View(gtk.DrawingArea):
             return getattr(self._tool, handler)(self, event) and True or False
         return False
 
-if __name__ == '__main__':
-    from canvas import Canvas
-    from examples import Box, Text
-    from tool import DefaultToolChain
-    import math
-    w = gtk.Window()
-    v = View()
-    w.add(v)
-    w.connect('destroy', gtk.main_quit)
-    w.show_all()
 
-    c=Canvas()
-    v.canvas = c
-    v.tool = DefaultToolChain()
-#    v.tool = HandleTool()
-    b=Box()
-    print 'box', b
-    b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
-    b.width=b.height = 40
-    c.add(b)
-    bb=Box()
-    print 'box', bb
-    bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
-    c.add(bb, parent=b)
-    #v.selected_items = bb
-    bb=Box()
-    print 'box', bb
-    bb.matrix.rotate(math.pi/4.)
-    c.add(bb, parent=b)
-    t=Text()
-    t.matrix.translate(70,70)
-    c.add(t)
-    gtk.main()
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
 
 
 # vim: sw=4:et:

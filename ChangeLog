@@ -1,3 +1,7 @@
+2006-04-18  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * demo.py: moved demo code from view.py to demo.py
+
 2006-04-14  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* tool.py: Made handle tool work, added it to the ToolChain.

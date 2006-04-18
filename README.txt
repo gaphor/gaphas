@@ -13,6 +13,12 @@ The basic idea is:
  - more modular: e.g. handle support could be swapped in and swapped out.
  - rendering using Cairo.
 
+To do
+=====
+ - gtk.Adjustment for x/y movement
+ - Line item class
+ - Connect item protocol
+ - Text edit protocol (gtk.Edit in popup window?)
 
 How it Works
 ============
