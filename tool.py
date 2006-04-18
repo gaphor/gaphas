@@ -1,8 +1,8 @@
 """Tools are used to add interactive behavior to a View.
 
 Tools can either not act on an event (None), just handle the event
-(HANDLED) or grab the event and all successive events until the tool is done
-(GRAB, UNGRAB; e.g. on a button press/release).
+or grab the event and all successive events until the tool is done
+(e.g. on a button press/release).
 
 The tools in this module are made to work properly in a ToolChain.
 
@@ -19,19 +19,15 @@ Required:
 Maybe even:
     TextEditTool - for editing text on canvas items (that support it)
     
-TODO:
-    use context in stead of 'view' in event handlers
     (context.view = view; context.grab() to grab, context.ungrab() to ungrab)
 """
 
 import cairo
 import gtk
+from canvas import Context
 
 DEBUG_TOOL = False
-
-HANDLED = 1
-GRAB = 2
-UNGRAB = 3
+DEBUG_TOOL_CHAIN = False
 
 class Tool(object):
 
@@ -110,6 +106,34 @@ class Tool(object):
         """
         pass
         
+class ToolChainContext(Context):
+    """ToolChainContext is a wrapper for the view.ToolContext.
+    In addition to normal grab/ungrab behavior, it selects the tool that
+    is requesting the grab() as the one tool that will receive subsequent
+    requests until it is ungrab()'ed.
+    """
+
+    def __init__(self, tool_chain, tool_context, **kwargs):
+        super(ToolChainContext, self).__init__(**kwargs)
+        self.__dict__['_tool_chain'] = tool_chain
+        self.__dict__['_tool_context'] = tool_context
+
+    def __getattr__(self, key):
+        """Delegate the getattr request to the wrapped tool_context.
+        """
+        return getattr(self._tool_context, key)
+
+    def set_tool(self, tool):
+        self.__dict__['_tool'] = tool
+
+    def grab(self):
+        self._tool_context.grab()
+        self._tool_chain.grab(self._tool)
+
+    def ungrab(self):
+        self._tool_context.ungrab()
+        self._tool_chain.ungrab(self._tool)
+
 
 class ToolChain(Tool):
     """A ToolChain can be used to chain tools together, for example HoverTool,
@@ -126,22 +150,30 @@ class ToolChain(Tool):
     def prepend(self, tool):
         self._tools.insert(0, tool)
 
+    def grab(self, tool):
+        if not self._grabbed_tool:
+            if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
+            self._grabbed_tool = tool
+
+    def ungrab(self, tool):
+        if self._grabbed_tool is tool:
+            if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
+            self._grabbed_tool = None
+
     def _handle(self, func, context, event):
         """Handle the event by calling each tool until the event is handled
         or grabbed.
         """
+        context = ToolChainContext(tool_chain=self, tool_context=context)
         if self._grabbed_tool:
-            if getattr(self._grabbed_tool, func)(context, event) in (UNGRAB, None):
-                if DEBUG_TOOL: print 'UNgrab tool', self._grabbed_tool
-                self._grabbed_tool = None
+            context.set_tool(self._grabbed_tool)
+            return getattr(self._grabbed_tool, func)(context, event)
         else:
             for tool in self._tools:
-                if DEBUG_TOOL: print 'tool', tool
+                if DEBUG_TOOL_CHAIN: print 'tool', tool
+                context.set_tool(tool)
                 rt = getattr(tool, func)(context, event)
-                if rt == GRAB:
-                    if DEBUG_TOOL: print 'Grab tool', tool
-                    self._grabbed_tool = tool
-                if rt in (HANDLED, GRAB):
+                if rt:
                     return rt
         
     def on_button_press(self, context, event):
@@ -177,7 +209,6 @@ class HoverTool(Tool):
         view = context.view
         old_hovered = view.hovered_item
         view.hovered_item = view.get_item_at_point(event.x, event.y)
-        #view.hovered_item = view.get_item_at_point(context.wx, context.wy)
         return None
 
 
@@ -203,11 +234,11 @@ class ItemTool(Tool):
         if view.hovered_item:
             view.focused_item = view.hovered_item
         context.grab()
-        return GRAB
+        return True
 
     def on_button_release(self, context, event):
         context.ungrab()
-        return UNGRAB
+        return True
 
     def on_motion_notify(self, context, event):
         """Normally, just check which item is under the mouse pointer
@@ -231,18 +262,16 @@ class ItemTool(Tool):
                     continue
 
                 # Calculate the distance the item has to be moved
-                dx, dy = event.x - self.last_x, event.y - self.last_y
+                dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
                 # Move the item and schedule it for an update
                 i.matrix.translate(*view.canvas.get_matrix_w2i(i).transform_distance(dx, dy))
                 i.request_update()
                 i.canvas.update_matrices()
                 b = i._view_bounds
                 view.queue_draw_item(i, handles=True)
-                view.queue_draw_area(b[0] + dx, b[1] + dy, b[2] - b[0], b[3] - b[1])
+                view.queue_draw_area(b[0] + dx-1, b[1] + dy-1, b[2] - b[0]+2, b[3] - b[1]+2)
             self.last_x, self.last_y = event.x, event.y
-            context.grab()
-            return GRAB
-        return HANDLED
+        return True
 
 
 class HandleTool(Tool):
@@ -262,13 +291,9 @@ class HandleTool(Tool):
             # maintained by the canvas
             itemlist.append(view.focused_item)
 
-        # TODO: move to separate function
-        inverse = cairo.Matrix(*view._matrix)
-        inverse.invert()
-        wx, wy = inverse.transform_point(event.x, event.y)
+        wx, wy = view.transform_point_c2w(event.x, event.y)
 
         for item in reversed(itemlist):
-            #x, y = view.canvas.get_matrix_w2i(item).transform_point(event.x, event.y)
             x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
             for h in item.handles():
                 if abs(x - h.x) < 5 and abs(y - h.y) < 5:
@@ -282,19 +307,18 @@ class HandleTool(Tool):
                         del view.selected_items
                     view.hovered_item = item
                     view.focused_item = item
-                    print 'Grab handle', h, 'of', item
                     context.grab()
-                    return GRAB
+                    return True
 
     def on_button_release(self, context, event):
         context.ungrab()
-        return UNGRAB
+        return True
 
     def on_motion_notify(self, context, event):
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
             view = context.view
             # Calculate the distance the item has to be moved
-            dx, dy = event.x - self.last_x, event.y - self.last_y
+            dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
             item = self._grabbed_item
             handle = self._grabbed_handle
 
@@ -310,7 +334,7 @@ class HandleTool(Tool):
 
             view.queue_draw_item(item, handles=True)
             self.last_x, self.last_y = event.x, event.y
-            return GRAB
+            return True
 
 
 def DefaultToolChain():

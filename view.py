@@ -259,6 +259,9 @@ class View(gtk.DrawingArea):
                     return item
         return None
 
+    def zoom(self, factor):
+        self._matrix.scale(factor, factor)
+
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
         """
         >>> v = View()
@@ -283,18 +286,40 @@ class View(gtk.DrawingArea):
             adjustment.value = value
             adjustment.value_changed()
 
+    def transform_distance_c2w(self, x, y):
+        """Transform a point from canvas to world coordinates.
+        """
+        inverse = Matrix(*self._matrix)
+        inverse.invert()
+        return inverse.transform_distance(x, y)
+
+    def transform_point_c2w(self, x, y):
+        """Transform a point from canvas to world coordinates.
+        """
+        inverse = Matrix(*self._matrix)
+        inverse.invert()
+        return inverse.transform_point(x, y)
+
+    def get_canvas_size(self, allocation=None):
+        """The canvas size (width, height) in canvas coordinates.
+        """
+        inverse = Matrix(*self._matrix)
+        inverse.invert()
+        ww, wh = self.transform_point_c2w(self._bounds.x1, self._bounds.y1)
+        return self._matrix.transform_distance(ww, wh)
+
     def update_adjustments(self, allocation=None):
         """Update the allocation objects (for scrollbars).
         """
         if not allocation: allocation = self.allocation
-        #print 'canvas_size', allocation.x, self._bounds.x1
+        w, h = self.get_canvas_size()
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
-                                canvas_size=allocation.x + self._bounds.x1,
+                                canvas_size=w,
                                 viewport_size=allocation.width)
         self._update_adjustment(self._vadjustment,
                                 value = self._vadjustment.value,
-                                canvas_size=allocation.y + self._bounds.y1,
+                                canvas_size=h,
                                 viewport_size=allocation.height)
 
     def queue_draw_item(self, *items, **kwargs):
@@ -309,7 +334,7 @@ class View(gtk.DrawingArea):
             except AttributeError:
                 pass # No bounds calculated yet? bummer.
             else:
-                self.queue_draw_area(b[0], b[1], b[2] - b[0], b[3] - b[1])
+                self.queue_draw_area(b[0]-1, b[1]-1, b[2]-b[0]+2, b[3]-b[1]+2)
 		if handles:
                     for h in item.handles():
                         x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
@@ -378,9 +403,10 @@ class View(gtk.DrawingArea):
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo_context.save()
-        #cairo_context.identity_matrix()
-        cairo_context.set_matrix(self._matrix)
-        m = self._canvas.get_matrix_i2w(item)
+        cairo_context.identity_matrix()
+        #cairo_context.set_matrix(self._matrix)
+        m = Matrix(*self._canvas.get_matrix_i2w(item))
+        m *= self._matrix
         opacity = (item is self._focused_item) and .7 or .4
         for h in item.handles():
             cairo_context.save()

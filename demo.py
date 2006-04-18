@@ -18,6 +18,7 @@ w.add(t)
 w.connect('destroy', gtk.main_quit)
 
 v = View()
+#v.zoom(1.1)
 v.set_size_request(100, 100)
 hs = gtk.HScrollbar(v.hadjustment)
 vs = gtk.VScrollbar(v.vadjustment)

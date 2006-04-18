@@ -15,7 +15,7 @@ The basic idea is:
 
 To do
 =====
- - gtk.Adjustment for x/y movement (partly done)
+ # (works) gtk.Adjustment for x/y movement (partly done)
  - Line item class
  - Connect item protocol
  - Text edit protocol (gtk.Edit in popup window?)
