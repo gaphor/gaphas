@@ -297,12 +297,15 @@ class HandleTool(Tool):
             # maintained by the canvas
             itemlist.append(view.focused_item)
 
-        wx, wy = view.transform_point_c2w(event.x, event.y)
+        #wx, wy = view.transform_point_c2w(event.x, event.y)
 
         for item in reversed(itemlist):
-            x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
+            #x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
             for h in item.handles():
-                if abs(x - h.x) < 5 and abs(y - h.y) < 5:
+                wx, wy = view.canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
+                x, y = view.transform_point_w2c(wx, wy)
+                #if abs(x - h.x) < 5 and abs(y - h.y) < 5:
+                if abs(x - event.x) < 5 and abs(y - event.y) < 5:
                     self._grabbed_handle = h
                     self._grabbed_item = item
                     self.last_x, self.last_y = event.x, event.y

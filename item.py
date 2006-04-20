@@ -108,9 +108,6 @@ class Item(object):
 	pass
 
 
-
-from solver import solvable
-
 [ NW,
   NE,
   SW,
@@ -121,6 +118,8 @@ class Element(Item):
      NW +---+ NE
      SW +---+ SE
     """
+    min_width = solvable(strength=100)
+    min_height = solvable(strength=100)
 
     def __init__(self, width=10, height=10):
         super(Element, self).__init__()
@@ -130,7 +129,8 @@ class Element(Item):
         self._constraints = []
         self.width = width
         self.height = height
-
+        self.min_width = 10
+        self.min_height = 10
     def _set_width(self, width):
         """
         >>> b=Element()
@@ -199,13 +199,15 @@ class Element(Item):
         >>> float(b._handles[SW].y)
         30.0
         """
-        def equal(a,b): return a - b
+        def eq(a,b): return a - b
         h=self._handles
+        mw = self.min_width
+        mh = self.min_height
         self._constraints = [
-            self.canvas.solver.add_constraint(equal, a=h[NW].y, b=h[NE].y),
-            self.canvas.solver.add_constraint(equal, a=h[SW].y, b=h[SE].y),
-            self.canvas.solver.add_constraint(equal, a=h[NW].x, b=h[SW].x),
-            self.canvas.solver.add_constraint(equal, a=h[NE].x, b=h[SE].x)
+            self.canvas.solver.add_constraint(eq, a=h[NW].y, b=h[NE].y),
+            self.canvas.solver.add_constraint(eq, a=h[SW].y, b=h[SE].y),
+            self.canvas.solver.add_constraint(eq, a=h[NW].x, b=h[SW].x),
+            self.canvas.solver.add_constraint(eq, a=h[NE].x, b=h[SE].x)
             ]
         self.canvas.solver.mark_dirty(h[NW].x)
         self.canvas.solver.mark_dirty(h[NW].y)

@@ -298,12 +298,22 @@ class View(gtk.DrawingArea):
         inverse.invert()
         return inverse.transform_distance(x, y)
 
+    def transform_distance_w2c(self, x, y):
+        """Transform a point from world to canvas coordinates.
+        """
+        return self._matrix.transform_distance(x, y)
+
     def transform_point_c2w(self, x, y):
         """Transform a point from canvas to world coordinates.
         """
         inverse = Matrix(*self._matrix)
         inverse.invert()
         return inverse.transform_point(x, y)
+
+    def transform_point_w2c(self, x, y):
+        """Transform a point from world to canvas coordinates.
+        """
+        return self._matrix.transform_point(x, y)
 
     def get_canvas_size(self, allocation=None):
         """The canvas size (width, height) in canvas coordinates.
