@@ -13,13 +13,33 @@ The basic idea is:
  - more modular: e.g. handle support could be swapped in and swapped out.
  - rendering using Cairo.
 
+
 To do
 =====
- # (works) gtk.Adjustment for x/y movement (partly done)
- - Line item class
- - Connect item protocol
- - Text edit protocol (gtk.Edit in popup window?)
- - make update cycle independant from render (expose) event.
+
+This is it as far as stage 1 is concerned. I have implemented:
+ - a render cycle.
+ - zoom and move functionality (canvas2world).
+ - scrollbars work.
+ - a set of tools and a ToolChain (to chain them together).
+ - rubberband selection
+
+Stage 2:
+ - check the code with pylint for strange things.
+ - line item
+ - connection protocol
+ ? make update cycle independant from render (expose) event.
+ ? rotating and shearing for Element items. Do we need this?
+
+Stage 3:
+ - text edit tool (gtk.Edit in popup window?)
+
+Stage n:
+ - Dropzone tool
+     the idea is that for example you have a Package and when you drag
+     a Class into it it automatically makes the Package its owning element.
+ - undo management
+
 
 How it Works
 ============
@@ -99,6 +119,7 @@ Tools can be chained together in order to provide more complex behavior.
 DefaultTool
 HandleTool
 ChainTool (connect behavior of tools)
+
 
 Files
 =====
