@@ -9,7 +9,7 @@ import gtk
 from view import View
 from canvas import Canvas
 from tool import DefaultToolChain
-from examples import Box, Text
+from examples import Box, Line, Text
 
 import math
 w = gtk.Window()
@@ -18,7 +18,7 @@ w.add(t)
 w.connect('destroy', gtk.main_quit)
 
 v = View()
-#v.zoom(1.1)
+v.zoom(1.2)
 v.set_size_request(100, 100)
 hs = gtk.HScrollbar(v.hadjustment)
 vs = gtk.VScrollbar(v.vadjustment)
@@ -48,6 +48,10 @@ bb=Box()
 print 'box', bb
 bb.matrix.rotate(math.pi/4.)
 c.add(bb, parent=b)
+
+l=Line()
+l.matrix.translate(30, 30)
+c.add(l)
 
 t=Text()
 t.matrix.translate(70,70)

@@ -259,6 +259,11 @@ class View(gtk.DrawingArea):
                     return item
         return None
 
+    def select_in_rectangle(self, rect):
+        for item in self._canvas.get_all_items():
+            if item._view_bounds in rect:
+                self.select_item(item)
+
     def zoom(self, factor):
         self._matrix.scale(factor, factor)
 
@@ -386,15 +391,14 @@ class View(gtk.DrawingArea):
                     self._bounds += item._view_bounds
 
                 if DEBUG_DRAW_BOUNDING_BOX:
-                    ctx = cairo_context
-                    ctx.save()
-                    ctx.identity_matrix()
-                    ctx.set_source_rgb(.8, 0, 0)
-                    ctx.set_line_width(1.0)
                     b = item._view_bounds
-                    ctx.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-                    ctx.stroke()
-                    ctx.restore()
+                    cairo_context.save()
+                    cairo_context.identity_matrix()
+                    cairo_context.set_source_rgb(.8, 0, 0)
+                    cairo_context.set_line_width(1.0)
+                    cairo_context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+                    cairo_context.stroke()
+                    cairo_context.restore()
             finally:
                 cairo_context.restore()
 
@@ -428,6 +432,9 @@ class View(gtk.DrawingArea):
     def do_expose_event(self, event):
         """Render some text to the screen.
         """
+        if not self._canvas:
+            return
+
         # Set this to some idle function
         if self._canvas.require_update():
             self._canvas.update_now()
@@ -438,25 +445,27 @@ class View(gtk.DrawingArea):
                                    area.x, area.y, area.width, area.height)
 
         #print 'expose', area.x, area.y, area.width, area.height, event.count
-        if self._canvas:
-            context = self.window.cairo_create()
+        context = self.window.cairo_create()
 
-            if self._calculate_bounding_box:
-                self._bounds = Rectangle()
+        if self._calculate_bounding_box:
+            self._bounds = Rectangle()
 
-            # Draw no more than nessesary.
-            context.rectangle(area.x, area.y, area.width, area.height)
-            context.clip()
+        # Draw no more than nessesary.
+        context.rectangle(area.x, area.y, area.width, area.height)
+        context.clip()
 
-            self._draw_items(self._canvas.get_root_items(), context)
+        self._draw_items(self._canvas.get_root_items(), context)
 
-            # Draw handles of selected items on top of the items.
-            # Conpare with canvas.get_all_items() to determine drawing order.
-            for item in (i for i in self._canvas.get_all_items() if i in self._selected_items):
-                self._draw_handles(item, context)
+        # Draw handles of selected items on top of the items.
+        # Conpare with canvas.get_all_items() to determine drawing order.
+        for item in (i for i in self._canvas.get_all_items() if i in self._selected_items):
+            self._draw_handles(item, context)
 
-            if self._tool:
-                self._tool.draw(Context(view=self, cairo=context))
+        if self._tool:
+	    context.save()
+	    context.identity_matrix()
+            self._tool.draw(Context(view=self, cairo=context))
+	    context.restore()
 
 	if DEBUG_DRAW_BOUNDING_BOX:
 	    context.save()

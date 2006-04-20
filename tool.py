@@ -14,7 +14,7 @@ Current tools:
 
 Required:
     PlacementTool - for placing items on the canvas
-    RubberBandTool - for Rubber band selection
+    RubberbandTool - for Rubber band selection
 
 Maybe even:
     TextEditTool - for editing text on canvas items (that support it)
@@ -25,6 +25,7 @@ Maybe even:
 import cairo
 import gtk
 from canvas import Context
+from geometry import Rectangle
 
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
@@ -197,6 +198,11 @@ class ToolChain(Tool):
     def on_key_release(self, context, event):
         self._handle('on_key_release', context, event)
 
+    def draw(self, context):
+        print self, 'draw'
+        if self._grabbed_tool:
+            self._grabbed_tool.draw(context)
+
 
 class HoverTool(Tool):
     """Make the item under the mouse cursor the "hovered item".
@@ -233,8 +239,8 @@ class ItemTool(Tool):
             del view.selected_items
         if view.hovered_item:
             view.focused_item = view.hovered_item
-        context.grab()
-        return True
+            context.grab()
+            return True
 
     def on_button_release(self, context, event):
         context.ungrab()
@@ -271,7 +277,7 @@ class ItemTool(Tool):
                 view.queue_draw_item(i, handles=True)
                 view.queue_draw_area(b[0] + dx-1, b[1] + dy-1, b[2] - b[0]+2, b[3] - b[1]+2)
             self.last_x, self.last_y = event.x, event.y
-        return True
+            return True
 
 
 class HandleTool(Tool):
@@ -337,6 +343,47 @@ class HandleTool(Tool):
             return True
 
 
+class RubberbandTool(Tool):
+
+    def __init__(self):
+        self.rect = Rectangle()
+
+    def on_button_press(self, context, event):
+        context.grab()
+        self.rect.x0, self.rect.y0 = event.x, event.y
+        self.rect.x1, self.rect.y1 = event.x, event.y
+        return True
+
+    def on_button_release(self, context, event):
+        context.ungrab()
+        self.queue_draw(context.view)
+        r = self.rect
+        r = Rectangle(min(r.x0, r.x1), min(r.y0, r.y1), width=abs(r.width), height=abs(r.height))
+        context.view.select_in_rectangle(r)
+        return True
+
+    def on_motion_notify(self, context, event):
+        if event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            view = context.view
+            self.queue_draw(view)
+            self.rect.x1, self.rect.y1 = event.x, event.y
+            self.queue_draw(view)
+            return True
+
+    def queue_draw(self, view):
+            r = self.rect
+            view.queue_draw_area(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
+
+    def draw(self, context):
+        print self.rect
+        c = context.cairo
+        r = self.rect
+        c.set_line_width(1.0)
+        c.set_source_rgba(.5, .5, .7, .6)
+        c.rectangle(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
+        c.fill()
+
+
 def DefaultToolChain():
     """The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
@@ -344,6 +391,7 @@ def DefaultToolChain():
     chain.append(HoverTool())
     chain.append(HandleTool())
     chain.append(ItemTool())
+    chain.append(RubberbandTool())
     return chain
 
 

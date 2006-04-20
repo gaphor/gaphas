@@ -1,3 +1,7 @@
+2006-04-20  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * tool.py: added runnerband selection tool.
+
 2006-04-18  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * demo.py: moved demo code from view.py to demo.py

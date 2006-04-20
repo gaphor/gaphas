@@ -2,7 +2,7 @@
 These items are used in various tests.
 """
 
-from item import Element, Item
+from item import Handle, Element, Item
 from item import NW, NE,SW, SE
 from solver import solvable
 
@@ -30,6 +30,25 @@ class Box(Element):
         c.stroke()
         context.draw_children()
 
+
+class Line(Item):
+
+    def __init__(self):
+        super(Line, self).__init__()
+        self._handles = [Handle(), Handle()]
+        self._handles[1].pos = (10, 10)
+
+    def handles(self):
+        return iter(self._handles)
+
+    def draw(self, context):
+        #print 'Box.draw', self
+        c = context.cairo
+        h = self._handles[0]
+        c.move_to(float(h.x), float(h.y))
+        for h in self._handles[1:]:
+            c.line_to(float(h.x), float(h.y))
+        c.stroke()
 
 class Text(Item):
 
