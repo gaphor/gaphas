@@ -387,7 +387,7 @@ class RubberbandTool(Tool):
         c.fill()
 
 
-def DefaultToolChain():
+def DefaultTool():
     """The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
     chain = ToolChain()

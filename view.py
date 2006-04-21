@@ -11,6 +11,8 @@ import gtk
 from cairo import Matrix, ANTIALIAS_NONE
 from canvas import Context
 from geometry import Rectangle
+from tool import DefaultTool
+from painter import DefaultPainter
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -42,25 +44,11 @@ def nonrecursive(func):
     return wrapper
 
 
-class DrawContext(Context):
-    """Special context for draw()'ing the item. The draw-context contains
-    stuff like the view, the cairo context and properties like selected and
-    focused.
-    """
-
-    def __init__(self, **kwargs):
-        super(DrawContext, self).__init__(**kwargs)
-
-    def draw_children(self):
-        """Extra helper method for drawing child items from within
-        the Item.draw() method.
-        """
-        self.view._draw_items(self.children, self.cairo)
-
-
 class ToolContext(Context):
     """Special context for tools.
     """
+
+    view = None
 
     def __init__(self, **kwargs):
         super(ToolContext, self).__init__(**kwargs)
@@ -74,57 +62,6 @@ class ToolContext(Context):
         """Ungrab the view.
         """
         pass
-
-
-class CairoContextWrapper(object):
-    """Delegate all calls to the wrapped CairoContext, intercept
-    stroke(), fill() and a few others so the bounding box of the
-    item involved can be calculated.
-    """
-
-    def __init__(self, cairo_context):
-        self._cairo_context = cairo_context
-        self._bounds = None # a Rectangle object
-
-    def __getattr__(self, key):
-        return getattr(self._cairo_context, key)
-
-    def _update_bounds(self, bounds):
-        if not self._bounds:
-            self._bounds = Rectangle(*bounds)
-        else:
-            self._bounds += bounds
-
-    def _extents(self, funcname):
-        ctx = self._cairo_context
-        ctx.save()
-        ctx.identity_matrix()
-        self._update_bounds(getattr(ctx, funcname)())
-        ctx.restore()
-        
-    def fill(self):
-        self._extents('fill_extents')
-        return self._cairo_context.fill()
-
-    def fill_preserve(self):
-        self._extents('fill_extents')
-        return self._cairo_context.fill_preserve()
-
-    def stroke(self):
-        self._extents('stroke_extents')
-        return self._cairo_context.stroke()
-
-    def stroke_preserve(self):
-        self._extents('stroke_extents')
-        return self._cairo_context.stroke_preserve()
-
-    def show_text(self, utf8):
-        ctx = self._cairo_context
-        e = self._cairo_context.text_extents(utf8)
-        x0, y0 = ctx.user_to_device(e[0], e[1])
-        x1, y1 = ctx.user_to_device(e[0]+e[2], e[1]+e[3])
-        self._update_bounds((x0, y0, x1, y1))
-        return ctx.show_text(utf8)
 
 
 # Map GDK events to tool methods
@@ -164,8 +101,11 @@ class View(gtk.DrawingArea):
         self.hadjustment = gtk.Adjustment()
         self.vadjustment = gtk.Adjustment()
 
-        self._tool = None
+        self._tool = DefaultTool()
+        self._painter = DefaultPainter()
         self._calculate_bounding_box = False
+
+    matrix = property(lambda s: s._matrix)
 
     def _set_canvas(self, canvas):
         self._canvas = canvas
@@ -350,7 +290,7 @@ class View(gtk.DrawingArea):
                 pass # No bounds calculated yet? bummer.
             else:
                 self.queue_draw_area(b[0]-1, b[1]-1, b[2]-b[0]+2, b[3]-b[1]+2)
-		if handles:
+                if handles:
                     for h in item.handles():
                         x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
                         x, y = self._matrix.transform_point(x, y)
@@ -369,76 +309,6 @@ class View(gtk.DrawingArea):
         # doesn't work: super(View, self).do_size_allocate(allocation)
         self.update_adjustments(allocation)
        
-    def _draw_items(self, items, cairo_context):
-        """Draw the items. This method can also be called from DrawContext
-        to draw sub-items.
-        """
-        for item in items:
-            cairo_context.save()
-            try:
-                #cairo_context.set_matrix(self._canvas.get_matrix_i2w(item))
-                cairo_context.set_matrix(self._matrix)
-                cairo_context.transform(self._canvas.get_matrix_i2w(item))
-
-                if self._calculate_bounding_box:
-                    the_context = CairoContextWrapper(cairo_context)
-                else:
-                    # No wrapper:
-                    the_context = cairo_context
-
-                item.draw(DrawContext(view=self,
-                                      cairo=the_context,
-                                      parent=self._canvas.get_parent(item),
-                                      children=self._canvas.get_children(item),
-                                      selected=(item in self._selected_items),
-                                      focused=(item is self._focused_item),
-                                      hovered=(item is self._hovered_item)))
-
-                if self._calculate_bounding_box:
-                    item._view_bounds = the_context._bounds
-                    item._view_bounds.x1 += 1
-                    item._view_bounds.y1 += 1
-                    self._bounds += item._view_bounds
-
-                if DEBUG_DRAW_BOUNDING_BOX:
-                    b = item._view_bounds
-                    cairo_context.save()
-                    cairo_context.identity_matrix()
-                    cairo_context.set_source_rgb(.8, 0, 0)
-                    cairo_context.set_line_width(1.0)
-                    cairo_context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-                    cairo_context.stroke()
-                    cairo_context.restore()
-            finally:
-                cairo_context.restore()
-
-    def _draw_handles(self, item, cairo_context):
-        """Draw handles for an item.
-        The handles are drawn in non-antialiased mode for clearity.
-        """
-        cairo_context.save()
-        cairo_context.identity_matrix()
-        #cairo_context.set_matrix(self._matrix)
-        m = Matrix(*self._canvas.get_matrix_i2w(item))
-        m *= self._matrix
-        opacity = (item is self._focused_item) and .7 or .4
-        for h in item.handles():
-            cairo_context.save()
-            cairo_context.set_antialias(ANTIALIAS_NONE)
-            cairo_context.translate(*m.transform_point(h.x, h.y))
-            cairo_context.rectangle(-4, -4, 8, 8)
-            cairo_context.set_source_rgba(0, 1, 0, opacity)
-            cairo_context.fill_preserve()
-            cairo_context.move_to(-2, -2)
-            cairo_context.line_to(2, 3)
-            cairo_context.move_to(2, -2)
-            cairo_context.line_to(-2, 3)
-            cairo_context.set_source_rgba(0, .2, 0, 0.9)
-            cairo_context.set_line_width(1)
-            cairo_context.stroke()
-            cairo_context.restore()
-        cairo_context.restore()
-
     def do_expose_event(self, event):
         """Render some text to the screen.
         """
@@ -464,28 +334,19 @@ class View(gtk.DrawingArea):
         context.rectangle(area.x, area.y, area.width, area.height)
         context.clip()
 
-        self._draw_items(self._canvas.get_root_items(), context)
+        self._painter.paint(Context(view=self,
+                                    cairo=context,
+                                    update_bounds=self._calculate_bounding_box))
 
-        # Draw handles of selected items on top of the items.
-        # Conpare with canvas.get_all_items() to determine drawing order.
-        for item in (i for i in self._canvas.get_all_items() if i in self._selected_items):
-            self._draw_handles(item, context)
-
-        if self._tool:
-	    context.save()
-	    context.identity_matrix()
-            self._tool.draw(Context(view=self, cairo=context))
-	    context.restore()
-
-	if DEBUG_DRAW_BOUNDING_BOX:
-	    context.save()
-	    context.identity_matrix()
-	    context.set_source_rgb(0,.8, 0)
-	    context.set_line_width(1.0)
-	    b = self._bounds
-	    context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-	    context.stroke()
-	    context.restore()
+        if DEBUG_DRAW_BOUNDING_BOX:
+            context.save()
+            context.identity_matrix()
+            context.set_source_rgb(0,.8, 0)
+            context.set_line_width(1.0)
+            b = self._bounds
+            context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+            context.stroke()
+            context.restore()
 
         if self._calculate_bounding_box:
             self.update_adjustments()

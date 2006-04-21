@@ -8,7 +8,6 @@ pygtk.require('2.0')
 import gtk
 from view import View
 from canvas import Canvas
-from tool import DefaultToolChain
 from examples import Box, Line, Text
 
 import math
@@ -28,7 +27,6 @@ t.attach(vs, 1, 2, 0, 1, xoptions=gtk.FILL, yoptions=gtk.FILL)
 
 c=Canvas()
 v.canvas = c
-v.tool = DefaultToolChain()
 
 # Add stuff to the canvas:
 

@@ -1,3 +1,8 @@
+2006-04-21  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* painter.py: moved drawing code out of the view, into special
+	Painters.
+
 2006-04-20  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * tool.py: added runnerband selection tool.
