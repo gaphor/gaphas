@@ -19,7 +19,7 @@ w.connect('destroy', gtk.main_quit)
 
 v = View()
 v.zoom(1.2)
-v.set_size_request(100, 100)
+v.set_size_request(150, 120)
 hs = gtk.HScrollbar(v.hadjustment)
 vs = gtk.VScrollbar(v.vadjustment)
 t.attach(v, 0, 1, 0, 1)
@@ -53,6 +53,7 @@ l.handles()[1].pos = (30, 30)
 l.split_segment(0, 3)
 l.matrix.translate(30, 60)
 c.add(l)
+l.orthogonal = True
 
 t=Text()
 t.matrix.translate(70,70)

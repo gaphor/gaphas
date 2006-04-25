@@ -29,7 +29,10 @@ class Variable(object):
         self._solver = None
         self._constraints = set()
 
-    strength = property(lambda s: s._strength)
+    def _set_strength(self, strength):
+        self._strength = strength
+
+    strength = property(lambda s: s._strength, _set_strength)
 
     def set_value(self, value):
         self._value = float(value)

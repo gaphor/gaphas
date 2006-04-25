@@ -1,6 +1,6 @@
 
 from geometry import Matrix, distance_line_point
-from solver import solvable
+from solver import solvable, WEAK, NORMAL, STRONG
 
 class Handle(object):
     """Handles are used to support modifications of Items.
@@ -9,9 +9,11 @@ class Handle(object):
     x = solvable()
     y = solvable()
 
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0, y=0, strength=NORMAL):
         self.x = x
         self.y = y
+        self.x.strength = strength
+        self.y.strength = strength
         # Flags.. can't have enough of those
         self._connectable = True
         self._movable = True
@@ -151,12 +153,13 @@ class Element(Item):
         super(Element, self).__init__()
         #self._handles = [Handle(0, 0), Handle(width, 0),
         #                 Handle(0, height), Handle(width, height)]
-        self._handles = [ h() for h in [Handle]*4 ]
+        self._handles = [ h(strength=STRONG) for h in [Handle]*4 ]
         self._constraints = []
         self.width = width
         self.height = height
         self.min_width = 10
         self.min_height = 10
+
     def _set_width(self, width):
         """
         >>> b=Element()
@@ -164,9 +167,9 @@ class Element(Item):
         >>> b.width
         20.0
         >>> b._handles[NW].x
-        Variable(0, 20)
+        Variable(0, 30)
         >>> b._handles[SE].x
-        Variable(20, 20)
+        Variable(20, 30)
         """
         h = self._handles
         h[SE].x = h[NW].x + width
@@ -187,9 +190,9 @@ class Element(Item):
         >>> b.height
         20.0
         >>> b._handles[NW].y
-        Variable(0, 20)
+        Variable(0, 30)
         >>> b._handles[SE].y
-        Variable(20, 20)
+        Variable(20, 30)
         """
         h = self._handles
         h[SE].y = h[NW].y + height
@@ -281,11 +284,59 @@ class Element(Item):
 
 class Line(Item):
     """A Line item.
+
+    Properties:
+     - fuzzyness (0.0..n): an extra margin that should be taken into account
+         when calculating the distance from the line (using point()).
+     - orthogonal (bool): wherther or not the line should be orthogonal
+         (only straight angles)
+     - line_width: width of the line to be drawn
     """
 
     def __init__(self):
         super(Line, self).__init__()
         self._handles = [Handle(), Handle(10, 10)]
+
+        self.line_width = 2
+        self.fuzzyness = 0
+        self._orthogonal = []
+
+    def _set_orthogonal(self, orthogonal):
+        """
+        >>> a = Line()
+        >>> a.orthogonal
+        False
+        """
+        for c in self._orthogonal:
+            self.canvas.solver.remove_constraint(c)
+
+        if not orthogonal:
+            return
+
+        h = self._handles
+        if len(h) < 3:
+            self.split_segment(0)
+        eq = lambda a, b: a - b
+        add = self.canvas.solver.add_constraint
+        cons = self._orthogonal
+        for pos, (h0, h1) in enumerate(zip(h, h[1:])):
+            if pos % 2: # odd
+                cons.append(add(eq, a=h0.x, b=h1.x))
+            else:
+                cons.append(add(eq, a=h0.y, b=h1.y))
+    
+    orthogonal = property(lambda s: s._orthogonal != [], _set_orthogonal)
+
+    def setup_canvas(self):
+        """Setup constraints. In this case orthogonal.
+        """
+        self.orthogonal = self.orthogonal
+
+    def teardown_canvas(self):
+        """Remove constraints created in setup_canvas().
+        """
+        for c in self._orthogonal:
+            self.canvas.solver.remove(c)
 
     def split_segment(self, segment, parts=2):
         """Split one segment in the Line in @parts pieces.
@@ -316,7 +367,7 @@ class Line(Item):
         h0 = self._handles[segment]
         h1 = self._handles[segment + 1]
         dx, dy = h1.x - h0.x, h1.y - h0.y
-        new_h = Handle(h0.x + dx / parts, h0.y + dy / parts)
+        new_h = Handle(h0.x + dx / parts, h0.y + dy / parts, strength=WEAK)
         self._handles.insert(segment + 1, new_h)
         # TODO: reconnect connected handles.
         if parts > 2:
@@ -348,12 +399,18 @@ class Line(Item):
         """Obtain a tuple (distance, point_on_line, segment).
         Distance is the distance from point to the closest line segment 
         Point_on_line is the reflection of the point on the line.
-        TODO: Segment is the line segment closest to (x, y)
+        Segment is the line segment closest to (x, y)
+
+        >>> a = Line()
+        >>> a._closest_segment(4, 5)
+        (0.70710678118654757, (4.5, 4.5), 0)
         """
         h = self._handles
+
+        # create a list of (distance, point_on_line) tuples:
         distances = map(distance_line_point, h[:-1], h[1:], [(x, y)] * (len(h) - 1))
-        #print zip(distances, range(len(distances)))
-        return reduce(min, distances)
+        distances, pols = zip(*distances)
+        return reduce(min, zip(distances, pols, range(len(distances))))
 
     def point(self, x, y):
         """
@@ -369,15 +426,15 @@ class Line(Item):
         '0.784'
         """
         h = self._handles
-        fuzzyness = 1
-        distance, point = self._closest_segment(x, y)
-        return max(0, distance - fuzzyness)
+        distance, point, segment = self._closest_segment(x, y)
+        return max(0, distance - self.fuzzyness)
 
     def _draw_line(self, context):
         """Draw the line itself.
         """
         c = context.cairo
         h = self._handles[0]
+        c.set_line_width(self.line_width)
         c.move_to(float(h.x), float(h.y))
         for h in self._handles[1:]:
             c.line_to(float(h.x), float(h.y))

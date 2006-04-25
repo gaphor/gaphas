@@ -307,7 +307,6 @@ class HandleTool(Tool):
                 if abs(x - event.x) < 5 and abs(y - event.y) < 5:
                     self._grabbed_handle = h
                     self._grabbed_item = item
-                    self.last_x, self.last_y = event.x, event.y
                     # Deselect all items unless CTRL or SHIFT is pressed
                     # or the item is already selected.
                     if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
@@ -326,22 +325,22 @@ class HandleTool(Tool):
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
             view = context.view
             # Calculate the distance the item has to be moved
-            dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
+            #dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
+            wx, wy = view.transform_point_c2w(event.x, event.y)
             item = self._grabbed_item
             handle = self._grabbed_handle
 
             view.queue_draw_item(item, handles=True)
 
             # Move the item and schedule it for an update
-            dx, dy = view.canvas.get_matrix_w2i(item).transform_distance(dx, dy)
-            handle.x += dx
-            handle.y += dy
+            x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
+            handle.x = x
+            handle.y = y
             
             item.request_update()
             item.canvas.update_matrices()
 
             view.queue_draw_item(item, handles=True)
-            self.last_x, self.last_y = event.x, event.y
             return True
 
 

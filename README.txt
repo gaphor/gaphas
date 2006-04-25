@@ -18,18 +18,21 @@ To do
 =====
 
 This is it as far as stage 1 is concerned. I have implemented:
- # a render cycle.
- # zoom and move functionality (canvas2world).
- # scrollbars work.
- # a set of tools and a ToolChain (to chain them together).
- # rubberband selection
+ v a render cycle.
+ v zoom and move functionality (canvas2world).
+ v scrollbars work.
+ v a set of tools and a ToolChain (to chain them together).
+ v rubberband selection
 
 Stage 2:
- # check the code with pylint for strange things.
- - line item
+ v check the code with pylint for strange things.
+ v line item
+ - placement tool
  - connection protocol
  ? make update cycle independant from render (expose) event.
- ? rotating and shearing for Element items. Do we need this?
+    This is something we might do if the response is getting bad.
+ ? rotating and shearing for Element items.
+    Do we need this?
 
 Stage 3:
  - text edit tool (gtk.Edit in popup window?)
