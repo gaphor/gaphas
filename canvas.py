@@ -22,7 +22,8 @@ class Context(object):
         self.__dict__.update(**kwargs)
 
     def __setattr__(self, key, value):
-        raise 'ContextError', 'context is not writable'
+        raise AttributeError, 'context is not writable'
+
 
 class Canvas(object):
     """Container class for Items.
@@ -81,25 +82,29 @@ class Canvas(object):
         return self._tree.get_children(None)
 
     def get_parent(self, item):
-        """
+        """See tree.Tree.get_parent()
         """
         return self._tree.get_parent(item)
 
     def get_ancestors(self, item):
-        """
+        """See tree.Tree.get_ancestors()
         """
         return self._tree.get_ancestors(item)
 
     def get_children(self, item):
-        """
+        """See tree.Tree.get_children()
         """
         return self._tree.get_children(item)
 
     def get_matrix_i2w(self, item):
-	return item._canvas_matrix_i2w
+        """Get the Item to World matrix for @item.
+        """
+        return item._canvas_matrix_i2w
 
     def get_matrix_w2i(self, item):
-	return item._canvas_matrix_w2i
+        """Get the World to Item matrix for @item.
+        """
+        return item._canvas_matrix_w2i
 
     def request_update(self, item):
         """Set an update request for the item. 

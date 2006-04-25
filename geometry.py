@@ -11,6 +11,7 @@ A point is represented as a tuple (x, y).
 
 """
 
+from math import sqrt
 # This saves me a lot of coding:
 from cairo import Matrix
 
@@ -184,6 +185,102 @@ class Rectangle(object):
         return x0 >= self.x0 and x1 <= self.x1 and \
                y0 >= self.y0 and y1 <= self.y1
 
+
+def distance_point_point(point1, point2=(0., 0.)):
+    """
+    >>> '%.3f' % distance_point_point((0,0), (1,1))
+    '1.414'
+    """
+    dx = point1[0] - point2[0]
+    dy = point1[1] - point2[1]
+    return sqrt(dx*dx + dy*dy)
+
+def distance_point_point_fast(point1, point2):
+    """
+    >>> distance_point_point_fast((0,0), (1,1))
+    2
+    """
+    dx = point1[0] - point2[0]
+    dy = point1[1] - point2[1]
+    return abs(dx) + abs(dy)
+
+def distance_rectangle_point(rect, point):
+    """
+    Return the distance (fast) from a point to a line.
+
+    >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
+    2
+    """
+    dx = dy = 0
+
+    if point[0] < rect.x0:
+        dx = rect.x0 - point[0]
+    elif point[0] > rect.x1:
+        dx = point[0] - rect.x1
+
+    if point[1] < rect.y0:
+        dy = rect.y0 - point[1]
+    elif point[1] > rect.y1:
+        dy = point[1] - rect.y1
+
+    return dx + dy
+
+def _point_add(p1, p2):
+    return p1[0] + p2[0], p1[1] + p2[1]
+
+def _point_len_sqr(p1, p2):
+    return p1[0] * p2[0] + p1[1] * p2[1]
+
+def _point_scale(p1, alpha):
+    return p1[0] * alpha, p1[1] * alpha
+
+def distance_line_point(line_start, line_end, point):
+    """
+    Calculate the distance of a point from a line. The line is marked
+    by begin and end point line_start and line_end. 
+
+    A tuple is returned containing the distance and point on the line.
+
+    >>> distance_line_point((0., 0.), (2., 4.), point=(3., 4.))
+    (1.0, (2.0, 4.0))
+    >>> distance_line_point((0., 0.), (2., 4.), point=(-1., 0.))
+    (1.0, (0.0, 0.0))
+    >>> distance_line_point((0., 0.), (2., 4.), point=(1., 2.))
+    (0.0, (1.0, 2.0))
+    >>> d, p = distance_line_point((0., 0.), (2., 4.), point=(2., 2.))
+    >>> '%.3f' % d
+    '0.894'
+    >>> '(%.3f, %.3f)' % p
+    '(1.200, 2.400)'
+    """
+    # The original end point:
+    true_line_end = line_end
+
+    # "Move" the line, so it "starts" on (0, 0)
+    line_end = line_end[0] - line_start[0], line_end[1] - line_start[1]
+    point = point[0] - line_start[0], point[1] - line_start[1]
+
+    line_len_sqr = line_end[0] * line_end[0] + line_end[1] * line_end[1]
+
+    # Both points are very near each other.
+    if line_len_sqr < 0.0001:
+        return distance_point_point(point), line_start
+
+    projlen = (line_end[0] * point[0] + line_end[1] * point[1]) / line_len_sqr
+
+    if projlen < 0.0:
+        # Closest point is the start of the line.
+        return distance_point_point(point), line_start
+    elif projlen > 1.0:
+        # Point has a projection after the line_end.
+
+        return distance_point_point(point, line_end), true_line_end
+    else:
+        # Projection is on the line. multiply the line_end with the projlen
+        # factor to obtain the point on the line.
+        proj = line_end[0] * projlen, line_end[1] * projlen
+        return distance_point_point((proj[0] - point[0], proj[1] - point[1])),\
+               (line_start[0] + proj[0], line_start[1] + proj[1])
 
 if __name__ == '__main__':
     import doctest

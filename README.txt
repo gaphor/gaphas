@@ -18,14 +18,14 @@ To do
 =====
 
 This is it as far as stage 1 is concerned. I have implemented:
- - a render cycle.
- - zoom and move functionality (canvas2world).
- - scrollbars work.
- - a set of tools and a ToolChain (to chain them together).
- - rubberband selection
+ # a render cycle.
+ # zoom and move functionality (canvas2world).
+ # scrollbars work.
+ # a set of tools and a ToolChain (to chain them together).
+ # rubberband selection
 
 Stage 2:
- - check the code with pylint for strange things.
+ # check the code with pylint for strange things.
  - line item
  - connection protocol
  ? make update cycle independant from render (expose) event.

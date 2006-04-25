@@ -45,64 +45,75 @@ class Variable(object):
     def __float__(self):
         return float(self._value)
 
-    def __coerce__(self, other):
-        return self._value.__coerce__(other)
-
     def __add__(self, other):
         """
         >>> Variable(5) + 4
         9.0
         """
-        return self._value.__add__(other)
+        return self._value.__add__(float(other))
 
     def __sub__(self, other):
         """
         >>> Variable(5) - 4
         1.0
+        >>> Variable(5) - Variable(4)
+        1.0
         """
-        return self._value.__sub__(other)
+        return self._value.__sub__(float(other))
 
     def __mul__(self, other):
         """
         >>> Variable(5) * 4
         20.0
+        >>> Variable(5) * Variable(4)
+        20.0
         """
-        return self._value.__mul__(other)
+        return self._value.__mul__(float(other))
 
     def __floordiv__(self, other):
         """
         >>> Variable(21) // 4
         5.0
+        >>> Variable(21) // Variable(4)
+        5.0
         """
-        return self._value.__floordiv__(other)
+        return self._value.__floordiv__(float(other))
 
     def __mod__(self, other):
         """
         >>> Variable(5) % 4
         1.0
+        >>> Variable(5) % Variable(4)
+        1.0
         """
-        return self._value.__mod__(other)
+        return self._value.__mod__(float(other))
 
     def __divmod__(self, other):
         """
         >>> divmod(Variable(21), 4)
         (5.0, 1.0)
+        >>> divmod(Variable(21), Variable(4))
+        (5.0, 1.0)
         """
-        return self._value.__divmod__(other)
+        return self._value.__divmod__(float(other))
 
     def __pow__(self, other):
         """
         >>> pow(Variable(5), 4)
         625.0
+        >>> pow(Variable(5), Variable(4))
+        625.0
         """
-        return self._value.__pow__(other)
+        return self._value.__pow__(float(other))
 
     def __div__(self, other):
         """
         >>> Variable(5) / 4.
         1.25
+        >>> Variable(5) / Variable(4)
+        1.25
         """
-        return self._value.__div__(other)
+        return self._value.__div__(float(other))
 
     def __truediv__(self, other):
         """
@@ -112,7 +123,7 @@ class Variable(object):
         >>> 10 / Variable(5.)
         2.0
         """
-        return self._value.__truediv__(other)
+        return self._value.__truediv__(float(other))
 
     # .. And the other way around:
 
@@ -120,8 +131,10 @@ class Variable(object):
         """
         >>> 4 + Variable(5)
         9.0
+        >>> Variable(4) + Variable(5)
+        9.0
         """
-        return self._value.__radd__(other)
+        return self._value.__radd__(float(other))
 
     def __rsub__(self, other):
         """
@@ -201,11 +214,11 @@ class Solver(object):
         >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s=Solver()
         >>> s.add_constraint(lambda a,b: a+b, a=a, b=b)
-        Constraint(<lambda>,a=None,b=None)
+        Constraint(<lambda>, a=None, b=None)
         >>> s._marked_vars
         []
         >>> s._marked_cons
-        [Constraint(<lambda>,a=None,b=None)]
+        [Constraint(<lambda>, a=None, b=None)]
         >>> a.value=5.0
         >>> s._marked_vars
         [Variable(5, 20)]
@@ -240,7 +253,7 @@ class Solver(object):
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
         >>> s.add_constraint(lambda a, b: a -b, a=a, b=b)
-        Constraint(<lambda>,a=None,b=None)
+        Constraint(<lambda>, a=None, b=None)
         >>> len(s._constraints)
         1
         >>> a.value
@@ -296,7 +309,7 @@ class Solver(object):
         >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s=Solver()
         >>> s.add_constraint(lambda a,b: a+b, a=a, b=b)
-        Constraint(<lambda>,a=None,b=None)
+        Constraint(<lambda>, a=None, b=None)
         >>> a.value=5.0
         >>> s.solve()
         >>> len(s._marked_cons)
@@ -304,7 +317,7 @@ class Solver(object):
         >>> b._value
         -5.0
         >>> s.add_constraint(lambda a,b: a+b, a=b, b=c)
-        Constraint(<lambda>,a=None,b=None)
+        Constraint(<lambda>, a=None, b=None)
         >>> len(s._constraints)
         2
         >>> len(s._marked_cons)

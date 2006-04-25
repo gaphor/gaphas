@@ -1,7 +1,5 @@
-""" Item and Handle.
-"""
 
-from geometry import Matrix
+from geometry import Matrix, distance_line_point
 from solver import solvable
 
 class Handle(object):
@@ -20,9 +18,25 @@ class Handle(object):
         self._visible = True
 
     def _set_pos(self, pos):
+        """Set handle position (Item coordinates).
+        """
         self.x, self.y = pos
 
     pos = property(lambda s: (s.x, s.y), _set_pos)
+
+    def __str__(self):
+        return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self.x), float(self.y))
+    __repr__ = __str__
+
+    def __getitem__(self, index):
+        """
+        >>> h = Handle(3, 5)
+        >>> h[0]
+        Variable(3, 20)
+        >>> h[1]
+        Variable(5, 20)
+        """
+        return (self.x, self.y)[index]
 
 #    def update(self, context):
 #        """Update the handle. @context has the following attributes:
@@ -33,12 +47,16 @@ class Handle(object):
 
 
 class Item(object):
+    """Base class (or interface) for items on a canvas.Canvas.
+    """
 
     def __init__(self):
         self._canvas = None
         self._matrix = Matrix()
 
     def _set_canvas(self, canvas):
+        """Set the canvas.
+        """
         assert not canvas or not self._canvas or self._canvas is canvas
         if self._canvas:
             self.teardown_canvas()
@@ -47,17 +65,28 @@ class Item(object):
             self.setup_canvas()
 
     def _del_canvas(self):
+        """Unset the canvas.
+        """
+        self.teardown_canvas()
         self._canvas = None
 
     canvas = property(lambda s: s._canvas, _set_canvas, _del_canvas)
 
     def setup_canvas(self):
+        """Called when the canvas is unset for the item.
+        This method can be used to create constraints.
+        """
         pass
 
     def teardown_canvas(self):
+        """Called when the canvas is unset for the item.
+        This method can be used to dispose constraints.
+        """
         pass
 
     def _set_matrix(self, matrix):
+        """Set the conversion matrix (parent -> item)
+        """
         if not isinstance(matrix, Matrix):
             matrix = Matrix(*matrix)
         self._matrix = matrix
@@ -88,8 +117,8 @@ class Item(object):
         Context contains the following attributes:
          - matrix_i2w: Item to World transformation matrix (no need to)
          - cairo: the Cairo Context use this one to draw.
-	 - view: the view that is to be rendered to
-	 - selected, focused, hovered: view state of items.
+         - view: the view that is to be rendered to
+         - selected, focused, hovered: view state of items.
         """
         pass
 
@@ -98,14 +127,11 @@ class Item(object):
         """
         return iter([])
 
-    def point(self, context, x, y):
+    def point(self, x, y):
         """Get the distance from a point (@x, @y) to the item.
-	@x and @y are in item coordinates.
-        Context contains the following attributes:
-         - matrix_i2w: Item to World transformation matrix (no need to)
-         - cairo: the Cairo Context use this one to draw.
-	"""
-	pass
+        @x and @y are in item coordinates.
+        """
+        pass
 
 
 [ NW,
@@ -146,6 +172,9 @@ class Element(Item):
         h[SE].x = h[NW].x + width
 
     def _get_width(self):
+        """Width of the box, calculated as the distance from the left and
+        right handle.
+        """
         h = self._handles
         return float(h[SE].x) - float(h[NW].x)
 
@@ -166,6 +195,8 @@ class Element(Item):
         h[SE].y = h[NW].y + height
 
     def _get_height(self):
+        """Height.
+        """
         h = self._handles
         return float(h[SE].y) - float(h[NW].y)
 
@@ -199,10 +230,8 @@ class Element(Item):
         >>> float(b._handles[SW].y)
         30.0
         """
-        def eq(a,b): return a - b
-        h=self._handles
-        mw = self.min_width
-        mh = self.min_height
+        eq = lambda a, b: a - b
+        h = self._handles
         self._constraints = [
             self.canvas.solver.add_constraint(eq, a=h[NW].y, b=h[NE].y),
             self.canvas.solver.add_constraint(eq, a=h[SW].y, b=h[SE].y),
@@ -215,13 +244,19 @@ class Element(Item):
         self.canvas.solver.mark_dirty(h[SE].y)
         
     def teardown_canvas(self):
+        """Remove constraints created in setup_canvas().
+        """
         for c in self._constraints:
             self.canvas.solver.remove(c)
 
     def handles(self):
+        """The handles.
+        """
         return iter(self._handles)
 
     def pre_update(self, context):
+        """Make sure handles do not overlap during movement.
+        """
         h = self._handles
         if float(h[NW].x) > float(h[NE].x):
             h[NE].x = h[NW].x
@@ -229,15 +264,130 @@ class Element(Item):
             h[SW].y = h[NW].y
 
     def update(self, context):
+        """Do nothing dureing update.
+        """
         pass
 
-    def point(self, context, x, y):
+    def point(self, x, y):
+        """Distance from the point (x, y) to the item.
+        """
         h = self._handles
         if float(h[NW].x) < x < float(h[SE].x) \
            and float(h[NW].y) < y < float(h[SE].y):
             return 0
         else:
             return 100
+
+
+class Line(Item):
+    """A Line item.
+    """
+
+    def __init__(self):
+        super(Line, self).__init__()
+        self._handles = [Handle(), Handle(10, 10)]
+
+    def split_segment(self, segment, parts=2):
+        """Split one segment in the Line in @parts pieces.
+        @segment 0 is the first segment (between handles 0 and 1).
+        The min number of parts is 2.
+
+        >>> a = Line()
+        >>> a.handles()[1].pos = (20, 0)
+        >>> len(a.handles())
+        2
+        >>> a.split_segment(0)
+        >>> len(a.handles())
+        3
+        >>> a.handles()[1]
+        <Handle object on (10, 0)>
+        >>> b = Line()
+        >>> b.handles()[1].pos = (20, 16)
+        >>> b.handles()
+        [<Handle object on (0, 0)>, <Handle object on (20, 16)>]
+        >>> b.split_segment(0, parts=4)
+        >>> len(b.handles())
+        5
+        >>> b.handles()
+        [<Handle object on (0, 0)>, <Handle object on (5, 4)>, <Handle object on (10, 8)>, <Handle object on (15, 12)>, <Handle object on (20, 16)>]
+        """
+        assert parts >= 2
+        assert segment >= 0
+        h0 = self._handles[segment]
+        h1 = self._handles[segment + 1]
+        dx, dy = h1.x - h0.x, h1.y - h0.y
+        new_h = Handle(h0.x + dx / parts, h0.y + dy / parts)
+        self._handles.insert(segment + 1, new_h)
+        # TODO: reconnect connected handles.
+        if parts > 2:
+            self.split_segment(segment + 1, parts - 1)
+
+    def merge_segment(self, segment):
+        """Merge the @segment and the next.
+
+        >>> a = Line()
+        >>> a.handles()[1].pos = (20, 0)
+        >>> a.split_segment(0)
+        >>> len(a.handles())
+        3
+        >>> a.merge_segment(0)
+        >>> len(a.handles())
+        2
+        >>> try: a.merge_segment(0)
+        ... except AssertionError: print 'okay'
+        okay
+        """
+        assert len(self._handles) > 2, 'Not enough segments'
+        # TODO: recreate constraints that use self._handles[segment + 1]
+        del self._handles[segment + 1]
+
+    def handles(self):
+        return self._handles
+
+    def _closest_segment(self, x, y):
+        """Obtain a tuple (distance, point_on_line, segment).
+        Distance is the distance from point to the closest line segment 
+        Point_on_line is the reflection of the point on the line.
+        TODO: Segment is the line segment closest to (x, y)
+        """
+        h = self._handles
+        distances = map(distance_line_point, h[:-1], h[1:], [(x, y)] * (len(h) - 1))
+        #print zip(distances, range(len(distances)))
+        return reduce(min, distances)
+
+    def point(self, x, y):
+        """
+        >>> a = Line()
+        >>> a.handles()[1].pos = 30, 30
+        >>> a.split_segment(0)
+        >>> a.handles()[1].pos = 25, 5
+        >>> a.point(-1, 0)
+        1.0
+        >>> '%.3f' % a.point(5, 4)
+        '2.942'
+        >>> '%.3f' % a.point(29, 29)
+        '0.784'
+        """
+        h = self._handles
+        fuzzyness = 1
+        distance, point = self._closest_segment(x, y)
+        return max(0, distance - fuzzyness)
+
+    def _draw_line(self, context):
+        """Draw the line itself.
+        """
+        c = context.cairo
+        h = self._handles[0]
+        c.move_to(float(h.x), float(h.y))
+        for h in self._handles[1:]:
+            c.line_to(float(h.x), float(h.y))
+        c.stroke()
+
+    def draw(self, context):
+        """See Item.draw(context).
+        """
+        self._draw_line(context)
+
 
 if __name__ == '__main__':
     import doctest

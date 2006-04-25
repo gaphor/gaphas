@@ -31,25 +31,6 @@ class Box(Element):
         context.draw_children()
 
 
-class Line(Item):
-
-    def __init__(self):
-        super(Line, self).__init__()
-        self._handles = [Handle(), Handle()]
-        self._handles[1].pos = (10, 10)
-
-    def handles(self):
-        return iter(self._handles)
-
-    def draw(self, context):
-        #print 'Box.draw', self
-        c = context.cairo
-        h = self._handles[0]
-        c.move_to(float(h.x), float(h.y))
-        for h in self._handles[1:]:
-            c.line_to(float(h.x), float(h.y))
-        c.stroke()
-
 class Text(Item):
 
     def __init__(self):
@@ -61,7 +42,7 @@ class Text(Item):
         c.show_text('Hello')
         context.draw_children()
 
-    def point(self, context, x, y):
+    def point(self, x, y):
         return 0
 
 if __name__ == '__main__':

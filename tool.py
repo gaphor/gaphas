@@ -199,7 +199,6 @@ class ToolChain(Tool):
         self._handle('on_key_release', context, event)
 
     def draw(self, context):
-        print self, 'draw'
         if self._grabbed_tool:
             self._grabbed_tool.draw(context)
 
@@ -374,11 +373,10 @@ class RubberbandTool(Tool):
             return True
 
     def queue_draw(self, view):
-            r = self.rect
-            view.queue_draw_area(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
+        r = self.rect
+        view.queue_draw_area(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
 
     def draw(self, context):
-        print self.rect
         c = context.cairo
         r = self.rect
         c.set_line_width(1.0)

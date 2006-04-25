@@ -29,18 +29,26 @@ class Tree(object):
                 return item
 
     def get_children(self, node):
+        """Return all child objects of @node.
+        """
         return self._children[node]
 
     def get_siblings(self, node):
+        """Get all siblings of @node, excluding @node.
+        """
         parent = self.get_parent(node)
-        return self._children[parent]
+        return [ n for n in self._children[parent] if not n is node ]
 
     def get_next_sibling(self, node):
+        """Return the node on the same level after @node.
+        """
         parent = self.get_parent(node)
         siblings = self._children[parent]
         return siblings[siblings.index(node) + 1]
 
     def get_previous_sibling(self, node):
+        """Return the node on the same level before @node.
+        """
         parent = self.get_parent(node)
         siblings = self._children[parent]
         return siblings[siblings.index(node) - 1]
@@ -75,7 +83,6 @@ class Tree(object):
         be None if the item should be added to the root item.
         """
         assert not self._children.get(node)
-        nodes = self._nodes
         siblings = self._children[parent]
         self._add_to_nodes(node, parent)
         siblings.append(node)
@@ -97,6 +104,8 @@ class Tree(object):
 
 
 def test_add():
+    """Test creating node trees.
+    """
     print 'test_add'
 
     tree = Tree()
@@ -150,6 +159,8 @@ def test_add():
     assert tree.get_parent(n1) is None
 
 def test_remove():
+    """Test removal of nodes.
+    """
     print 'test_remove'
 
     tree = Tree()

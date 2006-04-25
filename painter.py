@@ -12,7 +12,7 @@ from cairo import Matrix, ANTIALIAS_NONE
 from canvas import Context
 from geometry import Rectangle
 
-DEBUG_DRAW_BOUNDING_BOX = True
+DEBUG_DRAW_BOUNDING_BOX = False
 
 class Painter(object):
     """Painter interface.
@@ -142,13 +142,10 @@ class ItemPainter(Painter):
                                       hovered=(item is view.hovered_item)))
 
                 if update_bounds:
-                    item._view_bounds = the_context._bounds
-                    item._view_bounds.x1 += 1
-                    item._view_bounds.y1 += 1
-                    view._bounds += item._view_bounds
+                    view.set_item_bounding_box(item, the_context._bounds)
 
                 if DEBUG_DRAW_BOUNDING_BOX:
-                    b = item._view_bounds
+                    b = view.get_item_bounding_box(item)
                     cairo.save()
                     cairo.identity_matrix()
                     cairo.set_source_rgb(.8, 0, 0)

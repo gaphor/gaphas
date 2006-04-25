@@ -8,7 +8,8 @@ pygtk.require('2.0')
 import gtk
 from view import View
 from canvas import Canvas
-from examples import Box, Line, Text
+from examples import Box, Text
+from item import Line
 
 import math
 w = gtk.Window()
@@ -48,7 +49,9 @@ bb.matrix.rotate(math.pi/4.)
 c.add(bb, parent=b)
 
 l=Line()
-l.matrix.translate(30, 30)
+l.handles()[1].pos = (30, 30)
+l.split_segment(0, 3)
+l.matrix.translate(30, 60)
 c.add(l)
 
 t=Text()

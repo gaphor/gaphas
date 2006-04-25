@@ -1,7 +1,13 @@
+2006-04-24  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * item.py: Added Line item.
+        * pylintrc: new file.
+
 2006-04-21  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* painter.py: moved drawing code out of the view, into special
 	Painters.
+        * cleaned up code with pylint
 
 2006-04-20  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 

@@ -8,7 +8,7 @@ if __name__ == '__main__':
     pygtk.require('2.0') 
 
 import gtk
-from cairo import Matrix, ANTIALIAS_NONE
+from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle
 from tool import DefaultTool
@@ -30,6 +30,8 @@ def nonrecursive(func):
     1
     """
     def wrapper(*args, **kwargs):
+        """Decorate function with a mutex that prohibits recursice execution.
+        """
         try:
             if func._executing:
                 return
@@ -65,7 +67,7 @@ class ToolContext(Context):
 
 
 # Map GDK events to tool methods
-event_handlers = {
+EVENT_HANDLERS = {
     gtk.gdk.BUTTON_PRESS: 'on_button_press',
     gtk.gdk.BUTTON_RELEASE: 'on_button_release',
     gtk.gdk._2BUTTON_PRESS: 'on_double_click',
@@ -77,6 +79,11 @@ event_handlers = {
 
 
 class View(gtk.DrawingArea):
+    """GTK+ widget for rendering a canvas.Canvas to a screen.
+    The view uses Tools from tool.py to handle events and Painters
+    from painter.py to draw. Both are configurable.
+    """
+
     # just defined a name to make GTK register this entity.
     __gtype_name__ = 'GaphasView'
     
@@ -108,6 +115,9 @@ class View(gtk.DrawingArea):
     matrix = property(lambda s: s._matrix)
 
     def _set_canvas(self, canvas):
+        """Use view.canvas = my_canvas to set the canvas to be rendered
+        in the view.
+        """
         self._canvas = canvas
 
     canvas = property(lambda s: s._canvas, _set_canvas)
@@ -154,11 +164,15 @@ class View(gtk.DrawingArea):
                             "The item with focus (receives key events a.o.)")
 
     def _set_hovered_item(self, item):
+        """Set the hovered item.
+        """
         if not item is self._hovered_item:
             self.queue_draw_item(self._hovered_item, item)
         self._hovered_item = item
 
     def _del_hovered_item(self):
+        """Unset the hovered item.
+        """
         self._hovered_item = None
         
     hovered_item = property(lambda s: s._hovered_item,
@@ -166,11 +180,15 @@ class View(gtk.DrawingArea):
                             "The item directly under the mouse pointer")
 
     def _set_tool(self, tool):
+        """Set the tool to use. Tools should implement tool.Tool.
+        """
         self._tool = tool
 
     tool = property(lambda s: s._tool, _set_tool)
 
     def _set_hadjustment(self, adj):
+        """Set horizontal adjustment object, for scrollbars.
+        """
         #if self._hadjustment:
         #    self._hadjustment.disconnect(self.on_adjustment_changed)
         self._hadjustment = adj
@@ -179,6 +197,8 @@ class View(gtk.DrawingArea):
     hadjustment = property(lambda s: s._hadjustment, _set_hadjustment)
 
     def _set_vadjustment(self, adj):
+        """Set vertical adjustment object, for scrollbars.
+        """
         #if self._vadjustment:
         #    self._vadjustment.disconnect(self.on_adjustment_changed)
         self._vadjustment = adj
@@ -187,24 +207,30 @@ class View(gtk.DrawingArea):
     vadjustment = property(lambda s: s._vadjustment, _set_vadjustment)
 
     def get_item_at_point(self, x, y):
+        """Return the topmost item located at (x, y).
+        """
         point = (x, y)
         for item in reversed(self._canvas.get_all_items()):
             if point in item._view_bounds:
-                context = {}
                 inverse = Matrix(*self._matrix)
                 inverse.invert()
                 wx, wy = inverse.transform_point(x, y)
                 ix, iy = self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
-                if item.point(context, ix, iy) < 0.5:
+                if item.point(ix, iy) < 0.5:
                     return item
         return None
 
     def select_in_rectangle(self, rect):
+        """Select all items who have their bounding box within the
+        rectangle @rect.
+        """
         for item in self._canvas.get_all_items():
             if item._view_bounds in rect:
                 self.select_item(item)
 
     def zoom(self, factor):
+        """Zoom in/out by factor @factor.
+        """
         self._matrix.scale(factor, factor)
 
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
@@ -255,7 +281,7 @@ class View(gtk.DrawingArea):
         """
         return self._matrix.transform_point(x, y)
 
-    def get_canvas_size(self, allocation=None):
+    def get_canvas_size(self):
         """The canvas size (width, height) in canvas coordinates.
         """
         inverse = Matrix(*self._matrix)
@@ -266,7 +292,8 @@ class View(gtk.DrawingArea):
     def update_adjustments(self, allocation=None):
         """Update the allocation objects (for scrollbars).
         """
-        if not allocation: allocation = self.allocation
+        if not allocation:
+            allocation = self.allocation
         w, h = self.get_canvas_size()
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
@@ -300,6 +327,20 @@ class View(gtk.DrawingArea):
         """Wrap draw_area to convert all values to ints.
         """
         super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
+
+    def set_item_bounding_box(self, item, bounds):
+        """Update the bounding box of the item (in canvas coordinates).
+        """
+        item._view_bounds = bounds
+        item._view_bounds.x1 += 1
+        item._view_bounds.y1 += 1
+        # Also update the view's overall bounding box.
+        self._bounds += bounds
+
+    def get_item_bounding_box(self, item):
+        """Get the bounding box for the item, in canvas coordinates.
+        """
+        return item._view_bounds
 
     @nonrecursive
     def do_size_allocate(self, allocation):
@@ -341,7 +382,7 @@ class View(gtk.DrawingArea):
         if DEBUG_DRAW_BOUNDING_BOX:
             context.save()
             context.identity_matrix()
-            context.set_source_rgb(0,.8, 0)
+            context.set_source_rgb(0, .8, 0)
             context.set_line_width(1.0)
             b = self._bounds
             context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
@@ -356,7 +397,7 @@ class View(gtk.DrawingArea):
     def do_event(self, event):
         """Handle GDK events. Events are delegated to a Tool.
         """
-        handler = event_handlers.get(event.type)
+        handler = EVENT_HANDLERS.get(event.type)
         if self._tool and handler:
             return getattr(self._tool, handler)(ToolContext(view=self), event) and True or False
         return False
