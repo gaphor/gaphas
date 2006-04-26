@@ -282,6 +282,44 @@ def distance_line_point(line_start, line_end, point):
         return distance_point_point((proj[0] - point[0], proj[1] - point[1])),\
                (line_start[0] + proj[0], line_start[1] + proj[1])
 
+def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
+    """
+    >>> intersect_line_line((0, 0), (10, 10), (3, 0), (8, 10))
+    (6.0, 6.0)
+    >>> intersect_line_line((0, 0), (0, 10), (3, 0), (8, 10))
+    """
+    x1, y1 = line1_start
+    x2, y2 = line1_end
+    u1, v1 = line2_start
+    u2, v2 = line2_end
+
+    try:
+        b1 = (y2 - y1) / float(x2 - x1)
+    except ZeroDivisionError:
+        # line 1 is vertical, we'll approach that with a very big number
+        b1 = 1E199
+
+    try:    
+        b2 = (v2 - v1) / float(u2 - u1)
+    except ZeroDivisionError:
+        # line 2 is vertical
+        b2 = 1E199
+        
+    a1 = y1 - b1 * x1
+    a2 = v1 - b2 * u1
+
+    try:    
+        xi = - (a1 - a2) / (b1 - b2)
+    except ZeroDivisionError:
+        # two lines are parallel
+        return None
+    
+    yi = a1 + b1 * xi
+    if (x1 - xi) * (xi - x2) >= 0 and (u1 - xi) * (xi - u2) >= 0 \
+       and (y1 - yi) * (yi - y2) >= 0 and (v1 - yi) * (yi - v2) >= 0:
+        return xi, yi
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
