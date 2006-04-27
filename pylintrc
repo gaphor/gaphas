@@ -87,8 +87,7 @@ include-ids=no
 enable-basic=yes
 
 # Required attributes for module, separated by a comma
-required-attributes=
-#required-attributes=__revision__
+required-attributes=__version__
 
 # Regular expression which should only match functions or classes name which do
 # not require a docstring

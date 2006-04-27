@@ -154,4 +154,31 @@ Other:
 examples.py:
 	Simple example classes.
 
+Guidelines
+----------
+Following the Python coding guidelines
+<http://www.python.org/dev/peps/pep-0008/> indentation should be 4 spaces
+(no tabs), function and method names should be lowercase_with_underscore(),
+and files should contain a __version__ property, like this:
+
+  __version__ = "$Revision$"
+  # $HeadURL$
+
+It should be placed after the module docstring.
+
+This inhibits that for each .py file, the svn:keywords property should be set
+to "Revision HeadURL". This can be done manually:
+
+  $ svn propset svn:keywords "Revision HeadURL" myfile.py
+
+or by configuring your ~/.subversion/config file to use auto-props:
+
+  [miscellany]
+  # ...
+  enable-auto-props = yes
+
+  [auto-props]
+  # ...
+  *.py = svn:keywords=Revision HeadURL
+
 
