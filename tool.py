@@ -22,6 +22,9 @@ Maybe even:
     (context.view = view; context.grab() to grab, context.ungrab() to ungrab)
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 import cairo
 import gtk
 from canvas import Context

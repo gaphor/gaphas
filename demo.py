@@ -2,6 +2,9 @@
 A simple demo app.
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 import pygtk
 pygtk.require('2.0') 
 

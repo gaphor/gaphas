@@ -3,6 +3,9 @@ A Canvas owns a set of Items and acts as a container for both the items
 and a constraint solver.
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 import tree
 import solver
 from geometry import Matrix

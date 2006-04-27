@@ -3,6 +3,9 @@ Simple class containing the tree structure for the canvas items.
 
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 
 class Tree(object):
     """A Tree structure.

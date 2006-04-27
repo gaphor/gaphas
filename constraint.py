@@ -1,8 +1,11 @@
-'''equation solver using attributes and introspection.
+"""equation solver using attributes and introspection.
 
 Class Constraint from
    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/303396
-'''
+"""
+
+__version__ = "$Revision$"
+# $HeadURL$
 
 from __future__ import division
 
@@ -10,8 +13,8 @@ TOL = 0.0000001      # tolerance
 ITERLIMIT = 1000        # iteration limit
 
 class Constraint(object):
-    '''takes a function, named arg value (opt.) and returns a Constraint object
-    '''
+    """takes a function, named arg value (opt.) and returns a Constraint object
+    """
     
     def __init__(self, f, **args):
         self._f = f
@@ -30,13 +33,13 @@ class Constraint(object):
             return 'Constraint(%s)' % self._f.func_code.co_name
 
     def __getattr__(self, name):
-        '''used to extract function argument values
-        '''
+        """used to extract function argument values
+        """
         self._args[name]
         return self.solve_for(name)
 
     def __setattr__(self, name, value):
-        '''sets function argument values'''
+        """sets function argument values"""
         # Note - once self._args is created, no new attributes can
         # be added to self.__dict__.  This is a good thing as it throws
         # an exception if you try to assign to an arg which is inappropriate
@@ -50,13 +53,13 @@ class Constraint(object):
             object.__setattr__(self, name, value)
 
     def set(self, **args):
-        '''sets values of function arguments'''
+        """sets values of function arguments"""
         for arg in args:
             self._args[arg]  # raise exception if arg not in _args
             setattr(self, arg, args[arg])
 
     def solve_for(self, arg):
-        '''Newton's method solver'''
+        """Newton's method solver"""
         args = self._args
         close_runs = 10   # after getting close, do more passes
         if self._args[arg]:
@@ -68,7 +71,7 @@ class Constraint(object):
         else:
             x1 = x0*1.1
         def f(x):
-            '''function to solve'''
+            """function to solve"""
             args[arg] = x
             return self._f(**args)
         fx0 = f(x0)

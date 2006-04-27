@@ -1,3 +1,8 @@
+"""
+"""
+
+__version__ = "$Revision$"
+# $HeadURL$
 
 from __future__ import division
 

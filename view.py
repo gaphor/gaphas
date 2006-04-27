@@ -2,6 +2,9 @@
 This module contains everything to display a Canvas on a screen.
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 # for doctesting:
 if __name__ == '__main__':
     import pygtk

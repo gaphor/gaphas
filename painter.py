@@ -7,6 +7,9 @@ Each painter takes are of a layer in the canvas (such as grid, items
 and handles).
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 from cairo import Matrix, ANTIALIAS_NONE
 
 from canvas import Context

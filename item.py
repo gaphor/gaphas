@@ -1,3 +1,8 @@
+"""
+"""
+
+__version__ = "$Revision$"
+# $HeadURL$
 
 from geometry import Matrix, distance_line_point
 from solver import solvable, WEAK, NORMAL, STRONG

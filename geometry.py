@@ -11,6 +11,9 @@ A point is represented as a tuple (x, y).
 
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 from math import sqrt
 # This saves me a lot of coding:
 from cairo import Matrix

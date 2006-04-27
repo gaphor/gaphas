@@ -1,4 +1,7 @@
 # lint Python modules using external checkers.
+#
+# $Revision$
+# $HeadURL$
 # 
 # This is the main checker controling the other ones and the reports
 # generation. It is itself both a raw checker and an astng checker in order

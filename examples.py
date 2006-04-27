@@ -2,6 +2,9 @@
 These items are used in various tests.
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 from item import Handle, Element, Item
 from item import NW, NE,SW, SE
 from solver import solvable
