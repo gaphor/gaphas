@@ -100,7 +100,7 @@ class View(gtk.DrawingArea):
                         | gtk.gdk.KEY_RELEASE_MASK)
         self._canvas = canvas
         self._bounds = Rectangle()
-        self._item_bounds = {}
+        self._item_bounds = dict()
 
         # Handling selections.
         self._selected_items = set()
@@ -391,6 +391,7 @@ class View(gtk.DrawingArea):
         context = self.window.cairo_create()
 
         if self._calculate_bounding_box:
+            self._item_bounds = dict()
             self._bounds = Rectangle()
 
         # Draw no more than nessesary.
