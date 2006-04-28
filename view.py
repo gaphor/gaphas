@@ -100,6 +100,7 @@ class View(gtk.DrawingArea):
                         | gtk.gdk.KEY_RELEASE_MASK)
         self._canvas = canvas
         self._bounds = Rectangle()
+        self._item_bounds = {}
 
         # Handling selections.
         self._selected_items = set()
@@ -121,7 +122,14 @@ class View(gtk.DrawingArea):
         """Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
         """
+        #if self._canvas:
+        #   self._canvas._view_views.remove(self)
+
         self._canvas = canvas
+        #try:
+        #    canvas._view_views.add(self)
+        #except AttributeError:
+        #    canvas._view_views = set([self])
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -214,7 +222,7 @@ class View(gtk.DrawingArea):
         """
         point = (x, y)
         for item in reversed(self._canvas.get_all_items()):
-            if point in item._view_bounds:
+            if point in self.get_item_bounding_box(item):
                 inverse = Matrix(*self._matrix)
                 inverse.invert()
                 wx, wy = inverse.transform_point(x, y)
@@ -228,7 +236,7 @@ class View(gtk.DrawingArea):
         rectangle @rect.
         """
         for item in self._canvas.get_all_items():
-            if item._view_bounds in rect:
+            if self.get_item_bounding_box(item) in rect:
                 self.select_item(item)
 
     def zoom(self, factor):
@@ -315,8 +323,8 @@ class View(gtk.DrawingArea):
         handles = kwargs.get('handles')
         for item in items:
             try:
-                b = item._view_bounds
-            except AttributeError:
+                b = self.get_item_bounding_box(item)
+            except KeyError:
                 pass # No bounds calculated yet? bummer.
             else:
                 self.queue_draw_area(b[0]-1, b[1]-1, b[2]-b[0]+2, b[3]-b[1]+2)
@@ -329,21 +337,32 @@ class View(gtk.DrawingArea):
     def queue_draw_area(self, x, y, w, h):
         """Wrap draw_area to convert all values to ints.
         """
+        #if self._canvas:
+        #    for view in self._canvas._view_views:
+        #        super(View, view).queue_draw_area(int(x), int(y),
+        #                                          int(w+1), int(h+1))
+        #else:
         super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
     def set_item_bounding_box(self, item, bounds):
         """Update the bounding box of the item (in canvas coordinates).
         """
-        item._view_bounds = bounds
-        item._view_bounds.x1 += 1
-        item._view_bounds.y1 += 1
+        self._item_bounds[item] = bounds
+        bounds.x1 += 1
+        bounds.y1 += 1
         # Also update the view's overall bounding box.
         self._bounds += bounds
 
     def get_item_bounding_box(self, item):
         """Get the bounding box for the item, in canvas coordinates.
         """
-        return item._view_bounds
+        try:
+            return self._item_bounds[item]
+        except KeyError, e:
+            self._calculate_bounding_box = True
+            a = self.allocation
+            super(View, self).queue_draw_area(a.x, a.y, a.width, a.height)
+            raise e
 
     @nonrecursive
     def do_size_allocate(self, allocation):

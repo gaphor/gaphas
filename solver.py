@@ -1,4 +1,7 @@
 """
+The constraint solver. 
+
+Constraints itself are placed in constraint.py
 """
 
 __version__ = "$Revision$"
@@ -7,7 +10,6 @@ __version__ = "$Revision$"
 from __future__ import division
 
 from operator import isCallable
-from constraint import Constraint
 
 # Variable Strengths:
 VERY_WEAK = 0
@@ -214,7 +216,7 @@ class Solver(object):
         self._marked_cons = []
         self._solving = False
 
-    def mark_dirty(self, variable):
+    def mark_dirty(self, *variables):
         """Mark a variable as "dirty". This means it it solved the next time
         the constraints are resolved.
 
@@ -237,25 +239,28 @@ class Solver(object):
         >>> s._marked_vars
         [Variable(2, 20), Variable(5, 20)]
         """
-        if not self._solving:
-            if variable in self._marked_vars:
-                self._marked_vars.remove(variable)
-            self._marked_vars.append(variable)
-        elif variable not in self._marked_vars:
-            self._marked_vars.append(variable)
-
-        for c in variable._constraints:
+        for variable in variables:
             if not self._solving:
-                if c in self._marked_cons:
-                    self._marked_cons.remove(c)
-                self._marked_cons.append(c)
-            elif c not in self._marked_cons:
-                self._marked_cons.append(c)
+                if variable in self._marked_vars:
+                    self._marked_vars.remove(variable)
+                self._marked_vars.append(variable)
+            elif variable not in self._marked_vars:
+                self._marked_vars.append(variable)
+
+            for c in variable._constraints:
+                if not self._solving:
+                    if c in self._marked_cons:
+                        self._marked_cons.remove(c)
+                    self._marked_cons.append(c)
+                elif c not in self._marked_cons:
+                    self._marked_cons.append(c)
 
     def add_constraint(self, constraint, **variables):
         """Add a constraint.
         The actual constraint is returned, so the constraint can be removed
         later on.
+        As a convenience any callable object (function/method) is converted
+        to a constraint.EquationConstraint.
 
         Example:
         >>> s = Solver()
@@ -272,7 +277,10 @@ class Solver(object):
         1
         """
         if isCallable(constraint):
-            constraint = Constraint(constraint)
+            from constraint import EquationConstraint
+            constraint = EquationConstraint(constraint)
+        constraint.set(**variables)
+        print constraint
         self._constraints[constraint] = dict(variables)
         self._marked_cons.append(constraint)
         for v in variables.values():
@@ -351,12 +359,13 @@ class Solver(object):
             while n < len(self._marked_cons):
                 c = marked_cons[n]
                 wname, wvar = self.weakest_variable(constraints[c])
-                xx = {}
-                for nm, v in constraints[c].items():
-                  xx[nm] = v.value
-                c.set(**xx)
+                #xx = {}
+                #for nm, v in constraints[c].items():
+                #    xx[nm] = v.value
+                #c.set(**xx)
                 #print 'solving', c, 'for', wname, n, len(marked_cons)
-                wvar.value = c.solve_for(wname)
+                #wvar.value = c.solve_for(wname)
+                c.solve_for(wname)
                 n += 1
 
             self._marked_cons = []

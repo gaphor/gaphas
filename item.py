@@ -1,4 +1,5 @@
 """
+Basic items.
 """
 
 __version__ = "$Revision$"
@@ -6,6 +7,7 @@ __version__ = "$Revision$"
 
 from geometry import Matrix, distance_line_point
 from solver import solvable, WEAK, NORMAL, STRONG
+from constraint import EqualsConstraint, LessThanConstraint
 
 class Handle(object):
     """Handles are used to support modifications of Items.
@@ -238,18 +240,21 @@ class Element(Item):
         >>> float(b._handles[SW].y)
         30.0
         """
-        eq = lambda a, b: a - b
+        eq = EqualsConstraint
+        lt = LessThanConstraint
         h = self._handles
+        add = self.canvas.solver.add_constraint
         self._constraints = [
-            self.canvas.solver.add_constraint(eq, a=h[NW].y, b=h[NE].y),
-            self.canvas.solver.add_constraint(eq, a=h[SW].y, b=h[SE].y),
-            self.canvas.solver.add_constraint(eq, a=h[NW].x, b=h[SW].x),
-            self.canvas.solver.add_constraint(eq, a=h[NE].x, b=h[SE].x)
+            add(eq(), a=h[NW].y, b=h[NE].y),
+            add(eq(), a=h[SW].y, b=h[SE].y),
+            add(eq(), a=h[NW].x, b=h[SW].x),
+            add(eq(), a=h[NE].x, b=h[SE].x),
+            add(lt(), smaller=h[NW].x, bigger=h[NE].x),
+            add(lt(), smaller=h[SW].x, bigger=h[SE].x),
+            add(lt(), smaller=h[NE].y, bigger=h[SE].y),
+            add(lt(), smaller=h[NW].y, bigger=h[SW].y),
             ]
-        self.canvas.solver.mark_dirty(h[NW].x)
-        self.canvas.solver.mark_dirty(h[NW].y)
-        self.canvas.solver.mark_dirty(h[SE].x)
-        self.canvas.solver.mark_dirty(h[SE].y)
+        self.canvas.solver.mark_dirty(h[NW].x, h[NW].y, h[SE].x, h[SE].y)
         
     def teardown_canvas(self):
         """Remove constraints created in setup_canvas().
@@ -265,11 +270,12 @@ class Element(Item):
     def pre_update(self, context):
         """Make sure handles do not overlap during movement.
         """
-        h = self._handles
-        if float(h[NW].x) > float(h[NE].x):
-            h[NE].x = h[NW].x
-        if float(h[NW].y) > float(h[SW].y):
-            h[SW].y = h[NW].y
+        pass
+        #h = self._handles
+        #if float(h[NW].x) > float(h[NE].x):
+        #    h[NE].x = h[NW].x
+        #if float(h[NW].y) > float(h[SW].y):
+        #    h[SW].y = h[NW].y
 
     def update(self, context):
         """Do nothing dureing update.
@@ -321,14 +327,14 @@ class Line(Item):
         h = self._handles
         if len(h) < 3:
             self.split_segment(0)
-        eq = lambda a, b: a - b
+        eq = EqualsConstraint #lambda a, b: a - b
         add = self.canvas.solver.add_constraint
         cons = self._orthogonal
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
             if pos % 2: # odd
-                cons.append(add(eq, a=h0.x, b=h1.x))
+                cons.append(add(eq(), a=h0.x, b=h1.x))
             else:
-                cons.append(add(eq, a=h0.y, b=h1.y))
+                cons.append(add(eq(), a=h0.y, b=h1.y))
     
     orthogonal = property(lambda s: s._orthogonal != [], _set_orthogonal)
 

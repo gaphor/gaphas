@@ -1,4 +1,3 @@
-# vim:sw=4:et:ai
 """
 Geometry functions.
 
@@ -326,3 +325,5 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+# vim:sw=4:et:ai

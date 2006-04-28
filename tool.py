@@ -275,7 +275,7 @@ class ItemTool(Tool):
                 i.matrix.translate(*view.canvas.get_matrix_w2i(i).transform_distance(dx, dy))
                 i.request_update()
                 i.canvas.update_matrices()
-                b = i._view_bounds
+                b = view.get_item_bounding_box(i)
                 view.queue_draw_item(i, handles=True)
                 view.queue_draw_area(b[0] + dx-1, b[1] + dy-1, b[2] - b[0]+2, b[3] - b[1]+2)
             self.last_x, self.last_y = event.x, event.y

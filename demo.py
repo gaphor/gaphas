@@ -8,29 +8,36 @@ __version__ = "$Revision$"
 import pygtk
 pygtk.require('2.0') 
 
+import math
 import gtk
 from view import View
 from canvas import Canvas
 from examples import Box, Text
 from item import Line
 
-import math
-w = gtk.Window()
-t = gtk.Table(2,2)
-w.add(t)
-w.connect('destroy', gtk.main_quit)
 
-v = View()
-v.zoom(1.2)
-v.set_size_request(150, 120)
-hs = gtk.HScrollbar(v.hadjustment)
-vs = gtk.VScrollbar(v.vadjustment)
-t.attach(v, 0, 1, 0, 1)
-t.attach(hs, 0, 1, 1, 2, xoptions=gtk.FILL, yoptions=gtk.FILL)
-t.attach(vs, 1, 2, 0, 1, xoptions=gtk.FILL, yoptions=gtk.FILL)
+def create_window(canvas, zoom=1.0):
+    w = gtk.Window()
+    t = gtk.Table(2,2)
+    w.add(t)
+    w.connect('destroy', gtk.main_quit)
+
+    v = View()
+    v.canvas = canvas
+    v.zoom(zoom)
+    v.set_size_request(150, 120)
+    hs = gtk.HScrollbar(v.hadjustment)
+    vs = gtk.VScrollbar(v.vadjustment)
+    t.attach(v, 0, 1, 0, 1)
+    t.attach(hs, 0, 1, 1, 2, xoptions=gtk.FILL, yoptions=gtk.FILL)
+    t.attach(vs, 1, 2, 0, 1, xoptions=gtk.FILL, yoptions=gtk.FILL)
+
+    w.show_all()
 
 c=Canvas()
-v.canvas = c
+
+create_window(c)
+create_window(c, zoom=1.3)
 
 # Add stuff to the canvas:
 
@@ -62,7 +69,6 @@ t=Text()
 t.matrix.translate(70,70)
 c.add(t)
 
-w.show_all()
 
 gtk.main()
 
