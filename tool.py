@@ -11,10 +11,8 @@ Current tools:
     HoverTool - make the item under the mouse cursor the "hovered item"
     ItemTool - handle selection and movement of items
     HandleTool - handle selection and movement of handles
-
-Required:
-    PlacementTool - for placing items on the canvas
     RubberbandTool - for Rubber band selection
+    PlacementTool - for placing items on the canvas
 
 Maybe even:
     TextEditTool - for editing text on canvas items (that support it)
@@ -385,6 +383,39 @@ class RubberbandTool(Tool):
         c.set_source_rgba(.5, .5, .7, .6)
         c.rectangle(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
         c.fill()
+
+
+class PlacementTool(Tool):
+
+    def __init__(self, factory, handle_tool, handle_index):
+        self._factory = factory
+        self._handle_tool = handle_tool
+        self._handle_index = handle_index
+        self._new_obj = None
+
+    def on_button_press(self, context, event):
+        view = context.view
+        canvas = view.canvas
+        pos = view.transform_point_c2w(event.x, event.y)
+        new_obj = self._factory()
+        canvas.add(new_obj)
+        new_obj.matrix.translate(*pos)
+        self._handle_tool._grabbed_handle = new_obj.handles()[self._handle_index]
+        self._handle_tool._grabbed_item = new_obj
+        self._new_obj = new_obj
+        view.focused_item = new_obj
+        context.grab()
+        return True
+
+    def on_button_release(self, context, event):
+        context.ungrab()
+        return True
+
+    def on_motion_notify(self, context, event):
+        if self._new_obj:
+            return self._handle_tool.on_motion_notify(context, event)
+        else:
+            return False
 
 
 def DefaultTool():

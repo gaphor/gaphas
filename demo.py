@@ -32,6 +32,10 @@ def create_window(canvas, zoom=1.0):
     t.attach(hs, 0, 1, 1, 2, xoptions=gtk.FILL, yoptions=gtk.FILL)
     t.attach(vs, 1, 2, 0, 1, xoptions=gtk.FILL, yoptions=gtk.FILL)
 
+    # Set the placement tool as tool for the first button press.
+    from tool import PlacementTool, HandleTool
+    v.tool.grab(PlacementTool(Box, HandleTool(), 2))
+
     w.show_all()
 
 c=Canvas()

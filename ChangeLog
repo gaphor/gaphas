@@ -3,6 +3,8 @@
         * view.py, demo.py: demonstrate multi-view modus of the canvas.
         * constraint.py: added few simple constraint types
         * solver.py, constraint.py: defined Constraint protocol.
+	* tool.py, demo.py: PlacementTool. the first button press on the test
+	canvas will place a Box element on the canvas.
 
 2006-04-24  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 

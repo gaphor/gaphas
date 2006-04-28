@@ -134,7 +134,7 @@ class Item(object):
     def handles(self):
         """Return an iterator for the handles owned by the item.
         """
-        return iter([])
+        return tuple()
 
     def point(self, x, y):
         """Get the distance from a point (@x, @y) to the item.
@@ -145,8 +145,8 @@ class Item(object):
 
 [ NW,
   NE,
-  SW,
-  SE ] = xrange(4)
+  SE,
+  SW ] = xrange(4)
 
 class Element(Item):
     """ An Element has 4 handles (for a start):
@@ -265,7 +265,7 @@ class Element(Item):
     def handles(self):
         """The handles.
         """
-        return iter(self._handles)
+        return tuple(self._handles)
 
     def pre_update(self, context):
         """Make sure handles do not overlap during movement.
