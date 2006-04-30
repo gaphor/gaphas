@@ -182,17 +182,25 @@ class HandlePainter(Painter):
         m *= view._matrix
         opacity = (item is view.focused_item) and .7 or .4
         for h in item.handles():
+            if h.connected_to:
+                r, g, b = 1, 0, 0
+            elif h.movable:
+                r, g, b = 0, 1, 0
+            else:
+                r, g, b = 0, 0, 1
+
             cairo.save()
             cairo.set_antialias(ANTIALIAS_NONE)
             cairo.translate(*m.transform_point(h.x, h.y))
             cairo.rectangle(-4, -4, 8, 8)
-            cairo.set_source_rgba(0, 1, 0, opacity)
+            cairo.set_source_rgba(r, g, b, opacity)
             cairo.fill_preserve()
-            cairo.move_to(-2, -2)
-            cairo.line_to(2, 3)
-            cairo.move_to(2, -2)
-            cairo.line_to(-2, 3)
-            cairo.set_source_rgba(0, .2, 0, 0.9)
+            if h.connectable:
+                cairo.move_to(-2, -2)
+                cairo.line_to(2, 3)
+                cairo.move_to(2, -2)
+                cairo.line_to(-2, 3)
+            cairo.set_source_rgba(r/4., g/4., b/4., 0.9)
             cairo.set_line_width(1)
             cairo.stroke()
             cairo.restore()

@@ -37,10 +37,10 @@ class Tree(object):
         return self._children[node]
 
     def get_siblings(self, node):
-        """Get all siblings of @node, excluding @node.
+        """Get all siblings of @node, including @node.
         """
         parent = self.get_parent(node)
-        return [ n for n in self._children[parent] if not n is node ]
+        return self._children[parent] #[ n for n in self._children[parent] if not n is node ]
 
     def get_next_sibling(self, node):
         """Return the node on the same level after @node.

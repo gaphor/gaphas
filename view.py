@@ -244,6 +244,11 @@ class View(gtk.DrawingArea):
         """
         self._matrix.scale(factor, factor)
 
+        # Make sure everything's updated
+        self._calculate_bounding_box = True
+        a = self.allocation
+        super(View, self).queue_draw_area(0, 0, a.width, a.height)
+
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
         """
         >>> v = View()

@@ -224,11 +224,11 @@ class Solver(object):
         >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s=Solver()
         >>> s.add_constraint(lambda a,b: a+b, a=a, b=b)
-        Constraint(<lambda>, a=None, b=None)
+        Constraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
         >>> s._marked_vars
         []
         >>> s._marked_cons
-        [Constraint(<lambda>, a=None, b=None)]
+        [Constraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
         >>> a.value=5.0
         >>> s._marked_vars
         [Variable(5, 20)]
@@ -266,7 +266,7 @@ class Solver(object):
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
         >>> s.add_constraint(lambda a, b: a -b, a=a, b=b)
-        Constraint(<lambda>, a=None, b=None)
+        Constraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
         >>> len(s._constraints)
         1
         >>> a.value
@@ -280,7 +280,7 @@ class Solver(object):
             from constraint import EquationConstraint
             constraint = EquationConstraint(constraint)
         constraint.set(**variables)
-        print constraint
+        #print constraint
         self._constraints[constraint] = dict(variables)
         self._marked_cons.append(constraint)
         for v in variables.values():
@@ -291,11 +291,18 @@ class Solver(object):
 
     def remove_constraint(self, constraint):
         """ Remove a constraint from the solver
+        >>> s = Solver()
+        >>> a, b = Variable(), Variable(2.0)
+        >>> c = s.add_constraint(lambda a, b: a -b, a=a, b=b)
+        >>> c
+        Constraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        >>> s.remove_constraint(c)
         """
-        for v in self._constraints[constraint]: v._constraints.remove(constraint)
+        for v in self._constraints[constraint].values():
+            v._constraints.remove(constraint)
         del self._constraints[constraint]
-        if self._marked_cons.get(constraint):
-            del self._marked_cons[constraint]
+        if constraint in self._marked_cons:
+            del self._marked_cons[self._marked_cons.index(constraint)]
 
     def weakest_variable(self, variables):
         """Returns the name(!) of the weakest variable.
@@ -325,7 +332,7 @@ class Solver(object):
         >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s=Solver()
         >>> s.add_constraint(lambda a,b: a+b, a=a, b=b)
-        Constraint(<lambda>, a=None, b=None)
+        Constraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
         >>> a.value=5.0
         >>> s.solve()
         >>> len(s._marked_cons)
@@ -333,7 +340,7 @@ class Solver(object):
         >>> b._value
         -5.0
         >>> s.add_constraint(lambda a,b: a+b, a=b, b=c)
-        Constraint(<lambda>, a=None, b=None)
+        Constraint(<lambda>, a=Variable(-5, 20), b=Variable(3, 20))
         >>> len(s._constraints)
         2
         >>> len(s._marked_cons)

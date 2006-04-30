@@ -16,15 +16,16 @@ class Handle(object):
     x = solvable()
     y = solvable()
 
-    def __init__(self, x=0, y=0, strength=NORMAL):
+    def __init__(self, x=0, y=0, strength=NORMAL, connectable=False, movable=True):
         self.x = x
         self.y = y
         self.x.strength = strength
         self.y.strength = strength
         # Flags.. can't have enough of those
-        self._connectable = True
-        self._movable = True
-        self._visible = True
+        self.connectable = connectable
+        self.movable = movable
+        self.visible = True
+        self.connected_to = None
 
     def _set_pos(self, pos):
         """Set handle position (Item coordinates).
@@ -223,17 +224,17 @@ class Element(Item):
         >>> b.canvas is c
         True
         >>> len(c.solver._constraints)
-        4
+        8
         >>> len(c.solver._marked_cons)
-        4
+        8
         >>> c.solver.solve()
         >>> len(c.solver._constraints)
-        4
+        8
         >>> len(c.solver._marked_cons)
         0
         >>> b._handles[SE].pos = (25,30)
         >>> len(c.solver._marked_cons)
-        2
+        4
         >>> c.solver.solve()
         >>> float(b._handles[NE].x)
         25.0
@@ -306,7 +307,7 @@ class Line(Item):
 
     def __init__(self):
         super(Line, self).__init__()
-        self._handles = [Handle(), Handle(10, 10)]
+        self._handles = [Handle(connectable=True), Handle(10, 10, connectable=True)]
 
         self.line_width = 2
         self.fuzzyness = 0
@@ -320,6 +321,7 @@ class Line(Item):
         """
         for c in self._orthogonal:
             self.canvas.solver.remove_constraint(c)
+            self._orthogonal = []
 
         if not orthogonal:
             return
@@ -335,6 +337,10 @@ class Line(Item):
                 cons.append(add(eq(), a=h0.x, b=h1.x))
             else:
                 cons.append(add(eq(), a=h0.y, b=h1.y))
+            self.canvas.solver.mark_dirty(h1.x, h1.y)
+        # Mark first handle dirty, forcing recalculayion
+        print 'updated ortho constraints'
+        #self.canvas.solver.mark_dirty(self._handles[0].x, self._handles[0].y)
     
     orthogonal = property(lambda s: s._orthogonal != [], _set_orthogonal)
 
@@ -375,14 +381,17 @@ class Line(Item):
         """
         assert parts >= 2
         assert segment >= 0
-        h0 = self._handles[segment]
-        h1 = self._handles[segment + 1]
-        dx, dy = h1.x - h0.x, h1.y - h0.y
-        new_h = Handle(h0.x + dx / parts, h0.y + dy / parts, strength=WEAK)
-        self._handles.insert(segment + 1, new_h)
-        # TODO: reconnect connected handles.
-        if parts > 2:
-            self.split_segment(segment + 1, parts - 1)
+        def do_split(segment, parts):
+            h0 = self._handles[segment]
+            h1 = self._handles[segment + 1]
+            dx, dy = h1.x - h0.x, h1.y - h0.y
+            new_h = Handle(h0.x + dx / parts, h0.y + dy / parts, strength=WEAK)
+            self._handles.insert(segment + 1, new_h)
+            # TODO: reconnect connected handles.
+            if parts > 2:
+                do_split(segment + 1, parts - 1)
+        do_split(segment, parts)
+        self.orthogonal = self.orthogonal
 
     def merge_segment(self, segment):
         """Merge the @segment and the next.
@@ -402,6 +411,7 @@ class Line(Item):
         assert len(self._handles) > 2, 'Not enough segments'
         # TODO: recreate constraints that use self._handles[segment + 1]
         del self._handles[segment + 1]
+        self.orthogonal = self.orthogonal
 
     def handles(self):
         return self._handles

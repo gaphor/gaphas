@@ -319,6 +319,8 @@ class HandleTool(Tool):
                     return True
 
     def on_button_release(self, context, event):
+        # queue extra redraw to make sure the item is drawn properly
+        context.view.queue_draw_item(context.view.hovered_item, handles=True)
         context.ungrab()
         return True
 

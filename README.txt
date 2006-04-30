@@ -27,7 +27,7 @@ This is it as far as stage 1 is concerned. I have implemented:
 Stage 2:
  v check the code with pylint for strange things.
  v line item
- - placement tool
+ v placement tool
  - connection protocol
  ? make update cycle independant from render (expose) event.
     This is something we might do if the response is getting bad.
