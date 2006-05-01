@@ -352,6 +352,7 @@ class View(gtk.DrawingArea):
         #        super(View, view).queue_draw_area(int(x), int(y),
         #                                          int(w+1), int(h+1))
         #else:
+        print 'queue_draw_area', x, y, w+1, h+1
         super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
     def set_item_bounding_box(self, item, bounds):
@@ -440,15 +441,16 @@ class View(gtk.DrawingArea):
         value of the x/y adjustment (scrollbar).
         """
         if adj is self._hadjustment:
-            self._matrix.translate( - self._matrix[4] - adj.value , 0)
+            self._matrix.translate( - self._matrix[4] / self._matrix[0] - adj.value , 0)
         elif adj is self._vadjustment:
-            self._matrix.translate(0, - self._matrix[5] - adj.value )
+            self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
 
         # Force recalculation of the bounding boxes:
         self._calculate_bounding_box = True
 
         a = self.allocation
-        super(View, self).queue_draw_area(a.x, a.y, a.width, a.height)
+        print 'adj changed', adj.value, self._matrix
+        super(View, self).queue_draw_area(0, 0, a.width, a.height)
 
 
 if __name__ == '__main__':

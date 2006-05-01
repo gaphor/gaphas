@@ -217,7 +217,7 @@ class HandlePainter(Painter):
             self._draw_handles(item, view, cairo)
         item = view.hovered_item
         if item and item not in view.selected_items:
-            self._draw_handles(item, view, cairo, opacity=.3)
+            self._draw_handles(item, view, cairo, opacity=.25)
 
 
 class ToolPainter(Painter):
