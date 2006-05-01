@@ -286,10 +286,7 @@ class HandleTool(Tool):
         self._grabbed_handle = None
         self._grabbed_item = None
 
-    def on_button_press(self, context, event):
-        view = context.view
-        self._grabbed_handle = None
-        self._grabbed_item = None
+    def find_handle(self, view, event):
         itemlist = view.canvas.get_all_items()
         # The focused item is the prefered item for handle grabbing
         if view.focused_item:
@@ -306,17 +303,22 @@ class HandleTool(Tool):
                 x, y = view.transform_point_w2c(wx, wy)
                 #if abs(x - h.x) < 5 and abs(y - h.y) < 5:
                 if abs(x - event.x) < 5 and abs(y - event.y) < 5:
-                    self._grabbed_handle = h
-                    self._grabbed_item = item
-                    # Deselect all items unless CTRL or SHIFT is pressed
-                    # or the item is already selected.
-                    if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
-                            or view.hovered_item in view.selected_items):
-                        del view.selected_items
-                    view.hovered_item = item
-                    view.focused_item = item
-                    context.grab()
-                    return True
+                    return item, h
+        return None, None
+
+    def on_button_press(self, context, event):
+        view = context.view
+        self._grabbed_item, self._grabbed_handle = self.find_handle(view, event)
+        if self._grabbed_handle:
+            # Deselect all items unless CTRL or SHIFT is pressed
+            # or the item is already selected.
+            if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
+                    or view.hovered_item in view.selected_items):
+                del view.selected_items
+            view.hovered_item = self._grabbed_item
+            view.focused_item = self._grabbed_item
+            context.grab()
+            return True
 
     def on_button_release(self, context, event):
         # queue extra redraw to make sure the item is drawn properly
@@ -325,8 +327,8 @@ class HandleTool(Tool):
         return True
 
     def on_motion_notify(self, context, event):
+        view = context.view
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
-            view = context.view
             # Calculate the distance the item has to be moved
             #dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
             wx, wy = view.transform_point_c2w(event.x, event.y)
@@ -345,6 +347,12 @@ class HandleTool(Tool):
 
             view.queue_draw_item(item, handles=True)
             return True
+        else:
+            # Make the item who's handle we hover over the hovered_item:
+            item, handle = self.find_handle(view, event)
+            if item:
+                view.hovered_item = item
+                return True
 
 
 class RubberbandTool(Tool):
@@ -362,7 +370,8 @@ class RubberbandTool(Tool):
         context.ungrab()
         self.queue_draw(context.view)
         r = self.rect
-        r = Rectangle(min(r.x0, r.x1), min(r.y0, r.y1), width=abs(r.width), height=abs(r.height))
+        r = Rectangle(min(r.x0, r.x1), min(r.y0, r.y1),
+                      width=abs(r.width), height=abs(r.height))
         context.view.select_in_rectangle(r)
         return True
 

@@ -171,7 +171,7 @@ class HandlePainter(Painter):
     """Draw handles of items that are marked as selected in the view.
     """
 
-    def _draw_handles(self, item, view, cairo):
+    def _draw_handles(self, item, view, cairo, opacity=None):
         """Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
         """
@@ -180,7 +180,8 @@ class HandlePainter(Painter):
         #cairo.set_matrix(self._matrix)
         m = Matrix(*view.canvas.get_matrix_i2w(item))
         m *= view._matrix
-        opacity = (item is view.focused_item) and .7 or .4
+        if not opacity:
+            opacity = (item is view.focused_item) and .7 or .4
         for h in item.handles():
             if h.connected_to:
                 r, g, b = 1, 0, 0
@@ -200,7 +201,7 @@ class HandlePainter(Painter):
                 cairo.line_to(2, 3)
                 cairo.move_to(2, -2)
                 cairo.line_to(-2, 3)
-            cairo.set_source_rgba(r/4., g/4., b/4., 0.9)
+            cairo.set_source_rgba(r/4., g/4., b/4., opacity*1.3)
             cairo.set_line_width(1)
             cairo.stroke()
             cairo.restore()
@@ -214,6 +215,9 @@ class HandlePainter(Painter):
         # Conpare with canvas.get_all_items() to determine drawing order.
         for item in (i for i in items if i in view.selected_items):
             self._draw_handles(item, view, cairo)
+        item = view.hovered_item
+        if item and item not in view.selected_items:
+            self._draw_handles(item, view, cairo, opacity=.3)
 
 
 class ToolPainter(Painter):

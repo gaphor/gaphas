@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 A simple demo app.
 """
@@ -16,8 +17,11 @@ from examples import Box, Text
 from item import Line
 from tool import PlacementTool, HandleTool
 
+DEFAULT_POINTER = gtk.gdk.LEFT_PTR
 
 def create_window(canvas, zoom=1.0):
+    view = View()
+    
     w = gtk.Window()
     h = gtk.HBox()
     w.add(h)
@@ -32,19 +36,20 @@ def create_window(canvas, zoom=1.0):
     h.pack_start(f, expand=False)
 
     v.add(gtk.Label('Item placement:'))
-
+    
     b = gtk.Button('Add box')
 
-    def on_clicked(button):
-        v.tool.grab(PlacementTool(Box, HandleTool(), 2))
+    def on_clicked(button, view):
+        #view.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.CROSSHAIR))
+        view.tool.grab(PlacementTool(Box, HandleTool(), 2))
 
-    b.connect('clicked', on_clicked)
+    b.connect('clicked', on_clicked, view)
     v.add(b)
 
     b = gtk.Button('Add line')
 
     def on_clicked(button):
-        v.tool.grab(PlacementTool(Line, HandleTool(), 1))
+        view.tool.grab(PlacementTool(Line, HandleTool(), 1))
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -54,7 +59,7 @@ def create_window(canvas, zoom=1.0):
     b = gtk.Button('Zoom in')
 
     def on_clicked(button):
-        v.zoom(1.2)
+        view.zoom(1.2)
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -62,7 +67,7 @@ def create_window(canvas, zoom=1.0):
     b = gtk.Button('Zoom out')
 
     def on_clicked(button):
-        v.zoom(1/1.2)
+        view.zoom(1/1.2)
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -72,12 +77,23 @@ def create_window(canvas, zoom=1.0):
     b = gtk.Button('Split line')
 
     def on_clicked(button):
-        if isinstance(v.focused_item, Line):
-            v.focused_item.split_segment(0)
-            v.queue_draw_item(v.focused_item, handles=True)
+        if isinstance(view.focused_item, Line):
+            view.focused_item.split_segment(0)
+            view.queue_draw_item(view.focused_item, handles=True)
 
     b.connect('clicked', on_clicked)
     v.add(b)
+
+#    b = gtk.Button('Cursor')
+#
+#    def on_clicked(button, li):
+#        c = li[0]
+#        li[0] = (c+2) % 154
+#        button.set_label('Cursor %d' % c)
+#        button.window.set_cursor(gtk.gdk.Cursor(c))
+#
+#    b.connect('clicked', on_clicked, [0])
+#    v.add(b)
 
     # Add the actual View:
 
@@ -86,18 +102,14 @@ def create_window(canvas, zoom=1.0):
 
     w.connect('destroy', gtk.main_quit)
 
-    v = View()
-    v.canvas = canvas
-    v.zoom(zoom)
-    v.set_size_request(150, 120)
-    hs = gtk.HScrollbar(v.hadjustment)
-    vs = gtk.VScrollbar(v.vadjustment)
-    t.attach(v, 0, 1, 0, 1)
+    view.canvas = canvas
+    view.zoom(zoom)
+    view.set_size_request(150, 120)
+    hs = gtk.HScrollbar(view.hadjustment)
+    vs = gtk.VScrollbar(view.vadjustment)
+    t.attach(view, 0, 1, 0, 1)
     t.attach(hs, 0, 1, 1, 2, xoptions=gtk.FILL, yoptions=gtk.FILL)
     t.attach(vs, 1, 2, 0, 1, xoptions=gtk.FILL, yoptions=gtk.FILL)
-
-    # Set the placement tool as tool for the first button press.
-    #v.tool.grab(PlacementTool(Box, HandleTool(), 2))
 
     w.show_all()
 

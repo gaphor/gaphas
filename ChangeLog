@@ -1,3 +1,7 @@
+2006-05-01  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * tool.py, painter.py, view.py: show handles for hovered item.
+
 2006-04-28  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * view.py, demo.py: demonstrate multi-view modus of the canvas.

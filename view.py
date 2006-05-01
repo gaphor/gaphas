@@ -20,6 +20,9 @@ from painter import DefaultPainter
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
 
+# The default cursor (in case of a cursor reset)
+DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
+
 def nonrecursive(func):
     """
     >>> class A(object):
@@ -178,12 +181,14 @@ class View(gtk.DrawingArea):
         """Set the hovered item.
         """
         if not item is self._hovered_item:
-            self.queue_draw_item(self._hovered_item, item)
+            self.queue_draw_item(self._hovered_item, item, handles=True)
         self._hovered_item = item
 
     def _del_hovered_item(self):
         """Unset the hovered item.
         """
+        if self._hovered_item:
+            self.queue_draw_item(self._hovered_item, handles=True)
         self._hovered_item = None
         
     hovered_item = property(lambda s: s._hovered_item,
