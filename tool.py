@@ -238,8 +238,13 @@ class ItemTool(Tool):
                 or view.hovered_item in view.selected_items):
             del view.selected_items
         if view.hovered_item:
-            view.focused_item = view.hovered_item
-            context.grab()
+            if view.hovered_item in view.selected_items and \
+               event.state & gtk.gdk.CONTROL_MASK:
+                view.focused_item = None
+                view.unselect_item(view.hovered_item)
+            else:
+                view.focused_item = view.hovered_item
+                context.grab()
             return True
 
     def on_button_release(self, context, event):
@@ -287,6 +292,9 @@ class HandleTool(Tool):
         self._grabbed_item = None
 
     def find_handle(self, view, event):
+        """Look for a handle at (event.x, event.y) and return the
+        tuple (item, handle).
+        """
         itemlist = view.canvas.get_all_items()
         # The focused item is the prefered item for handle grabbing
         if view.focused_item:
@@ -294,19 +302,27 @@ class HandleTool(Tool):
             # maintained by the canvas
             itemlist.append(view.focused_item)
 
-        #wx, wy = view.transform_point_c2w(event.x, event.y)
-
         for item in reversed(itemlist):
-            #x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
             for h in item.handles():
                 wx, wy = view.canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
                 x, y = view.transform_point_w2c(wx, wy)
-                #if abs(x - h.x) < 5 and abs(y - h.y) < 5:
                 if abs(x - event.x) < 5 and abs(y - event.y) < 5:
                     return item, h
         return None, None
 
+    def glue(self, view, item, handle, wx, wy):
+        """find an item near @handle that @item can connect to.
+        """
+
+    def connect(self, view, item, handle, wx, wy):
+        """find an item near @handle that @item can connect to and connect.
+        """
+
     def on_button_press(self, context, event):
+        """Handle button press events. If the (mouse) button is pressed on
+        top of a Handle (item.Handle), that handle is grabbed and can be
+        dragged around.
+        """
         view = context.view
         self._grabbed_item, self._grabbed_handle = self.find_handle(view, event)
         if self._grabbed_handle:
@@ -321,31 +337,43 @@ class HandleTool(Tool):
             return True
 
     def on_button_release(self, context, event):
+        """Release a grabbed handle.
+        """
         # queue extra redraw to make sure the item is drawn properly
-        context.view.queue_draw_item(context.view.hovered_item, handles=True)
-        context.ungrab()
+        try:
+            view = context.view
+            wx, wy = view.transform_point_c2w(event.x, event.y)
+            self.connect(view, self._grabbed_item, self._grabbed_handle, wx, wy)
+        finally:
+            context.view.queue_draw_item(context.view.hovered_item, handles=True)
+            context.ungrab()
         return True
 
     def on_motion_notify(self, context, event):
+        """Handle motion events. If a handle is grabbed: drag it around,
+        else, if the pointer is over a handle, make the owning item the
+        hovered-item.
+        """
         view = context.view
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
-            # Calculate the distance the item has to be moved
-            #dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
-            wx, wy = view.transform_point_c2w(event.x, event.y)
             item = self._grabbed_item
             handle = self._grabbed_handle
 
             view.queue_draw_item(item, handles=True)
 
-            # Move the item and schedule it for an update
+            # Calculate the distance the item has to be moved
+            wx, wy = view.transform_point_c2w(event.x, event.y)
+
             x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
             handle.x = x
             handle.y = y
             
             item.request_update()
             item.canvas.update_matrices()
-
-            view.queue_draw_item(item, handles=True)
+            try:
+                self.glue(view, item, handle, wx, wy)
+            finally:
+                view.queue_draw_item(item, handles=True)
             return True
         else:
             # Make the item who's handle we hover over the hovered_item:

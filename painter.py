@@ -84,12 +84,22 @@ class CairoContextWrapper(object):
         else:
             self._bounds += bounds
 
-    def _extents(self, funcname):
+    def _extents(self, extents_func, line_width=False):
+        """Calculate the bounding box for a given drawing operation.
+        if @line_width is True, the current line-width is taken into account.
+        """
         ctx = self._cairo
         ctx.save()
         ctx.identity_matrix()
-        self._update_bounds(getattr(ctx, funcname)())
+        b = getattr(ctx, extents_func)()
         ctx.restore()
+        if line_width:
+            # Do this after the restore(), so we can get the proper width.
+            lw = self._cairo.get_line_width()/2
+            d = self._cairo.user_to_device_distance(lw, lw)
+            b = Rectangle(*b)
+            b.expand(d[0]+d[1])
+        self._update_bounds(b)
         
     def fill(self):
         self._extents('fill_extents')
@@ -100,11 +110,11 @@ class CairoContextWrapper(object):
         return self._cairo.fill_preserve()
 
     def stroke(self):
-        self._extents('stroke_extents')
+        self._extents('stroke_extents', line_width=True)
         return self._cairo.stroke()
 
     def stroke_preserve(self):
-        self._extents('stroke_extents')
+        self._extents('stroke_extents', line_width=True)
         return self._cairo.stroke_preserve()
 
     def show_text(self, utf8):

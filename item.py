@@ -5,7 +5,7 @@ Basic items.
 __version__ = "$Revision$"
 # $HeadURL$
 
-from geometry import Matrix, distance_line_point
+from geometry import Matrix, distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
 
@@ -287,11 +287,8 @@ class Element(Item):
         """Distance from the point (x, y) to the item.
         """
         h = self._handles
-        if float(h[NW].x) < x < float(h[SE].x) \
-           and float(h[NW].y) < y < float(h[SE].y):
-            return 0
-        else:
-            return 100
+        hnw, hse = h[NW], h[SE]
+        return distance_rectangle_point((hnw.x, hnw.y, hse.x, hse.y), (x, y))
 
 
 class Line(Item):

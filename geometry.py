@@ -197,6 +197,7 @@ def distance_point_point(point1, point2=(0., 0.)):
     dy = point1[1] - point2[1]
     return sqrt(dx*dx + dy*dy)
 
+
 def distance_point_point_fast(point1, point2):
     """
     >>> distance_point_point_fast((0,0), (1,1))
@@ -206,35 +207,64 @@ def distance_point_point_fast(point1, point2):
     dy = point1[1] - point2[1]
     return abs(dx) + abs(dy)
 
+
 def distance_rectangle_point(rect, point):
     """
     Return the distance (fast) from a point to a line.
 
     >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
     2
+    >>> distance_rectangle_point((0, 0, 10, 10), (11, -1))
+    2
     """
     dx = dy = 0
 
-    if point[0] < rect.x0:
-        dx = rect.x0 - point[0]
-    elif point[0] > rect.x1:
-        dx = point[0] - rect.x1
+    if point[0] < rect[0]:
+        dx = rect[0] - point[0]
+    elif point[0] > rect[2]:
+        dx = point[0] - rect[2]
 
-    if point[1] < rect.y0:
-        dy = rect.y0 - point[1]
-    elif point[1] > rect.y1:
-        dy = point[1] - rect.y1
+    if point[1] < rect[1]:
+        dy = rect[1] - point[1]
+    elif point[1] > rect[3]:
+        dy = point[1] - rect[3]
 
     return dx + dy
 
-def _point_add(p1, p2):
-    return p1[0] + p2[0], p1[1] + p2[1]
 
-def _point_len_sqr(p1, p2):
-    return p1[0] * p2[0] + p1[1] * p2[1]
+def point_on_rectangle(rect, point):
+    """
+    Return the distance (fast) from a point to a line.
 
-def _point_scale(p1, alpha):
-    return p1[0] * alpha, p1[1] * alpha
+    >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
+    (10, 0)
+    >>> point_on_rectangle((0, 0, 10, 10), (5, 12))
+    (5, 10)
+    >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (12, 5))
+    (10, 5)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 4))
+    (3, 4)
+    """
+    dx = dy = 0
+    px, py = point
+    cx = rect[0] + (rect[2] - rect[0]) / 2
+    cy = rect[1] + (rect[3] - rect[0]) / 2
+    if point[0] < rect[0]:
+        dx = rect[0] - point[0]
+        px = rect[0]
+    elif point[0] > rect[2]:
+        dx = point[0] - rect[2]
+        px = rect[2]
+
+    if point[1] < rect[1]:
+        dy = rect[1] - point[1]
+        py = rect[1]
+    elif point[1] > rect[3]:
+        dy = point[1] - rect[3]
+        py = rect[3]
+
+    return px, py
+
 
 def distance_line_point(line_start, line_end, point):
     """
@@ -283,6 +313,7 @@ def distance_line_point(line_start, line_end, point):
         proj = line_end[0] * projlen, line_end[1] * projlen
         return distance_point_point((proj[0] - point[0], proj[1] - point[1])),\
                (line_start[0] + proj[0], line_start[1] + proj[1])
+
 
 def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     """

@@ -145,6 +145,12 @@ class View(gtk.DrawingArea):
         self.queue_draw_item(item, handles=True)
         self._selected_items.add(item)
 
+    def unselect_item(self, item):
+        """Unselect an item.
+        """
+        self.queue_draw_item(item, handles=True)
+        self._selected_items.discard(item)
+
     def _del_selected_items(self):
         """Clearing the selected_item also clears the focused_item.
         """
@@ -163,7 +169,8 @@ class View(gtk.DrawingArea):
         if not item is self._focused_item:
             self.queue_draw_item(self._focused_item, item, handles=True)
 
-        self._selected_items.add(item)
+        if item:
+            self._selected_items.add(item)
         self._focused_item = item
 
     def _del_focused_item(self):
@@ -352,7 +359,6 @@ class View(gtk.DrawingArea):
         #        super(View, view).queue_draw_area(int(x), int(y),
         #                                          int(w+1), int(h+1))
         #else:
-        print 'queue_draw_area', x, y, w+1, h+1
         super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
     def set_item_bounding_box(self, item, bounds):
@@ -449,7 +455,6 @@ class View(gtk.DrawingArea):
         self._calculate_bounding_box = True
 
         a = self.allocation
-        print 'adj changed', adj.value, self._matrix
         super(View, self).queue_draw_area(0, 0, a.width, a.height)
 
 

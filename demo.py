@@ -14,10 +14,68 @@ import gtk
 from view import View
 from canvas import Canvas
 from examples import Box, Text
-from item import Line
+from item import Line, NW, SE
 from tool import PlacementTool, HandleTool
+from geometry import point_on_rectangle, distance_rectangle_point
 
 DEFAULT_POINTER = gtk.gdk.LEFT_PTR
+
+def handle_tool_glue(self, view, item, handle, wx, wy):
+    """MixIn method for HandleTool. It allows the tool to glue
+    to a Box or (other) Line item.
+    The distance from the item to the handle is determined in canvas
+    coordinates, using a 10 pixel glue distance.
+    """
+    matrix_w2i = view.canvas.get_matrix_w2i
+    matrix_i2w = view.canvas.get_matrix_i2w
+
+    # Make glue distance depend on the zoom ratio (should be about 10 pixels)
+    glue_distance, dummy = view.transform_distance_c2w(10, 0)
+    glue_point = None
+    for i in view.canvas.get_all_items():
+        if not i is item:
+            ix, iy = matrix_w2i(i).transform_point(wx, wy)
+            try:
+                distance, point = i.glue(item, handle, ix, iy)
+                #print distance, point
+                # Transform distance to world coordinates
+                distance, dumy = matrix_i2w(i).transform_distance(distance, 0)
+                if distance < glue_distance:
+                    glue_distance = distance
+                    glue_point = matrix_i2w(i).transform_point(*point)
+            except AttributeError:
+                pass
+    if glue_point:
+        handle.x, handle.y = matrix_w2i(item).transform_point(*glue_point)
+
+HandleTool.glue = handle_tool_glue
+
+
+class MyBox(Box):
+    """Box with an example connection protocol.
+    """
+
+    def glue(self, item, handle, x, y):
+        h = self._handles
+        hnw = h[NW]
+        hse = h[SE]
+        r = (float(hnw.x), float(hnw.y), float(hse.x), float(hse.y))
+        por = point_on_rectangle(r, (x, y))
+        #print 'Point', r, (x, y), por
+        return distance_rectangle_point(r, (x, y)), por
+
+
+class MyLine(Line):
+    """Line with experimental connection protocol.
+    """
+    pass
+
+
+class MyText(Text):
+    """Text with experimental connection protocol.
+    """
+    pass
+
 
 def create_window(canvas, zoom=1.0):
     view = View()
@@ -41,7 +99,7 @@ def create_window(canvas, zoom=1.0):
 
     def on_clicked(button, view):
         #view.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.CROSSHAIR))
-        view.tool.grab(PlacementTool(Box, HandleTool(), 2))
+        view.tool.grab(PlacementTool(MyBox, HandleTool(), 2))
 
     b.connect('clicked', on_clicked, view)
     v.add(b)
@@ -49,7 +107,7 @@ def create_window(canvas, zoom=1.0):
     b = gtk.Button('Add line')
 
     def on_clicked(button):
-        view.tool.grab(PlacementTool(Line, HandleTool(), 1))
+        view.tool.grab(PlacementTool(MyLine, HandleTool(), 1))
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -120,7 +178,7 @@ create_window(c)
 
 # Add stuff to the canvas:
 
-b=Box()
+b=MyBox()
 print 'box', b
 b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
 b.width=b.height = 40
@@ -137,7 +195,7 @@ print 'box', bb
 bb.matrix.rotate(math.pi/4.)
 c.add(bb, parent=b)
 
-l=Line()
+l=MyLine()
 l.fyzzyness = 1
 l.handles()[1].pos = (30, 30)
 l.split_segment(0, 3)
@@ -145,7 +203,7 @@ l.matrix.translate(30, 60)
 c.add(l)
 l.orthogonal = True
 
-t=Text()
+t=MyText()
 t.matrix.translate(70,70)
 c.add(t)
 

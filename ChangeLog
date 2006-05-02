@@ -1,3 +1,8 @@
+2006-05-02  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * tool.py: made CTRL work (select/deselect)
+        * demo.py: added example glue implementation
+
 2006-05-01  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * tool.py, painter.py, view.py: show handles for hovered item.
