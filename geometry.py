@@ -229,7 +229,7 @@ def distance_rectangle_point(rect, point):
     elif point[1] > rect[3]:
         dy = point[1] - rect[3]
 
-    return dx + dy
+    return abs(dx) + abs(dy)
 
 
 def point_on_rectangle(rect, point):

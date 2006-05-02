@@ -26,6 +26,8 @@ def handle_tool_glue(self, view, item, handle, wx, wy):
     The distance from the item to the handle is determined in canvas
     coordinates, using a 10 pixel glue distance.
     """
+    if not handle.connectable:
+        return
     matrix_w2i = view.canvas.get_matrix_w2i
     matrix_i2w = view.canvas.get_matrix_i2w
 

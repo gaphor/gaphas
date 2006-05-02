@@ -288,7 +288,9 @@ class Element(Item):
         """
         h = self._handles
         hnw, hse = h[NW], h[SE]
-        return distance_rectangle_point((hnw.x, hnw.y, hse.x, hse.y), (x, y))
+        print ((hnw.x, hnw.y, hse.x, hse.y), (x, y)), \
+         distance_rectangle_point((hnw.x, hnw.y, hse.x, hse.y), (x, y))
+        return distance_rectangle_point(map(float, (hnw.x, hnw.y, hse.x, hse.y)), (x, y))
 
 
 class Line(Item):
