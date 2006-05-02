@@ -34,6 +34,7 @@ def handle_tool_glue(self, view, item, handle, wx, wy):
     # Make glue distance depend on the zoom ratio (should be about 10 pixels)
     glue_distance, dummy = view.transform_distance_c2w(10, 0)
     glue_point = None
+    glue_item = None
     for i in view.canvas.get_all_items():
         if not i is item:
             ix, iy = matrix_w2i(i).transform_point(wx, wy)
@@ -45,12 +46,45 @@ def handle_tool_glue(self, view, item, handle, wx, wy):
                 if distance < glue_distance:
                     glue_distance = distance
                     glue_point = matrix_i2w(i).transform_point(*point)
+                    glue_item = i
             except AttributeError:
                 pass
     if glue_point:
         handle.x, handle.y = matrix_w2i(item).transform_point(*glue_point)
+    return glue_item
 
 HandleTool.glue = handle_tool_glue
+
+def handle_tool_connect(self, view, item, handle, wx, wy):
+    """Connect a handle to another item.
+
+    In this "method" the following assumptios are made:
+     1. The only item that accepts handle connections are the MyBox instances
+     2. The only items with connectable handles are Line's
+     
+    """
+    glue_item = self.glue(view, item, handle, wx, wy)
+    if glue_item and glue_item is handle.connected_to:
+        # just re-establish the constraints
+        return
+
+    # drop old connetion
+    if handle.connected_to:
+        # remove constraints
+        try:
+            for c in handle._connect_constraints:
+                view.canvas.solve.remove_constraint(c)
+        except AttributeError:
+            pass # no _connect_constraints attribute
+        handle._connect_constraints = []
+        handle.connected_to = None
+
+    if glue_item:
+        if isinstance(glue_item, MyBox):
+            pass # Make a constraint that keeps into account item coordinates.
+        pass # conenct to glue_item
+
+HandleTool.connect = handle_tool_connect
 
 
 class MyBox(Box):
