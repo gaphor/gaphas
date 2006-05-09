@@ -232,10 +232,11 @@ def distance_rectangle_point(rect, point):
     return abs(dx) + abs(dy)
 
 
-def point_on_rectangle(rect, point):
-    """
-    Return the distance (fast) from a point to a line.
-
+def point_on_rectangle(rect, point, border=False):
+    """Return the point on which @point can be projecten on the rectangle.
+    border = True will make sure the point is bound to the border of
+    the reactangle. Otherwise, if the point is in the rectangle, it's okay.
+    
     >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
     (10, 0)
     >>> point_on_rectangle((0, 0, 10, 10), (5, 12))
@@ -244,24 +245,40 @@ def point_on_rectangle(rect, point):
     (10, 5)
     >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 4))
     (3, 4)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 4), border=True)
+    (1, 4)
     """
-    dx = dy = 0
     px, py = point
-    cx = rect[0] + (rect[2] - rect[0]) / 2
-    cy = rect[1] + (rect[3] - rect[0]) / 2
-    if point[0] < rect[0]:
-        dx = rect[0] - point[0]
-        px = rect[0]
-    elif point[0] > rect[2]:
-        dx = point[0] - rect[2]
-        px = rect[2]
+    x_inside = y_inside = False
 
-    if point[1] < rect[1]:
-        dy = rect[1] - point[1]
+    if px < rect[0]:
+        px = rect[0]
+    elif px > rect[2]:
+        px = rect[2]
+    elif border:
+        x_inside = True
+
+    if py < rect[1]:
         py = rect[1]
-    elif point[1] > rect[3]:
-        dy = point[1] - rect[3]
+    elif py> rect[3]:
         py = rect[3]
+    elif border:
+        y_inside = True
+
+    if x_inside and y_inside:
+        cx = rect[0] + (rect[2] - rect[0]) / 2
+        cy = rect[1] + (rect[3] - rect[1]) / 2
+        if abs(cx - px) < abs(cy - py):
+            # Handle x axis:
+            if py < cy:
+                py = rect[1]
+            else:
+                py = rect[3]
+        else:
+            if px < cx:
+                px = rect[0]
+            else:
+                px = rect[2]
 
     return px, py
 

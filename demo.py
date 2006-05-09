@@ -16,6 +16,7 @@ from canvas import Canvas
 from examples import Box, Text
 from item import Line, NW, SE
 from tool import PlacementTool, HandleTool
+from constraint import LineConstraint
 from geometry import point_on_rectangle, distance_rectangle_point
 
 DEFAULT_POINTER = gtk.gdk.LEFT_PTR
@@ -63,28 +64,52 @@ def handle_tool_connect(self, view, item, handle, wx, wy):
      2. The only items with connectable handles are Line's
      
     """
+    def side(handle, glued):
+        if handle.x == glued.handles()[0].x:
+            side = 0
+        elif handle.y == glued.handles()[1].y:
+            side = 1
+        elif handle.x == glued.handles()[2].x:
+            side = 2
+        else:
+            side = 3
+        return side
+
     glue_item = self.glue(view, item, handle, wx, wy)
     if glue_item and glue_item is handle.connected_to:
-        # just re-establish the constraints
+        s = side(handle, glue_item)
+        view.canvas.solver.remove_constraint(handle._connect_constraint)
+        handle._connect_constraint = LineConstraint(view.canvas, glue_item, glue_item.handles()[s], glue_item.handles()[(s+1)%4], item, handle)
+        view.canvas.solver.add_constraint(handle._connect_constraint)
         return
 
     # drop old connetion
     if handle.connected_to:
         # remove constraints
         try:
-            for c in handle._connect_constraints:
-                view.canvas.solve.remove_constraint(c)
+            view.canvas.solver.remove_constraint(handle._connect_constraint)
         except AttributeError:
             pass # no _connect_constraints attribute
-        handle._connect_constraints = []
+        handle._connect_constraint = None
         handle.connected_to = None
 
     if glue_item:
         if isinstance(glue_item, MyBox):
-            pass # Make a constraint that keeps into account item coordinates.
+            s = side(handle, glue_item)
+            # Make a constraint that keeps into account item coordinates.
+            handle._connect_constraint = LineConstraint(view.canvas, glue_item, glue_item.handles()[s], glue_item.handles()[(s+1)%4], item, handle)
+            view.canvas.solver.add_constraint(handle._connect_constraint)
+            handle.connected_to = glue_item
+
         pass # conenct to glue_item
 
 HandleTool.connect = handle_tool_connect
+
+def handle_tool_disconnect(self, view, item, handle):
+    if handle.connected_to:
+        handle._connect_constraint.disabled = True
+
+HandleTool.disconnect = handle_tool_disconnect
 
 
 class MyBox(Box):
@@ -96,10 +121,12 @@ class MyBox(Box):
         hnw = h[NW]
         hse = h[SE]
         r = (float(hnw.x), float(hnw.y), float(hse.x), float(hse.y))
-        por = point_on_rectangle(r, (x, y))
+        por = point_on_rectangle(r, (x, y), border=True)
         #print 'Point', r, (x, y), por
         return distance_rectangle_point(r, (x, y)), por
 
+    def constrain(self, handle, x, y):
+        pass
 
 class MyLine(Line):
     """Line with experimental connection protocol.

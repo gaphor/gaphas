@@ -29,11 +29,12 @@ from __future__ import division
 class Constraint(object):
     """Constraint base class.
     """
+    disabled = False
 
-    def set(self, **kwargs):
+    def variables(self):
         raise NotImplemented
 
-    def solve_for(self, name):
+    def solve_for(self, var):
         raise NotImplemented
 
 
@@ -44,11 +45,11 @@ class EqualsConstraint(Constraint):
     >>> from solver import Variable
     >>> a, b = Variable(1.0), Variable(2.0)
     >>> eq = EqualsConstraint(a, b)
-    >>> eq.solve_for('a')
+    >>> eq.solve_for(a)
     >>> a
     Variable(2, 20)
     >>> a.value = 10.8
-    >>> eq.solve_for('b')
+    >>> eq.solve_for(b)
     >>> b
     Variable(10.8, 20)
     """
@@ -57,14 +58,14 @@ class EqualsConstraint(Constraint):
         self.a = a
         self.b = b
 
-    def set(self, a, b):
-        self.a = a
-        self.b = b
+    def variables(self):
+        yield self.a
+        yield self.b
 
-    def solve_for(self, name):
-        assert name in ('a', 'b')
+    def solve_for(self, var):
+        assert var in (self.a, self.b)
 
-        if name == 'a':
+        if var is self.a:
             self.a.value = self.b.value
         else:
             self.b.value = self.a.value
@@ -78,11 +79,11 @@ class LessThanConstraint(Constraint):
     >>> from solver import Variable
     >>> a, b = Variable(3.0), Variable(2.0)
     >>> lt = LessThanConstraint(smaller=a, bigger=b)
-    >>> lt.solve_for('smaller')
+    >>> lt.solve_for(a)
     >>> a, b
     (Variable(3, 20), Variable(3, 20))
     >>> b.value = 0.8
-    >>> lt.solve_for('bigger')
+    >>> lt.solve_for(b)
     >>> a, b
     (Variable(0.8, 20), Variable(0.8, 20))
     """
@@ -91,15 +92,15 @@ class LessThanConstraint(Constraint):
         self.smaller = smaller
         self.bigger = bigger
 
-    def set(self, smaller, bigger):
-        self.smaller = smaller
-        self.bigger = bigger
+    def variables(self):
+        yield self.smaller
+        yield self.bigger
 
-    def solve_for(self, name):
+    def solve_for(self, var):
         if self.smaller.value > self.bigger.value:
-            if name == 'smaller':
+            if var is self.smaller:
                 self.bigger.value = self.smaller.value
-            elif name == 'bigger':
+            elif var is self.bigger:
                 self.smaller.value = self.bigger.value
 
 
@@ -117,11 +118,11 @@ class EquationConstraint(Constraint):
     >>> from solver import Variable
     >>> a, b, c = Variable(), Variable(4), Variable(5)
     >>> cons = EquationConstraint(lambda a, b, c: a + b - c, a=a, b=b, c=c)
-    >>> cons.solve_for('a')
+    >>> cons.solve_for(a)
     >>> a
     Variable(1, 20)
     >>> a.value = 3.4
-    >>> cons.solve_for('b')
+    >>> cons.solve_for(b)
     >>> b
     Variable(1.6, 20)
 
@@ -134,15 +135,15 @@ class EquationConstraint(Constraint):
         # see important note on order of operations in __setattr__ below.
         for arg in f.func_code.co_varnames[0:f.func_code.co_argcount]:
             self._args[arg] = None
-        self.set(**args)
+        self._set(**args)
 
     def __repr__(self):
         argstring = ', '.join(['%s=%s' % (arg, str(value)) for (arg, value) in
                              self._args.items()])
         if argstring:
-            return 'Constraint(%s, %s)' % (self._f.func_code.co_name, argstring)
+            return 'EquationConstraint(%s, %s)' % (self._f.func_code.co_name, argstring)
         else:
-            return 'Constraint(%s)' % self._f.func_code.co_name
+            return 'EquationConstraint(%s)' % self._f.func_code.co_name
 
     def __getattr__(self, name):
         """used to extract function argument values
@@ -164,21 +165,24 @@ class EquationConstraint(Constraint):
         else:
             object.__setattr__(self, name, value)
 
-    def set(self, **args):
+    def _set(self, **args):
         """sets values of function arguments
         """
         for arg in args:
             self._args[arg]  # raise exception if arg not in _args
             setattr(self, arg, args[arg])
 
-    def solve_for(self, arg):
+    def variables(self):
+        return self._args.itervalues()
+
+    def solve_for(self, var):
         """Solve this constraint for the variable named 'arg' in the
         constraint.
         """
-        var = self._args[arg]
         args = {}
         for nm, v in self._args.items():
             args[nm] = v.value
+            if v is var: arg = nm
         var.value = self._solve_for(arg, args)
 
     def _solve_for(self, arg, args):
@@ -226,8 +230,128 @@ class EquationConstraint(Constraint):
             x0 = x1
             x1 = x2
             n += 1
-        #args[arg] = x1
         return x1
+
+
+class LineConstraint(Constraint):
+    """Ensure a point is kept on a line, taking into account item
+    specific coordinates.
+
+    #>>> from solver import Variable
+    #>>> a, b = Variable(3.0), Variable(2.0)
+    #>>> lt = LessThanConstraint(smaller=a, bigger=b)
+    #>>> lt.solve_for('smaller')
+    #>>> a, b
+    #(Variable(3, 20), Variable(3, 20))
+    #>>> b.value = 0.8
+    #>>> lt.solve_for('bigger')
+    #>>> a, b
+    #(Variable(0.8, 20), Variable(0.8, 20))
+    """
+
+    def __init__(self, canvas, connect_to_item, handle_1, handle_2,
+                 connected_item, connected_handle):
+        self._canvas = canvas
+        self._connect_to_item = connect_to_item
+        self._handle_1 = handle_1
+        self._handle_2 = handle_2
+        self._connected_item = connected_item
+        self._connected_handle = connected_handle
+        self.update_ratio()
+
+    def variables(self):
+        yield self._handle_1.x
+        yield self._handle_1.y
+        yield self._handle_2.x
+        yield self._handle_2.y
+        yield self._connected_handle.x
+        yield self._connected_handle.y
+
+    def update_ratio(self):
+        """
+        >>> from item import Handle, Item
+        >>> from canvas import Canvas
+        >>> c = Canvas()
+        >>> i1, i2 = Item(), Item()
+        >>> c.add(i1)
+        >>> c.add(i2)
+        >>> c.update_now()
+        >>> h1, h2, h3 = Handle(0, 0), Handle(30, 20), Handle(15, 4)
+        >>> eq = LineConstraint(c, i1, h1, h2, i2, h3)
+        >>> eq.ratio_x, eq.ratio_y
+        (0.5, 0.20000000000000001)
+        >>> h2.pos = 40, 30
+        >>> eq.solve_for(h3.x)
+        >>> eq.ratio_x, eq.ratio_y
+        (0.5, 0.20000000000000001)
+        >>> h3.pos
+        (Variable(20, 20), Variable(6, 20))
+        """
+        start = self._handle_1
+        end = self._handle_2
+        point = self._connected_handle
+
+        get_i2w = self._canvas.get_matrix_i2w
+
+        sx, sy = get_i2w(self._connect_to_item).transform_point(start.x, start.y)
+        ex, ey = get_i2w(self._connect_to_item).transform_point(end.x, end.y)
+        px, py = get_i2w(self._connected_item).transform_point(point.x, point.y)
+
+        try:
+            self.ratio_x = float(px - sx) / float(ex - sx)
+        except ZeroDivisionError:
+            self.ratio_x = 0.0
+        try:
+            self.ratio_y = float(py - sy) / float(ey - sy)
+        except ZeroDivisionError:
+            self.ratio_y = 0.0
+        
+    def solve_for(self, var=None):
+        self._solve()
+
+    def _solve(self):
+        """Solve the equation for the connected_handle.
+        >>> from item import Handle, Item
+        >>> from canvas import Canvas
+        >>> c = Canvas()
+        >>> i1, i2 = Item(), Item()
+        >>> c.add(i1)
+        >>> c.add(i2)
+        >>> c.update_now()
+        >>> h1, h2, h3 = Handle(0, 0), Handle(30, 20), Handle(15, 4)
+        >>> eq = LineConstraint(c, i1, h1, h2, i2, h3)
+        >>> eq.solve_for(h3.x)
+        >>> h3.pos
+        (Variable(15, 20), Variable(4, 20))
+        >>> h2.pos = 40, 30
+        >>> eq.solve_for(h3.x)
+        >>> h3.pos
+        (Variable(20, 20), Variable(6, 20))
+        >>> i2.matrix.translate(5,5)
+        >>> i2.request_update()
+        >>> c.update_now()
+        >>> eq.solve_for(h3.x)
+        >>> h3.pos
+        (Variable(15, 20), Variable(1, 20))
+        """
+        start = self._handle_1
+        end = self._handle_2
+        point = self._connected_handle
+
+        get_i2w = self._canvas.get_matrix_i2w
+        get_w2i = self._canvas.get_matrix_w2i
+
+        sx, sy = get_i2w(self._connect_to_item).transform_point(start.x, start.y)
+        ex, ey = get_i2w(self._connect_to_item).transform_point(end.x, end.y)
+
+        px = sx + (ex - sx) * self.ratio_x
+        py = sy + (ey - sy) * self.ratio_y
+
+        point.x.value, point.y.value = \
+            get_w2i(self._connected_item).transform_point(px, py)
+        # Need to queue a redraw of the manipulated item.
+        #view.queue_draw_item(self._connected_item, handles=True)
+        self._canvas.request_matrix_update(self._connected_item)
 
 
 if __name__ == '__main__':

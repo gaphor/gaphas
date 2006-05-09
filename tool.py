@@ -264,6 +264,9 @@ class ItemTool(Tool):
             for i in view.selected_items:
                 # Set a redraw request before the item is updated
                 view.queue_draw_item(i, handles=True)
+                for h in i.handles():
+                    h.x.dirty()
+                    h.y.dirty()
 
             # Now do the actual moving.
             for i in view.selected_items:
@@ -318,6 +321,9 @@ class HandleTool(Tool):
         """find an item near @handle that @item can connect to and connect.
         """
 
+    def disconnect(self, view, item, handle):
+        pass
+
     def on_button_press(self, context, event):
         """Handle button press events. If the (mouse) button is pressed on
         top of a Handle (item.Handle), that handle is grabbed and can be
@@ -334,6 +340,7 @@ class HandleTool(Tool):
             view.hovered_item = self._grabbed_item
             view.focused_item = self._grabbed_item
             context.grab()
+            self.disconnect(view, self._grabbed_item, self._grabbed_handle)
             return True
 
     def on_button_release(self, context, event):

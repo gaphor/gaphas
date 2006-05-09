@@ -229,6 +229,7 @@ class Canvas(object):
             for child in self._tree.get_children(item):
                 self.update_matrix(child, recursive)
 
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

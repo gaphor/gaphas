@@ -41,6 +41,10 @@ class Variable(object):
 
     strength = property(lambda s: s._strength, _set_strength)
 
+    def dirty(self):
+        if self._solver:
+            self._solver.mark_dirty(self)
+
     def set_value(self, value):
         self._value = float(value)
         if self._solver:
@@ -211,7 +215,7 @@ class Solver(object):
 
     def __init__(self):
         # a dict of constraint -> name/variable mappings
-        self._constraints = {}
+        self._constraints = set()
         self._marked_vars = []
         self._marked_cons = []
         self._solving = False
@@ -221,14 +225,15 @@ class Solver(object):
         the constraints are resolved.
 
         Example:
+        >>> from constraint import EquationConstraint
         >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s=Solver()
-        >>> s.add_constraint(lambda a,b: a+b, a=a, b=b)
-        Constraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
+        >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
+        EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
         >>> s._marked_vars
         []
         >>> s._marked_cons
-        [Constraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
+        [EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
         >>> a.value=5.0
         >>> s._marked_vars
         [Variable(5, 20)]
@@ -255,18 +260,17 @@ class Solver(object):
                 elif c not in self._marked_cons:
                     self._marked_cons.append(c)
 
-    def add_constraint(self, constraint, **variables):
+    def add_constraint(self, constraint):
         """Add a constraint.
         The actual constraint is returned, so the constraint can be removed
         later on.
-        As a convenience any callable object (function/method) is converted
-        to a constraint.EquationConstraint.
 
         Example:
+        >>> from constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
-        >>> s.add_constraint(lambda a, b: a -b, a=a, b=b)
-        Constraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
         >>> len(s._constraints)
         1
         >>> a.value
@@ -276,14 +280,14 @@ class Solver(object):
         >>> len(s._constraints)
         1
         """
-        if isCallable(constraint):
-            from constraint import EquationConstraint
-            constraint = EquationConstraint(constraint)
-        constraint.set(**variables)
+        #if isCallable(constraint):
+        #    from constraint import EquationConstraint
+        #    constraint = EquationConstraint(constraint)
+        #constraint.set(**variables)
         #print constraint
-        self._constraints[constraint] = dict(variables)
+        self._constraints.add(constraint)
         self._marked_cons.append(constraint)
-        for v in variables.values():
+        for v in constraint.variables():
             v._constraints.add(constraint)
             v._solver = self
         #print 'added constraint', constraint
@@ -291,16 +295,17 @@ class Solver(object):
 
     def remove_constraint(self, constraint):
         """ Remove a constraint from the solver
+        >>> from constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
-        >>> c = s.add_constraint(lambda a, b: a -b, a=a, b=b)
+        >>> c = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
         >>> c
-        Constraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
         >>> s.remove_constraint(c)
         """
-        for v in self._constraints[constraint].values():
+        for v in constraint.variables():
             v._constraints.remove(constraint)
-        del self._constraints[constraint]
+        self._constraints.discard(constraint)
         if constraint in self._marked_cons:
             del self._marked_cons[self._marked_cons.index(constraint)]
 
@@ -309,38 +314,39 @@ class Solver(object):
 
         Example:
         >>> s = Solver()
-        >>> s.weakest_variable({'a': Variable(2.0, 30), 'b': Variable(2.0, 20)})
-        ('b', Variable(2, 20))
+        >>> s.weakest_variable([Variable(2.0, 30), Variable(2.0, 20)])
+        Variable(2, 20)
         >>> a,b,c = Variable(), Variable(), Variable()
         >>> s._marked_vars = [a, b, c]
         """
         marked_vars = self._marked_vars
         wname, wvar = None, None
-        for n, v in variables.items():
+        for v in variables:
             if not wvar or \
                 (v.strength < wvar.strength) or \
                 (v.strength == wvar.strength and \
                  (v not in marked_vars
                   or wvar in marked_vars and \
                   marked_vars.index(v) < marked_vars.index(wvar))):
-                wname, wvar = n, v
-        return wname, wvar
+                wvar = v
+        return wvar
 
     def solve(self):
         """
         Example:
+        >>> from constraint import EquationConstraint
         >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s=Solver()
-        >>> s.add_constraint(lambda a,b: a+b, a=a, b=b)
-        Constraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
+        >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
+        EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
         >>> a.value=5.0
         >>> s.solve()
         >>> len(s._marked_cons)
         0
         >>> b._value
         -5.0
-        >>> s.add_constraint(lambda a,b: a+b, a=b, b=c)
-        Constraint(<lambda>, a=Variable(-5, 20), b=Variable(3, 20))
+        >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=b, b=c))
+        EquationConstraint(<lambda>, a=Variable(-5, 20), b=Variable(3, 20))
         >>> len(s._constraints)
         2
         >>> len(s._marked_cons)
@@ -365,14 +371,9 @@ class Solver(object):
             n = 0
             while n < len(self._marked_cons):
                 c = marked_cons[n]
-                wname, wvar = self.weakest_variable(constraints[c])
-                #xx = {}
-                #for nm, v in constraints[c].items():
-                #    xx[nm] = v.value
-                #c.set(**xx)
-                #print 'solving', c, 'for', wname, n, len(marked_cons)
-                #wvar.value = c.solve_for(wname)
-                c.solve_for(wname)
+                if not c.disabled:
+                    wvar = self.weakest_variable(c.variables())
+                    c.solve_for(wvar)
                 n += 1
 
             self._marked_cons = []

@@ -218,7 +218,7 @@ class Element(Item):
         >>> from canvas import Canvas
         >>> c=Canvas()
         >>> c.solver._constraints
-        {}
+        set([])
         >>> b = Element()
         >>> c.add(b)
         >>> b.canvas is c
@@ -246,14 +246,14 @@ class Element(Item):
         h = self._handles
         add = self.canvas.solver.add_constraint
         self._constraints = [
-            add(eq(), a=h[NW].y, b=h[NE].y),
-            add(eq(), a=h[SW].y, b=h[SE].y),
-            add(eq(), a=h[NW].x, b=h[SW].x),
-            add(eq(), a=h[NE].x, b=h[SE].x),
-            add(lt(), smaller=h[NW].x, bigger=h[NE].x),
-            add(lt(), smaller=h[SW].x, bigger=h[SE].x),
-            add(lt(), smaller=h[NE].y, bigger=h[SE].y),
-            add(lt(), smaller=h[NW].y, bigger=h[SW].y),
+            add(eq(a=h[NW].y, b=h[NE].y)),
+            add(eq(a=h[SW].y, b=h[SE].y)),
+            add(eq(a=h[NW].x, b=h[SW].x)),
+            add(eq(a=h[NE].x, b=h[SE].x)),
+            add(lt(smaller=h[NW].x, bigger=h[NE].x)),
+            add(lt(smaller=h[SW].x, bigger=h[SE].x)),
+            add(lt(smaller=h[NE].y, bigger=h[SE].y)),
+            add(lt(smaller=h[NW].y, bigger=h[SW].y)),
             ]
         self.canvas.solver.mark_dirty(h[NW].x, h[NW].y, h[SE].x, h[SE].y)
         
@@ -288,8 +288,8 @@ class Element(Item):
         """
         h = self._handles
         hnw, hse = h[NW], h[SE]
-        print ((hnw.x, hnw.y, hse.x, hse.y), (x, y)), \
-         distance_rectangle_point((hnw.x, hnw.y, hse.x, hse.y), (x, y))
+        #print ((hnw.x, hnw.y, hse.x, hse.y), (x, y)), \
+         #distance_rectangle_point((hnw.x, hnw.y, hse.x, hse.y), (x, y))
         return distance_rectangle_point(map(float, (hnw.x, hnw.y, hse.x, hse.y)), (x, y))
 
 
@@ -333,9 +333,9 @@ class Line(Item):
         cons = self._orthogonal
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
             if pos % 2: # odd
-                cons.append(add(eq(), a=h0.x, b=h1.x))
+                cons.append(add(eq(a=h0.x, b=h1.x)))
             else:
-                cons.append(add(eq(), a=h0.y, b=h1.y))
+                cons.append(add(eq(a=h0.y, b=h1.y)))
             self.canvas.solver.mark_dirty(h1.x, h1.y)
         # Mark first handle dirty, forcing recalculayion
         print 'updated ortho constraints'

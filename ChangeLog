@@ -1,3 +1,9 @@
+2006-05-09  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * demo.py: connection protocol partly works.
+        * constraint.py, solver.py: redone constraints, added new constraint
+        types.
+
 2006-05-02  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * tool.py: made CTRL work (select/deselect)
