@@ -1,3 +1,8 @@
+2006-05-10  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* demo.py: fixed some connection bugs. Now all that has to be done is
+	fix redrawing of connected items.
+
 2006-05-09  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * demo.py: connection protocol partly works.

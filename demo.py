@@ -21,6 +21,7 @@ from geometry import point_on_rectangle, distance_rectangle_point
 
 DEFAULT_POINTER = gtk.gdk.LEFT_PTR
 
+
 def handle_tool_glue(self, view, item, handle, wx, wy):
     """MixIn method for HandleTool. It allows the tool to glue
     to a Box or (other) Line item.
@@ -56,6 +57,7 @@ def handle_tool_glue(self, view, item, handle, wx, wy):
 
 HandleTool.glue = handle_tool_glue
 
+
 def handle_tool_connect(self, view, item, handle, wx, wy):
     """Connect a handle to another item.
 
@@ -65,16 +67,20 @@ def handle_tool_connect(self, view, item, handle, wx, wy):
      
     """
     def side(handle, glued):
-        if handle.x == glued.handles()[0].x:
-            side = 0
-        elif handle.y == glued.handles()[1].y:
-            side = 1
-        elif handle.x == glued.handles()[2].x:
-            side = 2
-        else:
+        hx, hy = view.canvas.get_matrix_i2w(item).transform_point(handle.x, handle.y)
+        ax, ay = view.canvas.get_matrix_i2w(glued).transform_point(glued.handles()[0].x, glued.handles()[0].y)
+        bx, by = view.canvas.get_matrix_i2w(glued).transform_point(glued.handles()[2].x, glued.handles()[2].y)
+        if abs(hx - ax) < 0.01:
             side = 3
+        elif abs(hy - ay) < 0.01:
+            side = 0
+        elif abs(hx - bx) < 0.01:
+            side = 1
+        else:
+            side = 2
         return side
 
+    #print 'Handle.connect', view, item, handle, wx, wy
     glue_item = self.glue(view, item, handle, wx, wy)
     if glue_item and glue_item is handle.connected_to:
         s = side(handle, glue_item)
@@ -101,12 +107,13 @@ def handle_tool_connect(self, view, item, handle, wx, wy):
             view.canvas.solver.add_constraint(handle._connect_constraint)
             handle.connected_to = glue_item
 
-        pass # conenct to glue_item
 
 HandleTool.connect = handle_tool_connect
 
+
 def handle_tool_disconnect(self, view, item, handle):
     if handle.connected_to:
+        #print 'Handle.disconnect', view, item, handle
         handle._connect_constraint.disabled = True
 
 HandleTool.disconnect = handle_tool_disconnect
