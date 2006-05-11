@@ -65,66 +65,6 @@ class DrawContext(Context):
                                  self.cairo,
                                  self.update_bounds)
 
-class CairoContextWrapper(object):
-    """Delegate all calls to the wrapped CairoContext, intercept
-    stroke(), fill() and a few others so the bounding box of the
-    item involved can be calculated.
-    """
-
-    def __init__(self, cairo):
-        self._cairo = cairo
-        self._bounds = None # a Rectangle object
-
-    def __getattr__(self, key):
-        return getattr(self._cairo, key)
-
-    def _update_bounds(self, bounds):
-        if not self._bounds:
-            self._bounds = Rectangle(*bounds)
-        else:
-            self._bounds += bounds
-
-    def _extents(self, extents_func, line_width=False):
-        """Calculate the bounding box for a given drawing operation.
-        if @line_width is True, the current line-width is taken into account.
-        """
-        ctx = self._cairo
-        ctx.save()
-        ctx.identity_matrix()
-        b = getattr(ctx, extents_func)()
-        ctx.restore()
-        if line_width:
-            # Do this after the restore(), so we can get the proper width.
-            lw = self._cairo.get_line_width()/2
-            d = self._cairo.user_to_device_distance(lw, lw)
-            b = Rectangle(*b)
-            b.expand(d[0]+d[1])
-        self._update_bounds(b)
-        
-    def fill(self):
-        self._extents('fill_extents')
-        return self._cairo.fill()
-
-    def fill_preserve(self):
-        self._extents('fill_extents')
-        return self._cairo.fill_preserve()
-
-    def stroke(self):
-        self._extents('stroke_extents', line_width=True)
-        return self._cairo.stroke()
-
-    def stroke_preserve(self):
-        self._extents('stroke_extents', line_width=True)
-        return self._cairo.stroke_preserve()
-
-    def show_text(self, utf8):
-        cairo = self._cairo
-        e = cairo.text_extents(utf8)
-        x0, y0 = cairo.user_to_device(e[0], e[1])
-        x1, y1 = cairo.user_to_device(e[0]+e[2], e[1]+e[3])
-        self._update_bounds((x0, y0, x1, y1))
-        return cairo.show_text(utf8)
-
 
 class ItemPainter(Painter):
 
@@ -139,7 +79,7 @@ class ItemPainter(Painter):
                 cairo.transform(view.canvas.get_matrix_i2w(item))
 
                 if update_bounds:
-                    the_context = CairoContextWrapper(cairo)
+                    the_context = view.wrap_cairo_context(cairo)
                 else:
                     # No wrapper:
                     the_context = cairo
@@ -155,7 +95,7 @@ class ItemPainter(Painter):
                                       hovered=(item is view.hovered_item)))
 
                 if update_bounds:
-                    view.set_item_bounding_box(item, the_context._bounds)
+                    view.set_item_bounding_box(item, the_context.get_bounds())
 
                 if DEBUG_DRAW_BOUNDING_BOX:
                     b = view.get_item_bounding_box(item)

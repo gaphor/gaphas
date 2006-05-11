@@ -1,3 +1,8 @@
+2006-05-11  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* view.py, painter.py: moved CairoContextWrapper back to view.py.
+	added View.wrap_cairo_context().
+
 2006-05-10  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* demo.py: fixed some connection bugs. Now all that has to be done is
