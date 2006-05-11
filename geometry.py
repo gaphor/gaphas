@@ -30,6 +30,10 @@ class Rectangle(object):
 
     >>> if r1 - r2: 'yes'
     'yes'
+
+    >>> r1, r2 = Rectangle(1,2,3,4), Rectangle(1,2,3,4)
+    >>> r1 == r2
+    True
     """
 
     def __init__(self, x0=0, y0=0, x1=0, y1=0, width=0, height=0):
@@ -86,6 +90,13 @@ class Rectangle(object):
         >>> if r: 'no'
         """
         return self.x0 < self.x1 and self.y0 < self.y1
+    
+    def __eq__(self, other):
+        return (type(self) is type(other)) \
+                and self.x0 == other.x0 \
+                and self.y0 == other.y0 \
+                and self.x1 == other.x1 \
+                and self.y1 == self.y1
 
     def __add__(self, obj):
         """Create a new Rectangle is the union of the current rectangle
