@@ -1,3 +1,9 @@
+2006-05-15  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * decorators.py: moved nonrecursive to this file. added async
+        decorator.
+        * canvas.py, view.py: do canvas updates in @async method.
+
 2006-05-11  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* view.py, painter.py: moved CairoContextWrapper back to view.py.

@@ -9,6 +9,7 @@ __version__ = "$Revision$"
 import tree
 import solver
 from geometry import Matrix
+from decorators import async, PRIORITY_HIGH_IDLE
 
 class Context(object):
     """Context used for updating and drawing items in a drawing canvas.
@@ -39,6 +40,8 @@ class Canvas(object):
         self._dirty_matrix_items = set()
         self._in_update = False
 
+        self._registered_views = set()
+
     solver = property(lambda s: s._solver)
 
     def add(self, item, parent=None):
@@ -54,8 +57,9 @@ class Canvas(object):
         """
         item.canvas = self
         self._tree.add(item, parent)
-        self._dirty_items.add(item)
-        self._dirty_matrix_items.add(item)
+        self.request_update(item)
+        #self._dirty_items.add(item)
+        #self._dirty_matrix_items.add(item)
 
     def remove(self, item):
         """Remove item from the canvas
@@ -102,12 +106,20 @@ class Canvas(object):
     def get_matrix_i2w(self, item):
         """Get the Item to World matrix for @item.
         """
-        return item._canvas_matrix_i2w
+        try:
+            return item._canvas_matrix_i2w
+        except AttributeError, e:
+            self.request_matrix_update(item)
+            raise e
 
     def get_matrix_w2i(self, item):
         """Get the World to Item matrix for @item.
         """
-        return item._canvas_matrix_w2i
+        try:
+            return item._canvas_matrix_w2i
+        except AttributeError, e:
+            self.request_matrix_update(item)
+            raise e
 
     def request_update(self, item):
         """Set an update request for the item. 
@@ -123,7 +135,7 @@ class Canvas(object):
         >>> len(c._dirty_items)
         0
         """
-        if not self._in_update:
+        if True: #not self._in_update:
             self._dirty_items.add(item)
             self._dirty_matrix_items.add(item)
 
@@ -134,11 +146,13 @@ class Canvas(object):
                 parent = self._tree.get_parent(parent)
 
         # TODO: Schedule update, directly or through a view.
+        self.update()
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated.
         """
         self._dirty_matrix_items.add(item)
+        self.update()
 
     def require_update(self):
         """Returns True or False depending on if an update is needed.
@@ -151,7 +165,16 @@ class Canvas(object):
         >>> c.require_update()
         True
         """
-        return len(self._dirty_items) > 0
+        return bool(self._dirty_items)
+
+    @async(priority=PRIORITY_HIGH_IDLE)
+    def update(self):
+        #self.update_matrices()
+
+        #self._solver.solve()
+
+        if not self._in_update:
+            self.update_now()
 
     def update_now(self):
         """Peform an update of the items that requested an update.
@@ -171,11 +194,21 @@ class Canvas(object):
 
             self._solver.solve()
 
+            dirty_items = [ item for item in reversed(self._tree.nodes) \
+                                 if item in self._dirty_items ]
+
             self.update_matrices()
 
+            #for item in dirty_items:
+            #    item.update(context_map[item])
             for item in dirty_items:
-                item.update(context_map[item])
+                c = Context(parent=self._tree.get_parent(item),
+                            children=self._tree.get_children(item))
+                context_map[item] = c
+                item.update(c)
+
         finally:
+            self._update_views(dirty_items)
             self._dirty_items.clear()
             self._in_update = False
 
@@ -229,6 +262,23 @@ class Canvas(object):
             for child in self._tree.get_children(item):
                 self.update_matrix(child, recursive)
 
+    def register_view(self, view):
+        """Register a view on this canvas. This method is called when setting
+        a canvas on a view and should not be called directly from user code.
+        """
+        self._registered_views.add(view)
+
+    def unregister_view(self, view):
+        """Unregister a view on this canvas. This method is called when setting
+        a canvas on a view and should not be called directly from user code.
+        """
+        self._registered_views.discard(view)
+
+    def _update_views(self, items):
+        """Send an update notification to all registered views.
+        """
+        for v in self._registered_views:
+            v.request_update(items)
 
 if __name__ == '__main__':
     import doctest

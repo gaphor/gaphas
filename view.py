@@ -16,41 +16,14 @@ from canvas import Context
 from geometry import Rectangle
 from tool import DefaultTool
 from painter import DefaultPainter
+from decorators import async, PRIORITY_HIGH_IDLE
+from decorators import nonrecursive
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
 
 # The default cursor (in case of a cursor reset)
 DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
-
-def nonrecursive(func):
-    """
-    >>> class A(object):
-    ...     @nonrecursive
-    ...     def a(self, x=1):
-    ...         print x
-    ...         self.a(x+1)
-    >>> A().a()
-    1
-    >>> A().a()
-    1
-    """
-    def wrapper(*args, **kwargs):
-        """Decorate function with a mutex that prohibits recursice execution.
-        """
-        try:
-            if func._executing:
-                return
-        except AttributeError:
-            # _executed not present
-            pass
-        try:
-            func._executing = True
-            return func(*args, **kwargs)
-        finally:
-            del func._executing
-    return wrapper
-
 
 class ToolContext(Context):
     """Special context for tools.
@@ -191,10 +164,13 @@ class View(gtk.DrawingArea):
         """Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
         """
-        #if self._canvas:
-        #   self._canvas._view_views.remove(self)
+        if self._canvas:
+           self._canvas.unregister_view(self)
 
         self._canvas = canvas
+        
+        if self._canvas:
+           self._canvas.register_view(self)
         #try:
         #    canvas._view_views.add(self)
         #except AttributeError:
@@ -454,6 +430,33 @@ class View(gtk.DrawingArea):
         """
         return CairoContextWrapper(cairo)
 
+    @async(single=False, priority=PRIORITY_HIGH_IDLE)
+    def request_update(self, items):
+        """Update view status according to the items updated by the canvas.
+        """
+        with_handles = set(self._selected_items)
+        with_handles.add(self._hovered_item)
+        with_handles.add(self._focused_item)
+
+        for i in  items:
+            self.queue_draw_item(i, handles=(i in with_handles))
+
+        # TODO: pseudo-draw
+        self._calculate_bounding_box = True
+        context = self.window.cairo_create()
+        context.rectangle(0,0,0,0)
+        context.clip()
+
+        self._painter.paint(Context(view=self,
+                                    cairo=context,
+                                    update_bounds=self._calculate_bounding_box))
+        #self.queue_draw_item(*items)
+        for i in  items:
+            self.queue_draw_item(i, handles=(i in with_handles))
+
+        #self.update_adjustments()
+        #self._calculate_bounding_box = False
+
     @nonrecursive
     def do_size_allocate(self, allocation):
         """Allocate the widget size (x, y, width, height).
@@ -465,13 +468,14 @@ class View(gtk.DrawingArea):
     def do_expose_event(self, event):
         """Render some text to the screen.
         """
+        #print 'do_expose_event'
         if not self._canvas:
             return
 
         # Set this to some idle function
-        if self._canvas.require_update():
-            self._canvas.update_now()
-            self._calculate_bounding_box = True
+        #if self._canvas.require_update():
+        #    self._canvas.update_now()
+        #    self._calculate_bounding_box = True
 
         area = event.area
         self.window.draw_rectangle(self.style.white_gc, True,

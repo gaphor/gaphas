@@ -366,7 +366,7 @@ class HandleTool(Tool):
             item = self._grabbed_item
             handle = self._grabbed_handle
 
-            view.queue_draw_item(item, handles=True)
+            #view.queue_draw_item(item, handles=True)
 
             # Calculate the distance the item has to be moved
             wx, wy = view.transform_point_c2w(event.x, event.y)
@@ -380,7 +380,8 @@ class HandleTool(Tool):
             try:
                 self.glue(view, item, handle, wx, wy)
             finally:
-                view.queue_draw_item(item, handles=True)
+                pass
+                #view.queue_draw_item(item, handles=True)
             return True
         else:
             # Make the item who's handle we hover over the hovered_item:
@@ -403,7 +404,7 @@ class RubberbandTool(Tool):
 
     def on_button_release(self, context, event):
         context.ungrab()
-        self.queue_draw(context.view)
+        #self.queue_draw(context.view)
         r = self.rect
         r = Rectangle(min(r.x0, r.x1), min(r.y0, r.y1),
                       width=abs(r.width), height=abs(r.height))
