@@ -366,7 +366,9 @@ class HandleTool(Tool):
             item = self._grabbed_item
             handle = self._grabbed_handle
 
-            #view.queue_draw_item(item, handles=True)
+            # Do an explicit redraw request here, since we do not keep old
+            # positions of handles around.
+            view.queue_draw_item(item, handles=True)
 
             # Calculate the distance the item has to be moved
             wx, wy = view.transform_point_c2w(event.x, event.y)
