@@ -62,40 +62,25 @@ class DrawContext(Context):
         """
         self.painter._draw_items(self.children,
                                  self.view,
-                                 self.cairo,
-                                 self.update_bounds)
+                                 self.cairo)
 
 
 class ItemPainter(Painter):
 
-    def _draw_items(self, items, view, cairo, update_bounds):
-        """Draw the items. This method can also be called from DrawContext
-        to draw sub-items.
-        """
-        for item in items:
+    def _draw_item(self, item, view, cairo):
             cairo.save()
             try:
                 cairo.set_matrix(view.matrix)
                 cairo.transform(view.canvas.get_matrix_i2w(item))
 
-                if update_bounds:
-                    the_context = view.wrap_cairo_context(cairo)
-                else:
-                    # No wrapper:
-                    the_context = cairo
-
                 item.draw(DrawContext(painter=self,
-                                      update_bounds=update_bounds,
                                       view=view,
-                                      cairo=the_context,
+                                      cairo=cairo,
                                       parent=view.canvas.get_parent(item),
                                       children=view.canvas.get_children(item),
                                       selected=(item in view.selected_items),
                                       focused=(item is view.focused_item),
                                       hovered=(item is view.hovered_item)))
-
-                if update_bounds:
-                    view.set_item_bounding_box(item, the_context.get_bounds())
 
                 if DEBUG_DRAW_BOUNDING_BOX:
                     b = view.get_item_bounding_box(item)
@@ -109,12 +94,40 @@ class ItemPainter(Painter):
             finally:
                 cairo.restore()
 
+    def _draw_items(self, items, view, cairo):
+        """Draw the items. This method can also be called from DrawContext
+        to draw sub-items.
+        """
+        for item in items:
+            self._draw_item(item, view, cairo)
+
     def paint(self, context):
         cairo = context.cairo
         view = context.view
         items = view.canvas.get_root_items()
-        update_bounds = context.update_bounds
-        self._draw_items(items, view, cairo, update_bounds)
+        self._draw_items(items, view, cairo)
+
+
+class BoundingBoxPainter(ItemPainter):
+    """This specific case of an ItemPainter is used to calculate the bounding
+    boxes for the items.
+    """
+
+    def _draw_items(self, items, view, cairo):
+        """Draw the items. This method can also be called from DrawContext
+        to draw sub-items.
+        """
+        for item in items:
+            context = view.wrap_cairo_context(cairo)
+            self._draw_item(item, view, context)
+            view.set_item_bounding_box(item, context.get_bounds())
+
+    def paint(self, context):
+        cairo = context.cairo
+        view = context.view
+        #items = context.items
+        items = view.canvas.get_root_items()
+        self._draw_items(items, view, cairo)
 
 
 class HandlePainter(Painter):

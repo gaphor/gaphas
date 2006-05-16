@@ -15,7 +15,7 @@ from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle
 from tool import DefaultTool
-from painter import DefaultPainter
+from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
 from decorators import nonrecursive
 
@@ -156,7 +156,6 @@ class View(gtk.DrawingArea):
 
         self._tool = DefaultTool()
         self._painter = DefaultPainter()
-        self._calculate_bounding_box = False
 
     matrix = property(lambda s: s._matrix)
 
@@ -299,7 +298,7 @@ class View(gtk.DrawingArea):
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        self._calculate_bounding_box = True
+        self.request_update(self.canvas.get_all_items())
         a = self.allocation
         super(View, self).queue_draw_area(0, 0, a.width, a.height)
 
@@ -396,11 +395,6 @@ class View(gtk.DrawingArea):
     def queue_draw_area(self, x, y, w, h):
         """Wrap draw_area to convert all values to ints.
         """
-        #if self._canvas:
-        #    for view in self._canvas._view_views:
-        #        super(View, view).queue_draw_area(int(x), int(y),
-        #                                          int(w+1), int(h+1))
-        #else:
         super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
     def set_item_bounding_box(self, item, bounds):
@@ -415,13 +409,7 @@ class View(gtk.DrawingArea):
     def get_item_bounding_box(self, item):
         """Get the bounding box for the item, in canvas coordinates.
         """
-        try:
-            return self._item_bounds[item]
-        except KeyError, e:
-            self._calculate_bounding_box = True
-            a = self.allocation
-            super(View, self).queue_draw_area(a.x, a.y, a.width, a.height)
-            raise e
+        return self._item_bounds[item]
 
     def wrap_cairo_context(self, cairo):
         """Create a wrapper class for the cairo context. This class is used
@@ -431,31 +419,35 @@ class View(gtk.DrawingArea):
         return CairoContextWrapper(cairo)
 
     @async(single=False, priority=PRIORITY_HIGH_IDLE)
+    #@nonrecursive
     def request_update(self, items):
         """Update view status according to the items updated by the canvas.
         """
+        if not self.window: return True
+
         with_handles = set(self._selected_items)
         with_handles.add(self._hovered_item)
         with_handles.add(self._focused_item)
 
-        for i in  items:
+        for i in items:
             self.queue_draw_item(i, handles=(i in with_handles))
 
-        # TODO: pseudo-draw
-        self._calculate_bounding_box = True
+        # Pseudo-draw
         context = self.window.cairo_create()
         context.rectangle(0,0,0,0)
         context.clip()
 
-        self._painter.paint(Context(view=self,
-                                    cairo=context,
-                                    update_bounds=self._calculate_bounding_box))
-        #self.queue_draw_item(*items)
-        for i in  items:
+        self._item_bounds = dict()
+        self._bounds = Rectangle()
+
+        painter = BoundingBoxPainter()
+        painter.paint(Context(view=self,
+                              cairo=context))
+
+        for i in items:
             self.queue_draw_item(i, handles=(i in with_handles))
 
-        #self.update_adjustments()
-        #self._calculate_bounding_box = False
+        self.update_adjustments()
 
     @nonrecursive
     def do_size_allocate(self, allocation):
@@ -472,11 +464,6 @@ class View(gtk.DrawingArea):
         if not self._canvas:
             return
 
-        # Set this to some idle function
-        #if self._canvas.require_update():
-        #    self._canvas.update_now()
-        #    self._calculate_bounding_box = True
-
         area = event.area
         self.window.draw_rectangle(self.style.white_gc, True,
                                    area.x, area.y, area.width, area.height)
@@ -484,17 +471,12 @@ class View(gtk.DrawingArea):
         #print 'expose', area.x, area.y, area.width, area.height, event.count
         context = self.window.cairo_create()
 
-        if self._calculate_bounding_box:
-            self._item_bounds = dict()
-            self._bounds = Rectangle()
-
         # Draw no more than nessesary.
         context.rectangle(area.x, area.y, area.width, area.height)
         context.clip()
 
         self._painter.paint(Context(view=self,
-                                    cairo=context,
-                                    update_bounds=self._calculate_bounding_box))
+                                    cairo=context))
 
         if DEBUG_DRAW_BOUNDING_BOX:
             context.save()
@@ -506,9 +488,6 @@ class View(gtk.DrawingArea):
             context.stroke()
             context.restore()
 
-        if self._calculate_bounding_box:
-            self.update_adjustments()
-        self._calculate_bounding_box = False
         return False
 
     def do_event(self, event):
@@ -529,7 +508,7 @@ class View(gtk.DrawingArea):
             self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
 
         # Force recalculation of the bounding boxes:
-        self._calculate_bounding_box = True
+        self.request_update(self.canvas.get_all_items())
 
         a = self.allocation
         super(View, self).queue_draw_area(0, 0, a.width, a.height)

@@ -1,8 +1,13 @@
+2006-05-16  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* painter.py: separate BoundingBoxPainter, for calcing bb's.
+	* view.py: No more bounding box calculation in do_expose_event()
+
 2006-05-15  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * decorators.py: moved nonrecursive to this file. added async
-        decorator.
-        * canvas.py, view.py: do canvas updates in @async method.
+	* decorators.py: moved nonrecursive to this file. added async
+	decorator.
+	* canvas.py, view.py: do canvas updates in @async method.
 
 2006-05-11  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
@@ -16,46 +21,46 @@
 
 2006-05-09  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * demo.py: connection protocol partly works.
-        * constraint.py, solver.py: redone constraints, added new constraint
-        types.
+	* demo.py: connection protocol partly works.
+	* constraint.py, solver.py: redone constraints, added new constraint
+	types.
 
 2006-05-02  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * tool.py: made CTRL work (select/deselect)
-        * demo.py: added example glue implementation
+	* tool.py: made CTRL work (select/deselect)
+	* demo.py: added example glue implementation
 
 2006-05-01  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * tool.py, painter.py, view.py: show handles for hovered item.
+	* tool.py, painter.py, view.py: show handles for hovered item.
 
 2006-04-28  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * view.py, demo.py: demonstrate multi-view modus of the canvas.
-        * constraint.py: added few simple constraint types
-        * solver.py, constraint.py: defined Constraint protocol.
+	* view.py, demo.py: demonstrate multi-view modus of the canvas.
+	* constraint.py: added few simple constraint types
+	* solver.py, constraint.py: defined Constraint protocol.
 	* tool.py, demo.py: PlacementTool. the first button press on the test
 	canvas will place a Box element on the canvas.
-        * demo.py: added some buttons.
+	* demo.py: added some buttons.
 
 2006-04-24  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * item.py: Added Line item.
-        * pylintrc: new file.
+	* item.py: Added Line item.
+	* pylintrc: new file.
 
 2006-04-21  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* painter.py: moved drawing code out of the view, into special
 	Painters.
-        * cleaned up code with pylint
+	* cleaned up code with pylint
 
 2006-04-20  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * tool.py: added runnerband selection tool.
+	* tool.py: added runnerband selection tool.
 
 2006-04-18  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
-        * demo.py: moved demo code from view.py to demo.py
+	* demo.py: moved demo code from view.py to demo.py
 	* view.py: implemented adjustment objects (for scrollbars). 1st attempt.
 	* view.py, tool.py: use a context in stead of view directly.
 
