@@ -406,7 +406,7 @@ class RubberbandTool(Tool):
 
     def on_button_release(self, context, event):
         context.ungrab()
-        #self.queue_draw(context.view)
+        self.queue_draw(context.view)
         r = self.rect
         r = Rectangle(min(r.x0, r.x1), min(r.y0, r.y1),
                       width=abs(r.width), height=abs(r.height))
