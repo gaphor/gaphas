@@ -132,6 +132,8 @@ class View(gtk.DrawingArea):
     # just defined a name to make GTK register this entity.
     __gtype_name__ = 'GaphasView'
     
+    # TODO: signals
+
     def __init__(self, canvas=None):
         super(View, self).__init__()
         self.set_flags(gtk.CAN_FOCUS)
@@ -419,7 +421,6 @@ class View(gtk.DrawingArea):
         return CairoContextWrapper(cairo)
 
     @async(single=False, priority=PRIORITY_HIGH_IDLE)
-    #@nonrecursive
     def request_update(self, items):
         """Update view status according to the items updated by the canvas.
         """
