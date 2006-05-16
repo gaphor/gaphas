@@ -28,8 +28,8 @@ Stage 2:
  v check the code with pylint for strange things.
  v line item
  v placement tool
- - connection protocol
- ? make update cycle independant from render (expose) event.
+ v connection protocol
+ v make update cycle independant from render (expose) event.
     This is something we might do if the response is getting bad.
  ? rotating and shearing for Element items.
     Do we need this?
