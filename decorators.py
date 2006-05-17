@@ -5,9 +5,13 @@ Custom decorators.
 __version__ = "$Revision$"
 # $HeadURL$
 
+if __name__ == '__main__':
+    import pygtk
+    pygtk.require('2.0')
+
 import gobject
 from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT
-
+import operator
 DEBUG_ASYNC = False
 
 class async(object):
@@ -15,37 +19,60 @@ class async(object):
     priority. This requires the async'ed method to be called from within
     the GTK main loop. Otherwise the method is executed directly.
 
+    Note: the current implementation of async single mode only works for
+          methods, not functions.
+
     Calling the async function from outside the gtk main loop will yield
     imediate execution:
-    >>> import gtk
-    >>> a = async()(lambda: 'Hi')
-    >>> a()
-    'Hi'
-    >>> @async(single=False, priority=gobject.PRIORITY_HIGH)
-    ... def a():
-    ...     print 'idle-a', gobject.main_depth()
-    >>> @async(single=True)
-    ... def b():
-    ...     print 'idle-b', gobject.main_depth()
-    >>> def delayed():
-    ...     print 'before'
-    ...     a()
-    ...     b()
-    ...     a()
-    ...     b()
-    ...     a()
-    ...     b()
-    ...     print 'after'
-    ...     gobject.timeout_add(100, gtk.main_quit)
-    >>> gobject.timeout_add(1, delayed)
-    3
-    >>> gtk.main()
-    before
-    after
-    idle-a 1
-    idle-a 1
-    idle-a 1
-    idle-b 1
+
+    async just works on functions (as long as single=False):
+
+        >>> a = async()(lambda: 'Hi')
+        >>> a()
+        'Hi'
+
+    Simple method:
+    
+        >>> class A(object):
+        ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
+        ...     def a(self):
+        ...         print 'idle-a', gobject.main_depth()
+    
+    Methods can also set sinle mode to True (the method is only scheduled one).
+
+        >>> class B(object):
+        ...     @async(single=True)
+        ...     def b(self):
+        ...         print 'idle-b', gobject.main_depth()
+
+    This is a helper function used to test classes A and B from within the GTK+
+    main loop:
+
+        >>> def delayed():
+        ...     print 'before'
+        ...     a = A()
+        ...     b = B()
+        ...     a.a()
+        ...     b.b()
+        ...     a.a()
+        ...     b.b()
+        ...     a.a()
+        ...     b.b()
+        ...     print 'after'
+        ...     gobject.timeout_add(100, gtk.main_quit)
+        >>> gobject.timeout_add(1, delayed)
+        1
+        >>> import gtk
+        >>> gtk.main()
+        before
+        after
+        idle-a 1
+        idle-a 1
+        idle-a 1
+        idle-b 1
+
+    As you can see, although b.b() has been called three times, it's only
+    executed once.
     """
 
     def __init__(self, single=False, priority=gobject.PRIORITY_DEFAULT):
@@ -63,33 +90,37 @@ class async(object):
                     func(*args, **kwargs)
                 gobject.idle_add(async_wrapper, priority=self.priority)
             else:
+                holder = args[0]
                 try:
-                    if func._async_id:
+                    f = operator.attrgetter('_async_id_%s' % func.__name__)
+                    if f(holder):
                         return
-                except AttributeError:
-                    # No async id yet
+                except AttributeError, e:
                     def async_wrapper():
                         if DEBUG_ASYNC: print 'async:', func, args, kwargs
                         try:
                             func(*args, **kwargs)
                         finally:
-                            del func._async_id
+                            holder.__delattr__('_async_id_%s' % func.__name__)
                         return False
 
-                    func._async_id = gobject.idle_add(async_wrapper, priority=self.priority)
+                    holder.__setattr__('_async_id_%s' % func.__name__,
+                        gobject.idle_add(async_wrapper, priority=self.priority))
         return wrapper
 
 def nonrecursive(func):
     """
-    >>> class A(object):
-    ...     @nonrecursive
-    ...     def a(self, x=1):
-    ...         print x
-    ...         self.a(x+1)
-    >>> A().a()
-    1
-    >>> A().a()
-    1
+    Enforce a function or method is not executed recursively:
+
+        >>> class A(object):
+        ...     @nonrecursive
+        ...     def a(self, x=1):
+        ...         print x
+        ...         self.a(x+1)
+        >>> A().a()
+        1
+        >>> A().a()
+        1
     """
     def wrapper(*args, **kwargs):
         """Decorate function with a mutex that prohibits recursice execution.

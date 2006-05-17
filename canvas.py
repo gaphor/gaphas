@@ -13,14 +13,15 @@ from decorators import async, PRIORITY_HIGH_IDLE
 
 class Context(object):
     """Context used for updating and drawing items in a drawing canvas.
-    >>> c=Context(one=1,two='two')
-    >>> c.one
-    1
-    >>> c.two
-    'two'
-    >>> try: c.one = 2
-    ... except: 'got exc'
-    'got exc'
+
+        >>> c=Context(one=1,two='two')
+        >>> c.one
+        1
+        >>> c.two
+        'two'
+        >>> try: c.one = 2
+        ... except: 'got exc'
+        'got exc'
     """
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -46,14 +47,15 @@ class Canvas(object):
 
     def add(self, item, parent=None):
         """Add an item to the canvas
-        >>> c = Canvas()
-        >>> import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> len(c._tree.nodes)
-        1
-        >>> i._canvas is c
-        True
+
+            >>> c = Canvas()
+            >>> import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> len(c._tree.nodes)
+            1
+            >>> i._canvas is c
+            True
         """
         item.canvas = self
         self._tree.add(item, parent)
@@ -63,14 +65,15 @@ class Canvas(object):
 
     def remove(self, item):
         """Remove item from the canvas
-        >>> c = Canvas()
-        >>> import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> c.remove(i)
-        >>> c._tree.nodes
-        []
-        >>> i._canvas
+
+            >>> c = Canvas()
+            >>> import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> c.remove(i)
+            >>> c._tree.nodes
+            []
+            >>> i._canvas
         """
         self._tree.remove(item)
         item.canvas = None
@@ -123,17 +126,18 @@ class Canvas(object):
 
     def request_update(self, item):
         """Set an update request for the item. 
-        >>> c = Canvas()
-        >>> import item
-        >>> i = item.Item()
-        >>> ii = item.Item()
-        >>> c.add(i)
-        >>> c.add(ii, i)
-        >>> len(c._dirty_items)
-        2
-        >>> c.update_now()
-        >>> len(c._dirty_items)
-        0
+
+            >>> c = Canvas()
+            >>> import item
+            >>> i = item.Item()
+            >>> ii = item.Item()
+            >>> c.add(i)
+            >>> c.add(ii, i)
+            >>> len(c._dirty_items)
+            2
+            >>> c.update_now()
+            >>> len(c._dirty_items)
+            0
         """
         if True: #not self._in_update:
             self._dirty_items.add(item)
@@ -156,23 +160,20 @@ class Canvas(object):
 
     def require_update(self):
         """Returns True or False depending on if an update is needed.
-        >>> c=Canvas()
-        >>> c.require_update()
-        False
-        >>> import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> c.require_update()
-        True
+
+            >>> c=Canvas()
+            >>> c.require_update()
+            False
+            >>> import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> c.require_update()
+            True
         """
         return bool(self._dirty_items)
 
-    @async(priority=PRIORITY_HIGH_IDLE)
+    @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
-        #self.update_matrices()
-
-        #self._solver.solve()
-
         if not self._in_update:
             self.update_now()
 
@@ -215,21 +216,22 @@ class Canvas(object):
     def update_matrices(self):
         """Update the matrix of the items scheduled to be updated
         *and* their sub-items.
-        >>> c = Canvas()
-        >>> import item
-        >>> i = item.Item()
-        >>> ii = item.Item()
-        >>> c.add(i)
-        >>> i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
-        >>> c.add(ii, i)
-        >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
-        >>> c.update_matrices()
-        >>> i._canvas_matrix_i2w
-        cairo.Matrix(1, 0, 0, 1, 5, 0)
-        >>> ii._canvas_matrix_i2w
-        cairo.Matrix(1, 0, 0, 1, 5, 8)
-        >>> len(c._dirty_items)
-        2
+
+            >>> c = Canvas()
+            >>> import item
+            >>> i = item.Item()
+            >>> ii = item.Item()
+            >>> c.add(i)
+            >>> i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
+            >>> c.add(ii, i)
+            >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
+            >>> c.update_matrices()
+            >>> i._canvas_matrix_i2w
+            cairo.Matrix(1, 0, 0, 1, 5, 0)
+            >>> ii._canvas_matrix_i2w
+            cairo.Matrix(1, 0, 0, 1, 5, 8)
+            >>> len(c._dirty_items)
+            2
         """
         dirty_items = self._dirty_matrix_items
         while dirty_items:
@@ -283,3 +285,5 @@ class Canvas(object):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+# vim:sw=4:et

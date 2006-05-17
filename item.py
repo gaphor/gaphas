@@ -39,21 +39,15 @@ class Handle(object):
     __repr__ = __str__
 
     def __getitem__(self, index):
-        """
-        >>> h = Handle(3, 5)
-        >>> h[0]
-        Variable(3, 20)
-        >>> h[1]
-        Variable(5, 20)
+        """Shorthand for returning the x(0) or y(1) component of the point.
+
+            >>> h = Handle(3, 5)
+            >>> h[0]
+            Variable(3, 20)
+            >>> h[1]
+            Variable(5, 20)
         """
         return (self.x, self.y)[index]
-
-#    def update(self, context):
-#        """Update the handle. @context has the following attributes:
-#         - item: the owning item
-#         - matrix_i2w: Item to World transformation matrix
-#        """
-#        pass
 
 
 class Item(object):
