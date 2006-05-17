@@ -61,7 +61,9 @@ be alligned).
 
 View (from view.py) is used to visualize a canvas. On a View, a Tool
 (from tool.py) can be assigned, which will handle user input (button presses,
-key presses, etc.)
+key presses, etc.). Painters (from painter.py) are used to do the actual
+drawing. This way it should be easy do draw to other media than the screen,
+such as a printer or PDF document.
 
 Updating item state
 -------------------
