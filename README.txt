@@ -85,6 +85,8 @@ The context contains:
 
  parent:   parent item of the item, or None
  children: child items of this item (do not need to force updates for those)
+ cairo:    a CairoContext, this can be used to calculate the dimensions of text
+           for example
 
 NOTE: updating is done from the canvas, items should not update sub-items.
 

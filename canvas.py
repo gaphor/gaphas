@@ -6,6 +6,10 @@ and a constraint solver.
 __version__ = "$Revision$"
 # $HeadURL$
 
+if __name__ == '__main__':
+    import pygtk
+    pygtk.require('2.0')
+
 import tree
 import solver
 from geometry import Matrix
@@ -134,7 +138,7 @@ class Canvas(object):
             >>> c.add(i)
             >>> c.add(ii, i)
             >>> len(c._dirty_items)
-            2
+            0
             >>> c.update_now()
             >>> len(c._dirty_items)
             0
@@ -182,6 +186,8 @@ class Canvas(object):
         """
         self._in_update = True
         try:
+            cairo_context = self._obtain_cairo_context()
+
             dirty_items = [ item for item in reversed(self._tree.nodes) \
                                  if item in self._dirty_items ]
             context_map = dict()
@@ -204,7 +210,8 @@ class Canvas(object):
             #    item.update(context_map[item])
             for item in dirty_items:
                 c = Context(parent=self._tree.get_parent(item),
-                            children=self._tree.get_children(item))
+                            children=self._tree.get_children(item),
+                            cairo=cairo_context)
                 context_map[item] = c
                 item.update(c)
 
@@ -231,7 +238,7 @@ class Canvas(object):
             >>> ii._canvas_matrix_i2w
             cairo.Matrix(1, 0, 0, 1, 5, 8)
             >>> len(c._dirty_items)
-            2
+            0
         """
         dirty_items = self._dirty_matrix_items
         while dirty_items:
@@ -281,6 +288,29 @@ class Canvas(object):
         """
         for v in self._registered_views:
             v.request_update(items)
+
+    def _obtain_cairo_context(self):
+        """Try to obtain a Cairo context.
+
+        * Hazardous code *
+
+        This is a not-so-clean way to solve issues like calculating the
+        bounding box for a piece of text (for that you'll need a CairoContext).
+        The Cairo context is created by a View registered as view on this
+        canvas. By lack of registered views, a new GTK+ window is created that
+        is used to create a context.
+
+            >>> c = Canvas()
+            >>> c.update_now()
+        """
+        if self._registered_views:
+            return self._registered_views[0].window.cairo_create()
+        else:
+            import gtk
+            w = gtk.Window()
+            w.realize()
+            return w.window.cairo_create()
+
 
 if __name__ == '__main__':
     import doctest
