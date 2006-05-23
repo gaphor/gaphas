@@ -240,6 +240,13 @@ def create_window(canvas, zoom=1.0):
     t.attach(vs, 1, 2, 0, 1, xoptions=gtk.FILL, yoptions=gtk.FILL)
 
     w.show_all()
+    
+    def handle_changed(view, item, what):
+        print what, 'changed: ', item
+
+    view.connect('focus-changed', handle_changed, 'focus')
+    view.connect('hover-changed', handle_changed, 'hover')
+    view.connect('selection-changed', handle_changed, 'selection')
 
 c=Canvas()
 

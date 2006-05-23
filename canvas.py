@@ -303,13 +303,17 @@ class Canvas(object):
             >>> c = Canvas()
             >>> c.update_now()
         """
-        if self._registered_views:
-            return self._registered_views[0].window.cairo_create()
+        for view in self._registered_views:
+            try:
+                return view.window.cairo_create()
+            except AttributeError:
+                pass
         else:
             import gtk
             w = gtk.Window()
             w.realize()
             return w.window.cairo_create()
+            #return None
 
 
 if __name__ == '__main__':

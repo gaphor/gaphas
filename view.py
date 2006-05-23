@@ -10,6 +10,7 @@ if __name__ == '__main__':
     import pygtk
     pygtk.require('2.0') 
 
+import gobject
 import gtk
 from cairo import Matrix
 from canvas import Context
@@ -132,8 +133,15 @@ class View(gtk.DrawingArea):
     # just defined a name to make GTK register this entity.
     __gtype_name__ = 'GaphasView'
     
-    # TODO: signals
-
+    # Signals: emited before the change takes effect.
+    __gsignals__ = {
+        'hover-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      (gobject.TYPE_PYOBJECT,)),
+        'focus-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      (gobject.TYPE_PYOBJECT,)),
+        'selection-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      (gobject.TYPE_PYOBJECT,))
+    }
     def __init__(self, canvas=None):
         super(View, self).__init__()
         self.set_flags(gtk.CAN_FOCUS)
@@ -186,20 +194,25 @@ class View(gtk.DrawingArea):
         
         """
         self.queue_draw_item(item, handles=True)
-        self._selected_items.add(item)
+        if item not in self._selected_items:
+            self._selected_items.add(item)
+            self.emit('selection-changed', self._selected_items)
 
     def unselect_item(self, item):
         """Unselect an item.
         """
         self.queue_draw_item(item, handles=True)
-        self._selected_items.discard(item)
+        if item in self._selected_items:
+            self._selected_items.discard(item)
+            self.emit('selection-changed', self._selected_items)
 
     def _del_selected_items(self):
         """Clearing the selected_item also clears the focused_item.
         """
         self.queue_draw_item(handles=True, *self._selected_items)
         self._selected_items.clear()
-        self._focused_item = None
+        self.focused_item = None
+        self.emit('selection-changed', self._selected_items)
 
     selected_items = property(lambda s: set(s._selected_items),
                               select_item, _del_selected_items,
@@ -213,15 +226,15 @@ class View(gtk.DrawingArea):
             self.queue_draw_item(self._focused_item, item, handles=True)
 
         if item:
-            self._selected_items.add(item)
-        self._focused_item = item
+            self.selected_items = item #.add(item)
+        if item is not self._focused_item:
+            self._focused_item = item
+            self.emit('focus-changed', item)
 
     def _del_focused_item(self):
         """Items that loose focus remain selected.
         """
-        if self._focused_item:
-            self.queue_draw_item(self._focused_item, handles=True)
-        self._focused_item = None
+        self.focused_item = None
         
     focused_item = property(lambda s: s._focused_item,
                             _set_focused_item, _del_focused_item,
@@ -232,14 +245,14 @@ class View(gtk.DrawingArea):
         """
         if not item is self._hovered_item:
             self.queue_draw_item(self._hovered_item, item, handles=True)
-        self._hovered_item = item
+        if item is not self._hovered_item:
+            self._hovered_item = item
+            self.emit('hover-changed', item)
 
     def _del_hovered_item(self):
         """Unset the hovered item.
         """
-        if self._hovered_item:
-            self.queue_draw_item(self._hovered_item, handles=True)
-        self._hovered_item = None
+        self.hovered_item = None
         
     hovered_item = property(lambda s: s._hovered_item,
                             _set_hovered_item, _del_hovered_item,
