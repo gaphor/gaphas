@@ -22,6 +22,8 @@ class Painter(object):
     """
 
     def paint(self, context):
+        """Do the paint action (called from the View).
+        """
         pass
 
 
@@ -34,12 +36,18 @@ class PainterChain(Painter):
         self._painters = []
 
     def append(self, painter):
+        """Add a painter to the list of painters.
+        """
         self._painters.append(painter)
 
     def prepend(self, painter):
+        """Add a painter to the beginning of the list of painters.
+        """
         self._painters.insert(0, painter)
 
     def paint(self, context):
+        """See Painter.paint().
+        """
         for painter in self._painters:
             painter.paint(context)
 
@@ -68,31 +76,31 @@ class DrawContext(Context):
 class ItemPainter(Painter):
 
     def _draw_item(self, item, view, cairo):
-            cairo.save()
-            try:
-                cairo.set_matrix(view.matrix)
-                cairo.transform(view.canvas.get_matrix_i2w(item))
+        cairo.save()
+        try:
+            cairo.set_matrix(view.matrix)
+            cairo.transform(view.canvas.get_matrix_i2w(item))
 
-                item.draw(DrawContext(painter=self,
-                                      view=view,
-                                      cairo=cairo,
-                                      parent=view.canvas.get_parent(item),
-                                      children=view.canvas.get_children(item),
-                                      selected=(item in view.selected_items),
-                                      focused=(item is view.focused_item),
-                                      hovered=(item is view.hovered_item)))
+            item.draw(DrawContext(painter=self,
+                                  view=view,
+                                  cairo=cairo,
+                                  parent=view.canvas.get_parent(item),
+                                  children=view.canvas.get_children(item),
+                                  selected=(item in view.selected_items),
+                                  focused=(item is view.focused_item),
+                                  hovered=(item is view.hovered_item)))
 
-                if DEBUG_DRAW_BOUNDING_BOX:
-                    b = view.get_item_bounding_box(item)
-                    cairo.save()
-                    cairo.identity_matrix()
-                    cairo.set_source_rgb(.8, 0, 0)
-                    cairo.set_line_width(1.0)
-                    cairo.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-                    cairo.stroke()
-                    cairo.restore()
-            finally:
+            if DEBUG_DRAW_BOUNDING_BOX:
+                b = view.get_item_bounding_box(item)
+                cairo.save()
+                cairo.identity_matrix()
+                cairo.set_source_rgb(.8, 0, 0)
+                cairo.set_line_width(1.0)
+                cairo.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+                cairo.stroke()
                 cairo.restore()
+        finally:
+            cairo.restore()
 
     def _draw_items(self, items, view, cairo):
         """Draw the items. This method can also be called from DrawContext
