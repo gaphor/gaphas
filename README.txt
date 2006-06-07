@@ -35,6 +35,7 @@ Stage 2:
     Do we need this?
 
 Stage 3:
+ - make double and triple click work.
  - text edit tool (gtk.Edit in popup window?)
 
 Stage n:
