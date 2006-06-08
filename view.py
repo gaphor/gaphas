@@ -140,7 +140,11 @@ class View(gtk.DrawingArea):
         'focus-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                       (gobject.TYPE_PYOBJECT,)),
         'selection-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                      (gobject.TYPE_PYOBJECT,))
+                      (gobject.TYPE_PYOBJECT,)),
+        'tool-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      ()),
+        'painter-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      ())
     }
     def __init__(self, canvas=None):
         super(View, self).__init__()
@@ -262,8 +266,17 @@ class View(gtk.DrawingArea):
         """Set the tool to use. Tools should implement tool.Tool.
         """
         self._tool = tool
+        self.emit('tool-changed')
 
     tool = property(lambda s: s._tool, _set_tool)
+
+    def _set_painter(self, painter):
+        """Set the painter to use. Painters should implement painter.Painter.
+        """
+        self._painter = painter
+        self.emit('painter-changed')
+
+    painter = property(lambda s: s._painter, _set_painter)
 
     def _set_hadjustment(self, adj):
         """Set horizontal adjustment object, for scrollbars.
