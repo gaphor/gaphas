@@ -60,8 +60,8 @@ class async(object):
         ...     b.b()
         ...     print 'after'
         ...     gobject.timeout_add(100, gtk.main_quit)
-        >>> gobject.timeout_add(1, delayed)
-        1
+        >>> gobject.timeout_add(1, delayed) > 0 # timeout id may vary
+        True
         >>> import gtk
         >>> gtk.main()
         before
