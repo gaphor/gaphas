@@ -253,9 +253,22 @@ class Element(Item):
         
     def teardown_canvas(self):
         """Remove constraints created in setup_canvas().
+        >>> from canvas import Canvas
+        >>> c=Canvas()
+        >>> c.solver._constraints
+        set([])
+        >>> b = Element()
+        >>> c.add(b)
+        >>> b.canvas is c
+        True
+        >>> len(c.solver._constraints)
+        8
+        >>> b.teardown()
+        >>> len(c.solver._constraints)
+        0
         """
         for c in self._constraints:
-            self.canvas.solver.remove(c)
+            self.canvas.solver.remove_constraint(c)
 
     def handles(self):
         """The handles.
