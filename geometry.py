@@ -43,16 +43,34 @@ class Rectangle(object):
         self.y1 = y1 or y0 + height
 
     def _set_width(self, width):
+        """
+        >>> r = Rectangle(-5, 3, 10, 8)
+        >>> r.width = 2
+        >>> r
+        Rectangle(-5, 3, -3, 8)
+        """
         self.x1 = self.x0 + width
         
     width = property(lambda s: s.x1 - s.x0, _set_width)
 
     def _set_heigth(self, height):
+        """
+        >>> r = Rectangle(-5, 3, 10, 8)
+        >>> r.height = 2
+        >>> r
+        Rectangle(-5, 3, 10, 5)
+        """
         self.y1 = self.y0 + height
 
     height = property(lambda s: s.y1 - s.y0, _set_heigth)
 
     def expand(self, delta):
+        """
+        >>> r = Rectangle(-5, 3, 10, 8)
+        >>> r.expand(5)
+        >>> r
+        Rectangle(-10, -2, 15, 13)
+        """
         self.x0 -= delta
         self.y0 -= delta
         self.x1 += delta
@@ -117,6 +135,10 @@ class Rectangle(object):
         >>> r += (0, 0, 30, 10)
         >>> r
         Rectangle(0, 0, 30, 25)
+        >>> r += 'aap'
+        Traceback (most recent call last):
+          ...
+        AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle first.
         """
         if isinstance(obj, Rectangle) or len(obj) == 4:
             x0, y0, x1, y1 = obj
@@ -125,7 +147,7 @@ class Rectangle(object):
             x0, y0 = obj
             x1, y1 = obj
         else:
-            raise AttributeError, "Don't know how to handle %s %s." + \
+            raise AttributeError, "Don't know how to handle %s %s."\
                     " Convert to a Rectangle first." % (type(obj), obj)
         if self:
             self.x0 = min(self.x0, x0)
@@ -148,7 +170,8 @@ class Rectangle(object):
 
     def __isub__(self, obj):
         """
-        >>> r=Rectangle(5,7,20,25)
+        >>> r=Rectangle()
+        >>> r -= Rectangle(5,7,20,25)
         >>> r -= (0, 0, 30, 10)
         >>> r
         Rectangle(5, 7, 20, 10)
