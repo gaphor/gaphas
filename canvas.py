@@ -10,10 +10,10 @@ if __name__ == '__main__':
     import pygtk
     pygtk.require('2.0')
 
-import tree
-import solver
-from geometry import Matrix
-from decorators import async, PRIORITY_HIGH_IDLE
+from gaphas import tree
+from gaphas import solver
+from gaphas.geometry import Matrix
+from gaphas.decorators import async, PRIORITY_HIGH_IDLE
 
 class Context(object):
     """Context used for updating and drawing items in a drawing canvas.
@@ -53,7 +53,7 @@ class Canvas(object):
         """Add an item to the canvas
 
             >>> c = Canvas()
-            >>> import item
+            >>> from gaphas import item
             >>> i = item.Item()
             >>> c.add(i)
             >>> len(c._tree.nodes)
@@ -71,7 +71,7 @@ class Canvas(object):
         """Remove item from the canvas
 
             >>> c = Canvas()
-            >>> import item
+            >>> from gaphas import item
             >>> i = item.Item()
             >>> c.add(i)
             >>> c.remove(i)
@@ -87,26 +87,83 @@ class Canvas(object):
 
     def get_all_items(self):
         """Get a list of all items
+            >>> c = Canvas()
+            >>> c.get_all_items()
+            []
+            >>> from gaphas import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> c.get_all_items()
+            [<gaphas.item.Item ...>]
+
         """
         return self._tree.nodes
     
     def get_root_items(self):
         """Return the root items of the canvas.
+
+            >>> c = Canvas()
+            >>> c.get_all_items()
+            []
+            >>> from gaphas import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> ii = item.Item()
+            >>> c.add(ii, i)
+            >>> c.get_root_items()
+            [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(None)
 
     def get_parent(self, item):
         """See tree.Tree.get_parent()
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> ii = item.Item()
+            >>> c.add(ii, i)
+            >>> c.get_parent(i)
+            >>> c.get_parent(ii)
+            <gaphas.item.Item ...>
         """
         return self._tree.get_parent(item)
 
     def get_ancestors(self, item):
         """See tree.Tree.get_ancestors()
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> ii = item.Item()
+            >>> c.add(ii, i)
+            >>> iii = item.Item()
+            >>> c.add(iii, ii)
+            >>> list(c.get_ancestors(i))
+            []
+            >>> list(c.get_ancestors(ii))
+            [<gaphas.item.Item ...>]
+            >>> list(c.get_ancestors(iii))
+            [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_ancestors(item)
 
     def get_children(self, item):
         """See tree.Tree.get_children()
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> ii = item.Item()
+            >>> c.add(ii, i)
+            >>> iii = item.Item()
+            >>> c.add(iii, ii)
+            >>> list(c.get_children(iii))
+            []
+            >>> list(c.get_children(ii))
+            [<gaphas.item.Item ...>]
+            >>> list(c.get_children(i))
+            [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_children(item)
 
@@ -132,7 +189,7 @@ class Canvas(object):
         """Set an update request for the item. 
 
             >>> c = Canvas()
-            >>> import item
+            >>> from gaphas import item
             >>> i = item.Item()
             >>> ii = item.Item()
             >>> c.add(i)
@@ -168,11 +225,14 @@ class Canvas(object):
             >>> c=Canvas()
             >>> c.require_update()
             False
-            >>> import item
+            >>> from gaphas import item
             >>> i = item.Item()
             >>> c.add(i)
             >>> c.require_update()
-            True
+            False
+
+        Since we're not in a GTK+ mainloop, the update is not scheduled
+        asynchronous. Therefor reqire_update() returns False.
         """
         return bool(self._dirty_items)
 
@@ -225,13 +285,13 @@ class Canvas(object):
         *and* their sub-items.
 
             >>> c = Canvas()
-            >>> import item
+            >>> from gaphas import item
             >>> i = item.Item()
             >>> ii = item.Item()
-            >>> c.add(i)
             >>> i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
-            >>> c.add(ii, i)
+            >>> c.add(i)
             >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
+            >>> c.add(ii, i)
             >>> c.update_matrices()
             >>> i._canvas_matrix_i2w
             cairo.Matrix(1, 0, 0, 1, 5, 0)

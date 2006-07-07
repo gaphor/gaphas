@@ -147,7 +147,7 @@ class Rectangle(object):
             x0, y0 = obj
             x1, y1 = obj
         else:
-            raise AttributeError, "Don't know how to handle %s %s."\
+            raise AttributeError, "Don't know how to handle %s %s." \
                     " Convert to a Rectangle first." % (type(obj), obj)
         if self:
             self.x0 = min(self.x0, x0)
@@ -175,11 +175,15 @@ class Rectangle(object):
         >>> r -= (0, 0, 30, 10)
         >>> r
         Rectangle(5, 7, 20, 10)
+        >>> r -= 'aap'
+        Traceback (most recent call last):
+          ...
+        AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle first.
         """
         if isinstance(obj, Rectangle) or len(obj) == 4:
             x0, y0, x1, y1 = obj
         else:
-            raise AttributeError, "Don't know how to handle %s %s." + \
+            raise AttributeError, "Don't know how to handle %s %s." \
                     " Convert to a Rectangle first." % (type(obj), obj)
         if self:
             self.x0 = max(self.x0, x0)
@@ -208,6 +212,10 @@ class Rectangle(object):
         True
         >>> Rectangle(11, 6, 15, 15) in r
         True
+        >>> 'aap' in r
+        Traceback (most recent call last):
+          ...
+        AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle or tuple first.
         """
         if isinstance(obj, Rectangle) or len(obj) == 4:
             x0, y0, x1, y1 = obj
@@ -216,7 +224,7 @@ class Rectangle(object):
             x0, y0 = obj
             x1, y1 = obj
         else:
-            raise AttributeError, "Don't know how to handle %s %s." + \
+            raise AttributeError, "Don't know how to handle %s %s." \
                     " Convert to a Rectangle or tuple first." % (type(obj), obj)
         return x0 >= self.x0 and x1 <= self.x1 and \
                y0 >= self.y0 and y1 <= self.y1
@@ -250,6 +258,8 @@ def distance_rectangle_point(rect, point):
     2
     >>> distance_rectangle_point((0, 0, 10, 10), (11, -1))
     2
+    >>> distance_rectangle_point((0, 0, 10, 10), (-1, 11))
+    2
     """
     dx = dy = 0
 
@@ -279,8 +289,14 @@ def point_on_rectangle(rect, point, border=False):
     (10, 5)
     >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 4))
     (3, 4)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 4), border=True)
-    (1, 4)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (0, 3))
+    (1, 3)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 3))
+    (4, 3)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 7), border=True)
+    (4, 10)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 3), border=True)
+    (1, 3)
     """
     px, py = point
     x_inside = y_inside = False
@@ -371,6 +387,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     >>> intersect_line_line((0, 0), (10, 10), (3, 0), (8, 10))
     (6.0, 6.0)
     >>> intersect_line_line((0, 0), (0, 10), (3, 0), (8, 10))
+    >>> intersect_line_line((0, 0), (0, 10), (3, 0), (3, 10))
     """
     x1, y1 = line1_start
     x2, y2 = line1_end
