@@ -1,3 +1,7 @@
+2006-07-17  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* added SetupTools support
+
 2006-05-16  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* painter.py: separate BoundingBoxPainter, for calcing bb's.
