@@ -8,10 +8,10 @@ from setuptools import setup, find_packages
 setup(
     name='gaphas',
     version='0.1.0',
-    description='Gaphas is a GTK+ based diagraming widget',
+    description='Gaphas is a GTK+ based diagramming widget',
     long_description="""\
-Gaphas is a GTK+ based diagraming widget written in Python.
-It is the logical succesor of the DiaCanvas library.
+Gaphas is a GTK+ based diagramming widget written in Python.
+It is the logical successor of the DiaCanvas library.
 """,
 
     classifiers=[
@@ -22,7 +22,6 @@ It is the logical succesor of the DiaCanvas library.
     'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
     'Programming Language :: Python',
     'Topic :: Software Development :: Libraries :: Python Modules',
-
     ],
 
     keywords='',

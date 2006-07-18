@@ -11,13 +11,12 @@ pygtk.require('2.0')
 
 import math
 import gtk
-from view import View
-from canvas import Canvas
-from examples import Box, Text
-from item import Line, NW, SE
-from tool import PlacementTool, HandleTool
-from constraint import LineConstraint
-from geometry import point_on_rectangle, distance_rectangle_point
+from gaphas import Canvas, View
+from gaphas.examples import Box, Text
+from gaphas.item import Line, NW, SE
+from gaphas.tool import PlacementTool, HandleTool
+from gaphas.constraint import LineConstraint
+from gaphas.geometry import point_on_rectangle, distance_rectangle_point
 
 DEFAULT_POINTER = gtk.gdk.LEFT_PTR
 
