@@ -10,7 +10,7 @@ and handles).
 __version__ = "$Revision$"
 # $HeadURL$
 
-from cairo import Matrix, ANTIALIAS_NONE
+from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
 
 from canvas import Context
 from geometry import Rectangle
@@ -113,6 +113,8 @@ class ItemPainter(Painter):
         cairo = context.cairo
         view = context.view
         items = view.canvas.get_root_items()
+        cairo.set_tolerance(0.1)
+        cairo.set_line_join(LINE_JOIN_ROUND)
         self._draw_items(items, view, cairo)
 
 
