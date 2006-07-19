@@ -62,7 +62,7 @@ class CairoContextWrapper(object):
     def get_bounds(self):
         """Return the bounding box.
         """
-        return self._bounds
+        return self._bounds or Rectangle()
 
     def _update_bounds(self, bounds):
         if not self._bounds:
@@ -429,10 +429,11 @@ class View(gtk.DrawingArea):
         """Update the bounding box of the item (in canvas coordinates).
         """
         self._item_bounds[item] = bounds
-        bounds.x1 += 1
-        bounds.y1 += 1
-        # Also update the view's overall bounding box.
-        self._bounds += bounds
+        if bounds:
+            bounds.x1 += 1
+            bounds.y1 += 1
+            # Also update the view's overall bounding box.
+            self._bounds += bounds
 
     def get_item_bounding_box(self, item):
         """Get the bounding box for the item, in canvas coordinates.
