@@ -210,7 +210,7 @@ class View(gtk.DrawingArea):
             self._selected_items.discard(item)
             self.emit('selection-changed', self._selected_items)
 
-    def _del_selected_items(self):
+    def unselect_all(self):
         """Clearing the selected_item also clears the focused_item.
         """
         self.queue_draw_item(handles=True, *self._selected_items)
@@ -219,7 +219,7 @@ class View(gtk.DrawingArea):
         self.emit('selection-changed', self._selected_items)
 
     selected_items = property(lambda s: set(s._selected_items),
-                              select_item, _del_selected_items,
+                              select_item, unselect_all,
                               "Items selected by the view")
 
     def _set_focused_item(self, item):
