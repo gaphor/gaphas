@@ -378,17 +378,17 @@ class View(gtk.DrawingArea):
         """
         return self._matrix.transform_point(x, y)
 
-    def transform_point_c2i(item, x, y):
+    def transform_point_c2i(self, item, x, y):
         """Transforma point from canvas to item coordinates.
         """
-        assert view.canvas
+        assert self.canvas
         wx, wy = self.transform_point_c2w(x, y)
         return self.canvas.get_matrix_w2i(item).transform_point(wx, wy)
 
-    def transform_point_i2c(item, x, y):
+    def transform_point_i2c(self, item, x, y):
         """Transform a point from item coordinates to canvas coordinates.
         """
-        assert view.canvas
+        assert self.canvas
         wx, wy = self.canvas.get_matrix_i2w(item).transform_point(x, y)
         return self.transform_point_w2c(wx, wy)
 
