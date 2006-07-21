@@ -389,7 +389,7 @@ class View(gtk.DrawingArea):
         """Transform a point from item coordinates to canvas coordinates.
         """
         assert view.canvas
-        wx, wy self.canvas.get_matrix_i2w(item).transform_point(x, y)
+        wx, wy = self.canvas.get_matrix_i2w(item).transform_point(x, y)
         return self.transform_point_w2c(wx, wy)
 
     def get_canvas_size(self):

@@ -469,7 +469,11 @@ class PlacementTool(Tool):
         else:
             return False
 
+
 class TextEditTool(Tool):
+    """Demo of a text edit tool (just displays a text edit box at the cursor
+    position.
+    """
 
     def __init__(self):
         pass
@@ -513,6 +517,7 @@ class TextEditTool(Tool):
     def _on_focus_out_event(self, widget, event, buffer):
         print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
         widget.destroy()
+
 
 def DefaultTool():
     """The default tool chain build from HoverTool, ItemTool and HandleTool.
