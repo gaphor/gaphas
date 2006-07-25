@@ -91,14 +91,18 @@ class ItemPainter(Painter):
                                   hovered=(item is view.hovered_item)))
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                b = view.get_item_bounding_box(item)
-                cairo.save()
-                cairo.identity_matrix()
-                cairo.set_source_rgb(.8, 0, 0)
-                cairo.set_line_width(1.0)
-                cairo.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-                cairo.stroke()
-                cairo.restore()
+                try:
+                    b = view.get_item_bounding_box(item)
+                except KeyError:
+                    pass # No bounding box right now..
+                else:
+                    cairo.save()
+                    cairo.identity_matrix()
+                    cairo.set_source_rgb(.8, 0, 0)
+                    cairo.set_line_width(1.0)
+                    cairo.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+                    cairo.stroke()
+                    cairo.restore()
         finally:
             cairo.restore()
 

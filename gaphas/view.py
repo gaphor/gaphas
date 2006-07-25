@@ -105,9 +105,10 @@ class CairoContextWrapper(object):
 
     def show_text(self, utf8):
         cairo = self._cairo
+        x, y = cairo.get_current_point()
         e = cairo.text_extents(utf8)
-        x0, y0 = cairo.user_to_device(e[0], e[1])
-        x1, y1 = cairo.user_to_device(e[0]+e[2], e[1]+e[3])
+        x0, y0 = cairo.user_to_device(x+e[0], y+e[1])
+        x1, y1 = cairo.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
         self._update_bounds((x0, y0, x1, y1))
         return cairo.show_text(utf8)
 
