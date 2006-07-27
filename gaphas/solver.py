@@ -59,6 +59,38 @@ class Variable(object):
     def __float__(self):
         return float(self._value)
 
+    def __gt__(self, other):
+        """
+        >>> Variable(5) > 4
+        True
+        >>> Variable(5) > 5
+        False
+        """
+        return self._value.__gt__(float(other))
+
+    def __lt__(self, other):
+        """
+        >>> Variable(5) < 4
+        False
+        >>> Variable(5) < 6
+        True
+        """
+        return self._value.__lt__(float(other))
+
+    def __ge__(self, other):
+        """
+        >>> Variable(5) >= 5
+        True
+        """
+        return self._value.__ge__(float(other))
+
+    def __le__(self, other):
+        """
+        >>> Variable(5) <= 5
+        True
+        """
+        return self._value.__le__(float(other))
+
     def __add__(self, other):
         """
         >>> Variable(5) + 4

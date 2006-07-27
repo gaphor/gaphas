@@ -325,7 +325,9 @@ class HandleTool(Tool):
         """
 
     def disconnect(self, view, item, handle):
-        pass
+        """Disconnect the handle. This mostly comes down to removing 
+        constraints.
+        """
 
     def on_button_press(self, context, event):
         """Handle button press events. If the (mouse) button is pressed on
@@ -461,6 +463,8 @@ class PlacementTool(Tool):
 
     def on_button_release(self, context, event):
         context.ungrab()
+        if self._new_obj:
+            self._handle_tool.on_button_release(context, event)
         return True
 
     def on_motion_notify(self, context, event):

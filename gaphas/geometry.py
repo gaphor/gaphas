@@ -310,7 +310,7 @@ def point_on_rectangle(rect, point, border=False):
 
     if py < rect[1]:
         py = rect[1]
-    elif py> rect[3]:
+    elif py > rect[3]:
         py = rect[3]
     elif border:
         y_inside = True

@@ -421,6 +421,17 @@ class Line(Item):
 
     def handles(self):
         return self._handles
+    
+    def opposite(self, handle):
+        """Given the handle of one end of the line, return the other end.
+        """
+        handles = self._handles
+        if handle is handles[0]:
+            return handles[-1]
+        elif handle is handles[-1]:
+            return handles[0]
+        else:
+            raise KeyError('Handle is not an end handle')
 
     def _closest_segment(self, x, y):
         """Obtain a tuple (distance, point_on_line, segment).
