@@ -17,6 +17,10 @@ from geometry import Rectangle
 
 DEBUG_DRAW_BOUNDING_BOX = False
 
+# The tolerance for Cairo. Bigger values increase speed and reduce accuracy
+# (default: 0.1)
+TOLERANCE = 0.5
+
 class Painter(object):
     """Painter interface.
     """
@@ -117,7 +121,7 @@ class ItemPainter(Painter):
         cairo = context.cairo
         view = context.view
         items = view.canvas.get_root_items()
-        cairo.set_tolerance(0.1)
+        cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
         self._draw_items(items, view, cairo)
 
