@@ -446,30 +446,35 @@ class PlacementTool(Tool):
         self._factory = factory
         self._handle_tool = handle_tool
         self._handle_index = handle_index
-        self._new_obj = None
+        self._new_item = None
+
+    handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
+    handle_index = property(lambda s: s._handle_index,
+                            doc="Index of handle to be used by handle_tool")
+    new_item = property(lambda s: s._new_item, doc="The newly created item")
 
     def on_button_press(self, context, event):
         view = context.view
         canvas = view.canvas
         pos = view.transform_point_c2w(event.x, event.y)
-        new_obj = self._factory()
-        canvas.add(new_obj)
-        new_obj.matrix.translate(*pos)
-        self._handle_tool._grabbed_handle = new_obj.handles()[self._handle_index]
-        self._handle_tool._grabbed_item = new_obj
-        self._new_obj = new_obj
-        view.focused_item = new_obj
+        new_item = self._factory()
+        canvas.add(new_item)
+        new_item.matrix.translate(*pos)
+        self._handle_tool._grabbed_handle = new_item.handles()[self._handle_index]
+        self._handle_tool._grabbed_item = new_item
+        self._new_item = new_item
+        view.focused_item = new_item
         context.grab()
         return True
 
     def on_button_release(self, context, event):
         context.ungrab()
-        if self._new_obj:
+        if self._new_item:
             self._handle_tool.on_button_release(context, event)
         return True
 
     def on_motion_notify(self, context, event):
-        if self._new_obj:
+        if self._new_item:
             return self._handle_tool.on_motion_notify(context, event)
         else:
             return False

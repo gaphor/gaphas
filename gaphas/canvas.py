@@ -167,23 +167,38 @@ class Canvas(object):
         """
         return self._tree.get_children(item)
 
-    def get_matrix_i2w(self, item):
+    def get_matrix_i2w(self, item, calculate=False):
         """Get the Item to World matrix for @item.
+
+        item: The item who's item-to-world transformation matrix should be
+              found
+        calculate: True will allow this function to actually calculate it,
+              in stead of raising an AttributeError when no matrix is present
+              yet. Note that out-of-date matrices are not recalculated.
         """
         try:
             return item._canvas_matrix_i2w
         except AttributeError, e:
-            self.request_matrix_update(item)
-            raise e
+            if calculate:
+                self.update_matrix(item, recursive=False)
+                return item._canvas_matrix_i2w
+            else:
+                self.request_matrix_update(item)
+                raise e
 
-    def get_matrix_w2i(self, item):
+    def get_matrix_w2i(self, item, calculate=False):
         """Get the World to Item matrix for @item.
+        See get_matrix_i2w().
         """
         try:
             return item._canvas_matrix_w2i
         except AttributeError, e:
-            self.request_matrix_update(item)
-            raise e
+            if calculate:
+                self.update_matrix(item, recursive=False)
+                return item._canvas_matrix_w2i
+            else:
+                self.request_matrix_update(item)
+                raise e
 
     def request_update(self, item):
         """Set an update request for the item. 
