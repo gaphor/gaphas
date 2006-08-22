@@ -255,6 +255,8 @@ create_window(c)
 # Add stuff to the canvas:
 
 b=MyBox()
+b.min_width = 20
+b.min_height = 30
 print 'box', b
 b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
 b.width=b.height = 40

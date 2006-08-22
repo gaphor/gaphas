@@ -26,6 +26,7 @@ __version__ = "$Revision$"
 import cairo
 import gtk
 from canvas import Context
+from item import Element
 from geometry import Rectangle
 
 DEBUG_TOOL = False
@@ -316,6 +317,34 @@ class HandleTool(Tool):
                     return item, h
         return None, None
 
+    def move(self, view, item, handle, x, y):
+        """Move the handle to position (x,y).
+        This version already has some special behavior implemented for
+        gaphas.item.Element's. The min_width and min_height properties of
+        Element's are used to restrict the handles from overlapping each other.
+        """
+        # Special behavior for Elements:
+        if isinstance(item, Element):
+            index = list(item.handles()).index(handle)
+            opposite = item.handles()[(index + 2) % 4]
+
+            if index == 0 or index == 3:
+                if opposite.x - x < item.min_width:
+                    x = opposite.x - item.min_width
+            else:
+                if x - opposite.x < item.min_width:
+                    x = opposite.x + item.min_width
+
+            if index == 0 or index == 1:
+                if opposite.y - y < item.min_height:
+                    y = opposite.y - item.min_height
+            else:
+                if y - opposite.y < item.min_height:
+                    y = opposite.y + item.min_height
+
+        handle.x = x
+        handle.y = y
+
     def glue(self, view, item, handle, wx, wy):
         """find an item near @handle that @item can connect to.
         """
@@ -378,10 +407,10 @@ class HandleTool(Tool):
 
             # Calculate the distance the item has to be moved
             wx, wy = view.transform_point_c2w(event.x, event.y)
-
             x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
-            handle.x = x
-            handle.y = y
+
+            # Do the actual move:
+            self.move(view, item, handle, x, y)
             
             item.request_update()
             item.canvas.update_matrices()

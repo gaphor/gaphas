@@ -173,6 +173,8 @@ class Element(Item):
         >>> b._handles[SE].x
         Variable(20, 30)
         """
+        if width < self.min_width:
+            width = self.min_width
         h = self._handles
         h[SE].x = h[NW].x + width
 
@@ -191,11 +193,16 @@ class Element(Item):
         >>> b.height = 20
         >>> b.height
         20.0
+        >>> b.height = 2
+        >>> b.height
+        10.0
         >>> b._handles[NW].y
         Variable(0, 30)
         >>> b._handles[SE].y
         Variable(20, 30)
         """
+        if height < self.min_height:
+            height = self.min_height
         h = self._handles
         h[SE].y = h[NW].y + height
 
@@ -279,11 +286,6 @@ class Element(Item):
         """Make sure handles do not overlap during movement.
         """
         pass
-        #h = self._handles
-        #if float(h[NW].x) > float(h[NE].x):
-        #    h[NE].x = h[NW].x
-        #if float(h[NW].y) > float(h[SW].y):
-        #    h[SW].y = h[NW].y
 
     def update(self, context):
         """Do nothing dureing update.
