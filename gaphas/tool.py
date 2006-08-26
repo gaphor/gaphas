@@ -298,6 +298,14 @@ class HandleTool(Tool):
         self._grabbed_handle = None
         self._grabbed_item = None
 
+    def grab_handle(self, item, handle):
+        """Grab a specific handle. This can be used from the PlacementTool
+        (and unittests) to set the state of the handle tool.
+        """
+        assert item is None and handle is None or handle in item.handles()
+        self._grabbed_item = item
+        self._grabbed_handle = handle
+
     def find_handle(self, view, event):
         """Look for a handle at (event.x, event.y) and return the
         tuple (item, handle).
@@ -489,8 +497,8 @@ class PlacementTool(Tool):
         new_item = self._factory()
         canvas.add(new_item)
         new_item.matrix.translate(*pos)
-        self._handle_tool._grabbed_handle = new_item.handles()[self._handle_index]
-        self._handle_tool._grabbed_item = new_item
+        self._handle_tool.grab_handle(new_item,
+                                      new_item.handles()[self._handle_index])
         self._new_item = new_item
         view.focused_item = new_item
         context.grab()
