@@ -268,7 +268,8 @@ class Canvas(object):
             context_map = dict()
             for item in dirty_items:
                 c = Context(parent=self._tree.get_parent(item),
-                            children=self._tree.get_children(item))
+                            children=self._tree.get_children(item),
+                            cairo=cairo_context)
                 context_map[item] = c
                 item.pre_update(c)
 
