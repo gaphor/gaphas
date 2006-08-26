@@ -284,11 +284,26 @@ class Element(Item):
 
     def pre_update(self, context):
         """Make sure handles do not overlap during movement.
+        Make sure the first handle (normally NW) is located at (0, 0).
         """
-        pass
+        h_nw = self._handles[0]
+        print h_nw.pos
+        x, y = h_nw.pos
+        if float(x) != 0.0:
+            self.matrix.translate(x, 0)
+            self._canvas.request_matrix_update(self)
+            for h in self._handles[1:]:
+                h.x -= x
+            h_nw.x = 0
+        if float(y) != 0.0:
+            self.matrix.translate(0, y)
+            self._canvas.request_matrix_update(self)
+            for h in self._handles[1:]:
+                h.y -= y
+            h_nw.y = 0
 
     def update(self, context):
-        """Do nothing dureing update.
+        """Do nothing during update.
         """
         pass
 
