@@ -287,7 +287,6 @@ class Element(Item):
         Make sure the first handle (normally NW) is located at (0, 0).
         """
         h_nw = self._handles[0]
-        print h_nw.pos
         x, y = h_nw.pos
         if float(x) != 0.0:
             self.matrix.translate(x, 0)
