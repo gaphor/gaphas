@@ -4,10 +4,10 @@ The constraint solver.
 Constraints itself are placed in constraint.py
 """
 
+from __future__ import division
+
 __version__ = "$Revision$"
 # $HeadURL$
-
-from __future__ import division
 
 from operator import isCallable
 

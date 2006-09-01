@@ -20,11 +20,10 @@ Available constraints are:
        a rectangualar or line like object and the length of the line
        is kept to a minimum
 """
+from __future__ import division
 
 __version__ = "$Revision$"
 # $HeadURL$
-
-from __future__ import division
 
 class Constraint(object):
     """Constraint base class.
