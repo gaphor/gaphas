@@ -271,7 +271,12 @@ class Canvas(object):
                             children=self._tree.get_children(item),
                             cairo=cairo_context)
                 context_map[item] = c
-                item.pre_update(c)
+                try:
+                    item.pre_update(c)
+                except Exception, e:
+                    print 'Error while updating item %s' % item
+                    import traceback
+                    traceback.print_exc()
 
             self.update_matrices()
 
@@ -289,7 +294,12 @@ class Canvas(object):
                             children=self._tree.get_children(item),
                             cairo=cairo_context)
                 context_map[item] = c
-                item.update(c)
+                try:
+                    item.update(c)
+                except Exception, e:
+                    print 'Error while updating item %s' % item
+                    import traceback
+                    traceback.print_exc()
 
         finally:
             self._update_views(dirty_items)
