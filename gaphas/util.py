@@ -49,12 +49,13 @@ def text_set_font(cr, font):
     only restriction is that the font name should be the first option and
     the font size as last argument
     """
+    font = font.split()
     cr.select_font_face(font[0],
                         'italic' in font and cairo.FONT_SLANT_ITALIC \
                                         or cairo.FONT_SLANT_NORMAL,
                         'bold' in font and cairo.FONT_WEIGHT_BOLD \
                                         or cairo.FONT_WEIGHT_NORMAL)
-    cr.set_font_size(int(font[-1]) / 10.0)
+    cr.set_font_size(int(font[-1]))
 
 
 def path_ellipse (cr, x, y, width, height, angle=0):

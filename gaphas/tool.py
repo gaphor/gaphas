@@ -235,6 +235,8 @@ class ItemTool(Tool):
 
     def on_button_press(self, context, event):
         view = context.view
+        if event.button != 1:
+            return False
         self.last_x, self.last_y = event.x, event.y
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
@@ -252,6 +254,8 @@ class ItemTool(Tool):
             return True
 
     def on_button_release(self, context, event):
+        if event.button != 1:
+            return False
         context.ungrab()
         return True
 
