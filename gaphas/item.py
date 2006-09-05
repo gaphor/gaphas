@@ -301,6 +301,11 @@ class Element(Item):
                 h.y -= y
             h_nw.y = 0
 
+        if self.width < self.min_width:
+            self.width = self.min_width
+        if self.height < self.min_height:
+            self.height = self.min_height
+
     def update(self, context):
         """Do nothing during update.
         """
