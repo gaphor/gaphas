@@ -327,7 +327,7 @@ class View(gtk.DrawingArea):
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        self.request_update(self.canvas.get_all_items())
+        self.request_update(self._canvas.get_all_items())
         a = self.allocation
         super(View, self).queue_draw_area(0, 0, a.width, a.height)
 
@@ -384,13 +384,13 @@ class View(gtk.DrawingArea):
         """
         assert self.canvas
         wx, wy = self.transform_point_c2w(x, y)
-        return self.canvas.get_matrix_w2i(item).transform_point(wx, wy)
+        return self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
 
     def transform_point_i2c(self, item, x, y):
         """Transform a point from item coordinates to canvas coordinates.
         """
         assert self.canvas
-        wx, wy = self.canvas.get_matrix_i2w(item).transform_point(x, y)
+        wx, wy = self._canvas.get_matrix_i2w(item).transform_point(x, y)
         return self.transform_point_w2c(wx, wy)
 
     def get_canvas_size(self):
@@ -472,8 +472,19 @@ class View(gtk.DrawingArea):
         with_handles.add(self._hovered_item)
         with_handles.add(self._focused_item)
 
+        all_items = self._canvas.get_all_items()
+        removed = [i for i in items if i not in all_items]
+        
         for i in items:
             self.queue_draw_item(i, handles=(i in with_handles))
+
+        # Remove removed items:
+        for i in removed:
+            self.selected_items.discard(i)
+            if i is self.focused_item:
+                self.focused_item = None
+            if i is self.hovered_item:
+                self.hovered_item = None
 
         # Pseudo-draw
         context = self.window.cairo_create()
@@ -551,7 +562,7 @@ class View(gtk.DrawingArea):
             self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
 
         # Force recalculation of the bounding boxes:
-        self.request_update(self.canvas.get_all_items())
+        self.request_update(self._canvas.get_all_items())
 
         a = self.allocation
         super(View, self).queue_draw_area(0, 0, a.width, a.height)

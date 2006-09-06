@@ -78,13 +78,16 @@ class Canvas(object):
             >>> c._tree.nodes
             []
             >>> i._canvas
+        
+        TODO: Remove constraints on items connected to the removed item
         """
         self._tree.remove(item)
         item.canvas = None
+
+        self._update_views((item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
         
-
     def get_all_items(self):
         """Get a list of all items
             >>> c = Canvas()
@@ -163,9 +166,40 @@ class Canvas(object):
             >>> list(c.get_children(ii))
             [<gaphas.item.Item ...>]
             >>> list(c.get_children(i))
-            [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
+            [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(item)
+
+    def get_connected_items(self, item):
+        """Return a set of items that are connected to @item.
+        The list contains tuples (item, handle). As a result an item may be
+        in the list more than once (depending on the number of handles that
+        are connected). If @item is connected to itself it will also appear
+        in the list.
+
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Line()
+            >>> c.add(i)
+            >>> ii = item.Line()
+            >>> c.add(ii)
+            >>> iii = item.Line()
+            >>> c.add (iii)
+            >>> i.handles()[0].connected_to = ii
+            >>> list(c.get_connected_items(i))
+            []
+            >>> ii.handles()[0].connected_to = iii
+            >>> list(c.get_connected_items(ii))
+            [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
+            >>> list(c.get_connected_items(iii))
+            [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
+        """
+        connected_items = set()
+        for i in self.get_all_items():
+            for h in i.handles():
+                if h.connected_to is item:
+                    connected_items.add((i, h))
+        return connected_items
 
     def get_matrix_i2w(self, item, calculate=False):
         """Get the Item to World matrix for @item.
@@ -253,6 +287,9 @@ class Canvas(object):
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
+        """Update the canavs, if called from within a gtk-mainloop, the
+        update job is scheduled as idle job.
+        """
         if not self._in_update:
             self.update_now()
 
@@ -404,6 +441,6 @@ class Canvas(object):
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest.testmod(optionflags=doctest.ELLIPSIS)
 
 # vim:sw=4:et

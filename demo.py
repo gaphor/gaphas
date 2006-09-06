@@ -211,6 +211,16 @@ def create_window(canvas, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
+    b = gtk.Button('Delete focused')
+
+    def on_clicked(button):
+        if view.focused_item:
+            canvas.remove(view.focused_item)
+            print 'items:', canvas.get_all_items()
+
+    b.connect('clicked', on_clicked)
+    v.add(b)
+
 #    b = gtk.Button('Cursor')
 #
 #    def on_clicked(button, li):

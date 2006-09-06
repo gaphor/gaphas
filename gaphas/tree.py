@@ -96,7 +96,7 @@ class Tree(object):
         """Remove @node from the tree.
         """
         # First remove children:
-        children = self._children[node]
+        children = list(self._children[node])
         for c in children:
             self.remove(c)
         # Remove from parent item

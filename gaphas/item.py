@@ -380,7 +380,7 @@ class Line(Item):
         """Remove constraints created in setup_canvas().
         """
         for c in self._orthogonal:
-            self.canvas.solver.remove(c)
+            self.canvas.solver.remove_constraint(c)
 
     def split_segment(self, segment, parts=2):
         """Split one segment in the Line in @parts pieces.

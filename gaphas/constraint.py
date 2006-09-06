@@ -31,9 +31,15 @@ class Constraint(object):
     disabled = False
 
     def variables(self):
+        """return an iterator which iterates over the variables that are
+        held by this constraint.
+        """
         raise NotImplemented
 
     def solve_for(self, var):
+        """Solve the constraint for a given variable.
+        The variable itself is updated.
+        """
         raise NotImplemented
 
 
