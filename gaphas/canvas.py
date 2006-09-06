@@ -83,11 +83,29 @@ class Canvas(object):
         """
         self._tree.remove(item)
         item.canvas = None
-
+        self.remove_connections_to_item(item)
         self._update_views((item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
         
+    def remove_connections_to_item(self, item):
+        """Remove all connections (handles connected to and constraints)
+        for a specific item.
+        This is some brute force cleanup (e.g. if constraints are referenced
+        by items, those references are not cleaned up).
+
+        So far, this is not the way to do it...
+        """
+        def disconnect(var):
+            for c in self._solver.constraints_with_variable(var):
+                self._solver.remove_constraint(c)
+
+        #for i, h in self.get_connected_items(item):
+        #for h in item.handles():
+        #    disconnect(h.x)
+        #    disconnect(h.y)
+        #    h.connected_to = None
+
     def get_all_items(self):
         """Get a list of all items
             >>> c = Canvas()

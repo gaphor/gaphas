@@ -341,6 +341,30 @@ class Solver(object):
         if constraint in self._marked_cons:
             del self._marked_cons[self._marked_cons.index(constraint)]
 
+    def constraints_with_variable(self, variable):
+        """Return an iterator of constraints that work with variable.
+        The variable in question should be exposed by the constraints
+        variables() method.
+
+        >>> from constraint import EquationConstraint
+        >>> s = Solver()
+        >>> a, b = Variable(), Variable(2.0)
+        >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        >>> len(s._constraints)
+        2
+        >>> for c in s.constraints_with_variable(a): print c
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        """
+        # use a copy of the original set, so constraints may be deleted in the
+        # meantime.
+        for c in set(self._constraints):
+            if variable in c.variables():
+                yield c
+
     def weakest_variable(self, variables):
         """Returns the name(!) of the weakest variable.
 
