@@ -2,6 +2,8 @@
 
         * item.py, canvas.py: item removal (with connected handles) solved,
         use a callback method on the handle.
+	* demo.py, examples.py: Moved handle tool hacks into a nice example
+	handle tool class.
 
 2006-09-06  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 

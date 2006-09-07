@@ -297,6 +297,10 @@ class ItemTool(Tool):
 
 
 class HandleTool(Tool):
+    """Tool for moving handles around. By default this tool does not provide
+    connecting handles to another item (see examples.ConnectingHandleTool for
+    an example).
+    """
 
     def __init__(self):
         self._grabbed_handle = None
