@@ -94,17 +94,15 @@ class Canvas(object):
         This is some brute force cleanup (e.g. if constraints are referenced
         by items, those references are not cleaned up).
 
-        So far, this is not the way to do it...
+        This method implies the constraint used to keep the handle in place
+        is connected to Handle.connect_constraint.
         """
-        def disconnect(var):
-            for c in self._solver.constraints_with_variable(var):
-                self._solver.remove_constraint(c)
-
-        #for i, h in self.get_connected_items(item):
-        #for h in item.handles():
-        #    disconnect(h.x)
-        #    disconnect(h.y)
-        #    h.connected_to = None
+        for i, h in self.get_connected_items(item):
+            #self._solver.remove_constraint(h.connect_constraint)
+            h.disconnect()
+            # Never mind..
+            h.connected_to = None
+            h.disconnect = lambda: 0
 
     def get_all_items(self):
         """Get a list of all items

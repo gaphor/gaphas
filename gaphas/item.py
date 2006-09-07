@@ -11,8 +11,12 @@ from constraint import EqualsConstraint, LessThanConstraint
 
 class Handle(object):
     """Handles are used to support modifications of Items.
-    """
 
+    If the handle is connected to an item, the connected_to property should
+    refer to the item. A disconnect handler should be provided that handles
+    all disconnect behavior (e.g. clean up constraints and connected_to).
+    """
+    
     x = solvable()
     y = solvable()
 
@@ -26,6 +30,8 @@ class Handle(object):
         self.movable = movable
         self.visible = True
         self.connected_to = None
+        # The constraint used to keep the handle visually connected
+        self.disconnect = lambda: 0
 
     def _set_pos(self, pos):
         """Set handle position (Item coordinates).

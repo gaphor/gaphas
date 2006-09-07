@@ -86,6 +86,10 @@ def handle_tool_connect(self, view, item, handle, wx, wy):
         view.canvas.solver.remove_constraint(handle._connect_constraint)
         handle._connect_constraint = LineConstraint(view.canvas, glue_item, glue_item.handles()[s], glue_item.handles()[(s+1)%4], item, handle)
         view.canvas.solver.add_constraint(handle._connect_constraint)
+        def handle_disconnect():
+            view.canvas.solver.remove_constraint(handle._connect_constraint)
+            handle._connect_constraint = None
+        handle.disconnect = handle_disconnect
         return
 
     # drop old connetion
