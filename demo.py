@@ -24,7 +24,21 @@ class MyBox(Box):
 class MyLine(Line):
     """Line with experimental connection protocol.
     """
-    pass
+    
+    def draw_head(self, context):
+        cr = context.cairo
+        cr.move_to(0, 0)
+        cr.line_to(10, 10)
+        cr.stroke()
+        # Start point for the line to the next handle
+        cr.move_to(0, 0)
+
+    def draw_tail(self, context):
+        cr = context.cairo
+        cr.line_to(0, 0)
+        cr.line_to(10, 10)
+        cr.stroke()
+
 
 
 class MyText(Text):

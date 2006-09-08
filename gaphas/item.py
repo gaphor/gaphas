@@ -5,6 +5,8 @@ Basic items.
 __version__ = "$Revision$"
 # $HeadURL$
 
+from math import atan2
+
 from geometry import Matrix, distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
@@ -322,8 +324,6 @@ class Element(Item):
         """
         h = self._handles
         hnw, hse = h[NW], h[SE]
-        #print ((hnw.x, hnw.y, hse.x, hse.y), (x, y)), \
-         #distance_rectangle_point((hnw.x, hnw.y, hse.x, hse.y), (x, y))
         return distance_rectangle_point(map(float, (hnw.x, hnw.y, hse.x, hse.y)), (x, y))
 
 
@@ -336,6 +336,12 @@ class Line(Item):
      - orthogonal (bool): wherther or not the line should be orthogonal
          (only straight angles)
      - line_width: width of the line to be drawn
+
+    This line also supports arrow heads on both the begin and end of the
+    line. These are drawn with the methods draw_head(context) and
+    draw_tail(context). The coordinate system is altered so the methods do
+    not have to know about the angle of the line segment (e.g. drawing a line
+    from (10, 10) via (0, 0) to (10, -10) will draw an arrow point).
     """
 
     def __init__(self):
@@ -345,6 +351,7 @@ class Line(Item):
         self.line_width = 2
         self.fuzzyness = 0
         self._orthogonal = []
+        self._head_angle = self._tail_angle = 0
 
     def _set_orthogonal(self, orthogonal):
         """
@@ -371,10 +378,8 @@ class Line(Item):
             else:
                 cons.append(add(eq(a=h0.y, b=h1.y)))
             self.canvas.solver.mark_dirty(h1.x, h1.y)
-        # Mark first handle dirty, forcing recalculayion
-        print 'updated ortho constraints'
-        #self.canvas.solver.mark_dirty(self._handles[0].x, self._handles[0].y)
-    
+        self.request_update()
+
     orthogonal = property(lambda s: s._orthogonal != [], _set_orthogonal)
 
     def setup_canvas(self):
@@ -460,6 +465,15 @@ class Line(Item):
         else:
             raise KeyError('Handle is not an end handle')
 
+    def update(self, context):
+        """
+        """
+        super(Line, self).update(context)
+        h0, h1 = self._handles[:2]
+        self._head_angle = atan2(h1.y - h0.y, h1.x - h0.x)
+        h1, h0 = self._handles[-2:]
+        self._tail_angle = atan2(h1.y - h0.y, h1.x - h0.x)
+
     def _closest_segment(self, x, y):
         """Obtain a tuple (distance, point_on_line, segment).
         Distance is the distance from point to the closest line segment 
@@ -494,21 +508,38 @@ class Line(Item):
         distance, point, segment = self._closest_segment(x, y)
         return max(0, distance - self.fuzzyness)
 
-    def _draw_line(self, context):
-        """Draw the line itself.
+    def draw_head(self, context):
+        """Default head drawer: move cursor to the first handle.
         """
-        c = context.cairo
-        h = self._handles[0]
-        c.set_line_width(self.line_width)
-        c.move_to(float(h.x), float(h.y))
-        for h in self._handles[1:]:
-            c.line_to(float(h.x), float(h.y))
-        c.stroke()
+        context.cairo.move_to(0, 0)
+
+    def draw_tail(self, context):
+        """Default tail drawer: draw line to the last handle.
+        """
+        context.cairo.line_to(0, 0)
+
 
     def draw(self, context):
-        """See Item.draw(context).
+        """Draw the line itself.
+        See Item.draw(context).
         """
-        self._draw_line(context)
+        def draw_line_end(handle, angle, draw):
+            cr = context.cairo
+            cr.save()
+            try:
+                cr.translate(handle.x, handle.y)
+                cr.rotate(angle)
+                draw(context)
+            finally:
+                cr.restore()
+        cr = context.cairo
+        cr.set_line_width(self.line_width)
+        draw_line_end(self._handles[0], self._head_angle, self.draw_head)
+        for h in self._handles[1:-1]:
+            cr.line_to(float(h.x), float(h.y))
+        h0, h1 = self._handles[-2:]
+        draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
+        cr.stroke()
 
 
 if __name__ == '__main__':

@@ -92,7 +92,7 @@ class ConnectingHandleTool(tool.HandleTool):
                     #print distance, point
                     # Transform distance to world coordinates
                     distance, dumy = matrix_i2w(i).transform_distance(distance, 0)
-                    if distance < glue_distance:
+                    if distance <= glue_distance:
                         glue_distance = distance
                         glue_point = matrix_i2w(i).transform_point(*point)
                         glue_item = i

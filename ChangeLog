@@ -1,3 +1,7 @@
+2006-09-08  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * item.py: Implemented arrow heads on Line elements.
+
 2006-09-07  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * item.py, canvas.py: item removal (with connected handles) solved,
