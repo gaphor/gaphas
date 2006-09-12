@@ -139,7 +139,10 @@ class ConnectingHandleTool(tool.HandleTool):
         glue_item = self.glue(view, item, handle, wx, wy)
         if glue_item and glue_item is handle.connected_to:
             s = side(handle, glue_item)
-            view.canvas.solver.remove_constraint(handle._connect_constraint)
+            try:
+                view.canvas.solver.remove_constraint(handle._connect_constraint)
+            except KeyError:
+                pass # constraint was alreasy removed
             handle._connect_constraint = LineConstraint(view.canvas, glue_item, glue_item.handles()[s], glue_item.handles()[(s+1)%4], item, handle)
             view.canvas.solver.add_constraint(handle._connect_constraint)
             handle.disconnect = handle_disconnect
