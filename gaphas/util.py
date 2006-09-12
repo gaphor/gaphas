@@ -5,7 +5,7 @@ Helper funtions and classes for Cairo (drawing engine used by the canvas).
 from math import pi
 import cairo
 
-def text_extents(cr, text, font=None):
+def text_extents(cr, text, font=None, multiline=False, padding=1):
     """Simple way to determine the size of a piece of text.
     """
     if not text:
@@ -14,35 +14,69 @@ def text_extents(cr, text, font=None):
         cr.save()
         text_set_font(font)
 
-    x_bearing, y_bearing, width, height, x_adv, y_adv = cr.text_extents(text)
+    if multiline:
+        width, height = 0, 0
+        for line in text.split('\n'):
+            x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(line)
+            width = max(width, w)
+            height += h + padding
+    else:
+        x_bear, y_bear, width, height, x_adv, y_adv = cr.text_extents(text)
+        #width, height = width + x_bearing, height + y_bearing
+
     if font:
         cr.restore()
-    return width + x_bearing, height + y_bearing
+    return width, height
 
 
-def text_center(cr, x, y, text, align_x=0, align_y=0):
+def text_center(cr, x, y, text):
+    text_align(cr, x, y, text, align_x=0, align_y=0)
+
+def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     """Draw text using (x, y) as center.
     x    - center x
     y    - center y
     text - text to print (utf8)
     align_x - -1 (top), 0 (middle), 1 (bottom)
     align_y - -1 (left), 0 (center), 1 (right)
+    padding_x - padding (extra offset), always > 0
+    padding_y - padding (extra offset), always > 0
     """
     if not text:
         return
 
     x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
-    #if align_x == 0:
-    x = 0.5 - (w / 2 + x_bear) + x
-    #elif align_x > 0:
-    #    x = 0.5 - (w + x_bear) + x
-    #if align_y == 0:
-    y = 0.5 - (h / 2 + y_bear) + y
-    #elif align_y < 0:
-    #    y = 0.5 - (h + y_bear) + y
+    if align_x == 0:
+        x = 0.5 - (w / 2 + x_bear) + x
+    elif align_x < 0:
+        x = - (w + x_bear) + x - padding_x
+    else:
+        x = x + padding_x
+    if align_y == 0:
+        y = 0.5 - (h / 2 + y_bear) + y
+    elif align_y < 0:
+        y = - (h + y_bear) + y - padding_y
+    else:
+        y = -y_bear + y + padding_y
     cr.move_to(x, y)
     cr.show_text(text)
 
+def text_multiline(cr, x, y, text, padding=1):
+    """Draw a string of text with embedded newlines.
+    cr - cairo context
+    x - leftmost x
+    y - topmost y
+    text - text to draw
+    padding - additional padding between lines.
+    """
+    if not text: return
+    cr.move_to(x, y)
+    for line in text.split('\n'):
+        x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+        print x_bear, y_bear, w, h, x_adv, y_adv
+        y = y + h + padding
+        cr.move_to(x, y)
+        cr.show_text(line)
 
 def text_set_font(cr, font):
     """Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'
