@@ -539,9 +539,7 @@ class Line(Item):
             cr.line_to(float(h.x), float(h.y))
         h0, h1 = self._handles[-2:]
         draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
-        print '=== line stroke()'
         cr.stroke()
-        print '--- end line stroke()'
 
 
 if __name__ == '__main__':
