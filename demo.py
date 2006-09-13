@@ -37,7 +37,10 @@ class MyLine(Line):
         cr = context.cairo
         cr.line_to(0, 0)
         cr.line_to(10, 10)
+        print '===================== begin stroke()'
         cr.stroke()
+        print '--------------------- end stroke()'
+
 
 
 

@@ -276,6 +276,12 @@ class ItemTool(Tool):
                     h.x.dirty()
                     h.y.dirty()
 
+                # Also mark handles of child items as dirty
+                for child in view.canvas.get_all_children(i):
+                    for h in child.handles():
+                        h.x.dirty()
+                        h.y.dirty()
+
             # Now do the actual moving.
             for i in view.selected_items:
                 # Do not move subitems of selected items
@@ -284,14 +290,16 @@ class ItemTool(Tool):
                     continue
 
                 # Calculate the distance the item has to be moved
-                dx, dy = view.transform_distance_c2w(event.x - self.last_x, event.y - self.last_y)
+                dx, dy = view.transform_distance_c2w(event.x - self.last_x,
+                                                     event.y - self.last_y)
                 # Move the item and schedule it for an update
                 i.matrix.translate(*view.canvas.get_matrix_w2i(i).transform_distance(dx, dy))
                 i.request_update()
                 i.canvas.update_matrices()
                 b = view.get_item_bounding_box(i)
                 view.queue_draw_item(i, handles=True)
-                view.queue_draw_area(b[0] + dx-1, b[1] + dy-1, b[2] - b[0]+2, b[3] - b[1]+2)
+                view.queue_draw_area(b[0] + dx-1, b[1] + dy-1,
+                                     b[2] - b[0]+2, b[3] - b[1]+2)
             self.last_x, self.last_y = event.x, event.y
             return True
 

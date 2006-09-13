@@ -65,10 +65,12 @@ class CairoContextWrapper(object):
         return self._bounds or Rectangle()
 
     def _update_bounds(self, bounds):
-        if not self._bounds:
-            self._bounds = Rectangle(*bounds)
-        else:
-            self._bounds += bounds
+        print 'update bounds with', bounds
+        if bounds:
+            if not self._bounds:
+                self._bounds = Rectangle(*bounds)
+            else:
+                self._bounds += bounds
 
     def _extents(self, extents_func, line_width=False):
         """Calculate the bounding box for a given drawing operation.

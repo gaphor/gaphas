@@ -1,3 +1,8 @@
+2006-09-13  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* canvas.py: added get_all_children(node)
+	* tool.py (ItemTool): also mark handles of children dirty on movement
+
 2006-09-08  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
         * item.py: Implemented arrow heads on Line elements.

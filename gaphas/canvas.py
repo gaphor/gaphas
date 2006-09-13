@@ -186,6 +186,25 @@ class Canvas(object):
         """
         return self._tree.get_children(item)
 
+    def get_all_children(self, item):
+        """See tree.Tree.get_all_children()
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Item()
+            >>> c.add(i)
+            >>> ii = item.Item()
+            >>> c.add(ii, i)
+            >>> iii = item.Item()
+            >>> c.add(iii, ii)
+            >>> list(c.get_all_children(iii))
+            []
+            >>> list(c.get_all_children(ii))
+            [<gaphas.item.Item ...>]
+            >>> list(c.get_all_children(i))
+            [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
+        """
+        return self._tree.get_all_children(item)
+
     def get_connected_items(self, item):
         """Return a set of items that are connected to @item.
         The list contains tuples (item, handle). As a result an item may be

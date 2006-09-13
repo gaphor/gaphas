@@ -56,6 +56,15 @@ class Tree(object):
         siblings = self._children[parent]
         return siblings[siblings.index(node) - 1]
 
+    def get_all_children(self, node):
+        """Iterate all children (and children of children and so forth)
+        """
+        children = self.get_children(node)
+        for c in children:
+            yield c
+            for cc in self.get_all_children(c):
+                yield cc
+
     def get_ancestors(self, node):
         """Iterate all parents and parents of parents, etc.
         """
@@ -181,6 +190,9 @@ def test_remove():
 
     assert tree._nodes == [n1, n3, n4, n5, n2]
 
+    all_ch = list(tree.get_all_children(n1))
+    assert all_ch == [ n3, n4, n5 ], all_ch
+
     tree.remove(n4)
     assert tree._nodes == [n1, n3, n2]
 
@@ -190,7 +202,8 @@ def test_remove():
     assert tree._children[n2] == []
     assert tree._nodes == [n2]
 
-
 if __name__ == '__main__':
     test_add()
     test_remove()
+
+# vi:sw=4:et
