@@ -65,7 +65,6 @@ class CairoContextWrapper(object):
         return self._bounds or Rectangle()
 
     def _update_bounds(self, bounds):
-        print 'update bounds with', bounds
         if bounds:
             if not self._bounds:
                 self._bounds = Rectangle(*bounds)
