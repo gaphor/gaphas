@@ -412,7 +412,8 @@ class HandleTool(Tool):
         finally:
             context.view.queue_draw_item(context.view.hovered_item, handles=True)
             context.ungrab()
-        self._grabbed_item.request_update()
+        if self._grabbed_handle:
+            self._grabbed_item.request_update()
         return True
 
     def on_motion_notify(self, context, event):
