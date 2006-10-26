@@ -447,8 +447,11 @@ class Line(Item):
         okay
         """
         assert len(self._handles) > 2, 'Not enough segments'
+        if 0 >= segment > len(self._handles) - 1:
+            raise IndexError("index out of range (0 > %d > %d)" % (segment, len(self._handles) - 1))
         # TODO: recreate constraints that use self._handles[segment + 1]
-        del self._handles[segment + 1]
+        if segment == 0: segment = 1
+        del self._handles[segment]
         self.orthogonal = self.orthogonal
 
     def handles(self):

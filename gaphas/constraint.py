@@ -360,7 +360,8 @@ class LineConstraint(Constraint):
 
 
 if __name__ == '__main__':
-    import doctest
+    import doctest, sys
+    sys.path.append('..')
     doctest.testmod()
 
 # vim:sw=4:et:ai

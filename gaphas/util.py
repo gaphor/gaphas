@@ -104,6 +104,7 @@ def path_ellipse (cr, x, y, width, height, angle=0):
     cr.translate (x, y)
     cr.rotate (angle)
     cr.scale (width / 2.0, height / 2.0)
+    cr.move_to(1.0, 0.0)
     cr.arc (0.0, 0.0, 1.0, 0.0, 2.0 * pi)
     cr.restore()
 
