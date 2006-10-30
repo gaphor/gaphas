@@ -212,6 +212,10 @@ class View(gtk.DrawingArea):
             self._selected_items.discard(item)
             self.emit('selection-changed', self._selected_items)
 
+    def select_all(self):
+        for item in self.canvas.get_all_items():
+            self.select_item(item)
+
     def unselect_all(self):
         """Clearing the selected_item also clears the focused_item.
         """
