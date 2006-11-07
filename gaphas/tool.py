@@ -512,7 +512,8 @@ class PlacementTool(Tool):
         canvas = view.canvas
         pos = view.transform_point_c2w(event.x, event.y)
         new_item = self._factory()
-        canvas.add(new_item)
+        if new_item not in canvas.get_all_items():
+            canvas.add(new_item)
         new_item.matrix.translate(*pos)
         self._handle_tool.grab_handle(new_item,
                                       new_item.handles()[self._handle_index])

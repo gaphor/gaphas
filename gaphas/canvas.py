@@ -61,6 +61,7 @@ class Canvas(object):
             >>> i._canvas is c
             True
         """
+        assert item not in self._tree.nodes, 'Adding already added node %s' % item
         item.canvas = self
         self._tree.add(item, parent)
         self.request_update(item)
