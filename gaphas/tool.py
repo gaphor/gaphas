@@ -546,7 +546,6 @@ class TextEditTool(Tool):
     def on_double_click(self, context, event):
         """Create a popup window with some editable text.
         """
-        print 'Double click'
         window = gtk.Window()
         window.set_property('decorated', False)
         window.set_resize_mode(gtk.RESIZE_IMMEDIATE)
@@ -560,7 +559,6 @@ class TextEditTool(Tool):
         window.size_allocate(gtk.gdk.Rectangle(int(event.x), int(event.y), 50, 50))
         #window.move(int(event.x), int(event.y))
         cursor_pos = context.view.get_toplevel().get_screen().get_display().get_pointer()
-        print 'cursor_pos', cursor_pos
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)

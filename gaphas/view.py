@@ -180,16 +180,16 @@ class View(gtk.DrawingArea):
         in the view.
         """
         if self._canvas:
-           self._canvas.unregister_view(self)
+            self._canvas.unregister_view(self)
+            self._item_bounds = dict()
 
         self._canvas = canvas
         
         if self._canvas:
-           self._canvas.register_view(self)
-        #try:
-        #    canvas._view_views.add(self)
-        #except AttributeError:
-        #    canvas._view_views = set([self])
+            self._canvas.register_view(self)
+            for item in self._canvas.get_all_items():
+                self._canvas.request_update(item)
+            #self.request_update(self._canvas.get_all_items())
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -519,7 +519,6 @@ class View(gtk.DrawingArea):
     def do_expose_event(self, event):
         """Render some text to the screen.
         """
-        #print 'do_expose_event'
         if not self._canvas:
             return
 
@@ -527,7 +526,6 @@ class View(gtk.DrawingArea):
         self.window.draw_rectangle(self.style.white_gc, True,
                                    area.x, area.y, area.width, area.height)
 
-        #print 'expose', area.x, area.y, area.width, area.height, event.count
         context = self.window.cairo_create()
 
         # Draw no more than nessesary.
