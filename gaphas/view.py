@@ -187,9 +187,9 @@ class View(gtk.DrawingArea):
         
         if self._canvas:
             self._canvas.register_view(self)
-            for item in self._canvas.get_all_items():
-                self._canvas.request_update(item)
-            #self.request_update(self._canvas.get_all_items())
+            #for item in self._canvas.get_all_items():
+            #    self._canvas.request_update(item)
+            self.request_update(self._canvas.get_all_items())
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
