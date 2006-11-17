@@ -335,6 +335,7 @@ class Line(Item):
          when calculating the distance from the line (using point()).
      - orthogonal (bool): wherther or not the line should be orthogonal
          (only straight angles)
+     - horizontal: first line segment is horizontal
      - line_width: width of the line to be drawn
 
     This line also supports arrow heads on both the begin and end of the
@@ -351,6 +352,7 @@ class Line(Item):
         self.line_width = 2
         self.fuzzyness = 0
         self._orthogonal = []
+        self._horizontal = False
         self._head_angle = self._tail_angle = 0
 
     def _set_orthogonal(self, orthogonal):
@@ -372,8 +374,9 @@ class Line(Item):
         eq = EqualsConstraint #lambda a, b: a - b
         add = self.canvas.solver.add_constraint
         cons = self._orthogonal
+        rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
-            if pos % 2: # odd
+            if pos % 2 == rest: # odd
                 cons.append(add(eq(a=h0.x, b=h1.x)))
             else:
                 cons.append(add(eq(a=h0.y, b=h1.y)))
@@ -381,6 +384,12 @@ class Line(Item):
         self.request_update()
 
     orthogonal = property(lambda s: s._orthogonal != [], _set_orthogonal)
+
+    def _set_horizontal(self, horizontal):
+        self._horizontal = horizontal
+        self._set_orthogonal(self._orthogonal)
+
+    horizontal = property(lambda s: s._horizontal != [], _set_horizontal)
 
     def setup_canvas(self):
         """Setup constraints. In this case orthogonal.

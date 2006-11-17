@@ -59,6 +59,26 @@ class Variable(object):
     def __float__(self):
         return float(self._value)
 
+    def __eq__(self, other):
+        """
+        >>> Variable(5) == 5
+        True
+        >>> Variable(5) == 4
+        False
+        >>> Variable(5) != 5
+        False
+        """
+        return self._value.__eq__(float(other))
+
+    def __ne__(self, other):
+        """
+        >>> Variable(5) != 4
+        True
+        >>> Variable(5) != 5
+        False
+        """
+        return self._value.__ne__(float(other))
+
     def __gt__(self, other):
         """
         >>> Variable(5) > 4

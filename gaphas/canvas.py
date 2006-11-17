@@ -323,7 +323,7 @@ class Canvas(object):
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
-        """Update the canavs, if called from within a gtk-mainloop, the
+        """Update the canvas, if called from within a gtk-mainloop, the
         update job is scheduled as idle job.
         """
         if not self._in_update:
