@@ -12,7 +12,7 @@ def text_extents(cr, text, font=None, multiline=False, padding=1):
         return 0, 0
     if font:
         cr.save()
-        text_set_font(font)
+        text_set_font(cr, font)
 
     if multiline:
         width, height = 0, 0

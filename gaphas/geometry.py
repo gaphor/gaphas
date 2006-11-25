@@ -372,7 +372,6 @@ def distance_line_point(line_start, line_end, point):
         return distance_point_point(point), line_start
     elif projlen > 1.0:
         # Point has a projection after the line_end.
-
         return distance_point_point(point, line_end), true_line_end
     else:
         # Projection is on the line. multiply the line_end with the projlen
