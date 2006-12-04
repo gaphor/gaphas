@@ -6,7 +6,8 @@ from math import pi
 import cairo
 
 def text_extents(cr, text, font=None, multiline=False, padding=1):
-    """Simple way to determine the size of a piece of text.
+    """
+    Simple way to determine the size of a piece of text.
     """
     if not text:
         return 0, 0
@@ -33,7 +34,8 @@ def text_center(cr, x, y, text):
     text_align(cr, x, y, text, align_x=0, align_y=0)
 
 def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
-    """Draw text using (x, y) as center.
+    """
+    Draw text using (x, y) as center.
     x    - center x
     y    - center y
     text - text to print (utf8)
@@ -62,7 +64,8 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     cr.show_text(text)
 
 def text_multiline(cr, x, y, text, padding=1):
-    """Draw a string of text with embedded newlines.
+    """
+    Draw a string of text with embedded newlines.
     cr - cairo context
     x - leftmost x
     y - topmost y
@@ -70,13 +73,12 @@ def text_multiline(cr, x, y, text, padding=1):
     padding - additional padding between lines.
     """
     if not text: return
-    cr.move_to(x, y)
+    #cr.move_to(x, y)
     for line in text.split('\n'):
         x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
-        print x_bear, y_bear, w, h, x_adv, y_adv
-        y = y + h + padding
         cr.move_to(x, y)
         cr.show_text(line)
+        y += h + padding
 
 def text_set_font(cr, font):
     """Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'

@@ -22,17 +22,20 @@ DEBUG_DRAW_BOUNDING_BOX = False
 TOLERANCE = 0.5
 
 class Painter(object):
-    """Painter interface.
+    """
+    Painter interface.
     """
 
     def paint(self, context):
-        """Do the paint action (called from the View).
+        """
+        Do the paint action (called from the View).
         """
         pass
 
 
 class PainterChain(Painter):
-    """Chain up a set of painters.
+    """
+    Chain up a set of painters.
     like ToolChain.
     """
 
@@ -40,24 +43,28 @@ class PainterChain(Painter):
         self._painters = []
 
     def append(self, painter):
-        """Add a painter to the list of painters.
+        """
+        Add a painter to the list of painters.
         """
         self._painters.append(painter)
 
     def prepend(self, painter):
-        """Add a painter to the beginning of the list of painters.
+        """
+        Add a painter to the beginning of the list of painters.
         """
         self._painters.insert(0, painter)
 
     def paint(self, context):
-        """See Painter.paint().
+        """
+        See Painter.paint().
         """
         for painter in self._painters:
             painter.paint(context)
 
 
 class DrawContext(Context):
-    """Special context for draw()'ing the item. The draw-context contains
+    """
+    Special context for draw()'ing the item. The draw-context contains
     stuff like the view, the cairo context and properties like selected and
     focused.
     """
@@ -69,7 +76,8 @@ class DrawContext(Context):
         super(DrawContext, self).__init__(**kwargs)
 
     def draw_children(self):
-        """Extra helper method for drawing child items from within
+        """
+        Extra helper method for drawing child items from within
         the Item.draw() method.
         """
         self.painter._draw_items(self.children,
@@ -78,6 +86,8 @@ class DrawContext(Context):
 
 
 class ItemPainter(Painter):
+
+    draw_all = False
 
     def _draw_item(self, item, view, cairo):
         cairo.save()
@@ -92,7 +102,8 @@ class ItemPainter(Painter):
                                   children=view.canvas.get_children(item),
                                   selected=(item in view.selected_items),
                                   focused=(item is view.focused_item),
-                                  hovered=(item is view.hovered_item)))
+                                  hovered=(item is view.hovered_item),
+                                  draw_all=self.draw_all))
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 try:
@@ -111,7 +122,8 @@ class ItemPainter(Painter):
             cairo.restore()
 
     def _draw_items(self, items, view, cairo):
-        """Draw the items. This method can also be called from DrawContext
+        """
+        Draw the items. This method can also be called from DrawContext
         to draw sub-items.
         """
         for item in items:
@@ -127,12 +139,16 @@ class ItemPainter(Painter):
 
 
 class BoundingBoxPainter(ItemPainter):
-    """This specific case of an ItemPainter is used to calculate the bounding
+    """
+    This specific case of an ItemPainter is used to calculate the bounding
     boxes for the items.
     """
 
+    draw_all = True
+
     def _draw_items(self, items, view, cairo):
-        """Draw the items. This method can also be called from DrawContext
+        """
+        Draw the items. This method can also be called from DrawContext
         to draw sub-items.
         """
         for item in items:
@@ -149,11 +165,13 @@ class BoundingBoxPainter(ItemPainter):
 
 
 class HandlePainter(Painter):
-    """Draw handles of items that are marked as selected in the view.
+    """
+    Draw handles of items that are marked as selected in the view.
     """
 
     def _draw_handles(self, item, view, cairo, opacity=None):
-        """Draw handles for an item.
+        """
+        Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo.save()
@@ -202,7 +220,8 @@ class HandlePainter(Painter):
 
 
 class ToolPainter(Painter):
-    """ToolPainter allows the Tool defined on a view to do some special
+    """
+    ToolPainter allows the Tool defined on a view to do some special
     drawing.
     """
 
@@ -217,7 +236,8 @@ class ToolPainter(Painter):
 
 
 def DefaultPainter():
-    """Default painter, containing item, handle and tool painters.
+    """
+    Default painter, containing item, handle and tool painters.
     """
     chain = PainterChain()
     chain.append(ItemPainter())
