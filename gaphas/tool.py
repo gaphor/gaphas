@@ -398,7 +398,8 @@ class HandleTool(Tool):
             view.hovered_item = self._grabbed_item
             view.focused_item = self._grabbed_item
             context.grab()
-            self.disconnect(view, self._grabbed_item, self._grabbed_handle)
+            if self._grabbed_handle.connectable:
+                self.disconnect(view, self._grabbed_item, self._grabbed_handle)
             return True
 
     def on_button_release(self, context, event):
@@ -408,7 +409,8 @@ class HandleTool(Tool):
         try:
             view = context.view
             wx, wy = view.transform_point_c2w(event.x, event.y)
-            self.connect(view, self._grabbed_item, self._grabbed_handle, wx, wy)
+            if self._grabbed_handle.connectable:
+                self.connect(view, self._grabbed_item, self._grabbed_handle, wx, wy)
         finally:
             context.view.queue_draw_item(context.view.hovered_item, handles=True)
             context.ungrab()
@@ -440,10 +442,10 @@ class HandleTool(Tool):
             item.request_update()
             item.canvas.update_matrices()
             try:
-                self.glue(view, item, handle, wx, wy)
+                if self._grabbed_handle.connectable:
+                    self.glue(view, item, handle, wx, wy)
             finally:
                 pass
-                #view.queue_draw_item(item, handles=True)
             return True
         else:
             # Make the item who's handle we hover over the hovered_item:

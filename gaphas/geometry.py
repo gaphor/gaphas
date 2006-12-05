@@ -295,6 +295,8 @@ def point_on_rectangle(rect, point, border=False):
     (4, 3)
     >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 7), border=True)
     (4, 10)
+    >>> point_on_rectangle((1, 1, 10, 10), (4, 7), border=True)
+    (4, 10)
     >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 3), border=True)
     (1, 3)
     """
