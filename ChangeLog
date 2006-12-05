@@ -1,3 +1,7 @@
+2006-12-05  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+	* In the meantime: several small fixes.
+
 2006-09-13  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* canvas.py: added get_all_children(node)

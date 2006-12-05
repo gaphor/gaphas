@@ -1,7 +1,7 @@
 Gaphor Canvas
 =============
 
-This module contains an attempt to a new canvas implementation for Gaphor.
+This module contains a new canvas implementation for Gaphor.
 
 The basic idea is:
 
@@ -111,6 +111,8 @@ In addition to draw_children(), the context has the following properties:
  focused:  True if the item has the focus
  hovered:  True if the mouse pointer if over the item. Only the top-most item
            is marked as hovered.
+ draw_all: True if everything drawable on the item should be drawn (e.g. when
+           calculating the bounding boxes).
 
 The View automatically calculates the bounding box for the item, based on the
 items drawn in the draw(context) function (this is only done once after each
@@ -134,7 +136,7 @@ Interaction
 Interaction with the canvas view (visual component) is handled by tools.
 Although the default tools do a fair amount of work, in most cases you'll
 see that especially the way items connect with each other is not the way
-you want it. That's okay. HandleTool provides some hooks (connect, disconnect and glue) to implement custom connection behavior (in fact, the default implementation doesn't do any connecting at all.
+you want it. That's okay. HandleTool provides some hooks (connect, disconnect and glue) to implement custom connection behavior (in fact, the default implementation doesn't do any connecting at all!).
 
 One of the problems you'll face is what to do when an item is removed from the
 canvas and there are other items (lines) connected to. This problem can be
