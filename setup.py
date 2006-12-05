@@ -15,7 +15,7 @@ It is the logical successor of the DiaCanvas library.
 """,
 
     classifiers=[
-    'Development Status  ::  4 - Beta',
+    'Development Status ::  4 - Beta',
     'Environment :: Win32 (MS Windows)',
     'Environment :: X11 Applications :: GTK',
     'Intended Audience :: Developers',
