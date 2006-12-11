@@ -81,7 +81,6 @@ def text_multiline(cr, x, y, text, padding=1):
         x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(line)
         cr.move_to(x, y)
         cr.show_text(line)
-        cr.stroke()
         y += h + padding
 
 
