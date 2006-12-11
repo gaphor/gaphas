@@ -33,6 +33,7 @@ def text_extents(cr, text, font=None, multiline=False, padding=1):
 def text_center(cr, x, y, text):
     text_align(cr, x, y, text, align_x=0, align_y=0)
 
+
 def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     """
     Draw text using (x, y) as center.
@@ -63,6 +64,7 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     cr.move_to(x, y)
     cr.show_text(text)
 
+
 def text_multiline(cr, x, y, text, padding=1):
     """
     Draw a string of text with embedded newlines.
@@ -75,13 +77,17 @@ def text_multiline(cr, x, y, text, padding=1):
     if not text: return
     #cr.move_to(x, y)
     for line in text.split('\n'):
-        x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+        print 'line', line
+        x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(line)
         cr.move_to(x, y)
         cr.show_text(line)
+        cr.stroke()
         y += h + padding
 
+
 def text_set_font(cr, font):
-    """Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'
+    """
+    Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'
     only restriction is that the font name should be the first option and
     the font size as last argument
     """
@@ -95,7 +101,8 @@ def text_set_font(cr, font):
 
 
 def path_ellipse (cr, x, y, width, height, angle=0):
-    """Draw an ellipse.
+    """
+    Draw an ellipse.
     x      - center x
     y      - center y
     width  - width of ellipse  (in x direction when angle=0)
