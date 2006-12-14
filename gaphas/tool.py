@@ -572,10 +572,10 @@ class TextEditTool(Tool):
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
-        if event.keyval == gtk.keysyms.Return:
+        #if event.keyval == gtk.keysyms.Return:
             #print 'Enter!'
             #widget.get_toplevel().destroy()
-        elif event.keyval == gtk.keysyms.Escape:
+        if event.keyval == gtk.keysyms.Escape:
             #print 'Escape!'
             widget.get_toplevel().destroy()
 
