@@ -77,7 +77,7 @@ def text_multiline(cr, x, y, text, padding=1):
     if not text: return
     #cr.move_to(x, y)
     for line in text.split('\n'):
-        print 'line', line
+        #print 'line', line
         x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(line)
         cr.move_to(x, y)
         cr.show_text(line)

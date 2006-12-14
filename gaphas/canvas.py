@@ -10,6 +10,7 @@ if __name__ == '__main__':
     import pygtk
     pygtk.require('2.0')
 
+import logging
 from gaphas import tree
 from gaphas import solver
 from gaphas.geometry import Matrix
@@ -347,9 +348,7 @@ class Canvas(object):
                 try:
                     item.pre_update(c)
                 except Exception, e:
-                    print 'Error while updating item %s' % item
-                    import traceback
-                    traceback.print_exc()
+                    logging.error('Error while updating item %s', item, exc_info=e)
 
             self.update_matrices()
 
@@ -370,9 +369,7 @@ class Canvas(object):
                 try:
                     item.update(c)
                 except Exception, e:
-                    print 'Error while updating item %s' % item
-                    import traceback
-                    traceback.print_exc()
+                    logging.error('Error while updating item %s', item, exc_info=e)
 
         finally:
             self._update_views(dirty_items)

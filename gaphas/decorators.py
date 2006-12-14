@@ -86,7 +86,7 @@ class async(object):
                 return func(*args, **kwargs)
             elif not self.single:
                 def async_wrapper():
-                    if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                    #if DEBUG_ASYNC: print 'async:', func, args, kwargs
                     func(*args, **kwargs)
                 gobject.idle_add(async_wrapper, priority=self.priority)
             else:
@@ -97,7 +97,7 @@ class async(object):
                         return
                 except AttributeError, e:
                     def async_wrapper():
-                        if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                        #if DEBUG_ASYNC: print 'async:', func, args, kwargs
                         try:
                             func(*args, **kwargs)
                         finally:
