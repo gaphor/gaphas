@@ -11,10 +11,12 @@ pygtk.require('2.0')
 
 import math
 import gtk
-from gaphas import Canvas, View
+import cairo
+from gaphas import Canvas, GtkView, View
 from gaphas.examples import Box, Text, DefaultExampleTool
 from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
+from gaphas.painter import ItemPainter
 
 class MyBox(Box):
     """Box with an example connection protocol.
@@ -49,7 +51,7 @@ class MyText(Text):
 
 
 def create_window(canvas, zoom=1.0):
-    view = View()
+    view = GtkView()
     view.tool = DefaultExampleTool()
 
     w = gtk.Window()
@@ -124,6 +126,61 @@ def create_window(canvas, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
+    b = gtk.Button('Write demo.png')
+
+    def on_clicked(button):
+        svgview = View(view.canvas)
+        svgview.painter = ItemPainter()
+
+        # Update bounding boxes with a temporaly CairoContext
+        # (used for stuff like calculating font metrics)
+        tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+        tmpcr = cairo.Context(tmpsurface)
+        svgview.update_bounding_box(tmpcr)
+        tmpcr.show_page()
+        tmpsurface.flush()
+       
+        w, h = svgview.bounding_box.width, svgview.bounding_box.height
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
+        cr = cairo.Context(surface)
+        svgview.matrix.translate(-svgview.bounding_box.x0, -svgview.bounding_box.y0)
+        cr.save()
+        svgview.paint(cr)
+
+        cr.restore()
+        cr.show_page()
+        surface.write_to_png('demo.png')
+
+    b.connect('clicked', on_clicked)
+    v.add(b)
+
+    b = gtk.Button('Write demo.svg')
+
+    def on_clicked(button):
+        svgview = View(view.canvas)
+        svgview.painter = ItemPainter()
+
+        # Update bounding boxes with a temporaly CairoContext
+        # (used for stuff like calculating font metrics)
+        tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+        tmpcr = cairo.Context(tmpsurface)
+        svgview.update_bounding_box(tmpcr)
+        tmpcr.show_page()
+        tmpsurface.flush()
+       
+        w, h = svgview.bounding_box.width, svgview.bounding_box.height
+        surface = cairo.SVGSurface('demo.svg', w, h)
+        cr = cairo.Context(surface)
+        svgview.matrix.translate(-svgview.bounding_box.x0, -svgview.bounding_box.y0)
+        svgview.paint(cr)
+        cr.show_page()
+        surface.flush()
+        surface.finish()
+
+    b.connect('clicked', on_clicked)
+    v.add(b)
+
+    
 #    b = gtk.Button('Cursor')
 #
 #    def on_clicked(button, li):

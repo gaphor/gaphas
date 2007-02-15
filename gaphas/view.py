@@ -27,7 +27,8 @@ DEBUG_DRAW_BOUNDING_BOX = False
 DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
 
 class ToolContext(Context):
-    """Special context for tools.
+    """
+    Special context for tools.
     """
 
     view = None
@@ -36,18 +37,21 @@ class ToolContext(Context):
         super(ToolContext, self).__init__(**kwargs)
 
     def grab(self):
-        """Grab the view (or tool, depending on the implementation).
+        """
+        Grab the view (or tool, depending on the implementation).
         """
         self.view.grab_focus()
 
     def ungrab(self):
-        """Ungrab the view.
+        """
+        Ungrab the view.
         """
         pass
 
 
 class CairoContextWrapper(object):
-    """Delegate all calls to the wrapped CairoContext, intercept
+    """
+    Delegate all calls to the wrapped CairoContext, intercept
     stroke(), fill() and a few others so the bounding box of the
     item involved can be calculated.
     """
@@ -60,7 +64,8 @@ class CairoContextWrapper(object):
         return getattr(self._cairo, key)
 
     def get_bounds(self):
-        """Return the bounding box.
+        """
+        Return the bounding box.
         """
         return self._bounds or Rectangle()
 
@@ -72,7 +77,8 @@ class CairoContextWrapper(object):
                 self._bounds += bounds
 
     def _extents(self, extents_func, line_width=False):
-        """Calculate the bounding box for a given drawing operation.
+        """
+        Calculate the bounding box for a given drawing operation.
         if @line_width is True, the current line-width is taken into account.
         """
         ctx = self._cairo
@@ -114,6 +120,277 @@ class CairoContextWrapper(object):
         return cairo.show_text(utf8)
 
 
+class View(object):
+    """
+    View class for gaphas.Canvas objects. 
+    """
+
+    def __init__(self, canvas=None):
+        self._canvas = canvas
+        self._bounds = Rectangle()
+        self._item_bounds = dict()
+
+        # Handling selections.
+        self._selected_items = set()
+        self._focused_item = None
+        self._hovered_item = None
+
+        self._matrix = Matrix()
+        self._painter = DefaultPainter()
+
+    matrix = property(lambda s: s._matrix)
+
+    def _set_canvas(self, canvas):
+        """
+        Use view.canvas = my_canvas to set the canvas to be rendered
+        in the view.
+        """
+        if self._canvas:
+            self._item_bounds = dict()
+
+        self._canvas = canvas
+        
+        if self._canvas:
+            self.request_update(self._canvas.get_all_items())
+
+    canvas = property(lambda s: s._canvas, _set_canvas)
+
+    def emit(self, args, **kwargs):
+        """
+        Placeholder method for signal emission functionality.
+        """
+        pass
+
+    def select_item(self, item):
+        """
+        Select an item. This adds @item to the set of selected items. Do
+           del view.selected_items
+        to clear the selected items list
+        """
+        self.queue_draw_item(item, handles=True)
+        if item not in self._selected_items:
+            self._selected_items.add(item)
+            self.emit('selection-changed', self._selected_items)
+
+    def unselect_item(self, item):
+        """
+        Unselect an item.
+        """
+        self.queue_draw_item(item, handles=True)
+        if item in self._selected_items:
+            self._selected_items.discard(item)
+            self.emit('selection-changed', self._selected_items)
+
+    def select_all(self):
+        for item in self.canvas.get_all_items():
+            self.select_item(item)
+
+    def unselect_all(self):
+        """
+        Clearing the selected_item also clears the focused_item.
+        """
+        self.queue_draw_item(handles=True, *self._selected_items)
+        self._selected_items.clear()
+        self.focused_item = None
+        self.emit('selection-changed', self._selected_items)
+
+    selected_items = property(lambda s: set(s._selected_items),
+                              select_item, unselect_all,
+                              "Items selected by the view")
+
+    def _set_focused_item(self, item):
+        """
+        Set the focused item, this item is also added to the selected_items
+        set.
+        """
+        if not item is self._focused_item:
+            self.queue_draw_item(self._focused_item, item, handles=True)
+
+        if item:
+            self.selected_items = item #.add(item)
+        if item is not self._focused_item:
+            self._focused_item = item
+            self.emit('focus-changed', item)
+
+    def _del_focused_item(self):
+        """
+        Items that loose focus remain selected.
+        """
+        self.focused_item = None
+        
+    focused_item = property(lambda s: s._focused_item,
+                            _set_focused_item, _del_focused_item,
+                            "The item with focus (receives key events a.o.)")
+
+    def _set_hovered_item(self, item):
+        """
+        Set the hovered item.
+        """
+        if not item is self._hovered_item:
+            self.queue_draw_item(self._hovered_item, item, handles=True)
+        if item is not self._hovered_item:
+            self._hovered_item = item
+            self.emit('hover-changed', item)
+
+    def _del_hovered_item(self):
+        """
+        Unset the hovered item.
+        """
+        self.hovered_item = None
+        
+    hovered_item = property(lambda s: s._hovered_item,
+                            _set_hovered_item, _del_hovered_item,
+                            "The item directly under the mouse pointer")
+
+    def _set_painter(self, painter):
+        """
+        Set the painter to use. Painters should implement painter.Painter.
+        """
+        self._painter = painter
+        self.emit('painter-changed')
+
+    painter = property(lambda s: s._painter, _set_painter)
+
+    def paint(self, cr):
+        """
+        Do the paint action, calling draw() on each item.
+        """
+        self._painter.paint(Context(view=self,
+                                    cairo=cr))
+
+    def get_item_at_point(self, x, y):
+        """
+        Return the topmost item located at (x, y).
+        """
+        point = (x, y)
+        for item in reversed(self._canvas.get_all_items()):
+            if point in self.get_item_bounding_box(item):
+                inverse = Matrix(*self._matrix)
+                inverse.invert()
+                wx, wy = inverse.transform_point(x, y)
+                ix, iy = self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
+                if item.point(ix, iy) < 0.5:
+                    return item
+        return None
+
+    def select_in_rectangle(self, rect):
+        """
+        Select all items who have their bounding box within the
+        rectangle @rect.
+        """
+        for item in self._canvas.get_all_items():
+            if self.get_item_bounding_box(item) in rect:
+                self.select_item(item)
+
+    def zoom(self, factor):
+        """
+        Zoom in/out by factor @factor.
+        """
+        self._matrix.scale(factor, factor)
+
+        # Make sure everything's updated
+        self.request_update(self._canvas.get_all_items())
+
+    def set_item_bounding_box(self, item, bounds):
+        """
+        Update the bounding box of the item (in canvas coordinates).
+        """
+        self._item_bounds[item] = bounds
+        if bounds:
+            bounds.x1 += 1
+            bounds.y1 += 1
+            # Also update the view's overall bounding box.
+            self._bounds += bounds
+
+    def get_item_bounding_box(self, item):
+        """
+        Get the bounding box for the item, in canvas coordinates.
+        """
+        return self._item_bounds[item]
+
+    def get_canvas_size(self):
+        """
+        The canvas size (width, height) in canvas coordinates, determined
+        from the origin (0, 0).
+        """
+        inverse = Matrix(*self._matrix)
+        inverse.invert()
+        ww, wh = self.transform_point_c2w(self._bounds.x1, self._bounds.y1)
+        return self._matrix.transform_distance(ww, wh)
+
+    bounding_box = property(lambda s: s._bounds)
+
+    def update_bounding_box(self, cr, items=None):
+        """
+        Update the bounding boxes of the canvas items for this view.
+        """
+        self._item_bounds = dict()
+        self._bounds = Rectangle()
+
+        painter = BoundingBoxPainter()
+        painter.paint(Context(view=self,
+                              cairo=cr,
+                              items=items))
+
+        # Update the view's bounding box with the rest of the items
+        bounds = self._bounds
+        for b in self._item_bounds.itervalues():
+            bounds += b
+
+    def transform_distance_c2w(self, x, y):
+        """
+        Transform a point from canvas to world coordinates.
+        """
+        inverse = Matrix(*self._matrix)
+        inverse.invert()
+        return inverse.transform_distance(x, y)
+
+    def transform_distance_w2c(self, x, y):
+        """
+        Transform a distance from world to canvas coordinates.
+        """
+        return self._matrix.transform_distance(x, y)
+
+    def transform_point_c2w(self, x, y):
+        """
+        Transform a distance from canvas to world coordinates.
+        """
+        inverse = Matrix(*self._matrix)
+        inverse.invert()
+        return inverse.transform_point(x, y)
+
+    def transform_point_w2c(self, x, y):
+        """
+        Transform a point from world to canvas coordinates.
+        """
+        return self._matrix.transform_point(x, y)
+
+    def transform_point_c2i(self, item, x, y):
+        """
+        Transforma point from canvas to item coordinates.
+        """
+        assert self.canvas
+        wx, wy = self.transform_point_c2w(x, y)
+        return self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
+
+    def transform_point_i2c(self, item, x, y):
+        """
+        Transform a point from item coordinates to canvas coordinates.
+        """
+        assert self.canvas
+        wx, wy = self._canvas.get_matrix_i2w(item).transform_point(x, y)
+        return self.transform_point_w2c(wx, wy)
+
+
+    def wrap_cairo_context(self, cr):
+        """
+        Create a wrapper class for the cairo context. This class is used
+        to calculate the items bounding box while the item is drawn (the
+        bounding box contains all drawn elements).
+        """
+        return CairoContextWrapper(cr)
+
+
 # Map GDK events to tool methods
 EVENT_HANDLERS = {
     gtk.gdk.BUTTON_PRESS: 'on_button_press',
@@ -126,8 +403,11 @@ EVENT_HANDLERS = {
 }
 
 
-class View(gtk.DrawingArea):
-    """GTK+ widget for rendering a canvas.Canvas to a screen.
+
+class GtkView(gtk.DrawingArea, View):
+    # NOTE: Ingerit from GTK+ class first, otherwise BusErrors may occur!
+    """
+    GTK+ widget for rendering a canvas.Canvas to a screen.
     The view uses Tools from tool.py to handle events and Painters
     from painter.py to draw. Both are configurable.
     """
@@ -148,144 +428,56 @@ class View(gtk.DrawingArea):
         'painter-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                       ())
     }
+
     def __init__(self, canvas=None):
-        super(View, self).__init__()
+        super(GtkView, self).__init__()
+        View.__init__(self)
         self.set_flags(gtk.CAN_FOCUS)
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK
                         | gtk.gdk.BUTTON_RELEASE_MASK
                         | gtk.gdk.POINTER_MOTION_MASK
                         | gtk.gdk.KEY_PRESS_MASK
                         | gtk.gdk.KEY_RELEASE_MASK)
-        self._canvas = canvas
-        self._bounds = Rectangle()
-        self._item_bounds = dict()
-
-        # Handling selections.
-        self._selected_items = set()
-        self._focused_item = None
-        self._hovered_item = None
-
-        self._matrix = Matrix()
 
         self.hadjustment = gtk.Adjustment()
         self.vadjustment = gtk.Adjustment()
 
         self._tool = DefaultTool()
-        self._painter = DefaultPainter()
 
-    matrix = property(lambda s: s._matrix)
+    def emit(self, *args, **kwargs):
+        """
+        Delegate signal emissions to the DrawingArea (=GTK+)
+        """
+        gtk.DrawingArea.emit(self, *args, **kwargs)
 
     def _set_canvas(self, canvas):
-        """Use view.canvas = my_canvas to set the canvas to be rendered
+        """
+        Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
+        This extends the behaviour of View.canvas.
         """
         if self._canvas:
             self._canvas.unregister_view(self)
-            self._item_bounds = dict()
 
-        self._canvas = canvas
+        super(GtkView, self)._set_canvas(canvas)
         
         if self._canvas:
             self._canvas.register_view(self)
-            #for item in self._canvas.get_all_items():
-            #    self._canvas.request_update(item)
-            self.request_update(self._canvas.get_all_items())
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
-    def select_item(self, item):
-        """Select an item. This adds @item to the set of selected items. Do
-           del view.selected_items
-        to clear the selected items list
-        
-        """
-        self.queue_draw_item(item, handles=True)
-        if item not in self._selected_items:
-            self._selected_items.add(item)
-            self.emit('selection-changed', self._selected_items)
-
-    def unselect_item(self, item):
-        """Unselect an item.
-        """
-        self.queue_draw_item(item, handles=True)
-        if item in self._selected_items:
-            self._selected_items.discard(item)
-            self.emit('selection-changed', self._selected_items)
-
-    def select_all(self):
-        for item in self.canvas.get_all_items():
-            self.select_item(item)
-
-    def unselect_all(self):
-        """Clearing the selected_item also clears the focused_item.
-        """
-        self.queue_draw_item(handles=True, *self._selected_items)
-        self._selected_items.clear()
-        self.focused_item = None
-        self.emit('selection-changed', self._selected_items)
-
-    selected_items = property(lambda s: set(s._selected_items),
-                              select_item, unselect_all,
-                              "Items selected by the view")
-
-    def _set_focused_item(self, item):
-        """Set the focused item, this item is also added to the selected_items
-        set.
-        """
-        if not item is self._focused_item:
-            self.queue_draw_item(self._focused_item, item, handles=True)
-
-        if item:
-            self.selected_items = item #.add(item)
-        if item is not self._focused_item:
-            self._focused_item = item
-            self.emit('focus-changed', item)
-
-    def _del_focused_item(self):
-        """Items that loose focus remain selected.
-        """
-        self.focused_item = None
-        
-    focused_item = property(lambda s: s._focused_item,
-                            _set_focused_item, _del_focused_item,
-                            "The item with focus (receives key events a.o.)")
-
-    def _set_hovered_item(self, item):
-        """Set the hovered item.
-        """
-        if not item is self._hovered_item:
-            self.queue_draw_item(self._hovered_item, item, handles=True)
-        if item is not self._hovered_item:
-            self._hovered_item = item
-            self.emit('hover-changed', item)
-
-    def _del_hovered_item(self):
-        """Unset the hovered item.
-        """
-        self.hovered_item = None
-        
-    hovered_item = property(lambda s: s._hovered_item,
-                            _set_hovered_item, _del_hovered_item,
-                            "The item directly under the mouse pointer")
-
     def _set_tool(self, tool):
-        """Set the tool to use. Tools should implement tool.Tool.
+        """
+        Set the tool to use. Tools should implement tool.Tool.
         """
         self._tool = tool
         self.emit('tool-changed')
 
     tool = property(lambda s: s._tool, _set_tool)
 
-    def _set_painter(self, painter):
-        """Set the painter to use. Painters should implement painter.Painter.
-        """
-        self._painter = painter
-        self.emit('painter-changed')
-
-    painter = property(lambda s: s._painter, _set_painter)
-
     def _set_hadjustment(self, adj):
-        """Set horizontal adjustment object, for scrollbars.
+        """
+        Set horizontal adjustment object, for scrollbars.
         """
         #if self._hadjustment:
         #    self._hadjustment.disconnect(self.on_adjustment_changed)
@@ -295,7 +487,8 @@ class View(gtk.DrawingArea):
     hadjustment = property(lambda s: s._hadjustment, _set_hadjustment)
 
     def _set_vadjustment(self, adj):
-        """Set vertical adjustment object, for scrollbars.
+        """
+        Set vertical adjustment object, for scrollbars.
         """
         #if self._vadjustment:
         #    self._vadjustment.disconnect(self.on_adjustment_changed)
@@ -304,41 +497,17 @@ class View(gtk.DrawingArea):
 
     vadjustment = property(lambda s: s._vadjustment, _set_vadjustment)
 
-    def get_item_at_point(self, x, y):
-        """Return the topmost item located at (x, y).
-        """
-        point = (x, y)
-        for item in reversed(self._canvas.get_all_items()):
-            if point in self.get_item_bounding_box(item):
-                inverse = Matrix(*self._matrix)
-                inverse.invert()
-                wx, wy = inverse.transform_point(x, y)
-                ix, iy = self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
-                if item.point(ix, iy) < 0.5:
-                    return item
-        return None
-
-    def select_in_rectangle(self, rect):
-        """Select all items who have their bounding box within the
-        rectangle @rect.
-        """
-        for item in self._canvas.get_all_items():
-            if self.get_item_bounding_box(item) in rect:
-                self.select_item(item)
-
     def zoom(self, factor):
-        """Zoom in/out by factor @factor.
         """
-        self._matrix.scale(factor, factor)
-
-        # Make sure everything's updated
-        self.request_update(self._canvas.get_all_items())
+        Zoom in/out by factor @factor.
+        """
+        super(GtkView, self).zoom(factor)
         a = self.allocation
-        super(View, self).queue_draw_area(0, 0, a.width, a.height)
+        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
         """
-        >>> v = View()
+        >>> v = GtkView()
         >>> a = gtk.Adjustment()
         >>> v._hadjustment = a
         >>> v._update_adjustment(a, 10, 100, 20)
@@ -360,54 +529,9 @@ class View(gtk.DrawingArea):
             adjustment.value = value
             adjustment.value_changed()
 
-    def transform_distance_c2w(self, x, y):
-        """Transform a point from canvas to world coordinates.
-        """
-        inverse = Matrix(*self._matrix)
-        inverse.invert()
-        return inverse.transform_distance(x, y)
-
-    def transform_distance_w2c(self, x, y):
-        """Transform a distance from world to canvas coordinates.
-        """
-        return self._matrix.transform_distance(x, y)
-
-    def transform_point_c2w(self, x, y):
-        """Transform a distance from canvas to world coordinates.
-        """
-        inverse = Matrix(*self._matrix)
-        inverse.invert()
-        return inverse.transform_point(x, y)
-
-    def transform_point_w2c(self, x, y):
-        """Transform a point from world to canvas coordinates.
-        """
-        return self._matrix.transform_point(x, y)
-
-    def transform_point_c2i(self, item, x, y):
-        """Transforma point from canvas to item coordinates.
-        """
-        assert self.canvas
-        wx, wy = self.transform_point_c2w(x, y)
-        return self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
-
-    def transform_point_i2c(self, item, x, y):
-        """Transform a point from item coordinates to canvas coordinates.
-        """
-        assert self.canvas
-        wx, wy = self._canvas.get_matrix_i2w(item).transform_point(x, y)
-        return self.transform_point_w2c(wx, wy)
-
-    def get_canvas_size(self):
-        """The canvas size (width, height) in canvas coordinates.
-        """
-        inverse = Matrix(*self._matrix)
-        inverse.invert()
-        ww, wh = self.transform_point_c2w(self._bounds.x1, self._bounds.y1)
-        return self._matrix.transform_distance(ww, wh)
-
     def update_adjustments(self, allocation=None):
-        """Update the allocation objects (for scrollbars).
+        """
+        Update the allocation objects (for scrollbars).
         """
         if not allocation:
             allocation = self.allocation
@@ -422,7 +546,8 @@ class View(gtk.DrawingArea):
                                 viewport_size=allocation.height)
 
     def queue_draw_item(self, *items, **kwargs):
-        """Like DrawingArea.queue_draw_area, but use the bounds of the
+        """
+        Like DrawingArea.queue_draw_area, but use the bounds of the
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
         """
@@ -441,35 +566,15 @@ class View(gtk.DrawingArea):
                         self.queue_draw_area(x - 5, y - 5, 10, 10)
 
     def queue_draw_area(self, x, y, w, h):
-        """Wrap draw_area to convert all values to ints.
         """
-        super(View, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
-
-    def set_item_bounding_box(self, item, bounds):
-        """Update the bounding box of the item (in canvas coordinates).
+        Wrap draw_area to convert all values to ints.
         """
-        self._item_bounds[item] = bounds
-        if bounds:
-            bounds.x1 += 1
-            bounds.y1 += 1
-            # Also update the view's overall bounding box.
-            self._bounds += bounds
-
-    def get_item_bounding_box(self, item):
-        """Get the bounding box for the item, in canvas coordinates.
-        """
-        return self._item_bounds[item]
-
-    def wrap_cairo_context(self, cairo):
-        """Create a wrapper class for the cairo context. This class is used
-        to calculate the items bounding box while the item is drawn (the
-        bounding box contains all drawn elements).
-        """
-        return CairoContextWrapper(cairo)
+        super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
     @async(single=False, priority=PRIORITY_HIGH_IDLE)
     def request_update(self, items):
-        """Update view status according to the items updated by the canvas.
+        """
+        Update view status according to the items updated by the canvas.
         """
         if not self.window: return True
 
@@ -492,16 +597,11 @@ class View(gtk.DrawingArea):
                 self.hovered_item = None
 
         # Pseudo-draw
-        context = self.window.cairo_create()
-        context.rectangle(0,0,0,0)
-        context.clip()
+        cr = self.window.cairo_create()
+        cr.rectangle(0,0,0,0)
+        cr.clip()
 
-        self._item_bounds = dict()
-        self._bounds = Rectangle()
-
-        painter = BoundingBoxPainter()
-        painter.paint(Context(view=self,
-                              cairo=context))
+        self.update_bounding_box(cr, items)
 
         for i in items:
             self.queue_draw_item(i, handles=(i in with_handles))
@@ -510,14 +610,16 @@ class View(gtk.DrawingArea):
 
     @nonrecursive
     def do_size_allocate(self, allocation):
-        """Allocate the widget size (x, y, width, height).
+        """
+        Allocate the widget size (x, y, width, height).
         """
         gtk.DrawingArea.do_size_allocate(self, allocation)
-        # doesn't work: super(View, self).do_size_allocate(allocation)
+        # doesn't work: super(GtkView, self).do_size_allocate(allocation)
         self.update_adjustments(allocation)
        
     def do_expose_event(self, event):
-        """Render some text to the screen.
+        """
+        Render some text to the screen.
         """
         if not self._canvas:
             return
@@ -526,29 +628,29 @@ class View(gtk.DrawingArea):
         self.window.draw_rectangle(self.style.white_gc, True,
                                    area.x, area.y, area.width, area.height)
 
-        context = self.window.cairo_create()
+        cr = self.window.cairo_create()
 
         # Draw no more than nessesary.
-        context.rectangle(area.x, area.y, area.width, area.height)
-        context.clip()
+        cr.rectangle(area.x, area.y, area.width, area.height)
+        cr.clip()
 
-        self._painter.paint(Context(view=self,
-                                    cairo=context))
+        self.paint(cr)
 
         if DEBUG_DRAW_BOUNDING_BOX:
-            context.save()
-            context.identity_matrix()
-            context.set_source_rgb(0, .8, 0)
-            context.set_line_width(1.0)
+            cr.save()
+            cr.identity_matrix()
+            cr.set_source_rgb(0, .8, 0)
+            cr.set_line_width(1.0)
             b = self._bounds
-            context.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-            context.stroke()
-            context.restore()
+            cr.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+            cr.stroke()
+            cr.restore()
 
         return False
 
     def do_event(self, event):
-        """Handle GDK events. Events are delegated to a Tool.
+        """
+        Handle GDK events. Events are delegated to a Tool.
         """
         handler = EVENT_HANDLERS.get(event.type)
         if self._tool and handler:
@@ -556,7 +658,8 @@ class View(gtk.DrawingArea):
         return False
 
     def on_adjustment_changed(self, adj):
-        """Change the transformation matrix of the view to reflect the
+        """
+        Change the transformation matrix of the view to reflect the
         value of the x/y adjustment (scrollbar).
         """
         if adj is self._hadjustment:
@@ -568,7 +671,7 @@ class View(gtk.DrawingArea):
         self.request_update(self._canvas.get_all_items())
 
         a = self.allocation
-        super(View, self).queue_draw_area(0, 0, a.width, a.height)
+        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
 if __name__ == '__main__':

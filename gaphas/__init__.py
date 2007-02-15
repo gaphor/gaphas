@@ -13,5 +13,5 @@ __version__ = "$Revision$"
 
 from canvas import Canvas
 from item import Item, Line, Element, Handle
-from view import View
+from view import View, GtkView
 
