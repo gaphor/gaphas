@@ -10,14 +10,15 @@ if __name__ == '__main__':
     import pygtk
     pygtk.require('2.0')
 
-import logging
+import cairo
 from gaphas import tree
 from gaphas import solver
 from gaphas.geometry import Matrix
 from gaphas.decorators import async, PRIORITY_HIGH_IDLE
 
 class Context(object):
-    """Context used for updating and drawing items in a drawing canvas.
+    """
+    Context used for updating and drawing items in a drawing canvas.
 
         >>> c=Context(one=1,two='two')
         >>> c.one
@@ -36,7 +37,8 @@ class Context(object):
 
 
 class Canvas(object):
-    """Container class for Items.
+    """
+    Container class for Items.
     """
 
     def __init__(self):
@@ -51,7 +53,8 @@ class Canvas(object):
     solver = property(lambda s: s._solver)
 
     def add(self, item, parent=None):
-        """Add an item to the canvas
+        """
+        Add an item to the canvas
 
             >>> c = Canvas()
             >>> from gaphas import item
@@ -70,7 +73,8 @@ class Canvas(object):
         #self._dirty_matrix_items.add(item)
 
     def remove(self, item):
-        """Remove item from the canvas
+        """
+        Remove item from the canvas
 
             >>> c = Canvas()
             >>> from gaphas import item
@@ -91,7 +95,8 @@ class Canvas(object):
         self._dirty_matrix_items.discard(item)
         
     def remove_connections_to_item(self, item):
-        """Remove all connections (handles connected to and constraints)
+        """
+        Remove all connections (handles connected to and constraints)
         for a specific item.
         This is some brute force cleanup (e.g. if constraints are referenced
         by items, those references are not cleaned up).
@@ -107,7 +112,8 @@ class Canvas(object):
             h.disconnect = lambda: 0
 
     def get_all_items(self):
-        """Get a list of all items
+        """
+        Get a list of all items
             >>> c = Canvas()
             >>> c.get_all_items()
             []
@@ -121,7 +127,8 @@ class Canvas(object):
         return self._tree.nodes
     
     def get_root_items(self):
-        """Return the root items of the canvas.
+        """
+        Return the root items of the canvas.
 
             >>> c = Canvas()
             >>> c.get_all_items()
@@ -137,7 +144,8 @@ class Canvas(object):
         return self._tree.get_children(None)
 
     def get_parent(self, item):
-        """See tree.Tree.get_parent()
+        """
+        See tree.Tree.get_parent()
             >>> c = Canvas()
             >>> from gaphas import item
             >>> i = item.Item()
@@ -151,7 +159,8 @@ class Canvas(object):
         return self._tree.get_parent(item)
 
     def get_ancestors(self, item):
-        """See tree.Tree.get_ancestors()
+        """
+        See tree.Tree.get_ancestors()
             >>> c = Canvas()
             >>> from gaphas import item
             >>> i = item.Item()
@@ -170,7 +179,8 @@ class Canvas(object):
         return self._tree.get_ancestors(item)
 
     def get_children(self, item):
-        """See tree.Tree.get_children()
+        """
+        See tree.Tree.get_children()
             >>> c = Canvas()
             >>> from gaphas import item
             >>> i = item.Item()
@@ -189,7 +199,8 @@ class Canvas(object):
         return self._tree.get_children(item)
 
     def get_all_children(self, item):
-        """See tree.Tree.get_all_children()
+        """
+        See tree.Tree.get_all_children()
             >>> c = Canvas()
             >>> from gaphas import item
             >>> i = item.Item()
@@ -208,7 +219,8 @@ class Canvas(object):
         return self._tree.get_all_children(item)
 
     def get_connected_items(self, item):
-        """Return a set of items that are connected to @item.
+        """
+        Return a set of items that are connected to @item.
         The list contains tuples (item, handle). As a result an item may be
         in the list more than once (depending on the number of handles that
         are connected). If @item is connected to itself it will also appear
@@ -239,7 +251,8 @@ class Canvas(object):
         return connected_items
 
     def get_matrix_i2w(self, item, calculate=False):
-        """Get the Item to World matrix for @item.
+        """
+        Get the Item to World matrix for @item.
 
         item: The item who's item-to-world transformation matrix should be
               found
@@ -258,7 +271,8 @@ class Canvas(object):
                 raise e
 
     def get_matrix_w2i(self, item, calculate=False):
-        """Get the World to Item matrix for @item.
+        """
+        Get the World to Item matrix for @item.
         See get_matrix_i2w().
         """
         try:
@@ -272,7 +286,8 @@ class Canvas(object):
                 raise e
 
     def request_update(self, item):
-        """Set an update request for the item. 
+        """
+        Set an update request for the item. 
 
             >>> c = Canvas()
             >>> from gaphas import item
@@ -300,13 +315,15 @@ class Canvas(object):
         self.update()
 
     def request_matrix_update(self, item):
-        """Schedule only the matrix to be updated.
+        """
+        Schedule only the matrix to be updated.
         """
         self._dirty_matrix_items.add(item)
         self.update()
 
     def require_update(self):
-        """Returns True or False depending on if an update is needed.
+        """
+        Returns True or False depending on if an update is needed.
 
             >>> c=Canvas()
             >>> c.require_update()
@@ -318,20 +335,22 @@ class Canvas(object):
             False
 
         Since we're not in a GTK+ mainloop, the update is not scheduled
-        asynchronous. Therefor reqire_update() returns False.
+        asynchronous. Therefor require_update() returns False.
         """
         return bool(self._dirty_items)
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
-        """Update the canvas, if called from within a gtk-mainloop, the
+        """
+        Update the canvas, if called from within a gtk-mainloop, the
         update job is scheduled as idle job.
         """
         if not self._in_update:
             self.update_now()
 
     def update_now(self):
-        """Peform an update of the items that requested an update.
+        """
+        Peform an update of the items that requested an update.
         """
         self._in_update = True
         try:
@@ -348,7 +367,9 @@ class Canvas(object):
                 try:
                     item.pre_update(c)
                 except Exception, e:
-                    logging.error('Error while updating item %s', item, exc_info=e)
+                    print 'Error while updating item %s' % item
+                    import traceback
+                    traceback.print_exc()
 
             self.update_matrices()
 
@@ -369,7 +390,9 @@ class Canvas(object):
                 try:
                     item.update(c)
                 except Exception, e:
-                    logging.error('Error while updating item %s', item, exc_info=e)
+                    print 'Error while updating item %s' % item
+                    import traceback
+                    traceback.print_exc()
 
         finally:
             self._update_views(dirty_items)
@@ -377,7 +400,8 @@ class Canvas(object):
             self._in_update = False
 
     def update_matrices(self):
-        """Update the matrix of the items scheduled to be updated
+        """
+        Update the matrix of the items scheduled to be updated
         *and* their sub-items.
 
             >>> c = Canvas()
@@ -402,7 +426,8 @@ class Canvas(object):
             self.update_matrix(item)
 
     def update_matrix(self, item, recursive=True):
-        """Update the World-to-Item (w2i) matrix for @item.
+        """
+        Update the World-to-Item (w2i) matrix for @item.
         This is stored as @item._canvas_matrix_i2w.
         @recursive == True will also update child objects.
         """
@@ -428,33 +453,35 @@ class Canvas(object):
                 self.update_matrix(child, recursive)
 
     def register_view(self, view):
-        """Register a view on this canvas. This method is called when setting
+        """
+        Register a view on this canvas. This method is called when setting
         a canvas on a view and should not be called directly from user code.
         """
         self._registered_views.add(view)
 
     def unregister_view(self, view):
-        """Unregister a view on this canvas. This method is called when setting
+        """
+        Unregister a view on this canvas. This method is called when setting
         a canvas on a view and should not be called directly from user code.
         """
         self._registered_views.discard(view)
 
     def _update_views(self, items):
-        """Send an update notification to all registered views.
+        """
+        Send an update notification to all registered views.
         """
         for v in self._registered_views:
             v.request_update(items)
 
     def _obtain_cairo_context(self):
-        """Try to obtain a Cairo context.
-
-        * Hazardous code *
+        """
+        Try to obtain a Cairo context.
 
         This is a not-so-clean way to solve issues like calculating the
         bounding box for a piece of text (for that you'll need a CairoContext).
         The Cairo context is created by a View registered as view on this
-        canvas. By lack of registered views, a new GTK+ window is created that
-        is used to create a context.
+        canvas. By lack of registered views, a PNG image surface is created
+        that is used to create a context.
 
             >>> c = Canvas()
             >>> c.update_now()
@@ -465,11 +492,8 @@ class Canvas(object):
             except AttributeError:
                 pass
         else:
-            import gtk
-            w = gtk.Window()
-            w.realize()
-            return w.window.cairo_create()
-            #return None
+            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+            return cairo.Context(tmpsurface)
 
 
 if __name__ == '__main__':

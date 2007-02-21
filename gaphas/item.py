@@ -12,7 +12,8 @@ from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
 
 class Handle(object):
-    """Handles are used to support modifications of Items.
+    """
+    Handles are used to support modifications of Items.
 
     If the handle is connected to an item, the connected_to property should
     refer to the item. A disconnect handler should be provided that handles
@@ -36,7 +37,8 @@ class Handle(object):
         self.disconnect = lambda: 0
 
     def _set_pos(self, pos):
-        """Set handle position (Item coordinates).
+        """
+        Set handle position (Item coordinates).
         """
         self.x, self.y = pos
 
@@ -47,7 +49,8 @@ class Handle(object):
     __repr__ = __str__
 
     def __getitem__(self, index):
-        """Shorthand for returning the x(0) or y(1) component of the point.
+        """
+        Shorthand for returning the x(0) or y(1) component of the point.
 
             >>> h = Handle(3, 5)
             >>> h[0]
@@ -59,7 +62,8 @@ class Handle(object):
 
 
 class Item(object):
-    """Base class (or interface) for items on a canvas.Canvas.
+    """
+    Base class (or interface) for items on a canvas.Canvas.
     """
 
     def __init__(self):
@@ -67,7 +71,8 @@ class Item(object):
         self._matrix = Matrix()
 
     def _set_canvas(self, canvas):
-        """Set the canvas.
+        """
+        Set the canvas.
         """
         assert not canvas or not self._canvas or self._canvas is canvas
         if self._canvas:
@@ -77,7 +82,8 @@ class Item(object):
             self.setup_canvas()
 
     def _del_canvas(self):
-        """Unset the canvas.
+        """
+        Unset the canvas.
         """
         self.teardown_canvas()
         self._canvas = None
@@ -85,19 +91,22 @@ class Item(object):
     canvas = property(lambda s: s._canvas, _set_canvas, _del_canvas)
 
     def setup_canvas(self):
-        """Called when the canvas is unset for the item.
+        """
+        Called when the canvas is unset for the item.
         This method can be used to create constraints.
         """
         pass
 
     def teardown_canvas(self):
-        """Called when the canvas is unset for the item.
+        """
+        Called when the canvas is unset for the item.
         This method can be used to dispose constraints.
         """
         pass
 
     def _set_matrix(self, matrix):
-        """Set the conversion matrix (parent -> item)
+        """
+        Set the conversion matrix (parent -> item)
         """
         if not isinstance(matrix, Matrix):
             matrix = Matrix(*matrix)
@@ -110,7 +119,8 @@ class Item(object):
             self._canvas.request_update(self)
 
     def pre_update(self, context):
-        """Do small things that have to be done before the "real" update.
+        """
+        Do small things that have to be done before the "real" update.
         Context has the following attributes:
          - canvas: the owning canvas
          - matrix_i2w: Item to World transformation matrix
@@ -120,12 +130,14 @@ class Item(object):
 
 
     def update(self, context):
-        """Like pre_update(), but this is step 2.
+        """
+        Like pre_update(), but this is step 2.
         """
         pass
 
     def draw(self, context):
-        """Render the item to a canvas view.
+        """
+        Render the item to a canvas view.
         Context contains the following attributes:
          - matrix_i2w: Item to World transformation matrix (no need to)
          - cairo: the Cairo Context use this one to draw.
@@ -135,12 +147,14 @@ class Item(object):
         pass
 
     def handles(self):
-        """Return an iterator for the handles owned by the item.
+        """
+        Return an iterator for the handles owned by the item.
         """
         return tuple()
 
     def point(self, x, y):
-        """Get the distance from a point (@x, @y) to the item.
+        """
+        Get the distance from a point (@x, @y) to the item.
         @x and @y are in item coordinates.
         """
         pass
@@ -152,17 +166,14 @@ class Item(object):
   SW ] = xrange(4)
 
 class Element(Item):
-    """ An Element has 4 handles (for a start):
+    """
+    An Element has 4 handles (for a start):
      NW +---+ NE
      SW +---+ SE
     """
-    min_width = solvable(strength=100)
-    min_height = solvable(strength=100)
 
     def __init__(self, width=10, height=10):
         super(Element, self).__init__()
-        #self._handles = [Handle(0, 0), Handle(width, 0),
-        #                 Handle(0, height), Handle(width, height)]
         self._handles = [ h(strength=STRONG) for h in [Handle]*4 ]
         self._constraints = []
         self.width = width
@@ -187,7 +198,8 @@ class Element(Item):
         h[SE].x = h[NW].x + width
 
     def _get_width(self):
-        """Width of the box, calculated as the distance from the left and
+        """
+        Width of the box, calculated as the distance from the left and
         right handle.
         """
         h = self._handles
@@ -215,7 +227,8 @@ class Element(Item):
         h[SE].y = h[NW].y + height
 
     def _get_height(self):
-        """Height.
+        """
+        Height.
         """
         h = self._handles
         return float(h[SE].y) - float(h[NW].y)
@@ -267,7 +280,8 @@ class Element(Item):
         self.canvas.solver.mark_dirty(h[NW].x, h[NW].y, h[SE].x, h[SE].y)
         
     def teardown_canvas(self):
-        """Remove constraints created in setup_canvas().
+        """
+        Remove constraints created in setup_canvas().
         >>> from canvas import Canvas
         >>> c=Canvas()
         >>> c.solver._constraints
@@ -286,12 +300,14 @@ class Element(Item):
             self.canvas.solver.remove_constraint(c)
 
     def handles(self):
-        """The handles.
+        """
+        The handles.
         """
         return tuple(self._handles)
 
     def pre_update(self, context):
-        """Make sure handles do not overlap during movement.
+        """
+        Make sure handles do not overlap during movement.
         Make sure the first handle (normally NW) is located at (0, 0).
         """
         h_nw = self._handles[0]
@@ -315,12 +331,14 @@ class Element(Item):
             self.height = self.min_height
 
     def update(self, context):
-        """Do nothing during update.
+        """
+        Do nothing during update.
         """
         pass
 
     def point(self, x, y):
-        """Distance from the point (x, y) to the item.
+        """
+        Distance from the point (x, y) to the item.
         """
         h = self._handles
         hnw, hse = h[NW], h[SE]
@@ -328,7 +346,8 @@ class Element(Item):
 
 
 class Line(Item):
-    """A Line item.
+    """
+    A Line item.
 
     Properties:
      - fuzzyness (0.0..n): an extra margin that should be taken into account
@@ -392,18 +411,21 @@ class Line(Item):
     horizontal = property(lambda s: s._horizontal != [], _set_horizontal)
 
     def setup_canvas(self):
-        """Setup constraints. In this case orthogonal.
+        """
+        Setup constraints. In this case orthogonal.
         """
         self.orthogonal = self.orthogonal
 
     def teardown_canvas(self):
-        """Remove constraints created in setup_canvas().
+        """
+        Remove constraints created in setup_canvas().
         """
         for c in self._orthogonal:
             self.canvas.solver.remove_constraint(c)
 
     def split_segment(self, segment, parts=2):
-        """Split one segment in the Line in @parts pieces.
+        """
+        Split one segment in the Line in @parts pieces.
         @segment 0 is the first segment (between handles 0 and 1).
         The min number of parts is 2.
 
@@ -441,7 +463,8 @@ class Line(Item):
         self.orthogonal = self.orthogonal
 
     def merge_segment(self, segment):
-        """Merge the @segment and the next.
+        """
+        Merge the @segment and the next.
 
         >>> a = Line()
         >>> a.handles()[1].pos = (20, 0)
@@ -467,7 +490,8 @@ class Line(Item):
         return self._handles
     
     def opposite(self, handle):
-        """Given the handle of one end of the line, return the other end.
+        """
+        Given the handle of one end of the line, return the other end.
         """
         handles = self._handles
         if handle is handles[0]:
@@ -487,7 +511,8 @@ class Line(Item):
         self._tail_angle = atan2(h1.y - h0.y, h1.x - h0.x)
 
     def closest_segment(self, x, y):
-        """Obtain a tuple (distance, point_on_line, segment).
+        """
+        Obtain a tuple (distance, point_on_line, segment).
         Distance is the distance from point to the closest line segment 
         Point_on_line is the reflection of the point on the line.
         Segment is the line segment closest to (x, y)
@@ -521,18 +546,21 @@ class Line(Item):
         return max(0, distance - self.fuzzyness)
 
     def draw_head(self, context):
-        """Default head drawer: move cursor to the first handle.
+        """
+        Default head drawer: move cursor to the first handle.
         """
         context.cairo.move_to(0, 0)
 
     def draw_tail(self, context):
-        """Default tail drawer: draw line to the last handle.
+        """
+        Default tail drawer: draw line to the last handle.
         """
         context.cairo.line_to(0, 0)
 
 
     def draw(self, context):
-        """Draw the line itself.
+        """
+        Draw the line itself.
         See Item.draw(context).
         """
         def draw_line_end(handle, angle, draw):

@@ -12,9 +12,8 @@ if __name__ == '__main__':
 
 import gobject
 import gtk
-from cairo import Matrix
 from canvas import Context
-from geometry import Rectangle
+from geometry import Matrix, Rectangle
 from tool import DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE

@@ -25,9 +25,6 @@ from __future__ import division
 __version__ = "$Revision$"
 # $HeadURL$
 
-import logging
-
-
 class Constraint(object):
     """Constraint base class.
     """
@@ -224,14 +221,14 @@ class EquationConstraint(Constraint):
             else:
                 close_flag = False
             if n > ITERLIMIT:
-                logging.warn("Failed to converge; exceeded iteration limit")
+                print "Failed to converge; exceeded iteration limit"
                 break
             slope = (fx1 - fx0) / (x1 - x0)
             if slope == 0:
                 if close_flag:  # we're close but have zero slope, finish
                     break
                 else:
-                    logging.warn('Zero slope and not close enough to solution')
+                    print 'Zero slope and not close enough to solution'
                     break
             x2 = x0 - fx0 / slope           # New 'x1'
             fx0 = fx1

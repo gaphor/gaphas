@@ -58,45 +58,45 @@ class Tool(object):
                 on_triple_click
                 on_button_release
         """
-        #if DEBUG_TOOL: print 'on_button_press', context, event
+        if DEBUG_TOOL: print 'on_button_press', context, event
 
     def on_button_release(self, context, event):
         """Button release event, that follows on a button press event.
         Not that double and tripple clicks'...
         """
-        #if DEBUG_TOOL: print 'on_button_release', context, event
+        if DEBUG_TOOL: print 'on_button_release', context, event
         pass
 
     def on_double_click(self, context, event):
         """Event emited when the user does a double click (click-click)
         on the View.
         """
-        #if DEBUG_TOOL: print 'on_double_click', context, event
+        if DEBUG_TOOL: print 'on_double_click', context, event
         pass
 
     def on_triple_click(self, context, event):
         """Event emited when the user does a triple click (click-click-click)
         on the View.
         """
-        #if DEBUG_TOOL: print 'on_triple_click', context, event
+        if DEBUG_TOOL: print 'on_triple_click', context, event
         pass
 
     def on_motion_notify(self, context, event):
         """Mouse (pointer) is moved.
         """
-        #if DEBUG_TOOL: print 'on_motion_notify', context, event
+        if DEBUG_TOOL: print 'on_motion_notify', context, event
         pass
 
     def on_key_press(self, context, event):
         """Keyboard key is pressed.
         """
-        #if DEBUG_TOOL: print 'on_key_press', context, event
+        if DEBUG_TOOL: print 'on_key_press', context, event
         pass
 
     def on_key_release(self, context, event):
         """Keyboard key is released again (follows a key press normally).
         """
-        #if DEBUG_TOOL: print 'on_key_release', context, event
+        if DEBUG_TOOL: print 'on_key_release', context, event
         pass
 
     def draw(self, context):
@@ -158,12 +158,12 @@ class ToolChain(Tool):
 
     def grab(self, tool):
         if not self._grabbed_tool:
-            #if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
+            if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
             self._grabbed_tool = tool
 
     def ungrab(self, tool):
         if self._grabbed_tool is tool:
-            #if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
+            if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
             self._grabbed_tool = None
 
     def _handle(self, func, context, event):
@@ -176,7 +176,7 @@ class ToolChain(Tool):
             return getattr(self._grabbed_tool, func)(context, event)
         else:
             for tool in self._tools:
-                #if DEBUG_TOOL_CHAIN: print 'tool', tool
+                if DEBUG_TOOL_CHAIN: print 'tool', tool
                 context.set_tool(tool)
                 rt = getattr(tool, func)(context, event)
                 if rt:
@@ -572,15 +572,15 @@ class TextEditTool(Tool):
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
-        #if event.keyval == gtk.keysyms.Return:
-            #print 'Enter!'
+        if event.keyval == gtk.keysyms.Return:
+            print 'Enter!'
             #widget.get_toplevel().destroy()
-        if event.keyval == gtk.keysyms.Escape:
-            #print 'Escape!'
+        elif event.keyval == gtk.keysyms.Escape:
+            print 'Escape!'
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
-        #print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
+        print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
         widget.destroy()
 
 
