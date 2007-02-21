@@ -176,10 +176,10 @@ class Element(Item):
         super(Element, self).__init__()
         self._handles = [ h(strength=STRONG) for h in [Handle]*4 ]
         self._constraints = []
-        self.width = width
-        self.height = height
         self.min_width = 10
         self.min_height = 10
+        self.width = width
+        self.height = height
 
     def _set_width(self, width):
         """

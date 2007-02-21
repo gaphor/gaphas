@@ -22,6 +22,8 @@ class MyBox(Box):
     """Box with an example connection protocol.
     """
 
+    def __init__(self, width=10, height=10):
+        super(MyBox, self).__init__(width, height)
 
 class MyLine(Line):
     """Line with experimental connection protocol.
