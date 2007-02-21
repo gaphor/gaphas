@@ -176,8 +176,8 @@ class Element(Item):
         super(Element, self).__init__()
         self._handles = [ h(strength=STRONG) for h in [Handle]*4 ]
         self._constraints = []
-        self.min_width = 10
-        self.min_height = 10
+        self._min_width = 10
+        self._min_height = 10
         self.width = width
         self.height = height
 
@@ -234,6 +234,24 @@ class Element(Item):
         return float(h[SE].y) - float(h[NW].y)
 
     height = property(_get_height, _set_height)
+
+    def _set_min_width(self, min_width):
+        """
+        """
+        self._min_width = max(0, min_width)
+        if min_width > self.width:
+            self.width = min_width
+
+    min_width = property(lambda s: s._min_width, _set_min_width)
+
+    def _set_min_height(self, min_height):
+        """
+        """
+        self._min_height = max(0, min_height)
+        if min_height > self.height:
+            self.height = min_height
+
+    min_height = property(lambda s: s._min_height, _set_min_height)
 
     def setup_canvas(self):
         """

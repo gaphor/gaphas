@@ -353,6 +353,7 @@ class Canvas(object):
         Peform an update of the items that requested an update.
         """
         self._in_update = True
+        dirty_items = []
         try:
             cairo_context = self._obtain_cairo_context()
 
@@ -493,7 +494,7 @@ class Canvas(object):
                 pass
         else:
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-            return cairo.Context(tmpsurface)
+            return cairo.Context(surface)
 
 
 if __name__ == '__main__':
