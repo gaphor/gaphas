@@ -17,12 +17,9 @@ class Box(Element):
      NW +---+ NE
      SW +---+ SE
     """
-    min_width = 10
-    min_height = 10
+
     def __init__(self, width=10, height=10):
-        #super(Box, self).__init__(width, height)
-        print 'Box.__init__'
-        Element.__init__(self,width, height)
+        super(Box, self).__init__(width, height)
 
     def draw(self, context):
         #print 'Box.draw', self

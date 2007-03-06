@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gaphas',
-    version='0.1.0',
+    version='0.1.1',
     description='Gaphas is a GTK+ based diagramming widget',
     long_description="""\
 Gaphas is a GTK+ based diagramming widget written in Python.
@@ -37,7 +37,8 @@ It is the logical successor of the DiaCanvas library.
     packages=find_packages(exclude=['ez_setup']),
 
     install_requires=[
-    'PyGTK >= 2.8.0',
+     'decorator >= 2.0.1',
+#    'PyGTK >= 2.8.0',
     ],
 
     zip_safe=False,
