@@ -18,6 +18,9 @@ from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
 from gaphas.painter import ItemPainter
 
+from gaphas import state
+
+
 class MyBox(Box):
     """Box with an example connection protocol.
     """
@@ -124,6 +127,8 @@ def create_window(canvas, zoom=1.0):
 
     b.connect('clicked', on_clicked)
     v.add(b)
+
+    v.add(gtk.Label('Export:'))
 
     b = gtk.Button('Write demo.png')
 
@@ -254,6 +259,22 @@ t=MyText()
 t.matrix.translate(70,70)
 c.add(t)
 
+##
+## State handling (a.k.a. undo handlers)
+##
+
+# First, activate the revert handler:
+state.subscribers.append(state.revert_handler)
+
+def print_handler(event):
+    print 'event:', event
+
+state.observers.append(print_handler)
+
+
+##
+## Start the main application
+##
 
 gtk.main()
 

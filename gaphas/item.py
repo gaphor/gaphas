@@ -10,6 +10,8 @@ from math import atan2
 from geometry import Matrix, distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
+from state import observed, reversible_pair, reversible_property
+
 
 class Handle(object):
     """
@@ -20,22 +22,67 @@ class Handle(object):
     all disconnect behavior (e.g. clean up constraints and connected_to).
     """
     
-    x = solvable()
-    y = solvable()
+    _x = solvable()
+    _y = solvable()
 
     def __init__(self, x=0, y=0, strength=NORMAL, connectable=False, movable=True):
-        self.x = x
-        self.y = y
-        self.x.strength = strength
-        self.y.strength = strength
-        # Flags.. can't have enough of those
-        self.connectable = connectable
-        self.movable = movable
-        self.visible = True
-        self.connected_to = None
-        # The constraint used to keep the handle visually connected
-        self.disconnect = lambda: 0
+        self._x = x
+        self._y = y
+        self._x.strength = strength
+        self._y.strength = strength
 
+        # Flags.. can't have enough of those
+        self._connectable = connectable
+        self._movable = movable
+        self._visible = True
+        self._connected_to = None
+
+        # The constraint used to keep the handle visually connected
+        self._disconnect = lambda: 0
+
+    @observed
+    def _set_x(self, x):
+        self._x = x
+
+    x = reversible_property(lambda s: s._x, _set_x)
+
+    @observed
+    def _set_y(self, y):
+        self._y = y
+
+    y = reversible_property(lambda s: s._y, _set_y)
+
+    @observed
+    def _set_connectable(self, connectable):
+        self._connectable = connectable
+
+    connectable = reversible_property(lambda s: s._connectable, _set_connectable)
+
+    @observed
+    def _set_movable(self, movable):
+        self._movable = movable
+
+    movable = reversible_property(lambda s: s._movable, _set_movable)
+
+    @observed
+    def _set_visible(self, visible):
+        self._visible = visible
+
+    visible = reversible_property(lambda s: s._visible, _set_visible)
+
+    @observed
+    def _set_connected_to(self, connected_to):
+        self._connected_to = connected_to
+
+    connected_to = reversible_property(lambda s: s._connected_to, _set_connected_to)
+
+    @observed
+    def _set_disconnect(self, disconnect):
+        self._disconnect = disconnect
+
+    disconnect = reversible_property(lambda s: s._disconnect, _set_disconnect)
+
+    @observed
     def _set_pos(self, pos):
         """
         Set handle position (Item coordinates).
@@ -70,6 +117,7 @@ class Item(object):
         self._canvas = None
         self._matrix = Matrix()
 
+    @observed
     def _set_canvas(self, canvas):
         """
         Set the canvas.
@@ -85,10 +133,9 @@ class Item(object):
         """
         Unset the canvas.
         """
-        self.teardown_canvas()
-        self._canvas = None
+        self._set_canvas(None)
 
-    canvas = property(lambda s: s._canvas, _set_canvas, _del_canvas)
+    canvas = reversible_property(lambda s: s._canvas, _set_canvas, _del_canvas)
 
     def setup_canvas(self):
         """
@@ -104,6 +151,7 @@ class Item(object):
         """
         pass
 
+    @observed
     def _set_matrix(self, matrix):
         """
         Set the conversion matrix (parent -> item)
@@ -112,7 +160,7 @@ class Item(object):
             matrix = Matrix(*matrix)
         self._matrix = matrix
 
-    matrix = property(lambda s: s._matrix, _set_matrix)
+    matrix = reversible_property(lambda s: s._matrix, _set_matrix)
 
     def request_update(self):
         if self._canvas:
@@ -219,7 +267,7 @@ class Element(Item):
         >>> b._handles[NW].y
         Variable(0, 30)
         >>> b._handles[SE].y
-        Variable(20, 30)
+        Variable(10, 30)
         """
         if height < self.min_height:
             height = self.min_height
@@ -235,6 +283,7 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
+    @observed
     def _set_min_width(self, min_width):
         """
         """
@@ -242,8 +291,9 @@ class Element(Item):
         if min_width > self.width:
             self.width = min_width
 
-    min_width = property(lambda s: s._min_width, _set_min_width)
+    min_width = reversible_property(lambda s: s._min_width, _set_min_width)
 
+    @observed
     def _set_min_height(self, min_height):
         """
         """
@@ -251,7 +301,7 @@ class Element(Item):
         if min_height > self.height:
             self.height = min_height
 
-    min_height = property(lambda s: s._min_height, _set_min_height)
+    min_height = reversible_property(lambda s: s._min_height, _set_min_height)
 
     def setup_canvas(self):
         """
@@ -266,7 +316,7 @@ class Element(Item):
         >>> len(c.solver._constraints)
         8
         >>> len(c.solver._marked_cons)
-        8
+        0
         >>> c.solver.solve()
         >>> len(c.solver._constraints)
         8
@@ -310,7 +360,7 @@ class Element(Item):
         True
         >>> len(c.solver._constraints)
         8
-        >>> b.teardown()
+        >>> b.teardown_canvas()
         >>> len(c.solver._constraints)
         0
         """
@@ -386,12 +436,25 @@ class Line(Item):
         super(Line, self).__init__()
         self._handles = [Handle(connectable=True), Handle(10, 10, connectable=True)]
 
-        self.line_width = 2
-        self.fuzzyness = 0
+        self._line_width = 2
+        self._fuzzyness = 0
         self._orthogonal = []
         self._horizontal = False
         self._head_angle = self._tail_angle = 0
 
+    @observed
+    def _set_line_width(self, line_width):
+        self._line_width = line_width
+
+    line_width = reversible_property(lambda s: s._line_width, _set_line_width)
+
+    @observed
+    def _set_fuzzyness(self, fuzzyness):
+        self._fuzzyness = fuzzyness
+
+    fuzzyness = reversible_property(lambda s: s._fuzzyness, _set_fuzzyness)
+
+    @observed
     def _set_orthogonal(self, orthogonal):
         """
         >>> a = Line()
@@ -420,13 +483,14 @@ class Line(Item):
             self.canvas.solver.mark_dirty(h1.x, h1.y)
         self.request_update()
 
-    orthogonal = property(lambda s: s._orthogonal != [], _set_orthogonal)
+    orthogonal = reversible_property(lambda s: s._orthogonal != [], _set_orthogonal)
 
+    @observed
     def _set_horizontal(self, horizontal):
         self._horizontal = horizontal
         self._set_orthogonal(self._orthogonal)
 
-    horizontal = property(lambda s: s._horizontal != [], _set_horizontal)
+    horizontal = reversible_property(lambda s: s._horizontal != [], _set_horizontal)
 
     def setup_canvas(self):
         """
@@ -441,9 +505,10 @@ class Line(Item):
         for c in self._orthogonal:
             self.canvas.solver.remove_constraint(c)
 
+    @observed
     def split_segment(self, segment, parts=2):
         """
-        Split one segment in the Line in @parts pieces.
+        Split one segment in the Line in @parts equal pieces.
         @segment 0 is the first segment (between handles 0 and 1).
         The min number of parts is 2.
 
@@ -480,9 +545,11 @@ class Line(Item):
         do_split(segment, parts)
         self.orthogonal = self.orthogonal
 
-    def merge_segment(self, segment):
+    @observed
+    def merge_segment(self, segment, parts=2):
         """
         Merge the @segment and the next.
+        The parts parameter indicates how many segments should be merged
 
         >>> a = Line()
         >>> a.handles()[1].pos = (20, 0)
@@ -499,10 +566,15 @@ class Line(Item):
         assert len(self._handles) > 2, 'Not enough segments'
         if 0 >= segment > len(self._handles) - 1:
             raise IndexError("index out of range (0 > %d > %d)" % (segment, len(self._handles) - 1))
-        # TODO: recreate constraints that use self._handles[segment + 1]
         if segment == 0: segment = 1
         del self._handles[segment]
-        self.orthogonal = self.orthogonal
+        if parts > 2:
+            merge_segment(segment, parts - 1)
+        else:
+            # Force orthogonal constraints to be recreated
+            self.orthogonal = self.orthogonal
+
+    reversible_pair(split_segment, merge_segment)
 
     def handles(self):
         return self._handles

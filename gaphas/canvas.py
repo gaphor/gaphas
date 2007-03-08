@@ -15,6 +15,7 @@ from gaphas import tree
 from gaphas import solver
 from gaphas.geometry import Matrix
 from gaphas.decorators import async, PRIORITY_HIGH_IDLE
+from state import observed, reversible_pair
 
 class Context(object):
     """
@@ -52,6 +53,7 @@ class Canvas(object):
 
     solver = property(lambda s: s._solver)
 
+    @observed
     def add(self, item, parent=None):
         """
         Add an item to the canvas
@@ -69,9 +71,8 @@ class Canvas(object):
         item.canvas = self
         self._tree.add(item, parent)
         self.request_update(item)
-        #self._dirty_items.add(item)
-        #self._dirty_matrix_items.add(item)
 
+    @observed
     def remove(self, item):
         """
         Remove item from the canvas
@@ -301,7 +302,7 @@ class Canvas(object):
             >>> len(c._dirty_items)
             0
         """
-        if True: #not self._in_update:
+        if True:
             self._dirty_items.add(item)
             self._dirty_matrix_items.add(item)
 
@@ -310,8 +311,6 @@ class Canvas(object):
             while parent:
                 self._dirty_items.add(parent)
                 parent = self._tree.get_parent(parent)
-
-        # TODO: Schedule update, directly or through a view.
         self.update()
 
     def request_matrix_update(self, item):
@@ -381,8 +380,6 @@ class Canvas(object):
 
             self.update_matrices()
 
-            #for item in dirty_items:
-            #    item.update(context_map[item])
             for item in dirty_items:
                 c = Context(parent=self._tree.get_parent(item),
                             children=self._tree.get_children(item),

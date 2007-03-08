@@ -49,6 +49,7 @@ Problem:
  dispatch method, not the function being decorated. Since the @observed
  decorator is called from within the decorator it's hard to find out where
  the decorated function lives (is it even possible?).
+Solution: add a special __observer__ attribute to the inner function.
 """
 
 import types, inspect
@@ -62,29 +63,9 @@ from decorator import decorator
 
 subscribers = list()
 
-class StateChange(object):
-    """
-    Simple StateChange event
-    """
-
-    def __init__(self, func, spec, args, kwargs):
-        self.func = func
-        self.spec = spec
-        self.args = args
-        self.kwargs = kwargs
-
-    def __call__(self):
-        pass
-
 
 # Subscribe to low-level change events:
 observers = list()
-
-#def decorator(func):
-#    def _apply(*args, **kwargs):
-#        print 'DECORATOR', func
-#        return func(*args, **kwargs)
-#    return _apply
 
 
 def observed(func):
@@ -96,11 +77,9 @@ def observed(func):
     outer most function to be returned (that's what they see).
     """
     def wrapper(func, *args, **kwargs):
-        #print 'DISPATCHING', func, func.__observer__
         dispatch((func.__observer__, args, kwargs), queue=observers)
         return func(*args, **kwargs)
     dec = decorator(wrapper, func)
-    
     func.__observer__ = dec
     return dec
 
@@ -134,19 +113,35 @@ _reverse = dict()
 
 def reversible_pair(func1, func2, bind1={}, bind2={}):
     global _reverse
-    #print 'reversible_pair' ,func1, dir(func1), func1.im_func, func1.im_func
-    #print func1, type(func1), func1.im_func, type(func1.im_func)
     # We need the funcion, since that's what's in the events
     if isinstance(func1, types.UnboundMethodType): func1 = func1.im_func
     if isinstance(func2, types.UnboundMethodType): func2 = func2.im_func
     _reverse[func1] = (func2, inspect.getargspec(func2), bind2)
     _reverse[func2] = (func1, inspect.getargspec(func1), bind1)
 
-def reverse_handler(event):
+
+def reversible_property(fget=None, fset=None, fdel=None, doc=None):
+    """
+    Replacement for the property descriptor. In addition to creating a
+    property instance, the property is registered as reversible and 
+    reverse events can be send out when changes occur.
+    """
+    # given fset, read the value argument name (second arg) and create a
+    # bind {value: lambda self: fget(self)}
+
+    # TODO!
+
+    return property(fget=fget, fset=fset, fdel=fdel, doc=doc)
+
+
+def revert_handler(event):
     """
     Event handler, generates undoable statements and puts them on the
     subscribers queue.
 
+    First thing to do is to actually enable the revert_handler:
+    >>> observers.append(revert_handler)
+    
     First let's define our simple list:
     >>> class SList(object):
     ...     def __init__(self):
@@ -200,8 +195,6 @@ def reverse_handler(event):
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
     dispatch((reverse, kwargs))
-
-observers.append(reverse_handler)
 
 
 def saveapply(func, kw):

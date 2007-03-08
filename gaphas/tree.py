@@ -6,6 +6,8 @@ Simple class containing the tree structure for the canvas items.
 __version__ = "$Revision$"
 # $HeadURL$
 
+from state import observed, reversible_pair
+
 
 class Tree(object):
     """A Tree structure.
@@ -40,7 +42,7 @@ class Tree(object):
         """Get all siblings of @node, including @node.
         """
         parent = self.get_parent(node)
-        return self._children[parent] #[ n for n in self._children[parent] if not n is node ]
+        return self._children[parent]
 
     def get_next_sibling(self, node):
         """Return the node on the same level after @node.
@@ -90,6 +92,7 @@ class Tree(object):
             # append to root node:
             nodes.append(node)
 
+    @observed
     def add(self, node, parent=None):
         """Add @node to the tree. @parent is the parent node, which may
         be None if the item should be added to the root item.
@@ -101,6 +104,7 @@ class Tree(object):
         # Create new entry for it's own children:
         self._children[node] = []
 
+    @observed
     def remove(self, node):
         """Remove @node from the tree.
         """
@@ -113,6 +117,9 @@ class Tree(object):
         # Remove data entries:
         del self._children[node]
         self._nodes.remove(node)
+
+    reversible_pair(add, remove,
+                    bind1={'parent': lambda self, node: self.get_parent(node) })
 
 
 def test_add():
