@@ -125,11 +125,25 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None):
     Replacement for the property descriptor. In addition to creating a
     property instance, the property is registered as reversible and 
     reverse events can be send out when changes occur.
+
+    Cave eat: we can't handle both fset and fdel in the proper way. Therefore
+    fdel should somehow invoke fset. (persinally, I hardly use fdel)
+
     """
     # given fset, read the value argument name (second arg) and create a
     # bind {value: lambda self: fget(self)}
 
-    # TODO!
+    # TODO! handle fdel
+    if fset:
+        spec = inspect.getargspec(fset)
+        argnames = spec[0]
+        assert len(argnames) == 2
+
+        argself, argvalue = argnames
+        func = isinstance(fset, types.UnboundMethodType) and fset.im_func or fset
+        bind = eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
+                    {'fget': fget})
+        _reverse[func] = (func, spec, {argvalue: bind})
 
     return property(fget=fget, fset=fset, fdel=fdel, doc=doc)
 
@@ -174,6 +188,18 @@ def revert_handler(event):
     >>> subscribers.append(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
     handle (<function remove at 0x...)
+
+    >>> class PropTest(object):
+    ...     def __init__(self): self._a = 0
+    ...     @observed
+    ...     def _set_a(self, value): self._a = value
+    ...     a = reversible_property(lambda s: s._a, _set_a)
+    >>> pt = PropTest()
+    >>> pt.a
+    0
+    >>> pt.a = 10 # doctest: +ELLIPSIS
+    handle (<function _set_a at 0x...>, {'self': <__main__.PropTest object at 0x...>, 'value': 0})
+
     """
     #print 'in handler!', event
     global _reverse
@@ -219,3 +245,4 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
+# vim:sw=4:et:ai
