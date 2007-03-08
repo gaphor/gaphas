@@ -112,8 +112,15 @@ def dispatch(event, queue=subscribers):
 _reverse = dict()
 
 def reversible_pair(func1, func2, bind1={}, bind2={}):
+    """
+    Treat a pair of functions (func1 and func2) as each others inverse
+    operation. bind1 provides arguments that can overrule the default values
+    (or add additional values). bind2 does the same for func2.
+
+    See revert_handler() for doctesting.
+    """
     global _reverse
-    # We need the funcion, since that's what's in the events
+    # We need the function, since that's what's in the events
     if isinstance(func1, types.UnboundMethodType): func1 = func1.im_func
     if isinstance(func2, types.UnboundMethodType): func2 = func2.im_func
     _reverse[func1] = (func2, inspect.getargspec(func2), bind2)
@@ -129,6 +136,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None):
     Cave eat: we can't handle both fset and fdel in the proper way. Therefore
     fdel should somehow invoke fset. (persinally, I hardly use fdel)
 
+    See revert_handler() for doctesting.
     """
     # given fset, read the value argument name (second arg) and create a
     # bind {value: lambda self: fget(self)}
@@ -188,6 +196,8 @@ def revert_handler(event):
     >>> subscribers.append(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
     handle (<function remove at 0x...)
+
+    Same goes for properties (more or less):
 
     >>> class PropTest(object):
     ...     def __init__(self): self._a = 0
