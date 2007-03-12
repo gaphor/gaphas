@@ -2,54 +2,20 @@
 This module is the central point where Gaphas' classes report their state
 changes.
 
-The State recorder is intended to report fine grained state changes. As a
-result, individual property changes and method invokations are being
-reported.
+Invokations of method and state changing properties are emited to all
+functions (or bound methods) registered in the `observers' set.
+Use observers.add() and observers.remove() to add/remove handlers.
 
-The StateRecorder is able to record events for:
- - Canvas (item addition/removal)
-    - properties
-    - request_update()
-    - add()
-    - remove()
-    - tree (actual addition/removal)
- - Item 
- - Handle
- - item connect/disconnect
- - constraint solver
+This module also contains a second layer: a state inverser. Instead of
+emiting the invoked method, it emits a signal (callable, **kwargs) that
+can be applied to revert the state of the object to the point before the
+method invokation.
 
-Given a class:
-  class A(object):
-    def method(self):
-        pass
+For this to work the revert_handler has to be added to the observers set:
 
-If it is decorated as:
-      class A(object):
-        @observed
-        def method(self):
-            pass
-the method() is refered to as '<function method at 0xXXXXXXXX>'.
+    gaphas.state.observers.add(gaphas.state.revert_handler)
 
-If it is decorated like this:
-      class A(object):
-        def method(self):
-            pass
-        method = observed(method)
-it is still the function being decorated.
 
-If decorated like this:
-      class A(object):
-        def method(self):
-            pass
-      A.method = observed(A.method)
-the method() is refered to as '<unbound method A.method>'
-
-Problem:
- Although I can use the first method, I have to return the *decorator* to the
- dispatch method, not the function being decorated. Since the @observed
- decorator is called from within the decorator it's hard to find out where
- the decorated function lives (is it even possible?).
-Solution: add a special __observer__ attribute to the inner function.
 """
 
 import types, inspect
@@ -59,36 +25,21 @@ from decorator import decorator
 OBSERVED_DOCSTRING = \
         '\n\nThis method is @observed. See gaphas.state for extra info.\n'
 
+# Tell @observed to dispatch invokation messages by default
+# May be changed (but be sure to do that right at the start of your
+# application,otherwise you have no idea what's enabled and what's not!)
+DISPATCH_BY_DEFAULT = True
+
 # Add/remove methods from this subscribers list.
 # Subscribers should have signature method(event) where event is a 
 # Event has the form: (func, keywords)
 # Since most events originate from methods, it's save to call
 # saveapply(func, keywords) for those functions
-
 subscribers = set()
 
 
 # Subscribe to low-level change events:
 observers = set()
-
-# 
-class funcset(set):
-    """
-    A set containing only functions.
-    >>> fs = funcset()
-    >>> def a(): pass
-    >>> fs.add(a)
-    >>> fs # doctest: +ELLIPSIS
-    funcset([<function a at 0x...>])
-    >>> class A(object):
-    ...    def m(self): pass
-    >>> fs.add(A.m)
-    >>> fs # doctest: +ELLIPSIS
-    funcset([<function a at 0x...>, <function m at 0x...>])
-    """
-    def add(self, item):
-        if isinstance(item, types.UnboundMethodType): item = item.im_func
-        set.add(self, item)
 
 def observed(func):
     """
@@ -99,14 +50,59 @@ def observed(func):
     outer most function to be returned (that's what they see).
     """
     def wrapper(func, *args, **kwargs):
-        #if func not in silence:
-        dispatch((func.__observer__, args, kwargs), queue=observers)
+        o = func.__observer__
+        try:
+            if o.__dispatched__:
+                dispatch((o, args, kwargs), queue=observers)
+        except AttributeError:
+            pass
         return func(*args, **kwargs)
     dec = decorator(wrapper, func)
     
     dec.__doc__ = (dec.__doc__ or '') + OBSERVED_DOCSTRING
     func.__observer__ = dec
+    if DISPATCH_BY_DEFAULT:
+        dec.__dispatched__ = True
     return dec
+
+
+def enable_dispatching(func, enable=True):
+    """
+    Enable/disable dispatching for a specific function.
+    >>> @observed
+    ... def callme():
+    ...     pass
+    >>> def handler(event):
+    ...   print 'event'
+    >>> observers.add(handler)
+
+    By default dispatching is enabled (set DISPATCH_BY_DEFAULT=False to
+    disable this behavior).
+    >>> callme()
+    event
+    >>> enable_dispatching(callme, False)
+    >>> callme()
+
+    ... and enable it again:
+    >>> enable_dispatching(callme)
+    >>> callme()
+    event
+    >>> observers.remove(handler)
+    """
+    func = getfunction(func)
+    if enable:
+        func.__dispatched__ = True
+    else:
+        try:
+            del func.__dispatched__
+        except AttributeError:
+            pass
+
+def disable_dispatching(func, disable=True):
+    """
+    Inverse operation of enable_dispatching()
+    """
+    enable_dispatching(func, not disable)
 
 
 def dispatch(event, queue=subscribers):
@@ -146,8 +142,8 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     """
     global _reverse
     # We need the function, since that's what's in the events
-    if isinstance(func1, types.UnboundMethodType): func1 = func1.im_func
-    if isinstance(func2, types.UnboundMethodType): func2 = func2.im_func
+    func1 = getfunction(func1)
+    func2 = getfunction(func2)
     _reverse[func1] = (func2, inspect.getargspec(func2), bind2)
     _reverse[func2] = (func1, inspect.getargspec(func1), bind1)
 
@@ -173,7 +169,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
         assert len(argnames) == 2
 
         argself, argvalue = argnames
-        func = isinstance(fset, types.UnboundMethodType) and fset.im_func or fset
+        func = getfunction(fset)
         b = { argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
                     {'fget': fget}) }
         b.update(bind)
@@ -277,6 +273,15 @@ def saveapply(func, kw):
     #args = map(dict.get, [kw]*len(argnames), argnames)
     #print 'args:', func, args
     return func(**kwargs)
+
+
+def getfunction(func):
+    """
+    Return the function associated with a class method.
+    """
+    if isinstance(func, types.UnboundMethodType):
+        return func.im_func
+    return func
 
 
 if __name__ == '__main__':

@@ -148,3 +148,35 @@ to be dispatched or not. If it needs to be dispatched an extra flag should be
 set. This will prevent the system from slowing down due to emiting signals that
 are filtered out later on.
 
+What is Observed 
+----------------
+
+As far as Gaphas is concerned, only properties and methods related to the
+model (e.g. Canvas, Items) emit state changes. Some extra effort has been taken
+to monitor the Matrix class (which is from Cairo).
+
+ canvas.py:
+   Canvas:
+     add() and remove()
+
+ item.py:
+   Handle:
+     x, y, connectable, movable, visible, connected_to and disconnect properties
+   Item:
+     canvas and matric properties
+   Element:
+     min_height and min_width properties
+   Line:
+     line_width, fuzzyness, orthogonal and horizontal properties;
+     split_segment() and merge_segment()
+
+ solver.py:
+   Variable:
+     strength and value properties
+   Solver:
+     add_constraint() and remove_constraint() 
+
+ tree.py:
+   Tree:
+     add() and remove()
+
