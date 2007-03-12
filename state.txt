@@ -1,17 +1,19 @@
 State management
 ================
 
-A special word should be mentioned about state management. Managing state is the first step in creating an undo system.
+A special word should be mentioned about state management. Managing state is
+the first step in creating an undo system.
 
 The state system consists of two parts:
 
- 1. A basic observer (the @observed decorator)\
+ 1. A basic observer (the @observed decorator)
  2. A reverter
 
 Observer
 --------
 
-The observer simply dispatches the function called (as <function ..>, not as <unbound method..>!) to each handler registered in an observers list.
+The observer simply dispatches the function called (as <function ..>, not as
+<unbound method..>!) to each handler registered in an observers list.
 
     >>> from gaphas import state
     >>> from gaphas.tree import Tree
@@ -57,25 +59,28 @@ What should you know:
 
  1. The observer always generates events based on 'function' calls. Even for
     class method invokations. This is because, when calling a method (say
-    Tree.add) it's im_func field is executed, which is a function type object.
+    Tree.add) it's the im_func field is executed, which is a function type
+    object.
 
  2. It's important to know if an event came from invoking a method or a simple
-    functoin. With methods, the first argument always is an instance. This can
+    function. With methods, the first argument always is an instance. This can
     be handy when writing an undo management systems in case multiple calls
     from the same instance do not have to be registered (e.g. if a method
     set_point() is called with exact coordinates (in stead of deltas), only the
     first call to set_point needs to be remembered.
 
 
-Reverter
+Reverser
 --------
+
 The reverser requires some registration.
- 1. Property setters should be decorated with ..# TODO
+
+ 1. Property setters should be declared with reversible_property()
  2. Method (or function) pairs that implement each others reverse operation
-    (e.g. add and remove) should be registeres as reversible_pairs in the
+    (e.g. add and remove) should be registeres as reversible_pair()'s in the
     reverser engine.
     The reverser will construct a tuple (callable, arguments) which are send
-    to every handler registered in the subscribers list.
+    to every handler registered in the subscribers list. Arguments is a dict().
 
 First thing to do is to actually enable the revert_handler:
 
@@ -135,4 +140,11 @@ Handlers can be simply removed:
     >>> state.subscribers.remove(handler)
     >>> state.observers.remove(state.revert_handler)
 
+TODO
+----
+
+Function wrappers should have an extra property indicating if a function needs
+to be dispatched or not. If it needs to be dispatched an extra flag should be
+set. This will prevent the system from slowing down due to emiting signals that
+are filtered out later on.
 

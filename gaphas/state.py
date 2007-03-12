@@ -90,8 +90,6 @@ class funcset(set):
         if isinstance(item, types.UnboundMethodType): item = item.im_func
         set.add(self, item)
 
-silence = funcset()
-
 def observed(func):
     """
     Simple observer, dispatches events to functions registered in the observers
@@ -101,8 +99,8 @@ def observed(func):
     outer most function to be returned (that's what they see).
     """
     def wrapper(func, *args, **kwargs):
-        if func not in silence:
-            dispatch((func.__observer__, args, kwargs), queue=observers)
+        #if func not in silence:
+        dispatch((func.__observer__, args, kwargs), queue=observers)
         return func(*args, **kwargs)
     dec = decorator(wrapper, func)
     
@@ -213,6 +211,8 @@ def revert_handler(event):
     >>> sl.add(12, before=11)
     >>> sl.l
     [10, 12, 11]
+
+    It works, so let's add some reversible stuff:
     >>> reversible_pair(SList.add, SList.remove, \
         bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
     >>> _reverse[SList.add.im_func] # doctest: +ELLIPSIS
