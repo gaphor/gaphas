@@ -85,8 +85,6 @@ class Canvas(object):
             >>> c._tree.nodes
             []
             >>> i._canvas
-        
-        TODO: Remove constraints on items connected to the removed item
         """
         self._tree.remove(item)
         item.canvas = None
@@ -94,7 +92,10 @@ class Canvas(object):
         self._update_views((item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
-        
+
+    reversible_pair(add, remove,
+                    bind1={'parent': lambda self, node: self.get_parent(node) })
+
     def remove_connections_to_item(self, item):
         """
         Remove all connections (handles connected to and constraints)

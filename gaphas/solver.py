@@ -10,6 +10,8 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from operator import isCallable
+from state import observed, reversible_pair, reversible_property
+
 
 # Variable Strengths:
 VERY_WEAK = 0
@@ -19,8 +21,10 @@ STRONG = 30
 VERY_STRONG = 40
 REQUIRED = 100
 
+
 class Variable(object):
-    """Representation of a variable in the constraint solver.
+    """
+    Representation of a variable in the constraint solver.
     Each Variable has a @value and a @strength. Ina constraint the
     weakest variables are changed.
     
@@ -36,21 +40,23 @@ class Variable(object):
         self._solver = None
         self._constraints = set()
 
+    @observed
     def _set_strength(self, strength):
         self._strength = strength
 
-    strength = property(lambda s: s._strength, _set_strength)
+    strength = reversible_property(lambda s: s._strength, _set_strength)
 
     def dirty(self):
         if self._solver:
             self._solver.mark_dirty(self)
 
+    @observed
     def set_value(self, value):
         self._value = float(value)
         if self._solver:
             self._solver.mark_dirty(self)
 
-    value = property(lambda s: s._value, set_value)
+    value = reversible_property(lambda s: s._value, set_value)
 
     def __str__(self):
         return 'Variable(%g, %d)' % (self._value, self._strength)
@@ -261,7 +267,8 @@ class Variable(object):
 
 
 class Solver(object):
-    """Solve constraints. A constraint should have accompanying
+    """
+    Solve constraints. A constraint should have accompanying
     variables.
     """
 
@@ -312,6 +319,7 @@ class Solver(object):
                 elif c not in self._marked_cons:
                     self._marked_cons.append(c)
 
+    @observed
     def add_constraint(self, constraint):
         """Add a constraint.
         The actual constraint is returned, so the constraint can be removed
@@ -345,6 +353,7 @@ class Solver(object):
         #print 'added constraint', constraint
         return constraint
 
+    @observed
     def remove_constraint(self, constraint):
         """ Remove a constraint from the solver
         >>> from constraint import EquationConstraint
@@ -360,6 +369,8 @@ class Solver(object):
         self._constraints.discard(constraint)
         if constraint in self._marked_cons:
             del self._marked_cons[self._marked_cons.index(constraint)]
+
+    reversible_pair(add_constraint, remove_constraint)
 
     def constraints_with_variable(self, variable):
         """Return an iterator of constraints that work with variable.

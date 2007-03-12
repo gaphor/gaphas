@@ -44,13 +44,13 @@ class Handle(object):
     def _set_x(self, x):
         self._x = x
 
-    x = reversible_property(lambda s: s._x, _set_x)
+    x = reversible_property(lambda s: s._x, _set_x, bind={'x': lambda self: float(self.x) })
 
     @observed
     def _set_y(self, y):
         self._y = y
 
-    y = reversible_property(lambda s: s._y, _set_y)
+    y = reversible_property(lambda s: s._y, _set_y, bind={'y': lambda self: float(self.y) })
 
     @observed
     def _set_connectable(self, connectable):

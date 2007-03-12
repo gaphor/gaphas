@@ -18,7 +18,7 @@ The observer simply dispatches the function called (as <function ..>, not as <un
     >>> tree = Tree()
     >>> def handler(event):
     ...     print 'event handled', event
-    >>> state.observers.append(handler)
+    >>> state.observers.add(handler)
     >>> tree.add(1) # doctest: +ELLIPSIS
     event handled (<function add at ...>, (<gaphas.tree.Tree object at 0x...>, 1, None), {})
     >>> tree.add(2, parent=1) # doctest: +ELLIPSIS
@@ -39,10 +39,10 @@ recursively calls remove() for each of it's children):
 The @observed decorator can also be applied to properties, as is done in
 gaphas/item.py's Handle class:
 
-    >>> from gaphas.item import Handle
-    >>> handle = Handle()
-    >>> handle.x = 10  # doctest: +ELLIPSIS
-    event handled (<function _set_x at 0x...>, (<Handle object on (0, 0)>, 10), {})
+    >>> from gaphas.solver import Variable
+    >>> var = Variable()
+    >>> var.value = 10  # doctest: +ELLIPSIS
+    event handled (<function set_value at 0x...>, (Variable(0, 20), 10), {})
 
 (this is simply done by observing the setter method).
 
@@ -51,7 +51,7 @@ is present now):
 
     >>> state.observers.remove(handler)
     >>> state.observers # doctest: +ELLIPSIS
-    []
+    set([])
 
 What should you know:
 
@@ -79,7 +79,7 @@ The reverser requires some registration.
 
 First thing to do is to actually enable the revert_handler:
 
-    >>> state.observers.append(state.revert_handler)
+    >>> state.observers.add(state.revert_handler)
 
 This handler is not enabled by default because:
  1. it generates quite a bit of overhead if it isn't used anyway
@@ -96,7 +96,7 @@ Handlers for the reverse events should be registered on the subscribers list:
     >>> def handler(event):
     ...     events.append(event)
     ...     print 'event handler', event
-    >>> state.subscribers.append(handler)
+    >>> state.subscribers.add(handler)
 
 After that, signals can be received of undoable (reverse-)events:
 
@@ -126,12 +126,13 @@ For this a reversible_property has been introduced. It works just like a
 property (in fact it creates a plain old property descriptor), but also
 registers the property as being reversible.
 
-    >>> handle = Handle()
-    >>> handle.x = 10 # doctest: +ELLIPSIS
-    FixMe: event handler (<function _set_x at 0x...>, {'x': 0, 'self': <gaphas.item.Handle object at 0x...>})
+    >>> var = Variable()
+    >>> var.value = 10 # doctest: +ELLIPSIS
+    event handler (<function set_value at 0x...>, {'self': Variable(0, 20), 'value': 0.0})
     
 Handlers can be simply removed:
 
     >>> state.subscribers.remove(handler)
     >>> state.observers.remove(state.revert_handler)
+
 

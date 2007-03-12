@@ -55,18 +55,42 @@ Solution: add a special __observer__ attribute to the inner function.
 import types, inspect
 from decorator import decorator
 
+# This string is added to each docstring in order to denote is's observed
+OBSERVED_DOCSTRING = \
+        '\n\nThis method is @observed. See gaphas.state for extra info.\n'
+
 # Add/remove methods from this subscribers list.
 # Subscribers should have signature method(event) where event is a 
 # Event has the form: (func, keywords)
 # Since most events originate from methods, it's save to call
 # saveapply(func, keywords) for those functions
 
-subscribers = list()
+subscribers = set()
 
 
 # Subscribe to low-level change events:
-observers = list()
+observers = set()
 
+# 
+class funcset(set):
+    """
+    A set containing only functions.
+    >>> fs = funcset()
+    >>> def a(): pass
+    >>> fs.add(a)
+    >>> fs # doctest: +ELLIPSIS
+    funcset([<function a at 0x...>])
+    >>> class A(object):
+    ...    def m(self): pass
+    >>> fs.add(A.m)
+    >>> fs # doctest: +ELLIPSIS
+    funcset([<function a at 0x...>, <function m at 0x...>])
+    """
+    def add(self, item):
+        if isinstance(item, types.UnboundMethodType): item = item.im_func
+        set.add(self, item)
+
+silence = funcset()
 
 def observed(func):
     """
@@ -77,9 +101,12 @@ def observed(func):
     outer most function to be returned (that's what they see).
     """
     def wrapper(func, *args, **kwargs):
-        dispatch((func.__observer__, args, kwargs), queue=observers)
+        if func not in silence:
+            dispatch((func.__observer__, args, kwargs), queue=observers)
         return func(*args, **kwargs)
     dec = decorator(wrapper, func)
+    
+    dec.__doc__ = (dec.__doc__ or '') + OBSERVED_DOCSTRING
     func.__observer__ = dec
     return dec
 
@@ -91,7 +118,7 @@ def dispatch(event, queue=subscribers):
 
     >>> def handler(event):
     ...     print 'event handled', event
-    >>> observers.append(handler)
+    >>> observers.add(handler)
     >>> @observed
     ... def callme():
     ...     pass
@@ -127,7 +154,7 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     _reverse[func2] = (func1, inspect.getargspec(func1), bind1)
 
 
-def reversible_property(fget=None, fset=None, fdel=None, doc=None):
+def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
     """
     Replacement for the property descriptor. In addition to creating a
     property instance, the property is registered as reversible and 
@@ -149,9 +176,10 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None):
 
         argself, argvalue = argnames
         func = isinstance(fset, types.UnboundMethodType) and fset.im_func or fset
-        bind = eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
-                    {'fget': fget})
-        _reverse[func] = (func, spec, {argvalue: bind})
+        b = { argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
+                    {'fget': fget}) }
+        b.update(bind)
+        _reverse[func] = (func, spec, b)
 
     return property(fget=fget, fset=fset, fdel=fdel, doc=doc)
 
@@ -162,7 +190,7 @@ def revert_handler(event):
     subscribers queue.
 
     First thing to do is to actually enable the revert_handler:
-    >>> observers.append(revert_handler)
+    >>> observers.add(revert_handler)
     
     First let's define our simple list:
     >>> class SList(object):
@@ -193,7 +221,7 @@ def revert_handler(event):
     (<function add at 0x...>, (['self', 'node', 'before'], None, None, (None,)), {'before': <function <lambda> at ...>})
     >>> def handler(event):
     ...     print 'handle', event
-    >>> subscribers.append(handler)
+    >>> subscribers.add(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
     handle (<function remove at 0x...)
 
