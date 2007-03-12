@@ -6,7 +6,7 @@ Simple class containing the tree structure for the canvas items.
 __version__ = "$Revision$"
 # $HeadURL$
 
-from state import observed, reversible_pair
+from state import observed, reversible_pair, disable_dispatching
 
 
 class Tree(object):
@@ -121,6 +121,9 @@ class Tree(object):
     reversible_pair(add, remove,
                     bind1={'parent': lambda self, node: self.get_parent(node) })
 
+    # Disable add/remove by default, since they are handled by canvas.Canvas
+    disable_dispatching(add)
+    disable_dispatching(remove)
 
 def test_add():
     """Test creating node trees.

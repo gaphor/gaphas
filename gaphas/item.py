@@ -10,7 +10,7 @@ from math import atan2
 from geometry import Matrix, distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
-from state import observed, reversible_pair, reversible_property
+from state import observed, reversible_pair, reversible_property, disable_dispatching
 
 
 class Handle(object):
@@ -45,12 +45,14 @@ class Handle(object):
         self._x = x
 
     x = reversible_property(lambda s: s._x, _set_x, bind={'x': lambda self: float(self.x) })
+    disable_dispatching(_set_x)
 
     @observed
     def _set_y(self, y):
         self._y = y
 
     y = reversible_property(lambda s: s._y, _set_y, bind={'y': lambda self: float(self.y) })
+    disable_dispatching(_set_y)
 
     @observed
     def _set_connectable(self, connectable):
