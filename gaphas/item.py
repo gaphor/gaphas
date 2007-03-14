@@ -464,6 +464,10 @@ class Line(Item):
         >>> a.orthogonal
         False
         """
+        if not self.canvas:
+            self._orthogonal = orthogonal and [ None ] or []
+            return
+
         for c in self._orthogonal:
             self.canvas.solver.remove_constraint(c)
             self._orthogonal = []
@@ -486,14 +490,22 @@ class Line(Item):
             self.canvas.solver.mark_dirty(h1.x, h1.y)
         self.request_update()
 
-    orthogonal = reversible_property(lambda s: s._orthogonal != [], _set_orthogonal)
+    orthogonal = reversible_property(lambda s: bool(s._orthogonal), _set_orthogonal)
 
     @observed
     def _set_horizontal(self, horizontal):
+        """
+        >>> line = Line()
+        >>> line.horizontal
+        True
+        >>> line.horizontal = False
+        >>> line.horizontal
+        False
+        """
         self._horizontal = horizontal
         self._set_orthogonal(self._orthogonal)
 
-    horizontal = reversible_property(lambda s: s._horizontal != [], _set_horizontal)
+    horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
     def setup_canvas(self):
         """
@@ -557,8 +569,8 @@ class Line(Item):
         >>> a = Line()
         >>> a.handles()[1].pos = (20, 0)
         >>> a.split_segment(0)
-        >>> len(a.handles())
-        3
+        >>> a.handles()
+        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
         >>> a.merge_segment(0)
         >>> len(a.handles())
         2

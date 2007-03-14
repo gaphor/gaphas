@@ -305,7 +305,7 @@ state.observers.add(state.revert_handler)
 def print_handler(event):
     print 'event:', event
 
-state.subscribers.add(print_handler)
+#state.subscribers.add(print_handler)
 
 
 ##

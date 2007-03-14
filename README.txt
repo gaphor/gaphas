@@ -145,6 +145,19 @@ connected. A callable object (e.g. function) can be assigned to the handle. It
 is called at the moment the item it's connected to is removed from the canvas.
 
 
+Undo
+====
+
+Gaphas has a simple build-in system for registring changes in it's classes and
+notifying the application. This code resides in state.py.
+
+There is also a "reverter" framework in place. This "framework" is notified
+when objects change their state and will figure out the reverse operation that
+has to be applied in order to undo the operation.
+
+See state.txt and undo.txt for details and usage examples.
+
+
 Files
 =====
 

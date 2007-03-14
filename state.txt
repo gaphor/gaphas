@@ -31,9 +31,9 @@ It works:
     >>> def handler(event):
     ...     print 'event handled', event
     >>> state.observers.add(handler)
-    >>> tree.add(1) # doctest: +ELLIPSIS
+    >>> tree.add(1)                                     # doctest: +ELLIPSIS
     event handled (<function add at ...>, (<gaphas.tree.Tree object at 0x...>, 1, None), {})
-    >>> tree.add(2, parent=1) # doctest: +ELLIPSIS
+    >>> tree.add(2, parent=1)                           # doctest: +ELLIPSIS
     event handled (<function add at ...>, (<gaphas.tree.Tree object at 0x...>, 2, 1), {})
     >>> tree.nodes
     [1, 2]
@@ -42,7 +42,7 @@ Remember that this observer is just a simple method call notifier and knows
 nothing about the internals of the tree class (in this case the remove() method
 recursively calls remove() for each of it's children):
 
-    >>> tree.remove(1) # doctest: +ELLIPSIS
+    >>> tree.remove(1)                                  # doctest: +ELLIPSIS
     event handled (<function remove at ...>, (<gaphas.tree.Tree object at 0x...>, 1), {})
     event handled (<function remove at ...>, (<gaphas.tree.Tree object at 0x...>, 2), {})
     >>> tree.nodes
@@ -53,7 +53,7 @@ gaphas/item.py's Handle class:
 
     >>> from gaphas.solver import Variable
     >>> var = Variable()
-    >>> var.value = 10  # doctest: +ELLIPSIS
+    >>> var.value = 10                                  # doctest: +ELLIPSIS
     event handled (<function set_value at 0x...>, (Variable(0, 20), 10), {})
 
 (this is simply done by observing the setter method).
@@ -62,7 +62,7 @@ Off course handlers can be removed as well (only the default revert handler
 is present now):
 
     >>> state.observers.remove(handler)
-    >>> state.observers # doctest: +ELLIPSIS
+    >>> state.observers                                 # doctest: +ELLIPSIS
     set([])
 
 What should you know:
@@ -115,7 +115,7 @@ Handlers for the reverse events should be registered on the subscribers list:
 
 After that, signals can be received of undoable (reverse-)events:
 
-    >>> tree.add(3) # doctest: +ELLIPSIS
+    >>> tree.add(3)                                     # doctest: +ELLIPSIS
     event handler (<function remove at ...>, {'node': 3, 'self': <gaphas.tree.Tree object at 0x...>})
     >>> tree.nodes
     [3]
@@ -127,7 +127,7 @@ applied to that function.
 The inverse operation is easiest performed by the function saveapply. Of course
 an inverse operation is emitting a change event too:
 
-    >>> state.saveapply(*events.pop()) # doctest: +ELLIPSIS
+    >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
     event handler (<function add at 0x...>, {'node': 3, 'self': <gaphas.tree.Tree object at 0x...>, 'parent': None})
     >>> tree.nodes
     []
@@ -142,7 +142,7 @@ property (in fact it creates a plain old property descriptor), but also
 registers the property as being reversible.
 
     >>> var = Variable()
-    >>> var.value = 10 # doctest: +ELLIPSIS
+    >>> var.value = 10                                  # doctest: +ELLIPSIS
     event handler (<function set_value at 0x...>, {'self': Variable(0, 20), 'value': 0.0})
     
 Handlers can be simply removed:

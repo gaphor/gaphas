@@ -6,16 +6,14 @@ and a constraint solver.
 __version__ = "$Revision$"
 # $HeadURL$
 
-if __name__ == '__main__':
-    import pygtk
-    pygtk.require('2.0')
 
 import cairo
 from cairo import Matrix
 from gaphas import tree
 from gaphas import solver
 from gaphas.decorators import async, PRIORITY_HIGH_IDLE
-from state import observed, reversible_pair
+from state import observed, reversible_method, reversible_pair
+
 
 class Context(object):
     """
@@ -287,6 +285,7 @@ class Canvas(object):
                 self.request_matrix_update(item)
                 raise e
 
+    @observed
     def request_update(self, item):
         """
         Set an update request for the item. 
@@ -313,6 +312,8 @@ class Canvas(object):
                 self._dirty_items.add(parent)
                 parent = self._tree.get_parent(parent)
         self.update()
+
+    reversible_method(request_update, reverse=request_update)
 
     def request_matrix_update(self, item):
         """
