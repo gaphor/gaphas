@@ -132,6 +132,20 @@ def dispatch(event, queue=subscribers):
 
 _reverse = dict()
 
+
+def reversible_function(func, reverse, bind={}):
+    """
+    Straight forward reversible method, if func is invoked, reverse
+    is dispatched with bind as arguments.
+    """
+    global _reverse
+    func = getfunction(func)
+    _reverse[func] = (reverse, inspect.getargspec(reverse), bind)
+
+
+reversible_method = reversible_function
+
+
 def reversible_pair(func1, func2, bind1={}, bind2={}):
     """
     Treat a pair of functions (func1 and func2) as each others inverse
@@ -235,13 +249,11 @@ def revert_handler(event):
     handle (<function _set_a at 0x...>, {'self': <__main__.PropTest object at 0x...>, 'value': 0})
 
     """
-    #print 'in handler!', event
     global _reverse
     func, args, kwargs = event
     spec = inspect.getargspec(func)
     reverse, revspec, bind = _reverse.get(func, (None, None, {}))
     if not reverse:
-        #print 'no reverse'
         return
 
     kw = dict(kwargs)
@@ -270,8 +282,6 @@ def saveapply(func, kw):
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
-    #args = map(dict.get, [kw]*len(argnames), argnames)
-    #print 'args:', func, args
     return func(**kwargs)
 
 

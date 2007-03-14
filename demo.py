@@ -17,8 +17,14 @@ from gaphas.examples import Box, Text, DefaultExampleTool
 from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
 from gaphas.painter import ItemPainter
-
 from gaphas import state
+
+# Global undo list
+undo_list = []
+
+def undo_handler(event):
+    global undo_list
+    undo_list.append(event)
 
 
 class MyBox(Box):
@@ -124,6 +130,36 @@ def create_window(canvas, zoom=1.0):
         if view.focused_item:
             canvas.remove(view.focused_item)
             print 'items:', canvas.get_all_items()
+
+    b.connect('clicked', on_clicked)
+    v.add(b)
+
+    v.add(gtk.Label('State:'))
+    b = gtk.ToggleButton('Record')
+
+    def on_toggled(button):
+        global undo_list
+        if button.get_active():
+            print 'start recording'
+            del undo_list[:]
+            state.subscribers.add(undo_handler)
+        else:
+            print 'stop recording'
+            state.subscribers.remove(undo_handler)
+
+    b.connect('toggled', on_toggled)
+    v.add(b)
+
+    b = gtk.Button('Play back')
+    
+    def on_clicked(self):
+        global undo_list
+        apply_me = list(undo_list)
+        del undo_list[:]
+        apply_me.reverse()
+        saveapply = state.saveapply
+        for event in apply_me:
+            saveapply(*event)
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -264,12 +300,12 @@ c.add(t)
 ##
 
 # First, activate the revert handler:
-state.subscribers.append(state.revert_handler)
+state.observers.add(state.revert_handler)
 
 def print_handler(event):
     print 'event:', event
 
-state.observers.append(print_handler)
+state.subscribers.add(print_handler)
 
 
 ##

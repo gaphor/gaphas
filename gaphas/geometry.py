@@ -1,8 +1,6 @@
 """
 Geometry functions.
 
-Matrix is imported from cairo.
-
 Rectangle is a utility class for working with rectangles (unions and
 intersections)
 
@@ -14,8 +12,6 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from math import sqrt
-# This saves me a lot of coding:
-from cairo import Matrix
 
 
 class Rectangle(object):

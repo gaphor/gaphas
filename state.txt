@@ -18,6 +18,16 @@ The observer simply dispatches the function called (as <function ..>, not as
     >>> from gaphas import state
     >>> from gaphas.tree import Tree
     >>> tree = Tree()
+
+For this demonistration let's use the Tree class (which contains an add/remove
+method pair). It's methods are not dispatched by default though (because they're
+only used in the Canvas class. So first dispatching should be enabled:
+
+    >>> state.enable_dispatching(Tree.add)
+    >>> state.enable_dispatching(Tree.remove)
+
+It works:
+
     >>> def handler(event):
     ...     print 'event handled', event
     >>> state.observers.add(handler)
@@ -179,4 +189,10 @@ to monitor the Matrix class (which is from Cairo).
  tree.py:
    Tree:
      add() and remove()
+
+ matrix.py:
+   Matrix:
+    invert, translate, rotate and scale
+
+Testcases are described in test_state.txt.
 

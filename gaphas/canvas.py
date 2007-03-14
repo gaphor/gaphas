@@ -11,9 +11,9 @@ if __name__ == '__main__':
     pygtk.require('2.0')
 
 import cairo
+from cairo import Matrix
 from gaphas import tree
 from gaphas import solver
-from gaphas.geometry import Matrix
 from gaphas.decorators import async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_pair
 

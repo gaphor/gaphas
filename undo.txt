@@ -1,0 +1,117 @@
+===================================================
+Undo - implementing basic undo behavior with Gaphas
+===================================================
+
+This document describes a basic undo system and tests Gaphas' classes with this
+system.
+
+This document contains a set of test cases that is used to prove that it really
+works.
+
+See state.txt about how state is recorded.
+
+For this to work, some boilerplate has to be configured:
+
+    >>> from gaphas import state
+    >>> undo_list = []
+    >>> redo_list = []
+    >>> def undo_handler(event):
+    ...     undo_list.append(event)
+    >>> state.observers.add(state.revert_handler)
+    >>> state.subscribers.add(undo_handler)
+
+This simple undo function will revert all states collected in the undo_list:
+
+    >>> def undo():
+    ...     apply_me = list(undo_list)
+    ...     del undo_list[:]
+    ...     apply_me.reverse()
+    ...     for e in apply_me:
+    ...         state.saveapply(*e)
+    ...     redo_list[:] = undo_list[:]
+    ...     del undo_list[:]
+
+tree.py: Tree
+-------------
+Tree's add() and remove() methods are use as demonstration in state.txt.
+
+Those methods are disabled by default and will not be tested here.
+
+matrix.py: Matrix
+-----------------
+Matrix is used by Item classes.
+    invert, translate, rotate and scale
+
+    >>> from gaphas.matrix import Matrix
+    >>> m = Matrix()
+    >>> m
+    Matrix(1, 0, 0, 1, 0, 0)
+
+translate(tx, ty):
+
+    >>> m.translate(12, 16)
+    >>> m
+    Matrix(1, 0, 0, 1, 12, 16)
+    >>> undo()
+    >>> m
+    Matrix(1, 0, 0, 1, 0, 0)
+
+scale(sx, sy):
+
+    >>> m.scale(1.5, 1.5)
+    >>> m
+    Matrix(1.5, 0, 0, 1.5, 0, 0)
+    >>> undo()
+    >>> m
+    Matrix(1, 0, 0, 1, 0, 0)
+
+rotate(radians):
+
+    >>> m.rotate(0.5)
+    >>> m
+    Matrix(0.877583, 0.479426, -0.479426, 0.877583, 0, 0)
+    >>> undo()
+    >>> m
+    Matrix(1, 2.58022e-17, 2.58022e-17, 1, 0, 0)
+
+Okay, nearly, close enough IMHO...
+
+    >>> m = Matrix()
+    >>> m.translate(12, 10)
+    >>> m.scale(1.5, 1.5)
+    >>> m.rotate(0.5)
+    >>> m
+    Matrix(1.31637, 0.719138, -0.719138, 1.31637, 12, 10)
+    >>> m.invert()
+    >>> m
+    Matrix(0.585055, -0.319617, 0.319617, 0.585055, -10.2168, -2.01515)
+    >>> undo()
+    >>> m
+    Matrix(1, 5.37489e-17, -8.52201e-17, 1, 1.77636e-15, 0)
+
+Again, rotate does not result in an exact match, but it's close enough.
+
+
+canvas.py:
+   Canvas:
+     add() and remove()
+
+item.py:
+   Handle:
+     x, y, connectable, movable, visible, connected_to and disconnect properties
+   Item:
+     canvas and matric properties
+   Element:
+     min_height and min_width properties
+   Line:
+     line_width, fuzzyness, orthogonal and horizontal properties;
+     split_segment() and merge_segment()
+
+solver.py:
+   Variable:
+     strength and value properties
+solver.py:
+Solver:
+     add_constraint() and remove_constraint() 
+
+
