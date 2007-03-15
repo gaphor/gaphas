@@ -17,7 +17,7 @@ GTK+ and PyGTK is required.
 """,
 
     classifiers=[
-    'Development Status ::  4 - Beta',
+    'Development Status :: 4 - Beta',
     'Environment :: X11 Applications :: GTK',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
