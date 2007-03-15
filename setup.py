@@ -38,6 +38,8 @@ GTK+ and PyGTK is required.
 
     packages=find_packages(exclude=['ez_setup']),
 
+    setup_requires = 'nose >= 0.9.2',
+
     install_requires=[
      'decorator >= 2.0.1',
 #    'PyGTK >= 2.8.0',
@@ -49,7 +51,11 @@ GTK+ and PyGTK is required.
     # -*- package_data: -*-
     },
 
-    #test_suite = 'nose.collector',
+    entry_points = {
+    "distutils.commands": [ "nosetests = nose.commands:nosetests", ],
+    },
+
+    test_suite = 'nose.collector',
 
     )
       

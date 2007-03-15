@@ -16,6 +16,9 @@ The observer simply dispatches the function called (as <function ..>, not as
 <unbound method..>!) to each handler registered in an observers list.
 
     >>> from gaphas import state
+    >>> state.observers.clear()
+    >>> state.subscribers.clear()
+
     >>> from gaphas.tree import Tree
     >>> tree = Tree()
 
@@ -195,4 +198,9 @@ to monitor the Matrix class (which is from Cairo).
     invert, translate, rotate and scale
 
 Testcases are described in undo.txt.
+
+(disable dispatching again, not frustrating other tests)
+
+    >>> state.disable_dispatching(Tree.add)
+    >>> state.disable_dispatching(Tree.remove)
 

@@ -12,6 +12,9 @@ See state.txt about how state is recorded.
 For this to work, some boilerplate has to be configured:
 
     >>> from gaphas import state
+    >>> state.observers.clear()
+    >>> state.subscribers.clear()
+
     >>> undo_list = []
     >>> redo_list = []
     >>> def undo_handler(event):

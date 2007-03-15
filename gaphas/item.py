@@ -497,7 +497,7 @@ class Line(Item):
         """
         >>> line = Line()
         >>> line.horizontal
-        True
+        False
         >>> line.horizontal = False
         >>> line.horizontal
         False
@@ -685,6 +685,14 @@ class Line(Item):
         h0, h1 = self._handles[-2:]
         draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
         cr.stroke()
+
+
+__test__ = {
+    'Line._set_orthogonal': Line._set_orthogonal,
+    'Line._set_horizontal': Line._set_horizontal,
+    'Line.split_segment': Line.split_segment,
+    'Line.merge_segment': Line.merge_segment,
+    }
 
 
 if __name__ == '__main__':

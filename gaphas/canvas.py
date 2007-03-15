@@ -120,7 +120,7 @@ class Canvas(object):
             >>> from gaphas import item
             >>> i = item.Item()
             >>> c.add(i)
-            >>> c.get_all_items()
+            >>> c.get_all_items() # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>]
 
         """
@@ -138,7 +138,7 @@ class Canvas(object):
             >>> c.add(i)
             >>> ii = item.Item()
             >>> c.add(ii, i)
-            >>> c.get_root_items()
+            >>> c.get_root_items() # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(None)
@@ -153,7 +153,7 @@ class Canvas(object):
             >>> ii = item.Item()
             >>> c.add(ii, i)
             >>> c.get_parent(i)
-            >>> c.get_parent(ii)
+            >>> c.get_parent(ii) # doctest: +ELLIPSIS
             <gaphas.item.Item ...>
         """
         return self._tree.get_parent(item)
@@ -171,9 +171,9 @@ class Canvas(object):
             >>> c.add(iii, ii)
             >>> list(c.get_ancestors(i))
             []
-            >>> list(c.get_ancestors(ii))
+            >>> list(c.get_ancestors(ii)) # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>]
-            >>> list(c.get_ancestors(iii))
+            >>> list(c.get_ancestors(iii)) # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_ancestors(item)
@@ -191,9 +191,9 @@ class Canvas(object):
             >>> c.add(iii, ii)
             >>> list(c.get_children(iii))
             []
-            >>> list(c.get_children(ii))
+            >>> list(c.get_children(ii)) # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>]
-            >>> list(c.get_children(i))
+            >>> list(c.get_children(i)) # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(item)
@@ -211,9 +211,9 @@ class Canvas(object):
             >>> c.add(iii, ii)
             >>> list(c.get_all_children(iii))
             []
-            >>> list(c.get_all_children(ii))
+            >>> list(c.get_all_children(ii)) # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>]
-            >>> list(c.get_all_children(i))
+            >>> list(c.get_all_children(i)) # doctest: +ELLIPSIS
             [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_all_children(item)
@@ -238,9 +238,9 @@ class Canvas(object):
             >>> list(c.get_connected_items(i))
             []
             >>> ii.handles()[0].connected_to = iii
-            >>> list(c.get_connected_items(ii))
+            >>> list(c.get_connected_items(ii)) # doctest: +ELLIPSIS
             [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
-            >>> list(c.get_connected_items(iii))
+            >>> list(c.get_connected_items(iii)) # doctest: +ELLIPSIS
             [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
         """
         connected_items = set()
@@ -494,6 +494,14 @@ class Canvas(object):
         else:
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
             return cairo.Context(surface)
+
+
+# Additional tests in @observed methods
+__test__ = {
+    'Canvas.add': Canvas.add,
+    'Canvas.remove': Canvas.remove,
+    'Canvas.request_update': Canvas.request_update,
+    }
 
 
 if __name__ == '__main__':

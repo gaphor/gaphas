@@ -510,6 +510,12 @@ class solvable(object):
             v.value = value
 
 
+__test__ = {
+    'Solver.add_constraint': Solver.add_constraint,
+    'Solver.remove_constraint': Solver.remove_constraint,
+    }
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
