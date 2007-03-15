@@ -1,3 +1,10 @@
+2007-03-16  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
+
+        * Implemented Undo system. State changes can be recorded and reverse
+        operations can be determined.
+
+[ for intermediate change log entries, see svn log ]
+
 2006-12-05  Arjan Molenaar  <arjan_at_yirdis_dot_nl>
 
 	* In the meantime: several small fixes.

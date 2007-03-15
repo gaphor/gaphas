@@ -92,7 +92,7 @@ class Canvas(object):
         self._dirty_matrix_items.discard(item)
 
     reversible_pair(add, remove,
-                    bind1={'parent': lambda self, node: self.get_parent(node) })
+                    bind1={'parent': lambda self, item: self.get_parent(item) })
 
     def remove_connections_to_item(self, item):
         """

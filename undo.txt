@@ -66,12 +66,19 @@ scale(sx, sy):
 
 rotate(radians):
 
+    >>> def matrix_approx(m):
+    ...     a = []
+    ...     for i in tuple(m):
+    ...         if -1e-10 < i < 1e-10: i=0
+    ...         a.append(i)
+    ...     return tuple(a)
+
     >>> m.rotate(0.5)
     >>> m
     Matrix(0.877583, 0.479426, -0.479426, 0.877583, 0, 0)
     >>> undo()
-    >>> m
-    Matrix(1, 2.58022e-17, 2.58022e-17, 1, 0, 0)
+    >>> matrix_approx(m)
+    (1.0, 0, 0, 1.0, 0, 0)
 
 Okay, nearly, close enough IMHO...
 
@@ -85,8 +92,8 @@ Okay, nearly, close enough IMHO...
     >>> m
     Matrix(0.585055, -0.319617, 0.319617, 0.585055, -10.2168, -2.01515)
     >>> undo()
-    >>> m
-    Matrix(1, 5.37489e-17, -8.52201e-17, 1, 1.77636e-15, 0)
+    >>> matrix_approx(m)
+    (1.0, 0, 0, 1.0, 0, 0)
 
 Again, rotate does not result in an exact match, but it's close enough.
 
@@ -96,14 +103,23 @@ Again, rotate does not result in an exact match, but it's close enough.
 canvas.py: Canvas
 -----------------
 
-On the canvas only add() and remove() are monitored:
-
     >>> from gaphas import Canvas, Item
     >>> canvas = Canvas()
     >>> canvas.get_all_items()
     []
     >>> item = Item()
     >>> canvas.add(item)
+
+The request_update() method is observed:
+
+    >>> len(undo_list)
+    3
+    >>> canvas.request_update(item)
+    >>> len(undo_list)
+    4
+
+On the canvas only add() and remove() are monitored:
+
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
     >>> item.canvas is canvas
@@ -124,11 +140,36 @@ On the canvas only add() and remove() are monitored:
     >>> undo_list
     []
 
-The request_update() method is observed too:
+Parent-child relationships are restored as well:
 
-    >>> canvas.request_update(item)
-    >>> len(undo_list)
-    1
+    TODO!
+    >>> child = Item()
+    >>> canvas.add(child, parent=item)
+    >>> child.canvas is canvas
+    True
+    >>> canvas.get_parent(child) is item
+    True
+    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    >>> undo()
+    >>> child.canvas is None
+    True
+    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>]
+    >>> child in canvas.get_all_items()
+    False
+
+Now redo the previous undo action:
+
+    >>> undo_list[:] = redo_list[:]
+    >>> undo()
+    >>> child.canvas is canvas
+    True
+    >>> canvas.get_parent(child) is item
+    True
+    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+
 
 NOTE: If remove() is invoked recursively (e.i. when the to-be removed item has
       children), the remove items can not simply be applied in reverse order.
@@ -213,27 +254,27 @@ An element has min_height and min_width properties.
 item.py: Line
 -------------
 
-A line has the following properties: line_width, fuzzyness, orthogonal and
+A line has the following properties: line_width, fuzziness, orthogonal and
 horizontal. Each one of then is observed for changes:
 
     >>> from gaphas import Line
     >>> l = Line()
-    >>> l.line_width, l.fuzzyness, l.orthogonal, l.horizontal
+    >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
     (2, 0, False, False)
 
 Now change the properties:
 
     >>> l.line_width = 4
-    >>> l.fuzzyness = 2
+    >>> l.fuzziness = 2
     >>> l.orthogonal = True
     >>> l.horizontal = True
-    >>> l.line_width, l.fuzzyness, l.orthogonal, l.horizontal
+    >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
     (4, 2, True, True)
 
 And undo the changes:
 
     >>> undo()
-    >>> l.line_width, l.fuzzyness, l.orthogonal, l.horizontal
+    >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
     (2, 0, False, False)
 
 In addition to those properties, line segments can be split and merged.
@@ -241,6 +282,10 @@ In addition to those properties, line segments can be split and merged.
     >>> l.handles()[1].pos = 10, 10
     >>> l.handles()
     [<Handle object on (0, 0)>, <Handle object on (10, 10)>]
+
+This is our basis for further testing.
+
+    >>> del undo_list[:]
 
     >>> l.split_segment(0)
     >>> l.handles()

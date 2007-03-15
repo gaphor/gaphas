@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 """
 A simple demo app.
+
+It sports a small canvas and some trivial operations:
+
+ - Add a line/box
+ - Zoom in/out
+ - Split a line segment
+ - Delete focused item
+ - Record state changes
+ - Play back state changes (= undo !) With visual updates
+ - Exports to SVG and PNG
+
 """
 
 __version__ = "$Revision$"
@@ -160,6 +171,9 @@ def create_window(canvas, zoom=1.0):
         saveapply = state.saveapply
         for event in apply_me:
             saveapply(*event)
+            # Visualize each event:
+            while gtk.events_pending():
+                gtk.main_iteration()
 
     b.connect('clicked', on_clicked)
     v.add(b)

@@ -20,7 +20,7 @@ To do
 This is it as far as stage 1 is concerned. I have implemented:
  v a render cycle.
  v zoom and move functionality (canvas2world).
- v scrollbars work.
+ v scroll-bars work.
  v a set of tools and a ToolChain (to chain them together).
  v rubberband selection
 
@@ -29,7 +29,7 @@ Stage 2:
  v line item
  v placement tool
  v connection protocol
- v make update cycle independant from render (expose) event.
+ v make update cycle independent from render (expose) event.
     This is something we might do if the response is getting bad.
  ? rotating and shearing for Element items.
     Do we need this?
@@ -39,10 +39,10 @@ Stage 3:
  v text edit tool (gtk.Edit in popup window?)
 
 Stage n:
- - Dropzone tool
+ - Drop-zone tool
      the idea is that for example you have a Package and when you drag
      a Class into it it automatically makes the Package its owning element.
- - undo management
+ v undo management
 
 
 How it Works
@@ -52,13 +52,13 @@ The Canvas class (from canvas.py) acts as a container for Item's (from item.py).
 The item's parent/child relationships are maintained here (not in the Item!).
 
 An Item can have a set of Handle's (also from item.py) which can be used to
-manipulate the item (although this is not nessesary). Each item has it's own
+manipulate the item (although this is not necessary). Each item has it's own
 coordinate system (a (0, 0) point). Item.matrix is the transformation
 relative to the parent item of the Item, as defined in the Canvas.
 
 The Canvas also contains a constraint Solver (from solver.py) that can be used
 to solve mathematical dependencies between items (such as Handles that should
-be alligned).
+be aligned).
 
 View (from view.py) is used to visualize a canvas. On a View, a Tool
 (from tool.py) can be assigned, which will handle user input (button presses,
@@ -107,7 +107,7 @@ In addition to draw_children(), the context has the following properties:
  cairo:    the CairoContext to draw to
  parent:   parent item of the item, or None
  children: child items of this item (do not need to force updates for those)
- selected: True if the item is acutally selected in the view
+ selected: True if the item is actually selected in the view
  focused:  True if the item has the focus
  hovered:  True if the mouse pointer if over the item. Only the top-most item
            is marked as hovered.
@@ -148,7 +148,7 @@ is called at the moment the item it's connected to is removed from the canvas.
 Undo
 ====
 
-Gaphas has a simple build-in system for registring changes in it's classes and
+Gaphas has a simple build-in system for registering changes in it's classes and
 notifying the application. This code resides in state.py.
 
 There is also a "reverter" framework in place. This "framework" is notified

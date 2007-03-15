@@ -421,7 +421,7 @@ class Line(Item):
     A Line item.
 
     Properties:
-     - fuzzyness (0.0..n): an extra margin that should be taken into account
+     - fuzziness (0.0..n): an extra margin that should be taken into account
          when calculating the distance from the line (using point()).
      - orthogonal (bool): wherther or not the line should be orthogonal
          (only straight angles)
@@ -440,7 +440,7 @@ class Line(Item):
         self._handles = [Handle(connectable=True), Handle(10, 10, connectable=True)]
 
         self._line_width = 2
-        self._fuzzyness = 0
+        self._fuzziness = 0
         self._orthogonal = []
         self._horizontal = False
         self._head_angle = self._tail_angle = 0
@@ -452,10 +452,10 @@ class Line(Item):
     line_width = reversible_property(lambda s: s._line_width, _set_line_width)
 
     @observed
-    def _set_fuzzyness(self, fuzzyness):
-        self._fuzzyness = fuzzyness
+    def _set_fuzziness(self, fuzziness):
+        self._fuzziness = fuzziness
 
-    fuzzyness = reversible_property(lambda s: s._fuzzyness, _set_fuzzyness)
+    fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
 
     @observed
     def _set_orthogonal(self, orthogonal):
@@ -648,7 +648,7 @@ class Line(Item):
         """
         h = self._handles
         distance, point, segment = self.closest_segment(x, y)
-        return max(0, distance - self.fuzzyness)
+        return max(0, distance - self.fuzziness)
 
     def draw_head(self, context):
         """
