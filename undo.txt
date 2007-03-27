@@ -253,6 +253,10 @@ An element has min_height and min_width properties.
     >>> e.min_height, e.min_width
     (10, 10)
     
+    >>> canvas = Canvas()
+    >>> e.canvas = canvas
+    >>> undo()
+    >>> e.canvas
 
 item.py: Line
 -------------

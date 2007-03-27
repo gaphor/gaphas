@@ -363,9 +363,13 @@ class Solver(object):
         >>> c
         EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
         >>> s.remove_constraint(c)
+
+        Removing a constraint twice has no effect:
+        >>> s.remove_constraint(c)
+
         """
         for v in constraint.variables():
-            v._constraints.remove(constraint)
+            v._constraints.discard(constraint)
         self._constraints.discard(constraint)
         if constraint in self._marked_cons:
             del self._marked_cons[self._marked_cons.index(constraint)]
