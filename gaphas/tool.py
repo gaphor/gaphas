@@ -1,4 +1,5 @@
-"""Tools are used to add interactive behavior to a View.
+"""
+Tools are used to add interactive behavior to a View.
 
 Tools can either not act on an event (None), just handle the event
 or grab the event and all successive events until the tool is done
@@ -38,7 +39,8 @@ class Tool(object):
         pass
 
     def on_button_press(self, context, event):
-        """Mouse (pointer) button click. A button press is normally followed by
+        """
+        Mouse (pointer) button click. A button press is normally followed by
         a button release. Double and triple clicks should work together with
         the button methods.
 
@@ -61,46 +63,53 @@ class Tool(object):
         if DEBUG_TOOL: print 'on_button_press', context, event
 
     def on_button_release(self, context, event):
-        """Button release event, that follows on a button press event.
+        """
+        Button release event, that follows on a button press event.
         Not that double and tripple clicks'...
         """
         if DEBUG_TOOL: print 'on_button_release', context, event
         pass
 
     def on_double_click(self, context, event):
-        """Event emited when the user does a double click (click-click)
+        """
+        Event emited when the user does a double click (click-click)
         on the View.
         """
         if DEBUG_TOOL: print 'on_double_click', context, event
         pass
 
     def on_triple_click(self, context, event):
-        """Event emited when the user does a triple click (click-click-click)
+        """
+        Event emited when the user does a triple click (click-click-click)
         on the View.
         """
         if DEBUG_TOOL: print 'on_triple_click', context, event
         pass
 
     def on_motion_notify(self, context, event):
-        """Mouse (pointer) is moved.
+        """
+        Mouse (pointer) is moved.
         """
         if DEBUG_TOOL: print 'on_motion_notify', context, event
         pass
 
     def on_key_press(self, context, event):
-        """Keyboard key is pressed.
+        """
+        Keyboard key is pressed.
         """
         if DEBUG_TOOL: print 'on_key_press', context, event
         pass
 
     def on_key_release(self, context, event):
-        """Keyboard key is released again (follows a key press normally).
+        """
+        Keyboard key is released again (follows a key press normally).
         """
         if DEBUG_TOOL: print 'on_key_release', context, event
         pass
 
     def draw(self, context):
-        """Some tools (such as Rubberband selection) may need to draw something
+        """
+        Some tools (such as Rubberband selection) may need to draw something
         on the canvas. This can be done through the draw() method. This is
         called after all items are drawn.
         The context contains the following fields:
@@ -108,9 +117,11 @@ class Tool(object):
          - cairo: the Cairo drawing context
         """
         pass
-        
+
+
 class ToolChainContext(Context):
-    """ToolChainContext is a wrapper for the view.ToolContext.
+    """
+    ToolChainContext is a wrapper for the view.ToolContext.
     In addition to normal grab/ungrab behavior, it selects the tool that
     is requesting the grab() as the one tool that will receive subsequent
     requests until it is ungrab()'ed.
@@ -122,7 +133,8 @@ class ToolChainContext(Context):
         self.__dict__['_tool_context'] = tool_context
 
     def __getattr__(self, key):
-        """Delegate the getattr request to the wrapped tool_context.
+        """
+        Delegate the getattr request to the wrapped tool_context.
         """
         return getattr(self._tool_context, key)
 
@@ -139,7 +151,8 @@ class ToolChainContext(Context):
 
 
 class ToolChain(Tool):
-    """A ToolChain can be used to chain tools together, for example HoverTool,
+    """
+    A ToolChain can be used to chain tools together, for example HoverTool,
     HandleTool, SelectionTool.
 
     The grabbed item is bypassed in case a double or tripple click event
@@ -167,7 +180,8 @@ class ToolChain(Tool):
             self._grabbed_tool = None
 
     def _handle(self, func, context, event):
-        """Handle the event by calling each tool until the event is handled
+        """
+        Handle the event by calling each tool until the event is handled
         or grabbed.
         """
         context = ToolChainContext(tool_chain=self, tool_context=context)
@@ -209,7 +223,8 @@ class ToolChain(Tool):
 
 
 class HoverTool(Tool):
-    """Make the item under the mouse cursor the "hovered item".
+    """
+    Make the item under the mouse cursor the "hovered item".
     """
     
     def __init__(self):
@@ -223,7 +238,8 @@ class HoverTool(Tool):
 
 
 class ItemTool(Tool):
-    """ItemTool does selection and dragging of items. On a button click,
+    """
+    ItemTool does selection and dragging of items. On a button click,
     the currently "hovered item" is selected. If CTRL or SHIFT are pressed,
     already selected items remain selected. The last selected item gets the
     focus (e.g. receives key press events).
@@ -260,8 +276,9 @@ class ItemTool(Tool):
         return True
 
     def on_motion_notify(self, context, event):
-        """Normally, just check which item is under the mouse pointer
-        and make it the view.hovered_item.
+        """
+        Normally do nothing.
+        If a button is pressed move the items around.
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
             view = context.view
@@ -305,7 +322,8 @@ class ItemTool(Tool):
 
 
 class HandleTool(Tool):
-    """Tool for moving handles around. By default this tool does not provide
+    """
+    Tool for moving handles around. By default this tool does not provide
     connecting handles to another item (see examples.ConnectingHandleTool for
     an example).
     """
@@ -315,7 +333,8 @@ class HandleTool(Tool):
         self._grabbed_item = None
 
     def grab_handle(self, item, handle):
-        """Grab a specific handle. This can be used from the PlacementTool
+        """
+        Grab a specific handle. This can be used from the PlacementTool
         (and unittests) to set the state of the handle tool.
         """
         assert item is None and handle is None or handle in item.handles()
@@ -323,7 +342,8 @@ class HandleTool(Tool):
         self._grabbed_handle = handle
 
     def find_handle(self, view, event):
-        """Look for a handle at (event.x, event.y) and return the
+        """
+        Look for a handle at (event.x, event.y) and return the
         tuple (item, handle).
         """
         itemlist = view.canvas.get_all_items()
@@ -342,7 +362,8 @@ class HandleTool(Tool):
         return None, None
 
     def move(self, view, item, handle, x, y):
-        """Move the handle to position (x,y).
+        """
+        Move the handle to position (x,y).
         This version already has some special behavior implemented for
         gaphas.item.Element's. The min_width and min_height properties of
         Element's are used to restrict the handles from overlapping each other.
@@ -370,20 +391,24 @@ class HandleTool(Tool):
         handle.y = y
 
     def glue(self, view, item, handle, wx, wy):
-        """find an item near @handle that @item can connect to.
+        """
+        Find an item near @handle that @item can connect to.
         """
 
     def connect(self, view, item, handle, wx, wy):
-        """find an item near @handle that @item can connect to and connect.
+        """
+        Find an item near @handle that @item can connect to and connect.
         """
 
     def disconnect(self, view, item, handle):
-        """Disconnect the handle. This mostly comes down to removing 
+        """
+        Disconnect the handle. This mostly comes down to removing 
         constraints.
         """
 
     def on_button_press(self, context, event):
-        """Handle button press events. If the (mouse) button is pressed on
+        """
+        Handle button press events. If the (mouse) button is pressed on
         top of a Handle (item.Handle), that handle is grabbed and can be
         dragged around.
         """
@@ -403,7 +428,8 @@ class HandleTool(Tool):
             return True
 
     def on_button_release(self, context, event):
-        """Release a grabbed handle.
+        """
+        Release a grabbed handle.
         """
         # queue extra redraw to make sure the item is drawn properly
         try:
@@ -419,7 +445,8 @@ class HandleTool(Tool):
         return True
 
     def on_motion_notify(self, context, event):
-        """Handle motion events. If a handle is grabbed: drag it around,
+        """
+        Handle motion events. If a handle is grabbed: drag it around,
         else, if the pointer is over a handle, make the owning item the
         hovered-item.
         """
@@ -538,7 +565,8 @@ class PlacementTool(Tool):
 
 
 class TextEditTool(Tool):
-    """Demo of a text edit tool (just displays a text edit box at the cursor
+    """
+    Demo of a text edit tool (just displays a text edit box at the cursor
     position.
     """
 
@@ -546,7 +574,8 @@ class TextEditTool(Tool):
         pass
 
     def on_double_click(self, context, event):
-        """Create a popup window with some editable text.
+        """
+        Create a popup window with some editable text.
         """
         window = gtk.Window()
         window.set_property('decorated', False)
@@ -585,7 +614,8 @@ class TextEditTool(Tool):
 
 
 def DefaultTool():
-    """The default tool chain build from HoverTool, ItemTool and HandleTool.
+    """
+    The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
     chain = ToolChain()
     chain.append(HoverTool())
