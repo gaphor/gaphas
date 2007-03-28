@@ -6,7 +6,7 @@ This module contains a new canvas implementation for Gaphor.
 The basic idea is:
 
  - Items (canvas items) should be used as "adapter" for model elements.
-   (not a real adapter since they are statefull).
+   (not a real adapter since they are stateful).
  - The canvas determines the tree structure (which items are children
    of some other item is maintained by the canvas itself).
  - of course the constraint solver is present.
