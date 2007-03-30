@@ -382,14 +382,14 @@ class Element(Item):
         Make sure the first handle (normally NW) is located at (0, 0).
         """
         h_nw = self._handles[0]
-        x, y = h_nw.pos
-        if float(x) != 0.0:
+        x, y = map(float, h_nw.pos)
+        if x != 0.0:
             self.matrix.translate(x, 0)
             self._canvas.request_matrix_update(self)
             for h in self._handles[1:]:
                 h.x -= x
             h_nw.x = 0
-        if float(y) != 0.0:
+        if y != 0.0:
             self.matrix.translate(0, y)
             self._canvas.request_matrix_update(self)
             for h in self._handles[1:]:
