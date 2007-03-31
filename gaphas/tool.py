@@ -425,6 +425,11 @@ class HandleTool(Tool):
             context.grab()
             if self._grabbed_handle.connectable:
                 self.disconnect(view, self._grabbed_item, self._grabbed_handle)
+
+            # Increment handle strength for the duration of the grab action
+            self._grabbed_handle.x.strength += 1
+            self._grabbed_handle.y.strength += 1
+
             return True
 
     def on_button_release(self, context, event):
@@ -438,6 +443,9 @@ class HandleTool(Tool):
             if self._grabbed_handle.connectable:
                 self.connect(view, self._grabbed_item, self._grabbed_handle, wx, wy)
         finally:
+            # Decrement handle strength, previously incremented on button press
+            self._grabbed_handle.x.strength -= 1
+            self._grabbed_handle.y.strength -= 1
             context.view.queue_draw_item(context.view.hovered_item, handles=True)
             context.ungrab()
         if self._grabbed_handle:

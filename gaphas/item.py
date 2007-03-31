@@ -7,7 +7,8 @@ __version__ = "$Revision$"
 
 from math import atan2
 
-from matrix import Matrix
+from cairo import Matrix
+#from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
@@ -138,7 +139,9 @@ class Item(object):
         """
         self._set_canvas(None)
 
-    canvas = reversible_property(lambda s: s._canvas, _set_canvas, _del_canvas)
+    canvas = reversible_property(lambda s: s._canvas, _set_canvas, _del_canvas,
+                doc="Set canvas for the item. Application should use " + \
+                    "Canvas.add() and Canvas.remove().")
 
     def setup_canvas(self):
         """
@@ -380,21 +383,47 @@ class Element(Item):
         """
         Make sure handles do not overlap during movement.
         Make sure the first handle (normally NW) is located at (0, 0).
+
+        >>> from canvas import Canvas
+        >>> c = Canvas()
+        >>> e = Element()
+        >>> c.add(e)
+        >>> e.min_width = e.min_height = 0
+        >>> c.update_now()
+        >>> e._handles
+        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (10, 10)>, <Handle object on (0, 10)>]
+        >>> e._handles[0].x += 1
+        >>> map(float, e._handles[0].pos)
+        [1.0, 0.0]
+        >>> e.pre_update(None)
+        >>> e._handles
+        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
+        >>> e._handles[0].x += 1
+        >>> map(float, e._handles[0].pos)
+        [1.0, 0.0]
+        >>> e.request_update()
+        >>> c.update_now()
+        >>> e._handles
+        [<Handle object on (0, 0)>, <Handle object on (8, 0)>, <Handle object on (8, 10)>, <Handle object on (0, 10)>]
         """
         h_nw = self._handles[0]
         x, y = map(float, h_nw.pos)
-        if x != 0.0:
+        if not x:
+            x = float(self._handles[-1].x)
+        if x:
             self.matrix.translate(x, 0)
             self._canvas.request_matrix_update(self)
+            h_nw.x = 0
             for h in self._handles[1:]:
                 h.x -= x
-            h_nw.x = 0
-        if y != 0.0:
+        if not y:
+            y = float(self._handles[1].y)
+        if y:
             self.matrix.translate(0, y)
             self._canvas.request_matrix_update(self)
+            h_nw.y = 0
             for h in self._handles[1:]:
                 h.y -= y
-            h_nw.y = 0
 
         if self.width < self.min_width:
             self.width = self.min_width

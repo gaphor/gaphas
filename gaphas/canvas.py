@@ -369,7 +369,7 @@ class Canvas(object):
                 try:
                     item.pre_update(c)
                 except Exception, e:
-                    print 'Error while updating item %s' % item
+                    print 'Error while pre-updating item %s' % item
                     import traceback
                     traceback.print_exc()
 
