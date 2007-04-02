@@ -397,13 +397,6 @@ class Element(Item):
         >>> e.pre_update(None)
         >>> e._handles
         [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
-        >>> e._handles[0].x += 1
-        >>> map(float, e._handles[0].pos)
-        [1.0, 0.0]
-        >>> e.request_update()
-        >>> c.update_now()
-        >>> e._handles
-        [<Handle object on (0, 0)>, <Handle object on (8, 0)>, <Handle object on (8, 10)>, <Handle object on (0, 10)>]
         """
         h_nw = self._handles[0]
         x, y = map(float, h_nw.pos)
