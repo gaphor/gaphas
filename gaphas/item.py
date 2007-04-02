@@ -7,8 +7,7 @@ __version__ = "$Revision$"
 
 from math import atan2
 
-from cairo import Matrix
-#from matrix import Matrix
+from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG
 from constraint import EqualsConstraint, LessThanConstraint
