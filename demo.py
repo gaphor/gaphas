@@ -271,62 +271,62 @@ def create_window(canvas, zoom=1.0):
     view.connect('hover-changed', handle_changed, 'hover')
     view.connect('selection-changed', handle_changed, 'selection')
 
-c=Canvas()
+if __name__ == '__main__':
+    c=Canvas()
 
-create_window(c)
-#create_window(c, zoom=1.3)
+    create_window(c)
 
-# Add stuff to the canvas:
+    # Add stuff to the canvas:
 
-b=MyBox()
-b.min_width = 20
-b.min_height = 30
-print 'box', b
-b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
-b.width=b.height = 40
-c.add(b)
+    b=MyBox()
+    b.min_width = 20
+    b.min_height = 30
+    print 'box', b
+    b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
+    b.width=b.height = 40
+    c.add(b)
 
-bb=Box()
-print 'box', bb
-bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
-c.add(bb, parent=b)
-#v.selected_items = bb
+    bb=Box()
+    print 'box', bb
+    bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
+    c.add(bb, parent=b)
+    #v.selected_items = bb
 
-bb=Box()
-print 'box', bb
-bb.matrix.rotate(math.pi/4.)
-c.add(bb, parent=b)
+    bb=Box()
+    print 'box', bb
+    bb.matrix.rotate(math.pi/4.)
+    c.add(bb, parent=b)
 
-l=MyLine()
-l.fyzzyness = 1
-l.handles()[1].pos = (30, 30)
-l.split_segment(0, 3)
-l.matrix.translate(30, 60)
-c.add(l)
-l.orthogonal = True
+    l=MyLine()
+    l.fyzzyness = 1
+    l.handles()[1].pos = (30, 30)
+    l.split_segment(0, 3)
+    l.matrix.translate(30, 60)
+    c.add(l)
+    l.orthogonal = True
 
-t=MyText()
-t.matrix.translate(70,70)
-c.add(t)
+    t=MyText()
+    t.matrix.translate(70,70)
+    c.add(t)
 
-##
-## State handling (a.k.a. undo handlers)
-##
+    ##
+    ## State handling (a.k.a. undo handlers)
+    ##
 
-# First, activate the revert handler:
-state.observers.add(state.revert_handler)
+    # First, activate the revert handler:
+    state.observers.add(state.revert_handler)
 
-def print_handler(event):
-    print 'event:', event
+    def print_handler(event):
+        print 'event:', event
 
-#state.subscribers.add(print_handler)
+    #state.subscribers.add(print_handler)
 
 
-##
-## Start the main application
-##
+    ##
+    ## Start the main application
+    ##
 
-gtk.main()
+    gtk.main()
 
 
 # vim: sw=4:et:
