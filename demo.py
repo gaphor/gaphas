@@ -29,6 +29,7 @@ from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
 from gaphas.painter import ItemPainter
 from gaphas import state
+from gaphas.util import text_extents
 
 # Global undo list
 undo_list = []
@@ -64,9 +65,17 @@ class MyLine(Line):
 
 
 class MyText(Text):
-    """Text with experimental connection protocol.
     """
-    pass
+    Text with experimental connection protocol.
+    """
+    
+    def draw(self, context):
+        Text.draw(self, context)
+        cr = context.cairo
+        w, h = text_extents(cr, self.text, multiline=self.multiline)
+        cr.rectangle(0, 0, w, h)
+        cr.set_source_rgba(.3, .3, 1., .6)
+        cr.stroke()
 
 
 def create_window(canvas, zoom=1.0):
@@ -305,8 +314,21 @@ if __name__ == '__main__':
     c.add(l)
     l.orthogonal = True
 
-    t=MyText()
+    t=MyText('Single line')
     t.matrix.translate(70,70)
+    c.add(t)
+
+    off_y = 0
+    for align_x in (-1, 0, 1):
+        for align_y in (-1, 0, 1):
+            t=MyText('Aligned text %d/%d' % (align_x, align_y),
+                     align_x=align_x, align_y=align_y)
+            t.matrix.translate(120, 200 + off_y)
+            off_y += 30
+            c.add(t)
+
+    t=MyText('Multiple\nlines', multiline = True)
+    t.matrix.translate(70,100)
     c.add(t)
 
     ##
