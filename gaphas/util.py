@@ -35,9 +35,8 @@ def text_center(cr, x, y, text):
 
 def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     """
-    Draw text using (x, y) as center.
-    x    - center x
-    y    - center y
+    Draw text relative to (x, y).
+    x, y - coordinates
     text - text to print (utf8)
     align_x - -1 (top), 0 (middle), 1 (bottom)
     align_y - -1 (left), 0 (center), 1 (right)
@@ -76,9 +75,9 @@ def text_multiline(cr, x, y, text, padding=1):
     #cr.move_to(x, y)
     for line in text.split('\n'):
         x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+        y += h
         cr.move_to(x, y)
         cr.show_text(line)
-        y += h + padding
 
 def text_set_font(cr, font):
     """Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'

@@ -11,6 +11,7 @@ from solver import solvable
 import tool
 from constraint import LineConstraint
 from geometry import point_on_rectangle, distance_rectangle_point
+from util import text_extents, text_align, text_multiline
 
 class Box(Element):
     """ A Box has 4 handles (for a start):
@@ -49,16 +50,27 @@ class Box(Element):
 
 
 class Text(Item):
-    """Simple item shoring some text on the canvas.
+    """
+    Simple item showing some text on the canvas.
     """
 
-    def __init__(self):
+    def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
         super(Text, self).__init__()
+        self.text = text is None and 'Hello' or text
+        self.plain = plain
+        self.multiline = multiline
+        self.align_x = align_x
+        self.align_y = align_y
 
     def draw(self, context):
         #print 'Text.draw', self
-        c = context.cairo
-        c.show_text('Hello')
+        cr = context.cairo
+        if self.multiline:
+            text_multiline(cr, 0, 0, self.text)
+        elif self.plain:
+            cr.show_text(self.text)
+        else:
+            text_align(cr, 0, 0, self.text, self.align_x, self.align_y)
         context.draw_children()
 
     def point(self, x, y):
