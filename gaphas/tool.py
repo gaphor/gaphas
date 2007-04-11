@@ -244,14 +244,15 @@ class ItemTool(Tool):
     already selected items remain selected. The last selected item gets the
     focus (e.g. receives key press events).
     """
-
+    SELECT_BUTTONS = (1, 3)
+    
     def __init__(self):
         self.last_x = 0
         self.last_y = 0
 
     def on_button_press(self, context, event):
         view = context.view
-        if event.button != 1:
+        if event.button not in self.SELECT_BUTTONS:
             return False
         self.last_x, self.last_y = event.x, event.y
         # Deselect all items unless CTRL or SHIFT is pressed
@@ -270,7 +271,7 @@ class ItemTool(Tool):
             return True
 
     def on_button_release(self, context, event):
-        if event.button != 1:
+        if event.button not in self.SELECT_BUTTONS:
             return False
         context.ungrab()
         return True
