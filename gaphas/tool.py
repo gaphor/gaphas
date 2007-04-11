@@ -244,7 +244,7 @@ class ItemTool(Tool):
     already selected items remain selected. The last selected item gets the
     focus (e.g. receives key press events).
     """
-    SELECT_BUTTONS = (1, 3)
+    SELECT_BUTTONS = (1,)
     
     def __init__(self):
         self.last_x = 0
