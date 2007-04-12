@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gaphas',
-    version='0.1.4',
+    version='0.1.5',
     description='Gaphas is a GTK+ based diagramming widget',
     long_description="""\
 Gaphas is a GTK+ based diagramming widget written in Python.
