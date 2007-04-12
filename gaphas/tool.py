@@ -244,15 +244,15 @@ class ItemTool(Tool):
     already selected items remain selected. The last selected item gets the
     focus (e.g. receives key press events).
     """
-    SELECT_BUTTONS = (1,)
     
-    def __init__(self):
+    def __init__(self, buttons=(1,)):
         self.last_x = 0
         self.last_y = 0
+        self._buttons = buttons
 
     def on_button_press(self, context, event):
         view = context.view
-        if event.button not in self.SELECT_BUTTONS:
+        if event.button not in self._buttons:
             return False
         self.last_x, self.last_y = event.x, event.y
         # Deselect all items unless CTRL or SHIFT is pressed
@@ -271,7 +271,7 @@ class ItemTool(Tool):
             return True
 
     def on_button_release(self, context, event):
-        if event.button not in self.SELECT_BUTTONS:
+        if event.button not in self._buttons:
             return False
         context.ungrab()
         return True
@@ -441,7 +441,7 @@ class HandleTool(Tool):
         try:
             view = context.view
             wx, wy = view.transform_point_c2w(event.x, event.y)
-            if self._grabbed_handle.connectable:
+            if self._grabbed_handle and self._grabbed_handle.connectable:
                 self.connect(view, self._grabbed_item, self._grabbed_handle, wx, wy)
         finally:
             # Decrement handle strength, previously incremented on button press
