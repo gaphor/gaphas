@@ -251,13 +251,6 @@ class View(object):
 
     painter = property(lambda s: s._painter, _set_painter)
 
-    def paint(self, cr):
-        """
-        Do the paint action, calling draw() on each item.
-        """
-        self._painter.paint(Context(view=self,
-                                    cairo=cr))
-
     def get_item_at_point(self, x, y):
         """
         Return the topmost item located at (x, y).
@@ -322,18 +315,16 @@ class View(object):
 
     def update_bounding_box(self, cr, items=None):
         """
-        Update the bounding boxes of the canvas items for this view.
+        Update the bounding boxes of the canvas items for this view, in 
+        canvas coordinates.
         """
-        self._item_bounds = dict()
-        self._bounds = Rectangle()
-
         painter = BoundingBoxPainter()
         painter.paint(Context(view=self,
                               cairo=cr,
                               items=items))
 
         # Update the view's bounding box with the rest of the items
-        bounds = self._bounds
+        bounds = self._bounds = Rectangle()
         for b in self._item_bounds.itervalues():
             bounds += b
 
@@ -625,16 +616,19 @@ class GtkView(gtk.DrawingArea, View):
             return
 
         area = event.area
+        x, y, w, h = area.x, area.y, area.width, area.height
         self.window.draw_rectangle(self.style.white_gc, True,
-                                   area.x, area.y, area.width, area.height)
+                                   x, y, w, h)
 
         cr = self.window.cairo_create()
 
         # Draw no more than nessesary.
-        cr.rectangle(area.x, area.y, area.width, area.height)
+        cr.rectangle(x, y, w, h)
         cr.clip()
 
-        self.paint(cr)
+        self._painter.paint(Context(view=self,
+                                    cairo=cr,
+                                    area=Rectangle(x, y, width=w, height=h)))
 
         if DEBUG_DRAW_BOUNDING_BOX:
             cr.save()

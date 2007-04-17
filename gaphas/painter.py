@@ -15,7 +15,7 @@ from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
 from canvas import Context
 from geometry import Rectangle
 
-DEBUG_DRAW_BOUNDING_BOX = False
+DEBUG_DRAW_BOUNDING_BOX = True
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
@@ -82,14 +82,15 @@ class DrawContext(Context):
         """
         self.painter._draw_items(self.children,
                                  self.view,
-                                 self.cairo)
+                                 self.cairo,
+                                 self._area)
 
 
 class ItemPainter(Painter):
 
     draw_all = False
 
-    def _draw_item(self, item, view, cairo):
+    def _draw_item(self, item, view, cairo, area=None):
         cairo.save()
         try:
             cairo.set_matrix(view.matrix)
@@ -98,6 +99,7 @@ class ItemPainter(Painter):
             item.draw(DrawContext(painter=self,
                                   view=view,
                                   cairo=cairo,
+                                  _area=area,
                                   parent=view.canvas.get_parent(item),
                                   children=view.canvas.get_children(item),
                                   selected=(item in view.selected_items),
@@ -121,46 +123,51 @@ class ItemPainter(Painter):
         finally:
             cairo.restore()
 
-    def _draw_items(self, items, view, cairo):
+    def _draw_items(self, items, view, cairo, area=None):
         """
         Draw the items. This method can also be called from DrawContext
         to draw sub-items.
         """
         for item in items:
-            self._draw_item(item, view, cairo)
+            if not area or view.get_item_bounding_box(item) - area:
+                self._draw_item(item, view, cairo, area=area)
 
     def paint(self, context):
         cairo = context.cairo
         view = context.view
+        area = context.area
         items = view.canvas.get_root_items()
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-        self._draw_items(items, view, cairo)
+        self._draw_items(items, view, cairo, area)
 
 
 class BoundingBoxPainter(ItemPainter):
     """
     This specific case of an ItemPainter is used to calculate the bounding
-    boxes for the items.
+    boxes (in canvas coordinates) for the items.
     """
 
     draw_all = True
 
-    def _draw_items(self, items, view, cairo):
+    def _draw_items(self, items, view, cairo, area=None):
         """
         Draw the items. This method can also be called from DrawContext
         to draw sub-items.
         """
         for item in items:
             context = view.wrap_cairo_context(cairo)
+            try:
+                del view._item_bounds[item]
+            except KeyError:
+                pass
             self._draw_item(item, view, context)
             view.set_item_bounding_box(item, context.get_bounds())
 
     def paint(self, context):
         cairo = context.cairo
         view = context.view
-        #items = context.items
-        items = view.canvas.get_root_items()
+        items = context.items
         self._draw_items(items, view, cairo)
 
 

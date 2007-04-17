@@ -192,8 +192,8 @@ class Rectangle(object):
         return self
 
     def __contains__(self, obj):
-        """ Check if a point (x, y), rectangle (x0, y0, x1, y1) or
-        Rectangle instance is within the bounds of the rectangle.
+        """ Check if a point (x, y) in inside rectangle (x0, y0, x1, y1) or
+        if a rectangle instance is inside with the rectangle.
 
         >>> r=Rectangle(10, 5, width=12, height=12)
         >>> (0, 0) in r

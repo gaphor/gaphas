@@ -69,6 +69,7 @@ class Canvas(object):
         item.canvas = self
         self._tree.add(item, parent)
         self.request_update(item)
+        self._update_views((item,))
 
     @observed
     def remove(self, item):
