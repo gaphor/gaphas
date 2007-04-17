@@ -15,7 +15,7 @@ from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
 from canvas import Context
 from geometry import Rectangle
 
-DEBUG_DRAW_BOUNDING_BOX = True
+DEBUG_DRAW_BOUNDING_BOX = False
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
