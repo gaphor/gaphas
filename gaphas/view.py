@@ -581,6 +581,7 @@ class GtkView(gtk.DrawingArea, View):
                 self.focused_item = None
             if i is self.hovered_item:
                 self.hovered_item = None
+        items = [ i for i in items if i not in removed ]
 
         # Pseudo-draw
         cr = self.window.cairo_create()
