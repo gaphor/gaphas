@@ -19,7 +19,7 @@ DEBUG_DRAW_BOUNDING_BOX = False
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
-TOLERANCE = 0.5
+TOLERANCE = 0.8
 
 class Painter(object):
     """
@@ -107,19 +107,6 @@ class ItemPainter(Painter):
                                   hovered=(item is view.hovered_item),
                                   draw_all=self.draw_all))
 
-            if DEBUG_DRAW_BOUNDING_BOX:
-                try:
-                    b = view.get_item_bounding_box(item)
-                except KeyError:
-                    pass # No bounding box right now..
-                else:
-                    cairo.save()
-                    cairo.identity_matrix()
-                    cairo.set_source_rgb(.8, 0, 0)
-                    cairo.set_line_width(1.0)
-                    cairo.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
-                    cairo.stroke()
-                    cairo.restore()
         finally:
             cairo.restore()
 
@@ -131,6 +118,22 @@ class ItemPainter(Painter):
         for item in items:
             if not area or view.get_item_bounding_box(item) - area:
                 self._draw_item(item, view, cairo, area=area)
+                if DEBUG_DRAW_BOUNDING_BOX:
+                    self._draw_bounds(item, view, cairo)
+
+    def _draw_bounds(self, item, view, cairo):
+        try:
+            b = view.get_item_bounding_box(item)
+        except KeyError:
+            pass # No bounding box right now..
+        else:
+            cairo.save()
+            cairo.identity_matrix()
+            cairo.set_source_rgb(.8, 0, 0)
+            cairo.set_line_width(1.0)
+            cairo.rectangle(b.x0, b.y0, b.width, b.height)
+            cairo.stroke()
+            cairo.restore()
 
     def paint(self, context):
         cairo = context.cairo
@@ -157,10 +160,10 @@ class BoundingBoxPainter(ItemPainter):
         """
         for item in items:
             context = view.wrap_cairo_context(cairo)
-            try:
-                del view._item_bounds[item]
-            except KeyError:
-                pass
+            #try:
+            #    del view._item_bounds[item]
+            #except KeyError:
+            #    pass
             self._draw_item(item, view, context)
             view.set_item_bounding_box(item, context.get_bounds())
 

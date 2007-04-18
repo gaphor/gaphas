@@ -289,11 +289,6 @@ class View(object):
         Update the bounding box of the item (in canvas coordinates).
         """
         self._item_bounds[item] = bounds
-        if bounds:
-            bounds.x1 += 1
-            bounds.y1 += 1
-            # Also update the view's overall bounding box.
-            self._bounds += bounds
 
     def get_item_bounding_box(self, item):
         """
@@ -549,7 +544,7 @@ class GtkView(gtk.DrawingArea, View):
             except KeyError:
                 pass # No bounds calculated yet? bummer.
             else:
-                self.queue_draw_area(b[0]-1, b[1]-1, b[2]-b[0]+2, b[3]-b[1]+2)
+                self.queue_draw_area(b.x0 - 1, b.y0 - 1, b.width + 2, b.height + 2)
                 if handles:
                     for h in item.handles():
                         x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
