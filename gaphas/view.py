@@ -314,6 +314,8 @@ class View(object):
         canvas coordinates.
         """
         painter = BoundingBoxPainter()
+        if items is None:
+            items = self.canvas.get_root_items()
         painter.paint(Context(view=self,
                               cairo=cr,
                               items=items))
@@ -322,6 +324,11 @@ class View(object):
         bounds = self._bounds = Rectangle()
         for b in self._item_bounds.itervalues():
             bounds += b
+
+    def paint(self, cr):
+        self._painter.paint(Context(view=self,
+                                    cairo=cr,
+                                    area=None))
 
     def transform_distance_c2w(self, x, y):
         """
