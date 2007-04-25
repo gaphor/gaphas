@@ -15,7 +15,8 @@ from math import sqrt
 
 
 class Rectangle(object):
-    """Python Rectangle implementation. Rectangles can be added (union),
+    """
+    Python Rectangle implementation. Rectangles can be added (union),
     substituted (intersection) and points and rectangles can be tested to
     be in the rectangle.
 
@@ -113,7 +114,8 @@ class Rectangle(object):
                 and self.y1 == self.y1
 
     def __add__(self, obj):
-        """Create a new Rectangle is the union of the current rectangle
+        """
+        Create a new Rectangle is the union of the current rectangle
         with another Rectangle, tuple (x,y) or tuple (x0, y0, x1, y1).
 
         >>> r=Rectangle(5,7,20,25)
@@ -155,7 +157,8 @@ class Rectangle(object):
         return self
 
     def __sub__(self, obj):
-        """Create a new Rectangle is the union of the current rectangle
+        """
+        Create a new Rectangle is the union of the current rectangle
         with another Rectangle or tuple (x0, y0, x1, y1).
 
         >>> r=Rectangle(5,7,20,25)
@@ -273,7 +276,8 @@ def distance_rectangle_point(rect, point):
 
 
 def point_on_rectangle(rect, point, border=False):
-    """Return the point on which @point can be projecten on the rectangle.
+    """
+    Return the point on which @point can be projecten on the rectangle.
     border = True will make sure the point is bound to the border of
     the reactangle. Otherwise, if the point is in the rectangle, it's okay.
     

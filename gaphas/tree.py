@@ -10,7 +10,8 @@ from state import observed, reversible_pair, disable_dispatching
 
 
 class Tree(object):
-    """A Tree structure.
+    """
+    A Tree structure.
     None is the root node.
 
     @invariant: len(self._children) == len(self._nodes) + 1
@@ -27,39 +28,45 @@ class Tree(object):
     nodes = property(lambda s: list(s._nodes))
 
     def get_parent(self, node):
-        """Return the parent item of @node.
+        """
+        Return the parent item of @node.
         """
         for item, children in self._children.items():
             if node in children:
                 return item
 
     def get_children(self, node):
-        """Return all child objects of @node.
+        """
+        Return all child objects of @node.
         """
         return self._children[node]
 
     def get_siblings(self, node):
-        """Get all siblings of @node, including @node.
+        """
+        Get all siblings of @node, including @node.
         """
         parent = self.get_parent(node)
         return self._children[parent]
 
     def get_next_sibling(self, node):
-        """Return the node on the same level after @node.
+        """
+        Return the node on the same level after @node.
         """
         parent = self.get_parent(node)
         siblings = self._children[parent]
         return siblings[siblings.index(node) + 1]
 
     def get_previous_sibling(self, node):
-        """Return the node on the same level before @node.
+        """
+        Return the node on the same level before @node.
         """
         parent = self.get_parent(node)
         siblings = self._children[parent]
         return siblings[siblings.index(node) - 1]
 
     def get_all_children(self, node):
-        """Iterate all children (and children of children and so forth)
+        """
+        Iterate all children (and children of children and so forth)
         """
         children = self.get_children(node)
         for c in children:
@@ -68,7 +75,8 @@ class Tree(object):
                 yield cc
 
     def get_ancestors(self, node):
-        """Iterate all parents and parents of parents, etc.
+        """
+        Iterate all parents and parents of parents, etc.
         """
         parent = self.get_parent(node)
         while parent:
@@ -76,7 +84,8 @@ class Tree(object):
             parent = self.get_parent(parent)
 
     def _add_to_nodes(self, node, parent):
-        """Called only from add()
+        """
+        Called only from add()
         """
         nodes = self._nodes
         if parent:
@@ -94,7 +103,8 @@ class Tree(object):
 
     @observed
     def add(self, node, parent=None):
-        """Add @node to the tree. @parent is the parent node, which may
+        """
+        Add @node to the tree. @parent is the parent node, which may
         be None if the item should be added to the root item.
         """
         assert not self._children.get(node)
@@ -106,7 +116,8 @@ class Tree(object):
 
     @observed
     def remove(self, node):
-        """Remove @node from the tree.
+        """
+        Remove @node from the tree.
         """
         # First remove children:
         children = list(self._children[node])
@@ -126,7 +137,8 @@ class Tree(object):
     disable_dispatching(remove)
 
 def test_add():
-    """Test creating node trees.
+    """
+    Test creating node trees.
     """
     print 'test_add'
 
@@ -181,7 +193,8 @@ def test_add():
     assert tree.get_parent(n1) is None
 
 def test_remove():
-    """Test removal of nodes.
+    """
+    Test removal of nodes.
     """
     print 'test_remove'
 

@@ -80,7 +80,8 @@ def text_multiline(cr, x, y, text, padding=1):
         cr.show_text(line)
 
 def text_set_font(cr, font):
-    """Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'
+    """
+    Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'
     only restriction is that the font name should be the first option and
     the font size as last argument
     """
@@ -94,7 +95,8 @@ def text_set_font(cr, font):
 
 
 def path_ellipse (cr, x, y, width, height, angle=0):
-    """Draw an ellipse.
+    """
+    Draw an ellipse.
     x      - center x
     y      - center y
     width  - width of ellipse  (in x direction when angle=0)

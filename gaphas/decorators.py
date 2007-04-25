@@ -15,7 +15,8 @@ import operator
 DEBUG_ASYNC = False
 
 class async(object):
-    """Instead of calling the function, schedule an idle handler at a given
+    """
+    Instead of calling the function, schedule an idle handler at a given
     priority. This requires the async'ed method to be called from within
     the GTK main loop. Otherwise the method is executed directly.
 
@@ -123,7 +124,8 @@ def nonrecursive(func):
         1
     """
     def wrapper(*args, **kwargs):
-        """Decorate function with a mutex that prohibits recursice execution.
+        """
+        Decorate function with a mutex that prohibits recursice execution.
         """
         try:
             if func._executing:

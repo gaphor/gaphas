@@ -1,4 +1,5 @@
-"""Simple example items.
+"""
+Simple example items.
 These items are used in various tests.
 """
 
@@ -37,7 +38,8 @@ class Box(Element):
         context.draw_children()
 
     def glue(self, item, handle, x, y):
-        """Special glue method used by the ConnectingHandleTool to find
+        """
+        Special glue method used by the ConnectingHandleTool to find
         a connection point.
         """
         h = self._handles
@@ -78,12 +80,14 @@ class Text(Item):
 
 
 class ConnectingHandleTool(tool.HandleTool):
-    """This is a HandleTool which supports a simple connection algerithm,
+    """
+    This is a HandleTool which supports a simple connection algerithm,
     Using LineConstraint.
     """
 
     def glue(self, view, item, handle, wx, wy):
-        """It allows the tool to glue to a Box or (other) Line item.
+        """
+        It allows the tool to glue to a Box or (other) Line item.
         The distance from the item to the handle is determined in canvas
         coordinates, using a 10 pixel glue distance.
         """
@@ -115,7 +119,8 @@ class ConnectingHandleTool(tool.HandleTool):
         return glue_item
 
     def connect(self, view, item, handle, wx, wy):
-        """Connect a handle to another item.
+        """
+        Connect a handle to another item.
 
         In this "method" the following assumptios are made:
          1. The only item that accepts handle connections are the Box instances
@@ -180,7 +185,8 @@ class ConnectingHandleTool(tool.HandleTool):
 
 
 def DefaultExampleTool():
-    """The default tool chain build from HoverTool, ItemTool and HandleTool.
+    """
+    The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
     chain = tool.ToolChain()
     chain.append(tool.HoverTool())

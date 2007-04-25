@@ -280,7 +280,8 @@ class Solver(object):
         self._solving = False
 
     def mark_dirty(self, *variables):
-        """Mark a variable as "dirty". This means it it solved the next time
+        """
+        Mark a variable as "dirty". This means it it solved the next time
         the constraints are resolved.
 
         Example:
@@ -321,7 +322,8 @@ class Solver(object):
 
     @observed
     def add_constraint(self, constraint):
-        """Add a constraint.
+        """
+        Add a constraint.
         The actual constraint is returned, so the constraint can be removed
         later on.
 
@@ -377,7 +379,8 @@ class Solver(object):
     reversible_pair(add_constraint, remove_constraint)
 
     def constraints_with_variable(self, variable):
-        """Return an iterator of constraints that work with variable.
+        """
+        Return an iterator of constraints that work with variable.
         The variable in question should be exposed by the constraints
         variables() method.
 
@@ -401,7 +404,8 @@ class Solver(object):
                 yield c
 
     def weakest_variable(self, variables):
-        """Returns the name(!) of the weakest variable.
+        """
+        Returns the name(!) of the weakest variable.
 
         Example:
         >>> s = Solver()
@@ -473,7 +477,8 @@ class Solver(object):
             self._solving = False
 
 class solvable(object):
-    """Easy-to-use drop Variable descriptor.
+    """
+    Easy-to-use drop Variable descriptor.
 
     >>> class A(object):
     ...     x = solvable(varname='_v_x')

@@ -26,25 +26,29 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 class Constraint(object):
-    """Constraint base class.
+    """
+    Constraint base class.
     """
     disabled = False
 
     def variables(self):
-        """return an iterator which iterates over the variables that are
+        """
+        Return an iterator which iterates over the variables that are
         held by this constraint.
         """
         raise NotImplemented
 
     def solve_for(self, var):
-        """Solve the constraint for a given variable.
+        """
+        Solve the constraint for a given variable.
         The variable itself is updated.
         """
         raise NotImplemented
 
 
 class EqualsConstraint(Constraint):
-    """Simple Constraint, takes two arguments: 'a' and 'b'. When solved the
+    """
+    Simple Constraint, takes two arguments: 'a' and 'b'. When solved the
     attribute passed to solve_for() is set equal to the other.
 
     >>> from solver import Variable
@@ -77,7 +81,8 @@ class EqualsConstraint(Constraint):
 
 
 class LessThanConstraint(Constraint):
-    """Ensure @smaller is less than @bigger. The variable that is passed
+    """
+    Ensure @smaller is less than @bigger. The variable that is passed
     as to-be-solved is left alone (cause it is the variable that has not
     been moved lately). Instead the other variable is solved.
 
@@ -114,7 +119,8 @@ TOL = 0.0000001      # tolerance
 ITERLIMIT = 1000        # iteration limit
 
 class EquationConstraint(Constraint):
-    """Equation solver using attributes and introspection.
+    """
+    Equation solver using attributes and introspection.
 
     Takes a function, named arg value (opt.) and returns a Constraint object
     Calling EquationConstraint.solve_for will solve the equation for
@@ -151,13 +157,16 @@ class EquationConstraint(Constraint):
             return 'EquationConstraint(%s)' % self._f.func_code.co_name
 
     def __getattr__(self, name):
-        """used to extract function argument values
+        """
+        Used to extract function argument values.
         """
         self._args[name]
         return self.solve_for(name)
 
     def __setattr__(self, name, value):
-        """sets function argument values"""
+        """
+        Sets function argument values.
+        """
         # Note - once self._args is created, no new attributes can
         # be added to self.__dict__.  This is a good thing as it throws
         # an exception if you try to assign to an arg which is inappropriate
@@ -171,7 +180,8 @@ class EquationConstraint(Constraint):
             object.__setattr__(self, name, value)
 
     def _set(self, **args):
-        """sets values of function arguments
+        """
+        Sets values of function arguments.
         """
         for arg in args:
             self._args[arg]  # raise exception if arg not in _args
@@ -181,7 +191,8 @@ class EquationConstraint(Constraint):
         return self._args.itervalues()
 
     def solve_for(self, var):
-        """Solve this constraint for the variable named 'arg' in the
+        """
+        Solve this constraint for the variable named 'arg' in the
         constraint.
         """
         args = {}
@@ -191,7 +202,9 @@ class EquationConstraint(Constraint):
         var.value = self._solve_for(arg, args)
 
     def _solve_for(self, arg, args):
-        """Newton's method solver"""
+        """
+        Newton's method solver
+        """
         #args = self._args
         close_runs = 10   # after getting close, do more passes
         if args[arg]:
@@ -239,7 +252,8 @@ class EquationConstraint(Constraint):
 
 
 class LineConstraint(Constraint):
-    """Ensure a point is kept on a line, taking into account item
+    """
+    Ensure a point is kept on a line, taking into account item
     specific coordinates.
 
     #>>> from solver import Variable
@@ -315,7 +329,8 @@ class LineConstraint(Constraint):
         self._solve()
 
     def _solve(self):
-        """Solve the equation for the connected_handle.
+        """
+        Solve the equation for the connected_handle.
         >>> from item import Handle, Item
         >>> from canvas import Canvas
         >>> c = Canvas()
