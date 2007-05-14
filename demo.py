@@ -280,7 +280,7 @@ def create_window(canvas, zoom=1.0):
     view.connect('hover-changed', handle_changed, 'hover')
     view.connect('selection-changed', handle_changed, 'selection')
 
-if __name__ == '__main__':
+def main():
     c=Canvas()
 
     create_window(c)
@@ -350,5 +350,7 @@ if __name__ == '__main__':
 
     gtk.main()
 
+if __name__ == '__main__':
+    main()
 
 # vim: sw=4:et:
