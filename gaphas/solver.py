@@ -456,7 +456,7 @@ class Solver(object):
         """
         constraints = self._constraints
         marked_cons = self._marked_cons
-
+        weakest_variable = self.weakest_variable
         try:
             self._solving = True
 
@@ -464,10 +464,10 @@ class Solver(object):
             # possible to also solve constraints that are marked as
             # a result of other variabled being solved.
             n = 0
-            while n < len(self._marked_cons):
+            while n < len(marked_cons):
                 c = marked_cons[n]
                 if not c.disabled:
-                    wvar = self.weakest_variable(c.variables())
+                    wvar = weakest_variable(c.variables())
                     c.solve_for(wvar)
                 n += 1
 
