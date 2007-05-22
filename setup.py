@@ -4,6 +4,36 @@ from ez_setup import use_setuptools
 use_setuptools()
 
 from setuptools import setup, find_packages
+from distutils.cmd import Command
+
+class build_doc(Command):
+    description = 'Builds the documentation'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        epydoc_conf = 'epydoc.conf'
+
+        try:
+            import sys
+            from epydoc import cli
+            old_argv = sys.argv[1:]
+            sys.argv[1:] = [
+                '--config=%s' % epydoc_conf,
+                '--no-private', # epydoc bug, not read from config
+                '--simple-term',
+                '--verbose'
+            ]
+            cli.cli()
+            sys.argv[1:] = old_argv
+
+        except ImportError:
+            print 'epydoc not installed, skipping API documentation.'
 
 setup(
     name='gaphas',
@@ -57,5 +87,6 @@ GTK+ and PyGTK is required.
 
     test_suite = 'nose.collector',
 
+    cmdclass={'build_doc': build_doc },
     )
       
