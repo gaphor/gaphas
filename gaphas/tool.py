@@ -113,8 +113,9 @@ class Tool(object):
         on the canvas. This can be done through the draw() method. This is
         called after all items are drawn.
         The context contains the following fields:
-         - context: the render context (contains context.view and context.cairo)
-         - cairo: the Cairo drawing context
+
+        - context: the render context (contains context.view and context.cairo)
+        - cairo: the Cairo drawing context
         """
         pass
 

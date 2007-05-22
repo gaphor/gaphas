@@ -3,15 +3,15 @@ This module is the central point where Gaphas' classes report their state
 changes.
 
 Invokations of method and state changing properties are emited to all
-functions (or bound methods) registered in the `observers' set.
+functions (or bound methods) registered in the 'observers' set.
 Use observers.add() and observers.remove() to add/remove handlers.
 
 This module also contains a second layer: a state inverser. Instead of
-emiting the invoked method, it emits a signal (callable, **kwargs) that
+emiting the invoked method, it emits a signal (callable, \*\*kwargs) that
 can be applied to revert the state of the object to the point before the
 method invokation.
 
-For this to work the revert_handler has to be added to the observers set:
+For this to work the revert_handler has to be added to the observers set::
 
     gaphas.state.observers.add(gaphas.state.revert_handler)
 
@@ -273,7 +273,7 @@ def saveapply(func, kw):
     """
     Do apply a set of keywords to a method or function.
     The function names should be known at meta-level, since arguments are
-    applied as func(**kwargs).
+    applied as func(\*\*kwargs).
     """
     spec = inspect.getargspec(func)
     argnames = list(spec[0])

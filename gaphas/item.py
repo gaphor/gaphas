@@ -175,9 +175,10 @@ class Item(object):
         """
         Do small things that have to be done before the "real" update.
         Context has the following attributes:
-         - canvas: the owning canvas
-         - matrix_i2w: Item to World transformation matrix
-         - ... (do I need something for text processing?)
+
+        - canvas: the owning canvas
+        - matrix_i2w: Item to World transformation matrix
+        - ... (do I need something for text processing?)
         """
         pass
 
@@ -192,10 +193,11 @@ class Item(object):
         """
         Render the item to a canvas view.
         Context contains the following attributes:
-         - matrix_i2w: Item to World transformation matrix (no need to)
-         - cairo: the Cairo Context use this one to draw.
-         - view: the view that is to be rendered to
-         - selected, focused, hovered: view state of items.
+
+        - matrix_i2w: Item to World transformation matrix (no need to)
+        - cairo: the Cairo Context use this one to draw.
+        - view: the view that is to be rendered to
+        - selected, focused, hovered: view state of items.
         """
         pass
 

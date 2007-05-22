@@ -1,22 +1,24 @@
 """
 This module contains several flavors of constraint solver classes.
-Each has a method solve_for(name) and a method set(**kwds). These methods
+Each has a method solve_for(name) and a method set(\*\*kwds). These methods
 are used by the constraint solver (solver.Solver) to set the variables.
 
 Variables should be of type solver.Variable.
 
 Available constraints are:
- - EqualsConstraint - make 'a' and 'b' equal
- - LessThanConstraint - ensure one variable stays smaller than the orther
- - EquationConstraint - solve a linear equation
+
+- EqualsConstraint - make 'a' and 'b' equal
+- LessThanConstraint - ensure one variable stays smaller than the orther
+- EquationConstraint - solve a linear equation
 
 # TODO:
- - LineConstraint - Solves the equation where a line is connected to
+
+- LineConstraint - Solves the equation where a line is connected to
        a line or side at a specific point.
- - LineToCenterConstraint - constraint to be used when a line connects
+- LineToCenterConstraint - constraint to be used when a line connects
        to a rectangular element. The line is connected on the side, but
        keeps opointing to the center
- - ShortestLineConstraint - The last segment of the line is pointing to
+- ShortestLineConstraint - The last segment of the line is pointing to
        a rectangualar or line like object and the length of the line
        is kept to a minimum
 """

@@ -163,9 +163,11 @@ class View(object):
 
     def select_item(self, item):
         """
-        Select an item. This adds @item to the set of selected items. Do
-           del view.selected_items
-        to clear the selected items list
+        Select an item. This adds @item to the set of selected items. Do::
+
+            del view.selected_items
+
+        to clear the selected items list.
         """
         self.queue_draw_item(item, handles=True)
         if item not in self._selected_items:
