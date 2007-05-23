@@ -9,8 +9,6 @@ class TreeTestCase(unittest.TestCase):
         """
         Test creating node trees.
         """
-        print 'test_add'
-
         tree = Tree()
         n1 = 'n1'
         n2 = 'n2'
@@ -30,27 +28,22 @@ class TreeTestCase(unittest.TestCase):
         assert len(tree._children[n1]) == 1
         assert len(tree._children[n2]) == 0
         assert len(tree._children[n2]) == 0
-        print tree._nodes
         assert tree._nodes == [n1, n3, n2]
 
         n4 = 'n4'
         tree.add(n4, parent=n3)
-        print tree._nodes
         assert tree._nodes == [n1, n3, n4, n2]
 
         n5 = 'n5'
         tree.add(n5, parent=n3)
-        print tree._nodes
         assert tree._nodes == [n1, n3, n4, n5, n2]
 
         n6 = 'n6'
         tree.add(n6, parent=n2)
-        print tree._nodes
         assert tree._nodes == [n1, n3, n4, n5, n2, n6]
 
         n7 = 'n7'
         tree.add(n7, parent=n1)
-        print tree._nodes
         assert len(tree._children) == 8
         assert tree._nodes == [n1, n3, n4, n5, n7, n2, n6]
         assert tree.get_parent(n7) is n1
@@ -65,8 +58,6 @@ class TreeTestCase(unittest.TestCase):
         """
         Test removal of nodes.
         """
-        print 'test_remove'
-
         tree = Tree()
         n1 = 'n1'
         n2 = 'n2'
