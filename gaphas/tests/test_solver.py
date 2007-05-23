@@ -1,26 +1,41 @@
-import gaphas
+"""
+Unit tests for Gaphas' solver, mainly for speed testing.
+"""
+
+import unittest
+from timeit import Timer
+
+
+SETUP = """
 from gaphas.solver import Solver, Variable
 from gaphas.constraint import EqualsConstraint, LessThanConstraint
+solver = Solver()
+v1, v2, v3 = Variable(1.0), Variable(2.0), Variable(3.0)
+c_eq = EqualsConstraint(v1, v2)
+solver.add_constraint(c_eq)
+"""
 
-def speed_setup():
-    """
-    Speed test setup. Example of test run::
+# Timeit constants
+REPEAT = 30
+NUMBER = 1000
 
-        python -m timeit.py -s 'from gaphas.tests.test_solver import speed_setup, speed_run_weakest; speed_setup()' 'speed_run_weakest()'
-    """
-    global solver, v1, v2, v3, c_eq
-    solver = gaphas.solver.Solver()
+class SolverSpeedTestCase(unittest.TestCase):
 
-    v1, v2, v3 = Variable(1.0), Variable(2.0), Variable(3.0)
-    c_eq = EqualsConstraint(v1, v2)
-    solver.add_constraint(c_eq)
+    def test_speed_run_weakest(self):
+        """
+        Speed test for weakest variable.
+        """
 
-def speed_run_weakest():
-    """
-    Speed test for weakest variable.peed_run_weakest()'
+        results = Timer(setup=SETUP, stmt="""
+v1.value = 5.0
+solver.weakest_variable(c_eq.variables())""").repeat(repeat=REPEAT, number=NUMBER)
 
-    """
-    global solver, v1, v2, v3, c_eq
+        # Print the average of the best 10 runs:
+        results.sort()
+        print '[Avg: %gms]' % ((sum(results[:10]) / 10) * 1000)
 
-    v1.value = 5.0
-    solver.weakest_variable(c_eq.variables())
+
+if __name__ == '__main__':
+    unittest.main()
+
+# vim:sw=4:et:ai
