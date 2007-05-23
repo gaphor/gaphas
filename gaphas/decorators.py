@@ -5,13 +5,10 @@ Custom decorators.
 __version__ = "$Revision$"
 # $HeadURL$
 
-if __name__ == '__main__':
-    import pygtk
-    pygtk.require('2.0')
-
 import gobject
 from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT
 import operator
+
 DEBUG_ASYNC = False
 
 class async(object):
