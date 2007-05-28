@@ -1,7 +1,34 @@
 """
-The constraint solver. 
+Constraint solver allows to define constraint between two or more different
+variables and keep this constraint always true when one or more of the
+constrained variables change. For example, one may want to keep two
+variables always equal.
 
-Constraints itself are placed in constraint.py
+Variables change and at some point of time we want to make all constraints
+valid again. This process is called solving constraints.
+
+Gaphas' solver allows to define constraints between Variable instances.
+Constraint classes are defined in gaphas.constraint module.
+
+How It Works
+============
+Every constraint contains list of variables and has to be registered in
+solver object. Variables change (Variables.dirty, Solver.mark_dirty
+methods) and their constraints are marked by solver as dirty. To solve
+constraints, solver loops through dirty constraints and asks constraint for
+a variable (called weakest variable), which
+
+- has the lowest strength
+- or if there are many variables with the same, lowest strength value
+  return first unchanged variable with lowest strength
+- or if there is no unchanged, then return the first changed with the
+  lowest strength
+
+(weakest variable invariants defined above)
+
+Having weakest variable (Constraint.weakest method) every constraint is
+being asked to solve itself (Constraint.solv_for method) changing
+appropriate variables to make the constraint valid again.
 """
 
 from __future__ import division
@@ -49,12 +76,13 @@ class Variable(object):
     def dirty(self):
         if self._solver:
             self._solver.mark_dirty(self)
+        for c in self._constraints:
+            c.mark_dirty(self)
 
     @observed
     def set_value(self, value):
         self._value = float(value)
-        if self._solver:
-            self._solver.mark_dirty(self)
+        self.dirty()
 
     value = reversible_property(lambda s: s._value, set_value)
 
@@ -275,8 +303,8 @@ class Solver(object):
     def __init__(self):
         # a dict of constraint -> name/variable mappings
         self._constraints = set()
-        self._marked_vars = []
         self._marked_cons = []
+        self._marked_cons_set = set()
         self._solving = False
 
     def mark_dirty(self, *variables):
@@ -286,32 +314,26 @@ class Solver(object):
 
         Example:
         >>> from constraint import EquationConstraint
-        >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
-        >>> s=Solver()
-        >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
+        >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
+        >>> s = Solver()
+        >>> c_eq = EquationConstraint(lambda a,b: a+b, a=a, b=b)
+        >>> s.add_constraint(c_eq)
         EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
-        >>> s._marked_vars
-        []
+        >>> c_eq._weakest
+        [Variable(1, 20), Variable(2, 20)]
         >>> s._marked_cons
         [EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
         >>> a.value=5.0
-        >>> s._marked_vars
-        [Variable(5, 20)]
+        >>> c_eq.weakest()
+        Variable(2, 20)
         >>> b.value=2.0
-        >>> s._marked_vars
-        [Variable(5, 20), Variable(2, 20)]
+        >>> c_eq.weakest()
+        Variable(5, 20)
         >>> a.value=5.0
-        >>> s._marked_vars
-        [Variable(2, 20), Variable(5, 20)]
+        >>> c_eq.weakest()
+        Variable(2, 20)
         """
         for variable in variables:
-            if not self._solving:
-                if variable in self._marked_vars:
-                    self._marked_vars.remove(variable)
-                self._marked_vars.append(variable)
-            elif variable not in self._marked_vars:
-                self._marked_vars.append(variable)
-
             for c in variable._constraints:
                 if not self._solving:
                     if c in self._marked_cons:
@@ -403,38 +425,16 @@ class Solver(object):
             if variable in c.variables():
                 yield c
 
-    def weakest_variable(self, variables):
-        """
-        Returns the name(!) of the weakest variable.
-
-        Example:
-        >>> s = Solver()
-        >>> s.weakest_variable([Variable(2.0, 30), Variable(2.0, 20)])
-        Variable(2, 20)
-        >>> a,b,c = Variable(), Variable(), Variable()
-        >>> s._marked_vars = [a, b, c]
-        """
-        marked_vars = self._marked_vars
-        wname, wvar = None, None
-        for v in variables:
-            if not wvar or \
-                (v.strength < wvar.strength) or \
-                (v.strength == wvar.strength and \
-                 (v not in marked_vars
-                  or wvar in marked_vars and \
-                  marked_vars.index(v) < marked_vars.index(wvar))):
-                wvar = v
-        return wvar
 
     def solve(self):
         """
         Example:
         >>> from constraint import EquationConstraint
-        >>> a,b,c = Variable(1.0), Variable(2.0), Variable(3.0)
-        >>> s=Solver()
+        >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
+        >>> s = Solver()
         >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
         EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
-        >>> a.value=5.0
+        >>> a.value = 5.0
         >>> s.solve()
         >>> len(s._marked_cons)
         0
@@ -446,9 +446,11 @@ class Solver(object):
         2
         >>> len(s._marked_cons)
         1
-        >>> s.solve()
         >>> b._value
         -5.0
+        >>> s.solve()
+        >>> b._value
+        -3.0
         >>> a.value = 10
         >>> s.solve()
         >>> c._value
@@ -456,7 +458,6 @@ class Solver(object):
         """
         constraints = self._constraints
         marked_cons = self._marked_cons
-        weakest_variable = self.weakest_variable
         try:
             self._solving = True
 
@@ -467,12 +468,11 @@ class Solver(object):
             while n < len(marked_cons):
                 c = marked_cons[n]
                 if not c.disabled:
-                    wvar = weakest_variable(c.variables())
+                    wvar = c.weakest()
                     c.solve_for(wvar)
                 n += 1
 
             self._marked_cons = []
-            self._marked_vars = []
         finally:
             self._solving = False
 

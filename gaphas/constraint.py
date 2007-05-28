@@ -23,6 +23,7 @@ Available constraints are:
        is kept to a minimum
 """
 from __future__ import division
+import operator
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -30,15 +31,54 @@ __version__ = "$Revision$"
 class Constraint(object):
     """
     Constraint base class.
+
+    - _variables - list of all variables
+    - _weakest   - list of weakest variables
     """
     disabled = False
+
+    def __init__(self, *variables):
+        """
+        Create new constraint, register all variables, and find weakest
+        variables.
+        """
+        self._variables = []
+        for v in variables:
+            self._variables.append(v)
+        v = min(self._variables, key=operator.attrgetter('strength'))
+        strength = v.strength
+        self._weakest = []
+        for v in self._variables:
+            if strength == v.strength:
+                self._weakest.append(v)
+
 
     def variables(self):
         """
         Return an iterator which iterates over the variables that are
         held by this constraint.
         """
-        raise NotImplemented
+        return self._variables
+
+
+    def weakest(self):
+        """
+        Return the weakest variable. The weakest variable should be always
+        as first element of Constraint._weakest list.
+        """
+        return self._weakest[0]
+
+
+    def mark_dirty(self, v):
+        """
+        Mark variable v dirty and if possible move it to the end of
+        Constraint._weakest list to maintain weakest variable invariants
+        (see gaphas.solver module documentation).
+        """
+        if v is self.weakest():
+            self._weakest.remove(v)
+            self._weakest.append(v)
+
 
     def solve_for(self, var):
         """
@@ -46,6 +86,7 @@ class Constraint(object):
         The variable itself is updated.
         """
         raise NotImplemented
+
 
 
 class EqualsConstraint(Constraint):
@@ -66,12 +107,9 @@ class EqualsConstraint(Constraint):
     """
 
     def __init__(self, a=None, b=None):
+        super(EqualsConstraint, self).__init__(a, b)
         self.a = a
         self.b = b
-
-    def variables(self):
-        yield self.a
-        yield self.b
 
     def solve_for(self, var):
         assert var in (self.a, self.b)
@@ -101,12 +139,9 @@ class LessThanConstraint(Constraint):
     """
 
     def __init__(self, smaller=None, bigger=None):
+        super(LessThanConstraint, self).__init__(smaller, bigger)
         self.smaller = smaller
         self.bigger = bigger
-
-    def variables(self):
-        yield self.smaller
-        yield self.bigger
 
     def solve_for(self, var):
         if self.smaller.value > self.bigger.value:
@@ -143,6 +178,7 @@ class EquationConstraint(Constraint):
     """
     
     def __init__(self, f, **args):
+        super(EquationConstraint, self).__init__(*args.values())
         self._f = f
         self._args = {}
         # see important note on order of operations in __setattr__ below.
@@ -189,8 +225,6 @@ class EquationConstraint(Constraint):
             self._args[arg]  # raise exception if arg not in _args
             setattr(self, arg, args[arg])
 
-    def variables(self):
-        return self._args.itervalues()
 
     def solve_for(self, var):
         """
@@ -272,6 +306,13 @@ class LineConstraint(Constraint):
 
     def __init__(self, canvas, connect_to_item, handle_1, handle_2,
                  connected_item, connected_handle):
+        super(LineConstraint, self).__init__(handle_1.x,
+                handle_1.y,
+                handle_2.x,
+                handle_2.y,
+                connected_handle.x,
+                connected_handle.y)
+
         self._canvas = canvas
         self._connect_to_item = connect_to_item
         self._handle_1 = handle_1
@@ -280,13 +321,6 @@ class LineConstraint(Constraint):
         self._connected_handle = connected_handle
         self.update_ratio()
 
-    def variables(self):
-        yield self._handle_1.x
-        yield self._handle_1.y
-        yield self._handle_2.x
-        yield self._handle_2.y
-        yield self._connected_handle.x
-        yield self._connected_handle.y
 
     def update_ratio(self):
         """
