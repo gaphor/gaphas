@@ -70,6 +70,8 @@ class Variable(object):
     @observed
     def _set_strength(self, strength):
         self._strength = strength
+        for c in self._constraints:
+            c.create_weakest_list()
 
     strength = reversible_property(lambda s: s._strength, _set_strength)
 

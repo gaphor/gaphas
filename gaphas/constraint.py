@@ -45,14 +45,17 @@ class Constraint(object):
         self._variables = []
         for v in variables:
             self._variables.append(v)
-        # Python 2.5:
-        #v = min(self._variables, key=operator.attrgetter('strength'))
-        #strength = v.strength
-        strength = min(map(operator.attrgetter('strength'), self._variables))
-        self._weakest = []
-        for v in self._variables:
-            if strength == v.strength:
-                self._weakest.append(v)
+
+        self.create_weakest_list()
+
+
+    def create_weakest_list(self):
+        """
+        Create list of weakest variables.
+        """
+        # strength = min([v.strength for v in self._variables])
+        strength = min(v.strength for v in self._variables)
+        self._weakest = [v for v in self._variables if v.strength == strength]
 
 
     def variables(self):

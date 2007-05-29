@@ -69,6 +69,18 @@ class WeakestVariableTestCase(unittest.TestCase):
         self.assertEqual(c_eq.weakest(), c)
 
 
+    def test_strength_change(self):
+        """Test strength change"""
+        solver = Solver()
+        a = Variable(1, 30)
+        b = Variable(2, 10)
+        c = Variable(3, 10)
+
+        c_eq = EquationConstraint(lambda a, b, c: a + b + c, a=a, b=b, c=c)
+
+        b.strength = 9
+        self.assertEqual(c_eq._weakest, [b])
+
 
 class SolverSpeedTestCase(unittest.TestCase):
     """
