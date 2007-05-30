@@ -548,12 +548,14 @@ class GtkView(gtk.DrawingArea, View):
             except KeyError:
                 pass # No bounds calculated yet? bummer.
             else:
-                self.queue_draw_area(b.x0 - 1, b.y0 - 1, b.width + 2, b.height + 2)
+                draw_area = Rectangle(b.x0 - 1, b.y0 - 1, width=b.width + 2, height=b.height + 2)
                 if handles:
                     for h in item.handles():
                         x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
                         x, y = self._matrix.transform_point(x, y)
-                        self.queue_draw_area(x - 5, y - 5, 10, 10)
+                        draw_area += (x - 5, y - 5, x + 5, y + 5)
+                self.queue_draw_area(draw_area.x0, draw_area.y0,
+                                     draw_area.width, draw_area.height)
 
     def queue_draw_area(self, x, y, w, h):
         """
