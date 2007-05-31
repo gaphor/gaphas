@@ -133,6 +133,9 @@ class View(object):
         self._matrix = Matrix()
         self._painter = DefaultPainter()
 
+        self._dirty_items = set()
+        self._dirty_matrix_items = set()
+
     matrix = property(lambda s: s._matrix)
 
     def _set_canvas(self, canvas):
@@ -563,8 +566,17 @@ class GtkView(gtk.DrawingArea, View):
         """
         super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
-    @async(single=False, priority=PRIORITY_HIGH_IDLE)
-    def request_update(self, items):
+    def request_update(self, items, matrix_only_items=()):
+        """
+        Request update for items.
+        """
+        self._dirty_items.update(items)
+        self._dirty_matrix_items.update(items)
+        self._dirty_matrix_items.update(matrix_only_items)
+        self.update()
+
+    @async(single=True, priority=PRIORITY_HIGH_IDLE)
+    def update(self):
         """
         Update view status according to the items updated by the canvas.
         """
@@ -573,33 +585,41 @@ class GtkView(gtk.DrawingArea, View):
         with_handles = set(self._selected_items)
         with_handles.add(self._hovered_item)
         with_handles.add(self._focused_item)
+        
+        items = set(self._dirty_items)
+        # For now, keep things working (slowly)
+        items.update(self._dirty_matrix_items)
 
         all_items = self._canvas.get_all_items()
         removed = [i for i in items if i not in all_items]
         
-        for i in items:
-            self.queue_draw_item(i, handles=(i in with_handles))
+        try:
+            for i in items:
+                self.queue_draw_item(i, handles=(i in with_handles))
 
-        # Remove removed items:
-        for i in removed:
-            self.selected_items.discard(i)
-            if i is self.focused_item:
-                self.focused_item = None
-            if i is self.hovered_item:
-                self.hovered_item = None
-        items = [ i for i in items if i not in removed ]
+            # Remove removed items:
+            for i in removed:
+                self.selected_items.discard(i)
+                if i is self.focused_item:
+                    self.focused_item = None
+                if i is self.hovered_item:
+                    self.hovered_item = None
+            items = [ i for i in items if i not in removed ]
 
-        # Pseudo-draw
-        cr = self.window.cairo_create()
-        cr.rectangle(0,0,0,0)
-        cr.clip()
+            # Pseudo-draw
+            cr = self.window.cairo_create()
+            cr.rectangle(0,0,0,0)
+            cr.clip()
 
-        self.update_bounding_box(cr, items)
+            self.update_bounding_box(cr, items)
 
-        for i in items:
-            self.queue_draw_item(i, handles=(i in with_handles))
+            for i in items:
+                self.queue_draw_item(i, handles=(i in with_handles))
 
-        self.update_adjustments()
+            self.update_adjustments()
+        finally:
+            self._dirty_items.clear()
+            self._dirty_matrix_items.clear()
 
     @nonrecursive
     def do_size_allocate(self, allocation):

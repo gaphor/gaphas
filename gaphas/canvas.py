@@ -303,15 +303,14 @@ class Canvas(object):
             >>> len(c._dirty_items)
             0
         """
-        if True:
-            self._dirty_items.add(item)
-            self._dirty_matrix_items.add(item)
+        self._dirty_items.add(item)
+        self._dirty_matrix_items.add(item)
 
-            # Also add update requests for parents of item
-            parent = self._tree.get_parent(item)
-            while parent:
-                self._dirty_items.add(parent)
-                parent = self._tree.get_parent(parent)
+        # Also add update requests for parents of item
+        parent = self._tree.get_parent(item)
+        while parent:
+            self._dirty_items.add(parent)
+            parent = self._tree.get_parent(parent)
         self.update()
 
     reversible_method(request_update, reverse=request_update)
@@ -357,7 +356,7 @@ class Canvas(object):
         self._in_update = True
         dirty_items = []
         # dirty_items is a subset of dirty_matrix_items
-        redraw_items = set(self._dirty_matrix_items)
+        dirty_matrix_items = set(self._dirty_matrix_items)
         try:
             cairo_context = self._obtain_cairo_context()
 
@@ -386,7 +385,7 @@ class Canvas(object):
             dirty_items = [ item for item in reversed(self._tree.nodes) \
                                  if item in self._dirty_items ]
 
-            redraw_items.update(self._dirty_matrix_items)
+            dirty_matrix_items.update(self._dirty_matrix_items)
             self.update_matrices()
 
             for item in dirty_items:
@@ -396,7 +395,6 @@ class Canvas(object):
                     c = Context(parent=self._tree.get_parent(item),
                                 children=self._tree.get_children(item),
                                 cairo=cairo_context)
-                #context_map[item] = c
                 try:
                     item.update(c)
                 except Exception, e:
@@ -405,8 +403,7 @@ class Canvas(object):
                     traceback.print_exc()
 
         finally:
-            #self._update_views(dirty_items)
-            self._update_views(redraw_items)
+            self._update_views(dirty_items, dirty_matrix_items)
             self._dirty_items.clear()
             self._in_update = False
 
@@ -477,12 +474,12 @@ class Canvas(object):
         """
         self._registered_views.discard(view)
 
-    def _update_views(self, items):
+    def _update_views(self, dirty_items, dirty_matrix_items=()):
         """
         Send an update notification to all registered views.
         """
         for v in self._registered_views:
-            v.request_update(items)
+            v.request_update(dirty_items, dirty_matrix_items)
 
     def _obtain_cairo_context(self):
         """
