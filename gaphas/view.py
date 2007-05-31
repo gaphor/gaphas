@@ -124,7 +124,7 @@ class View(object):
         self._canvas = canvas
         self._bounds = Rectangle()
 
-        # Item boundries, in canvas coordinates.
+        # Item boundries, as tuple (canvas coordinates, item coordinates).
         self._item_bounds = dict()
 
         # Handling selections.
@@ -289,14 +289,38 @@ class View(object):
     def set_item_bounding_box(self, item, bounds):
         """
         Update the bounding box of the item (in canvas coordinates).
+
+        Coordinates are calculated back to item coordinates, so matrix-only
+        updates can occur.
         """
-        self._item_bounds[item] = bounds
+        # Converting from item to canvas coordinates doesn't work properly,
+        # since items should take into account their child objects when
+        # bounding boxes are calculated. Now, the child objects should not
+        # be hindered by their own matrix settings.
+        #cx0, cy0 = self.transform_point_i2c(item, int(bounds.x0), int(bounds.y0))
+        #cx1, cy1 = self.transform_point_i2c(item, int(bounds.x1 + 1), int(bounds.y1) + 1)
+        #self._item_bounds[item] = Rectangle(cx0, cy0, cx1, cy1)
+        #print bounds, 'in canvas coordinates', Rectangle(cx0, cy0, cx1, cy1)
+        #self._item_bounds[item] = bounds
+
+        ix0, iy0 = self.transform_point_c2i(item, bounds.x0, bounds.y0)
+        ix1, iy1 = self.transform_point_c2i(item, bounds.x1, bounds.y1)
+        self._item_bounds[item] = bounds, Rectangle(ix0, iy0, ix1, iy1)
+
+        # Update bounding box of parent items where appropriate (only extent)
+        parent = self.canvas.get_parent(item)
+        if parent:
+            parent_bounds, _ = self._item_bounds.get(parent, (None, None))
+            if parent_bounds and not bounds in parent_bounds:
+                self.set_item_bounding_box(parent, parent_bounds + bounds)
+
+        #print bounds, 'in item coordinates', Rectangle(ix0, iy0, ix1, iy1)
 
     def get_item_bounding_box(self, item):
         """
         Get the bounding box for the item, in canvas coordinates.
         """
-        return self._item_bounds[item]
+        return self._item_bounds[item][0]
 
     def get_canvas_size(self):
         """
@@ -326,7 +350,7 @@ class View(object):
 
         # Update the view's bounding box with the rest of the items
         bounds = self._bounds = Rectangle()
-        for b in self._item_bounds.itervalues():
+        for b, ib in self._item_bounds.itervalues():
             bounds += b
 
     def paint(self, cr):

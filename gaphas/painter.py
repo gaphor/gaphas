@@ -160,10 +160,6 @@ class BoundingBoxPainter(ItemPainter):
         """
         for item in items:
             context = view.wrap_cairo_context(cairo)
-            #try:
-            #    del view._item_bounds[item]
-            #except KeyError:
-            #    pass
             self._draw_item(item, view, context)
             view.set_item_bounding_box(item, context.get_bounds())
 
