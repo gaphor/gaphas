@@ -123,6 +123,8 @@ class View(object):
     def __init__(self, canvas=None):
         self._canvas = canvas
         self._bounds = Rectangle()
+
+        # Item boundries, in canvas coordinates.
         self._item_bounds = dict()
 
         # Handling selections.
@@ -282,7 +284,7 @@ class View(object):
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        self.request_update(self._canvas.get_all_items())
+        self.request_update((), self._canvas.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -316,6 +318,8 @@ class View(object):
         painter = BoundingBoxPainter()
         if items is None:
             items = self.canvas.get_root_items()
+
+        # The painter calls set_item_bounding_box() for each rendered item.
         painter.paint(Context(view=self,
                               cairo=cr,
                               items=items))
@@ -568,11 +572,14 @@ class GtkView(gtk.DrawingArea, View):
 
     def request_update(self, items, matrix_only_items=()):
         """
-        Request update for items.
+        Request update for items. Items will get a full update treatment, while
+        matrix_only_items will only have their bounding box recalculated.
         """
-        self._dirty_items.update(items)
-        self._dirty_matrix_items.update(items)
-        self._dirty_matrix_items.update(matrix_only_items)
+        if items:
+            self._dirty_items.update(items)
+            self._dirty_matrix_items.update(items)
+        if matrix_only_items:
+            self._dirty_matrix_items.update(matrix_only_items)
         self.update()
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
@@ -586,16 +593,23 @@ class GtkView(gtk.DrawingArea, View):
         with_handles.add(self._hovered_item)
         with_handles.add(self._focused_item)
         
-        items = set(self._dirty_items)
+        dirty_items = self._dirty_items
+
         # For now, keep things working (slowly)
-        items.update(self._dirty_matrix_items)
+        dirty_items.update(self._dirty_matrix_items)
 
         all_items = self._canvas.get_all_items()
-        removed = [i for i in items if i not in all_items]
+        removed = [i for i in dirty_items if i not in all_items]
         
         try:
-            for i in items:
+            for i in dirty_items:
                 self.queue_draw_item(i, handles=(i in with_handles))
+
+            # For items that have only been moved (dirty_matrix_items):
+            #  0. Filter full-update items from matrix-update-only items
+            #  1. Have to know what the offset is since the last update
+            #  2. apply the offset to self._item_bounds[item]
+            #  3. If that does not exist, fall back to full rendering
 
             # Remove removed items:
             for i in removed:
@@ -604,16 +618,16 @@ class GtkView(gtk.DrawingArea, View):
                     self.focused_item = None
                 if i is self.hovered_item:
                     self.hovered_item = None
-            items = [ i for i in items if i not in removed ]
+            dirty_items = [ i for i in dirty_items if i not in removed ]
 
             # Pseudo-draw
             cr = self.window.cairo_create()
             cr.rectangle(0,0,0,0)
             cr.clip()
 
-            self.update_bounding_box(cr, items)
+            self.update_bounding_box(cr, dirty_items)
 
-            for i in items:
+            for i in dirty_items:
                 self.queue_draw_item(i, handles=(i in with_handles))
 
             self.update_adjustments()
