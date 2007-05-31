@@ -283,8 +283,11 @@ class ItemTool(Tool):
         If a button is pressed move the items around.
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
-            view = context.view
             # Move selected items
+            view = context.view
+            canvas = view.canvas
+
+            selected_items = view.selected_items
 
             # First request redraws for all items, before enything is
             # changed.
@@ -301,24 +304,28 @@ class ItemTool(Tool):
                         h.x.dirty()
                         h.y.dirty()
 
+            # Calculate the distance the item has to be moved
+            dx, dy = view.transform_distance_c2w(event.x - self.last_x,
+                                                 event.y - self.last_y)
+
+            get_matrix_w2i = canvas.get_matrix_w2i
+            get_ancestors = canvas.get_ancestors
             # Now do the actual moving.
             for i in view.selected_items:
                 # Do not move subitems of selected items
-                anc = set(view.canvas.get_ancestors(i))
+                anc = set(get_ancestors(i))
                 if anc.intersection(view.selected_items):
                     continue
 
-                # Calculate the distance the item has to be moved
-                dx, dy = view.transform_distance_c2w(event.x - self.last_x,
-                                                     event.y - self.last_y)
                 # Move the item and schedule it for an update
-                i.matrix.translate(*view.canvas.get_matrix_w2i(i).transform_distance(dx, dy))
-                i.request_update()
-                i.canvas.update_matrices()
-                b = view.get_item_bounding_box(i)
-                view.queue_draw_item(i, handles=True)
-                view.queue_draw_area(b.x0 + dx - 1, b.y0 + dy - 1,
-                                     b.width + 2, b.height + 2)
+                i.matrix.translate(*get_matrix_w2i(i).transform_distance(dx, dy))
+                canvas.request_matrix_update(i)
+#                i.canvas.update_matrices()
+#                b = view.get_item_bounding_box(i)
+#                view.queue_draw_item(i, handles=True)
+#                view.queue_draw_area(b.x0 + dx - 1, b.y0 + dy - 1,
+#                                     b.width + 2, b.height + 2)
+
             self.last_x, self.last_y = event.x, event.y
             return True
 

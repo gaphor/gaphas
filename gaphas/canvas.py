@@ -356,11 +356,15 @@ class Canvas(object):
         """
         self._in_update = True
         dirty_items = []
+        # dirty_items is a subset of dirty_matrix_items
+        redraw_items = set(self._dirty_matrix_items)
         try:
             cairo_context = self._obtain_cairo_context()
 
+            # Order the dirty items, so they are updated bottom to top
             dirty_items = [ item for item in reversed(self._tree.nodes) \
                                  if item in self._dirty_items ]
+
             context_map = dict()
             for item in dirty_items:
                 c = Context(parent=self._tree.get_parent(item),
@@ -378,16 +382,21 @@ class Canvas(object):
 
             self._solver.solve()
 
+            # Order the dirty items, so they are updated bottom to top
             dirty_items = [ item for item in reversed(self._tree.nodes) \
                                  if item in self._dirty_items ]
 
+            redraw_items.update(self._dirty_matrix_items)
             self.update_matrices()
 
             for item in dirty_items:
-                c = Context(parent=self._tree.get_parent(item),
-                            children=self._tree.get_children(item),
-                            cairo=cairo_context)
-                context_map[item] = c
+                try:
+                    c = context_map[item]
+                except KeyError:
+                    c = Context(parent=self._tree.get_parent(item),
+                                children=self._tree.get_children(item),
+                                cairo=cairo_context)
+                #context_map[item] = c
                 try:
                     item.update(c)
                 except Exception, e:
@@ -396,7 +405,8 @@ class Canvas(object):
                     traceback.print_exc()
 
         finally:
-            self._update_views(dirty_items)
+            #self._update_views(dirty_items)
+            self._update_views(redraw_items)
             self._dirty_items.clear()
             self._in_update = False
 
