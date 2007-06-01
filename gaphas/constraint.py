@@ -217,6 +217,8 @@ class EquationConstraint(Constraint):
         if self.__dict__.has_key('_args'):
             if name in self._args:
                 self._args[name] = value
+            elif name in self.__dict__:
+                self.__dict__[name] = value
             else:
                 raise KeyError, name
         else:
