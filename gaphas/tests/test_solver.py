@@ -34,6 +34,7 @@ class WeakestVariableTestCase(unittest.TestCase):
         c = Variable(3, 10)
 
         c_eq = EquationConstraint(lambda a, b, c: a + b + c, a=a, b=b, c=c)
+        solver.add_constraint(c_eq)
 
         # because of kwargs above we cannot test by the order of arguments
         self.assertTrue(b in c_eq._weakest)
@@ -48,6 +49,7 @@ class WeakestVariableTestCase(unittest.TestCase):
         c = Variable(3, 10)
 
         c_eq = EquationConstraint(lambda a, b, c: a + b + c, a=a, b=b, c=c)
+        solver.add_constraint(c_eq)
 
         weakest = [el for el in c_eq._weakest]
         a.value = 4
@@ -77,6 +79,7 @@ class WeakestVariableTestCase(unittest.TestCase):
         c = Variable(3, 10)
 
         c_eq = EquationConstraint(lambda a, b, c: a + b + c, a=a, b=b, c=c)
+        solver.add_constraint(c_eq)
 
         b.strength = 9
         self.assertEqual(c_eq._weakest, [b])
