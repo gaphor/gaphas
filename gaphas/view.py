@@ -543,14 +543,13 @@ class GtkView(gtk.DrawingArea, View):
         # Add dirty_matrix_items' children to dirty_matrix_items set
         # For normal dirty_items this is taken care of in the boundingbox draw
         get_all_children = self._canvas.get_all_children
-        for i in set(dirty_matrix_items):
+        for i in frozenset(dirty_matrix_items):
             dirty_matrix_items.update(get_all_children(i))
 
         # Do not update items that require a full update (or are removed)
         dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
 
-        all_items = self._canvas.get_all_items()
-        removed = [i for i in dirty_items if i not in all_items]
+        removed = dirty_items.difference(self._canvas.get_all_items())
         
         try:
             for i in dirty_items:
@@ -573,7 +572,8 @@ class GtkView(gtk.DrawingArea, View):
                     self.focused_item = None
                 if i is self.hovered_item:
                     self.hovered_item = None
-            dirty_items = [ i for i in dirty_items if i not in removed ]
+
+            dirty_items = dirty_items.difference(removed)
 
             # Pseudo-draw
             cr = self.window.cairo_create()
