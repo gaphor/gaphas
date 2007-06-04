@@ -538,9 +538,16 @@ class GtkView(gtk.DrawingArea, View):
         with_handles.add(self._focused_item)
         
         dirty_items = self._dirty_items
+        dirty_matrix_items = self._dirty_matrix_items
 
-        # For now, keep things working (slowly)
-        dirty_items.update(self._dirty_matrix_items)
+        # Add dirty_matrix_items' children to dirty_matrix_items set
+        # For normal dirty_items this is taken care of in the boundingbox draw
+        get_all_children = self.canvas.get_all_children
+        for i in set(dirty_matrix_items):
+            dirty_matrix_items.update(get_all_children(i))
+
+        # Do not update items that require a full update (or are removed)
+        dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
 
         all_items = self._canvas.get_all_items()
         removed = [i for i in dirty_items if i not in all_items]
@@ -549,11 +556,15 @@ class GtkView(gtk.DrawingArea, View):
             for i in dirty_items:
                 self.queue_draw_item(i, handles=(i in with_handles))
 
-            # For items that have only been moved (dirty_matrix_items):
-            #  0. Filter full-update items from matrix-update-only items
-            #  1. Have to know what the offset is since the last update
-            #  2. apply the offset to self._item_bounds[item]
-            #  3. If that does not exist, fall back to full rendering
+            for i in dirty_matrix_items:
+                self.queue_draw_item(i, handles=(i in with_handles))
+                bounds = self._item_bounds.get(i, (None, None))[1]
+                if not bounds:
+                    dirty_items.add(i)
+                else:
+                    x0, y0 = self.transform_point_i2c(i, bounds.x0, bounds.y0)
+                    x1, y1 = self.transform_point_i2c(i, bounds.x1, bounds.y1)
+                    self._item_bounds[i] = Rectangle(x0, y0, x1, y1), bounds
 
             # Remove removed items:
             for i in removed:
