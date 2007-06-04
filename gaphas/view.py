@@ -542,7 +542,7 @@ class GtkView(gtk.DrawingArea, View):
 
         # Add dirty_matrix_items' children to dirty_matrix_items set
         # For normal dirty_items this is taken care of in the boundingbox draw
-        get_all_children = self.canvas.get_all_children
+        get_all_children = self._canvas.get_all_children
         for i in set(dirty_matrix_items):
             dirty_matrix_items.update(get_all_children(i))
 
