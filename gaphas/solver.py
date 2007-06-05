@@ -306,7 +306,6 @@ class Solver(object):
         # a dict of constraint -> name/variable mappings
         self._constraints = set()
         self._marked_cons = []
-        self._marked_cons_set = set()
         self._solving = False
 
     def mark_dirty(self, *variables):
