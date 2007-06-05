@@ -521,7 +521,6 @@ class GtkView(gtk.DrawingArea, View):
         """
         if items:
             self._dirty_items.update(items)
-            self._dirty_matrix_items.update(items)
         if matrix_only_items:
             self._dirty_matrix_items.update(matrix_only_items)
         self.update()
