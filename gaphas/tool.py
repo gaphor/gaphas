@@ -533,12 +533,12 @@ class RubberbandTool(Tool):
         view.queue_draw_area(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
 
     def draw(self, context):
-        c = context.cairo
+        cr = context.cairo
         r = self.rect
-        c.set_line_width(1.0)
-        c.set_source_rgba(.5, .5, .7, .6)
-        c.rectangle(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
-        c.fill()
+        cr.set_line_width(1.0)
+        cr.set_source_rgba(.5, .5, .7, .6)
+        cr.rectangle(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
+        cr.fill()
 
 
 class PlacementTool(Tool):
