@@ -226,11 +226,6 @@ class View(object):
         # since items should take into account their child objects when
         # bounding boxes are calculated. Now, the child objects should not
         # be hindered by their own matrix settings.
-        #cx0, cy0 = self.transform_point_i2c(item, int(bounds.x0), int(bounds.y0))
-        #cx1, cy1 = self.transform_point_i2c(item, int(bounds.x1 + 1), int(bounds.y1) + 1)
-        #self._item_bounds[item] = Rectangle(cx0, cy0, cx1, cy1)
-        #print bounds, 'in canvas coordinates', Rectangle(cx0, cy0, cx1, cy1)
-        #self._item_bounds[item] = bounds
 
         ix0, iy0 = self.transform_point_c2i(item, bounds.x0, bounds.y0)
         ix1, iy1 = self.transform_point_c2i(item, bounds.x1, bounds.y1)
@@ -242,8 +237,6 @@ class View(object):
             parent_bounds, _ = self._item_bounds.get(parent, (None, None))
             if parent_bounds and not bounds in parent_bounds:
                 self.set_item_bounding_box(parent, parent_bounds + bounds)
-
-        #print bounds, 'in item coordinates', Rectangle(ix0, iy0, ix1, iy1)
 
     def get_item_bounding_box(self, item):
         """
@@ -548,7 +541,7 @@ class GtkView(gtk.DrawingArea, View):
         # Do not update items that require a full update (or are removed)
         dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
 
-        removed = dirty_items.difference(self._canvas.get_all_items())
+        removed_items = dirty_items.difference(self._canvas.get_all_items())
         
         try:
             for i in dirty_items:
@@ -565,14 +558,12 @@ class GtkView(gtk.DrawingArea, View):
                     self._item_bounds[i] = Rectangle(x0, y0, x1, y1), bounds
 
             # Remove removed items:
-            for i in removed:
-                self.selected_items.discard(i)
-                if i is self.focused_item:
-                    self.focused_item = None
-                if i is self.hovered_item:
-                    self.hovered_item = None
-
-            dirty_items = dirty_items.difference(removed)
+            dirty_items.difference_update(removed_items)
+            self.selected_items.difference_update(removed_items)
+            if self.focused_item in removed_items:
+                self.focused_item = None
+            if self.hovered_item in removed_items:
+                self.hovered_item = None
 
             # Pseudo-draw
             cr = self.window.cairo_create()

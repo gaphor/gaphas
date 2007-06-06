@@ -291,9 +291,9 @@ class ItemTool(Tool):
 
             # First request redraws for all items, before enything is
             # changed.
+            view.queue_draw_item(handles=True, *view.selected_items)
             for i in view.selected_items:
                 # Set a redraw request before the item is updated
-                view.queue_draw_item(i, handles=True)
                 for h in i.handles():
                     h.x.dirty()
                     h.y.dirty()
@@ -320,11 +320,6 @@ class ItemTool(Tool):
                 # Move the item and schedule it for an update
                 i.matrix.translate(*get_matrix_w2i(i).transform_distance(dx, dy))
                 canvas.request_matrix_update(i)
-#                i.canvas.update_matrices()
-#                b = view.get_item_bounding_box(i)
-#                view.queue_draw_item(i, handles=True)
-#                view.queue_draw_area(b.x0 + dx - 1, b.y0 + dy - 1,
-#                                     b.width + 2, b.height + 2)
 
             self.last_x, self.last_y = event.x, event.y
             return True
