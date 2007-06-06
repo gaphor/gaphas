@@ -361,8 +361,8 @@ class Canvas(object):
             cairo_context = self._obtain_cairo_context()
 
             # Order the dirty items, so they are updated bottom to top
-            dirty_items = [ item for item in reversed(self._tree.nodes) \
-                                 if item in self._dirty_items ]
+            dirty_items = ( item for item in reversed(self._tree.nodes) \
+                                 if item in self._dirty_items )
 
             context_map = dict()
             for item in dirty_items:
@@ -382,8 +382,8 @@ class Canvas(object):
             self._solver.solve()
 
             # Order the dirty items, so they are updated bottom to top
-            dirty_items = [ item for item in reversed(self._tree.nodes) \
-                                 if item in self._dirty_items ]
+            dirty_items = ( item for item in reversed(self._tree.nodes) \
+                                 if item in self._dirty_items )
 
             dirty_matrix_items.update(self._dirty_matrix_items)
             self.update_matrices()
@@ -446,19 +446,25 @@ class Canvas(object):
 
         if parent:
             if parent in self._dirty_matrix_items:
+                # Parent takes care of updating the child
                 self.update_matrix(parent)
-            item._canvas_matrix_i2w = Matrix(*item.matrix)
-            item._canvas_matrix_i2w *= parent._canvas_matrix_i2w
+            else:
+                item._canvas_matrix_i2w = Matrix(*item.matrix)
+                item._canvas_matrix_i2w *= parent._canvas_matrix_i2w
+
+                # It's nice to have the W2I matrix present too:
+                item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
+                item._canvas_matrix_w2i.invert()
         else:
             item._canvas_matrix_i2w = Matrix(*item.matrix)
 
-        # It's nice to have the W2I matrix present too:
-        item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
-        item._canvas_matrix_w2i.invert()
+            # It's nice to have the W2I matrix present too:
+            item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
+            item._canvas_matrix_w2i.invert()
 
         if recursive:
             for child in self._tree.get_children(item):
-                self.update_matrix(child, recursive)
+                self.update_matrix(child)
 
     def register_view(self, view):
         """
