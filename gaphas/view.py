@@ -236,6 +236,7 @@ class View(object):
         if parent:
             parent_bounds, _ = self._item_bounds.get(parent, (None, None))
             if parent_bounds and not bounds in parent_bounds:
+                print 'updating bb of parent', parent, parent_bounds + bounds
                 self.set_item_bounding_box(parent, parent_bounds + bounds)
 
     def get_item_bounding_box(self, item):
@@ -555,7 +556,15 @@ class GtkView(gtk.DrawingArea, View):
                 else:
                     x0, y0 = self.transform_point_i2c(i, bounds.x0, bounds.y0)
                     x1, y1 = self.transform_point_i2c(i, bounds.x1, bounds.y1)
-                    self._item_bounds[i] = Rectangle(x0, y0, x1, y1), bounds
+                    cbounds = Rectangle(x0, y0, x1, y1)
+                    self._item_bounds[i] = cbounds, bounds
+
+                    # TODO: find an elegant way to update parent bb's.
+                    parent = self.canvas.get_parent(i)
+                    if parent:
+                        parent_bounds, _ = self._item_bounds.get(parent, (None, None))
+                        if parent_bounds and not cbounds in parent_bounds:
+                            self.set_item_bounding_box(parent, parent_bounds + cbounds)
 
             # Remove removed items:
             dirty_items.difference_update(removed_items)
