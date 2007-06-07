@@ -564,6 +564,7 @@ class GtkView(gtk.DrawingArea, View):
                         parent_bounds, _ = self._item_bounds.get(parent, (None, None))
                         if parent_bounds and not cbounds in parent_bounds:
                             self.set_item_bounding_box(parent, parent_bounds + cbounds)
+                    self.queue_draw_item(i, handles=(i in with_handles))
 
             # Remove removed items:
             dirty_items.difference_update(removed_items)

@@ -403,7 +403,7 @@ class Canvas(object):
                     traceback.print_exc()
 
         finally:
-            self._update_views(dirty_items, dirty_matrix_items)
+            self._update_views(self._dirty_items, dirty_matrix_items)
             self._dirty_items.clear()
             self._in_update = False
 
