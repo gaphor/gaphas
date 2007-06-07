@@ -352,7 +352,11 @@ class Element(Item):
             add(lt(smaller=h[NE].y, bigger=h[SE].y)),
             add(lt(smaller=h[NW].y, bigger=h[SW].y)),
             ]
-        self.canvas.solver.mark_dirty(h[NW].x, h[NW].y, h[SE].x, h[SE].y)
+
+        # Immediately solve the constraints, ensuring the box is drawn okay
+        solve_for = (h[NE].y, h[SW].y, h[SW].x, h[NE].x)
+        for c, v in zip(self._constraints, solve_for):
+            c.solve_for(v)
         
     def teardown_canvas(self):
         """

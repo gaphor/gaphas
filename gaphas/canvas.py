@@ -431,7 +431,7 @@ class Canvas(object):
         dirty_items = self._dirty_matrix_items
         while dirty_items:
             item = dirty_items.pop()
-            self.update_matrix(item)
+            self.update_matrix(item, recursive=True)
 
     def update_matrix(self, item, recursive=True):
         """
@@ -446,21 +446,23 @@ class Canvas(object):
 
         if parent:
             if parent in self._dirty_matrix_items:
-                # Parent takes care of updating the child
+                # Parent takes care of updating the child, including current
                 self.update_matrix(parent)
+                return
             else:
                 item._canvas_matrix_i2w = Matrix(*item.matrix)
                 item._canvas_matrix_i2w *= parent._canvas_matrix_i2w
-
-                # It's nice to have the W2I matrix present too:
-                item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
-                item._canvas_matrix_w2i.invert()
         else:
             item._canvas_matrix_i2w = Matrix(*item.matrix)
 
-            # It's nice to have the W2I matrix present too:
-            item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
-            item._canvas_matrix_w2i.invert()
+        # It's nice to have the W2I matrix present too:
+        item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
+        item._canvas_matrix_w2i.invert()
+
+        # Make sure handles are marked (for constraint solving)
+        for h in item.handles():
+            h.x.dirty()
+            h.y.dirty()
 
         if recursive:
             for child in self._tree.get_children(item):

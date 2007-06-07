@@ -250,6 +250,7 @@ class ItemTool(Tool):
         self.last_x = 0
         self.last_y = 0
         self._buttons = buttons
+        self._movable_items = set()
 
     def on_button_press(self, context, event):
         view = context.view
@@ -269,11 +270,21 @@ class ItemTool(Tool):
             else:
                 view.focused_item = view.hovered_item
                 context.grab()
+
+                # Filter the items that should eventually be moved
+                get_ancestors = view.canvas.get_ancestors
+                selected_items = view.selected_items
+                for i in selected_items:
+                    # Do not move subitems of selected items
+                    if not set(get_ancestors(i)).intersection(selected_items):
+                        self._movable_items.add(i)
+
             return True
 
     def on_button_release(self, context, event):
         if event.button not in self._buttons:
             return False
+        self._movable_items.clear()
         context.ungrab()
         return True
 
@@ -291,32 +302,15 @@ class ItemTool(Tool):
 
             # First request redraws for all items, before enything is
             # changed.
-            view.queue_draw_item(handles=True, *view.selected_items)
-            for i in view.selected_items:
-                # Set a redraw request before the item is updated
-                for h in i.handles():
-                    h.x.dirty()
-                    h.y.dirty()
-
-                # Also mark handles of child items as dirty
-                for child in view.canvas.get_all_children(i):
-                    for h in child.handles():
-                        h.x.dirty()
-                        h.y.dirty()
+            view.queue_draw_item(handles=True, *self._movable_items)
 
             # Calculate the distance the item has to be moved
             dx, dy = view.transform_distance_c2w(event.x - self.last_x,
                                                  event.y - self.last_y)
 
             get_matrix_w2i = canvas.get_matrix_w2i
-            get_ancestors = canvas.get_ancestors
             # Now do the actual moving.
-            for i in view.selected_items:
-                # Do not move subitems of selected items
-                anc = set(get_ancestors(i))
-                if anc.intersection(view.selected_items):
-                    continue
-
+            for i in self._movable_items:
                 # Move the item and schedule it for an update
                 i.matrix.translate(*get_matrix_w2i(i).transform_distance(dx, dy))
                 canvas.request_matrix_update(i)
@@ -465,6 +459,7 @@ class HandleTool(Tool):
         """
         view = context.view
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            canvas = view.canvas
             item = self._grabbed_item
             handle = self._grabbed_handle
 
@@ -474,13 +469,13 @@ class HandleTool(Tool):
 
             # Calculate the distance the item has to be moved
             wx, wy = view.transform_point_c2w(event.x, event.y)
-            x, y = view.canvas.get_matrix_w2i(item).transform_point(wx, wy)
+            x, y = canvas.get_matrix_w2i(item).transform_point(wx, wy)
 
             # Do the actual move:
             self.move(view, item, handle, x, y)
             
             item.request_update()
-            item.canvas.update_matrices()
+            canvas.update_matrix(item)
             try:
                 if self._grabbed_handle.connectable:
                     self.glue(view, item, handle, wx, wy)
