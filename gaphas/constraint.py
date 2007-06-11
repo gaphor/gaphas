@@ -355,9 +355,9 @@ class LineConstraint(Constraint):
 
         get_i2w = self._canvas.get_matrix_i2w
 
-        sx, sy = get_i2w(self._connect_to_item).transform_point(start.x, start.y)
+        sx, sy = get_i2w(self._connect_to_item, calculate=True).transform_point(start.x, start.y)
         ex, ey = get_i2w(self._connect_to_item).transform_point(end.x, end.y)
-        px, py = get_i2w(self._connected_item).transform_point(point.x, point.y)
+        px, py = get_i2w(self._connected_item, calculate=True).transform_point(point.x, point.y)
 
         try:
             self.ratio_x = float(px - sx) / float(ex - sx)
