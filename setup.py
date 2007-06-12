@@ -37,7 +37,7 @@ class build_doc(Command):
 
 setup(
     name='gaphas',
-    version='0.1.5',
+    version='0.1.6',
     description='Gaphas is a GTK+ based diagramming widget',
     long_description="""\
 Gaphas is a GTK+ based diagramming widget written in Python.
