@@ -60,7 +60,7 @@ GTK+ and PyGTK is required.
     author="Arjan J. Molenaar",
     author_email='arjanmol@users.sourceforge.net',
 
-    url='http://gaphor.sourceforge.net/',
+    url='http://gaphor.devjavu.com/wiki/Subprojects/Gaphas',
 
     #download_url='http://cheeseshop.python.org/',
 
