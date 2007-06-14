@@ -33,6 +33,30 @@ from geometry import Rectangle
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
 
+
+class ToolContext(Context):
+    """
+    Special context for tools.
+    """
+
+    view = None
+
+    def __init__(self, **kwargs):
+        super(ToolContext, self).__init__(**kwargs)
+
+    def grab(self):
+        """
+        Grab the view (or tool, depending on the implementation).
+        """
+        self.view.grab_focus()
+
+    def ungrab(self):
+        """
+        Ungrab the view.
+        """
+        pass
+
+
 class Tool(object):
 
     def __init__(self):
@@ -122,7 +146,7 @@ class Tool(object):
 
 class ToolChainContext(Context):
     """
-    ToolChainContext is a wrapper for the view.ToolContext.
+    ToolChainContext is a wrapper for the ToolContext.
     In addition to normal grab/ungrab behavior, it selects the tool that
     is requesting the grab() as the one tool that will receive subsequent
     requests until it is ungrab()'ed.
@@ -309,6 +333,7 @@ class ItemTool(Tool):
                                                  event.y - self.last_y)
 
             get_matrix_w2i = canvas.get_matrix_w2i
+
             # Now do the actual moving.
             for i in self._movable_items:
                 # Move the item and schedule it for an update

@@ -169,7 +169,7 @@ class CairoBoundingBoxContext(object):
     def _update_bounds(self, bounds):
         if bounds:
             if not self._bounds:
-                self._bounds = Rectangle(*bounds)
+                self._bounds = bounds #Rectangle(bounds)
             else:
                 self._bounds += bounds
 
@@ -178,56 +178,58 @@ class CairoBoundingBoxContext(object):
         Calculate the bounding box for a given drawing operation.
         if @line_width is True, the current line-width is taken into account.
         """
-        ctx = self._cairo
-        ctx.save()
-        ctx.identity_matrix()
-        b = extents_func()
-        ctx.restore()
+        cr = self._cairo
+        cr.save()
+        cr.identity_matrix()
+        b = Rectangle(*extents_func())
+        cr.restore()
         if line_width:
             # Do this after the restore(), so we can get the proper width.
-            lw = self._cairo.get_line_width()/2
-            d = self._cairo.user_to_device_distance(lw, lw)
-            b = Rectangle(*b)
+            lw = cr.get_line_width()/2
+            d = cr.user_to_device_distance(lw, lw)
             b.expand(d[0]+d[1])
         self._update_bounds(b)
         return b
 
-        
     def fill(self, b=None):
+        cr = self._cairo
         if not b:
-            b = self._extents(self._cairo.fill_extents)
+            b = self._extents(cr.fill_extents)
         if self._nested:
-            self._cairo.fill(b)
+            cr.fill(b)
 
     def fill_preserve(self, b=None):
+        cr = self._cairo
         if not b:
-            b = self._extents(self._cairo.fill_extents)
+            b = self._extents(cr.fill_extents)
         if self._nested:
-            self._cairo.fill_preserve(b)
+            cr.fill_preserve(b)
 
     def stroke(self, b=None):
+        cr = self._cairo
         if not b:
-            b = self._extents(self._cairo.stroke_extents, line_width=True)
+            b = self._extents(cr.stroke_extents, line_width=True)
         if self._nested:
-            self._cairo.stroke()
+            cr.stroke()
 
     def stroke_preserve(self, b=None):
+        cr = self._cairo
         if not b:
-            b = self._extents(self._cairo.stroke_extents, line_width=True)
+            b = self._extents(cr.stroke_extents, line_width=True)
         if self._nested:
-            self._cairo.stroke_preserve()
+            cr.stroke_preserve()
 
     def show_text(self, utf8, b=None):
+        cr = self._cairo
         if not b:
-            cairo = self._cairo
-            x, y = cairo.get_current_point()
-            e = cairo.text_extents(utf8)
-            x0, y0 = cairo.user_to_device(x+e[0], y+e[1])
-            x1, y1 = cairo.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
-            b = (x0, y0, x1, y1)
+            x, y = cr.get_current_point()
+            e = cr.text_extents(utf8)
+            x0, y0 = cr.user_to_device(x+e[0], y+e[1])
+            x1, y1 = cr.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
+            b = Rectangle(x0, y0, x1, y1)
             self._update_bounds(b)
         if self._nested:
-            cairo.show_text(utf8, b)
+            cr.show_text(utf8, b)
 
 
 class BoundingBoxPainter(ItemPainter):

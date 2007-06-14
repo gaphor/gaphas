@@ -10,7 +10,7 @@ import gtk
 from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle
-from tool import DefaultTool
+from tool import ToolContext, DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
 from decorators import nonrecursive
@@ -20,28 +20,6 @@ DEBUG_DRAW_BOUNDING_BOX = False
 
 # The default cursor (in case of a cursor reset)
 DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
-
-class ToolContext(Context):
-    """
-    Special context for tools.
-    """
-
-    view = None
-
-    def __init__(self, **kwargs):
-        super(ToolContext, self).__init__(**kwargs)
-
-    def grab(self):
-        """
-        Grab the view (or tool, depending on the implementation).
-        """
-        self.view.grab_focus()
-
-    def ungrab(self):
-        """
-        Ungrab the view.
-        """
-        pass
 
 
 class View(object):
@@ -226,7 +204,6 @@ class View(object):
         # since items should take into account their child objects when
         # bounding boxes are calculated. Now, the child objects should not
         # be hindered by their own matrix settings.
-
         ix0, iy0 = self.transform_point_c2i(item, bounds.x0, bounds.y0)
         ix1, iy1 = self.transform_point_c2i(item, bounds.x1, bounds.y1)
         self._item_bounds[item] = bounds, Rectangle(ix0, iy0, ix1, iy1)
@@ -540,6 +517,8 @@ class GtkView(gtk.DrawingArea, View):
 
         # Do not update items that require a full update (or are removed)
         dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
+        #dirty_items.update(dirty_matrix_items)
+        #dirty_matrix_items.clear()
 
         removed_items = dirty_items.difference(self._canvas.get_all_items())
         
@@ -548,11 +527,11 @@ class GtkView(gtk.DrawingArea, View):
                 self.queue_draw_item(i, handles=(i in with_handles))
 
             for i in dirty_matrix_items:
-                self.queue_draw_item(i, handles=(i in with_handles))
                 bounds = self._item_bounds.get(i, (None, None))[1]
                 if not bounds:
                     dirty_items.add(i)
                 else:
+                    self.queue_draw_item(i, handles=(i in with_handles))
                     x0, y0 = self.transform_point_i2c(i, bounds.x0, bounds.y0)
                     x1, y1 = self.transform_point_i2c(i, bounds.x1, bounds.y1)
                     cbounds = Rectangle(x0, y0, x1, y1)
@@ -598,6 +577,13 @@ class GtkView(gtk.DrawingArea, View):
         # doesn't work: super(GtkView, self).do_size_allocate(allocation)
         self.update_adjustments(allocation)
        
+    def do_realize(self):
+        #super(GtkView, self).do_realize()
+        gtk.DrawingArea.do_realize(self)
+        if self._canvas:
+            self.request_update(self._canvas.get_all_items())
+            #self._canvas.update_now()
+
     def do_expose_event(self, event):
         """
         Render some text to the screen.
@@ -652,7 +638,7 @@ class GtkView(gtk.DrawingArea, View):
             self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
 
         # Force recalculation of the bounding boxes:
-        self.request_update(self._canvas.get_all_items())
+        self.request_update((), self._canvas.get_all_items())
 
         a = self.allocation
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
