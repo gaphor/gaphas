@@ -78,11 +78,12 @@ class MyText(Text):
         cr.stroke()
 
 
-def create_window(canvas, zoom=1.0):
+def create_window(canvas, title, zoom=1.0):
     view = GtkView()
     view.tool = DefaultExampleTool()
 
     w = gtk.Window()
+    w.set_title(title)
     h = gtk.HBox()
     w.add(h)
 
@@ -283,7 +284,7 @@ def create_window(canvas, zoom=1.0):
 def main():
     c=Canvas()
 
-    create_window(c)
+    create_window(c, 'View created before')
 
     # Add stuff to the canvas:
 
@@ -301,10 +302,20 @@ def main():
     c.add(bb, parent=b)
     #v.selected_items = bb
 
+    # AJM: extra boxes:
     bb=Box()
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)
     c.add(bb, parent=b)
+#    for i in xrange(200):
+#        bb=Box()
+#        print 'box', bb
+#        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
+#        c.add(bb, parent=b)
+
+    t=MyText('Single line')
+    t.matrix.translate(70,70)
+    c.add(t)
 
     l=MyLine()
     l.fyzzyness = 1
@@ -313,10 +324,6 @@ def main():
     l.matrix.translate(30, 60)
     c.add(l)
     l.orthogonal = True
-
-    t=MyText('Single line')
-    t.matrix.translate(70,70)
-    c.add(t)
 
     off_y = 0
     for align_x in (-1, 0, 1):
@@ -343,10 +350,11 @@ def main():
 
     #state.subscribers.add(print_handler)
 
-
     ##
     ## Start the main application
     ##
+
+    create_window(c, 'View created after')
 
     gtk.main()
 
