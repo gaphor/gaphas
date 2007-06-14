@@ -354,6 +354,7 @@ class GtkView(gtk.DrawingArea, View):
         self.vadjustment = gtk.Adjustment()
 
         self._tool = DefaultTool()
+        self.canvas = canvas
 
     def emit(self, *args, **kwargs):
         """
