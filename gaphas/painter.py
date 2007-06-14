@@ -197,6 +197,9 @@ class CairoBoundingBoxContext(object):
             b = self._extents(cr.fill_extents)
         if self._nested:
             cr.fill(b)
+        else:
+            cr.fill()
+
 
     def fill_preserve(self, b=None):
         cr = self._cairo
@@ -210,6 +213,8 @@ class CairoBoundingBoxContext(object):
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
         if self._nested:
+            cr.stroke(b)
+        else:
             cr.stroke()
 
     def stroke_preserve(self, b=None):
@@ -217,7 +222,7 @@ class CairoBoundingBoxContext(object):
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
         if self._nested:
-            cr.stroke_preserve()
+            cr.stroke_preserve(b)
 
     def show_text(self, utf8, b=None):
         cr = self._cairo
@@ -230,7 +235,8 @@ class CairoBoundingBoxContext(object):
             self._update_bounds(b)
         if self._nested:
             cr.show_text(utf8, b)
-
+        else:
+            cr.show_text(utf8)
 
 class BoundingBoxPainter(ItemPainter):
     """
@@ -240,15 +246,18 @@ class BoundingBoxPainter(ItemPainter):
 
     draw_all = True
 
+    def _draw_item(self, item, view, cairo, area=None):
+        cairo = CairoBoundingBoxContext(cairo)
+        super(BoundingBoxPainter, self)._draw_item(item, view, cairo)
+        view.set_item_bounding_box(item, cairo.get_bounds())
+
     def _draw_items(self, items, view, cairo, area=None):
         """
         Draw the items. This method can also be called from DrawContext
         to draw sub-items.
         """
         for item in items:
-            context = CairoBoundingBoxContext(cairo)
-            self._draw_item(item, view, context)
-            view.set_item_bounding_box(item, context.get_bounds())
+            self._draw_item(item, view, cairo)
 
     def paint(self, context):
         cairo = context.cairo
