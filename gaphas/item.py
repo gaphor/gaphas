@@ -203,9 +203,9 @@ class Item(object):
 
     def handles(self):
         """
-        Return an iterator for the handles owned by the item.
+        Return a list of handles owned by the item.
         """
-        return tuple()
+        return list()
 
     def point(self, x, y):
         """
@@ -382,7 +382,7 @@ class Element(Item):
         """
         The handles.
         """
-        return tuple(self._handles)
+        return self._handles
 
     def pre_update(self, context):
         """
