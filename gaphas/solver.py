@@ -388,6 +388,10 @@ class Solver(object):
         >>> c
         EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
         >>> s.remove_constraint(c)
+        >>> s._marked_cons
+        []
+        >>> s._constraints
+        set([])
 
         Removing a constraint twice has no effect:
         >>> s.remove_constraint(c)

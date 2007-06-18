@@ -154,7 +154,8 @@ class Item(object):
         Called when the canvas is unset for the item.
         This method can be used to dispose constraints.
         """
-        pass
+        for h in self.handles():
+            h.disconnect()
 
     @observed
     def _set_matrix(self, matrix):
@@ -375,6 +376,7 @@ class Element(Item):
         >>> len(c.solver._constraints)
         0
         """
+        super(Element, self).teardown_canvas()
         for c in self._constraints:
             self.canvas.solver.remove_constraint(c)
 
@@ -544,6 +546,7 @@ class Line(Item):
         """
         Remove constraints created in setup_canvas().
         """
+        super(Line, self).teardown_canvas()
         for c in self._orthogonal:
             self.canvas.solver.remove_constraint(c)
 
