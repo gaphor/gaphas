@@ -364,6 +364,10 @@ class HandleTool(Tool):
         self._grabbed_item = item
         self._grabbed_handle = handle
 
+        # Increment handle strength for the duration of the grab action
+        self._grabbed_handle.x.strength += 1
+        self._grabbed_handle.y.strength += 1
+
     def find_handle(self, view, event):
         """
         Look for a handle at (event.x, event.y) and return the
@@ -388,8 +392,8 @@ class HandleTool(Tool):
         """
         Move the handle to position (x,y).
         This version already has some special behavior implemented for
-        gaphas.item.Element's. The min_width and min_height properties of
-        Element's are used to restrict the handles from overlapping each other.
+        gaphas.item.Element. The min_width and min_height properties of
+        Element are used to restrict the handles from overlapping each other.
         """
         # Special behavior for Elements:
         if isinstance(item, Element):
@@ -436,22 +440,20 @@ class HandleTool(Tool):
         dragged around.
         """
         view = context.view
-        self._grabbed_item, self._grabbed_handle = self.find_handle(view, event)
-        if self._grabbed_handle:
+        item, handle = self.find_handle(view, event)
+        if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
             if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                     or view.hovered_item in view.selected_items):
                 del view.selected_items
-            view.hovered_item = self._grabbed_item
-            view.focused_item = self._grabbed_item
-            context.grab()
-            if self._grabbed_handle.connectable:
-                self.disconnect(view, self._grabbed_item, self._grabbed_handle)
+            view.hovered_item = item
+            view.focused_item = item
+            self.grab_handle(item, handle)
 
-            # Increment handle strength for the duration of the grab action
-            self._grabbed_handle.x.strength += 1
-            self._grabbed_handle.y.strength += 1
+            context.grab()
+            if handle.connectable:
+                self.disconnect(view, item, handle)
 
             return True
 
@@ -587,7 +589,9 @@ class PlacementTool(Tool):
     def on_button_release(self, context, event):
         context.ungrab()
         if self._new_item:
+            h = self._handle_tool._grabbed_handle
             self._handle_tool.on_button_release(context, event)
+        self._new_item = None
         return True
 
     def on_motion_notify(self, context, event):
