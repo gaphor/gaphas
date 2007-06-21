@@ -183,7 +183,7 @@ class CairoBoundingBoxContext(object):
         cr.identity_matrix()
         b = Rectangle(*extents_func())
         cr.restore()
-        if line_width:
+        if b and line_width:
             # Do this after the restore(), so we can get the proper width.
             lw = cr.get_line_width()/2
             d = cr.user_to_device_distance(lw, lw)
