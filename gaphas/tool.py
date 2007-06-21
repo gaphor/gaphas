@@ -382,6 +382,8 @@ class HandleTool(Tool):
 
         for item in reversed(itemlist):
             for h in item.handles():
+                if not h.movable:
+                    continue
                 wx, wy = view.canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
                 x, y = view.transform_point_w2c(wx, wy)
                 if abs(x - event.x) < 5 and abs(y - event.y) < 5:
