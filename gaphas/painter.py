@@ -284,6 +284,8 @@ class HandlePainter(Painter):
         if not opacity:
             opacity = (item is view.focused_item) and .7 or .4
         for h in item.handles():
+            if not h.visible:
+                return
             if h.connected_to:
                 r, g, b = 1, 0, 0
             elif h.movable:
