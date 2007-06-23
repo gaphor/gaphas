@@ -576,11 +576,9 @@ class PlacementTool(Tool):
     def on_button_press(self, context, event):
         view = context.view
         canvas = view.canvas
-        pos = view.transform_point_c2w(event.x, event.y)
-        new_item = self._create_item()
+        new_item = self._create_item(context, event.x, event.y)
         if new_item not in canvas.get_all_items():
             canvas.add(new_item)
-        new_item.matrix.translate(*pos)
         self._handle_tool.grab_handle(new_item,
                                       new_item.handles()[self._handle_index])
         self._new_item = new_item
@@ -588,8 +586,12 @@ class PlacementTool(Tool):
         context.grab()
         return True
 
-    def _create_item(self):
-        return self._factory()
+    def _create_item(self, context, x, y):
+        view = context.view
+        item = self._factory()
+        x, y = view.transform_point_c2w(x, y)
+        item.matrix.translate(x, y)
+        return item
 
     def on_button_release(self, context, event):
         context.ungrab()
