@@ -81,8 +81,8 @@ class Text(Item):
 
 class ConnectingHandleTool(tool.HandleTool):
     """
-    This is a HandleTool which supports a simple connection algerithm,
-    Using LineConstraint.
+    This is a HandleTool which supports a simple connection algorithm,
+    using LineConstraint.
     """
 
     def glue(self, view, item, handle, wx, wy):
