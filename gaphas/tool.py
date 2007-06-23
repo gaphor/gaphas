@@ -577,7 +577,7 @@ class PlacementTool(Tool):
         view = context.view
         canvas = view.canvas
         pos = view.transform_point_c2w(event.x, event.y)
-        new_item = self._factory()
+        new_item = self._create_item()
         if new_item not in canvas.get_all_items():
             canvas.add(new_item)
         new_item.matrix.translate(*pos)
@@ -587,6 +587,9 @@ class PlacementTool(Tool):
         view.focused_item = new_item
         context.grab()
         return True
+
+    def _create_item(self):
+        return self._factory()
 
     def on_button_release(self, context, event):
         context.ungrab()
