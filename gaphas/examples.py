@@ -105,7 +105,7 @@ class ConnectingHandleTool(tool.HandleTool):
                 ix, iy = matrix_w2i(i).transform_point(wx, wy)
                 try:
                     distance, point = i.glue(item, handle, ix, iy)
-                    #print distance, point
+                    # print distance, point
                     # Transform distance to world coordinates
                     distance, dumy = matrix_i2w(i).transform_distance(distance, 0)
                     if distance <= glue_distance:
