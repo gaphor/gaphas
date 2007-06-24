@@ -160,12 +160,19 @@ class View(object):
 
     painter = property(lambda s: s._painter, _set_painter)
 
-    def get_item_at_point(self, x, y):
+    def get_item_at_point(self, x, y, selected=True):
         """
         Return the topmost item located at (x, y).
+
+        Parameters:
+         - selected: if False returns first non-selected item
         """
         point = (x, y)
         for item in reversed(self._canvas.get_all_items()):
+
+            if not selected and item in self.selected_items:
+                continue  # skip selected items
+
             if point in self.get_item_bounding_box(item):
                 inverse = Matrix(*self._matrix)
                 inverse.invert()
