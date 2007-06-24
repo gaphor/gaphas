@@ -132,6 +132,20 @@ class Tree(object):
         del self._children[node]
         self._nodes.remove(node)
 
+
+    @observed
+    def set_parent(self, node, parent):
+        """
+        Set new parent for a node. Parent can be None.
+        """
+        # remove from parent
+        self.get_siblings(node).remove(node)
+
+        # add to new parent
+        siblings = self._children[parent]
+        self._add_to_nodes(node, parent)
+        siblings.append(node)
+
     reversible_pair(add, remove,
                     bind1={'parent': lambda self, node: self.get_parent(node) })
 
