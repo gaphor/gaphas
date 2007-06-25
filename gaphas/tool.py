@@ -368,27 +368,57 @@ class HandleTool(Tool):
         self._grabbed_handle.x.strength += 1
         self._grabbed_handle.y.strength += 1
 
+
+    def _find_handle(self, view, event, item):
+        """
+        Find item's handle at (event.x, event.y)
+        """
+        for h in item.handles():
+            if not h.movable:
+                continue
+            wx, wy = view.canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
+            x, y = view.transform_point_w2c(wx, wy)
+            if abs(x - event.x) < 6 and abs(y - event.y) < 6:
+                return h
+        return None
+
+
     def find_handle(self, view, event):
         """
         Look for a handle at (event.x, event.y) and return the
         tuple (item, handle).
         """
-        itemlist = view.canvas.get_all_items()
+        itemlist = []
         # The focused item is the prefered item for handle grabbing
         if view.focused_item:
             # We can savely do this, since the list is a copy of the list
             # maintained by the canvas
             itemlist.append(view.focused_item)
 
-        for item in reversed(itemlist):
-            for h in item.handles():
-                if not h.movable:
-                    continue
-                wx, wy = view.canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
-                x, y = view.transform_point_w2c(wx, wy)
-                if abs(x - event.x) < 5 and abs(y - event.y) < 5:
-                    return item, h
-        return None, None
+        # then try hovered item
+        if view.hovered_item:
+            itemlist.append(view.hovered_item)
+
+        item = None
+        h = None
+        for item in itemlist:
+            h = self._find_handle(view, event, item)
+
+        # and as final resort - try to find handle around event.{x,y}
+        if not h:
+            x, y = event.x, event.y
+            for dx in (-5, 5):
+                for dy in (-5, 5):
+                    item = view.get_item_at_point(event.x + dx, event.y + dy)
+                    if item:
+                        h = self._find_handle(view, event, item)
+                        if h:
+                            break
+        if h:
+            return item, h
+        else:
+            return None, None
+
 
     def move(self, view, item, handle, x, y):
         """
