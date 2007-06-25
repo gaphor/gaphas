@@ -76,8 +76,10 @@ class Variable(object):
     strength = reversible_property(lambda s: s._strength, _set_strength)
 
     def dirty(self):
-        if self._solver:
-            self._solver.mark_dirty(self)
+        solver = self._solver
+        if not solver or solver._solving:
+            return
+        solver.mark_dirty(self)
         for c in self._constraints:
             c.mark_dirty(self)
 
