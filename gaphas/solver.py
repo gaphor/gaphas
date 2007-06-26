@@ -77,7 +77,7 @@ class Variable(object):
 
     def dirty(self):
         solver = self._solver
-        if not solver or solver._solving:
+        if not solver: # or solver._solving:
             return
         solver.mark_dirty(self)
         for c in self._constraints:

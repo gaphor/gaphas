@@ -31,6 +31,9 @@ from gaphas.painter import ItemPainter
 from gaphas import state
 from gaphas.util import text_extents
 
+from gaphas import painter
+painter.DEBUG_DRAW_BOUNDING_BOX = True
+
 # Global undo list
 undo_list = []
 
@@ -46,7 +49,10 @@ class MyBox(Box):
 class MyLine(Line):
     """Line with experimental connection protocol.
     """
-    
+    def __init__(self):
+        super(MyLine, self).__init__()
+        self.fuzziness = 2
+
     def draw_head(self, context):
         cr = context.cairo
         cr.move_to(0, 0)
@@ -318,7 +324,6 @@ def main():
     c.add(t)
 
     l=MyLine()
-    l.fyzzyness = 1
     l.handles()[1].pos = (30, 30)
     l.split_segment(0, 3)
     l.matrix.translate(30, 60)

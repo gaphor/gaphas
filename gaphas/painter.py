@@ -249,6 +249,20 @@ class BoundingBoxPainter(ItemPainter):
     def _draw_item(self, item, view, cairo, area=None):
         cairo = CairoBoundingBoxContext(cairo)
         super(BoundingBoxPainter, self)._draw_item(item, view, cairo)
+        
+        # Update the bounding box with the handle positions:
+#        cairo.save()
+#        try:
+#            m = Matrix(*view.canvas.get_matrix_i2w(item))
+#            m *= view._matrix
+#
+#            for h in item.handles():
+#                cairo.identity_matrix()
+#                cairo.translate(*m.transform_point(h.x, h.y))
+#                cairo.rectangle(-4, -4, 8, 8)
+#                cairo.fill()
+#        finally:
+#            cairo.restore()
         view.set_item_bounding_box(item, cairo.get_bounds())
 
     def _draw_items(self, items, view, cairo, area=None):
@@ -278,11 +292,13 @@ class HandlePainter(Painter):
         """
         cairo.save()
         cairo.identity_matrix()
-        #cairo.set_matrix(self._matrix)
         m = Matrix(*view.canvas.get_matrix_i2w(item))
         m *= view._matrix
         if not opacity:
             opacity = (item is view.focused_item) and .7 or .4
+
+        cairo.set_line_width(1)
+
         for h in item.handles():
             if not h.visible:
                 continue
@@ -305,7 +321,6 @@ class HandlePainter(Painter):
                 cairo.move_to(2, -2)
                 cairo.line_to(-2, 3)
             cairo.set_source_rgba(r/4., g/4., b/4., opacity*1.3)
-            cairo.set_line_width(1)
             cairo.stroke()
             cairo.restore()
         cairo.restore()
