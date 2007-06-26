@@ -246,23 +246,27 @@ class BoundingBoxPainter(ItemPainter):
 
     draw_all = True
 
+    def _draw_handles(self, item, view, cairo):
+        """
+        Update the bounding box with handle's position.
+        """
+        cairo.save()
+        try:
+            m = Matrix(*view.canvas.get_matrix_i2w(item))
+            m *= view._matrix
+
+            for h in item.handles():
+                cairo.identity_matrix()
+                cairo.translate(*m.transform_point(h.x, h.y))
+                cairo.rectangle(-4, -4, 8, 8)
+                cairo.fill()
+        finally:
+            cairo.restore()
+
     def _draw_item(self, item, view, cairo, area=None):
         cairo = CairoBoundingBoxContext(cairo)
         super(BoundingBoxPainter, self)._draw_item(item, view, cairo)
-        
-        # Update the bounding box with the handle positions:
-#        cairo.save()
-#        try:
-#            m = Matrix(*view.canvas.get_matrix_i2w(item))
-#            m *= view._matrix
-#
-#            for h in item.handles():
-#                cairo.identity_matrix()
-#                cairo.translate(*m.transform_point(h.x, h.y))
-#                cairo.rectangle(-4, -4, 8, 8)
-#                cairo.fill()
-#        finally:
-#            cairo.restore()
+        self._draw_handles(item, view, cairo)
         view.set_item_bounding_box(item, cairo.get_bounds())
 
     def _draw_items(self, items, view, cairo, area=None):
@@ -291,7 +295,6 @@ class HandlePainter(Painter):
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo.save()
-        cairo.identity_matrix()
         m = Matrix(*view.canvas.get_matrix_i2w(item))
         m *= view._matrix
         if not opacity:
@@ -309,7 +312,7 @@ class HandlePainter(Painter):
             else:
                 r, g, b = 0, 0, 1
 
-            cairo.save()
+            cairo.identity_matrix()
             cairo.set_antialias(ANTIALIAS_NONE)
             cairo.translate(*m.transform_point(h.x, h.y))
             cairo.rectangle(-4, -4, 8, 8)
@@ -322,7 +325,6 @@ class HandlePainter(Painter):
                 cairo.line_to(-2, 3)
             cairo.set_source_rgba(r/4., g/4., b/4., opacity*1.3)
             cairo.stroke()
-            cairo.restore()
         cairo.restore()
 
     def paint(self, context):

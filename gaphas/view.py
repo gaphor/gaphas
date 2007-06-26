@@ -198,7 +198,7 @@ class View(object):
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        self.request_update((), self._canvas.get_all_items())
+        self.request_update(self._canvas.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -646,7 +646,9 @@ class GtkView(gtk.DrawingArea, View):
             self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
 
         # Force recalculation of the bounding boxes:
-        self.request_update((), self._canvas.get_all_items())
+        # TODO: Fix! Why causes movement problems with bounding boxes?
+        #self.request_update((), self._canvas.get_all_items())
+        self.request_update(self._canvas.get_all_items())
 
         a = self.allocation
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)

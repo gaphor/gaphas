@@ -388,36 +388,39 @@ class HandleTool(Tool):
         Look for a handle at (event.x, event.y) and return the
         tuple (item, handle).
         """
-        itemlist = []
         # The focused item is the prefered item for handle grabbing
         if view.focused_item:
-            # We can savely do this, since the list is a copy of the list
-            # maintained by the canvas
-            itemlist.append(view.focused_item)
+            h = self._find_handle(view, event, view.focused_item)
+            if h:
+                return view.focused_item, h
 
         # then try hovered item
         if view.hovered_item:
-            itemlist.append(view.hovered_item)
+            h = self._find_handle(view, event, view.hovered_item)
+            if h:
+                return view.hovered_item, h
 
-        item = None
-        h = None
-        for item in itemlist:
-            h = self._find_handle(view, event, item)
+        # Last try all items, checking the bounding box first
+        get_children = view.canvas.get_children
+        get_item_bounding_box = view.get_item_bounding_box
+        x, y = event.x, event.y
+        def find(parent):
+            found_item, found_h = None, None
+            for item in get_children(parent):
+                if (x, y) in get_item_bounding_box(item):
+                    item, h = find(item)
+                    if h: found_item, found_h = item, h
 
-        # and as final resort - try to find handle around event.{x,y}
-        if not h:
-            x, y = event.x, event.y
-            for dx in (-5, 5):
-                for dy in (-5, 5):
-                    item = view.get_item_at_point(event.x + dx, event.y + dy)
-                    if item:
-                        h = self._find_handle(view, event, item)
-                        if h:
-                            break
-        if h:
-            return item, h
-        else:
+            # Escape when a match is found or parent is the uber-root item
+            if found_h or parent is None:
+                return found_item, found_h
+
+            h = self._find_handle(view, event, parent)
+            if h:
+                return parent, h
             return None, None
+
+        return find(None)
 
 
     def move(self, view, item, handle, x, y):
