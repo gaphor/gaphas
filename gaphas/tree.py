@@ -134,7 +134,7 @@ class Tree(object):
 
 
     @observed
-    def set_parent(self, node, parent):
+    def reparent(self, node, parent):
         """
         Set new parent for a node. Parent can be None.
         """

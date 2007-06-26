@@ -144,11 +144,11 @@ class Canvas(object):
         """
         return self._tree.get_children(None)
 
-    def set_parent(self, item, parent):
+    def reparent(self, item, parent):
         """
         Set new parent for an item.
         """
-        self._tree.set_parent(item, parent)
+        self._tree.reparent(item, parent)
 
 
     def get_parent(self, item):
