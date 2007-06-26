@@ -181,7 +181,8 @@ class CairoBoundingBoxContext(object):
         cr = self._cairo
         cr.save()
         cr.identity_matrix()
-        b = Rectangle(*extents_func())
+        x0, y0, x1, y1 = extents_func()
+        b = Rectangle(x0, y0, x1=x1, y1=y1)
         cr.restore()
         if b and line_width:
             # Do this after the restore(), so we can get the proper width.
@@ -231,7 +232,7 @@ class CairoBoundingBoxContext(object):
             e = cr.text_extents(utf8)
             x0, y0 = cr.user_to_device(x+e[0], y+e[1])
             x1, y1 = cr.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
-            b = Rectangle(x0, y0, x1, y1)
+            b = Rectangle(x0, y0, x1=x1, y1=y1)
             self._update_bounds(b)
         if self._nested:
             cr.show_text(utf8, b)

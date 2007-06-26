@@ -404,7 +404,7 @@ class Element(Item):
         [1.0, 0.0]
         >>> e.pre_update(None)
         >>> e._handles
-        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
+        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
         """
         h_nw = self._handles[0]
         x, y = map(float, h_nw.pos)

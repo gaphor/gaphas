@@ -213,7 +213,7 @@ class View(object):
         # be hindered by their own matrix settings.
         ix0, iy0 = self.transform_point_c2i(item, bounds.x0, bounds.y0)
         ix1, iy1 = self.transform_point_c2i(item, bounds.x1, bounds.y1)
-        self._item_bounds[item] = bounds, Rectangle(ix0, iy0, ix1, iy1)
+        self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
 
         # Update bounding box of parent items where appropriate (only extent)
         parent = self.canvas.get_parent(item)
@@ -470,21 +470,14 @@ class GtkView(gtk.DrawingArea, View):
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
         """
-        handles = kwargs.get('handles')
         for item in items:
             try:
                 b = self.get_item_bounding_box(item)
             except KeyError:
                 pass # No bounds calculated yet? bummer.
             else:
-                draw_area = Rectangle(b.x0 - 1, b.y0 - 1, width=b.width + 2, height=b.height + 2)
-                if handles:
-                    for h in item.handles():
-                        x, y = self._canvas.get_matrix_i2w(item).transform_point(h.x, h.y)
-                        x, y = self._matrix.transform_point(x, y)
-                        draw_area += (x - 5, y - 5, x + 5, y + 5)
-                self.queue_draw_area(draw_area.x0, draw_area.y0,
-                                     draw_area.width, draw_area.height)
+                self.queue_draw_area(b.x0 - 1, b.y0 - 1,
+                                     b.width + 2, b.height + 2)
 
     def queue_draw_area(self, x, y, w, h):
         """
@@ -542,7 +535,7 @@ class GtkView(gtk.DrawingArea, View):
                     self.queue_draw_item(i, handles=(i in with_handles))
                     x0, y0 = self.transform_point_i2c(i, bounds.x0, bounds.y0)
                     x1, y1 = self.transform_point_i2c(i, bounds.x1, bounds.y1)
-                    cbounds = Rectangle(x0, y0, x1, y1)
+                    cbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._item_bounds[i] = cbounds, bounds
 
                     # TODO: find an elegant way to update parent bb's.
