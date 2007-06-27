@@ -114,11 +114,17 @@ class Handle(object):
 class Item(object):
     """
     Base class (or interface) for items on a canvas.Canvas.
+
+    Attributes:
+     - _canvas:  canvas, which owns an item
+     - _handles: list of handles owned by an item
+     - _matrix:  item's transformation matrix
     """
 
     def __init__(self):
         self._canvas = None
         self._matrix = Matrix()
+        self._handles = []
 
     @observed
     def _set_canvas(self, canvas):
@@ -144,7 +150,7 @@ class Item(object):
 
     def setup_canvas(self):
         """
-        Called when the canvas is unset for the item.
+        Called when the canvas is set for the item.
         This method can be used to create constraints.
         """
         pass
@@ -206,7 +212,7 @@ class Item(object):
         """
         Return a list of handles owned by the item.
         """
-        return list()
+        return self._handles
 
     def point(self, x, y):
         """
@@ -380,11 +386,6 @@ class Element(Item):
         for c in self._constraints:
             self.canvas.solver.remove_constraint(c)
 
-    def handles(self):
-        """
-        The handles.
-        """
-        return self._handles
 
     def pre_update(self, context):
         """
@@ -621,8 +622,6 @@ class Line(Item):
 
     reversible_pair(split_segment, merge_segment)
 
-    def handles(self):
-        return self._handles
     
     def opposite(self, handle):
         """
