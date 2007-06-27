@@ -36,6 +36,7 @@ class ElementTestCase(unittest.TestCase):
         for i in range(count):
             h_se.x = 100
             h_se.y = 100
+            box.request_update()
             canvas.update()
-        self.assertEquals(h_se.x, h_ne.x)
-        self.assertEquals(h_se.y, h_sw.y)
+        self.assertEquals(100, h_ne.x)
+        self.assertEquals(100, h_sw.y)
