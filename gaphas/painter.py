@@ -131,7 +131,7 @@ class ItemPainter(Painter):
             cairo.identity_matrix()
             cairo.set_source_rgb(.8, 0, 0)
             cairo.set_line_width(1.0)
-            cairo.rectangle(b.x0, b.y0, b.width, b.height)
+            cairo.rectangle(*b)
             cairo.stroke()
             cairo.restore()
 
@@ -169,7 +169,7 @@ class CairoBoundingBoxContext(object):
     def _update_bounds(self, bounds):
         if bounds:
             if not self._bounds:
-                self._bounds = bounds #Rectangle(bounds)
+                self._bounds = bounds
             else:
                 self._bounds += bounds
 
@@ -259,7 +259,7 @@ class BoundingBoxPainter(ItemPainter):
             for h in item.handles():
                 cairo.identity_matrix()
                 cairo.translate(*m.transform_point(h.x, h.y))
-                cairo.rectangle(-4, -4, 8, 8)
+                cairo.rectangle(-4, -4, 9, 9)
                 cairo.fill()
         finally:
             cairo.restore()

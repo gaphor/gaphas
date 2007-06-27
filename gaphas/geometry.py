@@ -31,47 +31,59 @@ class Rectangle(object):
     >>> r1, r2 = Rectangle(1,2,3,4), Rectangle(1,2,3,4)
     >>> r1 == r2
     True
+
+    >>> r = Rectangle(-5, 3, 10, 8)
+    >>> r.width = 2
+    >>> r
+    Rectangle(-5, 3, 2, 8)
+
+    >>> r = Rectangle(-5, 3, 10, 8)
+    >>> r.height = 2
+    >>> r
+    Rectangle(-5, 3, 10, 2)
     """
 
-    def __init__(self, x0=0, y0=0, x1=0, y1=0, width=0, height=0):
-        self.x0 = x0
-        self.y0 = y0
-        self.x1 = x1 or x0 + width
-        self.y1 = y1 or y0 + height
+    def __init__(self, x=0, y=0, width=None, height=None, x1=0, y1=0):
+        self.x = x
+        self.y = y
+        if width is None:
+            self.width = x1 - x
+        else:
+            self.width = width
+        if height is None:
+            self.height = y1 - y
+        else:
+            self.height = height
 
-    def _set_width(self, width):
+    def _set_x1(self, x1):
         """
-        >>> r = Rectangle(-5, 3, 10, 8)
-        >>> r.width = 2
-        >>> r
-        Rectangle(-5, 3, -3, 8)
         """
-        self.x1 = self.x0 + width
+        width = x1 - self.x
+        if width < 0: width = 0
+        self.width = width
         
-    width = property(lambda s: s.x1 - s.x0, _set_width)
+    x1 = property(lambda s: s.x + s.width, _set_x1)
 
-    def _set_heigth(self, height):
+    def _set_y1(self, y1):
         """
-        >>> r = Rectangle(-5, 3, 10, 8)
-        >>> r.height = 2
-        >>> r
-        Rectangle(-5, 3, 10, 5)
         """
-        self.y1 = self.y0 + height
+        height = y1 - self.y
+        if height < 0: height = 0
+        self.height = height
 
-    height = property(lambda s: s.y1 - s.y0, _set_heigth)
+    y1 = property(lambda s: s.y + s.height, _set_y1)
 
     def expand(self, delta):
         """
         >>> r = Rectangle(-5, 3, 10, 8)
         >>> r.expand(5)
         >>> r
-        Rectangle(-10, -2, 15, 13)
+        Rectangle(-10, -2, 20, 18)
         """
-        self.x0 -= delta
-        self.y0 -= delta
-        self.x1 += delta
-        self.y1 += delta
+        self.x -= delta
+        self.y -= delta
+        self.width += delta * 2
+        self.height += delta * 2
         
     def __repr__(self):
         """
@@ -79,7 +91,7 @@ class Rectangle(object):
         Rectangle(5, 7, 20, 25)
         """
         if self:
-            return '%s(%g, %g, %g, %g)' % (self.__class__.__name__, self.x0, self.y0, self.x1, self.y1)
+            return '%s(%g, %g, %g, %g)' % (self.__class__.__name__, self.x, self.y, self.width, self.height)
         return '%s()' % self.__class__.__name__
 
     def __iter__(self):
@@ -87,118 +99,125 @@ class Rectangle(object):
         >>> tuple(Rectangle(1,2,3,4))
         (1, 2, 3, 4)
         """
-        return iter((self.x0, self.y0, self.x1, self.y1))
+        return iter((self.x, self.y, self.width, self.height))
 
     def __getitem__(self, index):
         """
         >>> Rectangle(1,2,3,4)[1]
         2
         """
-        return (self.x0, self.y0, self.x1, self.y1)[index]
+        return (self.x, self.y, self.width, self.height)[index]
 
     def __nonzero__(self):
         """
         >>> r=Rectangle(1,2,3,4)
         >>> if r: 'yes'
         'yes'
-        >>> r = Rectangle(1,1,1,1)
+        >>> r = Rectangle(1,1,0,0)
         >>> if r: 'no'
         """
-        return self.x0 < self.x1 and self.y0 < self.y1
+        return self.width > 0 and self.height > 0
     
     def __eq__(self, other):
         return (type(self) is type(other)) \
-                and self.x0 == other.x0 \
-                and self.y0 == other.y0 \
-                and self.x1 == other.x1 \
-                and self.y1 == self.y1
+                and self.x == other.x \
+                and self.y == other.y \
+                and self.width == other.width \
+                and self.height == self.height
 
     def __add__(self, obj):
         """
         Create a new Rectangle is the union of the current rectangle
-        with another Rectangle, tuple (x,y) or tuple (x0, y0, x1, y1).
+        with another Rectangle, tuple (x,y) or tuple (x, y, width, height).
 
-        >>> r=Rectangle(5,7,20,25)
+        >>> r=Rectangle(5, 7, 20, 25)
         >>> r + (0, 0)
-        Rectangle(0, 0, 20, 25)
+        Rectangle(0, 0, 25, 32)
         >>> r + (20, 30, 40, 50)
-        Rectangle(5, 7, 40, 50)
+        Rectangle(5, 7, 55, 73)
         """
-        return Rectangle(self.x0, self.y0, self.x1, self.y1).__iadd__(obj)
+        return Rectangle(self.x, self.y, self.width, self.height).__iadd__(obj)
 
     def __iadd__(self, obj):
         """
-        >>> r=Rectangle()
-        >>> r += Rectangle(5,7,20,25)
+        >>> r = Rectangle()
+        >>> r += Rectangle(5, 7, 20, 25)
         >>> r += (0, 0, 30, 10)
         >>> r
-        Rectangle(0, 0, 30, 25)
+        Rectangle(0, 0, 30, 32)
         >>> r += 'aap'
         Traceback (most recent call last):
           ...
         AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle first.
         """
         if isinstance(obj, Rectangle) or len(obj) == 4:
-            x0, y0, x1, y1 = obj
+            x, y, width, height = obj
+            x1, y1 = x + width, y + height
         elif len(obj) == 2:
             # extend using a point
-            x0, y0 = obj
+            x, y = obj
+            width, height = 0, 0
             x1, y1 = obj
         else:
             raise AttributeError, "Don't know how to handle %s %s." \
                     " Convert to a Rectangle first." % (type(obj), obj)
         if self:
-            self.x0 = min(self.x0, x0)
-            self.y0 = min(self.y0, y0)
-            self.x1 = max(self.x1, x1)
-            self.y1 = max(self.y1, y1)
+            ox1, oy1 = self.x1, self.y1
+            self.x = min(self.x, x)
+            self.y = min(self.y, y)
+            self.x1 = max(ox1, x1)
+            self.y1 = max(oy1, y1)
         else:
-            self.x0, self.y0, self.x1, self.y1 = x0, y0, x1, y1
+            self.x, self.y, self.width, self.height = x, y, width, height
         return self
 
     def __sub__(self, obj):
         """
         Create a new Rectangle is the union of the current rectangle
-        with another Rectangle or tuple (x0, y0, x1, y1).
+        with another Rectangle or tuple (x, y, width, height).
 
-        >>> r=Rectangle(5,7,20,25)
+        >>> r = Rectangle(5, 7, 20, 25)
         >>> r - (20, 30, 40, 50)
+        Rectangle(20, 30, 5, 2)
+        >>> r - (30, 40, 40, 50)
         Rectangle()
         """
-        return Rectangle(self.x0, self.y0, self.x1, self.y1).__isub__(obj)
+        return Rectangle(self.x, self.y, self.width, self.height).__isub__(obj)
 
     def __isub__(self, obj):
         """
-        >>> r=Rectangle()
+        >>> r = Rectangle()
         >>> r -= Rectangle(5,7,20,25)
         >>> r -= (0, 0, 30, 10)
         >>> r
-        Rectangle(5, 7, 20, 10)
+        Rectangle(5, 7, 20, 3)
         >>> r -= 'aap'
         Traceback (most recent call last):
           ...
         AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle first.
         """
         if isinstance(obj, Rectangle) or len(obj) == 4:
-            x0, y0, x1, y1 = obj
+            x, y, width, height = obj
+            x1, y1 = x + width, y + height
         else:
             raise AttributeError, "Don't know how to handle %s %s." \
                     " Convert to a Rectangle first." % (type(obj), obj)
         if self:
-            self.x0 = max(self.x0, x0)
-            self.y0 = max(self.y0, y0)
-            self.x1 = min(self.x1, x1)
-            self.y1 = min(self.y1, y1)
+            ox1, oy1 = self.x1, self.y1
+            self.x = max(self.x, x)
+            self.y = max(self.y, y)
+            self.x1 = min(ox1, x1)
+            self.y1 = min(oy1, y1)
         else:
-            self.x0, self.y0, self.x1, self.y1 = x0, y0, x1, y1
+            self.x, self.y, self.width, self.height = x, y, width, height
 
         return self
 
     def __contains__(self, obj):
-        """ Check if a point (x, y) in inside rectangle (x0, y0, x1, y1) or
-        if a rectangle instance is inside with the rectangle.
+        """ Check if a point (x, y) in inside rectangle (x, y, width, height)
+        or if a rectangle instance is inside with the rectangle.
 
-        >>> r=Rectangle(10, 5, width=12, height=12)
+        >>> r=Rectangle(10, 5, 12, 12)
         >>> (0, 0) in r
         False
         >>> (10, 6) in r
@@ -207,26 +226,31 @@ class Rectangle(object):
         True
         >>> (100, 4) in r
         False
+        >>> (11, 6, 5, 5) in r
+        True
         >>> (11, 6, 15, 15) in r
+        False
+        >>> Rectangle(11, 6, 5, 5) in r
         True
         >>> Rectangle(11, 6, 15, 15) in r
-        True
+        False
         >>> 'aap' in r
         Traceback (most recent call last):
           ...
         AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle or tuple first.
         """
         if isinstance(obj, Rectangle) or len(obj) == 4:
-            x0, y0, x1, y1 = obj
+            x, y, width, height = obj
+            x1, y1 = x + width, y + width
         elif len(obj) == 2:
             # point
-            x0, y0 = obj
+            x, y = obj
             x1, y1 = obj
         else:
             raise AttributeError, "Don't know how to handle %s %s." \
                     " Convert to a Rectangle or tuple first." % (type(obj), obj)
-        return x0 >= self.x0 and x1 <= self.x1 and \
-               y0 >= self.y0 and y1 <= self.y1
+        return x >= self.x and x1 <= self.x1 and \
+               y >= self.y and y1 <= self.y1
 
 
 def distance_point_point(point1, point2=(0., 0.)):
@@ -251,7 +275,7 @@ def distance_point_point_fast(point1, point2):
 
 def distance_rectangle_point(rect, point):
     """
-    Return the distance (fast) from a point to a line.
+    Return the distance (fast) from a rectangle (x, y, width, height) to a line.
 
     >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
     2
@@ -261,16 +285,18 @@ def distance_rectangle_point(rect, point):
     2
     """
     dx = dy = 0
+    px, py = point
+    rx, ry, rw, rh = tuple(rect)
 
-    if point[0] < rect[0]:
-        dx = rect[0] - point[0]
-    elif point[0] > rect[2]:
-        dx = point[0] - rect[2]
+    if px < rx:
+        dx = rx - px
+    elif px > rx + rw:
+        dx = px - (rx + rw)
 
-    if point[1] < rect[1]:
-        dy = rect[1] - point[1]
-    elif point[1] > rect[3]:
-        dy = point[1] - rect[3]
+    if py < ry:
+        dy = ry - py
+    elif py > ry + rh:
+        dy = py - (ry + rh)
 
     return abs(dx) + abs(dy)
 
@@ -293,44 +319,48 @@ def point_on_rectangle(rect, point, border=False):
     (1, 3)
     >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 3))
     (4, 3)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 7), border=True)
-    (4, 10)
-    >>> point_on_rectangle((1, 1, 10, 10), (4, 7), border=True)
-    (4, 10)
+    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 9), border=True)
+    (4, 11)
+    >>> point_on_rectangle((1, 1, 10, 10), (4, 6), border=True)
+    (1, 6)
     >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 3), border=True)
     (1, 3)
+    >>> point_on_rectangle((1, 1, 10, 100), (5, 8), border=True)
+    (1, 8)
+    >>> point_on_rectangle((1, 1, 10, 100), (5, 98), border=True)
+    (5, 101)
     """
     px, py = point
+    rx, ry, rw, rh = tuple(rect)
     x_inside = y_inside = False
 
-    if px < rect[0]:
-        px = rect[0]
-    elif px > rect[2]:
-        px = rect[2]
+    if px < rx:
+        px = rx
+    elif px > rx + rw:
+        px = rx + rw
     elif border:
         x_inside = True
 
-    if py < rect[1]:
-        py = rect[1]
-    elif py > rect[3]:
-        py = rect[3]
+    if py < ry:
+        py = ry
+    elif py > ry + rh:
+        py = ry + rh
     elif border:
         y_inside = True
 
     if x_inside and y_inside:
-        cx = rect[0] + (rect[2] - rect[0]) / 2
-        cy = rect[1] + (rect[3] - rect[1]) / 2
-        if abs(cx - px) < abs(cy - py):
-            # Handle x axis:
-            if py < cy:
-                py = rect[1]
+        # Find point on side closest to the point
+        if min(abs(rx - px), abs(rx + rw - px)) > \
+           min(abs(ry - py), abs(ry + rh - py)):
+            if py < ry + rh / 2.:
+                py = ry
             else:
-                py = rect[3]
+                py = ry + rh
         else:
-            if px < cx:
-                px = rect[0]
+            if px < rx + rw / 2.:
+                px = rx
             else:
-                px = rect[2]
+                px = rx + rw
 
     return px, py
 

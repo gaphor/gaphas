@@ -413,7 +413,6 @@ class LineConstraint(Constraint):
         point.x.value, point.y.value = \
             get_w2i(self._connected_item).transform_point(px, py)
         # Need to queue a redraw of the manipulated item.
-        #view.queue_draw_item(self._connected_item, handles=True)
         self._canvas.request_update(self._connected_item)
 
 

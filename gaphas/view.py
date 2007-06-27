@@ -76,7 +76,7 @@ class View(object):
 
         to clear the selected items list.
         """
-        self.queue_draw_item(item, handles=True)
+        self.queue_draw_item(item)
         if item not in self._selected_items:
             self._selected_items.add(item)
             self.emit('selection-changed', self._selected_items)
@@ -85,7 +85,7 @@ class View(object):
         """
         Unselect an item.
         """
-        self.queue_draw_item(item, handles=True)
+        self.queue_draw_item(item)
         if item in self._selected_items:
             self._selected_items.discard(item)
             self.emit('selection-changed', self._selected_items)
@@ -98,7 +98,7 @@ class View(object):
         """
         Clearing the selected_item also clears the focused_item.
         """
-        self.queue_draw_item(handles=True, *self._selected_items)
+        self.queue_draw_item(*self._selected_items)
         self._selected_items.clear()
         self.focused_item = None
         self.emit('selection-changed', self._selected_items)
@@ -113,7 +113,7 @@ class View(object):
         set.
         """
         if not item is self._focused_item:
-            self.queue_draw_item(self._focused_item, item, handles=True)
+            self.queue_draw_item(self._focused_item, item)
 
         if item:
             self.selected_items = item #.add(item)
@@ -136,7 +136,7 @@ class View(object):
         Set the hovered item.
         """
         if not item is self._hovered_item:
-            self.queue_draw_item(self._hovered_item, item, handles=True)
+            self.queue_draw_item(self._hovered_item, item)
         if item is not self._hovered_item:
             self._hovered_item = item
             self.emit('hover-changed', item)
@@ -211,7 +211,7 @@ class View(object):
         # since items should take into account their child objects when
         # bounding boxes are calculated. Now, the child objects should not
         # be hindered by their own matrix settings.
-        ix0, iy0 = self.transform_point_c2i(item, bounds.x0, bounds.y0)
+        ix0, iy0 = self.transform_point_c2i(item, bounds.x, bounds.y)
         ix1, iy1 = self.transform_point_c2i(item, bounds.x1, bounds.y1)
         self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
 
@@ -464,20 +464,24 @@ class GtkView(gtk.DrawingArea, View):
                                 canvas_size=h,
                                 viewport_size=allocation.height)
 
-    def queue_draw_item(self, *items, **kwargs):
+    def queue_draw_item(self, *items):
         """
         Like DrawingArea.queue_draw_area, but use the bounds of the
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
         """
+        queue_draw_area = self.queue_draw_area
+        get_item_bounding_box = self.get_item_bounding_box
         for item in items:
             try:
-                b = self.get_item_bounding_box(item)
+                queue_draw_area(*get_item_bounding_box(item))
             except KeyError:
                 pass # No bounds calculated yet? bummer.
-            else:
-                self.queue_draw_area(b.x0 - 1, b.y0 - 1,
-                                     b.width + 2, b.height + 2)
+            #else:
+            #    #self.queue_draw_area(b.x - 1, b.y - 1,
+            #    #                     b.width + 2, b.height + 2)
+            #    self.queue_draw_area(b.x, b.y,
+            #                         b.width, b.height)
 
     def queue_draw_area(self, x, y, w, h):
         """
@@ -503,10 +507,6 @@ class GtkView(gtk.DrawingArea, View):
         """
         if not self.window: return True
 
-        with_handles = set(self._selected_items)
-        with_handles.add(self._hovered_item)
-        with_handles.add(self._focused_item)
-        
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
 
@@ -525,15 +525,15 @@ class GtkView(gtk.DrawingArea, View):
         
         try:
             for i in dirty_items:
-                self.queue_draw_item(i, handles=(i in with_handles))
+                self.queue_draw_item(i)
 
             for i in dirty_matrix_items:
                 bounds = self._item_bounds.get(i, (None, None))[1]
                 if not bounds:
                     dirty_items.add(i)
                 else:
-                    self.queue_draw_item(i, handles=(i in with_handles))
-                    x0, y0 = self.transform_point_i2c(i, bounds.x0, bounds.y0)
+                    self.queue_draw_item(i)
+                    x0, y0 = self.transform_point_i2c(i, bounds.x, bounds.y)
                     x1, y1 = self.transform_point_i2c(i, bounds.x1, bounds.y1)
                     cbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._item_bounds[i] = cbounds, bounds
@@ -544,7 +544,7 @@ class GtkView(gtk.DrawingArea, View):
                         parent_bounds, _ = self._item_bounds.get(parent, (None, None))
                         if parent_bounds and not cbounds in parent_bounds:
                             self.set_item_bounding_box(parent, parent_bounds + cbounds)
-                    self.queue_draw_item(i, handles=(i in with_handles))
+                    self.queue_draw_item(i)
 
             # Remove removed items:
             dirty_items.difference_update(removed_items)
@@ -562,7 +562,7 @@ class GtkView(gtk.DrawingArea, View):
             self.update_bounding_box(cr, dirty_items)
 
             for i in dirty_items:
-                self.queue_draw_item(i, handles=(i in with_handles))
+                self.queue_draw_item(i)
 
             self.update_adjustments()
         finally:

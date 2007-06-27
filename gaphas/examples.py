@@ -45,7 +45,9 @@ class Box(Element):
         h = self._handles
         hnw = h[NW]
         hse = h[SE]
-        r = (float(hnw.x), float(hnw.y), float(hse.x), float(hse.y))
+        x0, y0 = float(hnw.x), float(hnw.y)
+        x1, y1 = float(hse.x), float(hse.y)
+        r = (x0, y0, x1 - x0, y1 - y0)
         por = point_on_rectangle(r, (x, y), border=True)
         #print 'Point', r, (x, y), por
         return distance_rectangle_point(r, (x, y)), por

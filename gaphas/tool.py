@@ -326,7 +326,7 @@ class ItemTool(Tool):
 
             # First request redraws for all items, before enything is
             # changed.
-            view.queue_draw_item(handles=True, *self._movable_items)
+            view.queue_draw_item(*self._movable_items)
 
             # Calculate the distance the item has to be moved
             dx, dy = view.transform_distance_c2w(event.x - self.last_x,
@@ -507,7 +507,7 @@ class HandleTool(Tool):
             if self._grabbed_handle:
                 self._grabbed_handle.x.strength -= 1
                 self._grabbed_handle.y.strength -= 1
-            context.view.queue_draw_item(context.view.hovered_item, handles=True)
+            context.view.queue_draw_item(context.view.hovered_item)
             context.ungrab()
         if self._grabbed_handle:
             self._grabbed_item.request_update()
@@ -527,7 +527,7 @@ class HandleTool(Tool):
 
             # Do an explicit redraw request here, since we do not keep old
             # positions of handles around.
-            view.queue_draw_item(item, handles=True)
+            view.queue_draw_item(item)
 
             # Calculate the distance the item has to be moved
             wx, wy = view.transform_point_c2w(event.x, event.y)
@@ -559,7 +559,7 @@ class RubberbandTool(Tool):
 
     def on_button_press(self, context, event):
         context.grab()
-        self.rect.x0, self.rect.y0 = event.x, event.y
+        self.rect.x, self.rect.y = event.x, event.y
         self.rect.x1, self.rect.y1 = event.x, event.y
         return True
 
@@ -567,8 +567,6 @@ class RubberbandTool(Tool):
         context.ungrab()
         self.queue_draw(context.view)
         r = self.rect
-        r = Rectangle(min(r.x0, r.x1), min(r.y0, r.y1),
-                      width=abs(r.width), height=abs(r.height))
         context.view.select_in_rectangle(r)
         return True
 
@@ -576,20 +574,21 @@ class RubberbandTool(Tool):
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
             view = context.view
             self.queue_draw(view)
+            # TODO: keep track of what's expanding (top/bottom, left/right)
             self.rect.x1, self.rect.y1 = event.x, event.y
             self.queue_draw(view)
             return True
 
     def queue_draw(self, view):
         r = self.rect
-        view.queue_draw_area(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
+        view.queue_draw_area(*r)
 
     def draw(self, context):
         cr = context.cairo
         r = self.rect
         cr.set_line_width(1.0)
         cr.set_source_rgba(.5, .5, .7, .6)
-        cr.rectangle(min(r.x0, r.x1), min(r.y0, r.y1), abs(r.width), abs(r.height))
+        cr.rectangle(*r)
         cr.fill()
 
 

@@ -32,7 +32,7 @@ from gaphas import state
 from gaphas.util import text_extents
 
 from gaphas import painter
-painter.DEBUG_DRAW_BOUNDING_BOX = True
+#painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Global undo list
 undo_list = []
