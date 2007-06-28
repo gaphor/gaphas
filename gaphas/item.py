@@ -202,9 +202,9 @@ class Item(object):
         Context contains the following attributes:
 
         - matrix_i2w: Item to World transformation matrix (no need to)
-        - cairo: the Cairo Context use this one to draw.
+        - cairo: the Cairo Context use this one to draw
         - view: the view that is to be rendered to
-        - selected, focused, hovered: view state of items.
+        - selected, focused, hovered, dropzone: view state of items
         """
         pass
 

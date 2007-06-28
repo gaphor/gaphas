@@ -105,6 +105,7 @@ class ItemPainter(Painter):
                                   selected=(item in view.selected_items),
                                   focused=(item is view.focused_item),
                                   hovered=(item is view.hovered_item),
+                                  dropzone=(item is view.dropzone_item),
                                   draw_all=self.draw_all))
 
         finally:

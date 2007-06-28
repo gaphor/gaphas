@@ -38,6 +38,7 @@ class View(object):
         self._selected_items = set()
         self._focused_item = None
         self._hovered_item = None
+        self._dropzone_item = None
 
         self._matrix = Matrix()
         self._painter = DefaultPainter()
@@ -150,6 +151,29 @@ class View(object):
     hovered_item = property(lambda s: s._hovered_item,
                             _set_hovered_item, _del_hovered_item,
                             "The item directly under the mouse pointer")
+
+
+    def _set_dropzone_item(self, item):
+        """
+        Set dropzone item.
+        """
+        if item is not self._dropzone_item:
+            self.queue_draw_item(self._dropzone_item, item)
+            self._dropzone_item = item
+            self.emit('dropzone-changed', item)
+
+
+    def _del_dropzone_item(self):
+        """
+        Unset dropzone item.
+        """
+        self._dropzone_item = None
+
+
+    dropzone_item = property(lambda s: s._dropzone_item,
+            _set_dropzone_item, _del_dropzone_item,
+            'The item which can group other items')
+
 
     def _set_painter(self, painter):
         """
@@ -335,6 +359,8 @@ class GtkView(gtk.DrawingArea, View):
     
     # Signals: emited before the change takes effect.
     __gsignals__ = {
+        'dropzone-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      (gobject.TYPE_PYOBJECT,)),
         'hover-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                       (gobject.TYPE_PYOBJECT,)),
         'focus-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
@@ -553,6 +579,8 @@ class GtkView(gtk.DrawingArea, View):
                 self.focused_item = None
             if self.hovered_item in removed_items:
                 self.hovered_item = None
+            if self.dropzone_item in removed_items:
+                self.dropzone_item = None
 
             # Pseudo-draw
             cr = self.window.cairo_create()
