@@ -141,19 +141,27 @@ class LessThanConstraint(Constraint):
     >>> lt.solve_for(b)
     >>> a, b
     (Variable(0.8, 20), Variable(0.8, 20))
+
+    Also minimal delta between two values can be set
+    >>> a, b = Variable(10.0), Variable(8.0)
+    >>> lt = LessThanConstraint(smaller=a, bigger=b, delta=5)
+    >>> lt.solve_for(a)
+    >>> a, b
+    (Variable(10, 20), Variable(15, 20))
     """
 
-    def __init__(self, smaller=None, bigger=None):
+    def __init__(self, smaller=None, bigger=None, delta=0.0):
         super(LessThanConstraint, self).__init__(smaller, bigger)
         self.smaller = smaller
         self.bigger = bigger
+        self.delta = delta
 
     def solve_for(self, var):
-        if self.smaller.value > self.bigger.value:
+        if self.smaller.value > self.bigger.value - self.delta:
             if var is self.smaller:
-                self.bigger.value = self.smaller.value
+                self.bigger.value = self.smaller.value + self.delta
             elif var is self.bigger:
-                self.smaller.value = self.bigger.value
+                self.smaller.value = self.bigger.value - self.delta
 
 
 # Constants for the EquationConstraint
