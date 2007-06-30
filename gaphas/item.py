@@ -407,23 +407,23 @@ class Element(Item):
         >>> e._handles
         [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
         """
-        h_nw = self._handles[0]
+        h_nw = self._handles[NW]
         x, y = map(float, h_nw.pos)
         if not x:
-            x = float(self._handles[-1].x)
+            x = float(self._handles[SW].x)
         if x:
             self.matrix.translate(x, 0)
             self._canvas.request_matrix_update(self)
             h_nw.x = 0
-            for h in self._handles[1:]:
+            for h in self._handles[1:4]:
                 h.x -= x
         if not y:
-            y = float(self._handles[1].y)
+            y = float(self._handles[NE].y)
         if y:
             self.matrix.translate(0, y)
             self._canvas.request_matrix_update(self)
             h_nw.y = 0
-            for h in self._handles[1:]:
+            for h in self._handles[1:4]:
                 h.y -= y
 
         if self.width < self.min_width:
