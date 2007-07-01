@@ -328,12 +328,12 @@ class Element(Item):
         >>> b.canvas is c
         True
         >>> len(c.solver._constraints)
-        8
+        6
         >>> len(c.solver._marked_cons)
         0
         >>> c.solver.solve()
         >>> len(c.solver._constraints)
-        8
+        6
         >>> len(c.solver._marked_cons)
         0
         >>> b._handles[SE].pos = (25,30)
@@ -378,7 +378,7 @@ class Element(Item):
         >>> b.canvas is c
         True
         >>> len(c.solver._constraints)
-        8
+        6
         >>> b.teardown_canvas()
         >>> len(c.solver._constraints)
         0

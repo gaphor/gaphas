@@ -41,9 +41,6 @@ class Tree(object):
         'n1'
         """
         return self._parents.get(node)
-#        for item, children in self._children.items():
-#            if node in children:
-#                return item
 
     def get_children(self, node):
         """

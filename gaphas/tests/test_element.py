@@ -19,10 +19,10 @@ class ElementTestCase(unittest.TestCase):
         canvas.add(box)
 
         h_nw, h_ne, h_se, h_sw = handles
-        assert h_nw == handles[NW]
-        assert h_ne == handles[NE]
-        assert h_sw == handles[SW]
-        assert h_se == handles[SE]
+        assert h_nw is handles[NW]
+        assert h_ne is handles[NE]
+        assert h_sw is handles[SW]
+        assert h_se is handles[SE]
 
         # to see how many solver was called:
         # GAPHAS_TEST_COUNT=3 nosetests -s --with-prof --profile-restrict=gaphas gaphas/tests/test_element.py | grep -e '\<solve\>' -e dirty
@@ -40,7 +40,8 @@ class ElementTestCase(unittest.TestCase):
             canvas.update()
 
         self.assertEquals(110 * count, h_se.x) # h_se changed above, should remain the same
-        self.assertEquals(110 * count, h_se.y) 
+        self.assertEquals(110 * count, float(h_se.y))
 
-        self.assertEquals(110 * count, h_ne.x)
-        self.assertEquals(110 * count, h_sw.y)
+        self.assertEquals(110 * count, float(h_ne.x))
+        self.assertEquals(110 * count, float(h_sw.y))
+
