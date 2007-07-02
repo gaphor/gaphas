@@ -467,9 +467,10 @@ class Canvas(object):
         item._canvas_matrix_w2i.invert()
 
         # Make sure handles are marked (for constraint solving)
+        request_resolve = self._solver.request_resolve
         for h in item.handles():
-            h.x.dirty()
-            h.y.dirty()
+            request_resolve(h.x)
+            request_resolve(h.y)
 
         if recursive:
             for child in self._tree.get_children(item):

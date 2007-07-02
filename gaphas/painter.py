@@ -260,7 +260,7 @@ class BoundingBoxPainter(ItemPainter):
             for h in item.handles():
                 cairo.identity_matrix()
                 cairo.translate(*m.transform_point(h.x, h.y))
-                cairo.rectangle(-4, -4, 9, 9)
+                cairo.rectangle(-5, -5, 9, 9)
                 cairo.fill()
         finally:
             cairo.restore()

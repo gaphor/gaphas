@@ -345,6 +345,15 @@ class Solver(object):
                 elif c not in self._marked_cons:
                     self._marked_cons.append(c)
 
+    def request_resolve(self, variable):
+        """
+        Request resolving of the constraints for a variable. This does not
+        mark the variable itself as dirty.
+        """
+        for c in variable._constraints:
+            if c not in self._marked_cons:
+                self._marked_cons.append(c)
+
     @observed
     def add_constraint(self, constraint):
         """
