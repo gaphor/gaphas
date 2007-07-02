@@ -322,12 +322,15 @@ class Canvas(object):
 
     reversible_method(request_update, reverse=request_update)
 
+    @observed
     def request_matrix_update(self, item):
         """
         Schedule only the matrix to be updated.
         """
         self._dirty_matrix_items.add(item)
         self.update()
+
+    reversible_method(request_matrix_update, reverse=request_matrix_update)
 
     def require_update(self):
         """
