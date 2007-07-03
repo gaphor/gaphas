@@ -376,9 +376,7 @@ class Canvas(object):
 
             context_map = dict()
             for item in dirty_items:
-                c = Context(parent=self._tree.get_parent(item),
-                            children=self._tree.get_children(item),
-                            cairo=cairo_context)
+                c = Context(cairo=cairo_context)
                 context_map[item] = c
                 try:
                     item.pre_update(c)
@@ -402,9 +400,7 @@ class Canvas(object):
                 try:
                     c = context_map[item]
                 except KeyError:
-                    c = Context(parent=self._tree.get_parent(item),
-                                children=self._tree.get_children(item),
-                                cairo=cairo_context)
+                    c = Context(cairo=cairo_context)
                 try:
                     item.update(c)
                 except Exception, e:
@@ -474,6 +470,7 @@ class Canvas(object):
         for h in item.handles():
             request_resolve(h.x)
             request_resolve(h.y)
+            
 
         if recursive:
             for child in self._tree.get_children(item):

@@ -80,7 +80,7 @@ class DrawContext(Context):
         Extra helper method for drawing child items from within
         the Item.draw() method.
         """
-        self.painter._draw_items(self.children,
+        self.painter._draw_items(self._item.canvas.get_children(self._item),
                                  self.view,
                                  self.cairo,
                                  self._area)
@@ -100,8 +100,7 @@ class ItemPainter(Painter):
                                   view=view,
                                   cairo=cairo,
                                   _area=area,
-                                  parent=view.canvas.get_parent(item),
-                                  children=view.canvas.get_children(item),
+                                  _item=item,
                                   selected=(item in view.selected_items),
                                   focused=(item is view.focused_item),
                                   hovered=(item is view.hovered_item),

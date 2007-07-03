@@ -313,11 +313,11 @@ def main():
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)
     c.add(bb, parent=b)
-    for i in xrange(10):
-        bb=Box()
-        print 'box', bb
-        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
-        c.add(bb, parent=b)
+#    for i in xrange(10):
+#        bb=Box()
+#        print 'box', bb
+#        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
+#        c.add(bb, parent=b)
 
     t=MyText('Single line')
     t.matrix.translate(70,70)

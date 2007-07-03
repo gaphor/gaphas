@@ -86,8 +86,6 @@ since they are called when the application is not handling user input.
 
 The context contains:
 
- parent:   parent item of the item, or None
- children: child items of this item (do not need to force updates for those)
  cairo:    a CairoContext, this can be used to calculate the dimensions of text
            for example
 
@@ -105,8 +103,6 @@ In addition to draw_children(), the context has the following properties:
 
  view:     the view we're drawing to
  cairo:    the CairoContext to draw to
- parent:   parent item of the item, or None
- children: child items of this item (do not need to force updates for those)
  selected: True if the item is actually selected in the view
  focused:  True if the item has the focus
  hovered:  True if the mouse pointer if over the item. Only the top-most item
