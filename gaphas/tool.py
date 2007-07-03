@@ -373,15 +373,14 @@ class HandleTool(Tool):
         """
         Find item's handle at (event.x, event.y)
         """
-        get_matrix_i2w = view.canvas.get_matrix_i2w
-        transform_point_w2c = view.transform_point_w2c
+        transform_point = view.canvas.get_matrix_i2w(item).transform_point
         e_x, e_y = view.transform_point_c2w(event.x, event.y)
-        min_d, max_d = view.transform_distance_c2w(-6, 6)
+        dx, dy = view.transform_distance_c2w(6, 6)
         for h in item.handles():
             if not h.movable:
                 continue
-            wx, wy = get_matrix_i2w(item).transform_point(h.x, h.y)
-            if min_d < (wx - e_x) < max_d and min_d < (wy - e_y) < max_d:
+            wx, wy = transform_point(h.x, h.y)
+            if -dx < (wx - e_x) < dx and -dy < (wy - e_y) < dy:
                 return h
         return None
 
