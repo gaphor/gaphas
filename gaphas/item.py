@@ -357,8 +357,12 @@ class Element(Item):
             # set h[NW] < h[SE] constraints, h[NE] and h[SW] positions will
             # follow thanks to equality constraints above
             # TODO: use LessThanConstraint.delta to calculate minimal size
-            add(lt(smaller=h[NW].x, bigger=h[SE].x)),
-            add(lt(smaller=h[NW].y, bigger=h[SE].y)),
+            #add(lt(smaller=h[NW].x, bigger=h[SE].x)),
+            #add(lt(smaller=h[NW].y, bigger=h[SE].y)),
+            add(lt(smaller=h[NW].x, bigger=h[NE].x)),
+            add(lt(smaller=h[SW].x, bigger=h[SE].x)),
+            add(lt(smaller=h[NE].y, bigger=h[SE].y)),
+            add(lt(smaller=h[NW].y, bigger=h[SW].y)),
             ]
 
         # Immediately solve the constraints, ensuring the box is drawn okay
