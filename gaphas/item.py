@@ -328,12 +328,12 @@ class Element(Item):
         >>> b.canvas is c
         True
         >>> len(c.solver._constraints)
-        6
+        8
         >>> len(c.solver._marked_cons)
         0
         >>> c.solver.solve()
         >>> len(c.solver._constraints)
-        6
+        8
         >>> len(c.solver._marked_cons)
         0
         >>> b._handles[SE].pos = (25,30)
@@ -354,11 +354,6 @@ class Element(Item):
             add(eq(a=h[SW].y, b=h[SE].y)),
             add(eq(a=h[NW].x, b=h[SW].x)),
             add(eq(a=h[NE].x, b=h[SE].x)),
-            # set h[NW] < h[SE] constraints, h[NE] and h[SW] positions will
-            # follow thanks to equality constraints above
-            # TODO: use LessThanConstraint.delta to calculate minimal size
-            #add(lt(smaller=h[NW].x, bigger=h[SE].x)),
-            #add(lt(smaller=h[NW].y, bigger=h[SE].y)),
             add(lt(smaller=h[NW].x, bigger=h[NE].x)),
             add(lt(smaller=h[SW].x, bigger=h[SE].x)),
             add(lt(smaller=h[NE].y, bigger=h[SE].y)),
@@ -382,7 +377,7 @@ class Element(Item):
         >>> b.canvas is c
         True
         >>> len(c.solver._constraints)
-        6
+        8
         >>> b.teardown_canvas()
         >>> len(c.solver._constraints)
         0
@@ -408,29 +403,10 @@ class Element(Item):
         >>> e._handles[0].x += 1
         >>> map(float, e._handles[0].pos)
         [1.0, 0.0]
-        >>> e.pre_update(None)
+        >>> c.request_update(e)
         >>> e._handles
-        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
+        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
         """
-        h_nw = self._handles[NW]
-        x, y = map(float, h_nw.pos)
-        if not x:
-            x = float(self._handles[SW].x)
-        if x:
-            self.matrix.translate(x, 0)
-            self._canvas.request_matrix_update(self)
-            h_nw.x = 0
-            for h in self._handles[1:4]:
-                h.x -= x
-        if not y:
-            y = float(self._handles[NE].y)
-        if y:
-            self.matrix.translate(0, y)
-            self._canvas.request_matrix_update(self)
-            h_nw.y = 0
-            for h in self._handles[1:4]:
-                h.y -= y
-
         if self.width < self.min_width:
             self.width = self.min_width
         if self.height < self.min_height:
