@@ -503,11 +503,6 @@ class GtkView(gtk.DrawingArea, View):
                 queue_draw_area(*get_item_bounding_box(item))
             except KeyError:
                 pass # No bounds calculated yet? bummer.
-            #else:
-            #    #self.queue_draw_area(b.x - 1, b.y - 1,
-            #    #                     b.width + 2, b.height + 2)
-            #    self.queue_draw_area(b.x, b.y,
-            #                         b.width, b.height)
 
     def queue_draw_area(self, x, y, w, h):
         """
