@@ -539,7 +539,7 @@ class HandleTool(Tool):
             self.move(view, item, handle, x, y)
             
             item.request_update()
-            canvas.update_matrix(item)
+            #canvas.update_matrix(item)
             try:
                 if self._grabbed_handle.connectable:
                     self.glue(view, item, handle, wx, wy)
