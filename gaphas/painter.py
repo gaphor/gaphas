@@ -268,7 +268,9 @@ class BoundingBoxPainter(ItemPainter):
         cairo = CairoBoundingBoxContext(cairo)
         super(BoundingBoxPainter, self)._draw_item(item, view, cairo)
         self._draw_handles(item, view, cairo)
-        view.set_item_bounding_box(item, cairo.get_bounds())
+        bounds = cairo.get_bounds()
+        bounds.expand(1)
+        view.set_item_bounding_box(item, bounds)
 
     def _draw_items(self, items, view, cairo, area=None):
         """
