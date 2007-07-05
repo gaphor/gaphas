@@ -392,6 +392,8 @@ class GtkView(gtk.DrawingArea, View):
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
 
+        self._draw_bounding_box = False
+
     def emit(self, *args, **kwargs):
         """
         Delegate signal emissions to the DrawingArea (=GTK+)
@@ -493,6 +495,10 @@ class GtkView(gtk.DrawingArea, View):
                                 canvas_size=h,
                                 viewport_size=allocation.height)
 
+    @async(single=False, priority=PRIORITY_HIGH_IDLE)
+    def _idle_queue_draw_item(self, *items):
+        self.queue_draw_item(*items)
+
     def queue_draw_item(self, *items):
         """
         Like DrawingArea.queue_draw_area, but use the bounds of the
@@ -542,8 +548,6 @@ class GtkView(gtk.DrawingArea, View):
 
         # Do not update items that require a full update (or are removed)
         dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
-        #dirty_items.update(dirty_matrix_items)
-        #dirty_matrix_items.clear()
 
         removed_items = dirty_items.difference(self._canvas.get_all_items())
         
@@ -580,19 +584,11 @@ class GtkView(gtk.DrawingArea, View):
             if self.dropzone_item in removed_items:
                 self.dropzone_item = None
 
-            # Pseudo-draw
-            cr = self.window.cairo_create()
-            cr.rectangle(0,0,0,0)
-            cr.clip()
-
-            self.update_bounding_box(cr, dirty_items)
-
-            for i in dirty_items:
-                self.queue_draw_item(i)
-
             self.update_adjustments()
+
+            self._draw_bounding_box = True
+
         finally:
-            self._dirty_items.clear()
             self._dirty_matrix_items.clear()
 
     @nonrecursive
@@ -624,7 +620,23 @@ class GtkView(gtk.DrawingArea, View):
 
         # Draw no more than nessesary.
         cr.rectangle(x, y, w, h)
+        #print 'clip to', x, y, w, h
         cr.clip()
+
+        if self._draw_bounding_box:
+            try:
+                dirty_items = self._dirty_items
+                cr.save()
+                cr.rectangle(0, 0, 0, 0)
+                cr.clip()
+                try:
+                    self.update_bounding_box(cr, dirty_items)
+                finally:
+                    cr.restore()
+                self._idle_queue_draw_item(*dirty_items)
+            finally:
+                self._dirty_items.clear()
+                self._draw_bounding_box = False
 
         self._painter.paint(Context(view=self,
                                     cairo=cr,
