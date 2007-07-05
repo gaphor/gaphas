@@ -9,7 +9,7 @@ from math import atan2
 
 from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
-from solver import solvable, WEAK, NORMAL, STRONG
+from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
 from constraint import EqualsConstraint, LessThanConstraint
 from state import observed, reversible_pair, reversible_property, disable_dispatching
 
@@ -236,7 +236,7 @@ class Element(Item):
 
     def __init__(self, width=10, height=10):
         super(Element, self).__init__()
-        self._handles = [ h(strength=STRONG) for h in [Handle]*4 ]
+        self._handles = [ h(strength=VERY_STRONG) for h in [Handle]*4 ]
         self._constraints = []
         self._min_width = 10
         self._min_height = 10
