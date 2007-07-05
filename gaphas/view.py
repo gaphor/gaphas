@@ -389,6 +389,9 @@ class GtkView(gtk.DrawingArea, View):
         self._tool = DefaultTool()
         self.canvas = canvas
 
+        # Set background to white.
+        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
+
     def emit(self, *args, **kwargs):
         """
         Delegate signal emissions to the DrawingArea (=GTK+)
@@ -617,9 +620,6 @@ class GtkView(gtk.DrawingArea, View):
 
         area = event.area
         x, y, w, h = area.x, area.y, area.width, area.height
-        self.window.draw_rectangle(self.style.white_gc, True,
-                                   x, y, w, h)
-
         cr = self.window.cairo_create()
 
         # Draw no more than nessesary.
