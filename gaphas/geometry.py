@@ -132,7 +132,9 @@ class Rectangle(object):
 
         >>> r=Rectangle(5, 7, 20, 25)
         >>> r + (0, 0)
-        Rectangle(0, 0, 25, 32)
+        Traceback (most recent call last):
+          ...
+        AttributeError: Can only add Rectangle or tuple (x, y, width, height), not (0, 0).
         >>> r + (20, 30, 40, 50)
         Rectangle(5, 7, 55, 73)
         """
@@ -148,21 +150,15 @@ class Rectangle(object):
         >>> r += 'aap'
         Traceback (most recent call last):
           ...
-        AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle first.
+        AttributeError: Can only add Rectangle or tuple (x, y, width, height), not 'aap'.
         """
-        if isinstance(obj, Rectangle) or len(obj) == 4:
+        try:
             x, y, width, height = obj
-            x1, y1 = x + width, y + height
-        elif len(obj) == 2:
-            # extend using a point
-            x, y = obj
-            width, height = 0, 0
-            x1, y1 = obj
-        else:
-            raise AttributeError, "Don't know how to handle %s %s." \
-                    " Convert to a Rectangle first." % (type(obj), obj)
+        except ValueError:
+            raise AttributeError, "Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+        x1, y1 = x + width, y + height
         if self:
-            ox1, oy1 = self.x1, self.y1
+            ox1, oy1 = self.x + self.width, self.y + self.height
             self.x = min(self.x, x)
             self.y = min(self.y, y)
             self.x1 = max(ox1, x1)
@@ -194,16 +190,16 @@ class Rectangle(object):
         >>> r -= 'aap'
         Traceback (most recent call last):
           ...
-        AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle first.
+        AttributeError: Can only substract Rectangle or tuple (x, y, width, height), not 'aap'.
         """
-        if isinstance(obj, Rectangle) or len(obj) == 4:
+        try:
             x, y, width, height = obj
-            x1, y1 = x + width, y + height
-        else:
-            raise AttributeError, "Don't know how to handle %s %s." \
-                    " Convert to a Rectangle first." % (type(obj), obj)
+        except ValueError:
+            raise AttributeError, "Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+        x1, y1 = x + width, y + height
+
         if self:
-            ox1, oy1 = self.x1, self.y1
+            ox1, oy1 = self.x + self.width, self.y + self.height
             self.x = max(self.x, x)
             self.y = max(self.y, y)
             self.x1 = min(ox1, x1)
@@ -237,18 +233,18 @@ class Rectangle(object):
         >>> 'aap' in r
         Traceback (most recent call last):
           ...
-        AttributeError: Don't know how to handle <type 'str'> aap. Convert to a Rectangle or tuple first.
+        AttributeError: Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not 'aap'.
         """
-        if isinstance(obj, Rectangle) or len(obj) == 4:
+        try:
             x, y, width, height = obj
             x1, y1 = x + width, y + width
-        elif len(obj) == 2:
+        except ValueError:
             # point
-            x, y = obj
-            x1, y1 = obj
-        else:
-            raise AttributeError, "Don't know how to handle %s %s." \
-                    " Convert to a Rectangle or tuple first." % (type(obj), obj)
+            try:
+                x, y = obj
+                x1, y1 = obj
+            except ValueError:
+                raise AttributeError, "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
         return x >= self.x and x1 <= self.x1 and \
                y >= self.y and y1 <= self.y1
 
