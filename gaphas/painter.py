@@ -247,28 +247,17 @@ class BoundingBoxPainter(ItemPainter):
 
     draw_all = True
 
-    def _draw_handles(self, item, view, cairo):
-        """
-        Update the bounding box with handle's position.
-        """
-        cairo.save()
-        try:
-            m = Matrix(*view.canvas.get_matrix_i2w(item))
-            m *= view._matrix
-
-            for h in item.handles():
-                cairo.identity_matrix()
-                cairo.translate(*m.transform_point(h.x, h.y))
-                cairo.rectangle(-5, -5, 9, 9)
-                cairo.fill()
-        finally:
-            cairo.restore()
-
     def _draw_item(self, item, view, cairo, area=None):
         cairo = CairoBoundingBoxContext(cairo)
         super(BoundingBoxPainter, self)._draw_item(item, view, cairo)
-        self._draw_handles(item, view, cairo)
         bounds = cairo.get_bounds()
+
+        # Update bounding box with handles.
+        transform_i2c = (view.canvas.get_matrix_i2w(item) * view._matrix).transform_point
+        for h in item.handles():
+            cx, cy = transform_i2c(h.x, h.y)
+            bounds += (cx - 5, cy - 5, 9, 9)
+
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
