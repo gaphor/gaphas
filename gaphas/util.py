@@ -91,7 +91,7 @@ def text_set_font(cr, font):
                                         or cairo.FONT_SLANT_NORMAL,
                         'bold' in font and cairo.FONT_WEIGHT_BOLD \
                                         or cairo.FONT_WEIGHT_NORMAL)
-    cr.set_font_size(int(font[-1]))
+    cr.set_font_size(float(font[-1]))
 
 
 def path_ellipse (cr, x, y, width, height, angle=0):
