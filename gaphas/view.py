@@ -392,7 +392,7 @@ class GtkView(gtk.DrawingArea, View):
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
 
-        self._draw_bounding_box = False
+        self._update_bounding_box = set()
 
     def emit(self, *args, **kwargs):
         """
@@ -586,9 +586,10 @@ class GtkView(gtk.DrawingArea, View):
 
             self.update_adjustments()
 
-            self._draw_bounding_box = True
+            self._update_bounding_box.update(dirty_items)
 
         finally:
+            self._dirty_items.clear()
             self._dirty_matrix_items.clear()
 
     @nonrecursive
@@ -623,20 +624,19 @@ class GtkView(gtk.DrawingArea, View):
         #print 'clip to', x, y, w, h
         cr.clip()
 
-        if self._draw_bounding_box:
+        update_bounding_box = self._update_bounding_box
+        if update_bounding_box:
             try:
-                dirty_items = self._dirty_items
                 cr.save()
                 cr.rectangle(0, 0, 0, 0)
                 cr.clip()
                 try:
-                    self.update_bounding_box(cr, dirty_items)
+                    self.update_bounding_box(cr, update_bounding_box)
                 finally:
                     cr.restore()
-                self._idle_queue_draw_item(*dirty_items)
+                self._idle_queue_draw_item(*update_bounding_box)
             finally:
-                self._dirty_items.clear()
-                self._draw_bounding_box = False
+                update_bounding_box.clear()
 
         self._painter.paint(Context(view=self,
                                     cairo=cr,
