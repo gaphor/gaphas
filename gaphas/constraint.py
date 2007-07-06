@@ -458,6 +458,53 @@ class LineConstraint(Constraint):
         self._canvas.request_update(self._connected_item)
 
 
+
+class BalanceConstraint(Constraint):
+    """
+    Ensure that a variable @v is between values specified by @band
+    and in distance proportional from @band[0].
+
+    Consider
+    >>> from solver import Variable, WEAK
+    >>> a, b, c = Variable(2.0), Variable(3.0), Variable(2.3, WEAK)
+    >>> bc = BalanceConstraint(band=(a,b), v=c)
+    >>> c.value = 2.4
+    >>> c
+    Variable(2.4, 10)
+    >>> bc.solve_for(c)
+    >>> a, b, c
+    (Variable(2, 20), Variable(3, 20), Variable(2.3, 10))
+
+    Band does not have to be band[0] < band[1]
+    >>> a, b, c = Variable(3.0), Variable(2.0), Variable(2.45, WEAK)
+    >>> bc = BalanceConstraint(band=(a,b), v=c)
+    >>> c.value = 2.50
+    >>> c
+    Variable(2.5, 10)
+    >>> bc.solve_for(c)
+    >>> a, b, c
+    (Variable(3, 20), Variable(2, 20), Variable(2.45, 10))
+    """
+
+    def __init__(self, band=None, v=None):
+        super(BalanceConstraint, self).__init__(band[0], band[1], v)
+        self.band = band
+        b1, b2 = self.band
+        w = b2 - b1
+        if w != 0:
+            self.balance = (v - b1) / w
+        else:
+            self.balance = 0
+        self.v = v
+        print 'b', self.balance
+
+    def solve_for(self, var):
+        b1, b2 = self.band
+        w = b2 - b1
+        var.value = b1 + w * self.balance
+
+
+
 if __name__ == '__main__':
     import doctest, sys
     sys.path.append('..')
