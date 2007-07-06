@@ -364,7 +364,11 @@ class Canvas(object):
         Peform an update of the items that requested an update.
         """
         self._in_update = True
-        dirty_items = []
+
+        # Order the dirty items, so they are updated bottom to top
+        dirty_items = [ item for item in reversed(self._tree.nodes) \
+                             if item in self._dirty_items ]
+
         # dirty_items is a subset of dirty_matrix_items
         dirty_matrix_items = set(self._dirty_matrix_items)
         try:
@@ -372,10 +376,6 @@ class Canvas(object):
 
             for item in dirty_matrix_items:
                 self._update_handles(item)
-
-            # Order the dirty items, so they are updated bottom to top
-            dirty_items = ( item for item in reversed(self._tree.nodes) \
-                                 if item in self._dirty_items )
 
             context_map = dict()
             for item in dirty_items:
@@ -391,10 +391,6 @@ class Canvas(object):
             self.update_matrices()
 
             self._solver.solve()
-
-            # Order the dirty items, so they are updated bottom to top
-            dirty_items = ( item for item in reversed(self._tree.nodes) \
-                                 if item in self._dirty_items )
 
             dirty_matrix_items.update(self._dirty_matrix_items)
             self.update_matrices()
