@@ -496,7 +496,7 @@ class BalanceConstraint(Constraint):
         else:
             self.balance = 0
         self.v = v
-        print 'b', self.balance
+
 
     def solve_for(self, var):
         b1, b2 = self.band
