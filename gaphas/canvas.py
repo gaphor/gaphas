@@ -11,7 +11,7 @@ import cairo
 from cairo import Matrix
 from gaphas import tree
 from gaphas import solver
-from gaphas.decorators import async, PRIORITY_HIGH_IDLE
+from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
 
 
@@ -45,7 +45,6 @@ class Canvas(object):
         self._solver = solver.Solver()
         self._dirty_items = set()
         self._dirty_matrix_items = set()
-        self._in_update = False
 
         self._registered_views = set()
 
@@ -356,15 +355,13 @@ class Canvas(object):
         Update the canvas, if called from within a gtk-mainloop, the
         update job is scheduled as idle job.
         """
-        if not self._in_update:
-            self.update_now()
+        self.update_now()
 
+    @nonrecursive
     def update_now(self):
         """
         Peform an update of the items that requested an update.
         """
-        self._in_update = True
-
         # Order the dirty items, so they are updated bottom to top
         dirty_items = [ item for item in reversed(self._tree.nodes) \
                              if item in self._dirty_items ]
@@ -395,6 +392,11 @@ class Canvas(object):
             dirty_matrix_items.update(self._dirty_matrix_items)
             self.update_matrices()
 
+            # Also need to set up the dirty_items list here, since items
+            # may be marked as dirty during maxtrix update or solving.
+            dirty_items = [ item for item in reversed(self._tree.nodes) \
+                                 if item in self._dirty_items ]
+
             for item in dirty_items:
                 try:
                     c = context_map[item]
@@ -410,7 +412,6 @@ class Canvas(object):
         finally:
             self._update_views(self._dirty_items, dirty_matrix_items)
             self._dirty_items.clear()
-            self._in_update = False
 
     def update_matrices(self):
         """
@@ -469,7 +470,6 @@ class Canvas(object):
         for h in item.handles():
             request_resolve(h.x)
             request_resolve(h.y)
-            
 
         if recursive:
             for child in self._tree.get_children(item):
