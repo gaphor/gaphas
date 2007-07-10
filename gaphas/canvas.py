@@ -84,8 +84,10 @@ class Canvas(object):
             []
             >>> i._canvas
         """
-        self._tree.remove(item)
+        for child in self.get_children(item):
+            self.remove(child)
         item.canvas = None
+        self._tree.remove(item)
         self.remove_connections_to_item(item)
         self._update_views((item,))
         self._dirty_items.discard(item)
