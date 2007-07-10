@@ -514,7 +514,7 @@ class Canvas(object):
         if y:
             item.matrix.translate(0, y)
             for h in handles:
-                h.y -= y
+                h.y._value -= y
 
     def register_view(self, view):
         """
