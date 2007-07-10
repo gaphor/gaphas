@@ -22,6 +22,7 @@ class ViewTestCase(unittest.TestCase):
         view1 = GtkView(canvas=canvas)
         window1.add(view1)
         view1.realize()
+        window1.show_all()
 
         box = Box()
         box.matrix = (1.0, 0.0, 0.0, 1, 10,10)
@@ -37,12 +38,19 @@ class ViewTestCase(unittest.TestCase):
         window2 = gtk.Window(gtk.WINDOW_TOPLEVEL)
         view2 = GtkView(canvas=canvas)
         window2.add(view2)
-        view2.realize()
+        window2.show_all()
 
-        assert view2.get_item_bounding_box(box)
-        assert view1.get_item_bounding_box(box)
-        assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
-        assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
+        # Process pending (expose) events, which cause the canvas to be drawn.
+        while gtk.events_pending():
+            gtk.main_iteration()
+
+        try: 
+            assert view2.get_item_bounding_box(box)
+            assert view1.get_item_bounding_box(box)
+            assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
+            assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
+        finally:
+            window2.destroy()
 
 if __name__ == '__main__':
     unittest.main()
