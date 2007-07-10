@@ -309,6 +309,7 @@ class Canvas(object):
             >>> len(c._dirty_items)
             0
         """
+        assert item in self.get_all_items()
         self._dirty_items.add(item)
         self._dirty_matrix_items.add(item)
 
@@ -326,6 +327,7 @@ class Canvas(object):
         """
         Schedule only the matrix to be updated.
         """
+        assert item in self.get_all_items()
         self._dirty_matrix_items.add(item)
         self.update()
 
