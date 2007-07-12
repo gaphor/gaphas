@@ -84,7 +84,6 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button):
         global movable_item
         item = movable_item
-        handles = item.handles()
         import time
         t1 = time.time()
         for i in range(20):
