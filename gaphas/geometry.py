@@ -183,7 +183,7 @@ class Rectangle(object):
     def __isub__(self, obj):
         """
         >>> r = Rectangle()
-        >>> r -= Rectangle(5,7,20,25)
+        >>> r -= Rectangle(5, 7, 20, 25)
         >>> r -= (0, 0, 30, 10)
         >>> r
         Rectangle(5, 7, 20, 3)
