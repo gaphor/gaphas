@@ -30,6 +30,32 @@ class Quadtree(object):
     ...     qtree.add('%d' % i, ((i * 4) % 90, (i * 10) % 90, 10, 10))
     >>> len(qtree)
     20
+    >>> qtree.dump() # doctest: +ELLIPSIS
+     <__main__.QuadtreeBucket object at 0x...> (0, 0, 100, 100)
+       11 (44, 20, 10, 10)
+       12 (48, 30, 10, 10)
+       <__main__.QuadtreeBucket object at 0x...> (0, 0, 50.0, 50.0)
+         0 (0, 0, 10, 10)
+         1 (4, 10, 10, 10)
+         2 (8, 20, 10, 10)
+         3 (12, 30, 10, 10)
+         4 (16, 40, 10, 10)
+         9 (36, 0, 10, 10)
+         10 (40, 10, 10, 10)
+       <__main__.QuadtreeBucket object at 0x...> (50.0, 0, 50.0, 50.0)
+         13 (52, 40, 10, 10)
+         18 (72, 0, 10, 10)
+         19 (76, 10, 10, 10)
+       <__main__.QuadtreeBucket object at 0x...> (0, 50.0, 50.0, 50.0)
+         5 (20, 50, 10, 10)
+         6 (24, 60, 10, 10)
+         7 (28, 70, 10, 10)
+         8 (32, 80, 10, 10)
+       <__main__.QuadtreeBucket object at 0x...> (50.0, 50.0, 50.0, 50.0)
+         14 (56, 50, 10, 10)
+         15 (60, 60, 10, 10)
+         16 (64, 70, 10, 10)
+         17 (68, 80, 10, 10)
 
     Find all items in the tree::
 
@@ -42,6 +68,12 @@ class Quadtree(object):
     ['13', '14', '15', '16']
     >>> [qtree.get_bounds(item) for item in qtree.find_inside((40, 40, 40, 40))]
     [(52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10), (64, 70, 10, 10)]
+
+    >>> qtree.find_intersect((40, 40, 20, 20))
+    ['12', '13', '14', '15']
+    >>> [qtree.get_bounds(item) for item in qtree.find_intersect((40, 40, 20, 20))]
+    [(48, 30, 10, 10), (52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10)]
+
     """
 
     def __init__(self, bounds):
@@ -112,6 +144,12 @@ class Quadtree(object):
     def __len__(self):
         return len(self._ids)
 
+    def dump(self):
+        """
+        Print structure to stdout.
+        """
+        self._bucket.dump()
+
 
 class QuadtreeBucket(object):
     """
@@ -137,7 +175,7 @@ class QuadtreeBucket(object):
         Return the bucket the item is attached to.
         """
         # create new subnodes if threshold is reached
-        if not self._buckets and len(self._items) > QuadtreeBucket.CAPACITY:
+        if not self._buckets and len(self._items) >= QuadtreeBucket.CAPACITY:
             x, y, w, h = self._bounds
             rw, rh = w / 2., h / 2.
             cx, cy = x + rw, y + rh
@@ -187,6 +225,14 @@ class QuadtreeBucket(object):
         self._buckets = None
         del self._items[:]
 
+    def dump(self, indent=''):
+       print indent, self, self._bounds
+       indent += '  '
+       for item, bounds in self._items:
+           print indent, item, bounds
+       for bucket in self._buckets or []:
+           bucket.dump(indent)
+
     def __contains__(self, bounds):
         """
         Check if rectangle bounds (tuple (x, y, width, height)) is located
@@ -197,7 +243,7 @@ class QuadtreeBucket(object):
 
 def contains(inner, outer):
     """
-    Returns True if recta is contained inside rectb.
+    Returns True if inner rect is contained in outer rect.
     """
     ix, iy, iw, ih = inner
     ox, oy, ow, oh = outer
