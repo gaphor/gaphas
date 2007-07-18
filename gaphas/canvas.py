@@ -6,13 +6,13 @@ and a constraint solver.
 __version__ = "$Revision$"
 # $HeadURL$
 
-
 import cairo
 from cairo import Matrix
 from gaphas import tree
 from gaphas import solver
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
+from gaphas.constraint import Projector
 
 
 class Context(object):
@@ -37,7 +37,12 @@ class Context(object):
 
 class Canvas(object):
     """
-    Container class for Items.
+    Container class for items.
+
+    Attributes:
+     - projector: canvas constraint projector between item and canvas
+       coordinates
+     - _canvas_constraints: constraints set between canvas items
     """
 
     def __init__(self):
@@ -47,6 +52,9 @@ class Canvas(object):
         self._dirty_matrix_items = set()
 
         self._registered_views = set()
+        self._canvas_constraints = {}
+
+        self.projector = CanvasProjector(self)
 
     solver = property(lambda s: s._solver)
 
@@ -67,8 +75,14 @@ class Canvas(object):
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
         item.canvas = self
         self._tree.add(item, parent)
+        self._canvas_constraints[item] = {}
+
+        for v in self._registered_views:
+            v.update_matrix(item)
+
         self.request_update(item)
         self._update_views((item,))
+
 
     @observed
     def remove(self, item):
@@ -91,12 +105,75 @@ class Canvas(object):
         item.canvas = None
         self._tree.remove(item)
         self.remove_connections_to_item(item)
+        del self._canvas_constraints[item]
         self._update_views((item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
 
     reversible_pair(add, remove,
                     bind1={'parent': lambda self, item: self.get_parent(item) })
+
+
+    def add_canvas_constraint(self, item, handle, c):
+        """
+        Add constraint between items.
+
+        Parameters:
+         - item: item holding constraint
+         - handle: handle holding constraint
+         - c: constraint between items
+        """
+        if item not in self._canvas_constraints:
+            raise ValueError, 'Item not added to canvas'
+
+        i_cons = self._canvas_constraints[item]
+        if handle not in i_cons:
+            i_cons[handle] = set()
+        i_cons[handle].add(c)
+        self._solver.add_constraint(c)
+
+
+    def remove_canvas_constraint(self, item, handle, c=None):
+        """
+        Remove constraint set between item.
+
+        If constraint is not set then all constraints are removed for given
+        item and handle.
+
+        Parameters:
+         - item: item holding constraint
+         - handle: handle holding constraint
+         - c: constraint between items
+        """
+        if item not in self._canvas_constraints:
+            raise ValueError, 'Item not added to canvas'
+
+        i_cons = self._canvas_constraints[item]
+
+        if c is None: # remove all handle's constraints
+            h_cons = i_cons[handle]
+            for c in h_cons:
+                self._solver.remove_constraint(c)
+            h_cons.clear()
+        else:
+            # remove specific constraint
+            self._solver.remove_constraint(c)
+            i_cons[handle].remove(c)
+
+
+    def canvas_constraints(self, item):
+        """
+        Get all constraints set between items for specific item.
+        """
+        if item not in self._canvas_constraints:
+            raise ValueError, 'Item not added to canvas'
+
+        i_cons = self._canvas_constraints[item]
+
+        for cons in i_cons.values():
+            for c in cons:
+                yield c
+
 
     def remove_connections_to_item(self, item):
         """
@@ -261,7 +338,7 @@ class Canvas(object):
                     connected_items.add((i, h))
         return connected_items
 
-    def get_matrix_i2w(self, item, calculate=False):
+    def get_matrix_i2c(self, item, calculate=False):
         """
         Get the Item to World matrix for @item.
 
@@ -271,30 +348,20 @@ class Canvas(object):
               in stead of raising an AttributeError when no matrix is present
               yet. Note that out-of-date matrices are not recalculated.
         """
-        try:
-            return item._canvas_matrix_i2w
-        except AttributeError, e:
-            if calculate:
-                self.update_matrix(item, recursive=False)
-                return item._canvas_matrix_i2w
-            else:
-                self.request_matrix_update(item)
-                raise e
+        if item._matrix_i2c is None or calculate:
+            self.update_matrix(item, recursive=False)
+        return item._matrix_i2c
 
-    def get_matrix_w2i(self, item, calculate=False):
+
+    def get_matrix_c2i(self, item, calculate=False):
         """
         Get the World to Item matrix for @item.
         See get_matrix_i2w().
         """
-        try:
-            return item._canvas_matrix_w2i
-        except AttributeError, e:
-            if calculate:
-                self.update_matrix(item, recursive=False)
-                return item._canvas_matrix_w2i
-            else:
-                self.request_matrix_update(item)
-                raise e
+        if item._matrix_c2i is None or calculate:
+            self.update_matrix(item, recursive=False)
+        return item._matrix_c2i
+
 
     @observed
     def request_update(self, item):
@@ -313,7 +380,6 @@ class Canvas(object):
             >>> len(c._dirty_items)
             0
         """
-        assert item in self.get_all_items()
         self._dirty_items.add(item)
         self._dirty_matrix_items.add(item)
 
@@ -331,7 +397,6 @@ class Canvas(object):
         """
         Schedule only the matrix to be updated.
         """
-        assert item in self.get_all_items()
         self._dirty_matrix_items.add(item)
         self.update()
 
@@ -433,9 +498,9 @@ class Canvas(object):
             >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
             >>> c.add(ii, i)
             >>> c.update_matrices()
-            >>> i._canvas_matrix_i2w
+            >>> c.get_matrix_i2c(i)
             cairo.Matrix(1, 0, 0, 1, 5, 0)
-            >>> ii._canvas_matrix_i2w
+            >>> c.get_matrix_i2c(ii)
             cairo.Matrix(1, 0, 0, 1, 5, 8)
             >>> len(c._dirty_items)
             0
@@ -462,24 +527,26 @@ class Canvas(object):
                 self.update_matrix(parent)
                 return
             else:
-                item._canvas_matrix_i2w = Matrix(*item.matrix)
-                item._canvas_matrix_i2w *= parent._canvas_matrix_i2w
+                item._matrix_i2c = Matrix(*item.matrix)
+                item._matrix_i2c *= self.get_matrix_i2c(parent)
         else:
-            item._canvas_matrix_i2w = Matrix(*item.matrix)
+            item._matrix_i2c = Matrix(*item.matrix)
 
         # It's nice to have the W2I matrix present too:
-        item._canvas_matrix_w2i = Matrix(*item._canvas_matrix_i2w)
-        item._canvas_matrix_w2i.invert()
+        item._matrix_c2i = Matrix(*item._matrix_i2c)
+        item._matrix_c2i.invert()
+        for v in self._registered_views:
+            v.update_matrix(item)
 
         # Make sure handles are marked (for constraint solving)
         request_resolve = self._solver.request_resolve
-        for h in item.handles():
-            request_resolve(h.x)
-            request_resolve(h.y)
-
+        for c in self.canvas_constraints(item):
+            request_resolve(c)
+            
         if recursive:
             for child in self._tree.get_children(item):
                 self.update_matrix(child)
+
 
     def _update_handles(self, item):
         """
@@ -522,12 +589,16 @@ class Canvas(object):
             for h in handles:
                 h.y._value -= y
 
+
     def register_view(self, view):
         """
         Register a view on this canvas. This method is called when setting
         a canvas on a view and should not be called directly from user code.
         """
         self._registered_views.add(view)
+        for item in self.get_all_items():
+            view.update_matrix(item)
+
 
     def unregister_view(self, view):
         """
@@ -564,6 +635,58 @@ class Canvas(object):
         else:
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
             return cairo.Context(surface)
+
+
+
+class CanvasProjector(Projector):
+    """
+    Canvas constraint projector between item and canvas coordinates.
+
+    Attributes:
+     - _canvas: canvas reference
+    """
+    def __init__(self, canvas):
+        super(CanvasProjector, self).__init__()
+        self._canvas = canvas
+
+
+    def _cproj(self, c, x=None, y=None, xy=None, **kw):
+        if xy is not None:
+            for point, item in xy.items():
+                x, y = point
+                i2c = self._canvas.get_matrix_i2c(item).transform_point
+                x._value, y._value = i2c(x._value, y._value)
+        elif x is not None:
+            for v, item in x.items():
+                i2c = self._canvas.get_matrix_i2c(item).transform_point
+                v._value, _ = i2c(v._value, 0)
+        elif y is not None:
+            for v, item in y.items():
+                i2c = self._canvas.get_matrix_i2c(item).transform_point
+                _, v._value = i2c(0, v._value)
+        else:
+            raise AttributeError('Projection data not specified')
+
+
+    def _iproj(self, c, x=None, y=None, xy=None, **kw):
+        if xy is not None:
+            for point, item in xy.items():
+                x, y = point
+                c2i = self._canvas.get_matrix_c2i(item).transform_point
+                x._value, y._value = c2i(x._value, y._value)
+                item.request_update()
+        elif x is not None:
+            for v, item in x.items():
+                c2i = self._canvas.get_matrix_c2i(item).transform_point
+                v._value, _ = c2i(v._value, 0)
+                item.request_update()
+        elif y is not None:
+            for v, item in y.items():
+                c2i = self._canvas.get_matrix_c2i(item).transform_point
+                _, v._value = c2i(0, v._value)
+                item.request_update()
+        else:
+            raise AttributeError('Projection data not specified')
 
 
 # Additional tests in @observed methods

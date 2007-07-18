@@ -329,15 +329,13 @@ class ItemTool(Tool):
             view.queue_draw_item(*self._movable_items)
 
             # Calculate the distance the item has to be moved
-            dx, dy = view.transform_distance_c2w(event.x - self.last_x,
-                                                 event.y - self.last_y)
-
-            get_matrix_w2i = canvas.get_matrix_w2i
+            dx, dy = event.x - self.last_x, event.y - self.last_y
 
             # Now do the actual moving.
             for i in self._movable_items:
                 # Move the item and schedule it for an update
-                i.matrix.translate(*get_matrix_w2i(i).transform_distance(dx, dy))
+                v2i = view.get_matrix_v2i(i)
+                i.matrix.translate(*v2i.transform_distance(dx, dy))
                 canvas.request_matrix_update(i)
 
             self.last_x, self.last_y = event.x, event.y
@@ -364,23 +362,18 @@ class HandleTool(Tool):
         self._grabbed_item = item
         self._grabbed_handle = handle
 
-        # Increment handle strength for the duration of the grab action
-        self._grabbed_handle.x.strength += 1
-        self._grabbed_handle.y.strength += 1
-
 
     def _find_handle(self, view, event, item):
         """
         Find item's handle at (event.x, event.y)
         """
-        transform_point = view.canvas.get_matrix_i2w(item).transform_point
-        e_x, e_y = view.transform_point_c2w(event.x, event.y)
-        dx, dy = view.transform_distance_c2w(6, 6)
+        i2v = view.get_matrix_i2v(item).transform_point
+        x, y = event.x, event.y
         for h in item.handles():
             if not h.movable:
                 continue
-            wx, wy = transform_point(h.x, h.y)
-            if -dx < (wx - e_x) < dx and -dy < (wy - e_y) < dy:
+            wx, wy = i2v(h.x, h.y)
+            if -6 < (wx - x) < 6 and -6 < (wy - y) < 6:
                 return h
         return None
 
@@ -428,31 +421,10 @@ class HandleTool(Tool):
     def move(self, view, item, handle, x, y):
         """
         Move the handle to position (x,y).
-        This version already has some special behavior implemented for
-        gaphas.item.Element. The min_width and min_height properties of
-        Element are used to restrict the handles from overlapping each other.
         """
-        # Special behavior for Elements:
-        if isinstance(item, Element):
-            index = list(item.handles()).index(handle)
-            opposite = item.handles()[(index + 2) % 4]
-
-            if index == 0 or index == 3:
-                if opposite.x - x < item.min_width:
-                    x = opposite.x - item.min_width
-            else:
-                if x - opposite.x < item.min_width:
-                    x = opposite.x + item.min_width
-
-            if index == 0 or index == 1:
-                if opposite.y - y < item.min_height:
-                    y = opposite.y - item.min_height
-            else:
-                if y - opposite.y < item.min_height:
-                    y = opposite.y + item.min_height
-
         handle.x = x
         handle.y = y
+
 
     def glue(self, view, item, handle, wx, wy):
         """
@@ -501,14 +473,10 @@ class HandleTool(Tool):
         # queue extra redraw to make sure the item is drawn properly
         try:
             view = context.view
-            wx, wy = view.transform_point_c2w(event.x, event.y)
             if self._grabbed_handle and self._grabbed_handle.connectable:
-                self.connect(view, self._grabbed_item, self._grabbed_handle, wx, wy)
+                x, y = event.x, event.y
+                self.connect(view, self._grabbed_item, self._grabbed_handle, x, y)
         finally:
-            # Decrement handle strength, previously incremented on button press
-            if self._grabbed_handle:
-                self._grabbed_handle.x.strength -= 1
-                self._grabbed_handle.y.strength -= 1
             context.view.queue_draw_item(context.view.hovered_item)
             context.ungrab()
         if self._grabbed_handle:
@@ -531,18 +499,16 @@ class HandleTool(Tool):
             # positions of handles around.
             view.queue_draw_item(item)
 
-            # Calculate the distance the item has to be moved
-            wx, wy = view.transform_point_c2w(event.x, event.y)
-            x, y = canvas.get_matrix_w2i(item).transform_point(wx, wy)
+            v2i = view.get_matrix_v2i(item)
+            x, y = v2i.transform_point(event.x, event.y)
 
             # Do the actual move:
             self.move(view, item, handle, x, y)
             
             item.request_update()
-            #canvas.update_matrix(item)
             try:
                 if self._grabbed_handle.connectable:
-                    self.glue(view, item, handle, wx, wy)
+                    self.glue(view, item, handle, event.x, event.y)
             finally:
                 pass
             return True
@@ -611,8 +577,6 @@ class PlacementTool(Tool):
         view = context.view
         canvas = view.canvas
         new_item = self._create_item(context, event.x, event.y)
-        if new_item not in canvas.get_all_items():
-            canvas.add(new_item)
         self._handle_tool.grab_handle(new_item,
                                       new_item.handles()[self._handle_index])
         self._new_item = new_item
@@ -622,9 +586,12 @@ class PlacementTool(Tool):
 
     def _create_item(self, context, x, y):
         view = context.view
+        canvas = view.canvas
         item = self._factory()
-        x, y = view.transform_point_c2w(x, y)
-        item.matrix.translate(x, y)
+        if item not in canvas.get_all_items():
+            canvas.add(item)
+            x, y = view.get_matrix_v2i(item).transform_point(x, y)
+            item.matrix.translate(x, y)
         return item
 
     def on_button_release(self, context, event):

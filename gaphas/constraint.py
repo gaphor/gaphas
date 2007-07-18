@@ -119,10 +119,11 @@ class EqualsConstraint(Constraint):
     def solve_for(self, var):
         assert var in (self.a, self.b)
 
-        if var is self.a:
-            self.a.value = self.b.value
-        else:
-            self.b.value = self.a.value
+        if self.a.value != self.b.value:
+            if var is self.a:
+                self.a.value = self.b.value
+            else:
+                self.b.value = self.a.value
 
 
 class CenterConstraint(Constraint):
@@ -284,7 +285,10 @@ class EquationConstraint(Constraint):
         for nm, v in self._args.items():
             args[nm] = v.value
             if v is var: arg = nm
-        var.value = self._solve_for(arg, args)
+        v = self._solve_for(arg, args) 
+        if var != v:
+            var.value = v
+
 
     def _solve_for(self, arg, args):
         """
@@ -336,128 +340,6 @@ class EquationConstraint(Constraint):
         return x1
 
 
-class LineConstraint(Constraint):
-    """
-    Ensure a point is kept on a line, taking into account item
-    specific coordinates.
-
-    #>>> from solver import Variable
-    #>>> a, b = Variable(3.0), Variable(2.0)
-    #>>> lt = LessThanConstraint(smaller=a, bigger=b)
-    #>>> lt.solve_for('smaller')
-    #>>> a, b
-    #(Variable(3, 20), Variable(3, 20))
-    #>>> b.value = 0.8
-    #>>> lt.solve_for('bigger')
-    #>>> a, b
-    #(Variable(0.8, 20), Variable(0.8, 20))
-    """
-
-    def __init__(self, canvas, connect_to_item, handle_1, handle_2,
-                 connected_item, connected_handle):
-        super(LineConstraint, self).__init__(handle_1.x,
-                handle_1.y,
-                handle_2.x,
-                handle_2.y,
-                connected_handle.x,
-                connected_handle.y)
-
-        self._canvas = canvas
-        self._connect_to_item = connect_to_item
-        self._handle_1 = handle_1
-        self._handle_2 = handle_2
-        self._connected_item = connected_item
-        self._connected_handle = connected_handle
-        self.update_ratio()
-
-
-    def update_ratio(self):
-        """
-        >>> from item import Handle, Item
-        >>> from canvas import Canvas
-        >>> c = Canvas()
-        >>> i1, i2 = Item(), Item()
-        >>> c.add(i1)
-        >>> c.add(i2)
-        >>> c.update_now()
-        >>> h1, h2, h3 = Handle(0, 0), Handle(30, 20), Handle(15, 4)
-        >>> eq = LineConstraint(c, i1, h1, h2, i2, h3)
-        >>> eq.ratio_x, eq.ratio_y
-        (0.5, 0.20000000000000001)
-        >>> h2.pos = 40, 30
-        >>> eq.solve_for(h3.x)
-        >>> eq.ratio_x, eq.ratio_y
-        (0.5, 0.20000000000000001)
-        >>> h3.pos
-        (Variable(20, 20), Variable(6, 20))
-        """
-        start = self._handle_1
-        end = self._handle_2
-        point = self._connected_handle
-
-        get_i2w = self._canvas.get_matrix_i2w
-
-        sx, sy = get_i2w(self._connect_to_item, calculate=True).transform_point(start.x, start.y)
-        ex, ey = get_i2w(self._connect_to_item).transform_point(end.x, end.y)
-        px, py = get_i2w(self._connected_item, calculate=True).transform_point(point.x, point.y)
-
-        try:
-            self.ratio_x = float(px - sx) / float(ex - sx)
-        except ZeroDivisionError:
-            self.ratio_x = 0.0
-        try:
-            self.ratio_y = float(py - sy) / float(ey - sy)
-        except ZeroDivisionError:
-            self.ratio_y = 0.0
-        
-    def solve_for(self, var=None):
-        self._solve()
-
-    def _solve(self):
-        """
-        Solve the equation for the connected_handle.
-        >>> from item import Handle, Item
-        >>> from canvas import Canvas
-        >>> c = Canvas()
-        >>> i1, i2 = Item(), Item()
-        >>> c.add(i1)
-        >>> c.add(i2)
-        >>> c.update_now()
-        >>> h1, h2, h3 = Handle(0, 0), Handle(30, 20), Handle(15, 4)
-        >>> eq = LineConstraint(c, i1, h1, h2, i2, h3)
-        >>> eq.solve_for(h3.x)
-        >>> h3.pos
-        (Variable(15, 20), Variable(4, 20))
-        >>> h2.pos = 40, 30
-        >>> eq.solve_for(h3.x)
-        >>> h3.pos
-        (Variable(20, 20), Variable(6, 20))
-        >>> i2.matrix.translate(5,5)
-        >>> i2.request_update()
-        >>> c.update_now()
-        >>> eq.solve_for(h3.x)
-        >>> h3.pos
-        (Variable(15, 20), Variable(1, 20))
-        """
-        start = self._handle_1
-        end = self._handle_2
-        point = self._connected_handle
-
-        get_i2w = self._canvas.get_matrix_i2w
-        get_w2i = self._canvas.get_matrix_w2i
-
-        sx, sy = get_i2w(self._connect_to_item).transform_point(start.x, start.y)
-        ex, ey = get_i2w(self._connect_to_item).transform_point(end.x, end.y)
-
-        px = sx + (ex - sx) * self.ratio_x
-        py = sy + (ey - sy) * self.ratio_y
-
-        point.x.value, point.y.value = \
-            get_w2i(self._connected_item).transform_point(px, py)
-        # Need to queue a redraw of the manipulated item.
-        self._canvas.request_update(self._connected_item)
-
-
 
 class BalanceConstraint(Constraint):
     """
@@ -486,22 +368,192 @@ class BalanceConstraint(Constraint):
     (Variable(3, 20), Variable(2, 20), Variable(2.45, 10))
     """
 
-    def __init__(self, band=None, v=None):
+    def __init__(self, band=None, v=None, balance=None):
         super(BalanceConstraint, self).__init__(band[0], band[1], v)
         self.band = band
+        self.balance = balance
+        self.v = v
+
+        if self.balance is None:
+            self.update_balance()
+
+
+    def update_balance(self):
         b1, b2 = self.band
         w = b2 - b1
         if w != 0:
-            self.balance = (v - b1) / w
+            self.balance = (self.v - b1) / w
         else:
             self.balance = 0
-        self.v = v
 
 
     def solve_for(self, var):
         b1, b2 = self.band
         w = b2 - b1
-        var.value = b1 + w * self.balance
+        value = b1 + w * self.balance
+        if var.value != value:
+            var.value = value
+
+
+class LineConstraint(Constraint):
+    """
+    Ensure a point is kept on a line.
+
+    Attributes:
+     - _line: line defined by tuple ((x1, y1), (x2, y2))
+     - _point: point defined by tuple (x, y)
+    """
+
+    def __init__(self, line, point):
+        super(LineConstraint, self).__init__(*(line[0] + line[1] + point))
+
+        self._line = line
+        self._point = point
+
+
+    def update_ratio(self):
+        """
+        >>> from gaphas.solver import Variable
+        >>> line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
+        >>> point = (Variable(15), Variable(4))
+        >>> lc = LineConstraint(line=line, point=point)
+        >>> lc.update_ratio()
+        >>> lc.ratio_x, lc.ratio_y
+        (0.5, 0.20000000000000001)
+        >>> line[1][0].value = 40
+        >>> line[1][1].value = 30
+        >>> lc.solve_for(point[0])
+        >>> lc.ratio_x, lc.ratio_y
+        (0.5, 0.20000000000000001)
+        >>> point
+        (Variable(20, 20), Variable(6, 20))
+        """
+        sx, sy = self._line[0]
+        ex, ey = self._line[1]
+        px, py = self._point
+
+        try:
+            self.ratio_x = float(px - sx) / float(ex - sx)
+        except ZeroDivisionError:
+            self.ratio_x = 0.0
+        try:
+            self.ratio_y = float(py - sy) / float(ey - sy)
+        except ZeroDivisionError:
+            self.ratio_y = 0.0
+
+        
+    def solve_for(self, var=None):
+        self._solve()
+
+    def _solve(self):
+        """
+        Solve the equation for the connected_handle.
+        >>> from gaphas.solver import Variable
+        >>> line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
+        >>> point = (Variable(15), Variable(4))
+        >>> lc = LineConstraint(line=line, point=point)
+        >>> lc.update_ratio()
+        >>> lc.solve_for(point[0])
+        >>> point
+        (Variable(15, 20), Variable(4, 20))
+        >>> line[1][0].value = 40
+        >>> line[1][1].value =  30
+        >>> lc.solve_for(point[0])
+        >>> point
+        (Variable(20, 20), Variable(6, 20))
+        """
+        sx, sy = self._line[0]
+        ex, ey = self._line[1]
+        px, py = self._point
+
+        x = sx + (ex - sx) * self.ratio_x
+        y = sy + (ey - sy) * self.ratio_y
+
+        if px.value != x:
+            px.value = x
+        if py.value != y:
+            py.value = y
+
+
+
+class Projector(object):
+    """
+    Base class for variable space projectors.
+
+    Variable space projectors allow to convert variables' values to common
+    space before constraint solving.
+
+    Consider two geometrical objects defined by their position (x0, y0)
+    and object's affine information (see gaphas.tests.test_projector module)
+    >>> from solver import Variable
+    >>> from gaphas.tests.test_projector import Rectangle, Vector, AffineProjector
+    >>> r = Rectangle(5, 5, 20, 20)
+    >>> v = Vector(5, 50, 5, -25)
+
+    To keep vector's terminal point on a rectangle's bottom side create
+    affine projector and appropriate constraints
+    >>> proj = AffineProjector()
+    >>> zero = Variable(0)  # used for balance constraint band
+    >>> bc = BalanceConstraint(band=(zero, r.width), v=v.x, balance=0.25)
+    >>> eq = EqualsConstraint(a=r.height, b=v.y)
+    >>> proj(bc, data={v.x: v.x0, r.width: r.x0, zero: r.x0})
+    >>> proj(eq, data={v.y: v.y0, r.height: r.y0})
+    
+    Let's change rectangle dimensions
+    >>> r.width.value = 24
+    >>> r.height.value = 25
+
+    and use constraints to keep vector's terminal point on rectangle bottom
+    side
+    >>> bc.solve_for(v.x)
+    >>> eq.solve_for(v.y)
+    >>> v.x, v.y
+    (Variable(6, 20), Variable(-20, 20))
+
+    It is also possible to use projection in case of other constraint's
+    methods than 'solve_for'
+    >>> r = Rectangle(5, 5, 20, 20)
+    >>> v = Vector(10, 50, 5, -25)
+    >>> zero = Variable(0)
+    >>> bc = BalanceConstraint(band=(zero, r.width), v=v.x)
+    >>> proj(bc, data={v.x: v.x0, r.width: r.x0, zero: r.x0}, f=bc.update_balance)
+    >>> bc.update_balance()
+    >>> bc.balance
+    0.5
+    """
+    def _cproj(self):
+        """
+        Perform projection to common space.
+        """
+        raise NotImplemented
+
+
+    def _iproj(self):
+        """
+        Perform projection to internal space.
+        """
+        raise NotImplemented
+
+
+    def __call__(self, c, *args, **kw):
+        """
+        Decorator for Constraint.solve_for method to perform projection to
+        common space before variable solving and later project to internal
+        variable space.
+        """
+        if 'f' in kw:
+            f = kw['f']
+            fn = f.__name__
+        else:
+            f = c.solve_for
+            fn = 'solve_for'
+
+        def wrapper(*fargs):
+            self._cproj(c, *args, **kw)
+            f(*fargs)
+            self._iproj(c, *args, **kw)
+
+        setattr(c, fn, wrapper)
 
 
 

@@ -173,7 +173,7 @@ def main():
         bb.matrix.rotate(math.pi/4.0 * i / 10.0)
         c.add(bb, parent=b)
 
-    for i in range(count):
+    for i in range(40):
         bb = MyBox()
         bb.width = bb.height = 15
         x = int(i % 4) * 20
@@ -209,13 +209,21 @@ def main():
     gtk.main()
 
 if __name__ == '__main__':
-    import hotshot, hotshot.stats
-    prof = hotshot.Profile('demo-gaphas.prof')
-    prof.runcall(main)
-    prof.close()
-    stats = hotshot.stats.load('demo-gaphas.prof')
-    stats.strip_dirs()
-    stats.sort_stats('time', 'calls')
-    stats.print_stats(20)
+    try:
+        import cProfile
+        import pstats
+        cProfile.run('main()', 'demo-gaphas.prof')
+        p = pstats.Stats('demo-gaphas.prof')
+        p.strip_dirs().sort_stats('time').print_stats(20)
+    except ImportError, ex:
+        import hotshot, hotshot.stats
+        import gc
+        prof = hotshot.Profile('demo-gaphas.prof')
+        prof.runcall(main)
+        prof.close()
+        stats = hotshot.stats.load('demo-gaphas.prof')
+        stats.strip_dirs()
+        stats.sort_stats('time', 'calls')
+        stats.print_stats(20)
 
 # vim: sw=4:et:

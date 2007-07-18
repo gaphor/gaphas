@@ -6,7 +6,8 @@ import unittest
 from timeit import Timer
 
 from gaphas.solver import Solver, Variable
-from gaphas.constraint import EquationConstraint
+from gaphas.constraint import EquationConstraint, EqualsConstraint, \
+    LessThanConstraint
 
 
 SETUP = """
@@ -83,6 +84,57 @@ class WeakestVariableTestCase(unittest.TestCase):
 
         b.strength = 9
         self.assertEqual(c_eq._weakest, [b])
+
+
+
+class SizeTestCase(unittest.TestCase):
+    """
+    Test size related constraints, i.e. minimal size.
+    """
+    def test_min_size(self):
+        """Test minimal size constraint"""
+        solver = Solver()
+        v1 = Variable(0)
+        v2 = Variable(10)
+        v3 = Variable(10)
+        c1 = EqualsConstraint(a=v2, b=v3)
+        c2 = LessThanConstraint(smaller=v1, bigger=v3, delta=10)
+        solver.add_constraint(c1)
+        solver.add_constraint(c2)
+
+        # check everyting is ok on start
+        solver.solve()
+        self.assertEquals(0, v1)
+        self.assertEquals(10, v2)
+        self.assertEquals(10, v3)
+
+        # change v1 to 2, after solve it should be 0 again due to LT
+        # constraint
+        v1.value = 2
+        solver.solve()
+
+        self.assertEquals(0, v1)
+        self.assertEquals(10, v2)
+        self.assertEquals(10, v3)
+
+        # change v3 to 20, after solve v2 will follow thanks to EQ
+        # constraint
+        v3.value = 20
+        solver.solve()
+
+        self.assertEquals(0, v1)
+        self.assertEquals(20, v2)
+        self.assertEquals(20, v3)
+
+        # change v3 to 0, after solve it shoul be 10 due to LT.delta = 10,
+        # v2 should also be 10 due to EQ constraint
+        v3.value = 0
+        solver.solve()
+
+        self.assertEquals(0, v1)
+        self.assertEquals(10, v2)
+        self.assertEquals(10, v3)
+
 
 
 class SolverSpeedTestCase(unittest.TestCase):

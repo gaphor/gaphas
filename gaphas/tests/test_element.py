@@ -45,3 +45,32 @@ class ElementTestCase(unittest.TestCase):
         self.assertEquals(110 * count, float(h_ne.x))
         self.assertEquals(110 * count, float(h_sw.y))
 
+
+    def test_minimal_se(self):
+        """
+        Test resizing of element by dragging it SE handle.
+        """
+        canvas = Canvas()
+        box = Box()
+        handles = box.handles()
+
+        canvas.add(box)
+
+        h_nw, h_ne, h_se, h_sw = handles
+        assert h_nw is handles[NW]
+        assert h_ne is handles[NE]
+        assert h_sw is handles[SW]
+        assert h_se is handles[SE]
+
+        h_se.x -= 20      # h.se.{x,y} == -10
+        h_se.y -= 20
+        assert h_se.x == h_se.y == -10
+
+        box.request_update()
+        canvas.update()
+
+        self.assertEquals(10, h_se.x) # h_se changed above, should be 10
+        self.assertEquals(10, h_se.y)
+
+        self.assertEquals(10, h_ne.x)
+        self.assertEquals(10, h_sw.y)

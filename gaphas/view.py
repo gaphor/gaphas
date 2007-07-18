@@ -46,7 +46,8 @@ class View(object):
         self._dirty_items = set()
         self._dirty_matrix_items = set()
 
-    matrix = property(lambda s: s._matrix)
+    matrix = property(lambda s: s._matrix,
+                      doc="Canvas to view transformation matrix")
 
     def _set_canvas(self, canvas):
         """
@@ -198,10 +199,8 @@ class View(object):
                 continue  # skip selected items
 
             if point in self.get_item_bounding_box(item):
-                inverse = Matrix(*self._matrix)
-                inverse.invert()
-                wx, wy = inverse.transform_point(x, y)
-                ix, iy = self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
+                v2i = self.get_matrix_v2i(item)
+                ix, iy = v2i.transform_point(x, y)
                 if item.point(ix, iy) < 0.5:
                     return item
         return None
@@ -223,6 +222,8 @@ class View(object):
 
         # Make sure everything's updated
         self.request_update(self._canvas.get_all_items())
+        for i in self._canvas.get_all_items():
+            self.update_matrix(i)
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -235,8 +236,9 @@ class View(object):
         # since items should take into account their child objects when
         # bounding boxes are calculated. Now, the child objects should not
         # be hindered by their own matrix settings.
-        ix0, iy0 = self.transform_point_c2i(item, bounds.x, bounds.y)
-        ix1, iy1 = self.transform_point_c2i(item, bounds.x1, bounds.y1)
+        v2i = self.get_matrix_v2i(item).transform_point
+        ix0, iy0 = v2i(bounds.x, bounds.y)
+        ix1, iy1 = v2i(bounds.x1, bounds.y1)
         self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
 
         # Update bounding box of parent items where appropriate (only extent)
@@ -259,7 +261,7 @@ class View(object):
         """
         inverse = Matrix(*self._matrix)
         inverse.invert()
-        ww, wh = self.transform_point_c2w(self._bounds.x1, self._bounds.y1)
+        ww, wh = inverse.transform_point(self._bounds.x1, self._bounds.y1)
         return self._matrix.transform_distance(ww, wh)
 
     bounding_box = property(lambda s: s._bounds)
@@ -288,49 +290,23 @@ class View(object):
                                     cairo=cr,
                                     area=None))
 
-    def transform_distance_c2w(self, x, y):
-        """
-        Transform a point from canvas to world coordinates.
-        """
-        inverse = Matrix(*self._matrix)
-        inverse.invert()
-        return inverse.transform_distance(x, y)
 
-    def transform_distance_w2c(self, x, y):
-        """
-        Transform a distance from world to canvas coordinates.
-        """
-        return self._matrix.transform_distance(x, y)
+    def get_matrix_i2v(self, item):
+        return item._matrix_i2v[self]
 
-    def transform_point_c2w(self, x, y):
-        """
-        Transform a distance from canvas to world coordinates.
-        """
-        inverse = Matrix(*self._matrix)
-        inverse.invert()
-        return inverse.transform_point(x, y)
 
-    def transform_point_w2c(self, x, y):
-        """
-        Transform a point from world to canvas coordinates.
-        """
-        return self._matrix.transform_point(x, y)
+    def get_matrix_v2i(self, item):
+        return item._matrix_v2i[self]
 
-    def transform_point_c2i(self, item, x, y):
-        """
-        Transforma point from canvas to item coordinates.
-        """
-        assert self.canvas
-        wx, wy = self.transform_point_c2w(x, y)
-        return self._canvas.get_matrix_w2i(item).transform_point(wx, wy)
 
-    def transform_point_i2c(self, item, x, y):
+    def update_matrix(self, item):
         """
-        Transform a point from item coordinates to canvas coordinates.
+        Update item matrices related to view.
         """
-        assert self.canvas
-        wx, wy = self._canvas.get_matrix_i2w(item).transform_point(x, y)
-        return self.transform_point_w2c(wx, wy)
+        i2v = item._matrix_i2v[self] = self._canvas.get_matrix_i2c(item) * self._matrix
+        v2i = item._matrix_v2i[self] = Matrix(*i2v)
+        v2i.invert()
+
 
 
 # Map GDK events to tool methods
@@ -561,8 +537,10 @@ class GtkView(gtk.DrawingArea, View):
                     dirty_items.add(i)
                 else:
                     self.queue_draw_item(i)
-                    x0, y0 = self.transform_point_i2c(i, bounds.x, bounds.y)
-                    x1, y1 = self.transform_point_i2c(i, bounds.x1, bounds.y1)
+
+                    i2v = self.get_matrix_i2v(i).transform_point
+                    x0, y0 = i2v(bounds.x, bounds.y)
+                    x1, y1 = i2v(bounds.x1, bounds.y1)
                     cbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._item_bounds[i] = cbounds, bounds
 

@@ -94,7 +94,7 @@ class ItemPainter(Painter):
         cairo.save()
         try:
             cairo.set_matrix(view.matrix)
-            cairo.transform(view.canvas.get_matrix_i2w(item))
+            cairo.transform(view.canvas.get_matrix_i2c(item))
 
             item.draw(DrawContext(painter=self,
                                   view=view,
@@ -253,13 +253,14 @@ class BoundingBoxPainter(ItemPainter):
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.
-        transform_i2c = (view.canvas.get_matrix_i2w(item) * view._matrix).transform_point
+        i2v = view.get_matrix_i2v(item).transform_point
         for h in item.handles():
-            cx, cy = transform_i2c(h.x, h.y)
+            cx, cy = i2v(h.x, h.y)
             bounds += (cx - 5, cy - 5, 9, 9)
 
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
+
 
     def _draw_items(self, items, view, cairo, area=None):
         """
@@ -287,8 +288,7 @@ class HandlePainter(Painter):
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo.save()
-        m = Matrix(*view.canvas.get_matrix_i2w(item))
-        m *= view._matrix
+        i2v = view.get_matrix_i2v(item)
         if not opacity:
             opacity = (item is view.focused_item) and .7 or .4
 
@@ -306,7 +306,7 @@ class HandlePainter(Painter):
 
             cairo.identity_matrix()
             cairo.set_antialias(ANTIALIAS_NONE)
-            cairo.translate(*m.transform_point(h.x, h.y))
+            cairo.translate(*i2v.transform_point(h.x, h.y))
             cairo.rectangle(-4, -4, 8, 8)
             cairo.set_source_rgba(r, g, b, opacity)
             cairo.fill_preserve()
