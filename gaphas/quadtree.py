@@ -129,9 +129,9 @@ class QuadtreeBucket(object):
             rw, rh = w / 2., h / 2.
             cx, cy = x + rw, y + rh
             self._buckets = [QuadtreeBucket((x, y, rw, rh)),
-                           QuadtreeBucket((cx, y, rw, rh)),
-                           QuadtreeBucket((x, cy, rw, rh)),
-                           QuadtreeBucket((cx, cy, rw, rh))]
+                             QuadtreeBucket((cx, y, rw, rh)),
+                             QuadtreeBucket((x, cy, rw, rh)),
+                             QuadtreeBucket((cx, cy, rw, rh))]
             # Add items to subnodes
             items = list(self._items)
             del self._items[:]
