@@ -111,7 +111,7 @@ class Canvas(object):
         self._dirty_matrix_items.discard(item)
 
     reversible_pair(add, remove,
-                    bind1={'parent': lambda self, item: self.get_parent(item) })
+                    bind1={'parent': lambda self, item: self.get_parent(item)})
 
 
     def add_canvas_constraint(self, item, handle, c):
