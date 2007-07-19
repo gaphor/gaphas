@@ -648,13 +648,12 @@ class Line(Item):
         cr = context.cairo
         cr.set_line_width(self.line_width)
         draw_line_end(self._handles[0], self._head_angle, self.draw_head)
-        h = self._handles[0]
-        cr.move_to(h.x, h.y)
-        for h in self._handles[1:]:
+        for h in self._handles[1:-1]:
             cr.line_to(h.x, h.y)
         h0, h1 = self._handles[-2:]
         draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
         cr.stroke()
+
 
 
 __test__ = {
