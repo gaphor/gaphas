@@ -42,6 +42,17 @@ def undo_handler(event):
     undo_list.append(event)
 
 
+def factory(view, cls):
+    """
+    Simple canvas item factory.
+    """
+    def wrapper():
+        item = cls()
+        view.canvas.add(item)
+        return item
+    return wrapper
+
+
 class MyBox(Box):
     """Box with an example connection protocol.
     """
@@ -108,7 +119,7 @@ def create_window(canvas, title, zoom=1.0):
 
     def on_clicked(button, view):
         #view.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.CROSSHAIR))
-        view.tool.grab(PlacementTool(MyBox, HandleTool(), 2))
+        view.tool.grab(PlacementTool(factory(view, MyBox), HandleTool(), 2))
 
     b.connect('clicked', on_clicked, view)
     v.add(b)
@@ -116,7 +127,7 @@ def create_window(canvas, title, zoom=1.0):
     b = gtk.Button('Add line')
 
     def on_clicked(button):
-        view.tool.grab(PlacementTool(MyLine, HandleTool(), 1))
+        view.tool.grab(PlacementTool(factory(view, MyLine), HandleTool(), 1))
 
     b.connect('clicked', on_clicked)
     v.add(b)

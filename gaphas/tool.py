@@ -588,10 +588,8 @@ class PlacementTool(Tool):
         view = context.view
         canvas = view.canvas
         item = self._factory()
-        if item not in canvas.get_all_items():
-            canvas.add(item)
-            x, y = view.get_matrix_v2i(item).transform_point(x, y)
-            item.matrix.translate(x, y)
+        x, y = view.get_matrix_v2i(item).transform_point(x, y)
+        item.matrix.translate(x, y)
         return item
 
     def on_button_release(self, context, event):
