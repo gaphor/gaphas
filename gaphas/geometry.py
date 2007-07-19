@@ -134,7 +134,7 @@ class Rectangle(object):
         >>> r + (0, 0)
         Traceback (most recent call last):
           ...
-        AttributeError: Can only add Rectangle or tuple (x, y, width, height), not (0, 0).
+        TypeError: Can only add Rectangle or tuple (x, y, width, height), not (0, 0).
         >>> r + (20, 30, 40, 50)
         Rectangle(5, 7, 55, 73)
         """
@@ -150,12 +150,12 @@ class Rectangle(object):
         >>> r += 'aap'
         Traceback (most recent call last):
           ...
-        AttributeError: Can only add Rectangle or tuple (x, y, width, height), not 'aap'.
+        TypeError: Can only add Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
             x, y, width, height = obj
         except ValueError:
-            raise AttributeError, "Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+            raise TypeError, "Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
         x1, y1 = x + width, y + height
         if self:
             ox1, oy1 = self.x + self.width, self.y + self.height
@@ -190,12 +190,12 @@ class Rectangle(object):
         >>> r -= 'aap'
         Traceback (most recent call last):
           ...
-        AttributeError: Can only substract Rectangle or tuple (x, y, width, height), not 'aap'.
+        TypeError: Can only substract Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
             x, y, width, height = obj
         except ValueError:
-            raise AttributeError, "Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+            raise TypeError, "Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
         x1, y1 = x + width, y + height
 
         if self:
@@ -234,7 +234,7 @@ class Rectangle(object):
         >>> 'aap' in r
         Traceback (most recent call last):
           ...
-        AttributeError: Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not 'aap'.
+        TypeError: Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not 'aap'.
         """
         try:
             x, y, width, height = obj
@@ -245,7 +245,7 @@ class Rectangle(object):
                 x, y = obj
                 x1, y1 = obj
             except ValueError:
-                raise AttributeError, "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
+                raise TypeError, "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
         return x >= self.x and x1 <= self.x1 and \
                y >= self.y and y1 <= self.y1
 
