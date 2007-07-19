@@ -77,8 +77,11 @@ class Variable(object):
 
     def dirty(self):
         solver = self._solver
-        if not solver: # or solver._solving:
+        if not solver:
             return
+        # variables are marked dirty also during constraints solving to
+        # solve all dependent constraints, i.e. two equals constraints
+        # between 3 variables
         solver.mark_dirty(self)
         for c in self._constraints:
             c.mark_dirty(self)
