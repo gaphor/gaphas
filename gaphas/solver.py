@@ -39,6 +39,9 @@ __version__ = "$Revision$"
 from operator import isCallable
 from state import observed, reversible_pair, reversible_property
 
+# epsilon for float comparison
+# is simple abs(x - y) > EPSILON enough for canvas needs?
+EPSILON = 1e-10
 
 # Variable Strengths:
 VERY_WEAK = 0
@@ -109,7 +112,7 @@ class Variable(object):
         >>> Variable(5) != 5
         False
         """
-        return self._value.__eq__(float(other))
+        return abs(self._value - other) < EPSILON
 
     def __ne__(self, other):
         """
@@ -118,7 +121,7 @@ class Variable(object):
         >>> Variable(5) != 5
         False
         """
-        return self._value.__ne__(float(other))
+        return abs(self._value - other) > EPSILON
 
     def __gt__(self, other):
         """

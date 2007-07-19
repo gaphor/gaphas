@@ -119,7 +119,7 @@ class EqualsConstraint(Constraint):
     def solve_for(self, var):
         assert var in (self.a, self.b)
 
-        if self.a.value != self.b.value:
+        if self.a != self.b:
             if var is self.a:
                 self.a.value = self.b.value
             else:
@@ -192,7 +192,7 @@ class LessThanConstraint(Constraint):
         self.delta = delta
 
     def solve_for(self, var):
-        if self.smaller.value > self.bigger.value - self.delta:
+        if self.smaller > self.bigger - self.delta:
             if var is self.smaller:
                 self.bigger.value = self.smaller.value + self.delta
             elif var is self.bigger:
@@ -391,7 +391,7 @@ class BalanceConstraint(Constraint):
         b1, b2 = self.band
         w = b2 - b1
         value = b1 + w * self.balance
-        if var.value != value:
+        if var != value:
             var.value = value
 
 
@@ -469,9 +469,9 @@ class LineConstraint(Constraint):
         x = sx + (ex - sx) * self.ratio_x
         y = sy + (ey - sy) * self.ratio_y
 
-        if px.value != x:
+        if px != x:
             px.value = x
-        if py.value != y:
+        if py != y:
             py.value = y
 
 
