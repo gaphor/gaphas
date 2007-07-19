@@ -79,6 +79,7 @@ class Quadtree(object):
     def __init__(self, bounds):
         # TODO: extend bounds to a specific factor (e.g. 100 or 1000)
         self._bucket = QuadtreeBucket(bounds)
+
         # Easy lookup item->(bounds, bucket) mapping
         self._ids = dict()
 
@@ -88,10 +89,10 @@ class Quadtree(object):
         If an item already exists, its bounds are updated and the item is
         moved to the right bucket.
         """
-        assert bounds in self._bucket
+        assert contains(bounds, self._bucket._bounds)
         if item in self._ids:
             _, bucket = self._ids[item]
-            if bounds in bucket:
+            if contains(bounds, bucket._bounds):
                 # Already placed in right bucket, update bounds and quit
                 self._ids[item] = (bounds, bucket)
                 return
@@ -139,7 +140,7 @@ class Quadtree(object):
         (x, y, width, height).
         Returns an iterator.
         """
-        return list(self._bucket.find(rect, method=intersect))
+        return list(self._bucket.find(rect, method=intersects))
         
     def __len__(self):
         return len(self._ids)
@@ -192,7 +193,7 @@ class QuadtreeBucket(object):
             self._items.append((item, bounds))
         else:
             for bucket in self._buckets:
-                if bounds in bucket:
+                if contains(bounds, bucket._bounds):
                     return bucket.add(item, bounds)
             else:
                 self._items.append((item, bounds))
@@ -206,9 +207,11 @@ class QuadtreeBucket(object):
     def find(self, rect, method):
         """
         Find all items in the given rectangle (x, y, with, height).
+        Method can be either the contains or intersects function.
+
         Returns an iterator.
         """
-        if intersect(rect, self._bounds):
+        if intersects(rect, self._bounds):
             rx, ry, rw, rh = rect
             for item, bounds in self._items:
                 bx, by, bw, bh = bounds
@@ -233,13 +236,6 @@ class QuadtreeBucket(object):
        for bucket in self._buckets or []:
            bucket.dump(indent)
 
-    def __contains__(self, bounds):
-        """
-        Check if rectangle bounds (tuple (x, y, width, height)) is located
-        *inside* the bucket.
-        """
-        return contains(inner=bounds, outer=self._bounds)
-
 
 def contains(inner, outer):
     """
@@ -250,13 +246,13 @@ def contains(inner, outer):
     return ox <= ix and oy <= iy and ox + ow >= ix + iw and oy + oh >= iy + ih
 
 
-def intersect(recta, rectb):
+def intersects(recta, rectb):
     """
     Return True if recta and rectb intersect.
 
-    >>> intersect((5,5,20, 20), (10, 10, 1, 1))
+    >>> intersects((5,5,20, 20), (10, 10, 1, 1))
     True
-    >>> intersect((40, 30, 10, 1), (1, 1, 1, 1))
+    >>> intersects((40, 30, 10, 1), (1, 1, 1, 1))
     False
     """
     ax, ay, aw, ah = recta
