@@ -10,6 +10,7 @@ import gtk
 from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle
+from quadtree import Quadtree
 from tool import ToolContext, DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
@@ -32,7 +33,8 @@ class View(object):
         self._bounds = Rectangle()
 
         # Item boundries, as tuple (canvas coordinates, item coordinates).
-        self._item_bounds = dict()
+        #self._item_bounds = dict()
+        self._qtree = Quadtree()
 
         # Handling selections.
         self._selected_items = set()
@@ -55,7 +57,8 @@ class View(object):
         in the view.
         """
         if self._canvas:
-            self._item_bounds = dict()
+            #self._item_bounds = dict()
+            self._qtree = Quadtree()
 
         self._canvas = canvas
         
@@ -239,20 +242,30 @@ class View(object):
         v2i = self.get_matrix_v2i(item).transform_point
         ix0, iy0 = v2i(bounds.x, bounds.y)
         ix1, iy1 = v2i(bounds.x1, bounds.y1)
-        self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
+        #self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
+        self._qtree.add(item=item, bounds=tuple(bounds), data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
 
         # Update bounding box of parent items where appropriate (only extent)
         parent = self.canvas.get_parent(item)
         if parent:
-            parent_bounds, _ = self._item_bounds.get(parent, (None, None))
-            if parent_bounds and not bounds in parent_bounds:
-                self.set_item_bounding_box(parent, parent_bounds + bounds)
+            #parent_bounds, _ = self._item_bounds.get(parent, (None, None))
+            try:
+                parent_bounds = self._qtree.get_bounds(parent)
+            except KeyError:
+                pass # No bounds, do nothing
+            else:
+                if not bounds in parent_bounds:
+                    self.set_item_bounding_box(parent, bounds + parent_bounds)
 
     def get_item_bounding_box(self, item):
         """
         Get the bounding box for the item, in canvas coordinates.
         """
-        return self._item_bounds[item][0]
+        #return self._item_bounds[item][0]
+        #try:
+        return self._qtree.get_bounds(item)
+        #except KeyError:
+        #    return None
 
     def get_canvas_size(self):
         """
@@ -281,9 +294,12 @@ class View(object):
                               items=items))
 
         # Update the view's bounding box with the rest of the items
-        bounds = self._bounds = Rectangle()
-        for b, ib in self._item_bounds.itervalues():
-            bounds += b
+        #bounds = self._bounds = Rectangle()
+        #for b, ib in self._item_bounds.itervalues():
+        #    bounds += b
+        # TODO: Fix this.
+
+        self._bounds = self._qtree._bucket.bounds
 
     def paint(self, cr):
         self._painter.paint(Context(view=self,
@@ -532,8 +548,10 @@ class GtkView(gtk.DrawingArea, View):
                 self.queue_draw_item(i)
 
             for i in dirty_matrix_items:
-                bounds = self._item_bounds.get(i, (None, None))[1]
-                if not bounds:
+                #bounds = self._item_bounds.get(i, (None, None))[1]
+                try:
+                    bounds = self._qtree.get_data(i)
+                except KeyError:
                     dirty_items.add(i)
                 else:
                     self.queue_draw_item(i)
@@ -542,14 +560,20 @@ class GtkView(gtk.DrawingArea, View):
                     x0, y0 = i2v(bounds.x, bounds.y)
                     x1, y1 = i2v(bounds.x1, bounds.y1)
                     cbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    self._item_bounds[i] = cbounds, bounds
+                    #self._item_bounds[i] = cbounds, bounds
+                    self._qtree.add(i, cbounds, bounds)
 
                     # TODO: find an elegant way to update parent bb's.
                     parent = self.canvas.get_parent(i)
                     if parent:
-                        parent_bounds, _ = self._item_bounds.get(parent, (None, None))
-                        if parent_bounds and not cbounds in parent_bounds:
-                            self.set_item_bounding_box(parent, parent_bounds + cbounds)
+                        #parent_bounds, _ = self._item_bounds.get(parent, (None, None))
+                        try:
+                            parent_bounds = self.get_boundst(parent)
+                        except KeyError:
+                            pass # No bounds, do nothing
+                        else:
+                            if not cbounds in parent_bounds:
+                                self.set_item_bounding_box(parent, cbounds + parent_bounds)
                     self.queue_draw_item(i)
 
             # Remove removed items:

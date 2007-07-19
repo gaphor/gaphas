@@ -73,33 +73,44 @@ class Quadtree(object):
     ['12', '13', '14', '15']
     >>> [qtree.get_bounds(item) for item in qtree.find_intersect((40, 40, 20, 20))]
     [(48, 30, 10, 10), (52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10)]
-
+    >>> qtree.rebuild()
     """
 
-    def __init__(self, bounds):
+    def __init__(self, bounds=(0, 0, 0, 0)):
         # TODO: extend bounds to a specific factor (e.g. 100 or 1000)
-        self._bucket = QuadtreeBucket(bounds)
+        if bounds:
+            self._bucket = QuadtreeBucket(bounds)
 
         # Easy lookup item->(bounds, bucket) mapping
         self._ids = dict()
 
-    def add(self, item, bounds):
+    def resize(self, bounds):
+        if not contains(bounds, self._bucket.bounds):
+            self._bucket = QuadtreeBucket(bounds)
+            self.rebuild()
+
+    def add(self, item, bounds, data=None):
         """
         Add an item to the tree.
         If an item already exists, its bounds are updated and the item is
         moved to the right bucket.
+        Data can be used to add some extra info to the item
         """
-        assert contains(bounds, self._bucket._bounds)
+        #assert contains(bounds, self._bucket.bounds)
         if item in self._ids:
-            _, bucket = self._ids[item]
-            if contains(bounds, bucket._bounds):
+            _, bucket, _ = self._ids[item]
+            if contains(bounds, bucket.bounds):
                 # Already placed in right bucket, update bounds and quit
-                self._ids[item] = (bounds, bucket)
+                self._ids[item] = (bounds, bucket, data)
                 return
             else:
                 bucket.remove(item)
         bucket = self._bucket.add(item, bounds)
-        self._ids[item] = (bounds, bucket)
+        self._ids[item] = (bounds, bucket, data)
+
+        # TODO: How to handle items exceeding the bounding box
+        if not contains(bounds, self._bucket.bounds):
+            self.rebuild()
 
     def remove(self, item):
         """
@@ -118,7 +129,7 @@ class Quadtree(object):
 
         # Now add each item using the bounds tree:
         add = self._bucket.add
-        for item, (bounds, bucket) in self._ids:
+        for item, (bounds, bucket, data) in self._ids.iteritems():
             add(item, bounds)
 
     def get_bounds(self, item):
@@ -126,6 +137,9 @@ class Quadtree(object):
         Return the bounding box for the given item.
         """
         return self._ids[item][0]
+
+    def get_data(self, item):
+        return self._ids[item][2]
 
     def find_inside(self, rect):
         """
@@ -163,7 +177,7 @@ class QuadtreeBucket(object):
         """
         Set bounding box for the node as (x, y, width, height).
         """
-        self._bounds = bounds
+        self.bounds = bounds
 
         self._items = list()
         self._buckets = None
@@ -177,7 +191,7 @@ class QuadtreeBucket(object):
         """
         # create new subnodes if threshold is reached
         if not self._buckets and len(self._items) >= QuadtreeBucket.CAPACITY:
-            x, y, w, h = self._bounds
+            x, y, w, h = self.bounds
             rw, rh = w / 2., h / 2.
             cx, cy = x + rw, y + rh
             self._buckets = [QuadtreeBucket((x, y, rw, rh)),
@@ -193,7 +207,7 @@ class QuadtreeBucket(object):
             self._items.append((item, bounds))
         else:
             for bucket in self._buckets:
-                if contains(bounds, bucket._bounds):
+                if contains(bounds, bucket.bounds):
                     return bucket.add(item, bounds)
             else:
                 self._items.append((item, bounds))
@@ -211,7 +225,7 @@ class QuadtreeBucket(object):
 
         Returns an iterator.
         """
-        if intersects(rect, self._bounds):
+        if intersects(rect, self.bounds):
             rx, ry, rw, rh = rect
             for item, bounds in self._items:
                 bx, by, bw, bh = bounds
@@ -229,7 +243,7 @@ class QuadtreeBucket(object):
         del self._items[:]
 
     def dump(self, indent=''):
-       print indent, self, self._bounds
+       print indent, self, self.bounds
        indent += '  '
        for item, bounds in self._items:
            print indent, item, bounds
