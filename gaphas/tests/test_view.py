@@ -5,9 +5,11 @@ Test cases for the View class.
 import unittest
 import gtk
 from gaphas.view import GtkView
-from gaphas.canvas import Canvas
+from gaphas.canvas import Canvas, Context
 from gaphas.item import Line
 from gaphas.examples import Box
+from gaphas.tool import ToolContext, HoverTool
+
 
 class ViewTestCase(unittest.TestCase):
 
@@ -51,6 +53,35 @@ class ViewTestCase(unittest.TestCase):
             assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
         finally:
             window2.destroy()
+
+    def test_get_item_at_point(self):
+        """
+        Hover tool only reacts on motion-notify events
+        """
+        canvas = Canvas()
+        view = GtkView(canvas)
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.add(view)
+        window.show_all()
+
+        box = Box()
+        canvas.add(box)
+        # No gtk main loop, so updates occur instantly
+        assert not canvas.require_update()
+        box.width = 50
+        box.height = 50
+
+        # Process pending (expose) events, which cause the canvas to be drawn.
+        while gtk.events_pending():
+            gtk.main_iteration()
+
+        assert not view._update_bounding_box
+        assert len(view._qtree._ids) == 1
+        assert not view._qtree._bucket.bounds == (0, 0, 0, 0), view._qtree._bucket.bounds
+
+        assert view.get_item_at_point(10, 10) is box
+        assert view.get_item_at_point(60, 10) is None
+
 
 if __name__ == '__main__':
     unittest.main()

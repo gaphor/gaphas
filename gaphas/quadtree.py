@@ -18,6 +18,8 @@ common features:
 
 """
 
+import operator
+
 
 class Quadtree(object):
     """
@@ -85,9 +87,35 @@ class Quadtree(object):
         self._ids = dict()
 
     def resize(self, bounds):
-        if not contains(bounds, self._bucket.bounds):
-            self._bucket = QuadtreeBucket(bounds)
-            self.rebuild()
+        self._bucket = QuadtreeBucket(bounds)
+        self.rebuild()
+
+    bounds = property(lambda s: s._bucket.bounds)
+
+    def autosize(self):
+        """
+        Calculate the size of all items in the Quadtree. This size may be beyond
+        the limits of the quadtree itself 
+        >>> qtree = Quadtree()
+        >>> qtree.add('1', (10, 20, 30, 40))
+        >>> qtree.add('2', (20, 30, 40, 10))
+        >>> qtree.bounds
+        (0, 0, 0, 0)
+        >>> qtree.autosize()
+        (10, 20, 50, 40)
+
+        Quadtree's bounding box is not adjusted:
+
+        >>> qtree.bounds
+        (0, 0, 0, 0)
+        """
+        x_y_w_h = zip(*map(operator.getitem, self._ids.itervalues(), [0] * len(self._ids)))
+        x0 = min(x_y_w_h[0])
+        y0 = min(x_y_w_h[1])
+        add = operator.add
+        x1 = max(map(add, x_y_w_h[0], x_y_w_h[2]))
+        y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
+        return (x0, y0, x1 - x0, y1 - y0)
 
     def add(self, item, bounds, data=None):
         """
@@ -99,18 +127,19 @@ class Quadtree(object):
         #assert contains(bounds, self._bucket.bounds)
         if item in self._ids:
             _, bucket, _ = self._ids[item]
-            if contains(bounds, bucket.bounds):
+            if bucket and contains(bounds, bucket.bounds):
                 # Already placed in right bucket, update bounds and quit
                 self._ids[item] = (bounds, bucket, data)
                 return
-            else:
+            elif bucket:
                 bucket.remove(item)
-        bucket = self._bucket.add(item, bounds)
+        # TODO: clip to bucket bounds (keep original bounds in _ids though!)
+        clipped_bounds = clip(bounds, self._bucket.bounds)
+        if clipped_bounds:
+            bucket = self._bucket.add(item, clipped_bounds)
+        else:
+            bucket = None
         self._ids[item] = (bounds, bucket, data)
-
-        # TODO: How to handle items exceeding the bounding box
-        if not contains(bounds, self._bucket.bounds):
-            self.rebuild()
 
     def remove(self, item):
         """
@@ -118,7 +147,8 @@ class Quadtree(object):
         """
         bounds, bucket = self._ids[item]
         del self._ids[item]
-        bucket.remove(item)
+        if bucket:
+            bucket.remove(item)
 
     def rebuild(self):
         """
@@ -273,7 +303,23 @@ def intersects(recta, rectb):
     bx, by, bw, bh = rectb
     return ax <= bx + bw and ax + aw >= bx and ay <= by + bh and ay + ah >= by
 
-
+def clip(recta, rectb):
+    """
+    Return the clipped rectangle of recta and rectb. If they do not intersect,
+    None is returned.
+    >>> clip((0, 0, 20, 20), (10, 10, 20, 20))
+    (10, 10, 10, 10)
+    """
+    ax, ay, aw, ah = recta
+    bx, by, bw, bh = rectb
+    x = max(ax, bx)
+    y = max(ay, by)
+    w = min(ax +aw, bx + bw) - x
+    h = min(ay +ah, by + bh) - y
+    if w < 0 or h < 0:
+        return None
+    return (x, y, w, h)
+    
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

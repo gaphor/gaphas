@@ -30,10 +30,7 @@ class View(object):
 
     def __init__(self, canvas=None):
         self._canvas = canvas
-        self._bounds = Rectangle()
 
-        # Item boundries, as tuple (canvas coordinates, item coordinates).
-        #self._item_bounds = dict()
         self._qtree = Quadtree()
 
         # Handling selections.
@@ -196,6 +193,8 @@ class View(object):
          - selected: if False returns first non-selected item
         """
         point = (x, y)
+        #items = self._qtree.find_intersect((x, y, 1, 1))
+        # TODO: sort items, reversed
         for item in reversed(self._canvas.get_all_items()):
 
             if not selected and item in self.selected_items:
@@ -243,7 +242,7 @@ class View(object):
         ix0, iy0 = v2i(bounds.x, bounds.y)
         ix1, iy1 = v2i(bounds.x1, bounds.y1)
         #self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
-        self._qtree.add(item=item, bounds=tuple(bounds), data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
+        self._qtree.add(item=item, bounds=bounds, data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
 
         # Update bounding box of parent items where appropriate (only extent)
         parent = self.canvas.get_parent(item)
@@ -262,10 +261,7 @@ class View(object):
         Get the bounding box for the item, in canvas coordinates.
         """
         #return self._item_bounds[item][0]
-        #try:
         return self._qtree.get_bounds(item)
-        #except KeyError:
-        #    return None
 
     def get_canvas_size(self):
         """
@@ -274,10 +270,11 @@ class View(object):
         """
         inverse = Matrix(*self._matrix)
         inverse.invert()
-        ww, wh = inverse.transform_point(self._bounds.x1, self._bounds.y1)
+        x, y, w, h = self._qtree.bounds
+        ww, wh = inverse.transform_point(x + w, y + h)
         return self._matrix.transform_distance(ww, wh)
 
-    bounding_box = property(lambda s: s._bounds)
+    bounding_box = property(lambda s: s._qtree.bounds)
 
     def update_bounding_box(self, cr, items=None):
         """
@@ -298,8 +295,8 @@ class View(object):
         #for b, ib in self._item_bounds.itervalues():
         #    bounds += b
         # TODO: Fix this.
-
-        self._bounds = self._qtree._bucket.bounds
+        print 'bounding box:', self._qtree.bounds, '; total size:', self._qtree.autosize()
+        self._bounds = Rectangle(*self._qtree.autosize())
 
     def paint(self, cr):
         self._painter.paint(Context(view=self,
@@ -486,7 +483,8 @@ class GtkView(gtk.DrawingArea, View):
                                 value = self._vadjustment.value,
                                 canvas_size=h,
                                 viewport_size=allocation.height)
-
+        self._qtree.resize((0, 0, allocation.width, allocation.height))
+        
     @async(single=False, priority=PRIORITY_HIGH_IDLE)
     def _idle_queue_draw_item(self, *items):
         self.queue_draw_item(*items)
@@ -568,7 +566,7 @@ class GtkView(gtk.DrawingArea, View):
                     if parent:
                         #parent_bounds, _ = self._item_bounds.get(parent, (None, None))
                         try:
-                            parent_bounds = self.get_boundst(parent)
+                            parent_bounds = self._qtree.get_bounds(parent)
                         except KeyError:
                             pass # No bounds, do nothing
                         else:
@@ -650,7 +648,7 @@ class GtkView(gtk.DrawingArea, View):
             cr.set_source_rgb(0, .8, 0)
             cr.set_line_width(1.0)
             b = self._bounds
-            cr.rectangle(b[0], b[1], b[2] - b[0], b[3] - b[1])
+            cr.rectangle(b[0], b[1], b[2], b[3])
             cr.stroke()
             cr.restore()
 
