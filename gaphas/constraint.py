@@ -157,7 +157,9 @@ class CenterConstraint(Constraint):
     def solve_for(self, var):
         assert var in (self.a, self.b, self.center)
 
-        self.center.value = (self.a.value + self.b.value) / 2.0
+        v = (self.a.value + self.b.value) / 2.0
+        if self.center != v:
+            self.center.value = v
 
 
 class LessThanConstraint(Constraint):
