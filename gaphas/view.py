@@ -54,7 +54,6 @@ class View(object):
         in the view.
         """
         if self._canvas:
-            #self._item_bounds = dict()
             self._qtree = Quadtree()
 
         self._canvas = canvas
@@ -224,8 +223,7 @@ class View(object):
 
         # Make sure everything's updated
         self.request_update(self._canvas.get_all_items())
-        for i in self._canvas.get_all_items():
-            self.update_matrix(i)
+        map(self.update_matrix, self._canvas.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -241,13 +239,11 @@ class View(object):
         v2i = self.get_matrix_v2i(item).transform_point
         ix0, iy0 = v2i(bounds.x, bounds.y)
         ix1, iy1 = v2i(bounds.x1, bounds.y1)
-        #self._item_bounds[item] = bounds, Rectangle(ix0, iy0, x1=ix1, y1=iy1)
         self._qtree.add(item=item, bounds=bounds, data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
 
         # Update bounding box of parent items where appropriate (only extent)
         parent = self.canvas.get_parent(item)
         if parent:
-            #parent_bounds, _ = self._item_bounds.get(parent, (None, None))
             try:
                 parent_bounds = self._qtree.get_bounds(parent)
             except KeyError:
@@ -260,7 +256,6 @@ class View(object):
         """
         Get the bounding box for the item, in canvas coordinates.
         """
-        #return self._item_bounds[item][0]
         return self._qtree.get_bounds(item)
 
     def get_canvas_size(self):
@@ -291,11 +286,6 @@ class View(object):
                               items=items))
 
         # Update the view's bounding box with the rest of the items
-        #bounds = self._bounds = Rectangle()
-        #for b, ib in self._item_bounds.itervalues():
-        #    bounds += b
-        # TODO: Fix this.
-        print 'bounding box:', self._qtree.bounds, '; total size:', self._qtree.autosize()
         self._bounds = Rectangle(*self._qtree.autosize())
 
     def paint(self, cr):
@@ -546,7 +536,6 @@ class GtkView(gtk.DrawingArea, View):
                 self.queue_draw_item(i)
 
             for i in dirty_matrix_items:
-                #bounds = self._item_bounds.get(i, (None, None))[1]
                 try:
                     bounds = self._qtree.get_data(i)
                 except KeyError:
@@ -558,13 +547,11 @@ class GtkView(gtk.DrawingArea, View):
                     x0, y0 = i2v(bounds.x, bounds.y)
                     x1, y1 = i2v(bounds.x1, bounds.y1)
                     cbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    #self._item_bounds[i] = cbounds, bounds
                     self._qtree.add(i, cbounds, bounds)
 
                     # TODO: find an elegant way to update parent bb's.
                     parent = self.canvas.get_parent(i)
                     if parent:
-                        #parent_bounds, _ = self._item_bounds.get(parent, (None, None))
                         try:
                             parent_bounds = self._qtree.get_bounds(parent)
                         except KeyError:
@@ -583,8 +570,6 @@ class GtkView(gtk.DrawingArea, View):
                 self.hovered_item = None
             if self.dropzone_item in removed_items:
                 self.dropzone_item = None
-
-            self.update_adjustments()
 
             self._update_bounding_box.update(dirty_items)
 
@@ -674,9 +659,8 @@ class GtkView(gtk.DrawingArea, View):
             self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
 
         # Force recalculation of the bounding boxes:
-        # TODO: Fix! Why causes movement problems with bounding boxes?
-        #self.request_update((), self._canvas.get_all_items())
-        self.request_update(self._canvas.get_all_items())
+        map(self.update_matrix, self._canvas.get_all_items())
+        self.request_update((), self._canvas.get_all_items())
 
         a = self.allocation
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
