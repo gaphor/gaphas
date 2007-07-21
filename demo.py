@@ -262,16 +262,13 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
     
-#    b = gtk.Button('Cursor')
-#
-#    def on_clicked(button, li):
-#        c = li[0]
-#        li[0] = (c+2) % 154
-#        button.set_label('Cursor %d' % c)
-#        button.window.set_cursor(gtk.gdk.Cursor(c))
-#
-#    b.connect('clicked', on_clicked, [0])
-#    v.add(b)
+    b = gtk.Button('Dump QTree')
+
+    def on_clicked(button, li):
+        view._qtree.dump()
+
+    b.connect('clicked', on_clicked, [0])
+    v.add(b)
 
     # Add the actual View:
 
