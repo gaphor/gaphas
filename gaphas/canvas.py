@@ -58,10 +58,12 @@ class Canvas(object):
         self._canvas_constraints = {}
 
         self.projector = CanvasProjector(self)
-        self.sorter = Sorter(self)
+        self._sorter = Sorter(self)
         #self._sorter = tree.TreeSorter(self._tree)
 
     sorter = property(lambda s: s._sorter)
+    
+    solver = property(lambda s: s._solver)
 
     @observed
     def add(self, item, parent=None):
@@ -83,7 +85,8 @@ class Canvas(object):
         item._sort_key = self.sorter.get_key()
         self._canvas_constraints[item] = {}
 
-        self._sorter.reindex()
+        # TODO: enable for TreeSorter
+        #self._sorter.reindex()
 
         for v in self._registered_views:
             v.update_matrix(item)
