@@ -167,9 +167,13 @@ def main():
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)
     c.add(bb, parent=b)
+    n = math.floor(count ** 0.5)
     for i in xrange(count):
         bb=Box()
         print 'box', bb
+        x = int(i % n) * 20
+        y = int(i / n) * 20
+        bb.matrix.translate(x, y)
         bb.matrix.rotate(math.pi/4.0 * i / 10.0)
         c.add(bb, parent=b)
 
@@ -178,7 +182,7 @@ def main():
         bb.width = bb.height = 15
         x = int(i % 4) * 20
         y = int(i / 4) * 20
-        bb.matrix.translate(5 + x, 100 + y)
+        bb.matrix.translate(20 + x, 100 + y)
         c.add(bb)
 
     t=MyText('Single line')
