@@ -651,6 +651,27 @@ class CanvasProjector(Projector):
 
 
     def _cproj(self, c, x=None, y=None, xy=None, **kw):
+        """
+        Item to canvas constraint's variables projector. Item's coordinates
+        are projected into canvas coordinates to solve canvas constraints
+        in common space.
+
+        Paramters x, y and xy are dictionaries::
+        
+            { v0: item0,
+              v1: item1,
+              ...
+              vn: itemn,
+            }
+
+        used to find item to canvas (i2c) matrices.
+
+        Parameters:
+         - c: constraint, which variables are projected
+         - x: data for projection along x-axis
+         - y: data for projection along y-axis
+         - xy: data for projection on a plane
+        """
         if xy is not None:
             for point, item in xy.items():
                 x, y = point
@@ -669,6 +690,27 @@ class CanvasProjector(Projector):
 
 
     def _iproj(self, c, x=None, y=None, xy=None, **kw):
+        """
+        Canvas to item constraint's variables projector. Item's coordinates
+        are projected from canvas coordinates into item coordinates after
+        solving canvas constraints in common space.
+
+        Paramters x, y and xy are dictionaries::
+        
+            { v0: item0,
+              v1: item1,
+              ...
+              vn: itemn,
+            }
+
+        used to find canvas to item (c2i) matrices.
+
+        Parameters:
+         - c: constraint, which variables are projected
+         - x: data for projection along x-axis
+         - y: data for projection along y-axis
+         - xy: data for projection on a plane
+        """
         if xy is not None:
             for point, item in xy.items():
                 x, y = point
