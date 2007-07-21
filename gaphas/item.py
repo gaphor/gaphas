@@ -124,6 +124,7 @@ class Item(object):
      - _matrix_c2i:  canvas to item coordinates matrix
      - _matrix_i2v:  item to view coordinates matrices
      - _matrix_v2i:  view to item coordinates matrices
+     - _sort_key:  used to sort items
     """
 
     def __init__(self):
@@ -136,6 +137,8 @@ class Item(object):
         self._matrix_2ci = None
         self._matrix_i2v = {}
         self._matrix_v2i = {}
+
+        self._sort_key = None
 
 
     @observed

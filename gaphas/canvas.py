@@ -6,6 +6,8 @@ and a constraint solver.
 __version__ = "$Revision$"
 # $HeadURL$
 
+import operator
+
 import cairo
 from cairo import Matrix
 from gaphas import tree
@@ -42,6 +44,7 @@ class Canvas(object):
     Attributes:
      - projector: canvas constraint projector between item and canvas
        coordinates
+     - sorter: items sorter in order used to add items to canvas
      - _canvas_constraints: constraints set between canvas items
     """
 
@@ -55,6 +58,8 @@ class Canvas(object):
         self._canvas_constraints = {}
 
         self.projector = CanvasProjector(self)
+        self.sorter = Sorter(self)
+
 
     solver = property(lambda s: s._solver)
 
@@ -75,6 +80,7 @@ class Canvas(object):
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
         item.canvas = self
         self._tree.add(item, parent)
+        item._sort_key = self.sorter.get_key()
         self._canvas_constraints[item] = {}
 
         for v in self._registered_views:
@@ -434,8 +440,7 @@ class Canvas(object):
         Peform an update of the items that requested an update.
         """
         # Order the dirty items, so they are updated bottom to top
-        dirty_items = [ item for item in reversed(self._tree.nodes) \
-                             if item in self._dirty_items ]
+        dirty_items = self.sorter.sort(self._dirty_items, reverse=True)
 
         # dirty_items is a subset of dirty_matrix_items
         dirty_matrix_items = set(self._dirty_matrix_items)
@@ -465,8 +470,7 @@ class Canvas(object):
 
             # Also need to set up the dirty_items list here, since items
             # may be marked as dirty during maxtrix update or solving.
-            dirty_items = [ item for item in reversed(self._tree.nodes) \
-                                 if item in self._dirty_items ]
+            dirty_items = self.sorter.sort(self._dirty_items, reverse=True)
 
             for item in dirty_items:
                 try:
@@ -729,6 +733,71 @@ class CanvasProjector(Projector):
                 item.request_update()
         else:
             raise AttributeError('Projection data not specified')
+
+
+
+class Sorter(object):
+    """
+    Item sorter.
+
+    Attributes:
+     - _key: last value of sort key
+     - _key_getter: key getter used to extract sort key from item
+     - nodes: list of item nodes
+    """
+
+    DELTA = 0.4
+
+    def __init__(self, canvas):
+        """
+        Create item sorter.
+
+        Parameters:
+         - canvas: canvas reference
+        """
+        super(Sorter, self).__init__()
+
+        self._nodes = canvas._tree.nodes
+
+        self._key_getter = operator.attrgetter('_sort_key')
+        self._key = 0
+
+
+    def sort(self, items, reverse=False):
+        """
+        Sort items.
+        
+        Items are sorted using standard O(k * log(k)) algorithm but if amount
+        of items to be sorted is bigger than::
+        
+            Sorter._nodes * DELTA
+
+        then O(n) algorithm is used, where
+        - k: len(items)
+        - n: len(canvas.get_all_items())
+
+        Parameters:
+         - items: set of items to be sorted
+         - reverse: if True then sort in reverse order
+        """
+        assert isinstance(items, set) and len(self._nodes) * self.DELTA > len(items), 'use set to sort items!'
+
+        if len(self._nodes) * self.DELTA > len(items):
+            if reverse:
+                return (item for item in reversed(self._nodes) if item in items)
+            else:
+                return (item for item in self._nodes if item in items)
+        else:
+            return sorted(items, key=self._key_getter, reverse=reverse)
+
+
+    def get_key(self):
+        """
+        Get sorting key for an item.
+        """
+        self._key += 1
+        return self._key
+
 
 
 # Additional tests in @observed methods

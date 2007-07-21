@@ -321,11 +321,10 @@ class HandlePainter(Painter):
 
     def paint(self, context):
         view = context.view
+        canvas = view.canvas
         cairo = context.cairo
-        items = view.canvas.get_all_items()
-        # Draw handles of selected items on top of the items.
-        # Compare with canvas.get_all_items() to determine drawing order.
-        for item in (i for i in items if i in view.selected_items):
+        # draw handles of selected items on top of the items
+        for item in canvas.sorter.sort(view.selected_items):
             self._draw_handles(item, view, cairo)
         item = view.hovered_item
         if item and item not in view.selected_items:
