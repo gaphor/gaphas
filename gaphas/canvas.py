@@ -776,13 +776,14 @@ class Sorter(object):
         - k: len(items)
         - n: len(canvas.get_all_items())
 
+        Therefore it is really important, that passed items collection is a set.
+
         Parameters:
          - items: set of items to be sorted
          - reverse: if True then sort in reverse order
         """
-        assert isinstance(items, set) and len(self._nodes) * self.DELTA > len(items), 'use set to sort items!'
-
         if len(self._nodes) * self.DELTA > len(items):
+            assert not isinstance(items, set), 'use set to sort items!'
             if reverse:
                 return (item for item in reversed(self._nodes) if item in items)
             else:
