@@ -6,6 +6,7 @@ Simple class containing the tree structure for the canvas items.
 __version__ = "$Revision$"
 # $HeadURL$
 
+import operator
 from state import observed, reversible_pair, disable_dispatching
 
 
@@ -271,6 +272,51 @@ class Tree(object):
     # Disable add/remove by default, since they are handled by canvas.Canvas
     disable_dispatching(add)
     disable_dispatching(remove)
+
+
+class TreeSorter(object):
+    """
+    TreeSorter can be used to sort a list of items in the same order as
+    the tree's nodes.
+
+    >>> class A(object):
+    ...     def __init__(self, val):
+    ...         self.val = val
+    ...     def __repr__(self):
+    ...         return 'a' + str(self.val)
+
+    >>> tree = Tree()
+    >>> a1, a2, a3 = A(1), A(2), A(3)
+    >>> tree.add(a1)
+    >>> tree.add(a2)
+    >>> tree.add(a3, parent=a1)
+
+    The sorter should first index the tree, before sorting can take place.
+
+    >>> sorter = TreeSorter(tree)
+    >>> sorter.reindex()
+    >>> sorter.sort([a2, a3, a1])
+    [a1, a3, a2]
+    """
+
+    def __init__(self, tree):
+        self._tree = tree
+
+    def reindex(self):
+        """
+        Create an index (or recreate it).
+        """
+        nodes = self._tree.nodes
+        l = len(nodes)
+        map(setattr, nodes, ['_tree_sorter_key'] * l, xrange(l))
+
+    def sort(self, items, reverse=False):
+        """
+        Sort items in the order specified by the tree.
+        Items should have been indexed by reindex() before this method is
+        called.
+        """
+        return sorted(items, key=operator.attrgetter('_tree_sorter_key'), reverse=reverse)
 
 
 __test__ = {

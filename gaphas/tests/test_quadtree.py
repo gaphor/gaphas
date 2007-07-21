@@ -29,6 +29,9 @@ class QuadtreeTestCase(unittest.TestCase):
                         qtree.find_intersect((i+1, j+1, 1, 1))
 
 
+    def test_moving_items(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
 

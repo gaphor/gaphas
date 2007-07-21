@@ -59,9 +59,9 @@ class Canvas(object):
 
         self.projector = CanvasProjector(self)
         self.sorter = Sorter(self)
+        #self._sorter = tree.TreeSorter(self._tree)
 
-
-    solver = property(lambda s: s._solver)
+    sorter = property(lambda s: s._sorter)
 
     @observed
     def add(self, item, parent=None):
@@ -82,6 +82,8 @@ class Canvas(object):
         self._tree.add(item, parent)
         item._sort_key = self.sorter.get_key()
         self._canvas_constraints[item] = {}
+
+        self._sorter.reindex()
 
         for v in self._registered_views:
             v.update_matrix(item)
@@ -439,8 +441,9 @@ class Canvas(object):
         """
         Peform an update of the items that requested an update.
         """
+        sort = self._sorter.sort
         # Order the dirty items, so they are updated bottom to top
-        dirty_items = self.sorter.sort(self._dirty_items, reverse=True)
+        dirty_items = sort(self._dirty_items, reverse=True)
 
         # dirty_items is a subset of dirty_matrix_items
         dirty_matrix_items = set(self._dirty_matrix_items)
@@ -470,7 +473,7 @@ class Canvas(object):
 
             # Also need to set up the dirty_items list here, since items
             # may be marked as dirty during maxtrix update or solving.
-            dirty_items = self.sorter.sort(self._dirty_items, reverse=True)
+            dirty_items = sort(self._dirty_items, reverse=True)
 
             for item in dirty_items:
                 try:

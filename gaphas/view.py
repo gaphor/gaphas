@@ -192,18 +192,15 @@ class View(object):
          - selected: if False returns first non-selected item
         """
         point = (x, y)
-        #items = self._qtree.find_intersect((x, y, 1, 1))
-        # TODO: sort items, reversed
-        for item in reversed(self._canvas.get_all_items()):
-
+        items = self._qtree.find_intersect((x, y, 1, 1))
+        for item in self._canvas.sorter.sort(items, reverse=True):
             if not selected and item in self.selected_items:
                 continue  # skip selected items
 
-            if point in self.get_item_bounding_box(item):
-                v2i = self.get_matrix_v2i(item)
-                ix, iy = v2i.transform_point(x, y)
-                if item.point(ix, iy) < 0.5:
-                    return item
+            v2i = self.get_matrix_v2i(item)
+            ix, iy = v2i.transform_point(x, y)
+            if item.point(ix, iy) < 0.5:
+                return item
         return None
 
     def select_in_rectangle(self, rect):
@@ -222,8 +219,8 @@ class View(object):
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        self.request_update(self._canvas.get_all_items())
         map(self.update_matrix, self._canvas.get_all_items())
+        self.request_update(self._canvas.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -543,11 +540,12 @@ class GtkView(gtk.DrawingArea, View):
                 else:
                     self.queue_draw_item(i)
 
+                    self.update_matrix(i)
                     i2v = self.get_matrix_i2v(i).transform_point
                     x0, y0 = i2v(bounds.x, bounds.y)
                     x1, y1 = i2v(bounds.x1, bounds.y1)
-                    cbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    self._qtree.add(i, cbounds, bounds)
+                    vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
+                    self._qtree.add(i, vbounds, bounds)
 
                     # TODO: find an elegant way to update parent bb's.
                     parent = self.canvas.get_parent(i)
@@ -557,8 +555,8 @@ class GtkView(gtk.DrawingArea, View):
                         except KeyError:
                             pass # No bounds, do nothing
                         else:
-                            if not cbounds in parent_bounds:
-                                self.set_item_bounding_box(parent, cbounds + parent_bounds)
+                            if not vbounds in parent_bounds:
+                                self.set_item_bounding_box(parent, vbounds + parent_bounds)
                     self.queue_draw_item(i)
 
             # Remove removed items:
@@ -591,7 +589,6 @@ class GtkView(gtk.DrawingArea, View):
         gtk.DrawingArea.do_realize(self)
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
-            #self._canvas.update_now()
 
     def do_expose_event(self, event):
         """
@@ -637,6 +634,7 @@ class GtkView(gtk.DrawingArea, View):
             cr.stroke()
             cr.restore()
 
+        # TODO: draw Quadtree structure
         return False
 
     def do_event(self, event):
