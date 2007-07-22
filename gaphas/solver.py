@@ -480,7 +480,6 @@ class Solver(object):
         >>> c._value
         10.0
         """
-        constraints = self._constraints
         marked_cons = self._marked_cons
         try:
             self._solving = True
