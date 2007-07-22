@@ -19,6 +19,7 @@ from gaphas.sort import Sorted
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
+DEBUG_DRAW_QUADTREE = True
 
 # The default cursor (in case of a cursor reset)
 DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
@@ -285,7 +286,7 @@ class View(object):
                               items=items))
 
         # Update the view's bounding box with the rest of the items
-        self._bounds = Rectangle(*self._qtree.autosize())
+        self._bounds = Rectangle(*self._qtree.soft_bounds)
 
     def paint(self, cr):
         self._painter.paint(Context(view=self,
@@ -637,7 +638,18 @@ class GtkView(gtk.DrawingArea, View):
             cr.restore()
 
         # TODO: draw Quadtree structure
+        if DEBUG_DRAW_QUADTREE:
+            def draw_qtree_bucket(bucket):
+                cr.rectangle(*bucket.bounds)
+                cr.stroke()
+                for b in bucket._buckets:
+                    draw_qtree_bucket(b)
+            cr.set_source_rgb(0, 0, .8)
+            cr.set_line_width(1.0)
+            draw_qtree_bucket(self._qtree._bucket)
+
         return False
+
 
     def do_event(self, event):
         """

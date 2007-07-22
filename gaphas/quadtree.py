@@ -39,11 +39,11 @@ class Quadtree(object):
        <....QuadtreeBucket object at 0x...> (0, 0, 50.0, 50.0)
          0 (0, 0, 10, 10)
          1 (4, 10, 10, 10)
+         10 (40, 10, 10, 10)
          2 (8, 20, 10, 10)
          3 (12, 30, 10, 10)
          4 (16, 40, 10, 10)
          9 (36, 0, 10, 10)
-         10 (40, 10, 10, 10)
        <....QuadtreeBucket object at 0x...> (50.0, 0, 50.0, 50.0)
          13 (52, 40, 10, 10)
          18 (72, 0, 10, 10)
@@ -61,38 +61,37 @@ class Quadtree(object):
 
     Find all items in the tree::
 
-    >>> qtree.find_inside((0, 0, 100, 100))
-    ['11', '12', '0', '1', '2', '3', '4', '9', '10', '13', '18', '19', '5', '6', '7', '8', '14', '15', '16', '17']
+    >>> sorted(qtree.find_inside((0, 0, 100, 100)))
+    ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '3', '4', '5', '6', '7', '8', '9']
 
     Or just the items in a section of the tree::
 
-    >>> qtree.find_inside((40, 40, 40, 40))
+    >>> sorted(qtree.find_inside((40, 40, 40, 40)))
     ['13', '14', '15', '16']
-    >>> [qtree.get_bounds(item) for item in qtree.find_inside((40, 40, 40, 40))]
+    >>> sorted([qtree.get_bounds(item) for item in qtree.find_inside((40, 40, 40, 40))])
     [(52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10), (64, 70, 10, 10)]
 
-    >>> qtree.find_intersect((40, 40, 20, 20))
+    >>> sorted(qtree.find_intersect((40, 40, 20, 20)))
     ['12', '13', '14', '15']
-    >>> [qtree.get_bounds(item) for item in qtree.find_intersect((40, 40, 20, 20))]
+    >>> sorted([qtree.get_bounds(item) for item in qtree.find_intersect((40, 40, 20, 20))])
     [(48, 30, 10, 10), (52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10)]
     >>> qtree.rebuild()
     """
 
-    def __init__(self, bounds=(0, 0, 0, 0)):
-        # TODO: extend bounds to a specific factor (e.g. 100 or 1000)
-        if bounds:
-            self._bucket = QuadtreeBucket(bounds)
+    def __init__(self, bounds=(0, 0, 0, 0), capacity=10):
+        self._capacity = capacity
+        self._bucket = QuadtreeBucket(bounds, capacity)
 
-        # Easy lookup item->(bounds, bucket) mapping
+        # Easy lookup item->(bounds, data, clipped bounds) mapping
         self._ids = dict()
 
     def resize(self, bounds):
-        self._bucket = QuadtreeBucket(bounds)
+        self._bucket = QuadtreeBucket(bounds, self._capacity)
         self.rebuild()
 
     bounds = property(lambda s: s._bucket.bounds)
 
-    def autosize(self):
+    def get_soft_bounds(self):
         """
         Calculate the size of all items in the Quadtree. This size may be beyond
         the limits of the quadtree itself 
@@ -117,39 +116,42 @@ class Quadtree(object):
         y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
         return (x0, y0, x1 - x0, y1 - y0)
 
-    def add(self, item, bounds, data=None):
+    soft_bounds = property(get_soft_bounds)
+
+    def add(self, item, bounds, data=None, debug=False):
         """
         Add an item to the tree.
         If an item already exists, its bounds are updated and the item is
         moved to the right bucket.
         Data can be used to add some extra info to the item
         """
-        if item in self._ids:
-            _, bucket, _ = self._ids[item]
-            if bucket and contains(bounds, bucket.bounds):
-                # Already placed in right bucket, update bounds and quit
-                self._ids[item] = (bounds, bucket, data)
-                return
-            elif bucket:
-                bucket.remove(item)
-
         # Clip item bounds to fit in top-level bucket
         # Keep original bounds in _ids, for reference
         clipped_bounds = clip(bounds, self._bucket.bounds)
+
+        if item in self._ids:
+            old_clip = self._ids[item][2]
+            bucket = old_clip and self._bucket.find_bucket(old_clip)
+            assert not bucket or item in bucket.items
+            if bucket and contains(bounds, bucket.bounds):
+                bucket.update(item, old_clip, clipped_bounds)
+                self._ids[item] = (bounds, data, clipped_bounds)
+                return
+            elif bucket:
+                bucket.remove(item, old_clip)
+
         if clipped_bounds:
-            bucket = self._bucket.add(item, clipped_bounds)
-        else:
-            bucket = None
-        self._ids[item] = (bounds, bucket, data)
+            self._bucket.add(item, clipped_bounds)
+        self._ids[item] = (bounds, data, clipped_bounds)
 
     def remove(self, item):
         """
         Remove an item from the tree
         """
-        bounds, bucket = self._ids[item]
+        bounds, data, clip = self._ids[item]
         del self._ids[item]
-        if bucket:
-            bucket.remove(item)
+        bucket = self._bucket.find_bucket(clip)
+        bucket.remove(item, bounds)
 
     def rebuild(self):
         """
@@ -158,10 +160,11 @@ class Quadtree(object):
         # Clean bucket and items:
         self._bucket.clear()
 
-        # Now add each item using the bounds tree:
-        add = self._bucket.add
-        for item, (bounds, bucket, data) in self._ids.iteritems():
-            add(item, bounds)
+        for item, (bounds, data, _) in dict(self._ids).iteritems():
+            clipped_bounds = clip(bounds, self._bucket.bounds)
+            if clipped_bounds:
+                self._bucket.add(item, clipped_bounds)
+            self._ids[item] = (bounds, data, clipped_bounds)
 
     def get_bounds(self, item):
         """
@@ -170,6 +173,9 @@ class Quadtree(object):
         return self._ids[item][0]
 
     def get_data(self, item):
+        return self._ids[item][1]
+
+    def get_clipped_bounds(self, item):
         return self._ids[item][2]
 
     def find_inside(self, rect):
@@ -202,62 +208,84 @@ class QuadtreeBucket(object):
     A node in a Quadtree structure.
     """
 
-    def __init__(self, bounds, capacity=10):
+    def __init__(self, bounds, capacity):
         """
         Set bounding box for the node as (x, y, width, height).
         """
         self.bounds = bounds
-        self._capacity = capacity
+        self.capacity = capacity
 
-        self._items = list()
-        self._buckets = None
+        self.items = {}
+        self._buckets = []
 
     buckets = property(lambda s: s._buckets)
 
     def add(self, item, bounds):
         """
         Add an item to the quadtree.
-        Return the bucket the item is attached to.
         """
         # create new subnodes if threshold is reached
-        if not self._buckets and len(self._items) >= self._capacity:
+        if not self._buckets and len(self.items) >= self.capacity:
             x, y, w, h = self.bounds
             rw, rh = w / 2., h / 2.
             cx, cy = x + rw, y + rh
-            self._buckets = [QuadtreeBucket((x, y, rw, rh), self._capacity),
-                             QuadtreeBucket((cx, y, rw, rh), self._capacity),
-                             QuadtreeBucket((x, cy, rw, rh), self._capacity),
-                             QuadtreeBucket((cx, cy, rw, rh), self._capacity)]
+            self._buckets = [QuadtreeBucket((x, y, rw, rh), self.capacity),
+                             QuadtreeBucket((cx, y, rw, rh), self.capacity),
+                             QuadtreeBucket((x, cy, rw, rh), self.capacity),
+                             QuadtreeBucket((cx, cy, rw, rh), self.capacity)]
             # Add items to subnodes
-            items = list(self._items)
-            del self._items[:]
+            items = self.items.items()
+            self.items.clear()
             for i in items:
                 self.add(*i)
         if not self._buckets:
-            self._items.append((item, bounds))
+            self.items[item] = bounds
         else:
-            for bucket in self._buckets:
-                if contains(bounds, bucket.bounds):
-                    return bucket.add(item, bounds)
+            bucket = self.find_bucket(bounds)
+            if bucket is self:
+                self.items[item] = bounds
             else:
-                self._items.append((item, bounds))
-        return self
+                bucket.add(item, bounds)
 
-    def remove(self, item):
+    def update(self, item, old_bounds, new_bounds):
+        self.remove(item, old_bounds)
+        self.add(item, new_bounds)
+
+    def remove(self, item, bounds):
         """
         Remove an item from the quadtree bucket.
         Returns True if the item was found in this bucket or one of it's
         sub-buckets.
         """
-        for _item, bounds in self._items:
-            if _item is item:
-                self._items.remove((_item, bounds))
-                return True
+        if item in self.items:
+            del self.items[item]
+            return True
         else:
-            for bucket in self._buckets or []:
-                if bucket.remove(item):
-                    return True
+            bucket = self.find_bucket(bounds)
+            bucket.remove(item, bounds)
         
+    def find_bucket(self, bounds):
+        """
+        Find the bucket that holds a bounding box.
+        """
+        if self._buckets:
+            sx, sy, sw, sh = self.bounds
+            cx, cy = sx + sw / 2., sy + sh / 2.
+            print bounds
+            x, y, w, h = bounds
+            index = 0
+            if x >= cx:
+                index += 1
+            elif x + w > cx:
+                return self
+
+            if y >= cy:
+                index += 2
+            elif y + h > cy:
+                return self
+            return self._buckets[index].find_bucket(bounds)
+        return self
+
     def find(self, rect, method):
         """
         Find all items in the given rectangle (x, y, with, height).
@@ -267,11 +295,11 @@ class QuadtreeBucket(object):
         """
         if intersects(rect, self.bounds):
             rx, ry, rw, rh = rect
-            for item, bounds in self._items:
+            for item, bounds in self.items.iteritems():
                 bx, by, bw, bh = bounds
                 if method(bounds, rect):
                     yield item
-            for bucket in self._buckets or []:
+            for bucket in self._buckets:
                 for item in bucket.find(rect, method=method):
                     yield item
                 
@@ -279,15 +307,15 @@ class QuadtreeBucket(object):
         """
         Clear the bucket, including sub-buckets.
         """
-        self._buckets = None
-        del self._items[:]
+        del self._buckets[:]
+        self.items.clear()
 
     def dump(self, indent=''):
        print indent, self, self.bounds
        indent += '  '
-       for item, bounds in self._items:
+       for item, bounds in sorted(self.items.iteritems()):
            print indent, item, bounds
-       for bucket in self._buckets or []:
+       for bucket in self._buckets:
            bucket.dump(indent)
 
 
