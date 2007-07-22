@@ -19,7 +19,7 @@ from gaphas.sort import Sorted
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
-DEBUG_DRAW_QUADTREE = True
+DEBUG_DRAW_QUADTREE = False
 
 # The default cursor (in case of a cursor reset)
 DEFAULT_CURSOR = gtk.gdk.LEFT_PTR

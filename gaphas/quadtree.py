@@ -271,7 +271,6 @@ class QuadtreeBucket(object):
         if self._buckets:
             sx, sy, sw, sh = self.bounds
             cx, cy = sx + sw / 2., sy + sh / 2.
-            print bounds
             x, y, w, h = bounds
             index = 0
             if x >= cx:
