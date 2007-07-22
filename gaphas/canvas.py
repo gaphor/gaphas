@@ -547,7 +547,7 @@ class Canvas(object):
         for v in self._registered_views:
             v.update_matrix(item)
 
-        # Make sure handles are marked (for constraint solving)
+        # request solving of canvas constraints associated with an item
         request_resolve = self._solver.request_resolve
         for c in self.canvas_constraints(item):
             request_resolve(c)
