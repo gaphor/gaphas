@@ -15,6 +15,7 @@ from tool import ToolContext, DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
 from decorators import nonrecursive
+from gaphas.sort import Sorted
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -34,7 +35,7 @@ class View(object):
         self._qtree = Quadtree()
 
         # Handling selections.
-        self._selected_items = set()
+        self._selected_items = Sorted(canvas)
         self._focused_item = None
         self._hovered_item = None
         self._dropzone_item = None
@@ -57,6 +58,7 @@ class View(object):
             self._qtree = Quadtree()
 
         self._canvas = canvas
+        self._selected_items.canvas = canvas
         
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
@@ -104,7 +106,7 @@ class View(object):
         self.focused_item = None
         self.emit('selection-changed', self._selected_items)
 
-    selected_items = property(lambda s: set(s._selected_items),
+    selected_items = property(lambda s: s._selected_items,
                               select_item, unselect_all,
                               "Items selected by the view")
 

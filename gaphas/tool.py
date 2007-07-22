@@ -322,8 +322,6 @@ class ItemTool(Tool):
             view = context.view
             canvas = view.canvas
 
-            selected_items = view.selected_items
-
             # First request redraws for all items, before enything is
             # changed.
             view.queue_draw_item(*self._movable_items)

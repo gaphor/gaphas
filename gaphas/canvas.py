@@ -6,8 +6,6 @@ and a constraint solver.
 __version__ = "$Revision$"
 # $HeadURL$
 
-import operator
-
 import cairo
 from cairo import Matrix
 from gaphas import tree
@@ -15,6 +13,7 @@ from gaphas import solver
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
 from gaphas.constraint import Projector
+from gaphas.sort import Sorter
 
 
 class Context(object):
@@ -739,71 +738,6 @@ class CanvasProjector(Projector):
                 item.request_update()
         else:
             raise AttributeError('Projection data not specified')
-
-
-
-class Sorter(object):
-    """
-    Item sorter.
-
-    Attributes:
-     - _key: last value of sort key
-     - _key_getter: key getter used to extract sort key from item
-     - nodes: list of item nodes
-    """
-
-    DELTA = 0.4
-
-    def __init__(self, canvas):
-        """
-        Create item sorter.
-
-        Parameters:
-         - canvas: canvas reference
-        """
-        super(Sorter, self).__init__()
-
-        self._nodes = canvas._tree.nodes
-
-        self._key_getter = operator.attrgetter('_sort_key')
-        self._key = 0
-
-
-    def sort(self, items, reverse=False):
-        """
-        Sort items.
-        
-        Items are sorted using standard O(k * log(k)) algorithm but if amount
-        of items to be sorted is bigger than::
-        
-            Sorter._nodes * DELTA
-
-        then O(n) algorithm is used, where
-        - k: len(items)
-        - n: len(canvas.get_all_items())
-
-        Therefore it is really important, that passed items collection is a set.
-
-        Parameters:
-         - items: set of items to be sorted
-         - reverse: if True then sort in reverse order
-        """
-        if len(self._nodes) * self.DELTA > len(items):
-            assert not isinstance(items, set), 'use set to sort items!'
-            if reverse:
-                return (item for item in reversed(self._nodes) if item in items)
-            else:
-                return (item for item in self._nodes if item in items)
-        else:
-            return sorted(items, key=self._key_getter, reverse=reverse)
-
-
-    def get_key(self):
-        """
-        Get sorting key for an item.
-        """
-        self._key += 1
-        return self._key
 
 
 
