@@ -206,14 +206,26 @@ class View(object):
                 return item
         return None
 
+
+    def get_items_in_rectangle(self, rect, intersect=True, reverse=False):
+        """
+        Return the items in the rectangle 'rect'.
+        Items are automatically sorted in canvas' processing order.
+        """
+        if intersect:
+            items = self._qtree.find_intersect(rect)
+        else:
+            items = self._qtree.find_inside(rect)
+        return self._canvas.sorter.sort(items, reverse=reverse)
+
+
     def select_in_rectangle(self, rect):
         """
         Select all items who have their bounding box within the
         rectangle @rect.
         """
-        for item in self._canvas.get_all_items():
-            if self.get_item_bounding_box(item) in rect:
-                self.select_item(item)
+        items = self._qtree.find_intersect(rect)
+        map(self.select_item, items)
 
     def zoom(self, factor):
         """

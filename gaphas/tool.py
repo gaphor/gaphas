@@ -394,26 +394,15 @@ class HandleTool(Tool):
                 return view.hovered_item, h
 
         # Last try all items, checking the bounding box first
-        get_children = view.canvas.get_children
-        get_item_bounding_box = view.get_item_bounding_box
         x, y = event.x, event.y
-        def find(parent):
-            found_item, found_h = None, None
-            for item in get_children(parent):
-                if (x, y) in get_item_bounding_box(item):
-                    item, h = find(item)
-                    if h: found_item, found_h = item, h
-
-            # Escape when a match is found or parent is the uber-root item
-            if found_h or parent is None:
-                return found_item, found_h
-
-            h = self._find_handle(view, event, parent)
+        items = view.get_items_in_rectangle((x - 6, y - 6, 12, 12), reverse=True)
+        
+        found_item, found_h = None, None
+        for item in items:
+            h = self._find_handle(view, event, item)
             if h:
-                return parent, h
-            return None, None
-
-        return find(None)
+                return item, h
+        return None, None
 
 
     def move(self, view, item, handle, x, y):
