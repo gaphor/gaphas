@@ -49,7 +49,7 @@ class QuadtreeTestCase(unittest.TestCase):
         for i in range(4):
             assert len(qtree._bucket._buckets[i].items) == 9
             for item, bounds in qtree._bucket._buckets[i].items.iteritems():
-                assert qtree._bucket.get_bucket(item, bounds) is qtree._bucket._buckets[i]
+                assert qtree._bucket.find_bucket(bounds) is qtree._bucket._buckets[i]
             for j in range(4):
                 assert len(qtree._bucket._buckets[i]._buckets[j].items) == 4
 

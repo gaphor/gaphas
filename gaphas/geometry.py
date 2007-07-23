@@ -449,6 +449,47 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
         return xi, yi
 
 
+def rectangle_contains(inner, outer):
+    """
+    Returns True if inner rect is contained in outer rect.
+    """
+    ix, iy, iw, ih = inner
+    ox, oy, ow, oh = outer
+    return ox <= ix and oy <= iy and ox + ow >= ix + iw and oy + oh >= iy + ih
+
+
+def rectangle_intersects(recta, rectb):
+    """
+    Return True if recta and rectb intersect.
+
+    >>> rectangle_intersects((5,5,20, 20), (10, 10, 1, 1))
+    True
+    >>> rectangle_intersects((40, 30, 10, 1), (1, 1, 1, 1))
+    False
+    """
+    ax, ay, aw, ah = recta
+    bx, by, bw, bh = rectb
+    return ax <= bx + bw and ax + aw >= bx and ay <= by + bh and ay + ah >= by
+
+
+def rectangle_clip(recta, rectb):
+    """
+    Return the clipped rectangle of recta and rectb. If they do not intersect,
+    None is returned.
+    >>> rectangle_clip((0, 0, 20, 20), (10, 10, 20, 20))
+    (10, 10, 10, 10)
+    """
+    ax, ay, aw, ah = recta
+    bx, by, bw, bh = rectb
+    x = max(ax, bx)
+    y = max(ay, by)
+    w = min(ax +aw, bx + bw) - x
+    h = min(ay +ah, by + bh) - y
+    if w < 0 or h < 0:
+        return None
+    return (x, y, w, h)
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
