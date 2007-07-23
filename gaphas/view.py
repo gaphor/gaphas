@@ -498,10 +498,10 @@ class GtkView(gtk.DrawingArea, View):
         any number of items at once.
         """
         queue_draw_area = self.queue_draw_area
-        get_item_bounding_box = self.get_item_bounding_box
+        get_bounds = self._qtree.get_bounds
         for item in items:
             try:
-                queue_draw_area(*get_item_bounding_box(item))
+                queue_draw_area(*get_bounds(item))
             except KeyError:
                 pass # No bounds calculated yet? bummer.
 
