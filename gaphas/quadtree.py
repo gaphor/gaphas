@@ -195,7 +195,7 @@ class Quadtree(object):
         Find all items in the given rectangle (x, y, with, height).
         Returns an iterator.
         """
-        return list(self._bucket.find(rect, method=rectangle_contains))
+        return set(self._bucket.find(rect, method=rectangle_contains))
         
 
     def find_intersect(self, rect):
@@ -204,7 +204,7 @@ class Quadtree(object):
         (x, y, width, height).
         Returns an iterator.
         """
-        return list(self._bucket.find(rect, method=rectangle_intersects))
+        return set(self._bucket.find(rect, method=rectangle_intersects))
         
 
     def __len__(self):

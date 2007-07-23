@@ -303,6 +303,7 @@ class View(object):
     def paint(self, cr):
         self._painter.paint(Context(view=self,
                                     cairo=cr,
+                                    items=view.canvas.get_all_items(),
                                     area=None))
 
 
@@ -635,9 +636,11 @@ class GtkView(gtk.DrawingArea, View):
             finally:
                 update_bounding_box.clear()
 
+        area = Rectangle(x, y, width=w, height=h)
         self._painter.paint(Context(view=self,
                                     cairo=cr,
-                                    area=Rectangle(x, y, width=w, height=h)))
+                                    items=self.get_items_in_rectangle(area),
+                                    area=area))
 
         if DEBUG_DRAW_BOUNDING_BOX:
             cr.save()

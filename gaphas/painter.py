@@ -139,7 +139,7 @@ class ItemPainter(Painter):
         cairo = context.cairo
         view = context.view
         area = context.area
-        items = view.canvas.get_root_items()
+        items = context.items
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
         self._draw_items(items, view, cairo, area)
