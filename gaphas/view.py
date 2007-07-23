@@ -224,7 +224,7 @@ class View(object):
         Select all items who have their bounding box within the
         rectangle @rect.
         """
-        items = self._qtree.find_intersect(rect)
+        items = self._qtree.find_inside(rect)
         map(self.select_item, items)
 
     def zoom(self, factor):
