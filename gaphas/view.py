@@ -254,15 +254,15 @@ class View(object):
         self._qtree.add(item=item, bounds=bounds, data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
 
         # Update bounding box of parent items where appropriate (only extent)
-        parent = self.canvas.get_parent(item)
-        if parent:
-            try:
-                parent_bounds = self._qtree.get_bounds(parent)
-            except KeyError:
-                pass # No bounds, do nothing
-            else:
-                if not bounds in parent_bounds:
-                    self.set_item_bounding_box(parent, bounds + parent_bounds)
+        #parent = self.canvas.get_parent(item)
+        #if parent:
+        #    try:
+        #        parent_bounds = self._qtree.get_bounds(parent)
+        #    except KeyError:
+        #        pass # No bounds, do nothing
+        #    else:
+        #        if not bounds in parent_bounds:
+        #            self.set_item_bounding_box(parent, bounds + parent_bounds)
 
     def get_item_bounding_box(self, item):
         """
@@ -564,15 +564,15 @@ class GtkView(gtk.DrawingArea, View):
                     self._qtree.add(i, vbounds, bounds)
 
                     # TODO: find an elegant way to update parent bb's.
-                    parent = self.canvas.get_parent(i)
-                    if parent:
-                        try:
-                            parent_bounds = self._qtree.get_bounds(parent)
-                        except KeyError:
-                            pass # No bounds, do nothing
-                        else:
-                            if not vbounds in parent_bounds:
-                                self.set_item_bounding_box(parent, vbounds + parent_bounds)
+                    #parent = self.canvas.get_parent(i)
+                    #if parent:
+                    #    try:
+                    #        parent_bounds = self._qtree.get_bounds(parent)
+                    #    except KeyError:
+                    #        pass # No bounds, do nothing
+                    #    else:
+                    #        if not vbounds in parent_bounds:
+                    #            self.set_item_bounding_box(parent, vbounds + parent_bounds)
                     self.queue_draw_item(i)
 
             # Remove removed items:

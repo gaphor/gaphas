@@ -69,9 +69,8 @@ class DrawContext(Context):
     focused.
     """
 
-    painter = None
-    cairo = None
-
+    deprecated = False
+    
     def __init__(self, **kwargs):
         super(DrawContext, self).__init__(**kwargs)
 
@@ -80,10 +79,14 @@ class DrawContext(Context):
         Extra helper method for drawing child items from within
         the Item.draw() method.
         """
-        self.painter._draw_items(self._item.canvas.get_children(self._item),
-                                 self.view,
-                                 self.cairo,
-                                 self._area)
+        if not DrawContext.deprecated:
+            print 'Usage of context.draw_children is deprecated.'
+            DrawContext.deprecated = True
+
+        #self.painter._draw_items(self._item.canvas.get_children(self._item),
+        #                         self.view,
+        #                         self.cairo,
+        #                         self._area)
 
 
 class ItemPainter(Painter):
@@ -116,10 +119,10 @@ class ItemPainter(Painter):
         to draw sub-items.
         """
         for item in items:
-            if not area or area - view.get_item_bounding_box(item):
-                self._draw_item(item, view, cairo, area=area)
-                if DEBUG_DRAW_BOUNDING_BOX:
-                    self._draw_bounds(item, view, cairo)
+            #if not area or area - view.get_item_bounding_box(item):
+            self._draw_item(item, view, cairo, area=area)
+            if DEBUG_DRAW_BOUNDING_BOX:
+                self._draw_bounds(item, view, cairo)
 
     def _draw_bounds(self, item, view, cairo):
         try:
