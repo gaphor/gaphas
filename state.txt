@@ -27,7 +27,7 @@ method pair). It's methods are not dispatched by default though (because they're
 only used in the Canvas class. So first dispatching should be enabled:
 
     >>> state.enable_dispatching(Tree.add)
-    >>> state.enable_dispatching(Tree.remove)
+    >>> state.enable_dispatching(Tree._remove)
 
 It works:
 
@@ -43,11 +43,12 @@ It works:
 
 Remember that this observer is just a simple method call notifier and knows
 nothing about the internals of the tree class (in this case the remove() method
-recursively calls remove() for each of it's children):
+recursively calls remove() for each of it's children). Therefore some careful
+crafting of methods may be nessecary in order to get the right effect:
 
     >>> tree.remove(1)                                  # doctest: +ELLIPSIS
-    event handled (<function remove at ...>, (<gaphas.tree.Tree object at 0x...>, 1), {})
-    event handled (<function remove at ...>, (<gaphas.tree.Tree object at 0x...>, 2), {})
+    event handled (<function _remove at ...>, (<gaphas.tree.Tree object at 0x...>, 2), {})
+    event handled (<function _remove at ...>, (<gaphas.tree.Tree object at 0x...>, 1), {})
     >>> tree.nodes
     []
 
@@ -119,7 +120,7 @@ Handlers for the reverse events should be registered on the subscribers list:
 After that, signals can be received of undoable (reverse-)events:
 
     >>> tree.add(3)                                     # doctest: +ELLIPSIS
-    event handler (<function remove at ...>, {'node': 3, 'self': <gaphas.tree.Tree object at 0x...>})
+    event handler (<function _remove at ...>, {'node': 3, 'self': <gaphas.tree.Tree object at 0x...>})
     >>> tree.nodes
     [3]
 
@@ -202,5 +203,5 @@ Testcases are described in undo.txt.
 (disable dispatching again, not frustrating other tests)
 
     >>> state.disable_dispatching(Tree.add)
-    >>> state.disable_dispatching(Tree.remove)
+    >>> state.disable_dispatching(Tree._remove)
 

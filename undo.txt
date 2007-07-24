@@ -35,9 +35,87 @@ This simple undo function will revert all states collected in the undo_list:
 
 tree.py: Tree
 -------------
-Tree's add() and remove() methods are use as demonstration in state.txt.
+Tree's add() and remove() methods are disabled by default.
 
-Those methods are disabled by default and will not be tested here.
+    >>> from gaphas.tree import Tree
+    >>> state.enable_dispatching(Tree.add)
+    >>> state.enable_dispatching(Tree._remove)
+
+One can create a nice tree:
+
+    >>> tree = Tree()
+    >>> tree.add(1)
+    >>> tree.nodes
+    [1]
+    >>> undo()
+    >>> tree.nodes
+    []
+    >>> undo_list[:] = redo_list[:]
+    >>> undo()
+    >>> tree.nodes
+    [1]
+    
+Adding and removing complete sub-trees also works:
+
+    >>> tree.add(2, parent=1)
+    >>> tree.add(3, parent=2)
+    >>> tree.add(4, parent=2)
+    >>> tree.add(5, parent=4)
+    >>> tree.nodes
+    [1, 2, 3, 4, 5]
+    >>> del undo_list[:]
+    >>> tree.remove(1)
+    >>> tree.nodes
+    []
+    >>> undo()
+    >>> tree.nodes
+    [1, 2, 3, 4, 5]
+    >>> tree.get_children(2)
+    [3, 4]
+    >>> tree.get_children(4)
+    [5]
+
+Undo the last undo action:
+
+    >>> undo_list[:] = redo_list[:]
+    >>> undo()
+    >>> tree.nodes
+    []
+    >>> undo_list[:] = redo_list[:]
+    >>> undo()
+    >>> tree.nodes
+    [1, 2, 3, 4, 5]
+    >>> tree.get_children(2)
+    [3, 4]
+    >>> tree.get_children(4)
+    [5]
+
+Moving a node from one node to another is easy:
+
+    >>> tree.reparent(3, parent=5)
+    >>> tree.get_children(2)
+    [4]
+    >>> tree.get_children(5)
+    [3]
+    >>> tree.nodes
+    [1, 2, 4, 5, 3]
+
+This change can be undone:
+
+    >>> undo()
+    >>> tree.nodes
+    [1, 2, 4, 5, 3]
+    >>> tree.get_children(2)
+    [4, 3]
+    >>> tree.get_children(5)
+    []
+
+As you can see, there's currently one flaw: the item is added at the end of the list.
+
+(disable dispatching again, not frustrating other tests)
+
+    >>> state.disable_dispatching(Tree.add)
+    >>> state.disable_dispatching(Tree._remove)
 
 matrix.py: Matrix
 -----------------
@@ -173,9 +251,8 @@ Now redo the previous undo action:
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
-
-NOTE: If remove() is invoked recursively (e.i. when the to-be removed item has
-      children), the remove items can not simply be applied in reverse order.
+Remove also works when items are removed recursively (an item and it's
+children):
 
     >>> child = Item()
     >>> canvas.add(child, parent=item)
@@ -185,7 +262,11 @@ NOTE: If remove() is invoked recursively (e.i. when the to-be removed item has
     >>> canvas.remove(item)
     >>> canvas.get_all_items()
     []
-
+    >>> undo()
+    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    >>> canvas.get_children(item)			# doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>]
 
 item.py: Handle
 ---------------

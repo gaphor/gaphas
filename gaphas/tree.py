@@ -7,7 +7,8 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 import operator
-from state import observed, reversible_pair, disable_dispatching
+from state import observed, reversible_method, \
+        reversible_pair, disable_dispatching
 
 
 class Tree(object):
@@ -192,15 +193,7 @@ class Tree(object):
             self._parents[node] = parent
 
     @observed
-    def remove(self, node):
-        """
-        Remove @node from the tree.
-
-        For usage, see the unit tests.
-        """
-        # First remove children:
-        for c in list(self._children[node]):
-            self.remove(c)
+    def _remove(self, node):
         # Remove from parent item
         self.get_siblings(node).remove(node)
         # Remove data entries:
@@ -211,6 +204,16 @@ class Tree(object):
         except KeyError:
             pass
 
+    def remove(self, node):
+        """
+        Remove @node from the tree.
+
+        For usage, see the unit tests.
+        """
+        # First remove children:
+        for c in reversed(list(self._children[node])):
+            self.remove(c)
+        self._remove(node)
 
     def _reparent_nodes(self, node, parent):
         """
@@ -266,12 +269,15 @@ class Tree(object):
         self._reparent_nodes(node, parent)
 
 
-    reversible_pair(add, remove,
-                    bind1={'parent': lambda self, node: self.get_parent(node) })
+    reversible_pair(add, _remove,
+            bind1={'parent': lambda self, node: self.get_parent(node) })
+
+    reversible_method(reparent, reverse=reparent,
+            bind={'parent': lambda self, node: self.get_parent(node) })
 
     # Disable add/remove by default, since they are handled by canvas.Canvas
     disable_dispatching(add)
-    disable_dispatching(remove)
+    disable_dispatching(_remove)
 
 
 class TreeSorter(object):

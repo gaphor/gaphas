@@ -248,6 +248,7 @@ def revert_handler(event):
     >>> pt.a = 10 # doctest: +ELLIPSIS
     handle (<function _set_a at 0x...>, {'self': <gaphas.state.PropTest object at 0x...>, 'value': 0})
 
+    >>> subscribers.remove(handler)
     """
     global _reverse
     func, args, kwargs = event

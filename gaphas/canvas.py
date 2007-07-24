@@ -95,6 +95,19 @@ class Canvas(object):
 
 
     @observed
+    def _remove(self, item):
+        """
+        Remove is done in a separate, @observed, method so the undo system
+        can restore removed items in the right order.
+        """
+        item.canvas = None
+        self._tree.remove(item)
+        self.remove_connections_to_item(item)
+        del self._canvas_constraints[item]
+        self._update_views((item,))
+        self._dirty_items.discard(item)
+        self._dirty_matrix_items.discard(item)
+
     def remove(self, item):
         """
         Remove item from the canvas
@@ -108,19 +121,12 @@ class Canvas(object):
             []
             >>> i._canvas
 
-        TODO: fix problems that arise when items are nested.
         """
-        #for child in self.get_children(item):
-        #    self.remove(child)
-        item.canvas = None
-        self._tree.remove(item)
-        self.remove_connections_to_item(item)
-        del self._canvas_constraints[item]
-        self._update_views((item,))
-        self._dirty_items.discard(item)
-        self._dirty_matrix_items.discard(item)
+        for child in reversed(self.get_children(item)):
+            self.remove(child)
+        self._remove(item)
 
-    reversible_pair(add, remove,
+    reversible_pair(add, _remove,
                     bind1={'parent': lambda self, item: self.get_parent(item)})
 
 
