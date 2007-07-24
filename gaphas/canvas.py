@@ -12,7 +12,6 @@ from gaphas import tree
 from gaphas import solver
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
-from gaphas.constraint import Projector
 from gaphas.sort import Sorter
 
 
