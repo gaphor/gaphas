@@ -663,14 +663,15 @@ class VariableProjection(solver.Projection):
 
     >>> def notify_me(val):
     ...     print 'new value', val
-    >>> p = VariableProjection(3.0, callback=notify_me)
+    >>> p = VariableProjection('var placeholder', 3.0, callback=notify_me)
     >>> p.value
     3.0
     >>> p.value = 6.5
     new value 6.5
     """
 
-    def __init__(self, value, callback):
+    def __init__(self, var, value, callback):
+        self._var = var
         self._value = value
         self._callback = callback
 
@@ -681,7 +682,7 @@ class VariableProjection(solver.Projection):
     value = property(lambda s: s._value, _set_value)
 
     def variable(self):
-        return var
+        return self._var
 
 
 class PointProjection(object):
@@ -711,6 +712,7 @@ class PointProjection(object):
     (Variable(-20, 40), Variable(0, 40))
 
     TODO: How will this work on rotated variables?
+    When the variables are retrieved, new values are calculated.
     """
 
     def __init__(self, point, item):
@@ -738,10 +740,14 @@ class PointProjection(object):
         return self._px, self._py
 
     def __getitem__(self, key):
-        return map(VariableProjection, self._get_value(), (self._on_change_x, self._on_change_y))[key]
+        return map(VariableProjection,
+                   self._point, self._get_value(),
+                   (self._on_change_x, self._on_change_y))[key]
         
     def __iter__(self):
-        return iter(map(VariableProjection, self._get_value(), (self._on_change_x, self._on_change_y)))
+        return iter(map(VariableProjection,
+                        self._point, self._get_value(),
+                        (self._on_change_x, self._on_change_y)))
 
 
 

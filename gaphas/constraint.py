@@ -28,6 +28,13 @@ import operator
 __version__ = "$Revision$"
 # $HeadURL$
 
+# is simple abs(x - y) > EPSILON enough for canvas needs?
+EPSILON = 1e-6
+
+def equals(a, b):
+    return abs(a - b) < EPSILON
+
+
 class Constraint(object):
     """
     Constraint base class.
@@ -119,7 +126,7 @@ class EqualsConstraint(Constraint):
     def solve_for(self, var):
         assert var in (self.a, self.b)
 
-        if self.a != self.b:
+        if not equals(self.a.value, self.b.value):
             if var is self.a:
                 self.a.value = self.b.value
             else:
@@ -158,7 +165,7 @@ class CenterConstraint(Constraint):
         assert var in (self.a, self.b, self.center)
 
         v = (self.a.value + self.b.value) / 2.0
-        if self.center != v:
+        if not equals(self.center.value, v):
             self.center.value = v
 
 
@@ -194,7 +201,7 @@ class LessThanConstraint(Constraint):
         self.delta = delta
 
     def solve_for(self, var):
-        if self.smaller > self.bigger - self.delta:
+        if self.smaller.value > self.bigger.value - self.delta:
             if var is self.smaller:
                 self.bigger.value = self.smaller.value + self.delta
             elif var is self.bigger:
@@ -202,7 +209,6 @@ class LessThanConstraint(Constraint):
 
 
 # Constants for the EquationConstraint
-TOL = 0.0000001      # tolerance
 ITERLIMIT = 1000        # iteration limit
 
 class EquationConstraint(Constraint):
@@ -288,7 +294,7 @@ class EquationConstraint(Constraint):
             args[nm] = v.value
             if v is var: arg = nm
         v = self._solve_for(arg, args) 
-        if var != v:
+        if var.value != v:
             var.value = v
 
 
@@ -316,7 +322,7 @@ class EquationConstraint(Constraint):
             fx1 = f(x1)
             if fx1 == 0 or x1 == x0:  # managed to nail it exactly
                 break
-            if abs(fx1-fx0) < TOL:    # very close
+            if abs(fx1-fx0) < EPSILON:    # very close
                 close_flag = True
                 if close_runs == 0:       # been close several times
                     break
@@ -391,9 +397,9 @@ class BalanceConstraint(Constraint):
 
     def solve_for(self, var):
         b1, b2 = self.band
-        w = b2 - b1
-        value = b1 + w * self.balance
-        if var != value:
+        w = b2.value - b1.value
+        value = b1.value + w * self.balance
+        if not equals(var.value, value):
             var.value = value
 
 
@@ -407,11 +413,11 @@ class LineConstraint(Constraint):
     """
 
     def __init__(self, line, point):
-        super(LineConstraint, self).__init__(*(line[0] + line[1] + point))
+        super(LineConstraint, self).__init__(line[0][0], line[0][1], line[1][0], line[1][1], point[0], point[1])
 
         self._line = line
         self._point = point
-
+        self.update_ratio()
 
     def update_ratio(self):
         """
@@ -471,9 +477,9 @@ class LineConstraint(Constraint):
         x = sx.value + (ex.value - sx.value) * self.ratio_x
         y = sy.value + (ey.value - sy.value) * self.ratio_y
 
-        if px != x:
+        if not equals(px.value, x):
             px.value = x
-        if py != y:
+        if not equals(py.value, y):
             py.value = y
 
 
