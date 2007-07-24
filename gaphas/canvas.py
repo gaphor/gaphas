@@ -56,7 +56,6 @@ class Canvas(object):
         self._registered_views = set()
         self._canvas_constraints = {}
 
-        self.projector = CanvasProjector(self)
         self._sorter = Sorter(self)
         #self._sorter = tree.TreeSorter(self._tree)
 
@@ -750,103 +749,6 @@ class PointProjection(object):
         return iter(map(VariableProjection,
                         self._point, self._get_value(),
                         (self._on_change_x, self._on_change_y)))
-
-
-
-#
-# Obsolete:
-#
-class CanvasProjector(Projector):
-    """
-    Canvas constraint projector between item and canvas coordinates.
-
-    Attributes:
-     - _canvas: canvas reference
-    """
-    def __init__(self, canvas):
-        super(CanvasProjector, self).__init__()
-        self._canvas = canvas
-
-
-    def _cproj(self, c, x=None, y=None, xy=None, **kw):
-        """
-        Item to canvas constraint's variables projector. Item's coordinates
-        are projected into canvas coordinates to solve canvas constraints
-        in common space.
-
-        Paramters x, y and xy are dictionaries::
-        
-            { v0: item0,
-              v1: item1,
-              ...
-              vn: itemn,
-            }
-
-        used to find item to canvas (i2c) matrices.
-
-        Parameters:
-         - c: constraint, which variables are projected
-         - x: data for projection along x-axis
-         - y: data for projection along y-axis
-         - xy: data for projection on a plane
-        """
-        if xy is not None:
-            for point, item in xy.items():
-                x, y = point
-                i2c = self._canvas.get_matrix_i2c(item).transform_point
-                x._value, y._value = i2c(x._value, y._value)
-        elif x is not None:
-            for v, item in x.items():
-                i2c = self._canvas.get_matrix_i2c(item).transform_point
-                v._value, _ = i2c(v._value, 0)
-        elif y is not None:
-            for v, item in y.items():
-                i2c = self._canvas.get_matrix_i2c(item).transform_point
-                _, v._value = i2c(0, v._value)
-        else:
-            raise AttributeError('Projection data not specified')
-
-
-    def _iproj(self, c, x=None, y=None, xy=None, **kw):
-        """
-        Canvas to item constraint's variables projector. Item's coordinates
-        are projected from canvas coordinates into item coordinates after
-        solving canvas constraints in common space.
-
-        Paramters x, y and xy are dictionaries::
-        
-            { v0: item0,
-              v1: item1,
-              ...
-              vn: itemn,
-            }
-
-        used to find canvas to item (c2i) matrices.
-
-        Parameters:
-         - c: constraint, which variables are projected
-         - x: data for projection along x-axis
-         - y: data for projection along y-axis
-         - xy: data for projection on a plane
-        """
-        if xy is not None:
-            for point, item in xy.items():
-                x, y = point
-                c2i = self._canvas.get_matrix_c2i(item).transform_point
-                x._value, y._value = c2i(x._value, y._value)
-                item.request_update()
-        elif x is not None:
-            for v, item in x.items():
-                c2i = self._canvas.get_matrix_c2i(item).transform_point
-                v._value, _ = c2i(v._value, 0)
-                item.request_update()
-        elif y is not None:
-            for v, item in y.items():
-                c2i = self._canvas.get_matrix_c2i(item).transform_point
-                _, v._value = c2i(0, v._value)
-                item.request_update()
-        else:
-            raise AttributeError('Projection data not specified')
 
 
 
