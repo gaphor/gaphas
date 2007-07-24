@@ -304,6 +304,25 @@ class Variable(object):
         return self._value.__rtruediv__(other)
 
 
+class Projection(object):
+    """
+    Projections are used to convert values from one space to another,
+    e.g. from Canvas to Item space or visa versa.
+
+    In order to be a Projection a value property should be implemented and
+    a method named variables() should be present.
+
+    Projections should inherit from this class.
+
+    For the sake of efficiency, Projections may not be nested.
+    """
+
+    value = 0 
+
+    def variables(self):
+        raise NotImplemented
+
+
 class Solver(object):
     """
     Solve constraints. A constraint should have accompanying
@@ -392,6 +411,9 @@ class Solver(object):
         self._constraints.add(constraint)
         self._marked_cons.append(constraint)
         for v in constraint.variables():
+            if isinstance(v, Projection):
+                for pv in v.variables():
+                    pv._constraints.add(constraint)
             v._constraints.add(constraint)
             v._solver = self
         #print 'added constraint', constraint
@@ -417,6 +439,9 @@ class Solver(object):
 
         """
         for v in constraint.variables():
+            if isinstance(v, Projection):
+                for pv in v.variables():
+                    pv._constraints.discard(constraint)
             v._constraints.discard(constraint)
         self._constraints.discard(constraint)
         if constraint in self._marked_cons:
