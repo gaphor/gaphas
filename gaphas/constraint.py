@@ -435,11 +435,11 @@ class LineConstraint(Constraint):
         px, py = self._point
 
         try:
-            self.ratio_x = float(px - sx) / float(ex - sx)
+            self.ratio_x = float(px.value - sx.value) / float(ex.value - sx.value)
         except ZeroDivisionError:
             self.ratio_x = 0.0
         try:
-            self.ratio_y = float(py - sy) / float(ey - sy)
+            self.ratio_y = float(py.value - sy.value) / float(ey.value - sy.value)
         except ZeroDivisionError:
             self.ratio_y = 0.0
 
@@ -468,8 +468,8 @@ class LineConstraint(Constraint):
         ex, ey = self._line[1]
         px, py = self._point
 
-        x = sx + (ex - sx) * self.ratio_x
-        y = sy + (ey - sy) * self.ratio_y
+        x = sx.value + (ex.value - sx.value) * self.ratio_x
+        y = sy.value + (ey.value - sy.value) * self.ratio_y
 
         if px != x:
             px.value = x
@@ -478,6 +478,10 @@ class LineConstraint(Constraint):
 
 
 
+
+#
+# Obsolete:
+#
 class Projector(object):
     """
     Base class for variable space projectors.

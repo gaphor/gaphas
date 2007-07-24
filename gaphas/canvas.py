@@ -652,7 +652,102 @@ class Canvas(object):
             return cairo.Context(surface)
 
 
+class VariableProjection(solver.Projection):
+    """
+    Project a single gaphas.solver.Variable to another space/coordinate system.
 
+    The value has been set in the "other" coordinate system. A callback is
+    executed when the value changes.
+    
+    It's a simple Variable-like class, following the Projection protocol:
+
+    >>> def notify_me(val):
+    ...     print 'new value', val
+    >>> p = VariableProjection(3.0, callback=notify_me)
+    >>> p.value
+    3.0
+    >>> p.value = 6.5
+    new value 6.5
+    """
+
+    def __init__(self, value, callback):
+        self._value = value
+        self._callback = callback
+
+    def _set_value(self, value):
+        self._value = value
+        self._callback(value)
+
+    value = property(lambda s: s._value, _set_value)
+
+    def variable(self):
+        return var
+
+
+class PointProjection(object):
+    """
+    Project a point as Canvas coordinates.
+    Although this is a projection, it behaves like a tuple with two Variables
+    (Projections).
+
+    >>> canvas = Canvas()
+    >>> from item import Element
+    >>> a = Element()
+    >>> canvas.add(a)
+    >>> a.matrix.translate(30, 2)
+    >>> canvas.request_matrix_update(a)
+    >>> canvas.update_now()
+    >>> canvas.get_matrix_i2c(a)
+    cairo.Matrix(1, 0, 0, 1, 30, 2)
+    >>> p = PointProjection(a.handles()[0].pos, a)
+    >>> a.handles()[0].pos
+    (Variable(0, 40), Variable(0, 40))
+    >>> p[0].value
+    30.0
+    >>> p[1].value
+    2.0
+    >>> p[0].value = 10
+    >>> p._point
+    (Variable(-20, 40), Variable(0, 40))
+
+    TODO: How will this work on rotated variables?
+    """
+
+    def __init__(self, point, item):
+        self._point = point
+        self._item = item
+
+    def _on_change_x(self, value):
+        item = self._item
+        self._px = value
+        self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
+
+    def _on_change_y(self, value):
+        item = self._item
+        self._py = value
+        self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
+
+    def _get_value(self):
+        """
+        Return two delegating variables. Each variable should contain
+        a value attribute with the real value.
+        """
+        x, y = self._point
+        item = self._item
+        self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
+        return self._px, self._py
+
+    def __getitem__(self, key):
+        return map(VariableProjection, self._get_value(), (self._on_change_x, self._on_change_y))[key]
+        
+    def __iter__(self):
+        return iter(map(VariableProjection, self._get_value(), (self._on_change_x, self._on_change_y)))
+
+
+
+#
+# Obsolete:
+#
 class CanvasProjector(Projector):
     """
     Canvas constraint projector between item and canvas coordinates.

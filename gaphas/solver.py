@@ -319,7 +319,10 @@ class Projection(object):
 
     value = 0 
 
-    def variables(self):
+    def variable(self):
+        """
+        Return the variable owned by the projection.
+        """
         raise NotImplemented
 
 
@@ -412,9 +415,9 @@ class Solver(object):
         self._marked_cons.append(constraint)
         for v in constraint.variables():
             if isinstance(v, Projection):
-                for pv in v.variables():
-                    pv._constraints.add(constraint)
-            v._constraints.add(constraint)
+                v.variable()._constraints.add(constraint)
+            else:
+                v._constraints.add(constraint)
             v._solver = self
         #print 'added constraint', constraint
         return constraint
@@ -440,9 +443,9 @@ class Solver(object):
         """
         for v in constraint.variables():
             if isinstance(v, Projection):
-                for pv in v.variables():
-                    pv._constraints.discard(constraint)
-            v._constraints.discard(constraint)
+                v.variable()._constraints.discard(constraint)
+            else:
+                v._constraints.discard(constraint)
         self._constraints.discard(constraint)
         if constraint in self._marked_cons:
             del self._marked_cons[self._marked_cons.index(constraint)]
