@@ -135,6 +135,7 @@ def create_window(canvas, title, zoom=1.0):
     view.connect('focus-changed', handle_changed, 'focus')
     view.connect('hover-changed', handle_changed, 'hover')
     view.connect('selection-changed', handle_changed, 'selection')
+    return view
 
 def main():
     global movable_item
@@ -144,7 +145,7 @@ def main():
         count = 1
     c=Canvas()
 
-    create_window(c, 'View created before')
+    view = create_window(c, 'View created before')
 
     # Add stuff to the canvas:
 
@@ -173,17 +174,37 @@ def main():
         print 'box', bb
         x = int(i % n) * 20
         y = int(i / n) * 20
-        bb.matrix.translate(x, y)
+        bb.matrix.translate(20 + x, y)
         bb.matrix.rotate(math.pi/4.0 * i / 10.0)
         c.add(bb, parent=b)
 
+    tool = view.tool._tools[1]
     for i in range(40):
         bb = MyBox()
-        bb.width = bb.height = 15
-        x = int(i % 4) * 20
-        y = int(i / 4) * 20
-        bb.matrix.translate(20 + x, 100 + y)
+        bb.width = bb.height = 20
+        x = int(i % 4)
+        y = int(i / 4)
+        bb.matrix.translate(20 + x * 30, 100 + y * 30)
         c.add(bb)
+
+        if x > 0:
+            l = Line()
+            l.fyzzyness = 1
+            h1, h2 = l.handles()
+            h2.pos = (10, 0)
+            l.matrix.translate(10 + x * 30, 110 + y * 30)
+            c.add(l)
+            tool.connect(view, l, h1, 10 + x * 30, 110 + y * 30)
+            tool.connect(view, l, h2, 20 + x * 30, 110 + y * 30)
+        if y > 0:
+            l = Line()
+            l.fyzzyness = 1
+            h1, h2 = l.handles()
+            h2.pos = (0, -10)
+            l.matrix.translate(x * 30 + 30, 100 + y * 30)
+            c.add(l)
+            tool.connect(view, l, h1, x * 30 + 30, 100 + y * 30)
+            tool.connect(view, l, h2, x * 30 + 30,  90 + y * 30)
 
     t=MyText('Single line')
     t.matrix.translate(70,70)
