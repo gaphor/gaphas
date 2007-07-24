@@ -723,11 +723,13 @@ class PointProjection(object):
         item = self._item
         self._px = value
         self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
+        item.request_update()
 
     def _on_change_y(self, value):
         item = self._item
         self._py = value
         self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
+        item.request_update()
 
     def _get_value(self):
         """
