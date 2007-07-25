@@ -483,16 +483,15 @@ class Canvas(object):
         else:
             item._matrix_i2c = Matrix(*item.matrix)
 
-        # It's nice to have the W2I matrix present too:
-        item._matrix_c2i = Matrix(*item._matrix_i2c)
-        item._matrix_c2i.invert()
-        for v in self._registered_views:
-            v.update_matrix(item)
-
-        # TODO: request solving of canvas constraints associated with an item
-        #for c in self.canvas_constraints(item):
-        #    request_resolve(c)
         if not orig_matrix_i2c or orig_matrix_i2c != item._matrix_i2c:
+            # It's nice to have the W2I matrix present too:
+            item._matrix_c2i = Matrix(*item._matrix_i2c)
+            item._matrix_c2i.invert()
+            for v in self._registered_views:
+                v.update_matrix(item)
+
+            # request solving of canvas constraints associated with an item
+            # TODO: only mark Projected (external/inter-item) constraints dirty
             for h in item.handles():
                 h.x.dirty()
                 h.y.dirty()
