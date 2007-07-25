@@ -11,7 +11,7 @@ from item import NW, NE,SW, SE
 from solver import solvable
 import tool
 from constraint import LineConstraint, LessThanConstraint, EqualsConstraint
-from canvas import PointProjection
+from canvas import CanvasProjection
 from geometry import point_on_rectangle, distance_rectangle_point
 from util import text_extents, text_align, text_multiline, path_ellipse
 from cairo import Matrix
@@ -234,9 +234,9 @@ class ConnectingHandleTool(tool.HandleTool):
                 pass # constraint was already removed
 
             h1, h2 = side(handle, glue_item)
-            lc = LineConstraint(line=(PointProjection(h1.pos, glue_item),
-                                      PointProjection(h2.pos, glue_item)),
-                                point=PointProjection(handle.pos, item))
+            lc = LineConstraint(line=(CanvasProjection(h1.pos, glue_item),
+                                      CanvasProjection(h2.pos, glue_item)),
+                                point=CanvasProjection(handle.pos, item))
             view.canvas.add_canvas_constraint(item, handle, lc)
 
             handle.disconnect = handle_disconnect
@@ -251,9 +251,9 @@ class ConnectingHandleTool(tool.HandleTool):
                 h1, h2 = side(handle, glue_item)
 
                 # Make a constraint that keeps into account item coordinates.
-                lc = LineConstraint(line=(PointProjection(h1.pos, glue_item),
-                                          PointProjection(h2.pos, glue_item)),
-                                    point=PointProjection(handle.pos, item))
+                lc = LineConstraint(line=(CanvasProjection(h1.pos, glue_item),
+                                          CanvasProjection(h2.pos, glue_item)),
+                                    point=CanvasProjection(handle.pos, item))
                 view.canvas.add_canvas_constraint(item, handle, lc)
 
                 handle.connected_to = glue_item

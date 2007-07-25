@@ -683,7 +683,7 @@ class VariableProjection(solver.Projection):
         return self._var
 
 
-class PointProjection(object):
+class CanvasProjection(object):
     """
     Project a point as Canvas coordinates.
     Although this is a projection, it behaves like a tuple with two Variables
@@ -698,7 +698,7 @@ class PointProjection(object):
     >>> canvas.update_now()
     >>> canvas.get_matrix_i2c(a)
     cairo.Matrix(1, 0, 0, 1, 30, 2)
-    >>> p = PointProjection(a.handles()[0].pos, a)
+    >>> p = CanvasProjection(a.handles()[0].pos, a)
     >>> a.handles()[0].pos
     (Variable(0, 40), Variable(0, 40))
     >>> p[0].value
