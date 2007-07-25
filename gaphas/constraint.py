@@ -22,11 +22,15 @@ Available constraints are:
        a rectangualar or line like object and the length of the line
        is kept to a minimum
 """
+
 from __future__ import division
 import operator
+from solver import Projection
+
 
 __version__ = "$Revision$"
 # $HeadURL$
+
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
@@ -87,9 +91,24 @@ class Constraint(object):
         Constraint._weakest list to maintain weakest variable invariants
         (see gaphas.solver module documentation).
         """
-        if v is self.weakest():
+        weakest = self.weakest
+        # Fast lane:
+        if v is weakest:
             self._weakest.remove(v)
             self._weakest.append(v)
+            return
+
+        # Handle projected variables well:
+        global Projection
+        p = weakest
+        while isinstance(weakest, Projection):
+            weakest = weakest.variable()
+            if v is weakest:
+                self._weakest.remove(p)
+                self._weakest.append(p)
+                return
+
+
 
 
     def solve_for(self, var):
