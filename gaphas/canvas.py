@@ -440,10 +440,10 @@ class Canvas(object):
             # matrices now
             c_dirty_items = sort(self._dirty_items, reverse=True)
             dirty_items.extend(c_dirty_items)
-            self._dirty_items.clear()
 
             # normalize items, which changed after constraint solving
-            c_dirty_matrix_items = self._normalize(c_dirty_items)
+            c_dirty_matrix_items = self._normalize(self._dirty_items)
+            self._dirty_items.clear()
 
             # recalculate matrices of normalized items
             c_dirty_matrix_items = self.update_matrices(c_dirty_matrix_items)
