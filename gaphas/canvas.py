@@ -492,7 +492,7 @@ class Canvas(object):
 
             for kid in self.get_all_children(item):
                 self.update_matrix(kid, item)
-                changed.add(item)
+                changed.add(kid)
 
         return changed
 
@@ -508,7 +508,7 @@ class Canvas(object):
 
         item._matrix_i2c = Matrix(*item.matrix)
 
-        if parent:
+        if parent is not None:
             item._matrix_i2c *= self.get_matrix_i2c(parent)
 
         if not orig_matrix_i2c or orig_matrix_i2c != item._matrix_i2c:
