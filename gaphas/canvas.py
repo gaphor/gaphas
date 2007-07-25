@@ -440,10 +440,10 @@ class Canvas(object):
             # matrices now
             c_dirty_items = sort(self._dirty_items, reverse=True)
             dirty_items.extend(c_dirty_items)
+            self._dirty_items.clear()
 
             # normalize items, which changed after constraint solving
-            c_dirty_matrix_items = self._normalize(self._dirty_items)
-            self._dirty_items.clear()
+            c_dirty_matrix_items = self._normalize(dirty_items)
 
             # recalculate matrices of normalized items
             c_dirty_matrix_items = self.update_matrices(c_dirty_matrix_items)
@@ -551,7 +551,7 @@ class Canvas(object):
         for item in items:
             handles = item.handles()
             if not handles:
-                return
+                return dirty_matrix_items
             x, y = map(float, handles[0].pos)
             if x:
                 item.matrix._matrix.translate(x, 0)
