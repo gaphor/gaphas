@@ -31,8 +31,8 @@ __version__ = "$Revision$"
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
 
-def equals(a, b):
-    return abs(a - b) < EPSILON
+def changed(a, b):
+    return abs(a - b) > EPSILON
 
 
 class Constraint(object):
@@ -126,7 +126,7 @@ class EqualsConstraint(Constraint):
     def solve_for(self, var):
         assert var in (self.a, self.b)
 
-        if not equals(self.a.value, self.b.value):
+        if changed(self.a.value, self.b.value):
             if var is self.a:
                 self.a.value = self.b.value
             else:
@@ -165,7 +165,7 @@ class CenterConstraint(Constraint):
         assert var in (self.a, self.b, self.center)
 
         v = (self.a.value + self.b.value) / 2.0
-        if not equals(self.center.value, v):
+        if changed(self.center.value, v):
             self.center.value = v
 
 
@@ -399,7 +399,7 @@ class BalanceConstraint(Constraint):
         b1, b2 = self.band
         w = b2.value - b1.value
         value = b1.value + w * self.balance
-        if not equals(var.value, value):
+        if changed(var.value, value):
             var.value = value
 
 
@@ -477,9 +477,9 @@ class LineConstraint(Constraint):
         x = sx.value + (ex.value - sx.value) * self.ratio_x
         y = sy.value + (ey.value - sy.value) * self.ratio_y
 
-        if not equals(px.value, x):
+        if changed(px.value, x):
             px.value = x
-        if not equals(py.value, y):
+        if changed(py.value, y):
             py.value = y
 
 
