@@ -43,7 +43,6 @@ class Canvas(object):
      - projector: canvas constraint projector between item and canvas
        coordinates
      - sorter: items sorter in order used to add items to canvas
-     - _canvas_constraints: constraints set between canvas items
     """
 
     def __init__(self):
@@ -53,7 +52,6 @@ class Canvas(object):
         self._dirty_matrix_items = set()
 
         self._registered_views = set()
-        self._canvas_constraints = {}
 
         self._sorter = Sorter(self)
         #self._sorter = tree.TreeSorter(self._tree)
@@ -80,10 +78,6 @@ class Canvas(object):
         item.canvas = self
         self._tree.add(item, parent)
         item._sort_key = self.sorter.get_key()
-        self._canvas_constraints[item] = {}
-
-        # TODO: enable for TreeSorter
-        #self._sorter.reindex()
 
         for v in self._registered_views:
             v.update_matrix(item)
@@ -101,7 +95,6 @@ class Canvas(object):
         item.canvas = None
         self._tree.remove(item)
         self.remove_connections_to_item(item)
-        del self._canvas_constraints[item]
         self._update_views((item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
@@ -126,67 +119,6 @@ class Canvas(object):
 
     reversible_pair(add, _remove,
                     bind1={'parent': lambda self, item: self.get_parent(item)})
-
-
-    def add_canvas_constraint(self, item, handle, c):
-        """
-        Add constraint between items.
-
-        Parameters:
-         - item: item holding constraint
-         - handle: handle holding constraint
-         - c: constraint between items
-        """
-        if item not in self._canvas_constraints:
-            raise ValueError, 'Item not added to canvas'
-
-        i_cons = self._canvas_constraints[item]
-        if handle not in i_cons:
-            i_cons[handle] = set()
-        i_cons[handle].add(c)
-        self._solver.add_constraint(c)
-
-
-    def remove_canvas_constraint(self, item, handle, c=None):
-        """
-        Remove constraint set between item.
-
-        If constraint is not set then all constraints are removed for given
-        item and handle.
-
-        Parameters:
-         - item: item holding constraint
-         - handle: handle holding constraint
-         - c: constraint between items
-        """
-        if item not in self._canvas_constraints:
-            raise ValueError, 'Item not added to canvas'
-
-        i_cons = self._canvas_constraints[item]
-
-        if c is None: # remove all handle's constraints
-            h_cons = i_cons[handle]
-            for c in h_cons:
-                self._solver.remove_constraint(c)
-            h_cons.clear()
-        else:
-            # remove specific constraint
-            self._solver.remove_constraint(c)
-            i_cons[handle].remove(c)
-
-
-    def canvas_constraints(self, item):
-        """
-        Get all constraints set between items for specific item.
-        """
-        if item not in self._canvas_constraints:
-            raise ValueError, 'Item not added to canvas'
-
-        i_cons = self._canvas_constraints[item]
-
-        for cons in i_cons.values():
-            for c in cons:
-                yield c
 
 
     def remove_connections_to_item(self, item):
@@ -519,6 +451,7 @@ class Canvas(object):
             0
         """
         dirty_items = self._dirty_matrix_items
+        # TODO: fetch all children of dirty items and iterate sorted items
         while dirty_items:
             item = dirty_items.pop()
             self.update_matrix(item, recursive=True)
@@ -533,6 +466,11 @@ class Canvas(object):
 
         # First remove from the to-be-updated set.
         self._dirty_matrix_items.discard(item)
+
+        try:
+            orig_matrix_i2c = Matrix(*item._matrix_i2c)
+        except:
+            orig_matrix_i2c = None
 
         if parent:
             if parent in self._dirty_matrix_items:
@@ -551,14 +489,17 @@ class Canvas(object):
         for v in self._registered_views:
             v.update_matrix(item)
 
-        # request solving of canvas constraints associated with an item
-        request_resolve = self._solver.request_resolve
-        for c in self.canvas_constraints(item):
-            request_resolve(c)
+        # TODO: request solving of canvas constraints associated with an item
+        #for c in self.canvas_constraints(item):
+        #    request_resolve(c)
+        if not orig_matrix_i2c or orig_matrix_i2c != item._matrix_i2c:
+            for h in item.handles():
+                h.x.dirty()
+                h.y.dirty()
             
-        if recursive:
-            for child in self._tree.get_children(item):
-                self.update_matrix(child)
+            if recursive:
+                for child in self._tree.get_children(item):
+                    self.update_matrix(child)
 
 
     def _update_handles(self, item):
@@ -698,16 +639,16 @@ class CanvasProjection(object):
     >>> canvas.update_now()
     >>> canvas.get_matrix_i2c(a)
     cairo.Matrix(1, 0, 0, 1, 30, 2)
-    >>> p = CanvasProjection(a.handles()[0].pos, a)
-    >>> a.handles()[0].pos
-    (Variable(0, 40), Variable(0, 40))
+    >>> p = CanvasProjection(a.handles()[2].pos, a)
+    >>> a.handles()[2].pos
+    (Variable(10, 40), Variable(10, 40))
     >>> p[0].value
-    30.0
+    40.0
     >>> p[1].value
-    2.0
-    >>> p[0].value = 10
+    12.0
+    >>> p[0].value = 63
     >>> p._point
-    (Variable(-20, 40), Variable(0, 40))
+    (Variable(33, 40), Variable(10, 40))
 
     TODO: How will this work on rotated variables?
     When the variables are retrieved, new values are calculated.

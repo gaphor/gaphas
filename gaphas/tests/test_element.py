@@ -8,6 +8,7 @@ from gaphas.examples import Box
 from gaphas.item import NW, NE, SE, SW
 
 class ElementTestCase(unittest.TestCase):
+
     def test_resize_se(self):
         """
         Test resizing of element by dragging it SE handle.
