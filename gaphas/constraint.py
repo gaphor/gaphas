@@ -31,8 +31,9 @@ __version__ = "$Revision$"
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
 
-def changed(a, b):
-    return abs(a - b) > EPSILON
+def _update(variable, value):
+    if abs(variable.value - value) > EPSILON:
+        variable.value = value
 
 
 class Constraint(object):
@@ -54,7 +55,6 @@ class Constraint(object):
             self._variables.append(v)
 
         self.create_weakest_list()
-
 
     def create_weakest_list(self):
         """
@@ -126,11 +126,9 @@ class EqualsConstraint(Constraint):
     def solve_for(self, var):
         assert var in (self.a, self.b)
 
-        if changed(self.a.value, self.b.value):
-            if var is self.a:
-                self.a.value = self.b.value
-            else:
-                self.b.value = self.a.value
+        _update(*((var is self.a) and \
+                (self.a, self.b.value) or \
+                (self.b, self.a.value)))
 
 
 class CenterConstraint(Constraint):
@@ -165,8 +163,7 @@ class CenterConstraint(Constraint):
         assert var in (self.a, self.b, self.center)
 
         v = (self.a.value + self.b.value) / 2.0
-        if changed(self.center.value, v):
-            self.center.value = v
+        _update(self.center, v)
 
 
 class LessThanConstraint(Constraint):
@@ -399,8 +396,7 @@ class BalanceConstraint(Constraint):
         b1, b2 = self.band
         w = b2.value - b1.value
         value = b1.value + w * self.balance
-        if changed(var.value, value):
-            var.value = value
+        _update(var, value)
 
 
 class LineConstraint(Constraint):
@@ -477,11 +473,8 @@ class LineConstraint(Constraint):
         x = sx.value + (ex.value - sx.value) * self.ratio_x
         y = sy.value + (ey.value - sy.value) * self.ratio_y
 
-        if changed(px.value, x):
-            px.value = x
-        if changed(py.value, y):
-            py.value = y
-
+        _update(px, x)
+        _update(py, y)
 
 
 if __name__ == '__main__':
