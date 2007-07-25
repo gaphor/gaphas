@@ -438,12 +438,12 @@ class Canvas(object):
             # solving, their matrices can be recalculated later due to
             # normalization, but we do not have to worry about item's
             # matrices now
-            c_dirty_item = sort(self._dirty_items, reverse=True)
-            dirty_items.extend(c_dirty_item)
+            c_dirty_items = sort(self._dirty_items, reverse=True)
+            dirty_items.extend(c_dirty_items)
             self._dirty_items.clear()
 
             # normalize items, which changed after constraint solving
-            c_dirty_matrix_items = self._normalize(c_dirty_item)
+            c_dirty_matrix_items = self._normalize(c_dirty_items)
 
             # recalculate matrices of normalized items
             c_dirty_matrix_items = self.update_matrices(c_dirty_matrix_items)
