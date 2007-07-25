@@ -18,6 +18,9 @@ common features:
 
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 import operator
 from geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
