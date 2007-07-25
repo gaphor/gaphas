@@ -2,6 +2,9 @@
 Sorting algorithms and collections for view and canvas.
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 from bisect import insort, bisect
 import operator
 

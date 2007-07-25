@@ -18,6 +18,9 @@ For this to work the revert_handler has to be added to the observers set::
 
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 import types, inspect
 from decorator import decorator
 

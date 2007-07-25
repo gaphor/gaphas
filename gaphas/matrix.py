@@ -8,6 +8,9 @@ Small utility class wrapping cairo.Matrix. The UndoableMatrix class
 adds state preservation capabilities.
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 import cairo
 from state import observed, reversible_method
 

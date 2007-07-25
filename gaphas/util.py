@@ -2,6 +2,9 @@
 Helper funtions and classes for Cairo (drawing engine used by the canvas).
 """
 
+__version__ = "$Revision$"
+# $HeadURL$
+
 from math import pi
 import cairo
 
