@@ -204,19 +204,28 @@ class Item(object):
 
     def pre_update(self, context):
         """
-        Do small things that have to be done before the "real" update.
-        Context has the following attributes:
+        Perform any changes before item update here, for example:
+         - change matrix
+         - move handles,
 
-        - canvas: the owning canvas
-        - matrix_i2w: Item to World transformation matrix
-        - ... (do I need something for text processing?)
+        Gaphas does not guarantee any canvas invariants to be valid like
+        constraints are not solved, first handle is not in position (0, 0),
+        etc.
         """
         pass
 
 
-    def update(self, context):
+    def post_update(self, context):
         """
-        Like pre_update(), but this is step 2.
+        Method called after item update.
+
+        If some variables should be used during drawing or in another
+        update, then they should be calculated in post method.
+
+        Changing matrix or moving handles programmatically is really not
+        advised to be performed here.
+
+        All canvas invariants are true.
         """
         pass
 
@@ -576,10 +585,10 @@ class Line(Item):
         else:
             raise KeyError('Handle is not an end handle')
 
-    def update(self, context):
+    def post_update(self, context):
         """
         """
-        super(Line, self).update(context)
+        super(Line, self).post_update(context)
         h0, h1 = self._handles[:2]
         self._head_angle = atan2(h1.y - h0.y, h1.x - h0.x)
         h1, h0 = self._handles[-2:]

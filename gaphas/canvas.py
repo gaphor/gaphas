@@ -295,7 +295,7 @@ class Canvas(object):
               yet. Note that out-of-date matrices are not recalculated.
         """
         if item._matrix_i2c is None or calculate:
-            self.update_matrix(item, recursive=False)
+            self.update_matrix(item)
         return item._matrix_i2c
 
 
@@ -305,7 +305,7 @@ class Canvas(object):
         See get_matrix_i2w().
         """
         if item._matrix_c2i is None or calculate:
-            self.update_matrix(item, recursive=False)
+            self.update_matrix(item)
         return item._matrix_c2i
 
 
@@ -374,65 +374,94 @@ class Canvas(object):
         """
         self.update_now()
 
+
+    def _pre_update_items(self, items, context):
+        context_map = dict()
+        for item in items:
+            c = Context(cairo=context)
+            try:
+                item.pre_update(c)
+            except Exception, e:
+                print 'Error while pre-updating item %s' % item
+                import traceback
+                traceback.print_exc()
+
+
+    def _post_update_items(self, items, context):
+        for item in items:
+            c = Context(cairo=context)
+            try:
+                item.post_update(c)
+            except Exception, e:
+                print 'Error while updating item %s' % item
+                import traceback
+                traceback.print_exc()
+
+
     @nonrecursive
     def update_now(self):
         """
         Peform an update of the items that requested an update.
         """
+
         sort = self._sorter.sort
-        # Order the dirty items, so they are updated bottom to top
+
+        # order the dirty items, so they are updated bottom to top
         dirty_items = sort(self._dirty_items, reverse=True)
+        self._dirty_items.clear()
 
         # dirty_items is a subset of dirty_matrix_items
         dirty_matrix_items = set(self._dirty_matrix_items)
+        self._dirty_matrix_items.clear()
         try:
-            cairo_context = self._obtain_cairo_context()
+            context = self._obtain_cairo_context()
 
-            for item in dirty_matrix_items:
-                self._update_handles(item)
+            # allow programmers to perform tricks and hacks before item
+            # full update
+            self._pre_update_items(dirty_items, context)
 
-            context_map = dict()
-            for item in dirty_items:
-                c = Context(cairo=cairo_context)
-                context_map[item] = c
-                try:
-                    item.pre_update(c)
-                except Exception, e:
-                    print 'Error while pre-updating item %s' % item
-                    import traceback
-                    traceback.print_exc()
+            # recalculate matrices
+            dirty_matrix_items = self.update_matrices(dirty_matrix_items)
 
-            self.update_matrices()
+            # request solving of canvas constraints associated with an item
+            # TODO: only mark Projected (external/inter-item) constraints dirty
+            #for item in dirty_matrix_items:
+            #    for h in item.handles():
+            #        h.x.dirty(projections_only=False)
+            #        h.y.dirty(projections_only=False)
+            
 
+            # solve all constraints
             self._solver.solve()
 
-            dirty_matrix_items.update(self._dirty_matrix_items)
-            self.update_matrices()
-
-            # Also need to set up the dirty_items list here, since items
-            # may be marked as dirty during maxtrix update or solving.
-            dirty_items = sort(self._dirty_items, reverse=True)
-
-            for item in dirty_items:
-                try:
-                    c = context_map[item]
-                except KeyError:
-                    c = Context(cairo=cairo_context)
-                try:
-                    item.update(c)
-                except Exception, e:
-                    print 'Error while updating item %s' % item
-                    import traceback
-                    traceback.print_exc()
-
-        finally:
-            self._update_views(self._dirty_items, dirty_matrix_items)
+            # some item's can be marked dirty due to external constraints
+            # solving, their matrices can be recalculated later due to
+            # normalization, but we do not have to worry about item's
+            # matrices now
+            c_dirty_item = sort(self._dirty_items, reverse=True)
+            dirty_items.extend(c_dirty_item)
             self._dirty_items.clear()
 
-    def update_matrices(self):
+            # normalize items, which changed after constraint solving
+            c_dirty_matrix_items = self._normalize(c_dirty_item)
+
+            # recalculate matrices of normalized items
+            c_dirty_matrix_items = self.update_matrices(c_dirty_matrix_items)
+            dirty_matrix_items.update(c_dirty_matrix_items)
+
+            self._post_update_items(dirty_items, context)
+
+        finally:
+            self._update_views(dirty_items, dirty_matrix_items)
+            assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0
+
+
+    def update_matrices(self, items):
         """
         Update the matrix of the items scheduled to be updated
-        *and* their sub-items.
+        their children.
+
+        Return items, which matrices were recalculated.
 
             >>> c = Canvas()
             >>> from gaphas import item
@@ -450,58 +479,47 @@ class Canvas(object):
             >>> len(c._dirty_items)
             0
         """
-        dirty_items = self._dirty_matrix_items
-        # TODO: fetch all children of dirty items and iterate sorted items
-        while dirty_items:
-            item = dirty_items.pop()
-            self.update_matrix(item, recursive=True)
+        changed = set()
+        for item in items:
+            parent = self._tree.get_parent(item)
+            if parent is not None and parent in items:
+                # item's matrix will be updated thanks to parent's matrix
+                # update
+                continue
 
-    def update_matrix(self, item, recursive=True):
+            self.update_matrix(item, parent)
+            changed.add(item)
+
+            for kid in self.get_all_children(item):
+                self.update_matrix(kid, item)
+                changed.add(item)
+
+        return changed
+
+
+    def update_matrix(self, item, parent=None):
         """
-        Update the World-to-Item (w2i) matrix for @item.
-        This is stored as @item._canvas_matrix_i2w.
-        @recursive == True will also update child objects.
+        Update matrices of an item.
         """
-        parent = self._tree.get_parent(item)
-
-        # First remove from the to-be-updated set.
-        self._dirty_matrix_items.discard(item)
-
         try:
             orig_matrix_i2c = Matrix(*item._matrix_i2c)
         except:
             orig_matrix_i2c = None
 
+        item._matrix_i2c = Matrix(*item.matrix)
+
         if parent:
-            if parent in self._dirty_matrix_items:
-                # Parent takes care of updating the child, including current
-                self.update_matrix(parent)
-                return
-            else:
-                item._matrix_i2c = Matrix(*item.matrix)
-                item._matrix_i2c *= self.get_matrix_i2c(parent)
-        else:
-            item._matrix_i2c = Matrix(*item.matrix)
+            item._matrix_i2c *= self.get_matrix_i2c(parent)
 
         if not orig_matrix_i2c or orig_matrix_i2c != item._matrix_i2c:
-            # It's nice to have the W2I matrix present too:
+            # calculate c2i matrix and view matrices
             item._matrix_c2i = Matrix(*item._matrix_i2c)
             item._matrix_c2i.invert()
             for v in self._registered_views:
                 v.update_matrix(item)
 
-            # request solving of canvas constraints associated with an item
-            # TODO: only mark Projected (external/inter-item) constraints dirty
-            for h in item.handles():
-                h.x.dirty(projections_only=False)
-                h.y.dirty(projections_only=False)
-            
-            if recursive:
-                for child in self._tree.get_children(item):
-                    self.update_matrix(child)
 
-
-    def _update_handles(self, item):
+    def _normalize(self, items):
         """
         Update handle positions so the first handle is always located at (0, 0).
 
@@ -517,30 +535,36 @@ class Canvas(object):
         >>> e.handles()[0].x += 1
         >>> map(float, e.handles()[0].pos)
         [1.0, 0.0]
-        >>> c._update_handles(e)
+        >>> c._normalize(e)
         >>> e.handles()
         [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
 
         >>> e.handles()[0].x += 1
         >>> e.handles()
         [<Handle object on (1, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
-        >>> c._update_handles(e)
+        >>> c._normalize(e)
         >>> e.handles()
         [<Handle object on (0, 0)>, <Handle object on (8, 0)>, <Handle object on (8, 10)>, <Handle object on (-2, 10)>]
 
         """
-        handles = item.handles()
-        if not handles:
-            return
-        x, y = map(float, handles[0].pos)
-        if x:
-            item.matrix.translate(x, 0)
-            for h in handles:
-                h.x._value -= x
-        if y:
-            item.matrix.translate(0, y)
-            for h in handles:
-                h.y._value -= y
+        dirty_matrix_items = set()
+        for item in items:
+            handles = item.handles()
+            if not handles:
+                return
+            x, y = map(float, handles[0].pos)
+            if x:
+                item.matrix._matrix.translate(x, 0)
+                dirty_matrix_items.add(item)
+                for h in handles:
+                    h.x._value -= x
+            if y:
+                item.matrix._matrix.translate(0, y)
+                dirty_matrix_items.add(item)
+                for h in handles:
+                    h.y._value -= y
+
+        return dirty_matrix_items
 
 
     def register_view(self, view):
