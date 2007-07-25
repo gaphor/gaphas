@@ -78,16 +78,29 @@ class Variable(object):
 
     strength = reversible_property(lambda s: s._strength, _set_strength)
 
-    def dirty(self):
+    def dirty(self, projections_only=False):
+        """
+        Mark the variable dirty in both the constraint solver and attached
+        constraints.
+        If projections_only is set to True, only constraints using the
+        variable through a Projection instance (e.i. variable itself is not
+        in Constraint.variables()) are marked
+        """
         solver = self._solver
         if not solver:
             return
+
         # variables are marked dirty also during constraints solving to
         # solve all dependent constraints, i.e. two equals constraints
         # between 3 variables
         solver.mark_dirty(self)
-        for c in self._constraints:
-            c.mark_dirty(self)
+        if projections_only:
+            for c in self._constraints:
+                if self not in c.variables():
+                    c.mark_dirty(self)
+        else:
+            for c in self._constraints:
+                c.mark_dirty(self)
 
     @observed
     def set_value(self, value):
@@ -326,6 +339,9 @@ class Projection(object):
         Return the variable owned by the projection.
         """
         raise NotImplemented
+
+    def __float__(self):
+        return float(self.variable()._value)
 
 
 class Solver(object):

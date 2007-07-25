@@ -493,8 +493,8 @@ class Canvas(object):
             # request solving of canvas constraints associated with an item
             # TODO: only mark Projected (external/inter-item) constraints dirty
             for h in item.handles():
-                h.x.dirty()
-                h.y.dirty()
+                h.x.dirty(projections_only=False)
+                h.y.dirty(projections_only=False)
             
             if recursive:
                 for child in self._tree.get_children(item):

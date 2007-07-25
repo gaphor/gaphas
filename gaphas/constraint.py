@@ -91,7 +91,7 @@ class Constraint(object):
         Constraint._weakest list to maintain weakest variable invariants
         (see gaphas.solver module documentation).
         """
-        weakest = self.weakest
+        weakest = self.weakest()
         # Fast lane:
         if v is weakest:
             self._weakest.remove(v)
