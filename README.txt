@@ -58,7 +58,8 @@ relative to the parent item of the Item, as defined in the Canvas.
 
 The Canvas also contains a constraint Solver (from solver.py) that can be used
 to solve mathematical dependencies between items (such as Handles that should
-be aligned).
+be aligned). The constraint solver is also a handy tool to keep constraint
+in the item true (e.g. make sure a box maintains it's rectangular shape).
 
 View (from view.py) is used to visualize a canvas. On a View, a Tool
 (from tool.py) can be assigned, which will handle user input (button presses,
@@ -69,17 +70,16 @@ such as a printer or PDF document.
 Updating item state
 -------------------
 If an items needs updating, it sets out an update request on the Canvas
-(Canvas.request_update for a full update or Canvas.request_matrix_update() if
-only the transformation matrix has changed). The canvas performs an update by
-calling:
+(Canvas.request_update()). The canvas performs an update by calling:
 
  1. Item.pre_update(context)
  2. updating World-to-Item matrices, for fast transformation of coordinates
     from the world to the items' coordinate system.
     The w2i matrix is stored on the Item as Item._matrix_w2i.
  3. solve constraints
- 4. updating World-to-Item matrices again, just to be on the save side.
- 5. Item.update(context)
+ 4. normalize items by setting the coordinates of the first handle to (0, 0).
+ 5. updating World-to-Item matrices again, just to be on the save side.
+ 6. Item.post_update(context)
 
 The idea is to do as much updating as possible in the (pre_)update() methods,
 since they are called when the application is not handling user input.
@@ -91,15 +91,17 @@ The context contains:
 
 NOTE: updating is done from the canvas, items should not update sub-items.
 
-After an update, the Item should be ready top be drawn.
+After an update, the Item should be ready to be drawn.
 
 Drawing
 -------
-Drawing is done by the View. It calls the draw(context) method for each *root*
-item in the canvas. Items should instruct the engine to draw sub-item (children)
-by calling context.draw_children().
+Drawing is done by the View. All items marked for redraw (e.i. the items
+that had been updated) will be drawn in the order in which they reside in the
+Canvas (first root item, then it's children; second root item, etc.)
 
-In addition to draw_children(), the context has the following properties:
+There used to be a draw_children() method in the view context. This method
+has been rendered obsolete (mainly to speed up drawing).
+The view context passed to the Items draw() method has the following properties:
 
  view:     the view we're drawing to
  cairo:    the CairoContext to draw to
@@ -107,14 +109,18 @@ In addition to draw_children(), the context has the following properties:
  focused:  True if the item has the focus
  hovered:  True if the mouse pointer if over the item. Only the top-most item
            is marked as hovered.
+ dropzone: The item is marked as drop zone. This happens then an item is
+           dragged over the item and (if dropped) will become a child of
+           this item.
  draw_all: True if everything drawable on the item should be drawn (e.g. when
            calculating the bounding boxes).
 
 The View automatically calculates the bounding box for the item, based on the
 items drawn in the draw(context) function (this is only done once after each
-Item.update()). The bounding box is stored on the item as Item._view_bounds
-as a geometry.Rectangle object. The bounding box is in viewport coordinates.
+Item.update()). The bounding box is in viewport coordinates.
 
+The actual drawing is done by Painters (painter.py). A series of Painters have
+been defined: one for handles, one for items.
 
 Tools
 -----
@@ -122,9 +128,41 @@ Behavior is added to the canvas(-view) by tools.
 
 Tools can be chained together in order to provide more complex behavior.
 
-DefaultTool
+To mak eit easy a DefaultTool has been defined: a ToolChain instance with the
+tools added that are listed in the following sections.
+
+ToolChain
+~~~~~~~~~
+The ToolChain does not do anything by itself. It delegates to a set of tools
+and keeps track of which tool has grabbed the focus. This happens most of the
+time when the uses presses a mouse button. The tool requests a grab() and
+all upcoming events (e.g. motion or button release events) are directly sent
+to the focused tool.
+
+HoverTool
+~~~~~~~~~
+A small and simple tool that does nothing more than making the item under the
+mouse button the "hovered item". When such an item is drawn, its
+context.hovered_item flag will be set to True.
+
 HandleTool
-ChainTool (connect behavior of tools)
+~~~~~~~~~~
+The HandleTool is used to deal with handles. Handles can be dragged around.
+Clicking on a handle automatically makes the underlaying item the focused item.
+
+ItemTool
+~~~~~~~~
+The item tool takes care of selecting items and dragging items around.
+
+TextEditTool
+~~~~~~~~~~~~
+This is a demo-tool, featuring a text-edit popup.
+
+RubberbandTool
+~~~~~~~~~~~~~~
+The last toolin line is the rubberband tool. It's invoked when the mouse button
+is pressed on a section of the view where no items or handles are present. It
+allows the user to select items using a selection box (rubberband).
 
 
 Interaction
@@ -132,7 +170,9 @@ Interaction
 Interaction with the canvas view (visual component) is handled by tools.
 Although the default tools do a fair amount of work, in most cases you'll
 see that especially the way items connect with each other is not the way
-you want it. That's okay. HandleTool provides some hooks (connect, disconnect and glue) to implement custom connection behavior (in fact, the default implementation doesn't do any connecting at all!).
+you want it. That's okay. HandleTool provides some hooks (connect, disconnect
+and glue) to implement custom connection behavior (in fact, the default
+implementation doesn't do any connecting at all!).
 
 One of the problems you'll face is what to do when an item is removed from the
 canvas and there are other items (lines) connected to. This problem can be
@@ -167,6 +207,8 @@ constraint.py:
 	Constraint implementation.
 geometry.py:
 	Matrix, Rectangle calculations.
+quadtree.py:
+        A QuadTree spacial index. Used in the View to pick items quickly.
 
 Canvas classes:
 
