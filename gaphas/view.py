@@ -46,7 +46,6 @@ class View(object):
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
-        self._removed_items = set()
 
     matrix = property(lambda s: s._matrix,
                       doc="Canvas to view transformation matrix")
@@ -522,7 +521,23 @@ class GtkView(gtk.DrawingArea, View):
             self._dirty_items.update(items)
         if matrix_only_items:
             self._dirty_matrix_items.update(matrix_only_items)
-        self._removed_items.update(removed_items)
+
+        # Remove removed items:
+        if removed_items:
+            self._dirty_items.difference_update(removed_items)
+            self.queue_draw_item(*removed_items)
+
+            for item in removed_items:
+                self._qtree.remove(item)
+                self.selected_items.discard(item)
+
+            if self.focused_item in removed_items:
+                self.focused_item = None
+            if self.hovered_item in removed_items:
+                self.hovered_item = None
+            if self.dropzone_item in removed_items:
+                self.dropzone_item = None
+
         self.update()
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
@@ -569,25 +584,11 @@ class GtkView(gtk.DrawingArea, View):
                     #            self.set_item_bounding_box(parent, vbounds + parent_bounds)
                     self.queue_draw_item(i)
 
-            # Remove removed items:
-            removed_items = self._removed_items
-            dirty_items.difference_update(removed_items)
-            for item in removed_items:
-                self.selected_items.discard(item)
-
-            if self.focused_item in removed_items:
-                self.focused_item = None
-            if self.hovered_item in removed_items:
-                self.hovered_item = None
-            if self.dropzone_item in removed_items:
-                self.dropzone_item = None
-
             self._update_bounding_box.update(dirty_items)
 
         finally:
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
-            self._removed_items.clear()
 
     @nonrecursive
     def do_size_allocate(self, allocation):
