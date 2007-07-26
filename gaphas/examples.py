@@ -37,7 +37,6 @@ class Box(Element):
         c.fill_preserve()
         c.set_source_rgb(0,0,0.8)
         c.stroke()
-        context.draw_children()
 
     def glue(self, item, handle, x, y):
         """
