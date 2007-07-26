@@ -511,7 +511,7 @@ class Canvas(object):
         if parent is not None:
             item._matrix_i2c *= self.get_matrix_i2c(parent)
 
-        if not orig_matrix_i2c or orig_matrix_i2c != item._matrix_i2c:
+        if orig_matrix_i2c is None or orig_matrix_i2c != item._matrix_i2c:
             # calculate c2i matrix and view matrices
             item._matrix_c2i = Matrix(*item._matrix_i2c)
             item._matrix_c2i.invert()
