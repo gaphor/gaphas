@@ -410,9 +410,6 @@ class Canvas(object):
         dirty_items = sort(self._dirty_items, reverse=True)
         self._dirty_items.clear()
 
-        # dirty_items is a subset of dirty_matrix_items
-        dirty_matrix_items = set(self._dirty_matrix_items)
-        self._dirty_matrix_items.clear()
         try:
             context = self._obtain_cairo_context()
 
@@ -421,7 +418,8 @@ class Canvas(object):
             self._pre_update_items(dirty_items, context)
 
             # recalculate matrices
-            dirty_matrix_items = self.update_matrices(dirty_matrix_items)
+            dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
+            self._dirty_matrix_items.clear()
 
             # request solving of canvas constraints associated with an item
             # TODO: only mark Projected (external/inter-item) constraints dirty
