@@ -29,7 +29,7 @@ class Sorter(object):
         """
         super(Sorter, self).__init__()
 
-        self._nodes = canvas._tree.nodes
+        self._tree = canvas._tree
 
         self._key_getter = operator.attrgetter('_sort_key')
         self._key = 0
@@ -42,7 +42,7 @@ class Sorter(object):
         Items are sorted using standard O(k * log(k)) algorithm but if amount
         of items to be sorted is bigger than::
         
-            Sorter._nodes * DELTA
+            Sorter._tree._nodes * DELTA
 
         then O(n) algorithm is used, where
         - k: len(items)
@@ -54,22 +54,29 @@ class Sorter(object):
          - items: set of items to be sorted
          - reverse: if True then sort in reverse order
         """
-        if len(self._nodes) * self.DELTA > len(items):
+        if len(self._tree._nodes) * self.DELTA > len(items):
             assert not isinstance(items, set), 'use set to sort items!'
             if reverse:
-                return (item for item in reversed(self._nodes) if item in items)
+                return [item for item in reversed(self._tree._nodes) if item in items]
             else:
-                return (item for item in self._nodes if item in items)
+                return [item for item in self._tree._nodes if item in items]
         else:
             return sorted(items, key=self._key_getter, reverse=reverse)
 
 
-    def get_key(self):
+    def get_key(self, item):
         """
         Get sorting key for an item.
         """
         self._key += 1
-        return self._key
+
+        parent = self._tree.get_parent(item)
+        if parent is None:
+            key = (self._key, )
+        else:
+            key = self._key_getter(parent) + (self._key, )
+
+        return key
 
 
 

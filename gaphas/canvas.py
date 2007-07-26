@@ -77,7 +77,7 @@ class Canvas(object):
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
         item.canvas = self
         self._tree.add(item, parent)
-        item._sort_key = self.sorter.get_key()
+        item._sort_key = self.sorter.get_key(item)
 
         for v in self._registered_views:
             v.update_matrix(item)
