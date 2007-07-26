@@ -53,8 +53,7 @@ class Canvas(object):
 
         self._registered_views = set()
 
-        self._sorter = Sorter(self)
-        #self._sorter = tree.TreeSorter(self._tree)
+        self._sorter = Sorter(self._tree)
 
     sorter = property(lambda s: s._sorter)
     
@@ -423,10 +422,11 @@ class Canvas(object):
 
             # request solving of canvas constraints associated with an item
             # TODO: only mark Projected (external/inter-item) constraints dirty
-            #for item in dirty_matrix_items:
-            #    for h in item.handles():
-            #        h.x.dirty(projections_only=False)
-            #        h.y.dirty(projections_only=False)
+            request_resolve = self._solver.request_resolve
+            for item in dirty_matrix_items:
+                for h in item.handles():
+                    request_resolve(h.x, projections_only=True)
+                    request_resolve(h.y, projections_only=True)
             
 
             # solve all constraints
@@ -451,7 +451,7 @@ class Canvas(object):
 
         finally:
             self._update_views(dirty_items, dirty_matrix_items)
-            assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0
+            assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, 'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
 
 
     def update_matrices(self, items):

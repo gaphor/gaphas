@@ -15,12 +15,12 @@ class Sorter(object):
     Attributes:
      - _key: last value of sort key
      - _key_getter: key getter used to extract sort key from item
-     - nodes: list of item nodes
+     - tree: the tree that determines the order of the nodes.
     """
 
     DELTA = 0.4
 
-    def __init__(self, canvas):
+    def __init__(self, tree):
         """
         Create item sorter.
 
@@ -29,7 +29,7 @@ class Sorter(object):
         """
         super(Sorter, self).__init__()
 
-        self._tree = canvas._tree
+        self._tree = tree
 
         self._key_getter = operator.attrgetter('_sort_key')
         self._key = 0
@@ -55,7 +55,7 @@ class Sorter(object):
          - reverse: if True then sort in reverse order
         """
         if len(self._tree._nodes) * self.DELTA > len(items):
-            assert not isinstance(items, set), 'use set to sort items!'
+            assert isinstance(items, set), 'use set to sort items!'
             if reverse:
                 return [item for item in reversed(self._tree._nodes) if item in items]
             else:
