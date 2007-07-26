@@ -215,7 +215,7 @@ class ConnectingHandleTool(tool.HandleTool):
 
         def handle_disconnect():
             try:
-                view.canvas.remove_canvas_constraint(handle._connect_constraint)
+                view.canvas.solver.remove_constraint(handle._connect_constraint)
             except KeyError:
                 print 'constraint was already removed for', item, handle
                 pass # constraint was alreasy removed
@@ -238,7 +238,7 @@ class ConnectingHandleTool(tool.HandleTool):
             handle._connect_constraint = LineConstraint(line=(CanvasProjection(h1.pos, glue_item),
                                       CanvasProjection(h2.pos, glue_item)),
                                 point=CanvasProjection(handle.pos, item))
-            view.canvas.add_canvas_constraint(item, handle, lc)
+            view.canvas.add_constraint(handle._connect_constraint)
 
             handle.disconnect = handle_disconnect
             return
