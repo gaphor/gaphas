@@ -436,9 +436,10 @@ class Canvas(object):
             # some item's can be marked dirty due to external constraints
             # solving;
             # NOTE: no matrix can change during constraint solving
-            c_dirty_items = sort(self._dirty_items, reverse=True)
-            dirty_items.extend(c_dirty_items)
-            self._dirty_items.clear()
+            if self._dirty_items:
+                dirty_items.extend(self._dirty_items)
+                dirty_items = sort(dirty_items, reverse=True)
+                self._dirty_items.clear()
 
             # normalize items, which changed after constraint solving;
             # store those items, which matrices changed
