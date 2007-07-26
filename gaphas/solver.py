@@ -116,10 +116,7 @@ class Variable(object):
         >>> Variable(5) != 5
         False
         """
-        try:
-            return abs(self._value - other) < EPSILON
-        except TypeError:
-            return False
+        return abs(self._value - other) < EPSILON
 
     def __ne__(self, other):
         """
@@ -381,7 +378,7 @@ class Solver(object):
         Variable(2, 20)
         """
         for c in variable._constraints:
-            if not projections_only or variable not in c.variables():
+            if not projections_only or hasattr(c, '_solver_has_projections'):
                 if not self._solving:
                     if c in self._marked_cons:
                         self._marked_cons.remove(c)
@@ -422,6 +419,7 @@ class Solver(object):
         for v in constraint.variables():
             while isinstance(v, Projection):
                 v = v.variable()
+                constraint._solver_has_projections = True
             v._constraints.add(constraint)
             v._solver = self
         #print 'added constraint', constraint
