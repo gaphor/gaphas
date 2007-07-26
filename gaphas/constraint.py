@@ -252,7 +252,7 @@ class EquationConstraint(Constraint):
     def __init__(self, f, **args):
         super(EquationConstraint, self).__init__(*args.values())
         self._f = f
-        self._args = {}
+        self._args = { '_solver_has_projections': False }
         # see important note on order of operations in __setattr__ below.
         for arg in f.func_code.co_varnames[0:f.func_code.co_argcount]:
             self._args[arg] = None
