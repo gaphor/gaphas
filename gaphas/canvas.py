@@ -509,8 +509,13 @@ class Canvas(object):
 
     def _normalize(self, items):
         """
-        Update handle positions so the first handle is always located at (0, 0).
+        Update handle positions of items, so the first handle is always
+        located at (0, 0).
 
+        Return those items, which matrices changed due to first handle
+        movement.
+
+        For example having an item
         >>> from item import Element
         >>> c = Canvas()
         >>> e = Element()
@@ -520,20 +525,16 @@ class Canvas(object):
         >>> e.handles()
         [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (10, 10)>, <Handle object on (0, 10)>]
 
+        and moving its first handle a bit
         >>> e.handles()[0].x += 1
         >>> map(float, e.handles()[0].pos)
         [1.0, 0.0]
-        >>> c._normalize(e)
+
+        After normalization
+        >>> c._normalize([e])          # doctest: +ELLIPSIS
+        set([<gaphas.item.Element object at ...>])
         >>> e.handles()
         [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
-
-        >>> e.handles()[0].x += 1
-        >>> e.handles()
-        [<Handle object on (1, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
-        >>> c._normalize(e)
-        >>> e.handles()
-        [<Handle object on (0, 0)>, <Handle object on (8, 0)>, <Handle object on (8, 10)>, <Handle object on (-2, 10)>]
-
         """
         dirty_matrix_items = set()
         for item in items:
