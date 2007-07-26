@@ -297,7 +297,7 @@ class ItemTool(Tool):
 
                 # Filter the items that should eventually be moved
                 get_ancestors = view.canvas.get_ancestors
-                selected_items = view.selected_items
+                selected_items = set(view.selected_items)
                 for i in selected_items:
                     # Do not move subitems of selected items
                     if not set(get_ancestors(i)).intersection(selected_items):
