@@ -141,16 +141,6 @@ class Sorted(object):
         self._set.clear()
 
 
-    def difference_update(self, items):
-        """
-        Remove all items of another sorted collection.
-        """
-        self._set.difference_update(items)
-        for item in items:
-            i = bisect(self._list, (self._key_getter(item), item)) 
-            del self._list[i - 1]
-
-
     def __contains__(self, item):
         """
         Check if item is in collection.

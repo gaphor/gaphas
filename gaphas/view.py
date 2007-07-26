@@ -577,7 +577,9 @@ class GtkView(gtk.DrawingArea, View):
 
             # Remove removed items:
             dirty_items.difference_update(removed_items)
-            self.selected_items.difference_update(removed_items)
+            for item in removed_items:
+                self.selected_items.discard(item)
+
             if self.focused_item in removed_items:
                 self.focused_item = None
             if self.hovered_item in removed_items:
