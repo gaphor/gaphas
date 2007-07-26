@@ -89,7 +89,6 @@ def create_window(canvas, title, zoom=1.0):
         for i in range(20):
             item.matrix.translate(1, 1)
             item.request_update()
-            canvas.update_matrix(item)
             # visualize each event:
             while gtk.events_pending():
                 gtk.main_iteration()
