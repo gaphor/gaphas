@@ -466,7 +466,8 @@ class Line(Item):
                 cons.append(add(eq(a=h0.x, b=h1.x)))
             else:
                 cons.append(add(eq(a=h0.y, b=h1.y)))
-            self.canvas.solver.mark_dirty(h1.x, h1.y)
+            self.canvas.solver.request_resolve(h1.x)
+            self.canvas.solver.request_resolve(h1.y)
         self.request_update()
 
     orthogonal = reversible_property(lambda s: bool(s._orthogonal), _set_orthogonal)

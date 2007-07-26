@@ -13,7 +13,7 @@ Constraint classes are defined in gaphas.constraint module.
 How It Works
 ============
 Every constraint contains list of variables and has to be registered in
-solver object. Variables change (Variables.dirty, Solver.mark_dirty
+solver object. Variables change (Variables.dirty, Solver.request_resolve
 methods) and their constraints are marked by solver as dirty. To solve
 constraints, solver loops through dirty constraints and asks constraint for
 a variable (called weakest variable), which
@@ -78,29 +78,20 @@ class Variable(object):
 
     strength = reversible_property(lambda s: s._strength, _set_strength)
 
-    def dirty(self, projections_only=False):
+    def dirty(self):
         """
         Mark the variable dirty in both the constraint solver and attached
         constraints.
-        If projections_only is set to True, only constraints using the
-        variable through a Projection instance (e.i. variable itself is not
-        in Constraint.variables()) are marked
+        
+        Variables are marked dirty also during constraints solving to
+        solve all dependent constraints, i.e. two equals constraints
+        between 3 variables.
         """
         solver = self._solver
         if not solver:
             return
 
-        # variables are marked dirty also during constraints solving to
-        # solve all dependent constraints, i.e. two equals constraints
-        # between 3 variables
-        solver.mark_dirty(self)
-        if projections_only:
-            for c in self._constraints:
-                if self not in c.variables():
-                    c.mark_dirty(self)
-        else:
-            for c in self._constraints:
-                c.mark_dirty(self)
+        solver.request_resolve(self)
 
     @observed
     def set_value(self, value):
@@ -125,7 +116,10 @@ class Variable(object):
         >>> Variable(5) != 5
         False
         """
-        return abs(self._value - other) < EPSILON
+        try:
+            return abs(self._value - other) < EPSILON
+        except TypeError:
+            return False
 
     def __ne__(self, other):
         """
@@ -356,10 +350,14 @@ class Solver(object):
         self._marked_cons = []
         self._solving = False
 
-    def mark_dirty(self, *variables):
+    def request_resolve(self, variable, projections_only=False):
         """
         Mark a variable as "dirty". This means it it solved the next time
         the constraints are resolved.
+
+        If projections_only is set to True, only constraints using the
+        variable through a Projection instance (e.i. variable itself is not
+        in Constraint.variables()) are marked.
 
         Example:
         >>> from constraint import EquationConstraint
@@ -382,24 +380,19 @@ class Solver(object):
         >>> c_eq.weakest()
         Variable(2, 20)
         """
-        for variable in variables:
-            for c in variable._constraints:
+        for c in variable._constraints:
+            if not projections_only or variable not in c.variables():
                 if not self._solving:
                     if c in self._marked_cons:
                         self._marked_cons.remove(c)
+                    c.mark_dirty(variable)
                     self._marked_cons.append(c)
                 else:
+                    c.mark_dirty(variable)
                     self._marked_cons.append(c)
                     if __debug__:
                         if self._marked_cons.count(c) > 100:
                             raise JuggleError, 'Variable juggling detected, constraint %s' % c
-
-
-    def request_resolve(self, c):
-        """
-        Request resolving of the constraint.
-        """
-        self._marked_cons.append(c)
 
 
     @observed
