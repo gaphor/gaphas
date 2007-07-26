@@ -4,6 +4,24 @@ from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Line, Handle
 from gaphas.constraint import BalanceConstraint, EqualsConstraint
+import cairo
+
+class MatricesTestCase(unittest.TestCase):
+    def test_update_matrices(self):
+        """Test updating of matrices"""
+        c = Canvas()
+        i = Box()
+        ii = Box()
+        c.add(i)
+        c.add(ii, i)
+
+        i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
+        ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
+
+        updated = c.update_matrices([i])
+
+        self.assertEquals(i._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 0))
+        self.assertEquals(ii._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 8))
 
 # fixme: what about multiple constraints for a handle?
 #        what about 1d projection?

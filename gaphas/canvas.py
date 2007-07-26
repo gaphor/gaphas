@@ -462,26 +462,10 @@ class Canvas(object):
 
     def update_matrices(self, items):
         """
-        Update the matrix of the items scheduled to be updated
-        their children.
+        Recalculate matrices of the items. Items' children matrices are
+        recalculated, too.
 
         Return items, which matrices were recalculated.
-
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> ii = item.Item()
-            >>> i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
-            >>> c.add(i)
-            >>> ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
-            >>> c.add(ii, i)
-            >>> c.update_matrices()
-            >>> c.get_matrix_i2c(i)
-            cairo.Matrix(1, 0, 0, 1, 5, 0)
-            >>> c.get_matrix_i2c(ii)
-            cairo.Matrix(1, 0, 0, 1, 5, 8)
-            >>> len(c._dirty_items)
-            0
         """
         changed = set()
         for item in items:
