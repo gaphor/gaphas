@@ -73,7 +73,6 @@ class Text(Item):
             cr.show_text(self.text)
         else:
             text_align(cr, 0, 0, self.text, self.align_x, self.align_y)
-        context.draw_children()
 
     def point(self, x, y):
         return 0
