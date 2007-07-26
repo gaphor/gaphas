@@ -94,7 +94,7 @@ class Canvas(object):
         item.canvas = None
         self._tree.remove(item)
         self.remove_connections_to_item(item)
-        self._update_views((item,))
+        self._update_views(removed_items=(item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
 
@@ -571,12 +571,12 @@ class Canvas(object):
         """
         self._registered_views.discard(view)
 
-    def _update_views(self, dirty_items, dirty_matrix_items=()):
+    def _update_views(self, dirty_items=(), dirty_matrix_items=(), removed_items=()):
         """
         Send an update notification to all registered views.
         """
         for v in self._registered_views:
-            v.request_update(dirty_items, dirty_matrix_items)
+            v.request_update(dirty_items, dirty_matrix_items, removed_items)
 
     def _obtain_cairo_context(self):
         """

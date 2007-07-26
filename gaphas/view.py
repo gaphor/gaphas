@@ -46,6 +46,7 @@ class View(object):
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
+        self._removed_items = set()
 
     matrix = property(lambda s: s._matrix,
                       doc="Canvas to view transformation matrix")
@@ -512,7 +513,7 @@ class GtkView(gtk.DrawingArea, View):
         """
         super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
-    def request_update(self, items, matrix_only_items=()):
+    def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
         Request update for items. Items will get a full update treatment, while
         matrix_only_items will only have their bounding box recalculated.
@@ -521,6 +522,7 @@ class GtkView(gtk.DrawingArea, View):
             self._dirty_items.update(items)
         if matrix_only_items:
             self._dirty_matrix_items.update(matrix_only_items)
+        self._removed_items.update(removed_items)
         self.update()
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
@@ -536,8 +538,6 @@ class GtkView(gtk.DrawingArea, View):
         # Do not update items that require a full update (or are removed)
         dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
 
-        removed_items = dirty_items.difference(self._canvas.get_all_items())
-        
         try:
             for i in dirty_items:
                 self.queue_draw_item(i)
@@ -570,6 +570,7 @@ class GtkView(gtk.DrawingArea, View):
                     self.queue_draw_item(i)
 
             # Remove removed items:
+            removed_items = self._removed_items
             dirty_items.difference_update(removed_items)
             for item in removed_items:
                 self.selected_items.discard(item)
@@ -586,6 +587,7 @@ class GtkView(gtk.DrawingArea, View):
         finally:
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
+            self._removed_items.clear()
 
     @nonrecursive
     def do_size_allocate(self, allocation):
