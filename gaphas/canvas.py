@@ -434,7 +434,8 @@ class Canvas(object):
             self._solver.solve()
 
             # some item's can be marked dirty due to external constraints
-            # solving; no matrix can change during constraint solving
+            # solving;
+            # NOTE: no matrix can change during constraint solving
             c_dirty_items = sort(self._dirty_items, reverse=True)
             dirty_items.extend(c_dirty_items)
             self._dirty_items.clear()
