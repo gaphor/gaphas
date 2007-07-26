@@ -309,7 +309,7 @@ class Canvas(object):
 
 
     @observed
-    def request_update(self, item):
+    def request_update(self, item, update=True, matrix=True):
         """
         Set an update request for the item. 
 
@@ -325,27 +325,23 @@ class Canvas(object):
             >>> len(c._dirty_items)
             0
         """
-        self._dirty_items.add(item)
-        self._dirty_matrix_items.add(item)
+        if update:
+            self._dirty_items.add(item)
+        if matrix:
+            self._dirty_matrix_items.add(item)
 
-        # Also add update requests for parents of item
-        parent = self._tree.get_parent(item)
-        while parent:
-            self._dirty_items.add(parent)
-            parent = self._tree.get_parent(parent)
         self.update()
 
     reversible_method(request_update, reverse=request_update)
 
-    @observed
+#    @observed
     def request_matrix_update(self, item):
         """
         Schedule only the matrix to be updated.
         """
-        self._dirty_matrix_items.add(item)
-        self.update()
+        self.request_update(item, update=False, matrix=True)
 
-    reversible_method(request_matrix_update, reverse=request_matrix_update)
+#    reversible_method(request_matrix_update, reverse=request_matrix_update)
 
     def require_update(self):
         """
@@ -404,6 +400,16 @@ class Canvas(object):
         """
 
         sort = self._sorter.sort
+
+        # Also add update requests for parents of item
+        dirty_items = self._dirty_items
+        for item in set(dirty_items):
+            parent = self._tree.get_parent(item)
+            while parent:
+                if parent in dirty_items:
+                    break
+                dirty_items.add(parent)
+                parent = self._tree.get_parent(parent)
 
         # order the dirty items, so they are updated bottom to top
         dirty_items = sort(self._dirty_items, reverse=True)
@@ -683,11 +689,13 @@ class CanvasProjection(object):
         item = self._item
         self._px = value
         self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
+        item.canvas.request_update(item, matrix=False)
 
     def _on_change_y(self, value):
         item = self._item
         self._py = value
         self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
+        item.canvas.request_update(item, matrix=False)
 
     def _get_value(self):
         """
@@ -697,7 +705,6 @@ class CanvasProjection(object):
         x, y = self._point
         item = self._item
         self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
-        item.canvas._dirty_items.add(item)
         return self._px, self._py
 
     def __getitem__(self, key):
