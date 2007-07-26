@@ -401,15 +401,10 @@ class Canvas(object):
 
         sort = self._sorter.sort
 
-        # Also add update requests for parents of item
+        # perform update requests for parents of dirty items
         dirty_items = self._dirty_items
         for item in set(dirty_items):
-            parent = self._tree.get_parent(item)
-            while parent:
-                if parent in dirty_items:
-                    break
-                dirty_items.add(parent)
-                parent = self._tree.get_parent(parent)
+            dirty_items.update(self._tree.get_ancestors(item))
 
         # order the dirty items, so they are updated bottom to top
         dirty_items = sort(self._dirty_items, reverse=True)
@@ -426,8 +421,8 @@ class Canvas(object):
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
             self._dirty_matrix_items.clear()
 
-            # request solving of canvas constraints associated with an item
-            # TODO: only mark Projected (external/inter-item) constraints dirty
+            # request solving of external constraints associated with dirty
+            # items
             request_resolve = self._solver.request_resolve
             for item in dirty_matrix_items:
                 for h in item.handles():
@@ -439,14 +434,13 @@ class Canvas(object):
             self._solver.solve()
 
             # some item's can be marked dirty due to external constraints
-            # solving, their matrices can be recalculated later due to
-            # normalization, but we do not have to worry about item's
-            # matrices now
+            # solving; no matrix can change during constraint solving
             c_dirty_items = sort(self._dirty_items, reverse=True)
             dirty_items.extend(c_dirty_items)
             self._dirty_items.clear()
 
-            # normalize items, which changed after constraint solving
+            # normalize items, which changed after constraint solving;
+            # store those items, which matrices changed
             c_dirty_matrix_items = self._normalize(dirty_items)
 
             # recalculate matrices of normalized items
@@ -456,8 +450,10 @@ class Canvas(object):
             self._post_update_items(dirty_items, context)
 
         finally:
+            assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
+                'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
+
             self._update_views(dirty_items, dirty_matrix_items)
-            assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, 'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
 
 
     def update_matrices(self, items):
