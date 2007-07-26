@@ -12,7 +12,7 @@ from gaphas import tree
 from gaphas import solver
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
-from gaphas.sort import Sorter
+from gaphas.sorter import Sorter
 
 
 class Context(object):

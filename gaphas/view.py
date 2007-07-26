@@ -15,7 +15,7 @@ from tool import ToolContext, DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
 from decorators import nonrecursive
-from gaphas.sort import Sorted
+from gaphas.sorter import Sorted
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
