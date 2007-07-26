@@ -238,7 +238,7 @@ class ConnectingHandleTool(tool.HandleTool):
             handle._connect_constraint = LineConstraint(line=(CanvasProjection(h1.pos, glue_item),
                                       CanvasProjection(h2.pos, glue_item)),
                                 point=CanvasProjection(handle.pos, item))
-            view.canvas.add_constraint(handle._connect_constraint)
+            view.canvas.solver.add_constraint(handle._connect_constraint)
 
             handle.disconnect = handle_disconnect
             return
