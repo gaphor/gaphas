@@ -171,11 +171,15 @@ def main():
     for i in xrange(count):
         bb=Box()
         print 'box', bb
-        x = int(i % n) * 20
-        y = int(i / n) * 20
+        x = int(i % n) * 40
+        y = int(i / n) * 40
         bb.matrix.translate(20 + x, y)
         bb.matrix.rotate(math.pi/4.0 * i / 10.0)
+        bb.width = bb.height = 20
         c.add(bb, parent=b)
+        bb1 = Box()
+        bb1.matrix.translate(5, 5)
+        c.add(bb1, parent=bb)
 
     tool = view.tool._tools[1]
     for i in range(40):
@@ -238,7 +242,7 @@ if __name__ == '__main__':
         import pstats
         cProfile.run('main()', 'demo-gaphas.prof')
         p = pstats.Stats('demo-gaphas.prof')
-        p.strip_dirs().sort_stats('time').print_stats(20)
+        p.strip_dirs().sort_stats('time').print_stats(40)
     except ImportError, ex:
         import hotshot, hotshot.stats
         import gc
