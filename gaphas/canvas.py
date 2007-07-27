@@ -78,8 +78,7 @@ class Canvas(object):
         self._tree.add(item, parent)
         item._sort_key = self.sorter.get_key(item)
 
-        for v in self._registered_views:
-            v.update_matrix(item)
+        self.update_matrix(item, parent)
 
         self.request_update(item)
         self._update_views((item,))
@@ -495,7 +494,7 @@ class Canvas(object):
         item._matrix_i2c = Matrix(*item.matrix)
 
         if parent is not None:
-            item._matrix_i2c *= self.get_matrix_i2c(parent)
+            item._matrix_i2c *= parent._matrix_i2c
 
         if orig_matrix_i2c is None or orig_matrix_i2c != item._matrix_i2c:
             # calculate c2i matrix and view matrices
