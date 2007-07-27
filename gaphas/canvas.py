@@ -475,9 +475,8 @@ class Canvas(object):
             self.update_matrix(item, parent)
             changed.add(item)
 
-            for kid in self.get_all_children(item):
-                self.update_matrix(kid, item)
-                changed.add(kid)
+            changed_children = self.update_matrices(set(self.get_children(item)))
+            changed.update(changed_children)
 
         return changed
 
@@ -500,8 +499,6 @@ class Canvas(object):
             # calculate c2i matrix and view matrices
             item._matrix_c2i = Matrix(*item._matrix_i2c)
             item._matrix_c2i.invert()
-            for v in self._registered_views:
-                v.update_matrix(item)
 
 
     def _normalize(self, items):
@@ -559,8 +556,6 @@ class Canvas(object):
         a canvas on a view and should not be called directly from user code.
         """
         self._registered_views.add(view)
-        for item in self.get_all_items():
-            view.update_matrix(item)
 
 
     def unregister_view(self, view):

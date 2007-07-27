@@ -308,10 +308,14 @@ class View(object):
 
 
     def get_matrix_i2v(self, item):
+        if item not in item._matrix_i2v:
+            self.update_matrix(item)
         return item._matrix_i2v[self]
 
 
     def get_matrix_v2i(self, item):
+        if item not in item._matrix_v2i:
+            self.update_matrix(item)
         return item._matrix_v2i[self]
 
 
