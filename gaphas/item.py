@@ -202,15 +202,16 @@ class Item(object):
         if self._canvas:
             self._canvas.request_update(self, update=update, matrix=matrix)
 
+
     def pre_update(self, context):
         """
         Perform any changes before item update here, for example:
          - change matrix
-         - move handles,
+         - move handles
 
-        Gaphas does not guarantee any canvas invariants to be valid like
-        constraints are not solved, first handle is not in position (0, 0),
-        etc.
+        Gaphas does not guarantee that any canvas invariant is valid at
+        this point (i.e. constraints are not solved, first handle is not in
+        position (0, 0), etc).
         """
         pass
 
