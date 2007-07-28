@@ -492,7 +492,9 @@ class HandleTool(Tool):
             # Do the actual move:
             self.move(view, item, handle, x, y)
             
-            item.request_update()
+            # do not request matrix update as matrix recalculation will be
+            # performed due to item normalization if required
+            item.request_update(matrix=False)
             try:
                 if self._grabbed_handle.connectable:
                     self.glue(view, item, handle, event.x, event.y)
