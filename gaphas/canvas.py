@@ -435,20 +435,21 @@ class Canvas(object):
             # some item's can be marked dirty due to external constraints
             # solving;
             # NOTE: no matrix can change during constraint solving
-            if self._dirty_items:
-                dirty_items.extend(self._dirty_items)
-                dirty_items = sort(dirty_items, reverse=True)
-                self._dirty_items.clear()
+            # NOTE: keep c_dirty_items separate from dirty_items as only
+            # items in dirty_items will be "post updated"
+            c_dirty_items = self._dirty_items
 
             # normalize items, which changed after constraint solving;
             # store those items, which matrices changed
             c_dirty_matrix_items = self._normalize(dirty_items)
+            c_dirty_matrix_items.update(self._normalize(c_dirty_items))
 
             # recalculate matrices of normalized items
             c_dirty_matrix_items = self.update_matrices(c_dirty_matrix_items)
             dirty_matrix_items.update(c_dirty_matrix_items)
 
             self._post_update_items(dirty_items, context)
+            self._dirty_items.clear()
 
         finally:
             assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
