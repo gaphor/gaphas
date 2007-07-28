@@ -198,9 +198,9 @@ class Item(object):
 
     matrix = reversible_property(lambda s: s._matrix, _set_matrix)
 
-    def request_update(self):
+    def request_update(self, update=True, matrix=True):
         if self._canvas:
-            self._canvas.request_update(self)
+            self._canvas.request_update(self, update=update, matrix=matrix)
 
     def pre_update(self, context):
         """
