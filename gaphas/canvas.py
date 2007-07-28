@@ -369,10 +369,10 @@ class Canvas(object):
         self.update_now()
 
 
-    def _pre_update_items(self, items, context):
+    def _pre_update_items(self, items, cr):
         context_map = dict()
         for item in items:
-            c = Context(cairo=context)
+            c = Context(cairo=cr)
             try:
                 item.pre_update(c)
             except Exception, e:
@@ -381,9 +381,9 @@ class Canvas(object):
                 traceback.print_exc()
 
 
-    def _post_update_items(self, items, context):
+    def _post_update_items(self, items, cr):
         for item in items:
-            c = Context(cairo=context)
+            c = Context(cairo=cr)
             try:
                 item.post_update(c)
             except Exception, e:
@@ -407,14 +407,15 @@ class Canvas(object):
 
         # order the dirty items, so they are updated bottom to top
         dirty_items = sort(self._dirty_items, reverse=True)
+
         self._dirty_items.clear()
 
         try:
-            context = self._obtain_cairo_context()
+            cr = self._obtain_cairo_context()
 
             # allow programmers to perform tricks and hacks before item
             # full update
-            self._pre_update_items(dirty_items, context)
+            self._pre_update_items(dirty_items, cr)
 
             # recalculate matrices
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
@@ -448,7 +449,7 @@ class Canvas(object):
             c_dirty_matrix_items = self.update_matrices(c_dirty_matrix_items)
             dirty_matrix_items.update(c_dirty_matrix_items)
 
-            self._post_update_items(dirty_items, context)
+            self._post_update_items(dirty_items, cr)
             self._dirty_items.clear()
 
         finally:
