@@ -440,7 +440,7 @@ class Canvas(object):
                 c_dirty_items = sort(self._dirty_items, reverse=True)
                 self._dirty_items.clear()
 
-                self._post_update_items(c_dirty_items)
+                self._pre_update_items(c_dirty_items, cr)
 
                 # TODO: sort dirty_items and c_dirty_items (with no
                 # duplicates in dirty_items) using some nice merge
