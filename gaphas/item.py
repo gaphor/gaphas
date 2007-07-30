@@ -116,15 +116,16 @@ class Item(object):
     Base class (or interface) for items on a canvas.Canvas.
 
     Attributes:
-     - _canvas:      canvas, which owns an item
-     - _handles:     list of handles owned by an item
-     - _constraints: item's constraints
-     - matrix:       item's transformation matrix
-     - _matrix_i2c:  item to canvas coordinates matrix
-     - _matrix_c2i:  canvas to item coordinates matrix
-     - _matrix_i2v:  item to view coordinates matrices
-     - _matrix_v2i:  view to item coordinates matrices
-     - _sort_key:  used to sort items
+
+    - _canvas:      canvas, which owns an item
+    - _handles:     list of handles owned by an item
+    - _constraints: item's constraints
+    - matrix:       item's transformation matrix
+    - _matrix_i2c:  item to canvas coordinates matrix
+    - _matrix_c2i:  canvas to item coordinates matrix
+    - _matrix_i2v:  item to view coordinates matrices
+    - _matrix_v2i:  view to item coordinates matrices
+    - _sort_key:  used to sort items
     """
 
     def __init__(self):
@@ -206,8 +207,8 @@ class Item(object):
     def pre_update(self, context):
         """
         Perform any changes before item update here, for example:
-         - change matrix
-         - move handles
+        * change matrix
+        * move handles
 
         Gaphas does not guarantee that any canvas invariant is valid at
         this point (i.e. constraints are not solved, first handle is not in
@@ -235,10 +236,10 @@ class Item(object):
         Render the item to a canvas view.
         Context contains the following attributes:
 
-        - matrix_i2w: Item to World transformation matrix (no need to)
         - cairo: the Cairo Context use this one to draw
         - view: the view that is to be rendered to
-        - selected, focused, hovered, dropzone: view state of items
+        - selected, focused, hovered, dropzone: view state of items (True/False)
+        - draw_all: a request to draw everything, for bounding box calculations
         """
         pass
 
@@ -250,8 +251,8 @@ class Item(object):
 
     def point(self, x, y):
         """
-        Get the distance from a point (@x, @y) to the item.
-        @x and @y are in item coordinates.
+        Get the distance from a point (``x``, ``y``) to the item.
+        ``x`` and ``y`` are in item coordinates.
         """
         pass
 
@@ -506,8 +507,8 @@ class Line(Item):
     @observed
     def split_segment(self, segment, parts=2):
         """
-        Split one segment in the Line in @parts equal pieces.
-        @segment 0 is the first segment (between handles 0 and 1).
+        Split one segment in the Line in ``parts`` equal pieces.
+        ``segment`` 0 is the first segment (between handles 0 and 1).
         The min number of parts is 2.
 
         >>> a = Line()
@@ -546,7 +547,7 @@ class Line(Item):
     @observed
     def merge_segment(self, segment, parts=2):
         """
-        Merge the @segment and the next.
+        Merge the ``segment`` and the next.
         The parts parameter indicates how many segments should be merged
 
         >>> a = Line()
