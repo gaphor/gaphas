@@ -284,9 +284,9 @@ class Canvas(object):
 
     def get_matrix_i2c(self, item, calculate=False):
         """
-        Get the Item to World matrix for @item.
+        Get the Item to Canvas matrix for @item.
 
-        item: The item who's item-to-world transformation matrix should be
+        item: The item who's item-to-canvas transformation matrix should be
               found
         calculate: True will allow this function to actually calculate it,
               in stead of raising an AttributeError when no matrix is present
@@ -299,8 +299,8 @@ class Canvas(object):
 
     def get_matrix_c2i(self, item, calculate=False):
         """
-        Get the World to Item matrix for @item.
-        See get_matrix_i2w().
+        Get the Canvas to Item matrix for @item.
+        See get_matrix_i2c().
         """
         if item._matrix_c2i is None or calculate:
             self.update_matrix(item)
@@ -333,14 +333,11 @@ class Canvas(object):
 
     reversible_method(request_update, reverse=request_update)
 
-#    @observed
     def request_matrix_update(self, item):
         """
         Schedule only the matrix to be updated.
         """
         self.request_update(item, update=False, matrix=True)
-
-#    reversible_method(request_matrix_update, reverse=request_matrix_update)
 
     def require_update(self):
         """
@@ -444,9 +441,9 @@ class Canvas(object):
 
                 c_dirty_items = sort(self._dirty_items.difference(dirty_items), reverse=True)
                 
-                self._pre_update_items(c_dirty_items, cr)
-
                 self._dirty_items.clear()
+
+                self._pre_update_items(c_dirty_items, cr)
 
                 dirty_items.extend(c_dirty_items)
                 dirty_items = sort(set(dirty_items), reverse=True)

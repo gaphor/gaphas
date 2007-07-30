@@ -247,7 +247,7 @@ class Tree(object):
         >>> tree.nodes
         ['n1', 'n3', 'n2']
 
-        If a node contains children, those are also moved::
+        If a node contains children, those are also moved:
         
         >>> tree.add('n4')
         >>> tree.nodes

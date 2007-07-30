@@ -29,7 +29,7 @@ class Quadtree(object):
     """
     The Quad-tree.
 
-    Rectangles use the same scheme throughout Gaphas: (x, y, width, height)
+    Rectangles use the same scheme throughout Gaphas: (x, y, width, height).
 
     >>> qtree = Quadtree((0, 0, 100, 100))
     >>> for i in range(20):
@@ -63,12 +63,12 @@ class Quadtree(object):
          16 (64, 70, 10, 10)
          17 (68, 80, 10, 10)
 
-    Find all items in the tree::
+    Find all items in the tree:
 
     >>> sorted(qtree.find_inside((0, 0, 100, 100)))
     ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '3', '4', '5', '6', '7', '8', '9']
 
-    Or just the items in a section of the tree::
+    Or just the items in a section of the tree:
 
     >>> sorted(qtree.find_inside((40, 40, 40, 40)))
     ['13', '14', '15', '16']
