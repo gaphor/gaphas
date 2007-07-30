@@ -34,7 +34,7 @@ class Tree(object):
 
     def get_parent(self, node):
         """
-        Return the parent item of @node.
+        Return the parent item of ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -46,7 +46,7 @@ class Tree(object):
 
     def get_children(self, node):
         """
-        Return all child objects of @node.
+        Return all child objects of ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -61,7 +61,7 @@ class Tree(object):
 
     def get_siblings(self, node):
         """
-        Get all siblings of @node, including @node.
+        Get all siblings of ``node``, including ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -75,7 +75,7 @@ class Tree(object):
 
     def get_next_sibling(self, node):
         """
-        Return the node on the same level after @node.
+        Return the node on the same level after ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -94,7 +94,7 @@ class Tree(object):
 
     def get_previous_sibling(self, node):
         """
-        Return the node on the same level before @node.
+        Return the node on the same level before ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -178,7 +178,7 @@ class Tree(object):
     @observed
     def add(self, node, parent=None):
         """
-        Add @node to the tree. @parent is the parent node, which may
+        Add node to the tree. parent is the parent node, which may
         be None if the item should be added to the root item.
 
         For usage, see the unit tests.
@@ -206,7 +206,7 @@ class Tree(object):
 
     def remove(self, node):
         """
-        Remove @node from the tree.
+        Remove ``node`` from the tree.
 
         For usage, see the unit tests.
         """
@@ -230,8 +230,8 @@ class Tree(object):
     @observed
     def reparent(self, node, parent):
         """
-        Set new parent for a node. Parent can be None, indicating it's added
-        to the top.
+        Set new parent for a ``node``. ``Parent`` can be ``None``, indicating
+        it's added to the top.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -278,51 +278,6 @@ class Tree(object):
     # Disable add/remove by default, since they are handled by canvas.Canvas
     disable_dispatching(add)
     disable_dispatching(_remove)
-
-
-class TreeSorter(object):
-    """
-    TreeSorter can be used to sort a list of items in the same order as
-    the tree's nodes.
-
-    >>> class A(object):
-    ...     def __init__(self, val):
-    ...         self.val = val
-    ...     def __repr__(self):
-    ...         return 'a' + str(self.val)
-
-    >>> tree = Tree()
-    >>> a1, a2, a3 = A(1), A(2), A(3)
-    >>> tree.add(a1)
-    >>> tree.add(a2)
-    >>> tree.add(a3, parent=a1)
-
-    The sorter should first index the tree, before sorting can take place.
-
-    >>> sorter = TreeSorter(tree)
-    >>> sorter.reindex()
-    >>> sorter.sort([a2, a3, a1])
-    [a1, a3, a2]
-    """
-
-    def __init__(self, tree):
-        self._tree = tree
-
-    def reindex(self):
-        """
-        Create an index (or recreate it).
-        """
-        nodes = self._tree.nodes
-        l = len(nodes)
-        map(setattr, nodes, ['_tree_sorter_key'] * l, xrange(l))
-
-    def sort(self, items, reverse=False):
-        """
-        Sort items in the order specified by the tree.
-        Items should have been indexed by reindex() before this method is
-        called.
-        """
-        return sorted(items, key=operator.attrgetter('_tree_sorter_key'), reverse=reverse)
 
 
 __test__ = {
