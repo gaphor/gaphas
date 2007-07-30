@@ -1,26 +1,17 @@
 """
-This module contains several flavors of constraint solver classes.
-Each has a method solve_for(name) and a method set(\*\*kwds). These methods
-are used by the constraint solver (solver.Solver) to set the variables.
+Module ``gaphas.constraint`` contains several flavors of constraint solver
+classes (constraints for short), for example
+ - equality constraint - two variables should have the same value
+ - less than constraint - keep one variables smaller than other
 
-Variables should be of type solver.Variable.
+Variables should be of type ``gaphas.solver.Variable``.
 
-Available constraints are:
+See classes' documentation below for constraints description and for
+examples of their usage.
 
-- EqualsConstraint - make 'a' and 'b' equal
-- LessThanConstraint - ensure one variable stays smaller than the orther
-- EquationConstraint - solve a linear equation
-
-# TODO:
-
-- LineConstraint - Solves the equation where a line is connected to
-       a line or side at a specific point.
-- LineToCenterConstraint - constraint to be used when a line connects
-       to a rectangular element. The line is connected on the side, but
-       keeps opointing to the center
-- ShortestLineConstraint - The last segment of the line is pointing to
-       a rectangualar or line like object and the length of the line
-       is kept to a minimum
+New constraint class should derive from Constraint class abstract class and
+implement Constraint.solve_for(Variable) method to update a variable with
+appropriate value.
 """
 
 from __future__ import division
@@ -110,8 +101,6 @@ class Constraint(object):
                 return
 
 
-
-
     def solve_for(self, var):
         """
         Solve the constraint for a given variable.
@@ -123,9 +112,8 @@ class Constraint(object):
 
 class EqualsConstraint(Constraint):
     """
-    Simple Constraint, takes two arguments: 'a' and 'b'. When solved the
-    attribute passed to solve_for() is set equal to the other.
-
+    Constraint, which ensures that two arguments ``a`` and ``b`` are equal,
+    for example
     >>> from solver import Variable
     >>> a, b = Variable(1.0), Variable(2.0)
     >>> eq = EqualsConstraint(a, b)
@@ -149,6 +137,7 @@ class EqualsConstraint(Constraint):
         _update(*((var is self.a) and \
                 (self.a, self.b.value) or \
                 (self.b, self.a.value)))
+
 
 
 class CenterConstraint(Constraint):
@@ -184,6 +173,7 @@ class CenterConstraint(Constraint):
 
         v = (self.a.value + self.b.value) / 2.0
         _update(self.center, v)
+
 
 
 class LessThanConstraint(Constraint):
