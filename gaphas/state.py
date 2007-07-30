@@ -72,6 +72,7 @@ def observed(func):
 def enable_dispatching(func, enable=True):
     """
     Enable/disable dispatching for a specific function.
+
     >>> @observed
     ... def callme():
     ...     pass
@@ -81,6 +82,7 @@ def enable_dispatching(func, enable=True):
 
     By default dispatching is enabled (set DISPATCH_BY_DEFAULT=False to
     disable this behavior).
+
     >>> callme()
     event
     >>> enable_dispatching(callme, False)
@@ -201,9 +203,11 @@ def revert_handler(event):
     subscribers queue.
 
     First thing to do is to actually enable the revert_handler:
+
     >>> observers.add(revert_handler)
     
     First let's define our simple list:
+
     >>> class SList(object):
     ...     def __init__(self):
     ...         self.l = list()
@@ -226,6 +230,7 @@ def revert_handler(event):
     [10, 12, 11]
 
     It works, so let's add some reversible stuff:
+
     >>> reversible_pair(SList.add, SList.remove, \
         bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
     >>> _reverse[SList.add.im_func] # doctest: +ELLIPSIS
