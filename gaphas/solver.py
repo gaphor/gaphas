@@ -8,12 +8,12 @@ Variables change and at some point of time we want to make all constraints
 valid again. This process is called solving constraints.
 
 Gaphas' solver allows to define constraints between Variable instances.
-Constraint classes are defined in gaphas.constraint module.
+Constraint classes are defined in `gaphas.constraint` module.
 
 How It Works
-============
+------------
 Every constraint contains list of variables and has to be registered in
-solver object. Variables change (Variables.dirty, Solver.request_resolve
+solver object. Variables change (`Variable.dirty()`, `Solver.request_resolve()`
 methods) and their constraints are marked by solver as dirty. To solve
 constraints, solver loops through dirty constraints and asks constraint for
 a variable (called weakest variable), which
@@ -26,9 +26,9 @@ a variable (called weakest variable), which
 
 (weakest variable invariants defined above)
 
-Having weakest variable (Constraint.weakest method) every constraint is
-being asked to solve itself (Constraint.solv_for method) changing
-appropriate variables to make the constraint valid again.
+Having weakest variable (`constraint.Constraint.weakest()` method) every
+constraint is being asked to solve itself (`constraint.Constraint.solve_for()`
+method) changing appropriate variables to make the constraint valid again.
 """
 
 from __future__ import division
@@ -231,7 +231,6 @@ class Variable(object):
 
     def __truediv__(self, other):
         """
-        #>>> from __future__ import division
         >>> Variable(5.) / 4
         1.25
         >>> 10 / Variable(5.)
@@ -301,7 +300,6 @@ class Variable(object):
 
     def __rtruediv__(self, other):
         """
-        #>>> from __future__ import division
         >>> 5. / Variable(4)
         1.25
         """
@@ -354,9 +352,10 @@ class Solver(object):
 
         If projections_only is set to True, only constraints using the
         variable through a Projection instance (e.i. variable itself is not
-        in Constraint.variables()) are marked.
+        in `constraint.Constraint.variables()`) are marked.
 
         Example:
+
         >>> from constraint import EquationConstraint
         >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s = Solver()
@@ -400,6 +399,7 @@ class Solver(object):
         later on.
 
         Example:
+
         >>> from constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
@@ -428,7 +428,9 @@ class Solver(object):
 
     @observed
     def remove_constraint(self, constraint):
-        """ Remove a constraint from the solver
+        """
+        Remove a constraint from the solver
+
         >>> from constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
@@ -442,8 +444,8 @@ class Solver(object):
         set([])
 
         Removing a constraint twice has no effect:
-        >>> s.remove_constraint(c)
 
+        >>> s.remove_constraint(c)
         """
         for v in constraint.variables():
             while isinstance(v, Projection):
@@ -459,7 +461,7 @@ class Solver(object):
         """
         Return an iterator of constraints that work with variable.
         The variable in question should be exposed by the constraints
-        variables() method.
+        `constraint.Constraint.variables()` method.
 
         >>> from constraint import EquationConstraint
         >>> s = Solver()
@@ -485,6 +487,7 @@ class Solver(object):
     def solve(self):
         """
         Example:
+
         >>> from constraint import EquationConstraint
         >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s = Solver()

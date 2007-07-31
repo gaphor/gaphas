@@ -25,8 +25,8 @@ import types, inspect
 from decorator import decorator
 
 # This string is added to each docstring in order to denote is's observed
-OBSERVED_DOCSTRING = \
-        '\n\nThis method is @observed. See gaphas.state for extra info.\n'
+#OBSERVED_DOCSTRING = \
+#        '\n\n        This method is @observed. See gaphas.state for extra info.\n'
 
 # Tell @observed to dispatch invokation messages by default
 # May be changed (but be sure to do that right at the start of your
@@ -62,7 +62,7 @@ def observed(func):
         return func(*args, **kwargs)
     dec = decorator(wrapper, func)
     
-    dec.__doc__ = (dec.__doc__ or '') + OBSERVED_DOCSTRING
+    #dec.__doc__ = (dec.__doc__ or '') + OBSERVED_DOCSTRING
     func.__observer__ = dec
     if DISPATCH_BY_DEFAULT:
         dec.__dispatched__ = True

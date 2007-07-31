@@ -19,14 +19,14 @@ class Context(object):
     """
     Context used for updating and drawing items in a drawing canvas.
 
-        >>> c=Context(one=1,two='two')
-        >>> c.one
-        1
-        >>> c.two
-        'two'
-        >>> try: c.one = 2
-        ... except: 'got exc'
-        'got exc'
+    >>> c=Context(one=1,two='two')
+    >>> c.one
+    1
+    >>> c.two
+    'two'
+    >>> try: c.one = 2
+    ... except: 'got exc'
+    'got exc'
     """
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -38,11 +38,6 @@ class Context(object):
 class Canvas(object):
     """
     Container class for items.
-
-    Attributes:
-     - projector: canvas constraint projector between item and canvas
-       coordinates
-     - sorter: items sorter in order used to add items to canvas
     """
 
     def __init__(self):
@@ -62,16 +57,16 @@ class Canvas(object):
     @observed
     def add(self, item, parent=None):
         """
-        Add an item to the canvas
+        Add an item to the canvas.
 
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> len(c._tree.nodes)
-            1
-            >>> i._canvas is c
-            True
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> len(c._tree.nodes)
+        1
+        >>> i._canvas is c
+        True
         """
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
         item.canvas = self
@@ -99,17 +94,16 @@ class Canvas(object):
 
     def remove(self, item):
         """
-        Remove item from the canvas
+        Remove item from the canvas.
 
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> c.remove(i)
-            >>> c._tree.nodes
-            []
-            >>> i._canvas
-
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> c.remove(i)
+        >>> c._tree.nodes
+        []
+        >>> i._canvas
         """
         for child in reversed(self.get_children(item)):
             self.remove(child)
@@ -138,16 +132,16 @@ class Canvas(object):
 
     def get_all_items(self):
         """
-        Get a list of all items
-            >>> c = Canvas()
-            >>> c.get_all_items()
-            []
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> c.get_all_items() # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>]
+        Get a list of all items.
 
+        >>> c = Canvas()
+        >>> c.get_all_items()
+        []
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> c.get_all_items() # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>]
         """
         return self._tree.nodes
     
@@ -155,16 +149,16 @@ class Canvas(object):
         """
         Return the root items of the canvas.
 
-            >>> c = Canvas()
-            >>> c.get_all_items()
-            []
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> ii = item.Item()
-            >>> c.add(ii, i)
-            >>> c.get_root_items() # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>]
+        >>> c = Canvas()
+        >>> c.get_all_items()
+        []
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> ii = item.Item()
+        >>> c.add(ii, i)
+        >>> c.get_root_items() # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(None)
 
@@ -177,103 +171,107 @@ class Canvas(object):
 
     def get_parent(self, item):
         """
-        See tree.Tree.get_parent()
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> ii = item.Item()
-            >>> c.add(ii, i)
-            >>> c.get_parent(i)
-            >>> c.get_parent(ii) # doctest: +ELLIPSIS
-            <gaphas.item.Item ...>
+        See `tree.Tree.get_parent()`.
+
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> ii = item.Item()
+        >>> c.add(ii, i)
+        >>> c.get_parent(i)
+        >>> c.get_parent(ii) # doctest: +ELLIPSIS
+        <gaphas.item.Item ...>
         """
         return self._tree.get_parent(item)
 
     def get_ancestors(self, item):
         """
-        See tree.Tree.get_ancestors()
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> ii = item.Item()
-            >>> c.add(ii, i)
-            >>> iii = item.Item()
-            >>> c.add(iii, ii)
-            >>> list(c.get_ancestors(i))
-            []
-            >>> list(c.get_ancestors(ii)) # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>]
-            >>> list(c.get_ancestors(iii)) # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
+        See `tree.Tree.get_ancestors()`.
+
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> ii = item.Item()
+        >>> c.add(ii, i)
+        >>> iii = item.Item()
+        >>> c.add(iii, ii)
+        >>> list(c.get_ancestors(i))
+        []
+        >>> list(c.get_ancestors(ii)) # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>]
+        >>> list(c.get_ancestors(iii)) # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_ancestors(item)
 
     def get_children(self, item):
         """
-        See tree.Tree.get_children()
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> ii = item.Item()
-            >>> c.add(ii, i)
-            >>> iii = item.Item()
-            >>> c.add(iii, ii)
-            >>> list(c.get_children(iii))
-            []
-            >>> list(c.get_children(ii)) # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>]
-            >>> list(c.get_children(i)) # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>]
+        See `tree.Tree.get_children()`.
+
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> ii = item.Item()
+        >>> c.add(ii, i)
+        >>> iii = item.Item()
+        >>> c.add(iii, ii)
+        >>> list(c.get_children(iii))
+        []
+        >>> list(c.get_children(ii)) # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>]
+        >>> list(c.get_children(i)) # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(item)
 
     def get_all_children(self, item):
         """
-        See tree.Tree.get_all_children()
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> ii = item.Item()
-            >>> c.add(ii, i)
-            >>> iii = item.Item()
-            >>> c.add(iii, ii)
-            >>> list(c.get_all_children(iii))
-            []
-            >>> list(c.get_all_children(ii)) # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>]
-            >>> list(c.get_all_children(i)) # doctest: +ELLIPSIS
-            [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
+        See `tree.Tree.get_all_children()`.
+
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> ii = item.Item()
+        >>> c.add(ii, i)
+        >>> iii = item.Item()
+        >>> c.add(iii, ii)
+        >>> list(c.get_all_children(iii))
+        []
+        >>> list(c.get_all_children(ii)) # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>]
+        >>> list(c.get_all_children(i)) # doctest: +ELLIPSIS
+        [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_all_children(item)
 
     def get_connected_items(self, item):
         """
-        Return a set of items that are connected to @item.
+        Return a set of items that are connected to ``item``.
         The list contains tuples (item, handle). As a result an item may be
         in the list more than once (depending on the number of handles that
-        are connected). If @item is connected to itself it will also appear
+        are connected). If ``item`` is connected to itself it will also appear
         in the list.
 
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Line()
-            >>> c.add(i)
-            >>> ii = item.Line()
-            >>> c.add(ii)
-            >>> iii = item.Line()
-            >>> c.add (iii)
-            >>> i.handles()[0].connected_to = ii
-            >>> list(c.get_connected_items(i))
-            []
-            >>> ii.handles()[0].connected_to = iii
-            >>> list(c.get_connected_items(ii)) # doctest: +ELLIPSIS
-            [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
-            >>> list(c.get_connected_items(iii)) # doctest: +ELLIPSIS
-            [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Line()
+        >>> c.add(i)
+        >>> ii = item.Line()
+        >>> c.add(ii)
+        >>> iii = item.Line()
+        >>> c.add (iii)
+        >>> i.handles()[0].connected_to = ii
+        >>> list(c.get_connected_items(i))
+        []
+        >>> ii.handles()[0].connected_to = iii
+        >>> list(c.get_connected_items(ii)) # doctest: +ELLIPSIS
+        [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
+        >>> list(c.get_connected_items(iii)) # doctest: +ELLIPSIS
+        [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
         """
         connected_items = set()
         for i in self.get_all_items():
@@ -284,13 +282,15 @@ class Canvas(object):
 
     def get_matrix_i2c(self, item, calculate=False):
         """
-        Get the Item to Canvas matrix for @item.
+        Get the Item to Canvas matrix for ``item``.
 
-        item: The item who's item-to-canvas transformation matrix should be
-              found
-        calculate: True will allow this function to actually calculate it,
-              in stead of raising an AttributeError when no matrix is present
-              yet. Note that out-of-date matrices are not recalculated.
+        item:
+            The item who's item-to-canvas transformation matrix should be
+            found
+        calculate:
+            True will allow this function to actually calculate it,
+            in stead of raising an AttributeError when no matrix is present
+            yet. Note that out-of-date matrices are not recalculated.
         """
         if item._matrix_i2c is None or calculate:
             self.update_matrix(item)
@@ -299,8 +299,8 @@ class Canvas(object):
 
     def get_matrix_c2i(self, item, calculate=False):
         """
-        Get the Canvas to Item matrix for @item.
-        See get_matrix_i2c().
+        Get the Canvas to Item matrix for ``item``.
+        See `get_matrix_i2c()`.
         """
         if item._matrix_c2i is None or calculate:
             self.update_matrix(item)
@@ -312,17 +312,17 @@ class Canvas(object):
         """
         Set an update request for the item. 
 
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> ii = item.Item()
-            >>> c.add(i)
-            >>> c.add(ii, i)
-            >>> len(c._dirty_items)
-            0
-            >>> c.update_now()
-            >>> len(c._dirty_items)
-            0
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> ii = item.Item()
+        >>> c.add(i)
+        >>> c.add(ii, i)
+        >>> len(c._dirty_items)
+        0
+        >>> c.update_now()
+        >>> len(c._dirty_items)
+        0
         """
         if update:
             self._dirty_items.add(item)
@@ -341,19 +341,19 @@ class Canvas(object):
 
     def require_update(self):
         """
-        Returns True or False depending on if an update is needed.
+        Returns ``True`` or ``False`` depending on if an update is needed.
 
-            >>> c=Canvas()
-            >>> c.require_update()
-            False
-            >>> from gaphas import item
-            >>> i = item.Item()
-            >>> c.add(i)
-            >>> c.require_update()
-            False
+        >>> c=Canvas()
+        >>> c.require_update()
+        False
+        >>> from gaphas import item
+        >>> i = item.Item()
+        >>> c.add(i)
+        >>> c.require_update()
+        False
 
         Since we're not in a GTK+ mainloop, the update is not scheduled
-        asynchronous. Therefor require_update() returns False.
+        asynchronous. Therefore ``require_update()`` returns ``False``.
         """
         return bool(self._dirty_items)
 
@@ -529,6 +529,7 @@ class Canvas(object):
         movement.
 
         For example having an item
+
         >>> from item import Element
         >>> c = Canvas()
         >>> e = Element()
@@ -539,11 +540,13 @@ class Canvas(object):
         [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (10, 10)>, <Handle object on (0, 10)>]
 
         and moving its first handle a bit
+
         >>> e.handles()[0].x += 1
         >>> map(float, e.handles()[0].pos)
         [1.0, 0.0]
 
         After normalization
+
         >>> c._normalize([e])          # doctest: +ELLIPSIS
         set([<gaphas.item.Element object at ...>])
         >>> e.handles()
@@ -601,8 +604,8 @@ class Canvas(object):
         canvas. By lack of registered views, a PNG image surface is created
         that is used to create a context.
 
-            >>> c = Canvas()
-            >>> c.update_now()
+        >>> c = Canvas()
+        >>> c.update_now()
         """
         for view in self._registered_views:
             try:
@@ -616,7 +619,7 @@ class Canvas(object):
 
 class VariableProjection(solver.Projection):
     """
-    Project a single gaphas.solver.Variable to another space/coordinate system.
+    Project a single `solver.Variable` to another space/coordinate system.
 
     The value has been set in the "other" coordinate system. A callback is
     executed when the value changes.

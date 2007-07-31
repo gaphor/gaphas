@@ -1,16 +1,30 @@
 """
-Module ``gaphas.constraint`` contains several flavors of constraint solver
-classes (constraints for short), for example
- - equality constraint - two variables should have the same value
- - less than constraint - keep one variables smaller than other
+This module contains several flavors of constraint classes.
+Each has a method `Constraint.solve_for(name)` and a method
+`Constraint.mark_dirty(v)`. These methods are used by the constraint solver
+(`solver.Solver`) to set the variables.
 
-Variables should be of type ``gaphas.solver.Variable``.
+Variables should be of type `solver.Variable`.
 
 See classes' documentation below for constraints description and for
 examples of their usage.
 
+EqualsConstraint
+    Make 'a' and 'b' equal.
+LessThanConstraint
+    Ensure one variable stays smaller than the other.
+CenterConstraint
+    Ensures a Variable is kept between two other variables.
+EquationConstraint
+    Solve a linear equation.
+BalanceConstraint
+    Keeps three variables in line, maintaining a specific ratio.
+LineConstraint
+    Solves the equation where a line is connected to a line or side at a
+    specific point.
+
 New constraint class should derive from Constraint class abstract class and
-implement Constraint.solve_for(Variable) method to update a variable with
+implement `Constraint.solve_for(Variable)` method to update a variable with
 appropriate value.
 """
 
@@ -178,7 +192,7 @@ class CenterConstraint(Constraint):
 
 class LessThanConstraint(Constraint):
     """
-    Ensure @smaller is less than @bigger. The variable that is passed
+    Ensure ``smaller`` is less than ``bigger``. The variable that is passed
     as to-be-solved is left alone (cause it is the variable that has not
     been moved lately). Instead the other variable is solved.
 
@@ -194,6 +208,7 @@ class LessThanConstraint(Constraint):
     (Variable(0.8, 20), Variable(0.8, 20))
 
     Also minimal delta between two values can be set
+
     >>> a, b = Variable(10.0), Variable(8.0)
     >>> lt = LessThanConstraint(smaller=a, bigger=b, delta=5)
     >>> lt.solve_for(a)
@@ -224,7 +239,7 @@ class EquationConstraint(Constraint):
 
     Takes a function, named arg value (opt.) and returns a Constraint object
     Calling EquationConstraint.solve_for will solve the equation for
-    variable @arg, so that the outcome is 0.
+    variable ``arg``, so that the outcome is 0.
 
     >>> from solver import Variable
     >>> a, b, c = Variable(), Variable(4), Variable(5)
@@ -358,10 +373,11 @@ class EquationConstraint(Constraint):
 
 class BalanceConstraint(Constraint):
     """
-    Ensure that a variable @v is between values specified by @band
-    and in distance proportional from @band[0].
+    Ensure that a variable ``v`` is between values specified by ``band``
+    and in distance proportional from ``band[0]``.
 
     Consider
+
     >>> from solver import Variable, WEAK
     >>> a, b, c = Variable(2.0), Variable(3.0), Variable(2.3, WEAK)
     >>> bc = BalanceConstraint(band=(a,b), v=c)
@@ -372,7 +388,8 @@ class BalanceConstraint(Constraint):
     >>> a, b, c
     (Variable(2, 20), Variable(3, 20), Variable(2.3, 10))
 
-    Band does not have to be band[0] < band[1]
+    Band does not have to be ``band[0] < band[1]``
+
     >>> a, b, c = Variable(3.0), Variable(2.0), Variable(2.45, WEAK)
     >>> bc = BalanceConstraint(band=(a,b), v=c)
     >>> c.value = 2.50
@@ -462,6 +479,7 @@ class LineConstraint(Constraint):
     def _solve(self):
         """
         Solve the equation for the connected_handle.
+        
         >>> from gaphas.solver import Variable
         >>> line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
         >>> point = (Variable(15), Variable(4))

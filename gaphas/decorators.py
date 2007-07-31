@@ -17,59 +17,60 @@ class async(object):
     priority. This requires the async'ed method to be called from within
     the GTK main loop. Otherwise the method is executed directly.
 
-    Note: the current implementation of async single mode only works for
-          methods, not functions.
+    Note:
+        the current implementation of async single mode only works for
+        methods, not functions.
 
     Calling the async function from outside the gtk main loop will yield
     imediate execution:
 
-    async just works on functions (as long as single=False):
+    async just works on functions (as long as ``single=False``):
 
-        >>> a = async()(lambda: 'Hi')
-        >>> a()
-        'Hi'
+    >>> a = async()(lambda: 'Hi')
+    >>> a()
+    'Hi'
 
     Simple method:
     
-        >>> class A(object):
-        ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
-        ...     def a(self):
-        ...         print 'idle-a', gobject.main_depth()
+    >>> class A(object):
+    ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
+    ...     def a(self):
+    ...         print 'idle-a', gobject.main_depth()
     
     Methods can also set sinle mode to True (the method is only scheduled one).
 
-        >>> class B(object):
-        ...     @async(single=True)
-        ...     def b(self):
-        ...         print 'idle-b', gobject.main_depth()
+    >>> class B(object):
+    ...     @async(single=True)
+    ...     def b(self):
+    ...         print 'idle-b', gobject.main_depth()
 
     This is a helper function used to test classes A and B from within the GTK+
     main loop:
 
-        >>> def delayed():
-        ...     print 'before'
-        ...     a = A()
-        ...     b = B()
-        ...     a.a()
-        ...     b.b()
-        ...     a.a()
-        ...     b.b()
-        ...     a.a()
-        ...     b.b()
-        ...     print 'after'
-        ...     gobject.timeout_add(100, gtk.main_quit)
-        >>> gobject.timeout_add(1, delayed) > 0 # timeout id may vary
-        True
-        >>> import gtk
-        >>> gtk.main()
-        before
-        after
-        idle-a 1
-        idle-a 1
-        idle-a 1
-        idle-b 1
+    >>> def delayed():
+    ...     print 'before'
+    ...     a = A()
+    ...     b = B()
+    ...     a.a()
+    ...     b.b()
+    ...     a.a()
+    ...     b.b()
+    ...     a.a()
+    ...     b.b()
+    ...     print 'after'
+    ...     gobject.timeout_add(100, gtk.main_quit)
+    >>> gobject.timeout_add(1, delayed) > 0 # timeout id may vary
+    True
+    >>> import gtk
+    >>> gtk.main()
+    before
+    after
+    idle-a 1
+    idle-a 1
+    idle-a 1
+    idle-b 1
 
-    As you can see, although b.b() has been called three times, it's only
+    As you can see, although ``b.b()`` has been called three times, it's only
     executed once.
     """
 
@@ -110,15 +111,15 @@ def nonrecursive(func):
     """
     Enforce a function or method is not executed recursively:
 
-        >>> class A(object):
-        ...     @nonrecursive
-        ...     def a(self, x=1):
-        ...         print x
-        ...         self.a(x+1)
-        >>> A().a()
-        1
-        >>> A().a()
-        1
+    >>> class A(object):
+    ...     @nonrecursive
+    ...     def a(self, x=1):
+    ...         print x
+    ...         self.a(x+1)
+    >>> A().a()
+    1
+    >>> A().a()
+    1
     """
     def wrapper(*args, **kwargs):
         """

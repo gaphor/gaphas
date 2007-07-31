@@ -474,8 +474,9 @@ def rectangle_intersects(recta, rectb):
 
 def rectangle_clip(recta, rectb):
     """
-    Return the clipped rectangle of recta and rectb. If they do not intersect,
-    None is returned.
+    Return the clipped rectangle of ``recta`` and ``rectb``. If they do not
+    intersect, ``None`` is returned.
+
     >>> rectangle_clip((0, 0, 20, 20), (10, 10, 20, 20))
     (10, 10, 10, 10)
     """
