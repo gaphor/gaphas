@@ -430,13 +430,11 @@ class Canvas(object):
             # solve all constraints
             self._solver.solve()
 
-            # some item's can be marked dirty due to external constraints
-            # solving;
-            # Only items that have not yet been updates receive a pre_update.
-            # NOTE: no matrix can change during constraint solving
-
             assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
 
+            # some item's can be marked dirty due to external constraints
+            # solving
+            # NOTE: no matrix can change during constraint solving
             if self._dirty_items:
                 dirty_items.extend(self._dirty_items)
                 self._dirty_items.clear()
