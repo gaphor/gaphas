@@ -438,36 +438,21 @@ class Canvas(object):
             assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
 
             if self._dirty_items:
-
-                c_dirty_items = sort(self._dirty_items.difference(dirty_items), reverse=True)
-                
+                dirty_items.extend(self._dirty_items)
                 self._dirty_items.clear()
 
-                self._pre_update_items(c_dirty_items, cr)
-
-                dirty_items.extend(c_dirty_items)
                 dirty_items = sort(set(dirty_items), reverse=True)
 
-                # Also matrices may change due to an update.
-                if self._dirty_matrix_items:
-                    dirty_matrix_items.update(self.update_matrices(self._dirty_matrix_items))
-                    self._dirty_matrix_items.clear()
-
             assert not self._dirty_items, 'No items may have been marked dirty (%s)' % (self._dirty_matrix_items,)
-            assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
 
             # normalize items, which changed after constraint solving;
             # store those items, whose matrices changed
             normalized_items = self._normalize(dirty_items)
 
             # recalculate matrices of normalized items
-            #dirty_matrix_items.update(self.update_matrices(normalized_items))
-            self.update_matrices(normalized_items)
+            dirty_matrix_items.update(self.update_matrices(normalized_items))
 
             self._post_update_items(dirty_items, cr)
-
-            assert not self._dirty_items, 'No items may have been marked dirty (%s)' % (self._dirty_matrix_items,)
-            assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
 
         finally:
             assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
