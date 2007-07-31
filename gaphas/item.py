@@ -316,7 +316,7 @@ class Element(Item):
         if width < self.min_width:
             width = self.min_width
         h = self._handles
-        h[NE].x = h[NW].x + width
+        h[SE].x = h[NW].x + width
 
 
     def _get_width(self):
@@ -325,7 +325,7 @@ class Element(Item):
         right handle.
         """
         h = self._handles
-        return float(h[NE].x) - float(h[NW].x)
+        return float(h[SE].x) - float(h[NW].x)
 
     width = property(_get_width, _set_width)
 
@@ -346,14 +346,14 @@ class Element(Item):
         if height < self.min_height:
             height = self.min_height
         h = self._handles
-        h[SW].y = h[NW].y + height
+        h[SE].y = h[NW].y + height
 
     def _get_height(self):
         """
         Height.
         """
         h = self._handles
-        return float(h[SW].y) - float(h[NW].y)
+        return float(h[SE].y) - float(h[NW].y)
 
     height = property(_get_height, _set_height)
 
