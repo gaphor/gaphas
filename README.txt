@@ -1,20 +1,22 @@
-Gaphor Canvas
-=============
+Gaphor's Canvas
+===============
 
 This module contains a new canvas implementation for Gaphor.
 
 The basic idea is:
 
-- Items (canvas items) should be used as "adapter" for model elements.
-  (not a real adapter since they are stateful).
-- The canvas determines the tree structure (which items are children
-  of some other item is maintained by the canvas itself).
-- of course the constraint solver is present.
-- more modular: e.g. handle support could be swapped in and swapped out.
-- rendering using Cairo.
+- Items (canvas items) can be added to a Canvas.
+- The canvas maintains the tree structure (parent-child relationships between
+  items).
+- A constraint solver is used to maintain item constraints and inter-item
+  constraints.
+- The item (user) should not be bothered with things like bounding-box
+  calculations.
+- Very modular: e.g. handle support could be swapped in and swapped out.
+- Rendering using Cairo.
 
-Gaphas is released under the terms of the GNU Library General Public License
-(LGPL). See the COPYING file for details.
+ Gaphas is released under the terms of the GNU Library General Public License
+ (LGPL). See the COPYING file for details.
 
 .. contents::
 
