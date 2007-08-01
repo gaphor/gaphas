@@ -301,6 +301,12 @@ class Element(Item):
         self.width = width
         self.height = height
 
+    def setup_canvas(self):
+        super(Element, self).setup_canvas()
+
+        # Set width/height explicitly, so the element will maintain it
+        self.width = self.width
+        self.height = self.height
 
     def _set_width(self, width):
         """
