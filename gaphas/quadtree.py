@@ -211,7 +211,17 @@ class Quadtree(object):
         
 
     def __len__(self):
+        """
+        Return number of items in tree.
+        """
         return len(self._ids)
+
+
+    def __contains__(self, item):
+        """
+        Check if an item is in tree.
+        """
+        return item in self._ids
 
 
     def dump(self):

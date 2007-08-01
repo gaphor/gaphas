@@ -571,31 +571,31 @@ class GtkView(gtk.DrawingArea, View):
                 self.queue_draw_item(i)
 
             for i in dirty_matrix_items:
-                try:
-                    bounds = self._qtree.get_data(i)
-                except KeyError:
+                if i not in self._qtree:
                     dirty_items.add(i)
-                else:
-                    self.queue_draw_item(i)
+                    continue
 
-                    self.update_matrix(i)
-                    i2v = self.get_matrix_i2v(i).transform_point
-                    x0, y0 = i2v(bounds.x, bounds.y)
-                    x1, y1 = i2v(bounds.x1, bounds.y1)
-                    vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    self._qtree.add(i, vbounds, bounds)
+                bounds = self._qtree.get_data(i)
+                self.queue_draw_item(i)
 
-                    # TODO: find an elegant way to update parent bb's.
-                    #parent = self.canvas.get_parent(i)
-                    #if parent:
-                    #    try:
-                    #        parent_bounds = self._qtree.get_bounds(parent)
-                    #    except KeyError:
-                    #        pass # No bounds, do nothing
-                    #    else:
-                    #        if not vbounds in parent_bounds:
-                    #            self.set_item_bounding_box(parent, vbounds + parent_bounds)
-                    self.queue_draw_item(i)
+                self.update_matrix(i)
+                i2v = self.get_matrix_i2v(i).transform_point
+                x0, y0 = i2v(bounds.x, bounds.y)
+                x1, y1 = i2v(bounds.x1, bounds.y1)
+                vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
+                self._qtree.add(i, vbounds, bounds)
+
+                # TODO: find an elegant way to update parent bb's.
+                #parent = self.canvas.get_parent(i)
+                #if parent:
+                #    try:
+                #        parent_bounds = self._qtree.get_bounds(parent)
+                #    except KeyError:
+                #        pass # No bounds, do nothing
+                #    else:
+                #        if not vbounds in parent_bounds:
+                #            self.set_item_bounding_box(parent, vbounds + parent_bounds)
+                self.queue_draw_item(i)
 
             self._update_bounding_box.update(dirty_items)
 
