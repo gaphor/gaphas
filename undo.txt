@@ -9,6 +9,8 @@ works.
 
 See state.txt about how state is recorded.
 
+.. contents::
+
 For this to work, some boilerplate has to be configured:
 
     >>> from gaphas import state
@@ -35,7 +37,7 @@ This simple undo function will revert all states collected in the undo_list:
 
 tree.py: Tree
 -------------
-Tree's add() and remove() methods are disabled by default.
+Tree's ``add()`` and ``remove()`` methods are disabled by default.
 
     >>> from gaphas.tree import Tree
     >>> state.enable_dispatching(Tree.add)
@@ -120,7 +122,6 @@ As you can see, there's currently one flaw: the item is added at the end of the 
 matrix.py: Matrix
 -----------------
 Matrix is used by Item classes.
-    invert, translate, rotate and scale
 
     >>> from gaphas.matrix import Matrix
     >>> m = Matrix()
@@ -191,7 +192,7 @@ canvas.py: Canvas
     >>> item = Item()
     >>> canvas.add(item)
 
-The request_update() method is observed:
+The ``request_update()`` method is observed:
 
     >>> len(undo_list)
     3
@@ -199,7 +200,7 @@ The request_update() method is observed:
     >>> len(undo_list)
     4
 
-On the canvas only add() and remove() are monitored:
+On the canvas only ``add()`` and ``remove()`` are monitored:
 
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
@@ -270,7 +271,6 @@ children):
 
 item.py: Handle
 ---------------
-     x, y, connectable, movable, visible, connected_to and disconnect properties
 Changing the Handle's position is reversible:
 
     >>> from gaphas import Handle
@@ -315,12 +315,12 @@ item.py: Item
 The basic Item properties are canvas and matrix. Canvas has been tested before,
 while testing the Canvas class.
 
-The Matrix has been tested in section matrix.y: Matrix.
+The Matrix has been tested in section matrix.py: Matrix.
 
 item.py: Element
 ----------------
 
-An element has min_height and min_width properties.
+An element has ``min_height`` and ``min_width`` properties.
 
     >>> from gaphas import Element
     >>> e = Element()
@@ -342,8 +342,8 @@ An element has min_height and min_width properties.
 item.py: Line
 -------------
 
-A line has the following properties: line_width, fuzziness, orthogonal and
-horizontal. Each one of then is observed for changes:
+A line has the following properties: ``line_width``, ``fuzziness``,
+``orthogonal`` and ``horizontal``. Each one of then is observed for changes:
 
     >>> from gaphas import Line
     >>> l = Line()
@@ -403,7 +403,7 @@ Variable's strength and value properties are observed:
 solver.py: Solver
 -----------------
 
-Solvers add_constraint() and remove_constraint() are observed. 
+Solvers ``add_constraint()`` and ``remove_constraint()`` are observed. 
 
     >>> from gaphas.solver import Solver
     >>> from gaphas.constraint import EquationConstraint

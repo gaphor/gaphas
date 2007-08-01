@@ -6,14 +6,16 @@ the first step in creating an undo system.
 
 The state system consists of two parts:
 
- 1. A basic observer (the @observed decorator)
- 2. A reverter
+1. A basic observer (the ``@observed`` decorator)
+2. A reverter
+
+.. contents::
 
 Observer
 --------
 
-The observer simply dispatches the function called (as <function ..>, not as
-<unbound method..>!) to each handler registered in an observers list.
+The observer simply dispatches the function called (as ``<function ..>``, not as
+``<unbound method..>``!) to each handler registered in an observers list.
 
     >>> from gaphas import state
     >>> state.observers.clear()
@@ -52,7 +54,7 @@ crafting of methods may be nessecary in order to get the right effect:
     >>> tree.nodes
     []
 
-The @observed decorator can also be applied to properties, as is done in
+The ``@observed`` decorator can also be applied to properties, as is done in
 gaphas/item.py's Handle class:
 
     >>> from gaphas.solver import Variable
@@ -71,17 +73,17 @@ is present now):
 
 What should you know:
 
- 1. The observer always generates events based on 'function' calls. Even for
-    class method invokations. This is because, when calling a method (say
-    Tree.add) it's the im_func field is executed, which is a function type
-    object.
+1. The observer always generates events based on 'function' calls. Even for
+   class method invokations. This is because, when calling a method (say
+   Tree.add) it's the im_func field is executed, which is a function type
+   object.
 
- 2. It's important to know if an event came from invoking a method or a simple
-    function. With methods, the first argument always is an instance. This can
-    be handy when writing an undo management systems in case multiple calls
-    from the same instance do not have to be registered (e.g. if a method
-    set_point() is called with exact coordinates (in stead of deltas), only the
-    first call to set_point needs to be remembered.
+2. It's important to know if an event came from invoking a method or a simple
+   function. With methods, the first argument always is an instance. This can
+   be handy when writing an undo management systems in case multiple calls
+   from the same instance do not have to be registered (e.g. if a method
+   set_point() is called with exact coordinates (in stead of deltas), only the
+   first call to set_point needs to be remembered.
 
 
 Reverser
@@ -89,20 +91,21 @@ Reverser
 
 The reverser requires some registration.
 
- 1. Property setters should be declared with reversible_property()
- 2. Method (or function) pairs that implement each others reverse operation
-    (e.g. add and remove) should be registered as reversible_pair()'s in the
-    reverser engine.
-    The reverser will construct a tuple (callable, arguments) which are send
-    to every handler registered in the subscribers list. Arguments is a dict().
+1. Property setters should be declared with reversible_property()
+2. Method (or function) pairs that implement each others reverse operation
+   (e.g. add and remove) should be registered as reversible_pair()'s in the
+   reverser engine.
+   The reverser will construct a tuple (callable, arguments) which are send
+   to every handler registered in the subscribers list. Arguments is a dict().
 
-First thing to do is to actually enable the revert_handler:
+First thing to do is to actually enable the ``revert_handler``:
 
     >>> state.observers.add(state.revert_handler)
 
 This handler is not enabled by default because:
- 1. it generates quite a bit of overhead if it isn't used anyway
- 2. you might want to add some additional filtering.
+
+1. it generates quite a bit of overhead if it isn't used anyway
+2. you might want to add some additional filtering.
 
 Point 2 may require some explanation. First of all observers have been added
 to almost every method that involves a state change. As a result multiple
@@ -128,8 +131,8 @@ As you can see this event is constructed of only two parameters: the function
 that does the inverse operation of add() and the arguments that should be
 applied to that function.
 
-The inverse operation is easiest performed by the function saveapply(). Of course
-an inverse operation is emitting a change event too:
+The inverse operation is easiest performed by the function saveapply(). Of
+course an inverse operation is emitting a change event too:
 
     >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
     event handler (<function add at 0x...>, {'node': 3, 'self': <gaphas.tree.Tree object at 0x...>, 'parent': None})
@@ -154,14 +157,6 @@ Handlers can be simply removed:
     >>> state.subscribers.remove(handler)
     >>> state.observers.remove(state.revert_handler)
 
-TODO
-----
-
-Function wrappers should have an extra property indicating if a function needs
-to be dispatched or not. If it needs to be dispatched an extra flag should be
-set. This will prevent the system from slowing down due to emitting signals that
-are filtered out later on.
-
 What is Observed 
 ----------------
 
@@ -169,34 +164,34 @@ As far as Gaphas is concerned, only properties and methods related to the
 model (e.g. Canvas, Items) emit state changes. Some extra effort has been taken
 to monitor the Matrix class (which is from Cairo).
 
- canvas.py:
-   Canvas:
-     add() and remove()
+canvas.py:
+  Canvas:
+    add() and remove()
 
- item.py:
-   Handle:
-     x, y, connectable, movable, visible, connected_to and disconnect properties
-   Item:
-     canvas and matrix properties
-   Element:
-     min_height and min_width properties
-   Line:
-     line_width, fuzziness, orthogonal and horizontal properties;
-     split_segment() and merge_segment()
+item.py:
+  Handle:
+    x, y, connectable, movable, visible, connected_to and disconnect properties
+  Item:
+    canvas and matrix properties
+  Element:
+    min_height and min_width properties
+  Line:
+    line_width, fuzziness, orthogonal and horizontal properties;
+    split_segment() and merge_segment()
 
- solver.py:
-   Variable:
-     strength and value properties
-   Solver:
-     add_constraint() and remove_constraint() 
+solver.py:
+  Variable:
+    strength and value properties
+  Solver:
+    add_constraint() and remove_constraint() 
 
- tree.py:
-   Tree:
-     add() and remove()
+tree.py:
+  Tree:
+    add() and remove()
 
- matrix.py:
-   Matrix:
-    invert, translate, rotate and scale
+matrix.py:
+  Matrix:
+   invert, translate, rotate and scale
 
 Testcases are described in undo.txt.
 

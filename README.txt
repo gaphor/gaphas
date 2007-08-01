@@ -5,45 +5,18 @@ This module contains a new canvas implementation for Gaphor.
 
 The basic idea is:
 
- - Items (canvas items) should be used as "adapter" for model elements.
-   (not a real adapter since they are stateful).
- - The canvas determines the tree structure (which items are children
-   of some other item is maintained by the canvas itself).
- - of course the constraint solver is present.
- - more modular: e.g. handle support could be swapped in and swapped out.
- - rendering using Cairo.
+- Items (canvas items) should be used as "adapter" for model elements.
+  (not a real adapter since they are stateful).
+- The canvas determines the tree structure (which items are children
+  of some other item is maintained by the canvas itself).
+- of course the constraint solver is present.
+- more modular: e.g. handle support could be swapped in and swapped out.
+- rendering using Cairo.
 
+Gaphas is released under the terms of the GNU Library General Public License
+(LGPL). See the COPYING file for details.
 
-To do
-=====
-
-This is it as far as stage 1 is concerned. I have implemented:
- v a render cycle.
- v zoom and move functionality (canvas2world).
- v scroll-bars work.
- v a set of tools and a ToolChain (to chain them together).
- v rubberband selection
-
-Stage 2:
- v check the code with pylint for strange things.
- v line item
- v placement tool
- v connection protocol
- v make update cycle independent from render (expose) event.
-    This is something we might do if the response is getting bad.
- ? rotating and shearing for Element items.
-    Do we need this?
-
-Stage 3:
- v make double and triple click work.
- v text edit tool (gtk.Edit in popup window?)
-
-Stage n:
- - Drop-zone tool
-     the idea is that for example you have a Package and when you drag
-     a Class into it it automatically makes the Package its owning element.
- v undo management
-
+.. contents::
 
 How it Works
 ============
@@ -62,7 +35,7 @@ be aligned). The constraint solver is also a handy tool to keep constraint
 in the item true (e.g. make sure a box maintains it's rectangular shape).
 
 View (from view.py) is used to visualize a canvas. On a View, a Tool
-(from tool.py) can be assigned, which will handle user input (button presses,
+(from tool.py) can be applied, which will handle user input (button presses,
 key presses, etc.). Painters (from painter.py) are used to do the actual
 drawing. This way it should be easy do draw to other media than the screen,
 such as a printer or PDF document.
@@ -72,26 +45,48 @@ Updating item state
 If an items needs updating, it sets out an update request on the Canvas
 (Canvas.request_update()). The canvas performs an update by calling:
 
- 1. Item.pre_update(context)
- 2. updating World-to-Item matrices, for fast transformation of coordinates
-    from the world to the items' coordinate system.
-    The w2i matrix is stored on the Item as Item._matrix_w2i.
- 3. solve constraints
- 4. normalize items by setting the coordinates of the first handle to (0, 0).
- 5. updating World-to-Item matrices again, just to be on the save side.
- 6. Item.post_update(context)
+1. Item.pre_update(context) for each item marked for update
+2. Updating Canvas-to-Item matrices, for fast transformation of coordinates
+   from the canvas' to the items' coordinate system.
+   The c2i matrix is stored on the Item as Item._matrix_c2i.
+3. Solve constraints.
+4. Normalize items by setting the coordinates of the first handle to (0, 0).
+5. Updating Canavs-to-Item matrices for items that have been changed by
+   normalizarion, just to be on the save side.
+6. Item.post_update(context) for each item marked for update, including items
+   that have been marked during constraint solving.
 
-The idea is to do as much updating as possible in the (pre_)update() methods,
-since they are called when the application is not handling user input.
+The idea is to do as much updating as possible in the {pre|post}_update()
+methods, since they are called when the application is not handling user input.
 
 The context contains:
 
- cairo:    a CairoContext, this can be used to calculate the dimensions of text
-           for example
+:cairo: a CairoContext, this can be used to calculate the dimensions of text
+        for example
 
 NOTE: updating is done from the canvas, items should not update sub-items.
 
 After an update, the Item should be ready to be drawn.
+
+Constraint solving
+------------------
+A word about the constraint solver seems in place. It is one of the big
+features of this library after all. The Solver is able to solve constraints.
+Constraints can be applied to items (e.g. the Element item uses constraints to
+maintain it's recangular shape) and constraints can be created *between* items
+(for example a line that connects to a box).
+
+Constaints that apply to one item are pretty straight forward, as all variables
+live in the same coordinate system (of the item). The variables (in most cases
+a Handle's x and y coordinate) can simply be put in a constraint.
+
+When two items are connected to each other and constraints are created, a
+problem shows up: variables live in separate coordinate systems. To overcome
+this problem a Projection (from solver.py) has been defined. With a Projection
+instance, a variable can be "projected" on another coordinate system. In this
+case, where two items are connecting to each other, the Canvas' coordinate
+system is used.
+
 
 Drawing
 -------
@@ -103,24 +98,25 @@ There used to be a draw_children() method in the view context. This method
 has been rendered obsolete (mainly to speed up drawing).
 The view context passed to the Items draw() method has the following properties:
 
- view:     the view we're drawing to
- cairo:    the CairoContext to draw to
- selected: True if the item is actually selected in the view
- focused:  True if the item has the focus
- hovered:  True if the mouse pointer if over the item. Only the top-most item
+:view:     the view we're drawing to
+:cairo:    the CairoContext to draw to
+:selected: True if the item is actually selected in the view
+:focused:  True if the item has the focus
+:hovered:  True if the mouse pointer if over the item. Only the top-most item
            is marked as hovered.
- dropzone: The item is marked as drop zone. This happens then an item is
+:dropzone: The item is marked as drop zone. This happens then an item is
            dragged over the item and (if dropped) will become a child of
            this item.
- draw_all: True if everything drawable on the item should be drawn (e.g. when
+:draw_all: True if everything drawable on the item should be drawn (e.g. when
            calculating the bounding boxes).
 
 The View automatically calculates the bounding box for the item, based on the
-items drawn in the draw(context) function (this is only done once after each
-Item.update()). The bounding box is in viewport coordinates.
+items drawn in the draw(context) function (this is only done when really
+necessary, e.g. after an update of the item). The bounding box is in viewport
+coordinates.
 
 The actual drawing is done by Painters (painter.py). A series of Painters have
-been defined: one for handles, one for items.
+been defined: one for handles, one for items, etc.
 
 Tools
 -----
@@ -128,41 +124,37 @@ Behavior is added to the canvas(-view) by tools.
 
 Tools can be chained together in order to provide more complex behavior.
 
-To mak eit easy a DefaultTool has been defined: a ToolChain instance with the
+To make it easy a DefaultTool has been defined: a ToolChain instance with the
 tools added that are listed in the following sections.
 
 ToolChain
-~~~~~~~~~
-The ToolChain does not do anything by itself. It delegates to a set of tools
-and keeps track of which tool has grabbed the focus. This happens most of the
-time when the uses presses a mouse button. The tool requests a grab() and
-all upcoming events (e.g. motion or button release events) are directly sent
-to the focused tool.
+    The ToolChain does not do anything by itself. It delegates to a set of
+    tools and keeps track of which tool has grabbed the focus. This happens
+    most of the time when the uses presses a mouse button. The tool requests a
+    grab() and all upcoming events (e.g. motion or button release events) are
+    directly sent to the focused tool.
 
 HoverTool
-~~~~~~~~~
-A small and simple tool that does nothing more than making the item under the
-mouse button the "hovered item". When such an item is drawn, its
-context.hovered_item flag will be set to True.
+    A small and simple tool that does nothing more than making the item under
+    the mouse button the "hovered item". When such an item is drawn, its
+    context.hovered_item flag will be set to True.
 
 HandleTool
-~~~~~~~~~~
-The HandleTool is used to deal with handles. Handles can be dragged around.
-Clicking on a handle automatically makes the underlaying item the focused item.
+    The HandleTool is used to deal with handles. Handles can be dragged around.
+    Clicking on a handle automatically makes the underlaying item the focused
+    item.
 
 ItemTool
-~~~~~~~~
-The item tool takes care of selecting items and dragging items around.
+    The item tool takes care of selecting items and dragging items around.
 
 TextEditTool
-~~~~~~~~~~~~
-This is a demo-tool, featuring a text-edit popup.
+    This is a demo-tool, featuring a text-edit popup.
 
 RubberbandTool
-~~~~~~~~~~~~~~
-The last toolin line is the rubberband tool. It's invoked when the mouse button
-is pressed on a section of the view where no items or handles are present. It
-allows the user to select items using a selection box (rubberband).
+    The last toolin line is the rubberband tool. It's invoked when the mouse
+    button is pressed on a section of the view where no items or handles are
+    present. It allows the user to select items using a selection box
+    (rubberband).
 
 
 Interaction
@@ -176,7 +168,7 @@ implementation doesn't do any connecting at all!).
 
 One of the problems you'll face is what to do when an item is removed from the
 canvas and there are other items (lines) connected to. This problem can be
-solved by providing a disconnect handler to the handle instance ones it is
+overcome by providing a disconnect handler to the handle instance ones it is
 connected. A callable object (e.g. function) can be assigned to the handle. It
 is called at the moment the item it's connected to is removed from the canvas.
 
@@ -200,38 +192,37 @@ Files
 Canvas independent classes:
 
 tree.py:
-	Central tree structure (no more CanvasGroupable)
+    Central tree structure (no more CanvasGroupable)
 solver.py:
-	A constraint solver (infinite domain, based on diacanvas2's solver)
+    A constraint solver (infinite domain, based on diacanvas2's solver)
 constraint.py:
-	Constraint implementation.
+    Constraint implementation.
 geometry.py:
-	Matrix, Rectangle calculations.
+    Matrix, Rectangle calculations.
 quadtree.py:
-        A QuadTree spacial index. Used in the View to pick items quickly.
+    A QuadTree spacial index. Used in the View to pick items quickly.
 
 Canvas classes:
 
 item.py:
-	Canvas item and handle
+    Canvas item and handle
 canvas.py:
-	Canvas class
+    Canvas class
 view.py:
-	Canvas view (renderer) class
+    Canvas view (renderer) class
 tool.py:
-	Base class for Tools (which handle events on the view).
+    Base class for Tools (which handle events on the view).
 
 Other:
 
 examples.py:
-	Simple example classes.
+    Simple example classes.
 
 Guidelines
-----------
-Following the Python coding guidelines
-<http://www.python.org/dev/peps/pep-0008/> indentation should be 4 spaces
-(no tabs), function and method names should be lowercase_with_underscore(),
-and files should contain a __version__ property, like this:
+==========
+Following the `Python coding guidelines`_ indentation should be 4 spaces
+(no tabs), function and method names should be ``lowercase_with_underscore()``,
+and files should contain a ``__version__`` property, like this::
 
   __version__ = "$Revision$"
   # $HeadURL$
@@ -239,11 +230,11 @@ and files should contain a __version__ property, like this:
 It should be placed after the module docstring.
 
 This inhibits that for each .py file, the svn:keywords property should be set
-to "Revision HeadURL". This can be done manually:
+to ``Revision HeadURL``. This can be done manually::
 
   $ svn propset svn:keywords "Revision HeadURL" myfile.py
 
-or by configuring your ~/.subversion/config file to use auto-props:
+or by configuring your ~/.subversion/config file to use auto-props::
 
   [miscellany]
   # ...
@@ -254,3 +245,4 @@ or by configuring your ~/.subversion/config file to use auto-props:
   *.py = svn:keywords=Revision HeadURL
 
 
+.. _Python coding guidelines: http://www.python.org/dev/peps/pep-0008/
