@@ -1,4 +1,6 @@
 
+VERSION = '0.3.0'
+
 from ez_setup import use_setuptools
 
 use_setuptools()
@@ -37,13 +39,31 @@ class build_doc(Command):
 
 setup(
     name='gaphas',
-    version='0.3.0',
+    version=VERSION,
     description='Gaphas is a GTK+ based diagramming widget',
     long_description="""\
 Gaphas is a GTK+ based diagramming widget written in Python.
-It is the logical successor of the DiaCanvas library.
 
-GTK+ and PyGTK is required.
+Gaphas is a MVC canvas that uses Cairo_ for rendering. One of the nicer things
+of this widget is that the user (model) is not bothered with bounding box
+calculations: this is all done through Cairo.
+
+Some more features:
+
+- Each item has it's own separate coordinate space (easy when items are
+  rotated).
+- Items on the canvas can be connected to each other. Connections are
+  maintained by a linear constraint solver.
+- Multiple views on one Canvas.
+- What is drawn is determined by Painters. Multiple painters can be used and
+  painters can be stacked.
+- User interaction is handled by Tools. Tools can be stacked.
+- Versatile undo/redo system
+
+GTK+ and PyGTK_ are required.
+
+.. _Cairo: http://cairographics.org/
+.. _PyGTK: http://www.pygtk.org/
 """,
 
     classifiers=[
