@@ -316,7 +316,7 @@ class Element(Item):
         20.0
         >>> b._handles[NW].x
         Variable(0, 40)
-        >>> b._handles[NE].x
+        >>> b._handles[SE].x
         Variable(20, 40)
         """
         if width < self.min_width:
@@ -346,7 +346,7 @@ class Element(Item):
         10.0
         >>> b._handles[NW].y
         Variable(0, 40)
-        >>> b._handles[SW].y
+        >>> b._handles[SE].y
         Variable(10, 40)
         """
         if height < self.min_height:
