@@ -76,7 +76,6 @@ class ViewTestCase(unittest.TestCase):
         while gtk.events_pending():
             gtk.main_iteration()
 
-        assert not view._update_bounding_box
         assert len(view._qtree._ids) == 1
         assert not view._qtree._bucket.bounds == (0, 0, 0, 0), view._qtree._bucket.bounds
 

@@ -409,8 +409,6 @@ class GtkView(gtk.DrawingArea, View):
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
 
-        self._update_bounding_box = set()
-
 
     def emit(self, *args, **kwargs):
         """
@@ -507,11 +505,6 @@ class GtkView(gtk.DrawingArea, View):
             self._qtree.resize((0, 0, allocation.width, allocation.height))
         
 
-    @async(single=False, priority=PRIORITY_HIGH_IDLE)
-    def _idle_queue_draw_item(self, *items):
-        self.queue_draw_item(*items)
-
-
     def queue_draw_item(self, *items):
         """
         Like DrawingArea.queue_draw_area, but use the bounds of the
@@ -550,10 +543,7 @@ class GtkView(gtk.DrawingArea, View):
             self.queue_draw_item(*removed_items)
 
             for item in removed_items:
-                # Be cautious, item may be removed before its bounding box
-                # is calculated.
-                if item in self._qtree:
-                    self._qtree.remove(item)
+                self._qtree.remove(item)
                 self.selected_items.discard(item)
 
             if self.focused_item in removed_items:
@@ -604,11 +594,28 @@ class GtkView(gtk.DrawingArea, View):
                 # Request bb recalculation for all 'really' dirty items
                 self.queue_draw_item(i)
 
-            self._update_bounding_box.update(dirty_items)
-
+            self.update_bounding_box(set(dirty_items))
         finally:
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
+
+
+    @async(single=False)
+    def update_bounding_box(self, items):
+        """
+        Update bounding box is not necessary
+        """
+        cr = self.window.cairo_create()
+
+        cr.save()
+        cr.rectangle(0, 0, 0, 0)
+        cr.clip()
+        try:
+            super(GtkView, self).update_bounding_box(cr, items)
+        finally:
+            cr.restore()
+        self.queue_draw_item(*items)
+        self.update_adjustments()
 
 
     @nonrecursive
@@ -642,21 +649,6 @@ class GtkView(gtk.DrawingArea, View):
         # Draw no more than nessesary.
         cr.rectangle(x, y, w, h)
         cr.clip()
-
-        update_bounding_box = self._update_bounding_box
-        if update_bounding_box:
-            try:
-                cr.save()
-                cr.rectangle(0, 0, 0, 0)
-                cr.clip()
-                try:
-                    self.update_bounding_box(cr, update_bounding_box)
-                finally:
-                    cr.restore()
-                self._idle_queue_draw_item(*update_bounding_box)
-                self.update_adjustments()
-            finally:
-                update_bounding_box.clear()
 
         area = Rectangle(x, y, width=w, height=h)
         self._painter.paint(Context(view=self,

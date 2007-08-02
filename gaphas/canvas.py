@@ -76,7 +76,7 @@ class Canvas(object):
         self.update_matrix(item, parent)
 
         self.request_update(item)
-        self._update_views((item,))
+        #self._update_views((item,))
 
 
     @observed
