@@ -60,9 +60,8 @@ def observed(func):
         except AttributeError:
             pass
         return func(*args, **kwargs)
-    dec = decorator(wrapper, func)
+    dec = decorator(wrapper)(func)
     
-    #dec.__doc__ = (dec.__doc__ or '') + OBSERVED_DOCSTRING
     func.__observer__ = dec
     if DISPATCH_BY_DEFAULT:
         dec.__dispatched__ = True
