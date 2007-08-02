@@ -52,6 +52,7 @@ class ViewTestCase(unittest.TestCase):
             assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
             assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
         finally:
+            window1.destroy()
             window2.destroy()
 
     def test_get_item_at_point(self):
@@ -82,7 +83,36 @@ class ViewTestCase(unittest.TestCase):
         assert view.get_item_at_point(10, 10) is box
         assert view.get_item_at_point(60, 10) is None
 
+        window.destroy()
 
+
+    def test_item_removal(self):
+        canvas = Canvas()
+        view = GtkView(canvas)
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.add(view)
+        window.show_all()
+
+        box = Box()
+        canvas.add(box)
+        # No gtk main loop, so updates occur instantly
+        assert not canvas.require_update()
+
+        # Process pending (expose) events, which cause the canvas to be drawn.
+        while gtk.events_pending():
+            gtk.main_iteration()
+
+        assert len(canvas.get_all_items()) == len(view._qtree)
+
+        view.focused_item = box
+        canvas.remove(box)
+
+        assert len(canvas.get_all_items()) == 0
+        assert len(view._qtree) == 0
+
+        window.destroy()
+
+        
 if __name__ == '__main__':
     unittest.main()
 

@@ -506,9 +506,11 @@ class GtkView(gtk.DrawingArea, View):
         if w != allocation.width or h != allocation.height:
             self._qtree.resize((0, 0, allocation.width, allocation.height))
         
+
     @async(single=False, priority=PRIORITY_HIGH_IDLE)
     def _idle_queue_draw_item(self, *items):
         self.queue_draw_item(*items)
+
 
     def queue_draw_item(self, *items):
         """
@@ -524,11 +526,13 @@ class GtkView(gtk.DrawingArea, View):
             except KeyError:
                 pass # No bounds calculated yet? bummer.
 
+
     def queue_draw_area(self, x, y, w, h):
         """
         Wrap draw_area to convert all values to ints.
         """
         super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
+
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
@@ -546,7 +550,10 @@ class GtkView(gtk.DrawingArea, View):
             self.queue_draw_item(*removed_items)
 
             for item in removed_items:
-                self._qtree.remove(item)
+                # Be cautious, item may be removed before its bounding box
+                # is calculated.
+                if item in self._qtree:
+                    self._qtree.remove(item)
                 self.selected_items.discard(item)
 
             if self.focused_item in removed_items:
@@ -557,6 +564,7 @@ class GtkView(gtk.DrawingArea, View):
                 self.dropzone_item = None
 
         self.update()
+
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
@@ -602,6 +610,7 @@ class GtkView(gtk.DrawingArea, View):
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
 
+
     @nonrecursive
     def do_size_allocate(self, allocation):
         """
@@ -611,11 +620,13 @@ class GtkView(gtk.DrawingArea, View):
         # doesn't work: super(GtkView, self).do_size_allocate(allocation)
         self.update_adjustments(allocation)
        
+
     def do_realize(self):
         #super(GtkView, self).do_realize()
         gtk.DrawingArea.do_realize(self)
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
+
 
     def do_expose_event(self, event):
         """
@@ -685,6 +696,7 @@ class GtkView(gtk.DrawingArea, View):
         if self._tool and handler:
             return getattr(self._tool, handler)(ToolContext(view=self), event) and True or False
         return False
+
 
     def on_adjustment_changed(self, adj):
         """
