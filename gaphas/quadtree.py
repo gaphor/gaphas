@@ -116,6 +116,8 @@ class Quadtree(object):
         (0, 0, 0, 0)
         """
         x_y_w_h = zip(*map(operator.getitem, self._ids.itervalues(), [0] * len(self._ids)))
+        if not x_y_w_h:
+            return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
         y0 = min(x_y_w_h[1])
         add = operator.add

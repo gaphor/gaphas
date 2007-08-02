@@ -47,8 +47,10 @@ class View(object):
         self._dirty_items = set()
         self._dirty_matrix_items = set()
 
+
     matrix = property(lambda s: s._matrix,
                       doc="Canvas to view transformation matrix")
+
 
     def _set_canvas(self, canvas):
         """
@@ -66,11 +68,13 @@ class View(object):
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
+
     def emit(self, args, **kwargs):
         """
         Placeholder method for signal emission functionality.
         """
         pass
+
 
     def select_item(self, item):
         """
@@ -85,6 +89,7 @@ class View(object):
             self._selected_items.add(item)
             self.emit('selection-changed', self._selected_items)
 
+
     def unselect_item(self, item):
         """
         Unselect an item.
@@ -94,9 +99,11 @@ class View(object):
             self._selected_items.discard(item)
             self.emit('selection-changed', self._selected_items)
 
+
     def select_all(self):
         for item in self.canvas.get_all_items():
             self.select_item(item)
+
 
     def unselect_all(self):
         """
@@ -107,9 +114,11 @@ class View(object):
         self.focused_item = None
         self.emit('selection-changed', self._selected_items)
 
+
     selected_items = property(lambda s: s._selected_items,
                               select_item, unselect_all,
                               "Items selected by the view")
+
 
     def _set_focused_item(self, item):
         """
@@ -125,15 +134,18 @@ class View(object):
             self._focused_item = item
             self.emit('focus-changed', item)
 
+
     def _del_focused_item(self):
         """
         Items that loose focus remain selected.
         """
         self.focused_item = None
         
+
     focused_item = property(lambda s: s._focused_item,
                             _set_focused_item, _del_focused_item,
                             "The item with focus (receives key events a.o.)")
+
 
     def _set_hovered_item(self, item):
         """
@@ -145,12 +157,14 @@ class View(object):
             self._hovered_item = item
             self.emit('hover-changed', item)
 
+
     def _del_hovered_item(self):
         """
         Unset the hovered item.
         """
         self.hovered_item = None
         
+
     hovered_item = property(lambda s: s._hovered_item,
                             _set_hovered_item, _del_hovered_item,
                             "The item directly under the mouse pointer")
@@ -185,7 +199,9 @@ class View(object):
         self._painter = painter
         self.emit('painter-changed')
 
+
     painter = property(lambda s: s._painter, _set_painter)
+
 
     def get_item_at_point(self, x, y, selected=True):
         """
@@ -227,6 +243,7 @@ class View(object):
         items = self._qtree.find_inside(rect)
         map(self.select_item, items)
 
+
     def zoom(self, factor):
         """
         Zoom in/out by factor @factor.
@@ -236,6 +253,7 @@ class View(object):
         # Make sure everything's updated
         map(self.update_matrix, self._canvas.get_all_items())
         self.request_update(self._canvas.get_all_items())
+
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -253,16 +271,6 @@ class View(object):
         ix1, iy1 = v2i(bounds.x1, bounds.y1)
         self._qtree.add(item=item, bounds=bounds, data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
 
-        # Update bounding box of parent items where appropriate (only extent)
-        #parent = self.canvas.get_parent(item)
-        #if parent:
-        #    try:
-        #        parent_bounds = self._qtree.get_bounds(parent)
-        #    except KeyError:
-        #        pass # No bounds, do nothing
-        #    else:
-        #        if not bounds in parent_bounds:
-        #            self.set_item_bounding_box(parent, bounds + parent_bounds)
 
     def get_item_bounding_box(self, item):
         """
@@ -270,18 +278,18 @@ class View(object):
         """
         return self._qtree.get_bounds(item)
 
+
     def get_canvas_size(self):
         """
-        The canvas size (width, height) in canvas coordinates, determined
+        The canvas size (width, height) in view coordinates, determined
         from the origin (0, 0).
         """
-        inverse = Matrix(*self._matrix)
-        inverse.invert()
-        x, y, w, h = self._qtree.bounds
-        ww, wh = inverse.transform_point(x + w, y + h)
-        return self._matrix.transform_distance(ww, wh)
+        x, y, w, h = self._qtree.soft_bounds
+        return x + w, y + h
+
 
     bounding_box = property(lambda s: s._qtree.bounds)
+
 
     def update_bounding_box(self, cr, items=None):
         """
@@ -299,6 +307,7 @@ class View(object):
 
         # Update the view's bounding box with the rest of the items
         self._bounds = Rectangle(*self._qtree.soft_bounds)
+
 
     def paint(self, cr):
         self._painter.paint(Context(view=self,
@@ -378,6 +387,7 @@ class GtkView(gtk.DrawingArea, View):
                       ())
     }
 
+
     def __init__(self, canvas=None):
         super(GtkView, self).__init__()
         View.__init__(self)
@@ -388,8 +398,10 @@ class GtkView(gtk.DrawingArea, View):
                         | gtk.gdk.KEY_PRESS_MASK
                         | gtk.gdk.KEY_RELEASE_MASK)
 
-        self.hadjustment = gtk.Adjustment()
-        self.vadjustment = gtk.Adjustment()
+        self._hadjustment = gtk.Adjustment()
+        self._vadjustment = gtk.Adjustment()
+        self._hadjustment.connect('value-changed', self.on_adjustment_changed)
+        self._vadjustment.connect('value-changed', self.on_adjustment_changed)
 
         self._tool = DefaultTool()
         self.canvas = canvas
@@ -399,11 +411,13 @@ class GtkView(gtk.DrawingArea, View):
 
         self._update_bounding_box = set()
 
+
     def emit(self, *args, **kwargs):
         """
         Delegate signal emissions to the DrawingArea (=GTK+)
         """
         gtk.DrawingArea.emit(self, *args, **kwargs)
+
 
     def _set_canvas(self, canvas):
         """
@@ -419,7 +433,9 @@ class GtkView(gtk.DrawingArea, View):
         if self._canvas:
             self._canvas.register_view(self)
 
+
     canvas = property(lambda s: s._canvas, _set_canvas)
+
 
     def _set_tool(self, tool):
         """
@@ -428,29 +444,15 @@ class GtkView(gtk.DrawingArea, View):
         self._tool = tool
         self.emit('tool-changed')
 
+
     tool = property(lambda s: s._tool, _set_tool)
 
-    def _set_hadjustment(self, adj):
-        """
-        Set horizontal adjustment object, for scrollbars.
-        """
-        #if self._hadjustment:
-        #    self._hadjustment.disconnect(self.on_adjustment_changed)
-        self._hadjustment = adj
-        adj.connect('value_changed', self.on_adjustment_changed)
 
-    hadjustment = property(lambda s: s._hadjustment, _set_hadjustment)
+    hadjustment = property(lambda s: s._hadjustment)
 
-    def _set_vadjustment(self, adj):
-        """
-        Set vertical adjustment object, for scrollbars.
-        """
-        #if self._vadjustment:
-        #    self._vadjustment.disconnect(self.on_adjustment_changed)
-        self._vadjustment = adj
-        adj.connect('value_changed', self.on_adjustment_changed)
 
-    vadjustment = property(lambda s: s._vadjustment, _set_vadjustment)
+    vadjustment = property(lambda s: s._vadjustment)
+
 
     def zoom(self, factor):
         """
@@ -459,6 +461,7 @@ class GtkView(gtk.DrawingArea, View):
         super(GtkView, self).zoom(factor)
         a = self.allocation
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+
 
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
         """
@@ -469,21 +472,20 @@ class GtkView(gtk.DrawingArea, View):
         >>> a.page_size, a.page_increment, a.value
         (20.0, 20.0, 10.0)
         """
-        size = min(canvas_size, viewport_size)
         canvas_size += viewport_size
-        if size != adjustment.page_size or canvas_size != adjustment.upper:
-            adjustment.page_size = size
-            adjustment.page_increment = size
-            adjustment.step_increment = size/10
+        if viewport_size != adjustment.page_size or canvas_size != adjustment.upper:
+            adjustment.page_size = viewport_size
+            adjustment.page_increment = viewport_size
+            adjustment.step_increment = viewport_size/10
             adjustment.upper = canvas_size
             adjustment.lower = 0
-            adjustment.changed()
         
-        value = max(0, min(value, canvas_size - size))
+        value = max(0, min(value, canvas_size - viewport_size))
         if value != adjustment.value:
             adjustment.value = value
-            adjustment.value_changed()
 
+
+    @async(single=True)
     def update_adjustments(self, allocation=None):
         """
         Update the allocation objects (for scrollbars).
@@ -499,7 +501,10 @@ class GtkView(gtk.DrawingArea, View):
                                 value = self._vadjustment.value,
                                 canvas_size=h,
                                 viewport_size=allocation.height)
-        self._qtree.resize((0, 0, allocation.width, allocation.height))
+
+        x, y, w, h = self._qtree.bounds
+        if w != allocation.width or h != allocation.height:
+            self._qtree.resize((0, 0, allocation.width, allocation.height))
         
     @async(single=False, priority=PRIORITY_HIGH_IDLE)
     def _idle_queue_draw_item(self, *items):
@@ -585,6 +590,7 @@ class GtkView(gtk.DrawingArea, View):
                     x1, y1 = i2v(bounds.x1, bounds.y1)
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
+                    self.update_adjustments()
 
                 # Request bb recalculation for all 'really' dirty items
                 self.queue_draw_item(i)
@@ -623,7 +629,6 @@ class GtkView(gtk.DrawingArea, View):
 
         # Draw no more than nessesary.
         cr.rectangle(x, y, w, h)
-        #print 'clip to', x, y, w, h
         cr.clip()
 
         update_bounding_box = self._update_bounding_box
@@ -637,6 +642,7 @@ class GtkView(gtk.DrawingArea, View):
                 finally:
                     cr.restore()
                 self._idle_queue_draw_item(*update_bounding_box)
+                self.update_adjustments()
             finally:
                 update_bounding_box.clear()
 
@@ -685,9 +691,9 @@ class GtkView(gtk.DrawingArea, View):
         value of the x/y adjustment (scrollbar).
         """
         if adj is self._hadjustment:
-            self._matrix.translate( - self._matrix[4] / self._matrix[0] - adj.value , 0)
+            self._matrix.translate(- self._matrix[4] / self._matrix[0] - adj.value , 0)
         elif adj is self._vadjustment:
-            self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value )
+            self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value)
 
         # Force recalculation of the bounding boxes:
         map(self.update_matrix, self._canvas.get_all_items())
