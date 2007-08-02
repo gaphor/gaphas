@@ -31,9 +31,8 @@ class View(object):
     """
 
     def __init__(self, canvas=None):
-        self._canvas = canvas
-
-        self._qtree = Quadtree()
+        self._matrix = Matrix()
+        self._painter = DefaultPainter()
 
         # Handling selections.
         self._selected_items = Sorted(canvas)
@@ -41,11 +40,14 @@ class View(object):
         self._hovered_item = None
         self._dropzone_item = None
 
-        self._matrix = Matrix()
-        self._painter = DefaultPainter()
-
         self._dirty_items = set()
         self._dirty_matrix_items = set()
+
+        self._qtree = Quadtree()
+
+        self._canvas = None
+        if canvas:
+            self._set_canvas(canvas)
 
 
     matrix = property(lambda s: s._matrix,
@@ -58,13 +60,14 @@ class View(object):
         in the view.
         """
         if self._canvas:
+            self._canvas.unregister_view(self)
             self._qtree = Quadtree()
 
         self._canvas = canvas
         self._selected_items.canvas = canvas
         
         if self._canvas:
-            self.request_update(self._canvas.get_all_items())
+            self._canvas.register_view(self)
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -423,13 +426,10 @@ class GtkView(gtk.DrawingArea, View):
         in the view.
         This extends the behaviour of View.canvas.
         """
-        if self._canvas:
-            self._canvas.unregister_view(self)
-
         super(GtkView, self)._set_canvas(canvas)
         
         if self._canvas:
-            self._canvas.register_view(self)
+            self.request_update(self._canvas.get_all_items())
 
 
     canvas = property(lambda s: s._canvas, _set_canvas)
@@ -624,13 +624,15 @@ class GtkView(gtk.DrawingArea, View):
         Allocate the widget size (x, y, width, height).
         """
         gtk.DrawingArea.do_size_allocate(self, allocation)
-        # doesn't work: super(GtkView, self).do_size_allocate(allocation)
         self.update_adjustments(allocation)
+        self._qtree.resize((0, 0, allocation.width, allocation.height))
        
 
     def do_realize(self):
-        #super(GtkView, self).do_realize()
         gtk.DrawingArea.do_realize(self)
+        allocation = self.allocation
+        print 'allocation', allocation.width, allocation.height
+
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
 
