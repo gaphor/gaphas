@@ -1,5 +1,5 @@
 
-VERSION = '0.3.0'
+VERSION = '0.3.1'
 
 from ez_setup import use_setuptools
 

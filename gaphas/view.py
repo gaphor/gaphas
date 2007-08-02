@@ -575,6 +575,7 @@ class GtkView(gtk.DrawingArea, View):
             for i in dirty_matrix_items:
                 if i not in self._qtree:
                     dirty_items.add(i)
+                    self.update_matrix(i)
                     continue
 
                 bounds = self._qtree.get_data(i)
