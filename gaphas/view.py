@@ -60,14 +60,11 @@ class View(object):
         in the view.
         """
         if self._canvas:
-            self._canvas.unregister_view(self)
             self._qtree = Quadtree()
 
         self._canvas = canvas
         self._selected_items.canvas = canvas
         
-        if self._canvas:
-            self._canvas.register_view(self)
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -425,10 +422,15 @@ class GtkView(gtk.DrawingArea, View):
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
         This extends the behaviour of View.canvas.
+        The view is also registered.
         """
+        if self._canvas:
+            self._canvas.unregister_view(self)
+
         super(GtkView, self)._set_canvas(canvas)
         
         if self._canvas:
+            self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
 
 
