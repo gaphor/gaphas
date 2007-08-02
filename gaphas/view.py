@@ -558,13 +558,10 @@ class GtkView(gtk.DrawingArea, View):
         """
         Update view status according to the items updated by the canvas.
         """
-        if not self.window: return True
+        if not self.window: return
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
-
-        # Do not update items that require a full update (or are removed)
-        dirty_matrix_items = dirty_matrix_items.difference(dirty_items)
 
         try:
             for i in dirty_items:
@@ -579,22 +576,17 @@ class GtkView(gtk.DrawingArea, View):
                 self.queue_draw_item(i)
 
                 self.update_matrix(i)
-                i2v = self.get_matrix_i2v(i).transform_point
-                x0, y0 = i2v(bounds.x, bounds.y)
-                x1, y1 = i2v(bounds.x1, bounds.y1)
-                vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                self._qtree.add(i, vbounds, bounds)
 
-                # TODO: find an elegant way to update parent bb's.
-                #parent = self.canvas.get_parent(i)
-                #if parent:
-                #    try:
-                #        parent_bounds = self._qtree.get_bounds(parent)
-                #    except KeyError:
-                #        pass # No bounds, do nothing
-                #    else:
-                #        if not vbounds in parent_bounds:
-                #            self.set_item_bounding_box(parent, vbounds + parent_bounds)
+                if i not in dirty_items:
+                    # Only matrix has changed, so calculate new bb based
+                    # on quadtree data (= bb in item coordinates).
+                    i2v = self.get_matrix_i2v(i).transform_point
+                    x0, y0 = i2v(bounds.x, bounds.y)
+                    x1, y1 = i2v(bounds.x1, bounds.y1)
+                    vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
+                    self._qtree.add(i, vbounds, bounds)
+
+                # Request bb recalculation for all 'really' dirty items
                 self.queue_draw_item(i)
 
             self._update_bounding_box.update(dirty_items)
