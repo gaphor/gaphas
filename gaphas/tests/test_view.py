@@ -4,7 +4,7 @@ Test cases for the View class.
 
 import unittest
 import gtk
-from gaphas.view import GtkView
+from gaphas.view import View, GtkView
 from gaphas.canvas import Canvas, Context
 from gaphas.item import Line
 from gaphas.examples import Box
@@ -110,6 +110,55 @@ class ViewTestCase(unittest.TestCase):
         assert len(view._qtree) == 0
 
         window.destroy()
+
+    def test_view_registration(self):
+        canvas = Canvas()
+
+        # Simple views do not register on the canvas
+        
+        view = View(canvas)
+        assert len(canvas._registered_views) == 0
+        
+        # GTK view does register for updates though
+
+        view = GtkView(canvas)
+        assert len(canvas._registered_views) == 1
+        
+        view.canvas = None
+        assert len(canvas._registered_views) == 0
+
+        view.canvas = canvas
+        assert len(canvas._registered_views) == 1
+
+    def test_view_registration_2(self):
+        """
+        Test view registration and destroy when view is destroyed.
+        """
+        canvas = Canvas()
+        view = GtkView(canvas)
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.add(view)
+        window.show_all()
+
+        box = Box()
+        canvas.add(box)
+
+        assert hasattr(box, '_matrix_i2v')
+        assert hasattr(box, '_matrix_v2i')
+
+        assert box._matrix_i2v[view]
+        assert box._matrix_v2i[view]
+
+        assert len(canvas._registered_views) == 1
+        assert view in canvas._registered_views
+
+        window.destroy()
+
+        assert len(canvas._registered_views) == 0
+
+        assert not box._matrix_i2v.has_key(view)
+        assert not box._matrix_v2i.has_key(view)
+        
 
         
 if __name__ == '__main__':

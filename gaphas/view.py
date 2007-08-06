@@ -389,8 +389,8 @@ class GtkView(gtk.DrawingArea, View):
 
 
     def __init__(self, canvas=None):
-        super(GtkView, self).__init__()
-        View.__init__(self)
+        gtk.DrawingArea.__init__(self)
+        View.__init__(self, canvas)
         self.set_flags(gtk.CAN_FOCUS)
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK
                         | gtk.gdk.BUTTON_RELEASE_MASK
@@ -404,7 +404,6 @@ class GtkView(gtk.DrawingArea, View):
         self._vadjustment.connect('value-changed', self.on_adjustment_changed)
 
         self._tool = DefaultTool()
-        self.canvas = canvas
 
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
@@ -633,11 +632,25 @@ class GtkView(gtk.DrawingArea, View):
     def do_realize(self):
         gtk.DrawingArea.do_realize(self)
         allocation = self.allocation
-        print 'allocation', allocation.width, allocation.height
 
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
 
+    def do_unrealize(self):
+        if self.canvas:
+            for item in self.canvas.get_all_items():
+                try:
+                    del item._matrix_i2v[self]
+                    del item._matrix_v2i[self]
+                except KeyError:
+                    pass
+            self.canvas = None
+        self._qtree = None
+
+        self._dirty_items = None
+        self._dirty_matrix_items = None
+
+        gtk.DrawingArea.do_unrealize(self)
 
     def do_expose_event(self, event):
         """
