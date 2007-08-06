@@ -6,6 +6,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from math import atan2
+from weakref import WeakKeyDictionary
 
 from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
@@ -117,15 +118,19 @@ class Item(object):
 
     Attributes:
 
-    - _canvas:      canvas, which owns an item
-    - _handles:     list of handles owned by an item
-    - _constraints: item's constraints
-    - matrix:       item's transformation matrix
-    - _matrix_i2c:  item to canvas coordinates matrix
-    - _matrix_c2i:  canvas to item coordinates matrix
-    - _matrix_i2v:  item to view coordinates matrices
-    - _matrix_v2i:  view to item coordinates matrices
-    - _sort_key:  used to sort items
+    :matrix: item's transformation matrix
+    :canvas: canvas, which owns an item
+    
+    Private:
+
+    :_canvas:      canvas, which owns an item
+    :_handles:     list of handles owned by an item
+    :_constraints: item's constraints
+    :_matrix_i2c:  item to canvas coordinates matrix
+    :_matrix_c2i:  canvas to item coordinates matrix
+    :_matrix_i2v:  item to view coordinates matrices
+    :_matrix_v2i:  view to item coordinates matrices
+    :_sort_key:  used to sort items
     """
 
     def __init__(self):
@@ -134,11 +139,15 @@ class Item(object):
         self._handles = []
         self._constraints = []
 
+        # used by gaphas.canvas.Canvas to hold conversion matrices
         self._matrix_i2c = None
         self._matrix_2ci = None
-        self._matrix_i2v = {}
-        self._matrix_v2i = {}
 
+        # used by gaphas.view.View to hold item 2 view matrices (view=key)
+        self._matrix_i2v = WeakKeyDictionary()
+        self._matrix_v2i = WeakKeyDictionary()
+
+        # Used by gaphas.sorter.Sorter to order items fast.
         self._sort_key = None
 
 

@@ -638,6 +638,8 @@ class GtkView(gtk.DrawingArea, View):
 
     def do_unrealize(self):
         if self.canvas:
+            # Although Item._matrix_{i2v|v2i} keys are automatically removed
+            # (weak refs), better do it explicitly to be sure.
             for item in self.canvas.get_all_items():
                 try:
                     del item._matrix_i2v[self]
