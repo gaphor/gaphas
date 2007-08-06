@@ -118,19 +118,19 @@ class Item(object):
 
     Attributes:
 
-    :matrix: item's transformation matrix
-    :canvas: canvas, which owns an item
+    - matrix: item's transformation matrix
+    - canvas: canvas, which owns an item
     
     Private:
 
-    :_canvas:      canvas, which owns an item
-    :_handles:     list of handles owned by an item
-    :_constraints: item's constraints
-    :_matrix_i2c:  item to canvas coordinates matrix
-    :_matrix_c2i:  canvas to item coordinates matrix
-    :_matrix_i2v:  item to view coordinates matrices
-    :_matrix_v2i:  view to item coordinates matrices
-    :_sort_key:  used to sort items
+    - _canvas:      canvas, which owns an item
+    - _handles:     list of handles owned by an item
+    - _constraints: item's constraints
+    - _matrix_i2c:  item to canvas coordinates matrix
+    - _matrix_c2i:  canvas to item coordinates matrix
+    - _matrix_i2v:  item to view coordinates matrices
+    - _matrix_v2i:  view to item coordinates matrices
+    - _sort_key:  used to sort items
     """
 
     def __init__(self):
@@ -143,7 +143,7 @@ class Item(object):
         self._matrix_i2c = None
         self._matrix_2ci = None
 
-        # used by gaphas.view.View to hold item 2 view matrices (view=key)
+        # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
         self._matrix_i2v = WeakKeyDictionary()
         self._matrix_v2i = WeakKeyDictionary()
 
@@ -216,8 +216,9 @@ class Item(object):
     def pre_update(self, context):
         """
         Perform any changes before item update here, for example:
-        * change matrix
-        * move handles
+
+        - change matrix
+        - move handles
 
         Gaphas does not guarantee that any canvas invariant is valid at
         this point (i.e. constraints are not solved, first handle is not in
@@ -273,8 +274,10 @@ class Item(object):
 
 class Element(Item):
     """
-    An Element has 4 handles (for a start):
+    An Element has 4 handles (for a start)::
+
      NW +---+ NE
+        |   |
      SW +---+ SE
     """
 

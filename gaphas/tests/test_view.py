@@ -119,16 +119,42 @@ class ViewTestCase(unittest.TestCase):
         view = View(canvas)
         assert len(canvas._registered_views) == 0
         
+        box = Box()
+        canvas.add(box)
+
+        # By default no complex updating/calculations are done:
+        assert not box._matrix_i2v.has_key(view)
+        assert not box._matrix_v2i.has_key(view)
+
         # GTK view does register for updates though
 
         view = GtkView(canvas)
         assert len(canvas._registered_views) == 1
         
+        # No entry, since GtkView is not realized and has no window
+        assert not box._matrix_i2v.has_key(view)
+        assert not box._matrix_v2i.has_key(view)
+
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.add(view)
+        window.show_all()
+
+        # Now everything is realized and updated
+        assert box._matrix_i2v.has_key(view)
+        assert box._matrix_v2i.has_key(view)
+
         view.canvas = None
         assert len(canvas._registered_views) == 0
 
+        assert not box._matrix_i2v.has_key(view)
+        assert not box._matrix_v2i.has_key(view)
+
         view.canvas = canvas
         assert len(canvas._registered_views) == 1
+
+        assert box._matrix_i2v.has_key(view)
+        assert box._matrix_v2i.has_key(view)
+
 
     def test_view_registration_2(self):
         """

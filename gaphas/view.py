@@ -40,9 +40,6 @@ class View(object):
         self._hovered_item = None
         self._dropzone_item = None
 
-        self._dirty_items = set()
-        self._dirty_matrix_items = set()
-
         self._qtree = Quadtree()
 
         self._canvas = None
@@ -262,10 +259,6 @@ class View(object):
         Coordinates are calculated back to item coordinates, so matrix-only
         updates can occur.
         """
-        # Converting from item to canvas coordinates doesn't work properly,
-        # since items should take into account their child objects when
-        # bounding boxes are calculated. Now, the child objects should not
-        # be hindered by their own matrix settings.
         v2i = self.get_matrix_v2i(item).transform_point
         ix0, iy0 = v2i(bounds.x, bounds.y)
         ix1, iy1 = v2i(bounds.x1, bounds.y1)
@@ -345,6 +338,16 @@ class View(object):
         v2i.invert()
         item._matrix_v2i[self] = v2i
 
+    def _clear_matrices(self):
+        """
+        Clear registered data in Item's _matrix{i2c|v2i} attributes.
+        """
+        for item in self.canvas.get_all_items():
+            try:
+                del item._matrix_i2v[self]
+                del item._matrix_v2i[self]
+            except KeyError:
+                pass
 
 
 # Map GDK events to tool methods
@@ -361,17 +364,22 @@ EVENT_HANDLERS = {
 
 
 class GtkView(gtk.DrawingArea, View):
-    # NOTE: Ingerit from GTK+ class first, otherwise BusErrors may occur!
+    # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
     """
     GTK+ widget for rendering a canvas.Canvas to a screen.
-    The view uses Tools from tool.py to handle events and Painters
-    from painter.py to draw. Both are configurable.
+    The view uses Tools from `tool.py` to handle events and Painters
+    from `painter.py` to draw. Both are configurable.
+
+    The widget already contains adjustment objects (`hadjustment`,
+    `vadjustment`) to be used for scrollbars.
+
+    This view registers itself on the canvas, so it will receive update events.
     """
 
-    # just defined a name to make GTK register this entity.
+    # Just defined a name to make GTK register this class.
     __gtype_name__ = 'GaphasView'
     
-    # Signals: emited before the change takes effect.
+    # Signals: emited after the change takes effect.
     __gsignals__ = {
         'dropzone-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                       (gobject.TYPE_PYOBJECT,)),
@@ -390,7 +398,12 @@ class GtkView(gtk.DrawingArea, View):
 
     def __init__(self, canvas=None):
         gtk.DrawingArea.__init__(self)
+
+        self._dirty_items = set()
+        self._dirty_matrix_items = set()
+
         View.__init__(self, canvas)
+
         self.set_flags(gtk.CAN_FOCUS)
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK
                         | gtk.gdk.BUTTON_RELEASE_MASK
@@ -424,6 +437,7 @@ class GtkView(gtk.DrawingArea, View):
         The view is also registered.
         """
         if self._canvas:
+            self._clear_matrices()
             self._canvas.unregister_view(self)
 
         super(GtkView, self)._set_canvas(canvas)
@@ -455,11 +469,10 @@ class GtkView(gtk.DrawingArea, View):
 
     def zoom(self, factor):
         """
-        Zoom in/out by factor @factor.
+        Zoom in/out by factor ``factor``.
         """
         super(GtkView, self).zoom(factor)
-        a = self.allocation
-        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+        self.queue_draw_refresh()
 
 
     def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
@@ -508,7 +521,7 @@ class GtkView(gtk.DrawingArea, View):
 
     def queue_draw_item(self, *items):
         """
-        Like DrawingArea.queue_draw_area, but use the bounds of the
+        Like ``DrawingArea.queue_draw_area``, but use the bounds of the
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
         """
@@ -528,10 +541,17 @@ class GtkView(gtk.DrawingArea, View):
         super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
 
 
+    def queue_draw_refresh(self):
+        """
+        Redraw the entire view.
+        """
+        a = self.allocation
+        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
         Request update for items. Items will get a full update treatment, while
-        matrix_only_items will only have their bounding box recalculated.
+        ``matrix_only_items`` will only have their bounding box recalculated.
         """
         if items:
             self._dirty_items.update(items)
@@ -577,7 +597,7 @@ class GtkView(gtk.DrawingArea, View):
                     self.update_matrix(i)
                     continue
 
-                bounds = self._qtree.get_data(i)
+                # Mark old bb section for update
                 self.queue_draw_item(i)
 
                 self.update_matrix(i)
@@ -585,6 +605,7 @@ class GtkView(gtk.DrawingArea, View):
                 if i not in dirty_items:
                     # Only matrix has changed, so calculate new bb based
                     # on quadtree data (= bb in item coordinates).
+                    bounds = self._qtree.get_data(i)
                     i2v = self.get_matrix_i2v(i).transform_point
                     x0, y0 = i2v(bounds.x, bounds.y)
                     x1, y1 = i2v(bounds.x1, bounds.y1)
@@ -592,9 +613,9 @@ class GtkView(gtk.DrawingArea, View):
                     self._qtree.add(i, vbounds, bounds)
                     self.update_adjustments()
 
-                # Request bb recalculation for all 'really' dirty items
                 self.queue_draw_item(i)
 
+            # Request bb recalculation for all 'really' dirty items
             self.update_bounding_box(set(dirty_items))
         finally:
             self._dirty_items.clear()
@@ -604,7 +625,7 @@ class GtkView(gtk.DrawingArea, View):
     @async(single=False)
     def update_bounding_box(self, items):
         """
-        Update bounding box is not necessary
+        Update bounding box is not necessary.
         """
         cr = self.window.cairo_create()
 
@@ -622,7 +643,7 @@ class GtkView(gtk.DrawingArea, View):
     @nonrecursive
     def do_size_allocate(self, allocation):
         """
-        Allocate the widget size (x, y, width, height).
+        Allocate the widget size ``(x, y, width, height)``.
         """
         gtk.DrawingArea.do_size_allocate(self, allocation)
         self.update_adjustments(allocation)
@@ -640,12 +661,7 @@ class GtkView(gtk.DrawingArea, View):
         if self.canvas:
             # Although Item._matrix_{i2v|v2i} keys are automatically removed
             # (weak refs), better do it explicitly to be sure.
-            for item in self.canvas.get_all_items():
-                try:
-                    del item._matrix_i2v[self]
-                    del item._matrix_v2i[self]
-                except KeyError:
-                    pass
+            self._clear_matrices()
             self.canvas = None
         self._qtree = None
 
@@ -656,7 +672,7 @@ class GtkView(gtk.DrawingArea, View):
 
     def do_expose_event(self, event):
         """
-        Render some text to the screen.
+        Render canvas to the screen.
         """
         if not self._canvas:
             return
@@ -685,7 +701,7 @@ class GtkView(gtk.DrawingArea, View):
             cr.stroke()
             cr.restore()
 
-        # TODO: draw Quadtree structure
+        # Draw Quadtree structure
         if DEBUG_DRAW_QUADTREE:
             def draw_qtree_bucket(bucket):
                 cr.rectangle(*bucket.bounds)
@@ -701,7 +717,7 @@ class GtkView(gtk.DrawingArea, View):
 
     def do_event(self, event):
         """
-        Handle GDK events. Events are delegated to a Tool.
+        Handle GDK events. Events are delegated to a `tool.Tool`.
         """
         handler = EVENT_HANDLERS.get(event.type)
         if self._tool and handler:
@@ -723,8 +739,7 @@ class GtkView(gtk.DrawingArea, View):
         map(self.update_matrix, self._canvas.get_all_items())
         self.request_update((), self._canvas.get_all_items())
 
-        a = self.allocation
-        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+        self.queue_draw_refresh()
 
 
 if __name__ == '__main__':
