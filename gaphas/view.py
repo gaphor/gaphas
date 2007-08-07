@@ -272,15 +272,6 @@ class View(object):
         return self._qtree.get_bounds(item)
 
 
-    def get_canvas_size(self):
-        """
-        The canvas size (width, height) in view coordinates, determined
-        from the origin (0, 0).
-        """
-        x, y, w, h = self._qtree.soft_bounds
-        return w, h
-
-
     bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
 
 
@@ -504,7 +495,7 @@ class GtkView(gtk.DrawingArea, View):
         """
         if not allocation:
             allocation = self.allocation
-        w, h = self.get_canvas_size()
+        x, y, w, h = self.bounding_box
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
                                 canvas_size=w,
