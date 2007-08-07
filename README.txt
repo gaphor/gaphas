@@ -10,7 +10,7 @@ The basic idea is:
   items).
 - A constraint solver is used to maintain item constraints and inter-item
   constraints.
-- The item (user) should not be bothered with things like bounding-box
+- The item (and user) should not be bothered with things like bounding-box
   calculations.
 - Very modular: e.g. handle support could be swapped in and swapped out.
 - Rendering using Cairo.
