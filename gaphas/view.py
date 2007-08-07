@@ -278,7 +278,7 @@ class View(object):
         from the origin (0, 0).
         """
         x, y, w, h = self._qtree.soft_bounds
-        return x + w, y + h
+        return w, h
 
 
     bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
@@ -611,7 +611,6 @@ class GtkView(gtk.DrawingArea, View):
                     x1, y1 = i2v(bounds.x1, bounds.y1)
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
-                    self.update_adjustments()
 
                 self.queue_draw_item(i)
 
