@@ -281,7 +281,7 @@ class View(object):
         return x + w, y + h
 
 
-    bounding_box = property(lambda s: s._qtree.bounds)
+    bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
 
 
     def update_bounding_box(self, cr, items=None):
@@ -291,7 +291,7 @@ class View(object):
         """
         painter = BoundingBoxPainter()
         if items is None:
-            items = self.canvas.get_root_items()
+            items = self.canvas.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
         painter.paint(Context(view=self,
@@ -305,7 +305,7 @@ class View(object):
     def paint(self, cr):
         self._painter.paint(Context(view=self,
                                     cairo=cr,
-                                    items=view.canvas.get_all_items(),
+                                    items=self.canvas.get_all_items(),
                                     area=None))
 
 

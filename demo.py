@@ -224,7 +224,7 @@ def create_window(canvas, title, zoom=1.0):
         w, h = svgview.bounding_box.width, svgview.bounding_box.height
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
         cr = cairo.Context(surface)
-        svgview.matrix.translate(-svgview.bounding_box.x0, -svgview.bounding_box.y0)
+        svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
         cr.save()
         svgview.paint(cr)
 
@@ -252,7 +252,7 @@ def create_window(canvas, title, zoom=1.0):
         w, h = svgview.bounding_box.width, svgview.bounding_box.height
         surface = cairo.SVGSurface('demo.svg', w, h)
         cr = cairo.Context(surface)
-        svgview.matrix.translate(-svgview.bounding_box.x0, -svgview.bounding_box.y0)
+        svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
         svgview.paint(cr)
         cr.show_page()
         surface.flush()
