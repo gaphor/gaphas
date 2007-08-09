@@ -531,8 +531,8 @@ class Solver(object):
         >>> eq_pr_a_b in s.constraints_with_variable(a, d)
         False
         """
-        # use a copy of the original set, so constraints may be deleted in the
-        # meantime.
+        # Use a copy of the original set, so constraints may be
+        # deleted in the meantime.
         variables = set(variables)
         for c in set(self._constraints):
             if variables.issubset(set(c.variables())):

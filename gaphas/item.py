@@ -529,20 +529,28 @@ class Line(Item):
         ``segment`` 0 is the first segment (between handles 0 and 1).
         The min number of parts is 2.
 
+        A list of new handles is returned.
+
+        Note that ``split_segment`` is not able to reconnect constraints that
+        are connected to the segment. 
+
         >>> a = Line()
         >>> a.handles()[1].pos = (20, 0)
         >>> len(a.handles())
         2
         >>> a.split_segment(0)
-        >>> len(a.handles())
-        3
-        >>> a.handles()[1]
-        <Handle object on (10, 0)>
+        [<Handle object on (10, 0)>]
+        >>> a.handles()
+        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
+
+        A line segment can be split into multiple (equal) parts:
+
         >>> b = Line()
         >>> b.handles()[1].pos = (20, 16)
         >>> b.handles()
         [<Handle object on (0, 0)>, <Handle object on (20, 16)>]
         >>> b.split_segment(0, parts=4)
+        [<Handle object on (5, 4)>, <Handle object on (10, 8)>, <Handle object on (15, 12)>]
         >>> len(b.handles())
         5
         >>> b.handles()
@@ -560,7 +568,10 @@ class Line(Item):
             if parts > 2:
                 do_split(segment + 1, parts - 1)
         do_split(segment, parts)
+        # TODO: or reconnect them from here.
+        # Force orthogonal constraints to be recreated
         self.orthogonal = self.orthogonal
+        return self._handles[segment+1:segment+parts]
 
     @observed
     def merge_segment(self, segment, parts=2):
@@ -568,28 +579,44 @@ class Line(Item):
         Merge the ``segment`` and the next.
         The parts parameter indicates how many segments should be merged
 
+        The deleted handles are returned as a list.
+
         >>> a = Line()
         >>> a.handles()[1].pos = (20, 0)
-        >>> a.split_segment(0)
+        >>> _ = a.split_segment(0)
         >>> a.handles()
         [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
         >>> a.merge_segment(0)
-        >>> len(a.handles())
-        2
+        [<Handle object on (10, 0)>]
+        >>> a.handles()
+        [<Handle object on (0, 0)>, <Handle object on (20, 0)>]
         >>> try: a.merge_segment(0)
         ... except AssertionError: print 'okay'
         okay
+
+        More than two segments can be merged at once:
+        >>> _ = a.split_segment(0)
+        >>> _ = a.split_segment(0)
+        >>> _ = a.split_segment(0)
+        >>> a.handles()
+        [<Handle object on (0, 0)>, <Handle object on (2.5, 0)>, <Handle object on (5, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
+        >>> a.merge_segment(0, parts=4)
+        [<Handle object on (2.5, 0)>, <Handle object on (5, 0)>, <Handle object on (10, 0)>]
+        >>> a.handles()
+        [<Handle object on (0, 0)>, <Handle object on (20, 0)>]
         """
         assert len(self._handles) > 2, 'Not enough segments'
         if 0 >= segment > len(self._handles) - 1:
             raise IndexError("index out of range (0 > %d > %d)" % (segment, len(self._handles) - 1))
         if segment == 0: segment = 1
+        deleted_handles = [self._handles[segment]]
         del self._handles[segment]
         if parts > 2:
-            merge_segment(segment, parts - 1)
+            deleted_handles.extend(self.merge_segment(segment, parts - 1))
         else:
             # Force orthogonal constraints to be recreated
             self.orthogonal = self.orthogonal
+        return deleted_handles
 
     reversible_pair(split_segment, merge_segment)
 
@@ -638,6 +665,7 @@ class Line(Item):
         >>> a = Line()
         >>> a.handles()[1].pos = 30, 30
         >>> a.split_segment(0)
+        [<Handle object on (15, 15)>]
         >>> a.handles()[1].pos = 25, 5
         >>> a.point(-1, 0)
         1.0

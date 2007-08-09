@@ -376,6 +376,7 @@ This is our basis for further testing.
     >>> del undo_list[:]
 
     >>> l.split_segment(0)
+    [<Handle object on (5, 5)>]
     >>> l.handles()
     [<Handle object on (0, 0)>, <Handle object on (5, 5)>, <Handle object on (10, 10)>]
 
