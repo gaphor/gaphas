@@ -609,10 +609,10 @@ class Line(Item):
         if 0 >= segment > len(self._handles) - 1:
             raise IndexError("index out of range (0 > %d > %d)" % (segment, len(self._handles) - 1))
         if segment == 0: segment = 1
-        deleted_handles = [self._handles[segment]]
+        deleted_handles = self._handles[segment:segment+parts-1]
         del self._handles[segment]
         if parts > 2:
-            deleted_handles.extend(self.merge_segment(segment, parts - 1))
+            self.merge_segment(segment, parts - 1)
         else:
             # Force orthogonal constraints to be recreated
             self.orthogonal = self.orthogonal
