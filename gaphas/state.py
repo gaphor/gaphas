@@ -48,9 +48,13 @@ def observed(func):
     """
     Simple observer, dispatches events to functions registered in the observers
     list.
-    On the function an __observer__ property is set, which references to the
-    observer decorator. This is nessesary, since the event handlers expect the
-    outer most function to be returned (that's what they see).
+
+    On the function an ``__observer__`` property is set, which references to
+    the observer decorator. This is nessesary, since the event handlers expect
+    the outer most function to be returned (that's what they see).
+
+    Also note that the events are dispatched *before* the function is invoked.
+    This is an important feature, esp. for the reverter code.
     """
     def wrapper(func, *args, **kwargs):
         o = func.__observer__

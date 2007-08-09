@@ -523,6 +523,17 @@ class Line(Item):
             self.canvas.solver.remove_constraint(c)
 
     @observed
+    def _reversible_insert_handle(self, index, handle):
+        self._handles.insert(index, handle)
+
+    @observed
+    def _reversible_remove_handle(self, handle):
+        self._handles.remove(handle)
+
+    reversible_pair(_reversible_insert_handle, _reversible_remove_handle, \
+            bind1={'index': lambda self, handle: self._handles.index(handle)})
+
+
     def split_segment(self, segment, parts=2):
         """
         Split one segment in the Line in ``parts`` equal pieces.
@@ -563,17 +574,14 @@ class Line(Item):
             h1 = self._handles[segment + 1]
             dx, dy = h1.x - h0.x, h1.y - h0.y
             new_h = Handle(h0.x + dx / parts, h0.y + dy / parts, strength=WEAK)
-            self._handles.insert(segment + 1, new_h)
-            # TODO: reconnect connected handles.
+            self._reversible_insert_handle(segment + 1, new_h)
             if parts > 2:
                 do_split(segment + 1, parts - 1)
         do_split(segment, parts)
-        # TODO: or reconnect them from here.
         # Force orthogonal constraints to be recreated
         self.orthogonal = self.orthogonal
         return self._handles[segment+1:segment+parts]
 
-    @observed
     def merge_segment(self, segment, parts=2):
         """
         Merge the ``segment`` and the next.
@@ -610,7 +618,7 @@ class Line(Item):
             raise IndexError("index out of range (0 > %d > %d)" % (segment, len(self._handles) - 1))
         if segment == 0: segment = 1
         deleted_handles = self._handles[segment:segment+parts-1]
-        del self._handles[segment]
+        self._reversible_remove_handle(self._handles[segment])
         if parts > 2:
             self.merge_segment(segment, parts - 1)
         else:
@@ -618,9 +626,7 @@ class Line(Item):
             self.orthogonal = self.orthogonal
         return deleted_handles
 
-    reversible_pair(split_segment, merge_segment)
 
-    
     def opposite(self, handle):
         """
         Given the handle of one end of the line, return the other end.
