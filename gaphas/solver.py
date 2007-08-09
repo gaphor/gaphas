@@ -311,15 +311,39 @@ class Projection(object):
     Projections are used to convert values from one space to another,
     e.g. from Canvas to Item space or visa versa.
 
-    In order to be a Projection the 'value' and 'strength' properties should
-    be implemented and a method named variable() should be present.
+    In order to be a Projection the ``value`` and ``strength`` properties
+    should be implemented and a method named ``variable()`` should be present.
 
     Projections should inherit from this class.
 
-    For the sake of efficiency, Projections may not be nested.
+    Projections may be nested.
+
+    This default implementation projects a variable to it's own:
+
+    >>> v = Variable(4.0)
+    >>> v
+    Variable(4, 20)
+    >>> p = Projection(v)
+    >>> p.value
+    4.0
+    >>> p.value = -1
+    >>> p.value
+    -1.0
+    >>> v.value
+    -1.0
+    >>> p.strength
+    20
+    >>> p.variable()
+    Variable(-1, 20)
     """
 
-    value = 0 
+    def __init__(self, var):
+        self._var = var
+
+    def _set_value(self, value):
+        self._var.value = value
+
+    value = property(lambda s: s._var.value, _set_value)
 
     strength = property(lambda s: s.variable().strength)
 
@@ -327,10 +351,14 @@ class Projection(object):
         """
         Return the variable owned by the projection.
         """
-        raise NotImplemented
+        return self._var
 
     def __float__(self):
         return float(self.variable()._value)
+
+    def __str__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.variable())
+    __repr__ = __str__
 
 
 class Solver(object):
@@ -457,7 +485,7 @@ class Solver(object):
 
     reversible_pair(add_constraint, remove_constraint)
 
-    def constraints_with_variable(self, variable):
+    def constraints_with_variable(self, *variables):
         """
         Return an iterator of constraints that work with variable.
         The variable in question should be exposed by the constraints
@@ -465,24 +493,68 @@ class Solver(object):
 
         >>> from constraint import EquationConstraint
         >>> s = Solver()
-        >>> a, b = Variable(), Variable(2.0)
-        >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
+        >>> a, b, c = Variable(), Variable(2.0), Variable(4.0)
+        >>> eq_a_b = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
+        >>> eq_a_b
         EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
-        >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
-        >>> len(s._constraints)
-        2
-        >>> for c in s.constraints_with_variable(a): print c
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        >>> eq_a_c = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=c))
+        >>> eq_a_c
+        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(4, 20))
+
+        And now for some testing:
+
+        >>> eq_a_b in s.constraints_with_variable(a)
+        True
+        >>> eq_a_c in s.constraints_with_variable(a)
+        True
+        >>> eq_a_b in s.constraints_with_variable(a, b)
+        True
+        >>> eq_a_c in s.constraints_with_variable(a, b)
+        False
+
+        Using another variable with the same value does not work:
+
+        >>> d = Variable(2.0)
+        >>> eq_a_b in s.constraints_with_variable(a, d)
+        False
+
+        This also works for projections:
+
+        >>> eq_pr_a_b = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=Projection(a), b=Projection(b)))
+        >>> eq_pr_a_b   # doctest: +ELLIPSIS
+        EquationConstraint(<lambda>, a=Projection(Variable(0, 20)), b=Projection(Variable(2, 20)))
+
+        >>> eq_pr_a_b in s.constraints_with_variable(a, b)
+        True
+        >>> eq_pr_a_b in s.constraints_with_variable(a, c)
+        False
+        >>> eq_pr_a_b in s.constraints_with_variable(a, d)
+        False
         """
         # use a copy of the original set, so constraints may be deleted in the
         # meantime.
+        variables = set(variables)
         for c in set(self._constraints):
-            if variable in c.variables():
+            if variables.issubset(set(c.variables())):
                 yield c
-            # TODO: walk through the constraints looking for Projections
-            #       which hold the variable
+            elif c._solver_has_projections:
+                found = True
+                for v in c.variables():
+                    if v in variables:
+                        continue
+                    while isinstance(v, Projection):
+                        v = v.variable()
+                        if v in variables:
+                            break
+                    else:
+                        found = False
+                    if not found:
+                        break # quit for loop, variable not in constraint
+                else:
+                    # All iteration have completed succesfully,
+                    # so all variables are in the constraint
+                    yield c
+                    
 
     def solve(self):
         """
