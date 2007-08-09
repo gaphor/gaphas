@@ -407,20 +407,23 @@ class HandleTool(Tool):
 
     def move(self, view, item, handle, x, y):
         """
-        Move the handle to position (x,y).
+        Move the handle to position ``(x,y)``. ``x`` and ``y`` are in
+        item coordnates.
         """
         handle.x = x
         handle.y = y
 
 
-    def glue(self, view, item, handle, wx, wy):
+    def glue(self, view, item, handle, vx, vy):
         """
-        Find an item near @handle that @item can connect to.
+        Find an item near ``handle` that ``item`` can connect to.
+        ``vx`` and ``vy`` are the pointer (view) coordinates.
         """
 
-    def connect(self, view, item, handle, wx, wy):
+    def connect(self, view, item, handle, vx, vy):
         """
-        Find an item near @handle that @item can connect to and connect.
+        Find an item near ``handle`` that ``item`` can connect to and connect.
+        ``vx`` and ``vy`` are the pointer (view) coordinates.
         """
 
     def disconnect(self, view, item, handle):
@@ -461,8 +464,7 @@ class HandleTool(Tool):
         try:
             view = context.view
             if self._grabbed_handle and self._grabbed_handle.connectable:
-                x, y = event.x, event.y
-                self.connect(view, self._grabbed_item, self._grabbed_handle, x, y)
+                self.connect(view, self._grabbed_item, self._grabbed_handle, event.x, event.y)
         finally:
             context.view.queue_draw_item(context.view.hovered_item)
             context.ungrab()

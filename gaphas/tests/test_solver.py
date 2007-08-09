@@ -141,7 +141,7 @@ class SolverSpeedTestCase(unittest.TestCase):
     """
     Solver speed tests.
     """
-    def skip__test_speed_run_weakest(self):
+    def _test_speed_run_weakest(self):
         """
         Speed test for weakest variable.
         """
