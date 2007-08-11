@@ -385,9 +385,6 @@ class Element(Item):
 
         self._c_min_w.delta = min_width
 
-        if min_width > self.width:
-            self.width = min_width
-
     min_width = reversible_property(lambda s: s._c_min_w.delta, _set_min_width)
 
     @observed
@@ -399,9 +396,6 @@ class Element(Item):
             raise ValueError, 'Minimal height cannot be less than 0'
 
         self._c_min_h.delta = min_height
-
-        if min_height > self.height:
-            self.height = min_height
 
     min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
