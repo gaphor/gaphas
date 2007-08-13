@@ -322,10 +322,6 @@ class ItemTool(Tool):
             view = context.view
             canvas = view.canvas
 
-            # First request redraws for all items, before enything is
-            # changed.
-            view.queue_draw_item(*self._movable_items)
-
             # Calculate the distance the item has to be moved
             dx, dy = event.x - self.last_x, event.y - self.last_y
 
@@ -466,7 +462,6 @@ class HandleTool(Tool):
             if self._grabbed_handle and self._grabbed_handle.connectable:
                 self.connect(view, self._grabbed_item, self._grabbed_handle, event.x, event.y)
         finally:
-            context.view.queue_draw_item(context.view.hovered_item)
             context.ungrab()
         if self._grabbed_handle:
             self._grabbed_item.request_update()
@@ -483,10 +478,6 @@ class HandleTool(Tool):
             canvas = view.canvas
             item = self._grabbed_item
             handle = self._grabbed_handle
-
-            # Do an explicit redraw request here, since we do not keep old
-            # positions of handles around.
-            view.queue_draw_item(item)
 
             v2i = view.get_matrix_v2i(item)
             x, y = v2i.transform_point(event.x, event.y)
