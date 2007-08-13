@@ -485,6 +485,14 @@ class Solver(object):
 
     reversible_pair(add_constraint, remove_constraint)
 
+
+    def request_resolve_constraint(self, c):
+        """
+        Request resolving a constraint.
+        """
+        self._marked_cons.append(c)
+
+
     def constraints_with_variable(self, *variables):
         """
         Return an iterator of constraints that work with variable.

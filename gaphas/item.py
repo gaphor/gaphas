@@ -384,6 +384,8 @@ class Element(Item):
             raise ValueError, 'Minimal width cannot be less than 0'
 
         self._c_min_w.delta = min_width
+        if self.canvas:
+            self.canvas.solver.request_resolve_constraint(self._c_min_w)
 
     min_width = reversible_property(lambda s: s._c_min_w.delta, _set_min_width)
 
@@ -396,6 +398,8 @@ class Element(Item):
             raise ValueError, 'Minimal height cannot be less than 0'
 
         self._c_min_h.delta = min_height
+        if self.canvas:
+            self.canvas.solver.request_resolve_constraint(self._c_min_h)
 
     min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
