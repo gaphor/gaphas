@@ -325,9 +325,7 @@ class QuadtreeBucket(object):
         Returns an iterator.
         """
         if rectangle_intersects(rect, self.bounds):
-            rx, ry, rw, rh = rect
             for item, bounds in self.items.iteritems():
-                bx, by, bw, bh = bounds
                 if method(bounds, rect):
                     yield item
             for bucket in self._buckets:
