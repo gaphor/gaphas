@@ -452,6 +452,11 @@ class Canvas(object):
 
             self._post_update_items(dirty_items, cr)
 
+        except Exception, e:
+            print 'Error while pre-updating item %s' % item
+            import traceback
+            traceback.print_exc()
+
         finally:
             assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
                 'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
