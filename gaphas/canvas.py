@@ -453,7 +453,7 @@ class Canvas(object):
             self._post_update_items(dirty_items, cr)
 
         except Exception, e:
-            print 'Error while pre-updating item %s' % item
+            print 'Error while updating canvas'
             import traceback
             traceback.print_exc()
 
