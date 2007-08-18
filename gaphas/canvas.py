@@ -441,7 +441,7 @@ class Canvas(object):
 
                 dirty_items = sort(set(dirty_items), reverse=True)
 
-            assert not self._dirty_items, 'No items may have been marked dirty (%s)' % (self._dirty_matrix_items,)
+            assert not self._dirty_items, 'No items may have been marked dirty (%s)' % (self._dirty_items,)
 
             # normalize items, which changed after constraint solving;
             # store those items, whose matrices changed
