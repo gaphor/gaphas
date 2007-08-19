@@ -457,11 +457,10 @@ class Canvas(object):
             import traceback
             traceback.print_exc()
 
-        finally:
-            assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
+        assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
                 'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
 
-            self._update_views(dirty_items, dirty_matrix_items)
+        self._update_views(dirty_items, dirty_matrix_items)
 
 
     def update_matrices(self, items):
