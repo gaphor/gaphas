@@ -478,17 +478,12 @@ class GtkView(gtk.DrawingArea, View):
         #canvas_size += viewport_size
         #canvas_offset -= viewport_size
         if viewport_size != adjustment.page_size or canvas_size != adjustment.upper:
-            print 'adjustment:', canvas_size, canvas_offset, adjustment.value, canvas_offset + adjustment.value, viewport_size
             adjustment.page_size = viewport_size
             adjustment.page_increment = viewport_size
             adjustment.step_increment = viewport_size/10
             adjustment.upper = adjustment.value + canvas_offset + canvas_size + viewport_size
             adjustment.lower = adjustment.value + canvas_offset - viewport_size
         
-#        value = max(0, min(value, canvas_size))
-#        if value != adjustment.value:
-#            adjustment.value = value
-
 
     @async(single=True)
     def update_adjustments(self, allocation=None):
