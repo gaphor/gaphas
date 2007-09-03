@@ -466,7 +466,7 @@ class GtkView(gtk.DrawingArea, View):
         self.queue_draw_refresh()
 
 
-    def _update_adjustment(self, adjustment, value, canvas_size, viewport_size):
+    def _update_adjustment(self, adjustment, value, canvas_size, canvas_offset, viewport_size):
         """
         >>> v = GtkView()
         >>> a = gtk.Adjustment()
@@ -475,17 +475,19 @@ class GtkView(gtk.DrawingArea, View):
         >>> a.page_size, a.page_increment, a.value
         (20.0, 20.0, 10.0)
         """
-        canvas_size += viewport_size
+        #canvas_size += viewport_size
+        #canvas_offset -= viewport_size
         if viewport_size != adjustment.page_size or canvas_size != adjustment.upper:
+            print 'adjustment:', canvas_size, canvas_offset, adjustment.value, canvas_offset + adjustment.value, viewport_size
             adjustment.page_size = viewport_size
             adjustment.page_increment = viewport_size
             adjustment.step_increment = viewport_size/10
-            adjustment.upper = canvas_size
-            adjustment.lower = 0
+            adjustment.upper = adjustment.value + canvas_offset + canvas_size + viewport_size
+            adjustment.lower = adjustment.value + canvas_offset - viewport_size
         
-        value = max(0, min(value, canvas_size - viewport_size))
-        if value != adjustment.value:
-            adjustment.value = value
+#        value = max(0, min(value, canvas_size))
+#        if value != adjustment.value:
+#            adjustment.value = value
 
 
     @async(single=True)
@@ -499,10 +501,12 @@ class GtkView(gtk.DrawingArea, View):
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
                                 canvas_size=w,
+                                canvas_offset=x,
                                 viewport_size=allocation.width)
         self._update_adjustment(self._vadjustment,
                                 value = self._vadjustment.value,
                                 canvas_size=h,
+                                canvas_offset=y,
                                 viewport_size=allocation.height)
 
         x, y, w, h = self._qtree.bounds
