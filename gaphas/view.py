@@ -484,6 +484,8 @@ class GtkView(gtk.DrawingArea, View):
             adjustment.upper = adjustment.value + canvas_offset + canvas_size + viewport_size
             adjustment.lower = adjustment.value + canvas_offset - viewport_size
         
+        if adjustment.value > adjustment.upper - viewport_size:
+            adjustment.value = adjustment.upper - viewport_size
 
     @async(single=True)
     def update_adjustments(self, allocation=None):
