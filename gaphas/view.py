@@ -494,7 +494,8 @@ class GtkView(gtk.DrawingArea, View):
         """
         if not allocation:
             allocation = self.allocation
-        x, y, w, h = self.bounding_box
+        # Bounding box is intersected with a (0, 0) point
+        x, y, w, h = self.bounding_box + (self.matrix.transform_point(0, 0) + (0, 0))
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
                                 canvas_size=w,
