@@ -481,8 +481,8 @@ class GtkView(gtk.DrawingArea, View):
             adjustment.page_size = viewport_size
             adjustment.page_increment = viewport_size
             adjustment.step_increment = viewport_size/10
-            adjustment.upper = adjustment.value + canvas_offset + canvas_size + viewport_size
-            adjustment.lower = adjustment.value + canvas_offset - viewport_size
+            adjustment.upper = adjustment.value + canvas_offset + canvas_size
+            adjustment.lower = adjustment.value + canvas_offset
         
         if adjustment.value > adjustment.upper - viewport_size:
             adjustment.value = adjustment.upper - viewport_size
@@ -494,8 +494,10 @@ class GtkView(gtk.DrawingArea, View):
         """
         if not allocation:
             allocation = self.allocation
-        # Bounding box is intersected with a (0, 0) point
-        x, y, w, h = self.bounding_box + (self.matrix.transform_point(0, 0) + (0, 0))
+
+        # Define a minimal view size:
+        aw, ah = allocation.width, allocation.height 
+        x, y, w, h = self.bounding_box + (self.matrix.transform_point(0, 0) + (aw * 2, ah * 2))
         self._update_adjustment(self._hadjustment,
                                 value = self._hadjustment.value,
                                 canvas_size=w,
@@ -508,8 +510,8 @@ class GtkView(gtk.DrawingArea, View):
                                 viewport_size=allocation.height)
 
         x, y, w, h = self._qtree.bounds
-        if w != allocation.width or h != allocation.height:
-            self._qtree.resize((0, 0, allocation.width, allocation.height))
+        if w != aw or h != ah:
+            self._qtree.resize((0, 0, aw, ah))
         
 
     def queue_draw_item(self, *items):
