@@ -20,6 +20,7 @@ The basic idea is:
 
 .. contents::
 
+
 How it Works
 ============
 
@@ -53,8 +54,8 @@ If an items needs updating, it sets out an update request on the Canvas
    The c2i matrix is stored on the Item as Item._matrix_c2i.
 3. Solve constraints.
 4. Normalize items by setting the coordinates of the first handle to (0, 0).
-5. Updating Canavs-to-Item matrices for items that have been changed by
-   normalizarion, just to be on the save side.
+5. Updating Canvas-to-Item matrices for items that have been changed by
+   normalization, just to be on the save side.
 6. Item.post_update(context) for each item marked for update, including items
    that have been marked during constraint solving.
 
@@ -74,11 +75,12 @@ Constraint solving
 ------------------
 A word about the constraint solver seems in place. It is one of the big
 features of this library after all. The Solver is able to solve constraints.
-Constraints can be applied to items (e.g. the Element item uses constraints to
-maintain it's recangular shape) and constraints can be created *between* items
-(for example a line that connects to a box).
+Constraints can be applied to items (Variables owned by the item actually).
+Element items, for example, uses constraints to maintain their recangular
+shape. Constraints can be created *between* items (for example a line that
+connects to a box).
 
-Constaints that apply to one item are pretty straight forward, as all variables
+Constraints that apply to one item are pretty straight forward, as all variables
 live in the same coordinate system (of the item). The variables (in most cases
 a Handle's x and y coordinate) can simply be put in a constraint.
 
@@ -96,8 +98,6 @@ Drawing is done by the View. All items marked for redraw (e.i. the items
 that had been updated) will be drawn in the order in which they reside in the
 Canvas (first root item, then it's children; second root item, etc.)
 
-There used to be a draw_children() method in the view context. This method
-has been rendered obsolete (mainly to speed up drawing).
 The view context passed to the Items draw() method has the following properties:
 
 :view:     the view we're drawing to
@@ -122,9 +122,9 @@ been defined: one for handles, one for items, etc.
 
 Tools
 -----
-Behavior is added to the canvas(-view) by tools.
+Behaviour is added to the canvas(-view) by tools.
 
-Tools can be chained together in order to provide more complex behavior.
+Tools can be chained together in order to provide more complex behaviour.
 
 To make it easy a DefaultTool has been defined: a ToolChain instance with the
 tools added that are listed in the following sections.
@@ -143,20 +143,20 @@ HoverTool
 
 HandleTool
     The HandleTool is used to deal with handles. Handles can be dragged around.
-    Clicking on a handle automatically makes the underlaying item the focused
+    Clicking on a handle automatically makes the underlying item the focused
     item.
 
 ItemTool
     The item tool takes care of selecting items and dragging items around.
 
 TextEditTool
-    This is a demo-tool, featuring a text-edit popup.
+    This is a demo-tool, featuring a text-edit pop-up.
 
 RubberbandTool
-    The last toolin line is the rubberband tool. It's invoked when the mouse
+    The last tool in line is the rubber band tool. It's invoked when the mouse
     button is pressed on a section of the view where no items or handles are
     present. It allows the user to select items using a selection box
-    (rubberband).
+    (rubber band).
 
 
 Interaction
@@ -165,7 +165,7 @@ Interaction with the canvas view (visual component) is handled by tools.
 Although the default tools do a fair amount of work, in most cases you'll
 see that especially the way items connect with each other is not the way
 you want it. That's okay. HandleTool provides some hooks (connect, disconnect
-and glue) to implement custom connection behavior (in fact, the default
+and glue) to implement custom connection behaviour (in fact, the default
 implementation doesn't do any connecting at all!).
 
 One of the problems you'll face is what to do when an item is removed from the
@@ -194,7 +194,7 @@ Files
 Canvas independent classes:
 
 tree.py:
-    Central tree structure (no more CanvasGroupable)
+    Central tree structure
 solver.py:
     A constraint solver (infinite domain, based on diacanvas2's solver)
 constraint.py:
@@ -220,8 +220,12 @@ Other:
 examples.py:
     Simple example classes.
 
+
 Guidelines
 ==========
+
+Documentation should be in UK English.
+
 Following the `Python coding guidelines`_ indentation should be 4 spaces
 (no tabs), function and method names should be ``lowercase_with_underscore()``,
 and files should contain a ``__version__`` property, like this::
@@ -248,3 +252,4 @@ or by configuring your ~/.subversion/config file to use auto-props::
 
 
 .. _Python coding guidelines: http://www.python.org/dev/peps/pep-0008/
+
