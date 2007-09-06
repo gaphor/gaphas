@@ -46,7 +46,7 @@ It works:
 Remember that this observer is just a simple method call notifier and knows
 nothing about the internals of the tree class (in this case the remove() method
 recursively calls remove() for each of it's children). Therefore some careful
-crafting of methods may be nessecary in order to get the right effect:
+crafting of methods may be necessary in order to get the right effect:
 
     >>> tree.remove(1)                                  # doctest: +ELLIPSIS
     event handled (<function _remove at ...>, (<gaphas.tree.Tree object at 0x...>, 2), {})
@@ -74,8 +74,8 @@ is present now):
 What should you know:
 
 1. The observer always generates events based on 'function' calls. Even for
-   class method invokations. This is because, when calling a method (say
-   Tree.add) it's the im_func field is executed, which is a function type
+   class method invocations. This is because, when calling a method (say
+   Tree.add) it's the ``im_func`` field is executed, which is a function type
    object.
 
 2. It's important to know if an event came from invoking a method or a simple
@@ -193,10 +193,11 @@ matrix.py:
   Matrix:
    invert, translate, rotate and scale
 
-Testcases are described in undo.txt.
+Test cases are described in undo.txt.
 
 (disable dispatching again, not frustrating other tests)
 
     >>> state.disable_dispatching(Tree.add)
     >>> state.disable_dispatching(Tree._remove)
+
 
