@@ -471,9 +471,9 @@ class GtkView(gtk.DrawingArea, View):
         >>> v = GtkView()
         >>> a = gtk.Adjustment()
         >>> v._hadjustment = a
-        >>> v._update_adjustment(a, 10, 100, 20)
+        >>> v._update_adjustment(a, 10, 100, 0, 20)
         >>> a.page_size, a.page_increment, a.value
-        (20.0, 20.0, 10.0)
+        (20.0, 20.0, 0.0)
         """
         #canvas_size += viewport_size
         #canvas_offset -= viewport_size

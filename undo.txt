@@ -419,3 +419,8 @@ Solvers ``add_constraint()`` and ``remove_constraint()`` are observed.
     >>> list(s.constraints_with_variable(a))
     []
 
+    >>> undo_list[:] = redo_list[:]
+    >>> undo()
+    >>> list(s.constraints_with_variable(a))
+    [EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
+    

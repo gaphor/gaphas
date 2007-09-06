@@ -442,6 +442,7 @@ class Solver(object):
         >>> len(s._constraints)
         1
         """
+        assert constraint, 'No constraint (%s)' % (constraint,)
         self._constraints.add(constraint)
         self._marked_cons.append(constraint)
         constraint._solver_has_projections = False
@@ -475,6 +476,7 @@ class Solver(object):
 
         >>> s.remove_constraint(c)
         """
+        assert constraint, 'No constraint (%s)' % (constraint,)
         for v in constraint.variables():
             while isinstance(v, Projection):
                 v = v.variable()
