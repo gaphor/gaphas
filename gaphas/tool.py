@@ -356,6 +356,12 @@ class HandleTool(Tool):
         self._grabbed_item = item
         self._grabbed_handle = handle
 
+    def ungrab_handle(self):
+        """
+        Reset _grabbed_handle and _grabbed_item.
+        """
+        self._grabbed_handle = None
+        self._grabbed_item = None
 
     def _find_handle(self, view, event, item):
         """
@@ -457,14 +463,17 @@ class HandleTool(Tool):
         Release a grabbed handle.
         """
         # queue extra redraw to make sure the item is drawn properly
+        grabbed_handle, grabbed_item = self._grabbed_handle, self._grabbed_item
         try:
             view = context.view
-            if self._grabbed_handle and self._grabbed_handle.connectable:
-                self.connect(view, self._grabbed_item, self._grabbed_handle, event.x, event.y)
+            if grabbed_handle and grabbed_handle.connectable:
+                self.connect(view, grabbed_item, grabbed_handle, event.x, event.y)
         finally:
             context.ungrab()
-        if self._grabbed_handle:
-            self._grabbed_item.request_update()
+            self.ungrab_handle()
+
+        if grabbed_handle:
+            grabbed_item.request_update()
         return True
 
     def on_motion_notify(self, context, event):
