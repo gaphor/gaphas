@@ -102,7 +102,6 @@ GTK+ and PyGTK_ are required.
     },
 
     entry_points = {
-    "distutils.commands": [ "nosetests = nose.commands:nosetests", ],
     },
 
     test_suite = 'nose.collector',

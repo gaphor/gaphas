@@ -190,8 +190,9 @@ class ConnectingHandleTool(tool.HandleTool):
         Connect a handle to another item.
 
         In this "method" the following assumptios are made:
-         1. The only item that accepts handle connections are the Box instances
-         2. The only items with connectable handles are Line's
+        
+        1. The only item that accepts handle connections are the Box instances
+        2. The only items with connectable handles are Line's
          
         """
         def side(handle, glued):
