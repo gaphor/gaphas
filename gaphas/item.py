@@ -39,7 +39,10 @@ class Handle(object):
         self._visible = True
         self._connected_to = None
 
-        # The constraint used to keep the handle visually connected
+        # User data for the connection (e.g. constraints)
+        self._connection_data = None
+        # An extra property used to disconnect the constraint. Should be set
+        # by the application.
         self._disconnect = lambda: 0
 
     @observed
@@ -78,7 +81,15 @@ class Handle(object):
     def _set_connected_to(self, connected_to):
         self._connected_to = connected_to
 
-    connected_to = reversible_property(lambda s: s._connected_to, _set_connected_to)
+    connected_to = reversible_property(lambda s: s._connected_to,
+                                       _set_connected_to)
+
+    @observed
+    def _set_connection_data(self, connection_data):
+        self._connection_data = connection_data
+
+    connection_data = reversible_property(lambda s: s._connection_data,
+                                          _set_connection_data)
 
     @observed
     def _set_disconnect(self, disconnect):
