@@ -365,6 +365,11 @@ class ItemTool(Tool):
                 i.matrix.translate(*v2i.transform_distance(dx, dy))
                 canvas.request_matrix_update(i)
 
+            # TODO: if isinstance(item, Element):
+            #   schedule item to be handled by some "guides" tool
+            #   that tries to align the handle with some other Element's
+            #   handle.
+
             self.last_x, self.last_y = event.x, event.y
             return True
 
@@ -533,6 +538,10 @@ class HandleTool(Tool):
             try:
                 if self._grabbed_handle.connectable:
                     self.glue(view, item, handle, event.x, event.y)
+                # TODO: elif isinstance(item, Element):
+                #   schedule (item, handle) to be handled by some "guides" tool
+                #   that tries to align the handle with some other Element's
+                #   handle.
             finally:
                 pass
             return True
