@@ -1,7 +1,6 @@
 """
 Quadtree
 ========
-From Wikipedia, the free encyclopedia
 
 A quadtree is a tree data structure in which each internal node has up to four
 children. Quadtrees are most often used to partition a two dimensional space by
@@ -16,6 +15,7 @@ common features:
   When maximum capacity is reached, the bucket splits
 * The tree directory follows the spatial decomposition of the Quadtree
 
+(From Wikipedia, the free encyclopedia)
 """
 
 __version__ = "$Revision$"

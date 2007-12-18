@@ -189,10 +189,43 @@ class ToolChain(Tool):
         self._grabbed_tool = None
 
     def append(self, tool):
+        """
+        Append a tool to the chain. Self is returned.
+        """
         self._tools.append(tool)
+        return self
 
     def prepend(self, tool):
+        """
+        Prepend a tool to the chain. Self is returned.
+        """
         self._tools.insert(0, tool)
+        return self
+
+    def swap(self, old_tool_class, new_tool):
+        """
+        Swap one tool for another. Note that the first argument is the tool's
+        class (type), not an instance.
+
+        >>> chain = ToolChain().append(HoverTool()).append(RubberbandTool())
+        >>> chain._tools # doctest: +ELLIPSIS
+        [<gaphas.tool.HoverTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
+        >>> chain.swap(HoverTool, ItemTool()) # doctest: +ELLIPSIS
+        <gaphas.tool.ToolChain object at 0x...>
+
+        Now the HoverTool has been substituted for the ItemTool:
+        
+        >>> chain._tools # doctest: +ELLIPSIS
+        [<gaphas.tool.ItemTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
+        """
+        tools = self._tools
+        for i in xrange(len(tools)):
+            if type(tools[i]) is old_tool_class:
+                if self._grabbed_tool is tools[i]:
+                    raise ValueError, 'Can\'t swap tools since %s is grabbed' % tools[i]
+                tools[i] = new_tool
+                break
+        return self
 
     def grab(self, tool):
         if not self._grabbed_tool:
@@ -288,7 +321,7 @@ class ItemTool(Tool):
             del view.selected_items
         if view.hovered_item:
             if view.hovered_item in view.selected_items and \
-               event.state & gtk.gdk.CONTROL_MASK:
+                    event.state & gtk.gdk.CONTROL_MASK:
                 view.focused_item = None
                 view.unselect_item(view.hovered_item)
             else:
@@ -651,12 +684,12 @@ def DefaultTool():
     """
     The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
-    chain = ToolChain()
-    chain.append(HoverTool())
-    chain.append(HandleTool())
-    chain.append(ItemTool())
-    chain.append(TextEditTool())
-    chain.append(RubberbandTool())
+    chain = ToolChain().\
+        append(HoverTool()).\
+        append(HandleTool()).\
+        append(ItemTool()).\
+        append(TextEditTool()).\
+        append(RubberbandTool())
     return chain
 
 
