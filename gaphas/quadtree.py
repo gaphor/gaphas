@@ -10,10 +10,10 @@ named a quadtree by Raphael Finkel and J.L. Bentley in 1974. A similar
 partitioning is also known as a Q-tree. All forms of Quadtrees share some
 common features:
 
-* They decompose space into adaptable cells
+* They decompose space into adaptable cells.
 * Each cell (or bucket) has a maximum capacity.
-  When maximum capacity is reached, the bucket splits
-* The tree directory follows the spatial decomposition of the Quadtree
+  When maximum capacity is reached, the bucket splits.
+* The tree directory follows the spatial decomposition of the Quadtree.
 
 (From Wikipedia, the free encyclopedia)
 """
@@ -83,6 +83,14 @@ class Quadtree(object):
     """
 
     def __init__(self, bounds=(0, 0, 0, 0), capacity=10):
+        """
+        Create a new Quadtree instance.
+        
+        Bounds is the boundries of the quadtree. this is fixed and do not
+        change depending on the contents.
+        
+        Capacity defines the number of elements in one tree bucket (default: 10)
+        """
         self._capacity = capacity
         self._bucket = QuadtreeBucket(bounds, capacity)
 
@@ -94,14 +102,21 @@ class Quadtree(object):
 
 
     def resize(self, bounds):
+        """
+        Resize the tree.
+        The tree structure is rebuild.
+        """
         self._bucket = QuadtreeBucket(bounds, self._capacity)
         self.rebuild()
 
 
     def get_soft_bounds(self):
         """
-        Calculate the size of all items in the Quadtree. This size may be beyond
-        the limits of the quadtree itself 
+        Calculate the size of all items in the tree. This size may be beyond
+        the limits of the tree itself.
+
+        Returns a tuple (x, y, width, height).
+
         >>> qtree = Quadtree()
         >>> qtree.add('1', (10, 20, 30, 40))
         >>> qtree.add('2', (20, 30, 40, 10))
@@ -168,7 +183,7 @@ class Quadtree(object):
 
     def rebuild(self):
         """
-        Rebuild the Quadtree structure.
+        Rebuild the tree structure.
         """
         # Clean bucket and items:
         self._bucket.clear()
@@ -188,10 +203,18 @@ class Quadtree(object):
 
 
     def get_data(self, item):
+        """
+        Return the data for the given item, None if no data was provided.
+        """
         return self._ids[item][1]
 
 
     def get_clipped_bounds(self, item):
+        """
+        Return the bounding box for the given item. The bounding box is clipped
+        on the boundries of the tree (provided on construction or with
+        resize()).
+        """
         return self._ids[item][2]
 
 
