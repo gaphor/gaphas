@@ -113,7 +113,7 @@ def disable_dispatching(func, disable=True):
     enable_dispatching(func, not disable)
 
 
-def dispatch(event, queue=subscribers):
+def dispatch(event, queue):
     """
     Dispatch an event to a queue of event handlers.
     Event handlers should have signature: handler(event).
@@ -278,7 +278,7 @@ def revert_handler(event):
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
-    dispatch((reverse, kwargs))
+    dispatch((reverse, kwargs), queue=subscribers)
 
 
 def saveapply(func, kw):
