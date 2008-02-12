@@ -386,6 +386,65 @@ The opposite operation is performed with the merge_segment() method:
     >>> l.handles()
     [<Handle object on (0, 0)>, <Handle object on (10, 10)>]
 
+Also creation and removal of connected lines is recorded and can be undone:
+
+    >>> def real_connect(handle, item):
+    ...     def real_disconnect():
+    ...         handle.connected_to = None
+    ...         handle.disconnect = lambda: 0
+    ...     handle.connected_to = item
+    ...     handle.disconnect = real_disconnect
+    >>> canvas = Canvas()
+    >>> b0 = Item()
+    >>> canvas.add(b0)
+    >>> b1 = Item()
+    >>> canvas.add(b1)
+    >>> l = Line()
+    >>> canvas.add(l)
+    >>> real_connect(l.handles()[0], b0)
+    >>> real_connect(l.handles()[1], b1)
+    >>> l.handles()[0].connected_to                     # doctest: +ELLIPSIS
+    <gaphas.item.Item object at 0x...>
+    >>> l.handles()[1].connected_to                     # doctest: +ELLIPSIS
+    <gaphas.item.Item object at 0x...>
+    >>> l.handles()[0].disconnect                       # doctest: +ELLIPSIS
+    <function real_disconnect at 0x...>
+    >>> l.handles()[1].disconnect                       # doctest: +ELLIPSIS
+    <function real_disconnect at 0x...>
+
+Clear already collected undo data:
+
+    >>> del undo_list[:]
+
+Now remove the line from the canvas:
+
+    >>> canvas.remove(l)
+
+The handles are disconnected:
+
+    >>> l.canvas
+    >>> l.handles()[0].connected_to
+    >>> l.handles()[1].connected_to
+    >>> l.handles()[0].disconnect                       # doctest: +ELLIPSIS
+    <function <lambda> at 0x...>
+    >>> l.handles()[1].disconnect                       # doctest: +ELLIPSIS
+    <function <lambda> at 0x...>
+
+Undoing the remove() action should put everything back in place again:
+
+    >>> undo()
+
+    >>> l.canvas                                        # doctest: +ELLIPSIS
+    <gaphas.canvas.Canvas object at 0x...>
+    >>> l.handles()[0].connected_to                     # doctest: +ELLIPSIS
+    <gaphas.item.Item object at 0x...>
+    >>> l.handles()[1].connected_to                     # doctest: +ELLIPSIS
+    <gaphas.item.Item object at 0x...>
+    >>> l.handles()[0].disconnect                       # doctest: +ELLIPSIS
+    <function real_disconnect at 0x...>
+    >>> l.handles()[1].disconnect                       # doctest: +ELLIPSIS
+    <function real_disconnect at 0x...>
+
 solver.py: Variable
 -------------------
 
