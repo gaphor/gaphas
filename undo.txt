@@ -195,10 +195,10 @@ canvas.py: Canvas
 The ``request_update()`` method is observed:
 
     >>> len(undo_list)
-    3
+    2
     >>> canvas.request_update(item)
     >>> len(undo_list)
-    4
+    3
 
 On the canvas only ``add()`` and ``remove()`` are monitored:
 
@@ -335,7 +335,7 @@ An element has ``min_height`` and ``min_width`` properties.
     (10, 10)
     
     >>> canvas = Canvas()
-    >>> e.canvas = canvas
+    >>> canvas.add(e)
     >>> undo()
     >>> e.canvas
 

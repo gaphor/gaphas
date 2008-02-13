@@ -162,10 +162,13 @@ class Item(object):
         self._sort_key = None
 
 
-    @observed
+    # _set_canvas() is not observed, since this operation is initialized by
+    # Canvas.add() and Canvas.remove()
+    #@observed
     def _set_canvas(self, canvas):
         """
-        Set the canvas.
+        Set the canvas. Should only be called from Canvas.add and
+        Canvas.remove().
         """
         assert not canvas or not self._canvas or self._canvas is canvas
         if self._canvas:
@@ -174,15 +177,8 @@ class Item(object):
         if canvas:
             self.setup_canvas()
 
-    def _del_canvas(self):
-        """
-        Unset the canvas.
-        """
-        self._set_canvas(None)
-
-    canvas = reversible_property(lambda s: s._canvas, _set_canvas, _del_canvas,
-                doc="Set canvas for the item. Application should use " + \
-                    "Canvas.add() and Canvas.remove().")
+    canvas = reversible_property(lambda s: s._canvas,
+                doc="Canvas owning this item")
 
 
     def setup_canvas(self):
@@ -218,6 +214,7 @@ class Item(object):
         self._matrix = matrix
 
     matrix = reversible_property(lambda s: s._matrix, _set_matrix)
+
 
     def request_update(self, update=True, matrix=True):
         if self._canvas:

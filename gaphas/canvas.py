@@ -69,7 +69,7 @@ class Canvas(object):
         True
         """
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
-        item.canvas = self
+        item._set_canvas(self)
         self._tree.add(item, parent)
         item._sort_key = self.sorter.get_key(item)
 
@@ -85,9 +85,9 @@ class Canvas(object):
         Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order.
         """
-        item.canvas = None
-        self._tree.remove(item)
         self.remove_connections_to_item(item)
+        self._tree.remove(item)
+        item._set_canvas(None)
         self._update_views(removed_items=(item,))
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)

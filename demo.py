@@ -197,6 +197,7 @@ def create_window(canvas, title, zoom=1.0):
         apply_me.reverse()
         saveapply = state.saveapply
         for event in apply_me:
+            print 'Undo: invoking', event
             saveapply(*event)
             # Visualize each event:
             while gtk.events_pending():
