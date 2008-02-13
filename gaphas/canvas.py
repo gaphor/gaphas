@@ -662,7 +662,6 @@ class CanvasProjection(object):
     >>> p._point
     (Variable(33, 40), Variable(10, 40))
 
-    TODO: How will this work on rotated variables?
     When the variables are retrieved, new values are calculated.
     """
 
@@ -687,8 +686,8 @@ class CanvasProjection(object):
         Return two delegating variables. Each variable should contain
         a value attribute with the real value.
         """
-        x, y = self._point
         item = self._item
+        x, y = self._point
         self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
         return self._px, self._py
 
