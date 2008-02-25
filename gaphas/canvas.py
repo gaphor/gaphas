@@ -118,12 +118,8 @@ class Canvas(object):
         for a specific item.
         This is some brute force cleanup (e.g. if constraints are referenced
         by items, those references are not cleaned up).
-
-        This method implies the constraint used to keep the handle in place
-        is connected to Handle.connect_constraint.
         """
         for i, h in self.get_connected_items(item):
-            #self._solver.remove_constraint(h.connect_constraint)
             h.disconnect()
             # Never mind..
             h.connected_to = None
