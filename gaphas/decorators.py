@@ -6,7 +6,8 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 import gobject
-from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT
+from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
+        PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 import operator
 
 DEBUG_ASYNC = False

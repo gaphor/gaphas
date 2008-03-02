@@ -610,6 +610,9 @@ class PlacementTool(Tool):
         view = context.view
         canvas = view.canvas
         new_item = self._create_item(context, event.x, event.y)
+        # Enforce matrix update, as a good matrix is required for the handle
+        # positioning:
+        canvas.get_matrix_i2c(new_item, calculate=True)
         self._handle_tool.grab_handle(new_item,
                                       new_item.handles()[self._handle_index])
         self._new_item = new_item
