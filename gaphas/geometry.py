@@ -4,7 +4,7 @@ Geometry functions.
 Rectangle is a utility class for working with rectangles (unions and
 intersections)
 
-A point is represented as a tuple (x, y).
+A point is represented as a tuple `(x, y)`.
 
 """
 
@@ -128,7 +128,7 @@ class Rectangle(object):
     def __add__(self, obj):
         """
         Create a new Rectangle is the union of the current rectangle
-        with another Rectangle, tuple (x,y) or tuple (x, y, width, height).
+        with another Rectangle, tuple `(x,y)` or tuple `(x, y, width, height)`.
 
         >>> r=Rectangle(5, 7, 20, 25)
         >>> r + (0, 0)
@@ -211,7 +211,7 @@ class Rectangle(object):
 
     def __contains__(self, obj):
         """
-        Check if a point (x, y) in inside rectangle (x, y, width, height)
+        Check if a point `(x, y)` in inside rectangle `(x, y, width, height)`
         or if a rectangle instance is inside with the rectangle.
 
         >>> r=Rectangle(10, 5, 12, 12)
@@ -252,6 +252,8 @@ class Rectangle(object):
 
 def distance_point_point(point1, point2=(0., 0.)):
     """
+    Return the distance from point ``point1`` to ``point2``.
+
     >>> '%.3f' % distance_point_point((0,0), (1,1))
     '1.414'
     """
@@ -262,6 +264,9 @@ def distance_point_point(point1, point2=(0., 0.)):
 
 def distance_point_point_fast(point1, point2):
     """
+    Return the distance from point ``point1`` to ``point2``. This version is
+    faster than ``distance_point_point()``, but less precise.
+
     >>> distance_point_point_fast((0,0), (1,1))
     2
     """
@@ -272,7 +277,8 @@ def distance_point_point_fast(point1, point2):
 
 def distance_rectangle_point(rect, point):
     """
-    Return the distance (fast) from a rectangle (x, y, width, height) to a line.
+    Return the distance (fast) from a rectangle ``(x, y, width, height)`` to a
+    ``point``.
 
     >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
     2
@@ -300,8 +306,8 @@ def distance_rectangle_point(rect, point):
 
 def point_on_rectangle(rect, point, border=False):
     """
-    Return the point on which @point can be projecten on the rectangle.
-    border = True will make sure the point is bound to the border of
+    Return the point on which ``point`` can be projecten on the rectangle.
+    ``border = True`` will make sure the point is bound to the border of
     the reactangle. Otherwise, if the point is in the rectangle, it's okay.
     
     >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
@@ -364,8 +370,8 @@ def point_on_rectangle(rect, point, border=False):
 
 def distance_line_point(line_start, line_end, point):
     """
-    Calculate the distance of a point from a line. The line is marked
-    by begin and end point line_start and line_end. 
+    Calculate the distance of a ``point`` from a line. The line is marked
+    by begin and end point ``line_start`` and ``line_end``. 
 
     A tuple is returned containing the distance and point on the line.
 
@@ -412,6 +418,10 @@ def distance_line_point(line_start, line_end, point):
 
 def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     """
+    Find the point where the lines (segments) defined by
+    ``(line1_start, line1_end)`` and ``(line2_start, line2_end)`` intersect.
+    If no intersecion occurs, ``None`` is returned.
+
     >>> intersect_line_line((0, 0), (10, 10), (3, 0), (8, 10))
     (6.0, 6.0)
     >>> intersect_line_line((0, 0), (0, 10), (3, 0), (8, 10))
@@ -451,7 +461,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
 
 def rectangle_contains(inner, outer):
     """
-    Returns True if inner rect is contained in outer rect.
+    Returns True if ``inner`` rect is contained in ``outer`` rect.
     """
     ix, iy, iw, ih = inner
     ox, oy, ow, oh = outer
@@ -460,7 +470,7 @@ def rectangle_contains(inner, outer):
 
 def rectangle_intersects(recta, rectb):
     """
-    Return True if recta and rectb intersect.
+    Return True if ``recta`` and ``rectb`` intersect.
 
     >>> rectangle_intersects((5,5,20, 20), (10, 10, 1, 1))
     True
