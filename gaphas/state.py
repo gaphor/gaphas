@@ -4,7 +4,7 @@ changes.
 
 Invokations of method and state changing properties are emited to all
 functions (or bound methods) registered in the 'observers' set.
-Use observers.add() and observers.remove() to add/remove handlers.
+Use `observers.add()` and `observers.remove()` to add/remove handlers.
 
 This module also contains a second layer: a state inverser. Instead of
 emiting the invoked method, it emits a signal (callable, \*\*kwargs) that
@@ -92,6 +92,7 @@ def enable_dispatching(func, enable=True):
     >>> callme()
 
     ... and enable it again:
+
     >>> enable_dispatching(callme)
     >>> callme()
     event
@@ -160,7 +161,7 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     operation. bind1 provides arguments that can overrule the default values
     (or add additional values). bind2 does the same for func2.
 
-    See revert_handler() for doctesting.
+    See `revert_handler()` for doctesting.
     """
     global _reverse
     # We need the function, since that's what's in the events
