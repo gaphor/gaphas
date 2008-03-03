@@ -54,6 +54,7 @@ class Canvas(object):
     
     solver = property(lambda s: s._solver)
 
+
     @observed
     def add(self, item, parent=None):
         """
@@ -91,6 +92,7 @@ class Canvas(object):
         self._dirty_items.discard(item)
         self._dirty_matrix_items.discard(item)
 
+
     def remove(self, item):
         """
         Remove item from the canvas.
@@ -125,6 +127,14 @@ class Canvas(object):
             h.connected_to = None
             h.disconnect = lambda: 0
 
+
+    def reparent(self, item, parent):
+        """
+        Set new parent for an item.
+        """
+        self._tree.reparent(item, parent)
+
+
     def get_all_items(self):
         """
         Get a list of all items.
@@ -139,7 +149,8 @@ class Canvas(object):
         [<gaphas.item.Item ...>]
         """
         return self._tree.nodes
-    
+
+
     def get_root_items(self):
         """
         Return the root items of the canvas.
@@ -157,12 +168,6 @@ class Canvas(object):
         """
         return self._tree.get_children(None)
 
-    def reparent(self, item, parent):
-        """
-        Set new parent for an item.
-        """
-        self._tree.reparent(item, parent)
-
 
     def get_parent(self, item):
         """
@@ -179,6 +184,7 @@ class Canvas(object):
         <gaphas.item.Item ...>
         """
         return self._tree.get_parent(item)
+
 
     def get_ancestors(self, item):
         """
@@ -201,6 +207,7 @@ class Canvas(object):
         """
         return self._tree.get_ancestors(item)
 
+
     def get_children(self, item):
         """
         See `tree.Tree.get_children()`.
@@ -222,6 +229,7 @@ class Canvas(object):
         """
         return self._tree.get_children(item)
 
+
     def get_all_children(self, item):
         """
         See `tree.Tree.get_all_children()`.
@@ -242,6 +250,7 @@ class Canvas(object):
         [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_all_children(item)
+
 
     def get_connected_items(self, item):
         """
@@ -275,6 +284,9 @@ class Canvas(object):
                     connected_items.add((i, h))
         return connected_items
 
+
+    #{ Matrices
+
     def get_matrix_i2c(self, item, calculate=False):
         """
         Get the Item to Canvas matrix for ``item``.
@@ -284,7 +296,7 @@ class Canvas(object):
             found
         calculate:
             True will allow this function to actually calculate it,
-            in stead of raising an AttributeError when no matrix is present
+            in stead of raising an `AttributeError` when no matrix is present
             yet. Note that out-of-date matrices are not recalculated.
         """
         if item._matrix_i2c is None or calculate:
@@ -301,6 +313,8 @@ class Canvas(object):
             self.update_matrix(item)
         return item._matrix_c2i
 
+
+    #{ Update cycle
 
     @observed
     def request_update(self, item, update=True, matrix=True):
@@ -328,11 +342,13 @@ class Canvas(object):
 
     reversible_method(request_update, reverse=request_update)
 
+
     def request_matrix_update(self, item):
         """
         Schedule only the matrix to be updated.
         """
         self.request_update(item, update=False, matrix=True)
+
 
     def require_update(self):
         """
@@ -351,6 +367,7 @@ class Canvas(object):
         asynchronous. Therefore ``require_update()`` returns ``False``.
         """
         return bool(self._dirty_items)
+
 
     @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
@@ -554,6 +571,8 @@ class Canvas(object):
         return dirty_matrix_items
 
 
+    #{ Views
+
     def register_view(self, view):
         """
         Register a view on this canvas. This method is called when setting
@@ -569,12 +588,14 @@ class Canvas(object):
         """
         self._registered_views.discard(view)
 
+
     def _update_views(self, dirty_items=(), dirty_matrix_items=(), removed_items=()):
         """
         Send an update notification to all registered views.
         """
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
+
 
     def _obtain_cairo_context(self):
         """
