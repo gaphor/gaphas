@@ -47,10 +47,14 @@ class LineTestCase(unittest.TestCase):
 
         assert len(canvas.solver._constraints) == 2
 
-        print 'undo_list:', undo_list
         undo()
 
+        assert not line.horizontal
         assert len(canvas.solver._constraints) == 2, canvas.solver._constraints
 
+        line.horizontal = True
+
+        assert line.horizontal
+        assert len(canvas.solver._constraints) == 2, canvas.solver._constraints
 
 # vim:sw=4:et

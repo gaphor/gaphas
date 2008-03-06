@@ -446,7 +446,7 @@ class Line(Item):
 
         self._line_width = 2
         self._fuzziness = 0
-        self._orthogonal = []
+        self._orthogonal_constraints = []
         self._horizontal = False
         self._head_angle = self._tail_angle = 0
 
@@ -462,14 +462,18 @@ class Line(Item):
 
     fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
 
-    def _set_orthogonal_constraints(self, orthogonal):
+    def _update_orthogonal_constraints(self, orthogonal):
+        """
+        Update the constraints required to maintain the orthogonal line.
+        The actual constraints attribute (``_orthogonal_constraints``) is
+        observed, so the undo system will update the contents properly
+        """
         if not self.canvas:
-            self._orthogonal = orthogonal and [ None ] or []
+            self._orthogonal_constraints = orthogonal and [ None ] or []
             return
 
-        for c in self._orthogonal:
+        for c in self._orthogonal_constraints:
             self.canvas.solver.remove_constraint(c)
-            self._orthogonal = []
 
         if not orthogonal:
             return
@@ -479,7 +483,7 @@ class Line(Item):
             self.split_segment(0)
         eq = EqualsConstraint #lambda a, b: a - b
         add = self.canvas.solver.add_constraint
-        cons = self._orthogonal
+        cons = []
         rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
             if pos % 2 == rest: # odd
@@ -488,7 +492,17 @@ class Line(Item):
                 cons.append(add(eq(a=h0.y, b=h1.y)))
             self.canvas.solver.request_resolve(h1.x)
             self.canvas.solver.request_resolve(h1.y)
+        self._set_orthogonal_constraints(cons)
         self.request_update()
+
+    @observed
+    def _set_orthogonal_constraints(self, orthogonal_constraints):
+        """
+        Setter for the constraints maintained. Required for the undo system.
+        """
+        self._orthogonal_constraints = orthogonal_constraints
+
+    reversible_property(lambda s: s._orthogonal_constraints, _set_orthogonal_constraints)
 
     @observed
     def _set_orthogonal(self, orthogonal):
@@ -497,9 +511,9 @@ class Line(Item):
         >>> a.orthogonal
         False
         """
-        self._set_orthogonal_constraints(orthogonal)
+        self._update_orthogonal_constraints(orthogonal)
 
-    orthogonal = reversible_property(lambda s: bool(s._orthogonal), _set_orthogonal)
+    orthogonal = reversible_property(lambda s: bool(s._orthogonal_constraints), _set_orthogonal)
 
     @observed
     def _inner_set_horizontal(self, horizontal):
@@ -518,7 +532,7 @@ class Line(Item):
         False
         """
         self._inner_set_horizontal(horizontal)
-        self._set_orthogonal_constraints(self._orthogonal)
+        self._update_orthogonal_constraints(self._orthogonal_constraints)
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
@@ -534,7 +548,7 @@ class Line(Item):
         Remove constraints created in setup_canvas().
         """
         super(Line, self).teardown_canvas()
-        for c in self._orthogonal:
+        for c in self._orthogonal_constraints:
             self.canvas.solver.remove_constraint(c)
 
     @observed
