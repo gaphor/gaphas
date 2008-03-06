@@ -12,7 +12,7 @@ from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
 from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
 from constraint import EqualsConstraint, LessThanConstraint
-from state import observed, reversible_pair, reversible_property, disable_dispatching
+from state import observed, reversible_method, reversible_pair, reversible_property, disable_dispatching
 
 
 class Handle(object):
@@ -502,6 +502,12 @@ class Line(Item):
     orthogonal = reversible_property(lambda s: bool(s._orthogonal), _set_orthogonal)
 
     @observed
+    def _inner_set_horizontal(self, horizontal):
+        self._horizontal = horizontal
+
+    reversible_method(_inner_set_horizontal, _inner_set_horizontal,
+                      {'horizontal': lambda horizontal: not horizontal })
+
     def _set_horizontal(self, horizontal):
         """
         >>> line = Line()
@@ -511,7 +517,7 @@ class Line(Item):
         >>> line.horizontal
         False
         """
-        self._horizontal = horizontal
+        self._inner_set_horizontal(horizontal)
         self._set_orthogonal_constraints(self._orthogonal)
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
