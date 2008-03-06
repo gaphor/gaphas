@@ -462,13 +462,7 @@ class Line(Item):
 
     fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
 
-    @observed
-    def _set_orthogonal(self, orthogonal):
-        """
-        >>> a = Line()
-        >>> a.orthogonal
-        False
-        """
+    def _set_orthogonal_constraints(self, orthogonal):
         if not self.canvas:
             self._orthogonal = orthogonal and [ None ] or []
             return
@@ -496,6 +490,15 @@ class Line(Item):
             self.canvas.solver.request_resolve(h1.y)
         self.request_update()
 
+    @observed
+    def _set_orthogonal(self, orthogonal):
+        """
+        >>> a = Line()
+        >>> a.orthogonal
+        False
+        """
+        self._set_orthogonal_constraints(orthogonal)
+
     orthogonal = reversible_property(lambda s: bool(s._orthogonal), _set_orthogonal)
 
     @observed
@@ -509,7 +512,7 @@ class Line(Item):
         False
         """
         self._horizontal = horizontal
-        self._set_orthogonal(self._orthogonal)
+        self._set_orthogonal_constraints(self._orthogonal)
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
