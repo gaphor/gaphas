@@ -83,5 +83,24 @@ class LineTestCase(unittest.TestCase):
         assert len(line.handles()) == 3
         assert canvas.solver._constraints == after_ortho
 
+        line.split_segment(0)
+
+        assert len(canvas.solver._constraints) == 3
+        assert len(line.handles()) == 4
+        after_split = set(canvas.solver._constraints)
+
+        del undo_list[:]
+
+        line.merge_segment(0)
+
+        assert len(canvas.solver._constraints) == 2
+        assert len(line.handles()) == 3
+
+        undo()
+
+        assert len(canvas.solver._constraints) == 3
+        assert len(line.handles()) == 4
+        assert canvas.solver._constraints == after_split
+
 
 # vim:sw=4:et

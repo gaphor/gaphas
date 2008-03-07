@@ -541,7 +541,7 @@ class Line(Item):
         Setup constraints. In this case orthogonal.
         """
         super(Line, self).setup_canvas()
-        self.orthogonal = self.orthogonal
+        self._update_orthogonal_constraints(self.orthogonal)
 
     def teardown_canvas(self):
         """
@@ -608,7 +608,7 @@ class Line(Item):
                 do_split(segment + 1, parts - 1)
         do_split(segment, parts)
         # Force orthogonal constraints to be recreated
-        self.orthogonal = self.orthogonal
+        self._update_orthogonal_constraints(self.orthogonal)
         return self._handles[segment+1:segment+parts]
 
     def merge_segment(self, segment, parts=2):
@@ -652,7 +652,7 @@ class Line(Item):
             self.merge_segment(segment, parts - 1)
         else:
             # Force orthogonal constraints to be recreated
-            self.orthogonal = self.orthogonal
+            self._update_orthogonal_constraints(self.orthogonal)
         return deleted_handles
 
 
@@ -754,9 +754,6 @@ class Line(Item):
 
 __test__ = {
     'Line._set_orthogonal': Line._set_orthogonal,
-    'Line._set_horizontal': Line._set_horizontal,
-    'Line.split_segment': Line.split_segment,
-    'Line.merge_segment': Line.merge_segment,
     }
 
 
