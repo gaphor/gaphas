@@ -57,4 +57,31 @@ class LineTestCase(unittest.TestCase):
         assert line.horizontal
         assert len(canvas.solver._constraints) == 2, canvas.solver._constraints
 
+    def test_orthogonal_line_split_segment(self):
+        canvas = Canvas()
+        line = Line()
+        canvas.add(line)
+
+        assert len(canvas.solver._constraints) == 0
+
+        line.orthogonal = True
+
+        assert len(canvas.solver._constraints) == 2
+        after_ortho = set(canvas.solver._constraints)
+        assert len(line.handles()) == 3
+
+        del undo_list[:]
+
+        line.split_segment(0)
+
+        assert len(canvas.solver._constraints) == 3
+        assert len(line.handles()) == 4
+
+        undo()
+
+        assert len(canvas.solver._constraints) == 2
+        assert len(line.handles()) == 3
+        assert canvas.solver._constraints == after_ortho
+
+
 # vim:sw=4:et
