@@ -10,7 +10,9 @@ from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 import operator
 
+
 DEBUG_ASYNC = False
+
 
 class async(object):
     """
@@ -108,6 +110,7 @@ class async(object):
                         gobject.idle_add(async_wrapper, priority=self.priority))
         return wrapper
 
+
 def nonrecursive(func):
     """
     Enforce a function or method is not executed recursively:
@@ -138,6 +141,7 @@ def nonrecursive(func):
         finally:
             del func._executing
     return wrapper
+
 
 class recursive(object):
     """
