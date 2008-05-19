@@ -31,6 +31,9 @@ class LineTestCase(unittest.TestCase):
         state.subscribers.remove(undo_handler)
 
     def test_orthogonal_horizontal_undo(self):
+        """
+        Orthogonal line constraints bug (#107)
+        """
         canvas = Canvas()
         line = Line()
         canvas.add(line)

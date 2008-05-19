@@ -448,7 +448,7 @@ class HandleTool(Tool):
     def move(self, view, item, handle, x, y):
         """
         Move the handle to position ``(x,y)``. ``x`` and ``y`` are in
-        item coordnates.
+        item coordnates. ``item`` is the item whose ``handle`` is moved.
         """
         handle.x = x
         handle.y = y
@@ -456,20 +456,44 @@ class HandleTool(Tool):
 
     def glue(self, view, item, handle, vx, vy):
         """
-        Find an item near ``handle` that ``item`` can connect to.
+        Find an item that ``handle`` can connect to. ``item`` is the ``Item``
+        owing the handle.
         ``vx`` and ``vy`` are the pointer (view) coordinates.
+
+        The ``glue()`` code should take care of moving ``handle`` to the
+        correct position, creating a glue effect.
         """
 
     def connect(self, view, item, handle, vx, vy):
         """
-        Find an item near ``handle`` that ``item`` can connect to and connect.
+        Find an item that ``handle`` can connect to and create a connection.
+        ``item`` is the ``Item`` owning the handle.
         ``vx`` and ``vy`` are the pointer (view) coordinates.
+        
+        A typical connect action may involve the following:
+        
+        - Find an item near ``handle`` that can be connected to.
+        - Move ``handle`` to the right position.
+        - Set ``handle.connected_to`` to point to the new item.
+        - Add constraints to the constraint solver (``view.canvas.solver``).
+        - Set ``handle.disconnect`` to point to a method that can be called when
+          the handle is disconnected (no arguments).
+        
+        NOTE: ``connect()`` can not expect ``glue()`` has been called,
+        therefore it should ensure the handle is moved to the correct location
+        before.
         """
 
     def disconnect(self, view, item, handle):
         """
         Disconnect the handle. This mostly comes down to removing 
-        constraints.
+        constraints. ``item`` is the Item owning the handle.
+
+        A typical disconnect operation may look like this:
+        
+        - Call ``handle.disconnect()`` (assigned in ``connect()``).
+        - Disconnect existing constraints.
+        - Set ``handle.connected_to`` to ``None``.
         """
 
     def on_button_press(self, context, event):
