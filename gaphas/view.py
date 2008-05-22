@@ -387,7 +387,7 @@ class GtkView(gtk.DrawingArea, View):
     }
 
 
-    def __init__(self, canvas=None):
+    def __init__(self, canvas=None, hadjustment=None, vadjustment=None):
         gtk.DrawingArea.__init__(self)
 
         self._dirty_items = set()
@@ -402,8 +402,8 @@ class GtkView(gtk.DrawingArea, View):
                         | gtk.gdk.KEY_PRESS_MASK
                         | gtk.gdk.KEY_RELEASE_MASK)
 
-        self._hadjustment = gtk.Adjustment()
-        self._vadjustment = gtk.Adjustment()
+        self._hadjustment = hadjustment or gtk.Adjustment()
+        self._vadjustment = vadjustment or gtk.Adjustment()
         self._hadjustment.connect('value-changed', self.on_adjustment_changed)
         self._vadjustment.connect('value-changed', self.on_adjustment_changed)
 
