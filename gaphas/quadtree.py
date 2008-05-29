@@ -143,7 +143,7 @@ class Quadtree(object):
     soft_bounds = property(get_soft_bounds)
 
 
-    def add(self, item, bounds, data=None, debug=False):
+    def add(self, item, bounds, data=None):
         """
         Add an item to the tree.
         If an item already exists, its bounds are updated and the item is
@@ -221,7 +221,7 @@ class Quadtree(object):
     def find_inside(self, rect):
         """
         Find all items in the given rectangle (x, y, with, height).
-        Returns an iterator.
+        Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_contains))
         
@@ -230,7 +230,7 @@ class Quadtree(object):
         """
         Find all items that intersect with the given rectangle
         (x, y, width, height).
-        Returns an iterator.
+        Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_intersects))
         

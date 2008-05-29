@@ -55,7 +55,7 @@ class QuadtreeTestCase(unittest.TestCase):
 
         assert qtree.get_bounds('0x0')
         # Now move item '0x0' to the center of the first quadrant (20, 20)
-        qtree.add('0x0', (20, 20, 10, 10), debug=True)
+        qtree.add('0x0', (20, 20, 10, 10))
         assert len(qtree._bucket.items) == 0
         assert len(qtree._bucket._buckets[0]._buckets[0].items) == 3, \
                 qtree._bucket._buckets[0]._buckets[0].items
@@ -63,7 +63,7 @@ class QuadtreeTestCase(unittest.TestCase):
                 qtree._bucket._buckets[0].items
 
         # Now move item '0x0' to the second quadrant (70, 20)
-        qtree.add('0x0', (70, 20, 10, 10), debug=True)
+        qtree.add('0x0', (70, 20, 10, 10))
         assert len(qtree._bucket.items) == 0
         assert len(qtree._bucket._buckets[0]._buckets[0].items) == 3, \
                 qtree._bucket._buckets[0]._buckets[0].items
