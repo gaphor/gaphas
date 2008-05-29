@@ -159,12 +159,14 @@ class Quadtree(object):
             if old_clip:
                 bucket = self._bucket.find_bucket(old_clip)
                 assert item in bucket.items
-                if bucket and rectangle_contains(bounds, bucket.bounds):
-                    bucket.update(item, old_clip, clipped_bounds)
+                # Fast lane, if item moved just a little it may still reside
+                # in the same bucket. We do not need to search from top-level.
+                if bucket and rectangle_contains(clipped_bounds, bucket.bounds):
+                    bucket.update(item, clipped_bounds)
                     self._ids[item] = (bounds, data, clipped_bounds)
                     return
                 elif bucket:
-                    bucket.find_bucket(old_clip).remove(item)
+                    bucket.remove(item)
 
         if clipped_bounds:
             self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
@@ -306,12 +308,14 @@ class QuadtreeBucket(object):
         del self.items[item]
         
 
-    def update(self, item, old_bounds, new_bounds):
+    def update(self, item, new_bounds):
         """
         Update the position of an item within the current bucket.
-        The item may be placed in a sub-bucket.
+        The item should live in the current bucket, but may be placed in a
+        sub-bucket.
         """
-        self.find_bucket(old_bounds).remove(item)
+        assert item in self.items
+        self.remove(item)
         self.find_bucket(new_bounds).add(item, new_bounds)
 
 
