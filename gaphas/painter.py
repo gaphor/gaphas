@@ -151,7 +151,7 @@ class ItemPainter(Painter):
 class CairoBoundingBoxContext(object):
     """
     Delegate all calls to the wrapped CairoBoundingBoxContext, intercept
-    stroke(), fill() and a few others so the bounding box of the
+    ``stroke()``, ``fill()`` and a few others so the bounding box of the
     item involved can be calculated.
     """
 
@@ -179,7 +179,7 @@ class CairoBoundingBoxContext(object):
     def _extents(self, extents_func, line_width=False):
         """
         Calculate the bounding box for a given drawing operation.
-        if @line_width is True, the current line-width is taken into account.
+        if ``line_width`` is True, the current line-width is taken into account.
         """
         cr = self._cairo
         cr.save()
@@ -196,6 +196,9 @@ class CairoBoundingBoxContext(object):
         return b
 
     def fill(self, b=None):
+        """
+        Interceptor for Cairo drawing method.
+        """
         cr = self._cairo
         if not b:
             b = self._extents(cr.fill_extents)
@@ -204,8 +207,10 @@ class CairoBoundingBoxContext(object):
         else:
             cr.fill()
 
-
     def fill_preserve(self, b=None):
+        """
+        Interceptor for Cairo drawing method.
+        """
         cr = self._cairo
         if not b:
             b = self._extents(cr.fill_extents)
@@ -213,6 +218,9 @@ class CairoBoundingBoxContext(object):
             cr.fill_preserve(b)
 
     def stroke(self, b=None):
+        """
+        Interceptor for Cairo drawing method.
+        """
         cr = self._cairo
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
@@ -222,6 +230,9 @@ class CairoBoundingBoxContext(object):
             cr.stroke()
 
     def stroke_preserve(self, b=None):
+        """
+        Interceptor for Cairo drawing method.
+        """
         cr = self._cairo
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
@@ -229,6 +240,9 @@ class CairoBoundingBoxContext(object):
             cr.stroke_preserve(b)
 
     def show_text(self, utf8, b=None):
+        """
+        Interceptor for Cairo drawing method.
+        """
         cr = self._cairo
         if not b:
             x, y = cr.get_current_point()
@@ -241,6 +255,7 @@ class CairoBoundingBoxContext(object):
             cr.show_text(utf8, b)
         else:
             cr.show_text(utf8)
+
 
 class BoundingBoxPainter(ItemPainter):
     """
