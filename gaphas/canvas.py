@@ -423,24 +423,14 @@ class Canvas(object):
             cr = self._obtain_cairo_context()
 
             # allow programmers to perform tricks and hacks before item
-            # full update
+            # full update (only called for items that requested a full update)
             self._pre_update_items(dirty_items, cr)
 
             # recalculate matrices
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
             self._dirty_matrix_items.clear()
 
-            # request solving of external constraints associated with dirty
-            # items
-            request_resolve = self._solver.request_resolve
-            for item in dirty_matrix_items:
-                for h in item.handles():
-                    request_resolve(h.x, projections_only=True)
-                    request_resolve(h.y, projections_only=True)
-            
-
-            # solve all constraints
-            self._solver.solve()
+            self.update_constraints(dirty_matrix_items)
 
             # no matrix can change during constraint solving
             assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
@@ -517,6 +507,22 @@ class Canvas(object):
             # calculate c2i matrix and view matrices
             item._matrix_c2i = Matrix(*item._matrix_i2c)
             item._matrix_c2i.invert()
+
+
+    def update_constraints(self, items):
+        """
+        Update constraints. Also variables may be marked as dirty before the
+        constraint solver kicks in.
+        """
+        # request solving of external constraints associated with dirty items
+        request_resolve = self._solver.request_resolve
+        for item in items:
+            for h in item.handles():
+                request_resolve(h.x, projections_only=True)
+                request_resolve(h.y, projections_only=True)
+
+        # solve all constraints
+        self._solver.solve()
 
 
     def _normalize(self, items):
