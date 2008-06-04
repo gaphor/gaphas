@@ -171,8 +171,6 @@ class ConnectingHandleTool(tool.HandleTool):
                 ix, iy = v2i(wx, wy)
                 try:
                     distance, point = i.glue(item, handle, ix, iy)
-                    # Transform distance to world coordinates
-                    #distance, dumy = matrix_i2w(i).transform_distance(distance, 0)
                     if distance <= glue_distance:
                         glue_distance = distance
                         i2v = view.get_matrix_i2v(i).transform_point
@@ -247,7 +245,7 @@ class ConnectingHandleTool(tool.HandleTool):
             handle.disconnect()
 
         if glue_item:
-            if isinstance(glue_item, Box):
+            if isinstance(glue_item, Element):
                 h1, h2 = side(handle, glue_item)
 
                 # Make a constraint that keeps into account item coordinates.
