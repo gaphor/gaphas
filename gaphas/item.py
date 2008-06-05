@@ -131,12 +131,13 @@ class Item(object):
 
     - matrix: item's transformation matrix
     - canvas: canvas, which owns an item
-    
+    - constraints: list ofitem constraints, automatically registered
+      when the item is added to a canvas; may be extended in subclasses
+
     Private:
 
     - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
-    - _constraints: item's constraints
     - _matrix_i2c:  item to canvas coordinates matrix
     - _matrix_c2i:  canvas to item coordinates matrix
     - _matrix_i2v:  item to view coordinates matrices
@@ -180,6 +181,8 @@ class Item(object):
     canvas = reversible_property(lambda s: s._canvas,
                 doc="Canvas owning this item")
 
+    constraints = property(lambda s: s._constraints,
+                doc="Item constraints")
 
     def setup_canvas(self):
         """
@@ -306,7 +309,7 @@ class Element(Item):
         self._c_min_h = LessThanConstraint(smaller=h_nw.y, bigger=h_se.y, delta=10)
 
         # setup constraints
-        self._constraints.extend([
+        self.constraints.extend([
             eq(a=h_nw.y, b=h_ne.y),
             eq(a=h_nw.x, b=h_sw.x),
             eq(a=h_se.y, b=h_sw.y),
