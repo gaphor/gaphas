@@ -42,8 +42,6 @@ setup(
     version=VERSION,
     description='Gaphas is a GTK+ based diagramming widget',
     long_description="""\
-Gaphas is a GTK+ based diagramming widget written in Python.
-
 Gaphas is a MVC canvas that uses Cairo_ for rendering. One of the nicer things
 of this widget is that the user (model) is not bothered with bounding box
 calculations: this is all done through Cairo.
