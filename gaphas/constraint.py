@@ -505,9 +505,4 @@ class LineConstraint(Constraint):
         _update(py, y)
 
 
-if __name__ == '__main__':
-    import doctest, sys
-    sys.path.append('..')
-    doctest.testmod()
-
 # vim:sw=4:et:ai

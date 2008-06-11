@@ -435,8 +435,7 @@ class Canvas(object):
             # no matrix can change during constraint solving
             assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
 
-            # some item's can be marked dirty due to external constraints
-            # solving
+            # item's can be marked dirty due to external constraints solving
             if self._dirty_items:
                 dirty_items.extend(self._dirty_items)
                 self._dirty_items.clear()
@@ -733,9 +732,5 @@ __test__ = {
     'Canvas.request_update': Canvas.request_update,
     }
 
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod(optionflags=doctest.ELLIPSIS)
 
 # vim:sw=4:et

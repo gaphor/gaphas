@@ -287,8 +287,4 @@ __test__ = {
     }
 
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-
 # vi:sw=4:et

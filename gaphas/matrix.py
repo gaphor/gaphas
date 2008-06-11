@@ -100,8 +100,4 @@ class Matrix(object):
         return 'Matrix(%g, %g, %g, %g, %g, %g)' % tuple(self._matrix)
 
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-
 #vim:sw=4:et

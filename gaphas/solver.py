@@ -674,8 +674,4 @@ __test__ = {
     }
 
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-
 # vim:sw=4:et:ai
