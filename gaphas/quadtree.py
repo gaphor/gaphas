@@ -161,7 +161,7 @@ class Quadtree(object):
                 assert item in bucket.items
                 # Fast lane, if item moved just a little it may still reside
                 # in the same bucket. We do not need to search from top-level.
-                if bucket and rectangle_contains(clipped_bounds, bucket.bounds):
+                if bucket and rectangle_contains(bounds, bucket.bounds):
                     bucket.update(item, clipped_bounds)
                     self._ids[item] = (bounds, data, clipped_bounds)
                     return
