@@ -134,6 +134,9 @@ class Canvas(object):
         """
         self._tree.reparent(item, parent)
 
+        for item in self._tree.get_children(parent):
+            item._sort_key = self.sorter.get_key(item)
+
 
     def get_all_items(self):
         """
