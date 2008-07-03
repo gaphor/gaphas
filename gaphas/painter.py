@@ -74,20 +74,6 @@ class DrawContext(Context):
     def __init__(self, **kwargs):
         super(DrawContext, self).__init__(**kwargs)
 
-    def draw_children(self):
-        """
-        Extra helper method for drawing child items from within
-        the Item.draw() method.
-        """
-        if not DrawContext.deprecated:
-            print 'Usage of context.draw_children is deprecated.'
-            DrawContext.deprecated = True
-
-        #self.painter._draw_items(self._item.canvas.get_children(self._item),
-        #                         self.view,
-        #                         self.cairo,
-        #                         self._area)
-
 
 class ItemPainter(Painter):
 
@@ -115,8 +101,7 @@ class ItemPainter(Painter):
 
     def _draw_items(self, items, view, cairo, area=None):
         """
-        Draw the items. This method can also be called from DrawContext
-        to draw sub-items.
+        Draw the items.
         """
         for item in items:
             #if not area or area - view.get_item_bounding_box(item):
@@ -157,7 +142,6 @@ class CairoBoundingBoxContext(object):
 
     def __init__(self, cairo):
         self._cairo = cairo
-        self._nested = isinstance(cairo, CairoBoundingBoxContext)
         self._bounds = None # a Rectangle object
 
     def __getattr__(self, key):
@@ -202,10 +186,7 @@ class CairoBoundingBoxContext(object):
         cr = self._cairo
         if not b:
             b = self._extents(cr.fill_extents)
-        if self._nested:
-            cr.fill(b)
-        else:
-            cr.fill()
+        cr.fill()
 
     def fill_preserve(self, b=None):
         """
@@ -214,8 +195,6 @@ class CairoBoundingBoxContext(object):
         cr = self._cairo
         if not b:
             b = self._extents(cr.fill_extents)
-        if self._nested:
-            cr.fill_preserve(b)
 
     def stroke(self, b=None):
         """
@@ -224,10 +203,7 @@ class CairoBoundingBoxContext(object):
         cr = self._cairo
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
-        if self._nested:
-            cr.stroke(b)
-        else:
-            cr.stroke()
+        cr.stroke()
 
     def stroke_preserve(self, b=None):
         """
@@ -236,8 +212,6 @@ class CairoBoundingBoxContext(object):
         cr = self._cairo
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
-        if self._nested:
-            cr.stroke_preserve(b)
 
     def show_text(self, utf8, b=None):
         """
@@ -251,10 +225,7 @@ class CairoBoundingBoxContext(object):
             x1, y1 = cr.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
             b = Rectangle(x0, y0, x1=x1, y1=y1)
             self._update_bounds(b)
-        if self._nested:
-            cr.show_text(utf8, b)
-        else:
-            cr.show_text(utf8)
+        cr.show_text(utf8)
 
 
 class BoundingBoxPainter(ItemPainter):
@@ -282,8 +253,7 @@ class BoundingBoxPainter(ItemPainter):
 
     def _draw_items(self, items, view, cairo, area=None):
         """
-        Draw the items. This method can also be called from DrawContext
-        to draw sub-items.
+        Draw the items.
         """
         for item in items:
             self._draw_item(item, view, cairo)
