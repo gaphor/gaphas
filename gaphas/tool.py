@@ -624,11 +624,13 @@ class PlacementTool(Tool):
         self._handle_tool = handle_tool
         self._handle_index = handle_index
         self._new_item = None
+        self._grabbed_handle = None
 
     handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
     handle_index = property(lambda s: s._handle_index,
                             doc="Index of handle to be used by handle_tool")
     new_item = property(lambda s: s._new_item, doc="The newly created item")
+
 
     def on_button_press(self, context, event):
         view = context.view
@@ -637,12 +639,17 @@ class PlacementTool(Tool):
         # Enforce matrix update, as a good matrix is required for the handle
         # positioning:
         canvas.get_matrix_i2c(new_item, calculate=True)
-        self._handle_tool.grab_handle(new_item,
-                                      new_item.handles()[self._handle_index])
+
         self._new_item = new_item
         view.focused_item = new_item
-        context.grab()
+
+        h = new_item.handles()[self._handle_index]
+        if h.movable:
+            self._handle_tool.grab_handle(new_item, h)
+            self._grabbed_handle = h
+            context.grab()
         return True
+
 
     def _create_item(self, context, x, y):
         view = context.view
@@ -652,19 +659,21 @@ class PlacementTool(Tool):
         item.matrix.translate(x, y)
         return item
 
+
     def on_button_release(self, context, event):
         context.ungrab()
-        if self._new_item:
-            h = self._handle_tool._grabbed_handle
+        if self._grabbed_handle:
             self._handle_tool.on_button_release(context, event)
+            self._grabbed_handle = None
         self._new_item = None
         return True
 
     def on_motion_notify(self, context, event):
-        if self._new_item:
+        if self._grabbed_handle:
             return self._handle_tool.on_motion_notify(context, event)
         else:
-            return False
+            # act as if the event is handled if we have a new item
+            return bool(self._new_item)
 
 
 class TextEditTool(Tool):
