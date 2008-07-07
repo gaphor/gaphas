@@ -12,7 +12,6 @@ from gaphas import tree
 from gaphas import solver
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
-from gaphas.sorter import Sorter
 
 
 class Context(object):
@@ -45,12 +44,9 @@ class Canvas(object):
         self._solver = solver.Solver()
         self._dirty_items = set()
         self._dirty_matrix_items = set()
+        self._dirty_index = False
 
         self._registered_views = set()
-
-        self._sorter = Sorter(self._tree)
-
-    sorter = property(lambda s: s._sorter)
     
     solver = property(lambda s: s._solver)
 
@@ -72,7 +68,7 @@ class Canvas(object):
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
         self._tree.add(item, parent)
         item._set_canvas(self)
-        item._sort_key = self.sorter.get_key(item)
+        self._dirty_index = True
 
         self.update_matrix(item, parent)
 
@@ -134,8 +130,7 @@ class Canvas(object):
         """
         self._tree.reparent(item, parent)
 
-        for item in self._tree.get_children(parent):
-            item._sort_key = self.sorter.get_key(item)
+        self._dirty_index = True
 
 
     def get_all_items(self):
@@ -259,14 +254,14 @@ class Canvas(object):
         """
         Return a set of items that are connected to ``item``.
         The list contains tuples (item, handle). As a result an item may be
-        in the list more than once (depending on the number of handles that
-        are connected). If ``item`` is connected to itself it will also appear
-        in the list.
+            in the list more than once (depending on the number of handles that
+            are connected). If ``item`` is connected to itself it will also appear
+            in the list.
 
-        >>> c = Canvas()
-        >>> from gaphas import item
-        >>> i = item.Line()
-        >>> c.add(i)
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Line()
+            >>> c.add(i)
         >>> ii = item.Line()
         >>> c.add(ii)
         >>> iii = item.Line()
@@ -286,6 +281,29 @@ class Canvas(object):
                 if h.connected_to is item:
                     connected_items.add((i, h))
         return connected_items
+
+    
+    def sort(self, items, reverse=False):
+        """
+        Sort a list of items in the order in which they are traversed in
+        the canvas (Depth first).
+
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i1 = item.Line()
+        >>> c.add(i1)
+        >>> i2 = item.Line()
+        >>> c.add(i2)
+        >>> i3 = item.Line()
+        >>> c.add (i3)
+        >>> c.update() # ensure items are indexed
+        >>> i1._canvas_index
+        0
+        >>> s = c.sort([i2, i3, i1])
+        >>> s[0] is i1 and s[1] is i2 and s[2] is i3
+        True
+        """
+        return self._tree.sort(items, index_key='_canvas_index', reverse=reverse)
 
 
     #{ Matrices
@@ -315,7 +333,6 @@ class Canvas(object):
         if item._matrix_c2i is None or calculate:
             self.update_matrix(item)
         return item._matrix_c2i
-
 
     #{ Update cycle
 
@@ -410,7 +427,11 @@ class Canvas(object):
         Peform an update of the items that requested an update.
         """
 
-        sort = self._sorter.sort
+        if self._dirty_index:
+            self.update_index()
+            self._dirty_index = False
+
+        sort = self.sort
 
         # perform update requests for parents of dirty items
         dirty_items = self._dirty_items
@@ -577,6 +598,14 @@ class Canvas(object):
                     h.y._value -= y
 
         return dirty_matrix_items
+
+
+    def update_index(self):
+        """
+        Provide each item in the canvas with an index attribute. This makes
+        for fast searching of items.
+        """
+        self._tree.index_nodes('_canvas_index')
 
 
     #{ Views

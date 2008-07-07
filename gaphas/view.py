@@ -15,7 +15,6 @@ from tool import ToolContext, DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
 from decorators import nonrecursive
-from gaphas.sorter import Sorted
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -35,7 +34,7 @@ class View(object):
         self._painter = DefaultPainter()
 
         # Handling selections.
-        self._selected_items = Sorted(canvas)
+        self._selected_items = set()
         self._focused_item = None
         self._hovered_item = None
         self._dropzone_item = None
@@ -60,8 +59,6 @@ class View(object):
             self._qtree = Quadtree()
 
         self._canvas = canvas
-        self._selected_items.canvas = canvas
-        
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -126,7 +123,7 @@ class View(object):
             self.queue_draw_item(self._focused_item, item)
 
         if item:
-            self.selected_items = item #.add(item)
+            self.select_item(item)
         if item is not self._focused_item:
             self._focused_item = item
             self.emit('focus-changed', item)
@@ -209,7 +206,7 @@ class View(object):
         """
         point = (x, y)
         items = self._qtree.find_intersect((x, y, 1, 1))
-        for item in self._canvas.sorter.sort(items, reverse=True):
+        for item in self._canvas.sort(items, reverse=True):
             if not selected and item in self.selected_items:
                 continue  # skip selected items
 
@@ -229,7 +226,7 @@ class View(object):
             items = self._qtree.find_intersect(rect)
         else:
             items = self._qtree.find_inside(rect)
-        return self._canvas.sorter.sort(items, reverse=reverse)
+        return self._canvas.sort(items, reverse=reverse)
 
 
     def select_in_rectangle(self, rect):
@@ -525,6 +522,8 @@ class GtkView(gtk.DrawingArea, View):
         Like ``DrawingArea.queue_draw_area``, but use the bounds of the
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
+
+        TODO: Should we also create a (sorted) list of items that need redrawal?
         """
         queue_draw_area = self.queue_draw_area
         get_bounds = self._qtree.get_bounds

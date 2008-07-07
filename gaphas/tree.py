@@ -6,15 +6,16 @@ Simple class containing the tree structure for the canvas items.
 __version__ = "$Revision$"
 # $HeadURL$
 
-import operator
+from operator import attrgetter
 from state import observed, reversible_method, \
         reversible_pair, disable_dispatching
 
 
 class Tree(object):
     """
-    A Tree structure.
-    None is the root node.
+    A Tree structure. Nodes are stores in a depth-first order.
+    
+    ``None`` is the root node.
 
     @invariant: len(self._children) == len(self._nodes) + 1
     """
@@ -156,6 +157,59 @@ class Tree(object):
         while parent:
             yield parent
             parent = self.get_parent(parent)
+
+    def index_nodes(self, index_key):
+        """
+        Provide each item in the tree with an index attribute. This makes
+        for fast sorting of items.
+
+        >>> class A(object):
+        ...     def __init__(self, n):
+        ...         self.n = n
+        ...     def __repr__(self):
+        ...         return self.n
+        >>> t = Tree()
+        >>> a = A('a')
+        >>> t.add(a)
+        >>> t.add(A('b'))
+        >>> t.add(A('c'), parent=a)
+        >>> t.nodes
+        [a, c, b]
+        >>> t.index_nodes('my_key')
+        >>> t.nodes[0].my_key, t.nodes[1].my_key, t.nodes[2].my_key
+        (0, 1, 2)
+
+        For sorting, see ``sort()``.
+        """
+        nodes = self.nodes
+        lnodes = len(nodes)
+        map(setattr, nodes, [index_key] * lnodes, xrange(lnodes))
+
+    def sort(self, nodes, index_key, reverse=False):
+        """
+        Sort a set (or list) of nodes.
+        
+        >>> class A(object):
+        ...     def __init__(self, n):
+        ...         self.n = n
+        ...     def __repr__(self):
+        ...         return self.n
+        >>> t = Tree()
+        >>> a = A('a')
+        >>> t.add(a)
+        >>> t.add(A('b'))
+        >>> t.add(A('c'), parent=a)
+        >>> t.nodes    # the series from Tree.index_nodes
+        [a, c, b]
+        >>> t.index_nodes('my_key')
+        >>> selection = (t.nodes[2], t.nodes[1])
+        >>> t.sort(selection, index_key='my_key')
+        [c, b]
+        """
+        if index_key:
+            return sorted(nodes, key=attrgetter(index_key), reverse=reverse)
+        else:
+            raise NotImplemented('index_key should be provided.')
 
     def _add_to_nodes(self, node, parent):
         """

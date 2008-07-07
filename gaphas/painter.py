@@ -311,8 +311,10 @@ class HandlePainter(Painter):
         view = context.view
         canvas = view.canvas
         cairo = context.cairo
-        for item in view.selected_items:
+        # Order matters here:
+        for item in canvas.sort(view.selected_items):
             self._draw_handles(item, view, cairo)
+        # Draw nice opaque handles when hovering an item:
         item = view.hovered_item
         if item and item not in view.selected_items:
             self._draw_handles(item, view, cairo, opacity=.25)

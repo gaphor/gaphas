@@ -159,9 +159,6 @@ class Item(object):
         self._matrix_i2v = WeakKeyDictionary()
         self._matrix_v2i = WeakKeyDictionary()
 
-        # Used by gaphas.sorter.Sorter to order items fast.
-        self._sort_key = None
-
 
     # _set_canvas() is not observed, since this operation is initialized by
     # Canvas.add() and Canvas.remove()
