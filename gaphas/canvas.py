@@ -657,6 +657,13 @@ class Canvas(object):
             return cairo.Context(surface)
 
 
+    def __getstate__(self):
+        """
+        Persist canvas
+        """
+        return dict(_tree=self._tree, _solver=self._solver)
+
+
 class VariableProjection(solver.Projection):
     """
     Project a single `solver.Variable` to another space/coordinate system.

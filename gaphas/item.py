@@ -15,15 +15,27 @@ from constraint import EqualsConstraint, LessThanConstraint
 from state import observed, reversible_method, reversible_pair, reversible_property, disable_dispatching
 
 
+class NullDisconnect(object):
+    
+    def __call__(self):
+        return
+
+
+
 class Handle(object):
     """
     Handles are used to support modifications of Items.
 
-    If the handle is connected to an item, the connected_to property should
-    refer to the item. A disconnect handler should be provided that handles
-    all disconnect behavior (e.g. clean up constraints and connected_to).
+    If the handle is connected to an item, the ``connected_to`` property should
+    refer to the item. A ``disconnect`` handler should be provided that handles
+    all disconnect behaviour (e.g. clean up constraints and ``connected_to``).
+
+      Note for those of you that use the Pickle module to persist a canvas:
+      The property ``disconnect`` should contain a callable object (with
+      __call__() method), so the pickle handler can also pickle that. Pickle is
+      not capable of pickling ``instancemethod`` or ``function`` objects.
     """
-    
+
     _x = solvable()
     _y = solvable()
 
@@ -43,7 +55,7 @@ class Handle(object):
         self._connection_data = None
         # An extra property used to disconnect the constraint. Should be set
         # by the application.
-        self._disconnect = lambda: 0
+        self._disconnect = None
 
     @observed
     def _set_x(self, x):
@@ -95,7 +107,7 @@ class Handle(object):
     def _set_disconnect(self, disconnect):
         self._disconnect = disconnect
 
-    disconnect = reversible_property(lambda s: s._disconnect, _set_disconnect)
+    disconnect = reversible_property(lambda s: s._disconnect or (lambda: None), _set_disconnect)
 
     @observed
     def _set_pos(self, pos):
@@ -122,7 +134,7 @@ class Handle(object):
         """
         return (self.x, self.y)[index]
 
-
+    
 class Item(object):
     """
     Base class (or interface) for items on a canvas.Canvas.
@@ -273,6 +285,27 @@ class Item(object):
         ``x`` and ``y`` are in item coordinates.
         """
         pass
+
+
+    def __getstate__(self):
+        """
+        Persist all, but calculated values (``_matrix_?2?``).
+        """
+        d = dict(self.__dict__)
+        for n in ('_matrix_i2c', '_matrix_c2i', '_matrix_i2v', '_matrix_v2i'):
+            try:
+                del d[n]
+            except KeyError:
+                pass
+        return d
+
+
+    def __setstate__(self, state):
+        """
+        Set state, first calls ``__init__()``, without arguments.
+        """
+        self.__init__()
+        self.__dict__.update(state)
 
 
 [ NW,
@@ -749,7 +782,6 @@ class Line(Item):
         h0, h1 = self._handles[-2:]
         draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
         cr.stroke()
-
 
 
 __test__ = {

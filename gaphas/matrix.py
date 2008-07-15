@@ -31,10 +31,10 @@ class Matrix(object):
     def init_rotate(radians):
         return cairo.Matrix.init_rotate(radians)
 
-    def _get_state(self):
-        return tuple(self)
+    def __getstate__(self):
+        return tuple(self._matrix)
 
-    def _revert_state(self, matrix):
+    def __setstate__(self, matrix):
         self._matrix = cairo.Matrix(*matrix)
 
     @observed
@@ -99,5 +99,4 @@ class Matrix(object):
     def __repr__(self):
         return 'Matrix(%g, %g, %g, %g, %g, %g)' % tuple(self._matrix)
 
-
-#vim:sw=4:et
+# vim:sw=4:et
