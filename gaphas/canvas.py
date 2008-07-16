@@ -681,7 +681,7 @@ class Canvas(object):
         self._dirty_matrix_items = set(self._tree.nodes)
         self._dirty_index = True
         self._registered_views = set()
-        self.update()
+        #self.update()
 
 
 class VariableProjection(solver.Projection):
@@ -715,22 +715,6 @@ class VariableProjection(solver.Projection):
 
     def variable(self):
         return self._var
-
-
-class _changehandler(object):
-    """
-    Helper class for ``CanvasProjection``.
-    This helper makes it possible to persist canvas projection variables using
-    Pickle. This class kinda acts like a function.
-    """
-
-    def __init__(self, cproj, x):
-        self.cproj = cproj
-        self.x = x
-
-    def __call__(self, value):
-        f = self.x and self.cproj._on_change_x or self.cproj._on_change_y
-        f(value)
 
 
 class CanvasProjection(object):
@@ -793,14 +777,12 @@ class CanvasProjection(object):
         #       cause pickle to fail.
         return map(VariableProjection,
                    self._point, self._get_value(),
-                   (_changehandler(self, True), _changehandler(self, False)))[key]
-                   #(self._on_change_x, self._on_change_y))[key]
+                   (self._on_change_x, self._on_change_y))[key]
         
     def __iter__(self):
         return iter(map(VariableProjection,
                         self._point, self._get_value(),
-                        (_changehandler(self, True), _changehandler(self, False))))
-                        #(self._on_change_x, self._on_change_y)))
+                        (self._on_change_x, self._on_change_y)))
 
 
 # Additional tests in @observed methods
@@ -809,6 +791,21 @@ __test__ = {
     'Canvas.remove': Canvas.remove,
     'Canvas.request_update': Canvas.request_update,
     }
+
+
+# Allow instancemethod to be pickled:
+
+import new, copy_reg
+
+
+def save_construct_instancemethod(funcname, self, clazz):
+    func = getattr(clazz, funcname)
+    return new.instancemethod(func, self, clazz)
+
+def reduce_instancemethod(im):
+    return save_construct_instancemethod, (im.im_func.__name__, im.im_self, im.im_class)
+
+copy_reg.pickle(new.instancemethod, reduce_instancemethod, save_construct_instancemethod)
 
 
 # vim:sw=4:et
