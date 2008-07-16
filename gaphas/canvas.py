@@ -659,9 +659,29 @@ class Canvas(object):
 
     def __getstate__(self):
         """
-        Persist canvas
+        Persist canvas. Dirty item sets and views are not saved.
         """
-        return dict(_tree=self._tree, _solver=self._solver)
+        d = dict(self.__dict__)
+        for n in ('_dirty_items', '_dirty_matrix_items', '_dirty_index', '_registered_views'):
+            try:
+                del d[n]
+            except KeyError:
+                pass
+        return d
+
+
+    def __setstate__(self, state):
+        """
+        Load persisted state.
+
+        Before loading the state, the constructor is called.
+        """
+        self.__dict__.update(state)
+        self._dirty_items = set(self._tree.nodes)
+        self._dirty_matrix_items = set(self._tree.nodes)
+        self._dirty_index = True
+        self._registered_views = set()
+        self.update()
 
 
 class VariableProjection(solver.Projection):
@@ -695,6 +715,22 @@ class VariableProjection(solver.Projection):
 
     def variable(self):
         return self._var
+
+
+class _changehandler(object):
+    """
+    Helper class for ``CanvasProjection``.
+    This helper makes it possible to persist canvas projection variables using
+    Pickle. This class kinda acts like a function.
+    """
+
+    def __init__(self, cproj, x):
+        self.cproj = cproj
+        self.x = x
+
+    def __call__(self, value):
+        f = self.x and self.cproj._on_change_x or self.cproj._on_change_y
+        f(value)
 
 
 class CanvasProjection(object):
@@ -753,15 +789,18 @@ class CanvasProjection(object):
         return self._px, self._py
 
     def __getitem__(self, key):
+        # Note: we can not use bound methods as callbacks, since that will
+        #       cause pickle to fail.
         return map(VariableProjection,
                    self._point, self._get_value(),
-                   (self._on_change_x, self._on_change_y))[key]
+                   (_changehandler(self, True), _changehandler(self, False)))[key]
+                   #(self._on_change_x, self._on_change_y))[key]
         
     def __iter__(self):
         return iter(map(VariableProjection,
                         self._point, self._get_value(),
-                        (self._on_change_x, self._on_change_y)))
-
+                        (_changehandler(self, True), _changehandler(self, False))))
+                        #(self._on_change_x, self._on_change_y)))
 
 
 # Additional tests in @observed methods

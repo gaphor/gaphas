@@ -271,6 +271,37 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, [0])
     v.add(b)
 
+
+    b = gtk.Button('Pickle (save)')
+
+    def on_clicked(button, li):
+        f = open('demo.pickled', 'w')
+        try:
+            import pickle
+            pickle.dump(view.canvas, f)
+        finally:
+            f.close()
+
+    b.connect('clicked', on_clicked, [0])
+    v.add(b)
+
+
+    b = gtk.Button('Unpickle (load)')
+
+    def on_clicked(button, li):
+        f = open('demo.pickled', 'r')
+        try:
+            import pickle
+            canvas = pickle.load(f)
+            canvas.update_now()
+        finally:
+            f.close()
+        create_window(canvas, 'Unpickled diagram')
+
+    b.connect('clicked', on_clicked, [0])
+    v.add(b)
+
+
     # Add the actual View:
 
     t = gtk.Table(2,2)
@@ -296,13 +327,10 @@ def create_window(canvas, title, zoom=1.0):
     view.connect('hover-changed', handle_changed, 'hover')
     view.connect('selection-changed', handle_changed, 'selection')
 
-def main():
-    c=Canvas()
-
-    create_window(c, 'View created before')
-
-    # Add stuff to the canvas:
-
+    
+def create_canvas(c=None):
+    if not c:
+        c = Canvas()
     b=MyBox()
     b.min_width = 20
     b.min_height = 30
@@ -363,6 +391,10 @@ def main():
     t.matrix.translate(70,100)
     c.add(t)
 
+    return c
+
+
+def main():
     ##
     ## State handling (a.k.a. undo handlers)
     ##
@@ -373,6 +405,12 @@ def main():
     def print_handler(event):
         print 'event:', event
 
+    c=Canvas()
+
+    create_window(c, 'View created before')
+
+    create_canvas(c)
+
     #state.subscribers.add(print_handler)
 
     ##
@@ -382,6 +420,7 @@ def main():
     create_window(c, 'View created after')
 
     gtk.main()
+
 
 if __name__ == '__main__':
     import sys

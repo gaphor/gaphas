@@ -143,6 +143,33 @@ class Circle(Item):
         cr.stroke()
 
 
+class DisconnectHandle(object):
+
+    def __init__(self, canvas, item, handle):
+        self.canvas = canvas
+        self.item = item
+        self.handle = handle
+
+    def __call__(self):
+        self.handle_disconnect()
+
+    def handle_disconnect(self):
+        canvas = self.canvas
+        item = self.item
+        handle = self.handle
+        try:
+            canvas.solver.remove_constraint(handle.connection_data)
+        except KeyError:
+            print 'constraint was already removed for', item, handle
+            pass # constraint was alreasy removed
+        else:
+            print 'constraint removed for', item, handle
+        handle.connection_data = None
+        handle.connected_to = None
+        # Remove disconnect handler:
+        handle.disconnect = None
+
+
 class ConnectingHandleTool(tool.HandleTool):
     """
     This is a HandleTool which supports a simple connection algorithm,
@@ -209,20 +236,6 @@ class ConnectingHandleTool(tool.HandleTool):
                 return handles[SW], handles[SE]
             assert False
 
-
-        def handle_disconnect():
-            try:
-                view.canvas.solver.remove_constraint(handle.connection_data)
-            except KeyError:
-                print 'constraint was already removed for', item, handle
-                pass # constraint was alreasy removed
-            else:
-                print 'constraint removed for', item, handle
-            handle.connection_data = None
-            handle.connected_to = None
-            # Remove disconnect handler:
-            handle.disconnect = lambda: 0
-
         #print 'Handle.connect', view, item, handle, wx, wy
         glue_item = self.glue(view, item, handle, wx, wy)
         if glue_item and glue_item is handle.connected_to:
@@ -237,7 +250,7 @@ class ConnectingHandleTool(tool.HandleTool):
                                 point=CanvasProjection(handle.pos, item))
             view.canvas.solver.add_constraint(handle.connection_data)
 
-            handle.disconnect = handle_disconnect
+            handle.disconnect = DisconnectHandle(view.canvas, item, handle)
             return
 
         # drop old connetion
@@ -256,7 +269,7 @@ class ConnectingHandleTool(tool.HandleTool):
                 view.canvas.solver.add_constraint(handle.connection_data)
 
                 handle.connected_to = glue_item
-                handle.disconnect = handle_disconnect
+                handle.disconnect = DisconnectHandle(view.canvas, item, handle)
 
     def disconnect(self, view, item, handle):
         if handle.connected_to:

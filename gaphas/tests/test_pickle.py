@@ -1,9 +1,21 @@
 
 import unittest
 import pickle
+#import gaphas.picklepatch
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Item, Element, Line
+from gaphas.view import View, GtkView
+
+class MyPickler(pickle.Pickler):
+
+    def save(self, obj):
+        #print 'saving obj', obj
+        try:
+            return pickle.Pickler.save(self, obj)
+        except pickle.PicklingError, e:
+            print 'Error while pickling', obj, self.dispatch.get(type(obj))
+            raise e
 
 
 class my_disconnect(object):
@@ -13,6 +25,28 @@ class my_disconnect(object):
     """
     def __call__(self):
         pass
+
+def create_canvas():
+    canvas = Canvas()
+    box = Box()
+    canvas.add(box)
+    box.matrix.translate(100, 50)
+    box.matrix.rotate(50)
+    box2 = Box()
+    canvas.add(box2, parent=box)
+
+
+    line = Line()
+    line.handles()[0].visible = False
+    line.handles()[0].connected_to = box
+    line.handles()[0].disconnect = my_disconnect()
+    line.handles()[0].connection_data = 1
+
+    canvas.add(line)
+
+    canvas.update()
+
+    return canvas
 
 
 class PickleTestCase(unittest.TestCase):
@@ -38,14 +72,7 @@ class PickleTestCase(unittest.TestCase):
 
 
     def test_pickle(self):
-        canvas = Canvas()
-        box = Box()
-        canvas.add(box)
-        box2 = Box()
-        canvas.add(box2, parent=box)
-
-        line = Line()
-        canvas.add(line)
+        canvas = create_canvas()
 
         pickled = pickle.dumps(canvas)
         c2 = pickle.loads(pickled)
@@ -92,6 +119,95 @@ class PickleTestCase(unittest.TestCase):
         assert h.disconnect, h.disconnect
         assert callable(h.disconnect)
         assert h.disconnect() is None, h.disconnect()
+
+
+    def test_pickle_with_view(self):
+        canvas = create_canvas()
+
+        pickled = pickle.dumps(canvas)
+
+        c2 = pickle.loads(pickled)
+
+        view = View(canvas=c2)
+
+        import cairo
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+        cr = cairo.Context(surface)
+        view.update_bounding_box(cr)
+        cr.show_page()
+        surface.flush()
+        surface.finish()
+
+
+    def test_pickle_with_gtk_view(self):
+        canvas = create_canvas()
+
+        pickled = pickle.dumps(canvas)
+
+        c2 = pickle.loads(pickled)
+
+        import gtk
+        win = gtk.Window()
+        view = GtkView(canvas=c2)
+        win.add(view)
+
+        view.show()
+        win.show()
+
+        view.update()
+
+    def test_pickle_with_gtk_view_with_connection(self):
+        canvas = create_canvas()
+        box = canvas._tree.nodes[1]
+        assert isinstance(box, Box)
+        line = canvas._tree.nodes[2]
+        assert isinstance(line, Line)
+
+        view = GtkView(canvas=canvas)
+
+        from gaphas.examples import ConnectingHandleTool
+        handle_tool = ConnectingHandleTool()
+        handle_tool.connect(view, line, line.handles()[0], 0, 0)
+        assert line.handles()[0].connected_to is box, line.handles()[0].connected_to
+        assert line.handles()[0].connection_data
+        assert line.handles()[0].disconnect
+        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
+
+        import StringIO
+        f = StringIO.StringIO()
+        pickler = MyPickler(f)
+        pickler.dump(canvas)
+        pickled = f.getvalue()
+
+        c2 = pickle.loads(pickled)
+
+        import gtk
+        win = gtk.Window()
+        view = GtkView(canvas=c2)
+        win.add(view)
+        view.show()
+        win.show()
+
+        view.update()
+
+    def test_pickle_demo(self):
+        import demo
+
+        canvas = demo.create_canvas()
+
+        pickled = pickle.dumps(canvas)
+
+        c2 = pickle.loads(pickled)
+
+        import gtk
+        win = gtk.Window()
+        view = GtkView(canvas=c2)
+        win.add(view)
+
+        view.show()
+        win.show()
+
+        view.update()
 
 
 # vim: sw=4:et:ai
