@@ -14,6 +14,7 @@ __version__ = "$Revision$"
 import cairo
 from state import observed, reversible_method
 
+
 class Matrix(object):
     """
     Matrix wrapper. This version sends @observed messages on state changes
@@ -30,12 +31,6 @@ class Matrix(object):
     @staticmethod
     def init_rotate(radians):
         return cairo.Matrix.init_rotate(radians)
-
-    def __getstate__(self):
-        return tuple(self._matrix)
-
-    def __setstate__(self, matrix):
-        self._matrix = cairo.Matrix(*matrix)
 
     @observed
     def invert(self):

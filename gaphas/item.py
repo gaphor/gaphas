@@ -302,9 +302,10 @@ class Item(object):
 
     def __setstate__(self, state):
         """
-        Set state, first calls ``__init__()``, without arguments.
+        Set state. No ``__init__()`` is called.
         """
-        self.__init__()
+        for n in ('_matrix_i2c', '_matrix_c2i', '_matrix_i2v', '_matrix_v2i'):
+            setattr(self, n, None)
         self.__dict__.update(state)
 
 
