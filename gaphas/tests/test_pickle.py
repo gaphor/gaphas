@@ -1,11 +1,14 @@
 
 import unittest
 import pickle
-#import gaphas.picklepatch
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Item, Element, Line
 from gaphas.view import View, GtkView
+
+# Ensure extra pickle reducers/reconstructors are loaded:
+import gaphas.picklers
+
 
 class MyPickler(pickle.Pickler):
 
