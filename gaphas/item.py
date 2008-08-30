@@ -15,13 +15,6 @@ from constraint import EqualsConstraint, LessThanConstraint
 from state import observed, reversible_method, reversible_pair, reversible_property, disable_dispatching
 
 
-class NullDisconnect(object):
-    
-    def __call__(self):
-        return
-
-
-
 class Handle(object):
     """
     Handles are used to support modifications of Items.
@@ -304,8 +297,10 @@ class Item(object):
         """
         Set state. No ``__init__()`` is called.
         """
-        for n in ('_matrix_i2c', '_matrix_c2i', '_matrix_i2v', '_matrix_v2i'):
+        for n in ('_matrix_i2c', '_matrix_c2i'):
             setattr(self, n, None)
+        for n in ('_matrix_i2v', '_matrix_v2i'):
+            setattr(self, n, WeakKeyDictionary())
         self.__dict__.update(state)
 
 
