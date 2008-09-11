@@ -12,6 +12,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from canvas import Canvas
-from item import Item, Line, Element, Handle
+from connector import Handle
+from item import Item, Line, Element
 from view import View, GtkView
 

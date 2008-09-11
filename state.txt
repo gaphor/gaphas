@@ -55,7 +55,7 @@ crafting of methods may be necessary in order to get the right effect:
     []
 
 The ``@observed`` decorator can also be applied to properties, as is done in
-gaphas/item.py's Handle class:
+gaphas/connector.py's Handle class:
 
     >>> from gaphas.solver import Variable
     >>> var = Variable()
@@ -168,9 +168,13 @@ canvas.py:
   Canvas:
     add() and remove()
 
-item.py:
+connector.py:
+  Connector:
+    x and y properties
   Handle:
-    x, y, connectable, movable, visible, connected_to and disconnect properties
+    connectable, movable, visible, connected_to and disconnect properties
+
+item.py:
   Item:
     canvas and matrix properties
   Element:

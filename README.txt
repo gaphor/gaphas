@@ -27,7 +27,7 @@ How it Works
 The Canvas class (from canvas.py) acts as a container for Item's (from item.py).
 The item's parent/child relationships are maintained here (not in the Item!).
 
-An Item can have a set of Handle's (also from item.py) which can be used to
+An Item can have a set of Handle's (from connector.py) which can be used to
 manipulate the item (although this is not necessary). Each item has it's own
 coordinate system (a (0, 0) point). Item.matrix is the transformation
 relative to the parent item of the Item, as defined in the Canvas.
@@ -207,7 +207,9 @@ quadtree.py:
 Canvas classes:
 
 item.py:
-    Canvas item and handle
+    Canvas item
+connector.py:
+    Handle and Port for items
 canvas.py:
     Canvas class
 view.py:

@@ -269,7 +269,7 @@ children):
     >>> canvas.get_children(item)			# doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
 
-item.py: Handle
+connector.py: Handle
 ---------------
 Changing the Handle's position is reversible:
 
