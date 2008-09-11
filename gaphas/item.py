@@ -45,7 +45,7 @@ class Item(object):
 
         # used by gaphas.canvas.Canvas to hold conversion matrices
         self._matrix_i2c = None
-        self._matrix_2ci = None
+        self._matrix_c2i = None
 
         # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
         self._matrix_i2v = WeakKeyDictionary()

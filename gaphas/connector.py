@@ -14,8 +14,8 @@ class Connector(object):
     Basic object for connections.
     """
 
-    _x = solvable()
-    _y = solvable()
+    _x = solvable(varname='_v_x')
+    _y = solvable(varname='_v_y')
 
     def __init__(self, x=0, y=0, strength=NORMAL):
         self._x = x
