@@ -258,6 +258,7 @@ class BoundingBoxPainter(ItemPainter):
         for item in items:
             self._draw_item(item, view, cairo)
 
+
     def paint(self, context):
         cairo = context.cairo
         view = context.view
@@ -270,15 +271,13 @@ class HandlePainter(Painter):
     Draw handles of items that are marked as selected in the view.
     """
 
-    def _draw_handles(self, item, view, cairo, opacity=None):
+    def _draw_handles(self, item, view, cairo, opacity):
         """
         Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
         """
         cairo.save()
         i2v = view.get_matrix_i2v(item)
-        if not opacity:
-            opacity = (item is view.focused_item) and .7 or .4
 
         cairo.set_line_width(1)
 
@@ -311,13 +310,17 @@ class HandlePainter(Painter):
         view = context.view
         canvas = view.canvas
         cairo = context.cairo
-        # Order matters here:
-        for item in canvas.sort(view.selected_items):
-            self._draw_handles(item, view, cairo)
+
+        # Selected items are already ordered:
+        focused = view.focused_item
+        for item in view.selected_items:
+            self._draw_handles(item, view, cairo,
+                    opacity=(item is focused) and .7 or .4)
+
         # Draw nice opaque handles when hovering an item:
-        item = view.hovered_item
-        if item and item not in view.selected_items:
-            self._draw_handles(item, view, cairo, opacity=.25)
+        hovered = view.hovered_item
+        if hovered:
+            self._draw_handles(hovered, view, cairo, opacity=.25)
 
 
 class ToolPainter(Painter):

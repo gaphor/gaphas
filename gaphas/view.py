@@ -34,7 +34,7 @@ class View(object):
         self._painter = DefaultPainter()
 
         # Handling selections.
-        self._selected_items = set()
+        self._selected_items = list()
         self._focused_item = None
         self._hovered_item = None
         self._dropzone_item = None
@@ -80,7 +80,8 @@ class View(object):
         """
         self.queue_draw_item(item)
         if item not in self._selected_items:
-            self._selected_items.add(item)
+            self._selected_items.append(item)
+            self._selected_items = self._canvas.sort(self._selected_items)
             self.emit('selection-changed', self._selected_items)
 
 
@@ -90,7 +91,7 @@ class View(object):
         """
         self.queue_draw_item(item)
         if item in self._selected_items:
-            self._selected_items.discard(item)
+            self._selected_items.remove(item)
             self.emit('selection-changed', self._selected_items)
 
 
@@ -104,7 +105,7 @@ class View(object):
         Clearing the selected_item also clears the focused_item.
         """
         self.queue_draw_item(*self._selected_items)
-        self._selected_items.clear()
+        del self._selected_items[:]
         self.focused_item = None
         self.emit('selection-changed', self._selected_items)
 
@@ -565,7 +566,7 @@ class GtkView(gtk.DrawingArea, View):
 
             for item in removed_items:
                 self._qtree.remove(item)
-                self.selected_items.discard(item)
+                self.selected_items.remove(item)
 
             if self.focused_item in removed_items:
                 self.focused_item = None

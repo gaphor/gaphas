@@ -41,6 +41,7 @@ class Canvas(object):
 
     def __init__(self):
         self._tree = tree.Tree()
+        self._tree_indexer = tree.TreeIndexer(self._tree, '_canvas_index')
         self._solver = solver.Solver()
         self._dirty_items = set()
         self._dirty_matrix_items = set()
@@ -303,7 +304,7 @@ class Canvas(object):
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return self._tree.sort(items, index_key='_canvas_index', reverse=reverse)
+        return self._tree_indexer.sort(items, reverse=reverse)
 
 
     #{ Matrices
@@ -605,7 +606,7 @@ class Canvas(object):
         Provide each item in the canvas with an index attribute. This makes
         for fast searching of items.
         """
-        self._tree.index_nodes('_canvas_index')
+        self._tree_indexer.index_tree()
 
 
     #{ Views
