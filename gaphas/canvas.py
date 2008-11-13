@@ -255,14 +255,14 @@ class Canvas(object):
         """
         Return a set of items that are connected to ``item``.
         The list contains tuples (item, handle). As a result an item may be
-            in the list more than once (depending on the number of handles that
-            are connected). If ``item`` is connected to itself it will also appear
-            in the list.
+        in the list more than once (depending on the number of handles that
+        are connected). If ``item`` is connected to itself it will also appear
+        in the list.
 
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Line()
-            >>> c.add(i)
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Line()
+        >>> c.add(i)
         >>> ii = item.Line()
         >>> c.add(ii)
         >>> iii = item.Line()
