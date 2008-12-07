@@ -210,7 +210,35 @@ class ViewTestCase(unittest.TestCase):
         assert not box._matrix_v2i.has_key(view)
         
 
-        
+    def test_setting_canvas(self):
+        """
+        Test if everything is reset properly after a new canvas is set on
+        view.
+        """
+        canvas = Canvas()
+        view = View(canvas)
+
+        box = Box()
+        canvas.add(box)
+
+        view.focused_item = box
+        view.hovered_item = box
+        view.dropzone_item = box
+
+        assert len(view.selected_items) > 0
+
+        # check registered_views
+        # check _qtree data
+
+        view.canvas = Canvas()
+
+        assert view.selected_items == []
+        assert view.focused_item is None
+        assert view.hovered_item is None
+        assert view.dropzone_item is None
+
+
+
 if __name__ == '__main__':
     unittest.main()
 

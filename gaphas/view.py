@@ -58,16 +58,15 @@ class View(object):
         if self._canvas:
             self._qtree = Quadtree()
 
+            # Handling selections.
+            del self._selected_items[:]
+            self._focused_item = None
+            self._hovered_item = None
+            self._dropzone_item = None
+
         self._canvas = canvas
 
     canvas = property(lambda s: s._canvas, _set_canvas)
-
-
-    def emit(self, args, **kwargs):
-        """
-        Placeholder method for signal emission functionality.
-        """
-        pass
 
 
     def select_item(self, item):
@@ -337,6 +336,21 @@ class View(object):
                 del item._matrix_v2i[self]
             except KeyError:
                 pass
+
+
+    def emit(self, *args, **kwargs):
+        """
+        Placeholder method for signal emission functionality.
+        """
+        pass
+
+
+    def queue_draw_item(self, *items):
+	"""
+        Placeholder method. Items that should be redrawn should be queued
+        by this method.
+        """
+        pass
 
 
 # Map GDK events to tool methods
