@@ -5,21 +5,30 @@ Basic connectors such as Ports and Handles.
 __version__ = "$Revision: 2341 $"
 # $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
 
-from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
-from state import observed, reversible_property, disable_dispatching
+from gaphas.solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
+from gaphas.state import observed, reversible_property, disable_dispatching
+from gaphas.geometry import distance_line_point, distance_point_point
+from gaphas.constraint import LineConstraint, PositionConstraint
 
 
-class Connector(object):
+class VariablePoint(object):
     """
-    Basic object for connections.
+    A point constructed of two ``Variable``s.
+
+    >>> vp = VariablePoint((3, 5))
+    >>> vp.x, vp.y
+    (Variable(3, 20), Variable(5, 20))
+    >>> vp.pos
+    (Variable(3, 20), Variable(5, 20))
+    >>> vp[0], vp[1]
+    (Variable(3, 20), Variable(5, 20))
     """
 
     _x = solvable(varname='_v_x')
     _y = solvable(varname='_v_y')
 
-    def __init__(self, x=0, y=0, strength=NORMAL):
-        self._x = x
-        self._y = y
+    def __init__(self, pos, strength=NORMAL):
+        self._x, self._y = pos
         self._x.strength = strength
         self._y.strength = strength
 
@@ -54,16 +63,16 @@ class Connector(object):
         """
         Shorthand for returning the x(0) or y(1) component of the point.
 
-            >>> h = Handle(3, 5)
-            >>> h[0]
-            Variable(3, 20)
-            >>> h[1]
-            Variable(5, 20)
+        >>> h = VariablePoint((3, 5))
+        >>> h[0]
+        Variable(3, 20)
+        >>> h[1]
+        Variable(5, 20)
         """
         return (self.x, self.y)[index]
 
 
-class Handle(Connector):
+class Handle(VariablePoint):
     """
     Handles are used to support modifications of Items.
 
@@ -77,8 +86,8 @@ class Handle(Connector):
       not capable of pickling ``instancemethod`` or ``function`` objects.
     """
 
-    def __init__(self, x=0, y=0, strength=NORMAL, connectable=False, movable=True):
-        super(Handle, self).__init__(x, y, strength)
+    def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
+        super(Handle, self).__init__(pos, strength)
 
         # Flags.. can't have enough of those
         self._connectable = connectable
@@ -131,39 +140,107 @@ class Handle(Connector):
 
     disconnect = reversible_property(lambda s: s._disconnect or (lambda: None), _set_disconnect)
 
+
+class Port(object):
+    """
+    Port connectable part of an item. Item's handle connects to a port.
+    """
+
+    def __init__(self):
+        super(Port, self).__init__()
+
+        self._connectable = True
+
+
     @observed
-    def _set_pos(self, pos):
+    def _set_connectable(self, connectable):
+        self._connectable = connectable
+
+    connectable = reversible_property(lambda s: s._connectable, _set_connectable)
+
+
+    def glue(self, pos):
         """
-        Set handle position (Item coordinates).
+        Get glue point on the port and distance to the port.
         """
-        self.x, self.y = pos
+        raise NotImplemented('Glue method not implemented')
 
-    pos = property(lambda s: (s.x, s.y), _set_pos)
 
-    def __str__(self):
-        return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self.x), float(self.y))
-    __repr__ = __str__
-
-    def __getitem__(self, index):
+    def constraint(self, canvas, item, handle, glue_item):
         """
-        Shorthand for returning the x(0) or y(1) component of the point.
-
-            >>> h = Handle(3, 5)
-            >>> h[0]
-            Variable(3, 20)
-            >>> h[1]
-            Variable(5, 20)
+        Create connection constraint between item's handle and glue item.
         """
-        return (self.x, self.y)[index]
+        raise NotImplemented('Constraint method not implemented')
 
 
-class Port(Connector):
+class LinePort(Port):
     """
-    A Port functions as a place on an Item where a Handle can connect.
+    Port defined as a line between two handles.
     """
 
-    def __init__(self, x=0, y=0, strength=NORMAL):
-        super(Port, self).__init__(x, y, strength)
+    def __init__(self, start, end):
+        super(LinePort, self).__init__()
+
+        self.start = start
+        self.end = end
+
+
+    def glue(self, pos):
+        """
+        Get glue point on the port and distance to the port.
+
+        >>> p1, p2 = (0.0, 0.0), (100.0, 100.0)
+        >>> port = LinePort(p1, p2)
+        >>> port.glue((50, 50))
+        ((50.0, 50.0), 0.0)
+        >>> port.glue((0, 10))
+        ((5.0, 5.0), 7.0710678118654755)
+        """
+        d, pl = distance_line_point(self.start, self.end, pos)
+        return pl, d
+
+
+    def constraint(self, canvas, item, handle, glue_item):
+        """
+        Create connection line constraint between item's handle and the
+        port.
+        """
+        line = canvas.project(glue_item, self.start, self.end)
+        point = canvas.project(item, handle.pos)
+        return LineConstraint(line, point)
+
+
+class PointPort(Port):
+    """
+    Port defined as a point.
+    """
+
+    def __init__(self, point):
+        super(PointPort, self).__init__()
+        self.point = point
+
+
+    def glue(self, pos):
+        """
+        Get glue point on the port and distance to the port.
+
+        >>> h = Handle((10, 10))
+        >>> port = PointPort(h.pos)
+        >>> port.glue((10, 0))
+        ((Variable(10, 20), Variable(10, 20)), 10.0)
+        """
+        d = distance_point_point(self.point, pos)
+        return self.point, d
+
+
+    def constraint(self, canvas, item, handle, glue_item):
+        """
+        Return connection position constraint between item's handle and the
+        port.
+        """
+        origin = canvas.project(glue_item, self.point)
+        point = canvas.project(item, handle.pos)
+        return PositionConstraint(origin, point)
 
 
 # vim: sw=4:et:ai

@@ -20,8 +20,12 @@ def undo():
     redo_list[:] = undo_list[:]
     del undo_list[:]
 
-class LineTestCase(unittest.TestCase):
 
+
+class TestCaseBase(unittest.TestCase):
+    """
+    Abstract test case class with undo support.
+    """
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
@@ -30,80 +34,71 @@ class LineTestCase(unittest.TestCase):
         state.observers.remove(state.revert_handler)
         state.subscribers.remove(undo_handler)
 
+
+
+class LineTestCase(TestCaseBase):
+    """
+    Basic line item tests.
+    """
+
+    def test_initial_ports(self):
+        """Test initial ports amount
+        """
+        line = Line()
+        self.assertEquals(1, len(line.ports()))
+
+
     def test_orthogonal_horizontal_undo(self):
-        """
-        Orthogonal line constraints bug (#107)
+        """Test orthogonal line constraints bug (#107)
         """
         canvas = Canvas()
         line = Line()
         canvas.add(line)
-
-        assert len(canvas.solver._constraints) == 0
-
-        line.orthogonal = True
-
-        assert len(canvas.solver._constraints) == 2
-        after_ortho = set(canvas.solver._constraints)
-
-        del undo_list[:]
-        line.horizontal = True
-
-        assert len(canvas.solver._constraints) == 2
-
-        undo()
-
         assert not line.horizontal
-        assert len(canvas.solver._constraints) == 2, canvas.solver._constraints
-
-        line.horizontal = True
-
-        assert line.horizontal
-        assert len(canvas.solver._constraints) == 2, canvas.solver._constraints
-
-    def test_orthogonal_line_split_segment(self):
-        canvas = Canvas()
-        line = Line()
-        canvas.add(line)
-
         assert len(canvas.solver._constraints) == 0
 
         line.orthogonal = True
 
-        assert len(canvas.solver._constraints) == 2
+        self.assertEquals(1, len(canvas.solver._constraints))
         after_ortho = set(canvas.solver._constraints)
-        assert len(line.handles()) == 3
 
         del undo_list[:]
+        line.horizontal = True
 
-        line.split_segment(0)
-
-        assert len(canvas.solver._constraints) == 3
-        assert len(line.handles()) == 4
+        self.assertEquals(1, len(canvas.solver._constraints))
 
         undo()
 
-        assert len(canvas.solver._constraints) == 2
-        assert len(line.handles()) == 3
-        assert canvas.solver._constraints == after_ortho
+        self.assertFalse(line.horizontal)
+        self.assertEquals(1, len(canvas.solver._constraints))
 
-        line.split_segment(0)
+        line.horizontal = True
 
-        assert len(canvas.solver._constraints) == 3
-        assert len(line.handles()) == 4
-        after_split = set(canvas.solver._constraints)
+        self.assertTrue(line.horizontal)
+        self.assertEquals(1, len(canvas.solver._constraints))
 
-        del undo_list[:]
 
-        line.merge_segment(0)
+    def test_orthogonal_line_undo(self):
+        """Test orthogonal line undo
+        """
+        canvas = Canvas()
+        line = Line()
+        canvas.add(line)
 
-        assert len(canvas.solver._constraints) == 2
-        assert len(line.handles()) == 3
+        # start with no orthogonal constraints
+        assert len(canvas.solver._constraints) == 0
+
+        line.orthogonal = True
+
+        # check orthogonal constraints
+        assert len(canvas.solver._constraints) == 1
+        assert len(line.handles()) == 2
 
         undo()
 
-        assert len(canvas.solver._constraints) == 3
-        assert len(line.handles()) == 4
-        assert canvas.solver._constraints == after_split
+        self.assertFalse(line.orthogonal)
+        self.assertEquals(0, len(canvas.solver._constraints))
+        self.assertEquals(2, len(line.handles()))
 
 
 # vim:sw=4:et

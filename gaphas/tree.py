@@ -158,6 +158,59 @@ class Tree(object):
             yield parent
             parent = self.get_parent(parent)
 
+    def index_nodes(self, index_key):
+        """
+        Provide each item in the tree with an index attribute. This makes
+        for fast sorting of items.
+
+        >>> class A(object):
+        ...     def __init__(self, n):
+        ...         self.n = n
+        ...     def __repr__(self):
+        ...         return self.n
+        >>> t = Tree()
+        >>> a = A('a')
+        >>> t.add(a)
+        >>> t.add(A('b'))
+        >>> t.add(A('c'), parent=a)
+        >>> t.nodes
+        [a, c, b]
+        >>> t.index_nodes('my_key')
+        >>> t.nodes[0].my_key, t.nodes[1].my_key, t.nodes[2].my_key
+        (0, 1, 2)
+
+        For sorting, see ``sort()``.
+        """
+        nodes = self.nodes
+        lnodes = len(nodes)
+        map(setattr, nodes, [index_key] * lnodes, xrange(lnodes))
+
+    def sort(self, nodes, index_key, reverse=False):
+        """
+        Sort a set (or list) of nodes.
+        
+        >>> class A(object):
+        ...     def __init__(self, n):
+        ...         self.n = n
+        ...     def __repr__(self):
+        ...         return self.n
+        >>> t = Tree()
+        >>> a = A('a')
+        >>> t.add(a)
+        >>> t.add(A('b'))
+        >>> t.add(A('c'), parent=a)
+        >>> t.nodes    # the series from Tree.index_nodes
+        [a, c, b]
+        >>> t.index_nodes('my_key')
+        >>> selection = (t.nodes[2], t.nodes[1])
+        >>> t.sort(selection, index_key='my_key')
+        [c, b]
+        """
+        if index_key:
+            return sorted(nodes, key=attrgetter(index_key), reverse=reverse)
+        else:
+            raise NotImplemented('index_key should be provided.')
+
     def _add_to_nodes(self, node, parent):
         """
         Called only from add()
@@ -279,84 +332,6 @@ class Tree(object):
     # Disable add/remove by default, since they are handled by canvas.Canvas
     disable_dispatching(add)
     disable_dispatching(_remove)
-
-
-class TreeIndexer(object):
-    """
-    The ``TreeIndexer`` is a straight-forward indexer that adds an
-    index-attribute to each object in the tree. This attribute can be used
-    to do fast sorting.
-    """
-
-    def __init__(self, tree, index_key):
-        self._tree = tree
-        self._index_key = index_key
-
-
-    def index_tree(self):
-        """
-        Provide each item in the tree with an index attribute. This makes
-        for fast sorting of items.
-
-        >>> class A(object):
-        ...     def __init__(self, n):
-        ...         self.n = n
-        ...     def __repr__(self):
-        ...         return self.n
-        >>> t = Tree()
-        >>> a = A('a')
-        >>> t.add(a)
-        >>> t.add(A('b'))
-        >>> t.add(A('c'), parent=a)
-        >>> t.nodes
-        [a, c, b]
-        >>> idx = TreeIndexer(t, 'my_key')
-        >>> idx.index_tree()
-        >>> t.nodes[0].my_key, t.nodes[1].my_key, t.nodes[2].my_key
-        (0, 1, 2)
-
-        For sorting, see ``sort()``.
-        """
-        nodes = self._tree.nodes
-        lnodes = len(nodes)
-        map(setattr, nodes, [self._index_key] * lnodes, xrange(lnodes))
-
-
-    def sort(self, nodes, reverse=False):
-        """
-        Sort a set (or list) of nodes to the order defined by the ``Tree``.
-        
-        >>> class A(object):
-        ...     def __init__(self, n):
-        ...         self.n = n
-        ...     def __repr__(self):
-        ...         return self.n
-        >>> t = Tree()
-        >>> a = A('a')
-        >>> t.add(a)
-        >>> t.add(A('b'))
-        >>> t.add(A('c'), parent=a)
-        >>> t.nodes    # the series from Tree.index_nodes
-        [a, c, b]
-        >>> idx = TreeIndexer(t, 'my_key')
-        >>> idx.index_tree()
-        >>> selection = (t.nodes[2], t.nodes[1])
-        >>> idx.sort(selection)
-        [c, b]
-
-        If the tree is not yet indexed, it is indexed on the fly.
-
-        >>> idx = TreeIndexer(t, 'my_key')
-        >>> selection = (t.nodes[2], t.nodes[1])
-        >>> idx.sort(selection)
-        [c, b]
-        """
-        try:
-            return sorted(nodes, key=attrgetter(self._index_key), reverse=reverse)
-        except AttributeError:
-            # Looks like not all elements are indexed, so let's do it instantly
-            self.index_tree()
-            return sorted(nodes, key=attrgetter(self._index_key), reverse=reverse)
 
 
 __test__ = {

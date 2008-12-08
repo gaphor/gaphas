@@ -161,16 +161,16 @@ class PickleTestCase(unittest.TestCase):
 
     def test_pickle_with_gtk_view_with_connection(self):
         canvas = create_canvas()
-        box = canvas._tree.nodes[1]
+        box = canvas._tree.nodes[0]
         assert isinstance(box, Box)
         line = canvas._tree.nodes[2]
         assert isinstance(line, Line)
 
         view = GtkView(canvas=canvas)
 
-        from gaphas.examples import ConnectingHandleTool
-        handle_tool = ConnectingHandleTool()
-        handle_tool.connect(view, line, line.handles()[0], 0, 0)
+        from gaphas.tool import ConnectHandleTool
+        handle_tool = ConnectHandleTool()
+        handle_tool.connect(view, line, line.handles()[0], (40, 0))
         assert line.handles()[0].connected_to is box, line.handles()[0].connected_to
         assert line.handles()[0].connection_data
         assert line.handles()[0].disconnect

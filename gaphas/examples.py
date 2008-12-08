@@ -6,13 +6,12 @@ These items are used in various tests.
 __version__ = "$Revision$"
 # $HeadURL$
 
-from item import Handle, Element, Item
-from item import NW, NE,SW, SE
-from solver import solvable
+from gaphas.item import Element, Item, NW, NE,SW, SE
+from gaphas.connector import Handle, PointPort
+from gaphas.constraint import LessThanConstraint, EqualsConstraint, \
+    BalanceConstraint
+from gaphas.solver import solvable, WEAK
 import tool
-from constraint import LineConstraint, LessThanConstraint, EqualsConstraint
-from canvas import CanvasProjection
-from geometry import point_on_rectangle, distance_rectangle_point
 from util import text_extents, text_align, text_multiline, path_ellipse
 from cairo import Matrix
 
@@ -38,17 +37,53 @@ class Box(Element):
         c.set_source_rgb(0,0,0.8)
         c.stroke()
 
-    def glue(self, item, handle, x, y):
-        """
-        Special glue method used by the ConnectingHandleTool to find
-        a connection point.
-        """
-        h = self._handles
-        h_se = h[SE]
-        r = (0, 0, h_se.x, h_se.y)
-        por = point_on_rectangle(r, (x, y), border=True)
-        p = distance_rectangle_point(r, (x, y))
-        return p, por
+
+class BoxX(Box):
+    """
+    It is a Box but with additional port (see "x" below).
+
+     NW +--------+ NE
+        |        |
+        |        |
+        |        |x
+        |        |
+     SW +--------+ SE
+    """
+    def __init__(self, width=10, height=10):
+        super(BoxX, self).__init__(width, height)
+        self._hx = Handle(strength=WEAK)
+        #self._hx.movable = False
+        #self._hx.visible = False
+        self._handles.append(self._hx)
+        # define 'x' port
+        self._ports.append(PointPort(self._hx.pos))
+
+        # keep hx handle at right edge, at 80% of height of the box
+        ne = self._handles[NE]
+        se = self._handles[SE]
+        hxc1 = EqualsConstraint(ne.x, self._hx.x, delta=10)
+        #hxc2 = BalanceConstraint(band=(ne.y, se.y), v=self._hx.y, balance=0.8)
+        self._constraints.append(hxc1)
+        #self._constraints.append(hxc2)
+
+
+    def draw(self, context):
+        super(BoxX, self).draw(context)
+        c = context.cairo
+
+        # draw 'x' port
+        hx = self._hx
+        c.rectangle(hx.x - 20 , hx.y - 5, 20, 10)
+        c.rectangle(hx.x - 1 , hx.y - 1, 2, 2)
+        if context.hovered:
+            c.set_source_rgba(.0, .8, 0, .8)
+        else:
+            c.set_source_rgba(.9, .0, .0, .8)
+        c.fill_preserve()
+        c.set_source_rgb(0,0,0.8)
+        c.stroke()
+
+
 
 
 class Text(Item):
@@ -74,7 +109,7 @@ class Text(Item):
         else:
             text_align(cr, 0, 0, self.text, self.align_x, self.align_y)
 
-    def point(self, x, y):
+    def point(self, pos):
         return 0
 
 
@@ -142,152 +177,6 @@ class Circle(Item):
         path_ellipse(cr, 0, 0, 2 * self.radius, 2 * self.radius)
         cr.stroke()
 
-
-class DisconnectHandle(object):
-
-    def __init__(self, canvas, item, handle):
-        self.canvas = canvas
-        self.item = item
-        self.handle = handle
-
-    def __call__(self):
-        self.handle_disconnect()
-
-    def handle_disconnect(self):
-        canvas = self.canvas
-        item = self.item
-        handle = self.handle
-        try:
-            canvas.solver.remove_constraint(handle.connection_data)
-        except KeyError:
-            print 'constraint was already removed for', item, handle
-            pass # constraint was alreasy removed
-        else:
-            print 'constraint removed for', item, handle
-        handle.connection_data = None
-        handle.connected_to = None
-        # Remove disconnect handler:
-        handle.disconnect = None
-
-
-class ConnectingHandleTool(tool.HandleTool):
-    """
-    This is a HandleTool which supports a simple connection algorithm,
-    using LineConstraint.
-    """
-
-    def glue(self, view, item, handle, wx, wy):
-        """
-        It allows the tool to glue to a Box or (other) Line item.
-        The distance from the item to the handle is determined in canvas
-        coordinates, using a 10 pixel glue distance.
-        """
-        if not handle.connectable:
-            return
-
-        # Make glue distance depend on the zoom ratio (should be about 10 pixels)
-        inverse = Matrix(*view.matrix)
-        inverse.invert()
-        #glue_distance, dummy = inverse.transform_distance(10, 0)
-        glue_distance = 10
-        glue_point = None
-        glue_item = None
-        for i in view.canvas.get_all_items():
-            if not i is item:
-                v2i = view.get_matrix_v2i(i).transform_point
-                ix, iy = v2i(wx, wy)
-                try:
-                    distance, point = i.glue(item, handle, ix, iy)
-                    if distance <= glue_distance:
-                        glue_distance = distance
-                        i2v = view.get_matrix_i2v(i).transform_point
-                        glue_point = i2v(*point)
-                        glue_item = i
-                except AttributeError:
-                    pass
-        if glue_point:
-            v2i = view.get_matrix_v2i(item).transform_point
-            handle.x, handle.y = v2i(*glue_point)
-        return glue_item
-
-    def connect(self, view, item, handle, wx, wy):
-        """
-        Connect a handle to another item.
-
-        In this "method" the following assumptios are made:
-        
-        1. The only item that accepts handle connections are the Box instances
-        2. The only items with connectable handles are Line's
-         
-        """
-        def side(handle, glued):
-            handles = glued.handles()
-            hx, hy = view.get_matrix_i2v(item).transform_point(handle.x, handle.y)
-            ax, ay = view.get_matrix_i2v(glued).transform_point(handles[NW].x, handles[NW].y)
-            bx, by = view.get_matrix_i2v(glued).transform_point(handles[SE].x, handles[SE].y)
-
-            if abs(hx - ax) < 0.01:
-                return handles[NW], handles[SW]
-            elif abs(hy - ay) < 0.01:
-                return handles[NW], handles[NE]
-            elif abs(hx - bx) < 0.01:
-                return handles[NE], handles[SE]
-            else:
-                return handles[SW], handles[SE]
-            assert False
-
-        #print 'Handle.connect', view, item, handle, wx, wy
-        glue_item = self.glue(view, item, handle, wx, wy)
-        if glue_item and glue_item is handle.connected_to:
-            try:
-                view.canvas.solver.remove_constraint(handle.connection_data)
-            except KeyError:
-                pass # constraint was already removed
-
-            h1, h2 = side(handle, glue_item)
-            handle.connection_data = LineConstraint(line=(CanvasProjection(h1.pos, glue_item),
-                                      CanvasProjection(h2.pos, glue_item)),
-                                point=CanvasProjection(handle.pos, item))
-            view.canvas.solver.add_constraint(handle.connection_data)
-
-            handle.disconnect = DisconnectHandle(view.canvas, item, handle)
-            return
-
-        # drop old connetion
-        if handle.connected_to:
-            handle.disconnect()
-
-        if glue_item:
-            if isinstance(glue_item, Element):
-                h1, h2 = side(handle, glue_item)
-
-                # Make a constraint that keeps into account item coordinates.
-                handle.connection_data = \
-                        LineConstraint(line=(CanvasProjection(h1.pos, glue_item),
-                            CanvasProjection(h2.pos, glue_item)),
-                            point=CanvasProjection(handle.pos, item))
-                view.canvas.solver.add_constraint(handle.connection_data)
-
-                handle.connected_to = glue_item
-                handle.disconnect = DisconnectHandle(view.canvas, item, handle)
-
-    def disconnect(self, view, item, handle):
-        if handle.connected_to:
-            #print 'Handle.disconnect', view, item, handle
-            view.canvas.solver.remove_constraint(handle.connection_data)
-
-
-def DefaultExampleTool():
-    """
-    The default tool chain build from HoverTool, ItemTool and HandleTool.
-    """
-    chain = tool.ToolChain()
-    chain.append(tool.HoverTool())
-    chain.append(ConnectingHandleTool())
-    chain.append(tool.ItemTool())
-    chain.append(tool.TextEditTool())
-    chain.append(tool.RubberbandTool())
-    return chain
 
 
 # vim: sw=4:et:ai

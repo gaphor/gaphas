@@ -13,6 +13,7 @@ Current tools:
     ItemTool - handle selection and movement of items
     HandleTool - handle selection and movement of handles
     RubberbandTool - for Rubber band selection
+    PanTool - for easily moving the canvas around
     PlacementTool - for placing items on the canvas
 
 Maybe even:
@@ -24,11 +25,14 @@ Maybe even:
 __version__ = "$Revision$"
 # $HeadURL$
 
+import sys
+
 import cairo
 import gtk
-from canvas import Context
-from item import Element
-from geometry import Rectangle
+from gaphas.canvas import Context
+from gaphas.geometry import Rectangle
+from gaphas.geometry import distance_point_point_fast, distance_line_point
+from gaphas.item import Line
 
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
@@ -129,6 +133,13 @@ class Tool(object):
         Keyboard key is released again (follows a key press normally).
         """
         if DEBUG_TOOL: print 'on_key_release', context, event
+        pass
+
+    def on_scroll(self, context, event):
+        """
+        Scroll wheel was turned.
+        """
+        if DEBUG_TOOL: print 'on_scroll', context, event, event.direction
         pass
 
     def draw(self, context):
@@ -275,6 +286,9 @@ class ToolChain(Tool):
     def on_key_release(self, context, event):
         self._handle('on_key_release', context, event)
 
+    def on_scroll(self, context, event):
+        self._handle('on_scroll', context, event)
+
     def draw(self, context):
         if self._grabbed_tool:
             self._grabbed_tool.draw(context)
@@ -291,7 +305,7 @@ class HoverTool(Tool):
     def on_motion_notify(self, context, event):
         view = context.view
         old_hovered = view.hovered_item
-        view.hovered_item = view.get_item_at_point(event.x, event.y)
+        view.hovered_item = view.get_item_at_point((event.x, event.y))
         return None
 
 
@@ -377,8 +391,7 @@ class ItemTool(Tool):
 class HandleTool(Tool):
     """
     Tool for moving handles around. By default this tool does not provide
-    connecting handles to another item (see examples.ConnectingHandleTool for
-    an example).
+    connecting handles to another item (see `ConnectHandleTool`).
     """
 
     def __init__(self):
@@ -445,30 +458,29 @@ class HandleTool(Tool):
         return None, None
 
 
-    def move(self, view, item, handle, x, y):
+    def move(self, view, item, handle, pos):
         """
         Move the handle to position ``(x,y)``. ``x`` and ``y`` are in
         item coordnates. ``item`` is the item whose ``handle`` is moved.
         """
-        handle.x = x
-        handle.y = y
+        handle.x, handle.y = pos
 
 
-    def glue(self, view, item, handle, vx, vy):
+    def glue(self, view, item, handle, vpos):
         """
         Find an item that ``handle`` can connect to. ``item`` is the ``Item``
         owing the handle.
-        ``vx`` and ``vy`` are the pointer (view) coordinates.
+        ``vpos`` is the point in the pointer (view) coordinates.
 
         The ``glue()`` code should take care of moving ``handle`` to the
         correct position, creating a glue effect.
         """
 
-    def connect(self, view, item, handle, vx, vy):
+    def connect(self, view, item, handle, vpos):
         """
         Find an item that ``handle`` can connect to and create a connection.
         ``item`` is the ``Item`` owning the handle.
-        ``vx`` and ``vy`` are the pointer (view) coordinates.
+        ``vpos`` is the point in the pointer (view) coordinates.
         
         A typical connect action may involve the following:
         
@@ -529,7 +541,7 @@ class HandleTool(Tool):
         try:
             view = context.view
             if grabbed_handle and grabbed_handle.connectable:
-                self.connect(view, grabbed_item, grabbed_handle, event.x, event.y)
+                self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
         finally:
             context.ungrab()
             self.ungrab_handle()
@@ -554,14 +566,14 @@ class HandleTool(Tool):
             x, y = v2i.transform_point(event.x, event.y)
 
             # Do the actual move:
-            self.move(view, item, handle, x, y)
+            self.move(view, item, handle, (x, y))
             
             # do not request matrix update as matrix recalculation will be
             # performed due to item normalization if required
             item.request_update(matrix=False)
             try:
                 if self._grabbed_handle.connectable:
-                    self.glue(view, item, handle, event.x, event.y)
+                    self.glue(view, item, handle, (event.x, event.y))
                 # TODO: elif isinstance(item, Element):
                 #   schedule (item, handle) to be handled by some "guides" tool
                 #   that tries to align the handle with some other Element's
@@ -617,6 +629,67 @@ class RubberbandTool(Tool):
         cr.fill()
 
 
+class PanTool(Tool):
+    """
+    Captures drag events with the middle mouse button and uses them to
+    translate the canvas within the view. Trumps the ZoomTool, so should be
+    placed later in the ToolChain.
+    """
+
+    def __init__(self):
+        self.x0, self.y0 = 0, 0
+        self.speed = 10
+
+    def on_button_press(self,context,event):
+        if event.button == 2:
+            context.grab()
+            self.x0, self.y0 = event.x, event.y
+            return True
+
+    def on_button_release(self, context, event):
+        context.ungrab()
+        self.x0, self.y0 = event.x, event.y
+        return True
+
+    def on_motion_notify(self, context, event):
+        if event.state & gtk.gdk.BUTTON2_MASK:
+            view = context.view
+            dx = self.x0 - event.x
+            dy = self.y0 - event.y
+            if dx:
+                adj = context.view.hadjustment
+                adj.value = adj.value + dx
+                adj.value_changed()
+                self.x0 = event.x
+
+            if dy:
+                adj = context.view.vadjustment
+                adj.value = adj.value + dy
+                adj.value_changed()
+                self.y0 = event.y
+            return True
+
+    def on_scroll(self, context, event):
+        direction = event.direction
+        gdk = gtk.gdk
+        adj = None
+        if direction == gdk.SCROLL_LEFT:
+            adj = context.view.hadjustment
+            adj.value = adj.value - self.speed
+        elif direction == gdk.SCROLL_RIGHT:
+            adj = context.view.hadjustment
+            adj.value = adj.value + self.speed
+        elif direction == gdk.SCROLL_UP:
+            adj = context.view.vadjustment
+            adj.value = adj.value - self.speed
+        elif direction == gdk.SCROLL_DOWN:
+            adj = context.view.vadjustment
+            adj.value = adj.value + self.speed
+        if adj:
+            adj.value_changed()
+        return True
+
+
 class PlacementTool(Tool):
 
     def __init__(self, factory, handle_tool, handle_index):
@@ -635,7 +708,7 @@ class PlacementTool(Tool):
     def on_button_press(self, context, event):
         view = context.view
         canvas = view.canvas
-        new_item = self._create_item(context, event.x, event.y)
+        new_item = self._create_item(context, (event.x, event.y))
         # Enforce matrix update, as a good matrix is required for the handle
         # positioning:
         canvas.get_matrix_i2c(new_item, calculate=True)
@@ -651,11 +724,11 @@ class PlacementTool(Tool):
         return True
 
 
-    def _create_item(self, context, x, y):
+    def _create_item(self, context, pos):
         view = context.view
         canvas = view.canvas
         item = self._factory()
-        x, y = view.get_matrix_v2i(item).transform_point(x, y)
+        x, y = view.get_matrix_v2i(item).transform_point(*pos)
         item.matrix.translate(x, y)
         return item
 
@@ -725,15 +798,515 @@ class TextEditTool(Tool):
         widget.destroy()
 
 
+
+class ConnectHandleTool(HandleTool):
+    """
+    This is a handle tool which allows to connect item's handle to another
+    item's port.
+    """
+    GLUE_DISTANCE = 10
+
+    def glue(self, view, item, handle, vpos):
+        """
+        Glue to an item.
+
+        Look for items in glue rectangle (which is defined by ``vpos`` (vx, vy)
+        and glue distance) and find the closest port.
+
+        Glue position is found for closest port as well. Handle of
+        connecting item is moved to glue point.
+
+        Return found item and its connection port or `(None, None)` if
+        not found.
+
+        :Parameters:
+         view
+            View used by user.
+         item
+            Connecting item.
+         handle
+            Handle of connecting item.
+        """
+        if not handle.connectable:
+            return None
+
+        dist = self.GLUE_DISTANCE
+        max_dist = dist
+        port = None
+        glue_pos = None
+        glue_item = None
+        v2i = view.get_matrix_v2i
+        vx, vy = vpos
+
+        rect = (vx - dist, vy - dist, dist * 2, dist * 2)
+        items = view.get_items_in_rectangle(rect, reverse=True)
+        for i in items:
+            if i is item:
+                continue
+            for p in i.ports():
+                if not p.connectable:
+                    continue
+
+                ix, iy = v2i(i).transform_point(vx, vy)
+                pg, d = p.glue((ix, iy))
+
+                if d >= max_dist:
+                    continue
+
+                glue_item = i
+                port = p
+
+                # transform coordinates from connectable item space to view
+                # space
+                i2v = view.get_matrix_i2v(i).transform_point
+                glue_pos = i2v(*pg)
+
+        # check if item and glue item can be connected on closest port
+        if port is not None \
+                and not self.can_glue(view, item, handle, glue_item, port):
+            glue_item, port = None, None
+
+        if port is not None:
+            # transport coordinates from view space to connecting item
+            # space and update position connecting item's handle
+            v2i = view.get_matrix_v2i(item).transform_point
+            handle.pos = v2i(*glue_pos)
+
+        return glue_item, port
+
+
+    def can_glue(self, view, item, handle, glue_item, port):
+        """
+        Determine if item's handle can connect to glue item's port.
+
+        `True` is returned by default. Override this method to disallow
+        glueing on higher level (i.e. because classes of item and glue item
+        does not much, etc.).
+
+        :Parameters:
+         view
+            View used by user.
+         item
+            Item connecting to glue item.
+         handle
+            Connecting handle of the item.
+         glue_item
+            Connectable item.
+         port
+            Port of connectable item.
+        """
+        return True
+
+
+    def pre_connect(self, view, item, handle, glue_item, port):
+        """
+        The method is invoked just before connection is performed by
+        `ConnectHandleTool.connect` method. It can be overriden by deriving
+        tools to perform higher level connection.
+
+        `True` is returned to indicate that higher level connection is
+        performed.
+        """
+        return True
+
+
+    def connect(self, view, item, handle, vpos):
+        """
+        Connect a handle of connecting item to connectable item.
+        Connectable item is found by `glue` method.
+
+        Return `True` if connection is performed.
+
+        :Parameters:
+         view
+            View used by user.
+         item
+            Connectable item.
+         handle
+            Handle of connecting item.
+        """
+        glue_item, port = self.glue(view, item, handle, vpos)
+
+        # disconnect when
+        # - no glued item
+        # - currently connected item is not glue item
+        if not glue_item \
+                or glue_item and handle.connected_to is not glue_item:
+            handle.disconnect()
+
+        # no glue item, no connection
+        if not glue_item:
+            return
+
+        # connection on higher level
+        self.pre_connect(view, item, handle, glue_item, port)
+        # low-level connection
+        self.post_connect(view.canvas, item, handle, glue_item, port)
+
+
+    def post_connect(self, canvas, item, handle, glue_item, port):
+        """
+        Create constraint between item's handle and port of glue item.
+        """
+        ConnectHandleTool.create_constraint(item, handle, glue_item, port)
+
+        handle.connected_to = glue_item
+        handle.disconnect = DisconnectHandle(canvas, item, handle)
+
+
+    def disconnect(self, view, item, handle):
+        if handle.disconnect:
+            handle.disconnect()
+
+
+    @staticmethod
+    def find_port(line, handle, item):
+        """
+        Find port of an item at position of line's handle.
+
+        :Parameters:
+         line
+            Line supposed to connect to an item.
+         handle
+            Handle of a line connecting to an item.
+         item
+            Item to be connected to a line.
+        """
+        port = None
+        max_dist = sys.maxint
+        canvas = item.canvas
+
+        # line's handle position to canvas coordinates
+        i2c = canvas.get_matrix_i2c(line)
+        hx, hy = i2c.transform_point(*handle.pos)
+
+        # from canvas to item coordinates
+        c2i = canvas.get_matrix_c2i(item)
+        ix, iy = c2i.transform_point(hx, hy)
+
+        # find the port using item's coordinates
+        for p in item.ports():
+            pg, d = p.glue((ix, iy))
+            if d >= max_dist:
+                continue
+            port = p
+            max_dist = d
+
+        return port
+
+
+    @staticmethod
+    def create_constraint(line, handle, item, port):
+        """
+        Create connection constraint between line's handle and item's port.
+
+        If constraint already exists, then it is removed and new constraint
+        is created instead.
+
+        :Parameters:
+         line
+            Line connecting to an item.
+         handle
+            Handle of a line connecting to an item.
+         item
+            Item to be connected to a line.
+         port
+            Item's port used for connection with a line.
+        """
+        canvas = line.canvas
+        solver = canvas.solver
+
+        if handle.connection_data:
+            solver.remove_constraint(handle.connection_data)
+
+        constraint = port.constraint(canvas, line, handle, item)
+        handle.connection_data = constraint
+        solver.add_constraint(constraint)
+
+
+    @staticmethod
+    def remove_constraint(line, handle):
+        """
+        Remove connection constraint created between line's handle and
+        connected item's port.
+
+        :Parameters:
+         line
+            Line connecting to an item.
+         handle
+            Handle of a line connecting to an item.
+        """
+        if handle.connection_data:
+            line.canvas.solver.remove_constraint(handle.connection_data)
+            handle.connection_data = None
+
+
+
+class DisconnectHandle(object):
+
+    def __init__(self, canvas, item, handle):
+        self.canvas = canvas
+        self.item = item
+        self.handle = handle
+
+    def __call__(self):
+        self.handle_disconnect()
+
+    def handle_disconnect(self):
+        canvas = self.canvas
+        item = self.item
+        handle = self.handle
+        try:
+            canvas.solver.remove_constraint(handle.connection_data)
+        except KeyError:
+            print 'constraint was already removed for', item, handle
+            pass # constraint was alreasy removed
+        else:
+            print 'constraint removed for', item, handle
+        handle.connection_data = None
+        handle.connected_to = None
+        # Remove disconnect handler:
+        handle.disconnect = None
+
+
+class LineSegmentTool(ConnectHandleTool):
+    """
+    Line segment tool provides functionality for splitting and merging line
+    segments.
+
+    Line segment is defined by two adjacent handles.
+
+    Line splitting is performed by clicking a line in the middle of
+    a segment.
+
+    Line merging is performed by moving a handle onto adjacent handle.
+
+    Please note, that this tool provides functionality without involving
+    context menu. Any further research into line spliting/merging
+    functionality should take into account this assumption and new
+    improvements (or even this tool replacement) shall be behavior based.
+
+    It is possible to use this tool from a menu by using
+    `LineSegmentTool.split_segment` and `LineSegmentTool.merge_segment`
+    methods.
+    """
+    def split_segment(self, line, segment, count=2):
+        """
+        Split one line segment into ``count`` equal pieces.
+
+        Two lists are returned
+        
+        - list of created handles
+        - list of created ports
+
+        :Parameters:
+         line
+            Line item, which segment shall be split.
+         segment
+            Segment number to split (starting from zero).
+         count
+            Amount of new segments to be created (minimum 2). 
+        """
+        if segment < 0 or segment >= len(line.ports()):
+            raise ValueError('Incorrect segment')
+        if count < 2:
+            raise ValueError('Incorrect count of segments')
+
+        def do_split(segment, count):
+            handles = line.handles()
+            h0 = handles[segment]
+            h1 = handles[segment + 1]
+            dx, dy = h1.x - h0.x, h1.y - h0.y
+            new_h = line._create_handle((h0.x + dx / count, h0.y + dy / count))
+            line._reversible_insert_handle(segment + 1, new_h)
+
+            p0 = line._create_port(h0, new_h)
+            p1 = line._create_port(new_h, h1)
+            line._reversible_remove_port(line.ports()[segment])
+            line._reversible_insert_port(segment, p0)
+            line._reversible_insert_port(segment + 1, p1)
+
+            if count > 2:
+                do_split(segment + 1, count - 1)
+
+        # get rid of connection constraints (to be recreated later)
+        citems, chandles = self._remove_constraints(line)
+
+        do_split(segment, count)
+
+        # force orthogonal constraints to be recreated
+        line._update_orthogonal_constraints(line.orthogonal)
+
+        # recreate connection constraints
+        self._recreate_constraints(citems, chandles, line)
+
+        handles = line.handles()[segment + 1:segment + count]
+        ports = line.ports()[segment:segment + count - 1]
+        return handles, ports
+
+
+    def merge_segment(self, line, segment, count=2):
+        """
+        Merge two (or more) line segments.
+
+        Tuple of two lists is returned, list of deleted handles and list of
+        deleted ports.
+
+        :Parameters:
+         line
+            Line item, which segments shall be merged.
+         segment
+            Segment number to start merging from (starting from zero).
+         count
+            Amount of segments to be merged (minimum 2). 
+        """
+        if len(line.ports()) < 2:
+            raise ValueError('Cannot merge line with one segment')
+        if segment < 0 or segment >= len(line.ports()):
+            raise ValueError('Incorrect segment')
+        if count < 2 or segment + count > len(line.ports()):
+            raise ValueError('Incorrect count of segments')
+
+        # get rid of connection constraints (to be recreated later)
+        citems, chandles = self._remove_constraints(line)
+
+        # remove handle and ports which share position with handle
+        deleted_handles = line.handles()[segment + 1:segment + count]
+        deleted_ports = line.ports()[segment:segment + count]
+        for h in deleted_handles:
+            line._reversible_remove_handle(h)
+        for p in deleted_ports:
+            line._reversible_remove_port(p)
+
+        # create new port, which replaces old ports destroyed due to
+        # deleted handle
+        h1 = line.handles()[segment]
+        h2 = line.handles()[segment + 1]
+        port = line._create_port(h1, h2)
+        line._reversible_insert_port(segment, port)
+
+        # force orthogonal constraints to be recreated
+        line._update_orthogonal_constraints(line.orthogonal)
+
+        # recreate connection constraints
+        self._recreate_constraints(citems, chandles, line)
+
+        return deleted_handles, deleted_ports
+
+
+    def _recreate_constraints(self, lines, handles, item):
+        """
+        Create connection constraints between connecting lines and an item.
+
+        :Parameters:
+         lines
+            Lines connecting to an item.
+         handles
+            Handles connecting to an item.
+         item
+            Item connected to lines.
+        """
+        for line, h in zip(lines, handles):
+            port = ConnectHandleTool.find_port(line, h, item)
+            ConnectHandleTool.create_constraint(line, h, item, port)
+
+
+    def _remove_constraints(self, item):
+        """
+        Remove connection constraints established between an item and all
+        connecting items.
+
+        List of connecting items and list of connecting handles are
+        returned.
+
+        :Parameters:
+         item
+            Item, to which connections shall be removed.
+        """
+        lines = []
+        handles = []
+        if item.canvas: # no canvas, no connections
+            data = item.canvas.get_connected_items(item)
+            for line, h in data:
+                ConnectHandleTool.remove_constraint(line, h)
+            if data:
+                lines, handles = zip(*data)
+
+        return lines, handles
+
+
+    def on_button_press(self, context, event):
+        """
+        In addition to the normal behaviour, the button press event creates
+        new handles if it is activated on the middle of a line segment.
+        """
+        if super(LineSegmentTool, self).on_button_press(context, event):
+            return True
+
+        view = context.view
+        item = view.hovered_item
+        if item and item is view.focused_item and isinstance(item, Line):
+            handles = item.handles()
+            x, y = view.get_matrix_v2i(item).transform_point(event.x, event.y)
+            for h1, h2 in zip(handles[:-1], handles[1:]):
+                xp = (h1.x + h2.x) / 2
+                yp = (h1.y + h2.y) / 2
+                if distance_point_point_fast((x,y), (xp, yp)) <= 4:
+                    segment = handles.index(h1)
+                    self.split_segment(item, segment)
+
+                    self.grab_handle(item, item.handles()[segment + 1])
+                    context.grab()
+                    return True
+
+
+    def on_button_release(self, context, event):
+        """
+        In addition to the normal behavior, the button release event
+        removes line segment if grabbed handle is close enough to an
+        adjacent handle.
+        """
+        grabbed_handle = self._grabbed_handle
+        grabbed_item = self._grabbed_item
+        if super(LineSegmentTool, self).on_button_release(context, event):
+            if grabbed_handle and grabbed_item:
+                handles = grabbed_item.handles()
+
+                # don't merge using first or last handle
+                if handles[0] is grabbed_handle or handles[-1] is grabbed_handle:
+                    return True
+
+                handle_index = handles.index(grabbed_handle)
+                segment = handle_index - 1
+
+                # cannot merge starting from last segment
+                if segment == len(grabbed_item.ports()) - 1:
+                    segment =- 1
+                assert segment >= 0 and segment < len(grabbed_item.ports()) - 1
+
+                before = handles[handle_index - 1]
+                after = handles[handle_index + 1]
+                d, p = distance_line_point(before.pos, after.pos, grabbed_handle.pos)
+
+                if d < 2:
+                    assert len(context.view.canvas.solver._marked_cons) == 0
+                    self.merge_segment(grabbed_item, segment)
+
+            return True
+
+
+
 def DefaultTool():
     """
     The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
-    chain = ToolChain().\
-        append(HoverTool()).\
-        append(HandleTool()).\
-        append(ItemTool()).\
-        append(TextEditTool()).\
+        #append(ConnectHandleTool()). \
+    chain = ToolChain(). \
+        append(HoverTool()). \
+        append(LineSegmentTool()). \
+        append(PanTool()). \
+        append(ItemTool()). \
+        append(TextEditTool()). \
         append(RubberbandTool())
     return chain
 

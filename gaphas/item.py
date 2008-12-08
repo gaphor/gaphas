@@ -10,9 +10,9 @@ from weakref import WeakKeyDictionary
 
 from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
-from connector import Handle
+from gaphas.connector import Handle, LinePort
 from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
-from constraint import EqualsConstraint, LessThanConstraint
+from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
 from state import observed, reversible_method, reversible_pair, reversible_property, disable_dispatching
 
 class Item(object):
@@ -30,6 +30,7 @@ class Item(object):
 
     - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
+    - _ports:       list of ports, connectable areas of an item
     - _matrix_i2c:  item to canvas coordinates matrix
     - _matrix_c2i:  canvas to item coordinates matrix
     - _matrix_i2v:  item to view coordinates matrices
@@ -42,6 +43,7 @@ class Item(object):
         self._matrix = Matrix()
         self._handles = []
         self._constraints = []
+        self._ports = []
 
         # used by gaphas.canvas.Canvas to hold conversion matrices
         self._matrix_i2c = None
@@ -153,13 +155,81 @@ class Item(object):
         """
         pass
 
+    
+    def constraint(self,
+            horizontal=None,
+            vertical=None,
+            left_of=None,
+            above=None,
+            line=None,
+            delta=0.0,
+            align=None):
+        """
+        Utility method to create item's internal constraint between
+        two positions or between a position and a line.
+
+        Position is a tuple of coordinates, i.e. ``(2, 4)``.
+
+        Line is a tuple of positions, i.e. ``((2, 3), (4, 2))``.
+
+        This method shall not be used to create constraints between
+        two different items.
+
+        Created constraint is returned.
+
+        :Parameters:
+         horizontal=(p1, p2)
+            Keep positions ``p1`` and ``p2`` aligned horizontally.
+         vertical=(p1, p2)
+            Keep positions ``p1`` and ``p2`` aligned vertically.
+         left_of=(p1, p2)
+            Keep position ``p1`` on the left side of position ``p2``.
+         above=(p1, p2)
+            Keep position ``p1`` above position ``p2``.
+         line=(p, l)
+            Keep position ``p`` on line ``l``.
+        """
+        cc = None # created constraint
+        if horizontal is not None:
+            p1, p2 = horizontal
+            cc = EqualsConstraint(p1[1], p2[1])
+        elif vertical is not None:
+            p1, p2 = vertical
+            cc = EqualsConstraint(p1[0], p2[0])
+        elif left_of is not None:
+            p1, p2 = left_of
+            cc = LessThanConstraint(p1[1], p2[1], delta)
+        elif above is not None:
+            p1, p2 = above
+            cc = LessThanConstraint(p1[0], p2[0], delta)
+        elif line is not None:
+            pos, l = line
+            if align is None:
+                cc = LineConstraint(line=l, point=pos)
+            else:
+                cc = LineAlignConstraint(line=l, point=pos, align=align, delta=delta)
+        else:
+            raise ValueError('Constraint incorrectly specified')
+        assert cc is not None
+        self._constraints.append(cc)
+        return cc
+
+
     def handles(self):
         """
         Return a list of handles owned by the item.
         """
         return self._handles
 
-    def point(self, x, y):
+
+    def ports(self):
+        """
+        Return list of ports.
+        """
+        return self._ports
+
+
+    def point(self, pos):
         """
         Get the distance from a point (``x``, ``y``) to the item.
         ``x`` and ``y`` are in item coordinates.
@@ -209,33 +279,34 @@ class Element(Item):
         super(Element, self).__init__()
         self._handles = [ h(strength=VERY_STRONG) for h in [Handle]*4 ]
 
-        eq = EqualsConstraint
-        lt = LessThanConstraint
         handles = self._handles
         h_nw = handles[NW]
         h_ne = handles[NE]
         h_sw = handles[SW]
         h_se = handles[SE]
 
-        # create minimal size constraints
-        self._c_min_w = LessThanConstraint(smaller=h_nw.x, bigger=h_se.x, delta=10)
-        self._c_min_h = LessThanConstraint(smaller=h_nw.y, bigger=h_se.y, delta=10)
+        # edge of element define default element ports
+        self._ports = [
+            LinePort(h_nw.pos, h_ne.pos),
+            LinePort(h_ne.pos, h_se.pos), 
+            LinePort(h_se.pos, h_sw.pos), 
+            LinePort(h_sw.pos, h_nw.pos)
+        ]
 
         # setup constraints
-        self.constraints.extend([
-            eq(a=h_nw.y, b=h_ne.y),
-            eq(a=h_nw.x, b=h_sw.x),
-            eq(a=h_se.y, b=h_sw.y),
-            eq(a=h_se.x, b=h_ne.x),
-            # set h_nw < h_se constraints
-            # with minimal size functionality
-            self._c_min_w,
-            self._c_min_h,
-        ])
+        self.constraint(horizontal=(h_nw.pos, h_ne.pos))
+        self.constraint(horizontal=(h_se.pos, h_sw.pos))
+        self.constraint(vertical=(h_nw.pos, h_sw.pos))
+        self.constraint(vertical=(h_se.pos, h_ne.pos))
+
+        # create minimal size constraints
+        self._c_min_w = self.constraint(left_of=(h_nw.pos, h_se.pos), delta=10)
+        self._c_min_h = self.constraint(above=(h_nw.pos, h_se.pos), delta=10)
 
         # set width/height when minimal size constraints exist
         self.width = width
         self.height = height
+
 
     def setup_canvas(self):
         super(Element, self).setup_canvas()
@@ -328,13 +399,13 @@ class Element(Item):
     min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
         
-    def point(self, x, y):
+    def point(self, pos):
         """
         Distance from the point (x, y) to the item.
         """
         h = self._handles
         hnw, hse = h[NW], h[SE]
-        return distance_rectangle_point(map(float, (hnw.x, hnw.y, hse.x, hse.y)), (x, y))
+        return distance_rectangle_point(map(float, (hnw.x, hnw.y, hse.x, hse.y)), pos)
 
 
 class Line(Item):
@@ -358,7 +429,9 @@ class Line(Item):
 
     def __init__(self):
         super(Line, self).__init__()
-        self._handles = [Handle(connectable=True), Handle(10, 10, connectable=True)]
+        self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
+        self._ports = []
+        self._update_ports()
 
         self._line_width = 2
         self._fuzziness = 0
@@ -395,8 +468,8 @@ class Line(Item):
             return
 
         h = self._handles
-        if len(h) < 3:
-            self.split_segment(0)
+        #if len(h) < 3:
+        #    self.split_segment(0)
         eq = EqualsConstraint #lambda a, b: a - b
         add = self.canvas.solver.add_constraint
         cons = []
@@ -478,98 +551,35 @@ class Line(Item):
     reversible_pair(_reversible_insert_handle, _reversible_remove_handle, \
             bind1={'index': lambda self, handle: self._handles.index(handle)})
 
+    @observed
+    def _reversible_insert_port(self, index, port):
+        self._ports.insert(index, port)
 
-    def split_segment(self, segment, parts=2):
+    @observed
+    def _reversible_remove_port(self, port):
+        self._ports.remove(port)
+
+    reversible_pair(_reversible_insert_port, _reversible_remove_port, \
+            bind1={'index': lambda self, port: self._ports.index(port)})
+
+
+    def _create_handle(self, pos, strength=WEAK):
+        return Handle(pos, strength=strength)
+
+    
+    def _create_port(self, h1, h2):
+        return LinePort(h1.pos, h2.pos)
+
+
+    def _update_ports(self):
         """
-        Split one segment in the Line in ``parts`` equal pieces.
-        ``segment`` 0 is the first segment (between handles 0 and 1).
-        The min number of parts is 2.
-
-        A list of new handles is returned.
-
-        Note that ``split_segment`` is not able to reconnect constraints that
-        are connected to the segment. 
-
-        >>> a = Line()
-        >>> a.handles()[1].pos = (20, 0)
-        >>> len(a.handles())
-        2
-        >>> a.split_segment(0)
-        [<Handle object on (10, 0)>]
-        >>> a.handles()
-        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
-
-        A line segment can be split into multiple (equal) parts:
-
-        >>> b = Line()
-        >>> b.handles()[1].pos = (20, 16)
-        >>> b.handles()
-        [<Handle object on (0, 0)>, <Handle object on (20, 16)>]
-        >>> b.split_segment(0, parts=4)
-        [<Handle object on (5, 4)>, <Handle object on (10, 8)>, <Handle object on (15, 12)>]
-        >>> len(b.handles())
-        5
-        >>> b.handles()
-        [<Handle object on (0, 0)>, <Handle object on (5, 4)>, <Handle object on (10, 8)>, <Handle object on (15, 12)>, <Handle object on (20, 16)>]
+        Update line ports.
         """
-        assert parts >= 2
-        assert segment >= 0
-        def do_split(segment, parts):
-            h0 = self._handles[segment]
-            h1 = self._handles[segment + 1]
-            dx, dy = h1.x - h0.x, h1.y - h0.y
-            new_h = Handle(h0.x + dx / parts, h0.y + dy / parts, strength=WEAK)
-            self._reversible_insert_handle(segment + 1, new_h)
-            if parts > 2:
-                do_split(segment + 1, parts - 1)
-        do_split(segment, parts)
-        # Force orthogonal constraints to be recreated
-        self._update_orthogonal_constraints(self.orthogonal)
-        return self._handles[segment+1:segment+parts]
-
-    def merge_segment(self, segment, parts=2):
-        """
-        Merge the ``segment`` and the next.
-        The parts parameter indicates how many segments should be merged
-
-        The deleted handles are returned as a list.
-
-        >>> a = Line()
-        >>> a.handles()[1].pos = (20, 0)
-        >>> _ = a.split_segment(0)
-        >>> a.handles()
-        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
-        >>> a.merge_segment(0)
-        [<Handle object on (10, 0)>]
-        >>> a.handles()
-        [<Handle object on (0, 0)>, <Handle object on (20, 0)>]
-        >>> try: a.merge_segment(0)
-        ... except AssertionError: print 'okay'
-        okay
-
-        More than two segments can be merged at once:
-        >>> _ = a.split_segment(0)
-        >>> _ = a.split_segment(0)
-        >>> _ = a.split_segment(0)
-        >>> a.handles()
-        [<Handle object on (0, 0)>, <Handle object on (2.5, 0)>, <Handle object on (5, 0)>, <Handle object on (10, 0)>, <Handle object on (20, 0)>]
-        >>> a.merge_segment(0, parts=4)
-        [<Handle object on (2.5, 0)>, <Handle object on (5, 0)>, <Handle object on (10, 0)>]
-        >>> a.handles()
-        [<Handle object on (0, 0)>, <Handle object on (20, 0)>]
-        """
-        assert len(self._handles) > 2, 'Not enough segments'
-        if 0 >= segment > len(self._handles) - 1:
-            raise IndexError("index out of range (0 > %d > %d)" % (segment, len(self._handles) - 1))
-        if segment == 0: segment = 1
-        deleted_handles = self._handles[segment:segment+parts-1]
-        self._reversible_remove_handle(self._handles[segment])
-        if parts > 2:
-            self.merge_segment(segment, parts - 1)
-        else:
-            # Force orthogonal constraints to be recreated
-            self._update_orthogonal_constraints(self.orthogonal)
-        return deleted_handles
+        assert len(self._handles) >= 2, 'Not enough segments'
+        self._ports = []
+        handles = self._handles
+        for h1, h2 in zip(handles[:-1], handles[1:]):
+            self._ports.append(LinePort(h1.pos, h2.pos))
 
 
     def opposite(self, handle):
@@ -593,7 +603,7 @@ class Line(Item):
         h1, h0 = self._handles[-2:]
         self._tail_angle = atan2(h1.y - h0.y, h1.x - h0.x)
 
-    def closest_segment(self, x, y):
+    def closest_segment(self, pos):
         """
         Obtain a tuple (distance, point_on_line, segment).
         Distance is the distance from point to the closest line segment 
@@ -601,32 +611,30 @@ class Line(Item):
         Segment is the line segment closest to (x, y)
 
         >>> a = Line()
-        >>> a.closest_segment(4, 5)
+        >>> a.closest_segment((4, 5))
         (0.70710678118654757, (4.5, 4.5), 0)
         """
         h = self._handles
 
         # create a list of (distance, point_on_line) tuples:
-        distances = map(distance_line_point, h[:-1], h[1:], [(x, y)] * (len(h) - 1))
+        distances = map(distance_line_point, h[:-1], h[1:], [pos] * (len(h) - 1))
         distances, pols = zip(*distances)
         return reduce(min, zip(distances, pols, range(len(distances))))
 
-    def point(self, x, y):
+    def point(self, pos):
         """
         >>> a = Line()
-        >>> a.handles()[1].pos = 30, 30
-        >>> a.split_segment(0)
-        [<Handle object on (15, 15)>]
         >>> a.handles()[1].pos = 25, 5
-        >>> a.point(-1, 0)
+        >>> a._handles.append(a._create_handle((30, 30)))
+        >>> a.point((-1, 0))
         1.0
-        >>> '%.3f' % a.point(5, 4)
+        >>> '%.3f' % a.point((5, 4))
         '2.942'
-        >>> '%.3f' % a.point(29, 29)
+        >>> '%.3f' % a.point((29, 29))
         '0.784'
         """
         h = self._handles
-        distance, point, segment = self.closest_segment(x, y)
+        distance, point, segment = self.closest_segment(pos)
         return max(0, distance - self.fuzziness)
 
     def draw_head(self, context):
@@ -665,6 +673,15 @@ class Line(Item):
         h0, h1 = self._handles[-2:]
         draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
         cr.stroke()
+
+        ### debug code to draw line ports
+        ### cr.set_line_width(1)
+        ### cr.set_source_rgb(1.0, 0.0, 0.0)
+        ### for p in self.ports():
+        ###     cr.move_to(*p.start)
+        ###     cr.line_to(*p.end)
+        ### cr.stroke()
+
 
 
 __test__ = {

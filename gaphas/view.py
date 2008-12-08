@@ -34,7 +34,7 @@ class View(object):
         self._painter = DefaultPainter()
 
         # Handling selections.
-        self._selected_items = list()
+        self._selected_items = set()
         self._focused_item = None
         self._hovered_item = None
         self._dropzone_item = None
@@ -58,15 +58,16 @@ class View(object):
         if self._canvas:
             self._qtree = Quadtree()
 
-            # Handling selections.
-            del self._selected_items[:]
-            self._focused_item = None
-            self._hovered_item = None
-            self._dropzone_item = None
-
         self._canvas = canvas
 
     canvas = property(lambda s: s._canvas, _set_canvas)
+
+
+    def emit(self, args, **kwargs):
+        """
+        Placeholder method for signal emission functionality.
+        """
+        pass
 
 
     def select_item(self, item):
@@ -79,8 +80,7 @@ class View(object):
         """
         self.queue_draw_item(item)
         if item not in self._selected_items:
-            self._selected_items.append(item)
-            self._selected_items = self._canvas.sort(self._selected_items)
+            self._selected_items.add(item)
             self.emit('selection-changed', self._selected_items)
 
 
@@ -90,7 +90,7 @@ class View(object):
         """
         self.queue_draw_item(item)
         if item in self._selected_items:
-            self._selected_items.remove(item)
+            self._selected_items.discard(item)
             self.emit('selection-changed', self._selected_items)
 
 
@@ -104,7 +104,7 @@ class View(object):
         Clearing the selected_item also clears the focused_item.
         """
         self.queue_draw_item(*self._selected_items)
-        del self._selected_items[:]
+        self._selected_items.clear()
         self.focused_item = None
         self.emit('selection-changed', self._selected_items)
 
@@ -197,22 +197,21 @@ class View(object):
     painter = property(lambda s: s._painter, _set_painter)
 
 
-    def get_item_at_point(self, x, y, selected=True):
+    def get_item_at_point(self, pos, selected=True):
         """
-        Return the topmost item located at (x, y).
+        Return the topmost item located at ``pos`` (x, y).
 
         Parameters:
          - selected: if False returns first non-selected item
         """
-        point = (x, y)
-        items = self._qtree.find_intersect((x, y, 1, 1))
+        items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
         for item in self._canvas.sort(items, reverse=True):
             if not selected and item in self.selected_items:
                 continue  # skip selected items
 
             v2i = self.get_matrix_v2i(item)
-            ix, iy = v2i.transform_point(x, y)
-            if item.point(ix, iy) < 0.5:
+            ix, iy = v2i.transform_point(*pos)
+            if item.point((ix, iy)) < 0.5:
                 return item
         return None
 
@@ -338,21 +337,6 @@ class View(object):
                 pass
 
 
-    def emit(self, *args, **kwargs):
-        """
-        Placeholder method for signal emission functionality.
-        """
-        pass
-
-
-    def queue_draw_item(self, *items):
-	"""
-        Placeholder method. Items that should be redrawn should be queued
-        by this method.
-        """
-        pass
-
-
 # Map GDK events to tool methods
 EVENT_HANDLERS = {
     gtk.gdk.BUTTON_PRESS: 'on_button_press',
@@ -361,7 +345,8 @@ EVENT_HANDLERS = {
     gtk.gdk._3BUTTON_PRESS: 'on_triple_click',
     gtk.gdk.MOTION_NOTIFY: 'on_motion_notify',
     gtk.gdk.KEY_PRESS: 'on_key_press',
-    gtk.gdk.KEY_RELEASE: 'on_key_release'
+    gtk.gdk.KEY_RELEASE: 'on_key_release',
+    gtk.gdk.SCROLL: 'on_scroll'
 }
 
 
@@ -412,7 +397,8 @@ class GtkView(gtk.DrawingArea, View):
                         | gtk.gdk.BUTTON_RELEASE_MASK
                         | gtk.gdk.POINTER_MOTION_MASK
                         | gtk.gdk.KEY_PRESS_MASK
-                        | gtk.gdk.KEY_RELEASE_MASK)
+                        | gtk.gdk.KEY_RELEASE_MASK
+                        | gtk.gdk.SCROLL_MASK)
 
         self._hadjustment = hadjustment or gtk.Adjustment()
         self._vadjustment = vadjustment or gtk.Adjustment()
@@ -500,10 +486,13 @@ class GtkView(gtk.DrawingArea, View):
             adjustment.page_increment = viewport_size
             adjustment.step_increment = viewport_size/10
             adjustment.upper = adjustment.value + canvas_offset + canvas_size
-            adjustment.lower = adjustment.value + canvas_offset
+            adjustment.lower = 0 #adjustment.value + canvas_offset
         
         if adjustment.value > adjustment.upper - viewport_size:
             adjustment.value = adjustment.upper - viewport_size
+        elif adjustment.value < 0:
+            adjustment.value = 0
+
 
     @async(single=True)
     def update_adjustments(self, allocation=None):
@@ -580,7 +569,7 @@ class GtkView(gtk.DrawingArea, View):
 
             for item in removed_items:
                 self._qtree.remove(item)
-                self.selected_items.remove(item)
+                self.selected_items.discard(item)
 
             if self.focused_item in removed_items:
                 self.focused_item = None

@@ -27,6 +27,7 @@ class Context(object):
     ... except: 'got exc'
     'got exc'
     """
+
     def __init__(self, **kwargs):
         self.__dict__.update(**kwargs)
 
@@ -41,7 +42,6 @@ class Canvas(object):
 
     def __init__(self):
         self._tree = tree.Tree()
-        self._tree_indexer = tree.TreeIndexer(self._tree, '_canvas_index')
         self._solver = solver.Solver()
         self._dirty_items = set()
         self._dirty_matrix_items = set()
@@ -255,14 +255,14 @@ class Canvas(object):
         """
         Return a set of items that are connected to ``item``.
         The list contains tuples (item, handle). As a result an item may be
-        in the list more than once (depending on the number of handles that
-        are connected). If ``item`` is connected to itself it will also appear
-        in the list.
+            in the list more than once (depending on the number of handles that
+            are connected). If ``item`` is connected to itself it will also appear
+            in the list.
 
-        >>> c = Canvas()
-        >>> from gaphas import item
-        >>> i = item.Line()
-        >>> c.add(i)
+            >>> c = Canvas()
+            >>> from gaphas import item
+            >>> i = item.Line()
+            >>> c.add(i)
         >>> ii = item.Line()
         >>> c.add(ii)
         >>> iii = item.Line()
@@ -304,7 +304,7 @@ class Canvas(object):
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return self._tree_indexer.sort(items, reverse=reverse)
+        return self._tree.sort(items, index_key='_canvas_index', reverse=reverse)
 
 
     #{ Matrices
@@ -606,7 +606,7 @@ class Canvas(object):
         Provide each item in the canvas with an index attribute. This makes
         for fast searching of items.
         """
-        self._tree_indexer.index_tree()
+        self._tree.index_nodes('_canvas_index')
 
 
     #{ Views
@@ -683,6 +683,22 @@ class Canvas(object):
         self._dirty_index = True
         self._registered_views = set()
         #self.update()
+
+
+    def project(self, item, *points):
+        """
+        Project item's points into canvas coordinate system.
+
+        If there is only one point returned than projected point is
+        returned. If there are more than one points, then tuple of
+        projected points is returned.
+        """
+        if len(points) == 1:
+            return CanvasProjection(points[0], item)
+        elif len(points) > 1:
+            return tuple(CanvasProjection(p, item) for p in points)
+        else:
+            raise AttributeError('There should be at least one point specified')
 
 
 class VariableProjection(solver.Projection):

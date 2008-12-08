@@ -270,7 +270,7 @@ children):
     [<gaphas.item.Item object at 0x...>]
 
 connector.py: Handle
----------------
+--------------------
 Changing the Handle's position is reversible:
 
     >>> from gaphas import Handle
@@ -375,8 +375,9 @@ This is our basis for further testing.
 
     >>> del undo_list[:]
 
-    >>> l.split_segment(0)
-    [<Handle object on (5, 5)>]
+    >>> from gaphas import tool
+    >>> tool.LineSegmentTool().split_segment(l, 0)      # doctest: +ELLIPSIS
+    ([<Handle object on (5, 5)>], [<gaphas.connector.LinePort object at 0x...>])
     >>> l.handles()
     [<Handle object on (0, 0)>, <Handle object on (5, 5)>, <Handle object on (10, 10)>]
 

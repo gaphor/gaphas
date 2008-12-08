@@ -13,30 +13,6 @@ from gaphas.tool import ToolContext, HoverTool
 
 class ViewTestCase(unittest.TestCase):
 
-    def test_selecting_items(self):
-        """
-        Test selection of items
-        """
-        canvas = Canvas()
-        view = GtkView(canvas)
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.add(view)
-        window.show_all()
-
-        box = Box()
-        canvas.add(box)
-        view.focused_item = box
-        assert view.focused_item is box
-        assert len(view.selected_items) == 1
-
-        view.select_item(box)
-        assert len(view.selected_items) == 1
-
-        view.unselect_all()
-        assert len(view.selected_items) == 0
-        assert view.focused_item is None
-
-
     def test_bounding_box_calculations(self):
         """
         A view created before and after the canvas is populated should contain
@@ -57,7 +33,7 @@ class ViewTestCase(unittest.TestCase):
         line = Line()
         line.fyzzyness = 1
         line.handles()[1].pos = (30, 30)
-        line.split_segment(0, 3)
+        #line.split_segment(0, 3)
         line.matrix.translate(30, 60)
         canvas.add(line)
 
@@ -103,8 +79,8 @@ class ViewTestCase(unittest.TestCase):
         assert len(view._qtree._ids) == 1
         assert not view._qtree._bucket.bounds == (0, 0, 0, 0), view._qtree._bucket.bounds
 
-        assert view.get_item_at_point(10, 10) is box
-        assert view.get_item_at_point(60, 10) is None
+        assert view.get_item_at_point((10, 10)) is box
+        assert view.get_item_at_point((60, 10)) is None
 
         window.destroy()
 
@@ -210,35 +186,7 @@ class ViewTestCase(unittest.TestCase):
         assert not box._matrix_v2i.has_key(view)
         
 
-    def test_setting_canvas(self):
-        """
-        Test if everything is reset properly after a new canvas is set on
-        view.
-        """
-        canvas = Canvas()
-        view = View(canvas)
-
-        box = Box()
-        canvas.add(box)
-
-        view.focused_item = box
-        view.hovered_item = box
-        view.dropzone_item = box
-
-        assert len(view.selected_items) > 0
-
-        # check registered_views
-        # check _qtree data
-
-        view.canvas = Canvas()
-
-        assert view.selected_items == []
-        assert view.focused_item is None
-        assert view.hovered_item is None
-        assert view.dropzone_item is None
-
-
-
+        
 if __name__ == '__main__':
     unittest.main()
 

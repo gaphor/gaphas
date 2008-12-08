@@ -24,20 +24,18 @@ import math
 import gtk
 import cairo
 from gaphas import Canvas, GtkView, View
-from gaphas.examples import Box, Text, FatLine, Circle, DefaultExampleTool
+from gaphas.examples import Box, BoxX, Text, FatLine, Circle
 from gaphas.item import Line, NW, SE
-from gaphas.tool import PlacementTool, HandleTool
+from gaphas.tool import PlacementTool, HandleTool, LineSegmentTool
 from gaphas.painter import ItemPainter
 from gaphas import state
 from gaphas.util import text_extents
 
 from gaphas import painter
+#painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Ensure data gets picked well:
 import gaphas.picklers
-
-
-#painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Global undo list
 undo_list = []
@@ -102,7 +100,6 @@ class MyText(Text):
 
 def create_window(canvas, title, zoom=1.0):
     view = GtkView()
-    view.tool = DefaultExampleTool()
 
     w = gtk.Window()
     w.set_title(title)
@@ -161,7 +158,8 @@ def create_window(canvas, title, zoom=1.0):
 
     def on_clicked(button):
         if isinstance(view.focused_item, Line):
-            view.focused_item.split_segment(0)
+            tool = LineSegmentTool()
+            tool.split_segment(view.focused_item, 0)
             view.queue_draw_item(view.focused_item, handles=True)
 
     b.connect('clicked', on_clicked)
@@ -354,7 +352,6 @@ def create_canvas(c=None):
     fl.matrix.translate(100, 100)
     c.add(fl)
 
-
     circle = Circle()
     h1, h2 = circle.handles()
     circle.radius = 20
@@ -372,13 +369,21 @@ def create_canvas(c=None):
 #        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
 #        c.add(bb, parent=b)
 
+    b=BoxX()
+    b.min_width = 40
+    b.min_height = 50
+    b.width = b.height = 60
+    b.matrix.translate(55, 55)
+    c.add(b)
+
     t=MyText('Single line')
     t.matrix.translate(70,70)
     c.add(t)
 
     l=MyLine()
     l.handles()[1].pos = (30, 30)
-    l.split_segment(0, 3)
+    tool = LineSegmentTool()
+    tool.split_segment(l, 0, 3)
     l.matrix.translate(30, 60)
     c.add(l)
     l.orthogonal = True
