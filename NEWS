@@ -1,0 +1,5 @@
+0.4.0
+------
+- allow to define connectable parts of item's (ports feature)
+- implemented default connection tool (thanks to ports feature)
+- line segment tool implemented (code taken from gaphor)
