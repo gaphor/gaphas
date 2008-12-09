@@ -3,3 +3,7 @@
 - allow to define connectable parts of item's (ports feature)
 - implemented default connection tool (thanks to ports feature)
 - line segment tool implemented (code taken from gaphor)
+- implemented Item.constraint method to simplify item's constraint
+  creation
+- API changes
+  - use positions instead of "x, y" pairs in all method calls
