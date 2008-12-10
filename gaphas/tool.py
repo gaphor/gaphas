@@ -801,31 +801,38 @@ class TextEditTool(Tool):
 
 class ConnectHandleTool(HandleTool):
     """
-    This is a handle tool which allows to connect item's handle to another
-    item's port.
+    Tool for connecting two items.
+    
+    There are two items involved. Handle of connecting item (usually
+    a line) is being dragged by an user towards another item (item in
+    short). Port of an item is found by the tool and connection is
+    established by creating a constraint between line's handle and item's
+    port.
     """
+    # distance between line and item
     GLUE_DISTANCE = 10
 
-    def glue(self, view, item, handle, vpos):
+    def glue(self, view, line, handle, vpos):
         """
-        Glue to an item.
+        Find an item for connection with a line.
 
-        Look for items in glue rectangle (which is defined by ``vpos`` (vx, vy)
-        and glue distance) and find the closest port.
+        Method looks for items in glue rectangle (which is defined by
+        ``vpos`` (vx, vy) and glue distance), then finds the closest port.
 
-        Glue position is found for closest port as well. Handle of
-        connecting item is moved to glue point.
+        Glue position for closest port is calculated as well. Handle of
+        a line is moved to glue point to indicate that connection is about
+        to happen.
 
-        Return found item and its connection port or `(None, None)` if
-        not found.
+        Found item and its connection port are returned. If item is not
+        found nor suitable port, then tuple `(None, None)` is returned.
 
         :Parameters:
          view
             View used by user.
-         item
+         line
             Connecting item.
          handle
-            Handle of connecting item.
+            Handle of line (connecting item).
         """
         if not handle.connectable:
             return None
@@ -834,14 +841,14 @@ class ConnectHandleTool(HandleTool):
         max_dist = dist
         port = None
         glue_pos = None
-        glue_item = None
+        item = None
         v2i = view.get_matrix_v2i
         vx, vy = vpos
 
         rect = (vx - dist, vy - dist, dist * 2, dist * 2)
         items = view.get_items_in_rectangle(rect, reverse=True)
         for i in items:
-            if i is item:
+            if i is line:
                 continue
             for p in i.ports():
                 if not p.connectable:
@@ -853,7 +860,7 @@ class ConnectHandleTool(HandleTool):
                 if d >= max_dist:
                     continue
 
-                glue_item = i
+                item = i
                 port = p
 
                 # transform coordinates from connectable item space to view
@@ -861,36 +868,36 @@ class ConnectHandleTool(HandleTool):
                 i2v = view.get_matrix_i2v(i).transform_point
                 glue_pos = i2v(*pg)
 
-        # check if item and glue item can be connected on closest port
+        # check if line and found item can be connected on closest port
         if port is not None \
-                and not self.can_glue(view, item, handle, glue_item, port):
-            glue_item, port = None, None
+                and not self.can_glue(view, line, handle, item, port):
+            item, port = None, None
 
         if port is not None:
-            # transport coordinates from view space to connecting item
-            # space and update position connecting item's handle
-            v2i = view.get_matrix_v2i(item).transform_point
+            # transform coordinates from view space to the line space and
+            # update position of line's handle
+            v2i = view.get_matrix_v2i(line).transform_point
             handle.pos = v2i(*glue_pos)
 
-        return glue_item, port
+        return item, port
 
 
-    def can_glue(self, view, item, handle, glue_item, port):
+    def can_glue(self, view, line, handle, item, port):
         """
-        Determine if item's handle can connect to glue item's port.
+        Determine if line's handle can connect to a port of an item.
 
         `True` is returned by default. Override this method to disallow
-        glueing on higher level (i.e. because classes of item and glue item
-        does not much, etc.).
+        glueing in higher level of application stack (i.e. when classes of
+        line and item does not match).
 
         :Parameters:
          view
             View used by user.
-         item
-            Item connecting to glue item.
+         line
+            Item connecting to connectable item.
          handle
-            Connecting handle of the item.
-         glue_item
+            Handle of line connecting to connectable item.
+         item
             Connectable item.
          port
             Port of connectable item.
@@ -898,63 +905,101 @@ class ConnectHandleTool(HandleTool):
         return True
 
 
-    def pre_connect(self, view, item, handle, glue_item, port):
+    def pre_connect(self, view, line, handle, item, port):
         """
         The method is invoked just before connection is performed by
         `ConnectHandleTool.connect` method. It can be overriden by deriving
-        tools to perform higher level connection.
+        tools to perform connection in higher level of application stack.
 
         `True` is returned to indicate that higher level connection is
         performed.
+
+        :Parameters:
+         view
+            View used by user.
+         line
+            Item connecting to connectable item.
+         handle
+            Handle of line connecting to connectable item.
+         item
+            Connectable item.
+         port
+            Port of connectable item.
         """
         return True
 
 
-    def connect(self, view, item, handle, vpos):
+    def connect(self, view, line, handle, vpos):
         """
-        Connect a handle of connecting item to connectable item.
-        Connectable item is found by `glue` method.
+        Connect a handle of a line to connectable item.
+
+        Connectable item is found by `ConnectHandleTool.glue` method.
 
         Return `True` if connection is performed.
 
         :Parameters:
          view
             View used by user.
-         item
-            Connectable item.
+         line
+            Connecting item.
          handle
             Handle of connecting item.
         """
-        glue_item, port = self.glue(view, item, handle, vpos)
+        # find connectable item and its port
+        item, port = self.glue(view, line, handle, vpos)
 
         # disconnect when
-        # - no glued item
-        # - currently connected item is not glue item
-        if not glue_item \
-                or glue_item and handle.connected_to is not glue_item:
+        # - no connectable item
+        # - currently connected item is not connectable item
+        if not item \
+                or item and handle.connected_to is not item:
             handle.disconnect()
 
-        # no glue item, no connection
-        if not glue_item:
+        # no connectable item, no connection
+        if not item:
             return
 
-        # connection on higher level
-        self.pre_connect(view, item, handle, glue_item, port)
+        # connection in higher level of application stack
+        self.pre_connect(view, line, handle, item, port)
         # low-level connection
-        self.post_connect(view.canvas, item, handle, glue_item, port)
+        self.post_connect(view.canvas, line, handle, item, port)
 
 
-    def post_connect(self, canvas, item, handle, glue_item, port):
+    def post_connect(self, canvas, line, handle, item, port):
         """
-        Create constraint between item's handle and port of glue item.
+        Create constraint between handle of a line and port of connectable
+        item.
+
+        :Parameters:
+         canvas
+            Canvas owning the items.
+         line
+            Connecting item.
+         handle
+            Handle of connecting item.
+         item
+            Connectable item.
+         port
+            Port of connectable item.
         """
-        ConnectHandleTool.create_constraint(item, handle, glue_item, port)
+        ConnectHandleTool.create_constraint(line, handle, item, port)
 
-        handle.connected_to = glue_item
-        handle.disconnect = DisconnectHandle(canvas, item, handle)
+        handle.connected_to = item
+        handle.disconnect = DisconnectHandle(canvas, line, handle)
 
 
-    def disconnect(self, view, item, handle):
+    def disconnect(self, view, line, handle):
+        """
+        Disconnect line (connecting item) from an item.
+
+        :Parameters:
+         view
+            View used by user.
+         line
+            Connecting item.
+         handle
+            Handle of connecting item.
+        """
         if handle.disconnect:
             handle.disconnect()
 
