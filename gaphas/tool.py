@@ -1,25 +1,37 @@
 """
-Tools are used to add interactive behavior to a View.
+Tools provide interactive behavior to a `View` by handling specific events
+sent by view.
 
-Tools can either not act on an event (None), just handle the event
-or grab the event and all successive events until the tool is done
-(e.g. on a button press/release).
+Some of implemented tools are
 
-The tools in this module are made to work properly in a ToolChain.
+`HoverTool`
+    make the item under the mouse cursor the "hovered item"
 
-Current tools:
-    ToolChain - for chaining individual tools together.
-    HoverTool - make the item under the mouse cursor the "hovered item"
-    ItemTool - handle selection and movement of items
-    HandleTool - handle selection and movement of handles
-    RubberbandTool - for Rubber band selection
-    PanTool - for easily moving the canvas around
-    PlacementTool - for placing items on the canvas
+`ItemTool`
+    handle selection and movement of items
 
-Maybe even:
-    TextEditTool - for editing text on canvas items (that support it)
-    
-    (context.view = view; context.grab() to grab, context.ungrab() to ungrab)
+`HandleTool`
+    handle selection and movement of handles
+
+`RubberbandTool`
+    for rubber band selection of multiple items
+
+`PanTool`
+    for easily moving the canvas around
+
+`PlacementTool`
+    for placing items on the canvas
+
+The tools are chained with `ToolChain` class (it is a tool as well), which
+allows to combine functionality provided by different tools.
+
+Tools can handle events in different ways
+
+- event can be ignored
+- tool can handle the event (obviously)
+- event and all successive events can be grabbed until the tool is done
+  (e.g. on a button press/release), see `Context.grab` and `Context.ungrab`
+  methods
 """
 
 __version__ = "$Revision$"
