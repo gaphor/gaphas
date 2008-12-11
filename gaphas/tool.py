@@ -923,9 +923,6 @@ class ConnectHandleTool(HandleTool):
         `ConnectHandleTool.connect` method. It can be overriden by deriving
         tools to perform connection in higher level of application stack.
 
-        `True` is returned to indicate that higher level connection is
-        performed.
-
         :Parameters:
          view
             View used by user.
@@ -938,7 +935,7 @@ class ConnectHandleTool(HandleTool):
          port
             Port of connectable item.
         """
-        return True
+        pass
 
 
     def connect(self, view, line, handle, vpos):
@@ -946,8 +943,6 @@ class ConnectHandleTool(HandleTool):
         Connect a handle of a line to connectable item.
 
         Connectable item is found by `ConnectHandleTool.glue` method.
-
-        Return `True` if connection is performed.
 
         :Parameters:
          view
