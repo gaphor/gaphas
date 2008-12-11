@@ -917,7 +917,7 @@ class ConnectHandleTool(HandleTool):
         return True
 
 
-    def pre_connect(self, view, line, handle, item, port):
+    def post_connect(self, view, line, handle, item, port):
         """
         The method is invoked just before connection is performed by
         `ConnectHandleTool.connect` method. It can be overriden by deriving
@@ -971,13 +971,13 @@ class ConnectHandleTool(HandleTool):
         if not item:
             return
 
-        # connection in higher level of application stack
-        self.pre_connect(view, line, handle, item, port)
         # low-level connection
-        self.post_connect(view.canvas, line, handle, item, port)
+        self.connect_handle(view.canvas, line, handle, item, port)
+        # connection in higher level of application stack
+        self.post_connect(view, line, handle, item, port)
 
 
-    def post_connect(self, canvas, line, handle, item, port):
+    def connect_handle(self, canvas, line, handle, item, port):
         """
         Create constraint between handle of a line and port of connectable
         item.
