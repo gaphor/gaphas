@@ -917,15 +917,13 @@ class ConnectHandleTool(HandleTool):
         return True
 
 
-    def post_connect(self, view, line, handle, item, port):
+    def post_connect(self, line, handle, item, port):
         """
         The method is invoked just before connection is performed by
         `ConnectHandleTool.connect` method. It can be overriden by deriving
         tools to perform connection in higher level of application stack.
 
         :Parameters:
-         view
-            View used by user.
          line
             Item connecting to connectable item.
          handle
@@ -967,19 +965,17 @@ class ConnectHandleTool(HandleTool):
             return
 
         # low-level connection
-        self.connect_handle(view.canvas, line, handle, item, port)
+        self.connect_handle(line, handle, item, port)
         # connection in higher level of application stack
-        self.post_connect(view, line, handle, item, port)
+        self.post_connect(line, handle, item, port)
 
 
-    def connect_handle(self, canvas, line, handle, item, port):
+    def connect_handle(self, line, handle, item, port):
         """
         Create constraint between handle of a line and port of connectable
         item.
 
         :Parameters:
-         canvas
-            Canvas owning the items.
          line
             Connecting item.
          handle
@@ -992,7 +988,7 @@ class ConnectHandleTool(HandleTool):
         ConnectHandleTool.create_constraint(line, handle, item, port)
 
         handle.connected_to = item
-        handle.disconnect = DisconnectHandle(canvas, line, handle)
+        handle.disconnect = DisconnectHandle(line, handle)
 
 
     def disconnect(self, view, line, handle):
@@ -1096,8 +1092,8 @@ class ConnectHandleTool(HandleTool):
 
 class DisconnectHandle(object):
 
-    def __init__(self, canvas, item, handle):
-        self.canvas = canvas
+    def __init__(self, item, handle):
+        self.canvas = item.canvas
         self.item = item
         self.handle = handle
 
