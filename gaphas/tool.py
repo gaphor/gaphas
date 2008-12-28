@@ -919,9 +919,10 @@ class ConnectHandleTool(HandleTool):
 
     def post_connect(self, line, handle, item, port):
         """
-        The method is invoked just before connection is performed by
-        `ConnectHandleTool.connect` method. It can be overriden by deriving
-        tools to perform connection in higher level of application stack.
+        The method is invoked just after low-level connection is performed
+        by `ConnectHandleTool.connect` method. It can be overriden by
+        deriving tools to perform connection in higher level of application
+        stack.
 
         :Parameters:
          line
