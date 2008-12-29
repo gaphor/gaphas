@@ -967,6 +967,7 @@ class ConnectHandleTool(HandleTool):
 
         # low-level connection
         self.connect_handle(line, handle, item, port)
+
         # connection in higher level of application stack
         self.post_connect(line, handle, item, port)
 
@@ -986,7 +987,7 @@ class ConnectHandleTool(HandleTool):
          port
             Port of connectable item.
         """
-        ConnectHandleTool.create_constraint(line, handle, item, port)
+        self.create_constraint(line, handle, item, port)
 
         handle.connected_to = item
         handle.disconnect = DisconnectHandle(line, handle)
