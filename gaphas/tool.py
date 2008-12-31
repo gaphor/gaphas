@@ -849,18 +849,38 @@ class ConnectHandleTool(HandleTool):
         if not handle.connectable:
             return None
 
+        item, port, glue_pos = \
+                self.find_connectable_port(view, vpos, exclude_item=line)
+
+        # check if line and found item can be connected on closest port
+        if port is not None and \
+                not self.can_glue(view, line, handle, item, port):
+            item, port = None, None
+
+        if port is not None:
+            # transform coordinates from view space to the line space and
+            # update position of line's handle
+            v2i = view.get_matrix_v2i(line).transform_point
+            handle.pos = v2i(*glue_pos)
+ 
+        # else item and port will be set to None
+ 
+        return item, port
+ 
+    def find_connectable_port(self, view, vpos, exclude_item=None):
         dist = self.GLUE_DISTANCE
+        v2i = view.get_matrix_v2i
+        vx, vy = vpos
+
         max_dist = dist
         port = None
         glue_pos = None
         item = None
-        v2i = view.get_matrix_v2i
-        vx, vy = vpos
 
         rect = (vx - dist, vy - dist, dist * 2, dist * 2)
         items = view.get_items_in_rectangle(rect, reverse=True)
         for i in items:
-            if i is line:
+            if i is exclude_item:
                 continue
             for p in i.ports():
                 if not p.connectable:
@@ -880,18 +900,7 @@ class ConnectHandleTool(HandleTool):
                 i2v = view.get_matrix_i2v(i).transform_point
                 glue_pos = i2v(*pg)
 
-        # check if line and found item can be connected on closest port
-        if port is not None \
-                and not self.can_glue(view, line, handle, item, port):
-            item, port = None, None
-
-        if port is not None:
-            # transform coordinates from view space to the line space and
-            # update position of line's handle
-            v2i = view.get_matrix_v2i(line).transform_point
-            handle.pos = v2i(*glue_pos)
-
-        return item, port
+        return item, port, glue_pos
 
 
     def can_glue(self, view, line, handle, item, port):
