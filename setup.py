@@ -89,7 +89,7 @@ GTK+ and PyGTK_ are required.
     setup_requires = 'nose >= 0.9.2',
 
     install_requires=[
-     'decorator >= 2.2.0',
+     'decorator >= 3.0.0',
 #    'PyGTK >= 2.8.0',
     ],
 
