@@ -31,6 +31,10 @@ An Item can have a set of Handle's (from connector.py) which can be used to
 manipulate the item (although this is not necessary). Each item has it's own
 coordinate system (a (0, 0) point). Item.matrix is the transformation
 relative to the parent item of the Item, as defined in the Canvas.
+Handles can connect to Ports. A Port is a location (line or point) where a
+handle is allowed to connect on another item. The process of connecting
+depends on the case at hand, but most often involves the creation of some
+sort of constraint between the Handle and the item it's connecting to.
 
 The Canvas also contains a constraint Solver (from solver.py) that can be used
 to solve mathematical dependencies between items (such as Handles that should

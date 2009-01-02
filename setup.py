@@ -54,8 +54,8 @@ Some more features:
   maintained by a linear constraint solver.
 - Multiple views on one Canvas.
 - What is drawn is determined by Painters. Multiple painters can be used and
-  painters can be stacked.
-- User interaction is handled by Tools. Tools can be stacked.
+  painters can be chained.
+- User interaction is handled by Tools. Tools can be chained.
 - Versatile undo/redo system
 
 GTK+ and PyGTK_ are required.
