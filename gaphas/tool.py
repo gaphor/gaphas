@@ -850,7 +850,7 @@ class ConnectHandleTool(HandleTool):
             return None
 
         item, port, glue_pos = \
-                self.find_item_at_point(view, vpos, exclude=(line,))
+                self.get_item_at_point(view, vpos, exclude=(line,))
 
         # check if line and found item can be connected on closest port
         if port is not None and \
@@ -867,7 +867,7 @@ class ConnectHandleTool(HandleTool):
         return item, port
 
  
-    def find_item_at_point(self, view, vpos, exclude=None):
+    def get_item_at_point(self, view, vpos, exclude=None):
         """
         Find item with closest, connectable port to specified position.
 
