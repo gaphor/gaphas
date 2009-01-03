@@ -878,7 +878,7 @@ class ConnectHandleTool(HandleTool):
 
         - found item
         - closest port
-        - closest point on found port
+        - closest point on found port (in view coordinates)
 
         :Parameters:
          view
