@@ -850,7 +850,7 @@ class ConnectHandleTool(HandleTool):
             return None
 
         item, port, glue_pos = \
-                self.find_connectable_port(view, vpos, exclude_item=line)
+                self.find_item_at_point(view, vpos, exclude=(line,))
 
         # check if line and found item can be connected on closest port
         if port is not None and \
@@ -864,10 +864,30 @@ class ConnectHandleTool(HandleTool):
             handle.pos = v2i(*glue_pos)
  
         # else item and port will be set to None
- 
         return item, port
+
  
-    def find_connectable_port(self, view, vpos, exclude_item=None):
+    def find_item_at_point(self, view, vpos, exclude=None):
+        """
+        Find item with closest, connectable port to specified position.
+
+        List of items to be ignored can be specified with `exclude`
+        parameter.
+
+        Tuple is returned
+
+        - found item
+        - closest port
+        - closest point on found port
+
+        :Parameters:
+         view
+            View used by user.
+         vpos
+            Position specified in view coordinates.
+         exclude
+            Set of items to ignore.
+        """
         dist = self.GLUE_DISTANCE
         v2i = view.get_matrix_v2i
         vx, vy = vpos
@@ -880,7 +900,7 @@ class ConnectHandleTool(HandleTool):
         rect = (vx - dist, vy - dist, dist * 2, dist * 2)
         items = view.get_items_in_rectangle(rect, reverse=True)
         for i in items:
-            if i is exclude_item:
+            if i in exclude:
                 continue
             for p in i.ports():
                 if not p.connectable:
