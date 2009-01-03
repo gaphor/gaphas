@@ -869,7 +869,7 @@ class ConnectHandleTool(HandleTool):
  
     def get_item_at_point(self, view, vpos, exclude=None):
         """
-        Find item with closest, connectable port to specified position.
+        Find item with port closest to specified position.
 
         List of items to be ignored can be specified with `exclude`
         parameter.
@@ -877,7 +877,7 @@ class ConnectHandleTool(HandleTool):
         Tuple is returned
 
         - found item
-        - closest port
+        - closest, connectable port
         - closest point on found port (in view coordinates)
 
         :Parameters:
