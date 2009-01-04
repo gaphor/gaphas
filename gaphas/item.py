@@ -143,6 +143,41 @@ class Item(object):
         """
         pass
 
+
+    def normalize(self):
+        """
+        Update handle positions of the item, so the first handle is always
+        located at (0, 0).
+        
+        Note that, since this method basically does some housekeeping during
+        the update phase, there's no need to keep track of the changes.
+
+        Alternative implementation can also be created, e.g. set (0, 0) in
+        the center of a circle or change it depending on the location of a
+        rotation poiny.
+
+        Returns ``True`` if some updates have been done, ``False`` otherwise.
+
+        TODO: Add a decorator that prevents the matrix and handle position to
+              be observed.
+        """
+        updated = False
+        handles = self._handles
+        if handles:
+            x, y = map(float, handles[0].pos)
+            if x:
+                self.matrix._matrix.translate(x, 0)
+                updated = True
+                for h in handles:
+                    h.x._value -= x
+            if y:
+                self.matrix._matrix.translate(0, y)
+                updated = True
+                for h in handles:
+                    h.y._value -= y
+        return updated
+
+
     def draw(self, context):
         """
         Render the item to a canvas view.

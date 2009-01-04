@@ -544,6 +544,11 @@ class Canvas(object):
             for h in item.handles():
                 request_resolve(h.x, projections_only=True)
                 request_resolve(h.y, projections_only=True)
+            # TODO: force updates for ports. Keep in mind the types:
+            #       PointPort and LinePort
+            #for p in item.ports():
+            #    request_resolve(p.x, projections_only=True)
+            #    request_resolve(p.y, projections_only=True)
 
         # solve all constraints
         self._solver.solve()
@@ -583,21 +588,9 @@ class Canvas(object):
         """
         dirty_matrix_items = set()
         for item in items:
-            handles = item.handles()
-            if not handles:
-                continue
-            x, y = map(float, handles[0].pos)
-            if x:
-                item.matrix._matrix.translate(x, 0)
+            if item.normalize():
                 dirty_matrix_items.add(item)
-                for h in handles:
-                    h.x._value -= x
-            if y:
-                item.matrix._matrix.translate(0, y)
-                dirty_matrix_items.add(item)
-                for h in handles:
-                    h.y._value -= y
-
+                
         return dirty_matrix_items
 
 
