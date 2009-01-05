@@ -43,7 +43,7 @@ class PortoBox(Box):
     Box item with few falvours of port(o)s.
     
     Default box ports are disabled. Three, non-default connectable ports
-    are created (represented by ``x`` on the picture)
+    are created (represented by ``x`` on the picture).
 
     - point port on the east edge, movable with a handle
     - static point port in the middle of the south edge
