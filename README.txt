@@ -34,7 +34,8 @@ relative to the parent item of the Item, as defined in the Canvas.
 Handles can connect to Ports. A Port is a location (line or point) where a
 handle is allowed to connect on another item. The process of connecting
 depends on the case at hand, but most often involves the creation of some
-sort of constraint between the Handle and the item it's connecting to.
+sort of constraint between the Handle and the item it's connecting to (see
+doc/ports.txt).
 
 The Canvas also contains a constraint Solver (from solver.py) that can be used
 to solve mathematical dependencies between items (such as Handles that should
