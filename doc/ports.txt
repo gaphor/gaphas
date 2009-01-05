@@ -69,3 +69,12 @@ solver variables).
 
 `ConnectHandleTool` class provides functionality to allow an user to
 perform connections between items. 
+
+Examples
+--------
+Examples of ports can be found in Gaphas and Gaphor source code
+
+- `gaphas.item.Line` and `gaphas.item.Element` classes
+- `gaphas.examples.PortoBox` class has an example of movable port
+- Gaphor interface, lifeline and assembly connector items have own specific
+  ports
