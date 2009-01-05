@@ -78,8 +78,8 @@ class PortoBox(Box):
 
         # keep movable port at right edge
         self.constraint(vertical=(self._hm.pos, ne.pos), delta=10)
-        #self.constraint(above=(ne.pos, self._hm.pos))
-        #self.constraint(above=(self._hm.pos, se.pos))
+        self.constraint(above=(ne.pos, self._hm.pos))
+        self.constraint(above=(self._hm.pos, se.pos))
 
         # static point port
         self._sport = PointPort(VariablePoint((width / 2.0, height)))
