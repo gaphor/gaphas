@@ -38,43 +38,53 @@ class Box(Element):
         c.stroke()
 
 
-class BoxX(Box):
+class PortoBox(Box):
     """
-    It is a Box but with additional port (see "x" below).
+    Box item with few falvours of ports.
+    
+    Default box ports are disabled. Three, non-default connectable ports
+    are created (represented by ``x`` on the picture)
 
-     NW +--------+ NE
-        |        |
-        |        |
-        |        |x
-        |        |
-     SW +--------+ SE
+    - point port on the east edge, movable with a handle
+    - static point port in the middle of the south edge
+    - line port from nort-west to south east corner
+
+         NW +--------+ NE
+            |xx      |
+            |  xx    |x
+            |    xx  |
+            |      xx|
+         SW +--------+ SE
+                x
     """
     def __init__(self, width=10, height=10):
-        super(BoxX, self).__init__(width, height)
-        self._hx = Handle(strength=WEAK)
-        #self._hx.movable = False
-        #self._hx.visible = False
-        self._handles.append(self._hx)
-        # define 'x' port
-        self._ports.append(PointPort(self._hx.pos))
+        super(PortoBox, self).__init__(width, height)
 
-        # keep hx handle at right edge, at 80% of height of the box
+        nw = self._handles[NW]
         ne = self._handles[NE]
         se = self._handles[SE]
-        hxc1 = EqualsConstraint(ne.x, self._hx.x, delta=10)
-        #hxc2 = BalanceConstraint(band=(ne.y, se.y), v=self._hx.y, balance=0.8)
-        self._constraints.append(hxc1)
-        #self._constraints.append(hxc2)
+
+        # handle for movable port
+        self._hm = Handle(strength=WEAK)
+        self._handles.append(self._hm)
+
+        # movable port
+        self._ports.append(PointPort(self._hm.pos))
+
+        # keep movable port at right edge
+        self.constraint(vertical=(self._hm.pos, ne.pos), delta=10)
+        #self.constraint(above=(ne.pos, self._hm.pos))
+        #self.constraint(above=(self._hm.pos, se.pos))
 
 
     def draw(self, context):
-        super(BoxX, self).draw(context)
+        super(PortoBox, self).draw(context)
         c = context.cairo
 
-        # draw 'x' port
-        hx = self._hx
-        c.rectangle(hx.x - 20 , hx.y - 5, 20, 10)
-        c.rectangle(hx.x - 1 , hx.y - 1, 2, 2)
+        # draw movable port
+        hm = self._hm
+        c.rectangle(hm.x - 20 , hm.y - 5, 20, 10)
+        c.rectangle(hm.x - 1 , hm.y - 1, 2, 2)
         if context.hovered:
             c.set_source_rgba(.0, .8, 0, .8)
         else:

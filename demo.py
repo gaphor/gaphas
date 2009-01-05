@@ -24,7 +24,7 @@ import math
 import gtk
 import cairo
 from gaphas import Canvas, GtkView, View
-from gaphas.examples import Box, BoxX, Text, FatLine, Circle
+from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool, LineSegmentTool
 from gaphas.painter import ItemPainter
@@ -359,7 +359,7 @@ def create_canvas(c=None):
     c.add(circle)
 
     # AJM: extra boxes:
-    bb=Box()
+    bb = Box()
     print 'box', bb
     bb.matrix.rotate(math.pi/4.)
     c.add(bb, parent=b)
@@ -369,18 +369,18 @@ def create_canvas(c=None):
 #        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
 #        c.add(bb, parent=b)
 
-    b=BoxX()
+    b = PortoBox()
     b.min_width = 40
     b.min_height = 50
     b.width = b.height = 60
     b.matrix.translate(55, 55)
     c.add(b)
 
-    t=MyText('Single line')
+    t = MyText('Single line')
     t.matrix.translate(70,70)
     c.add(t)
 
-    l=MyLine()
+    l = MyLine()
     l.handles()[1].pos = (30, 30)
     tool = LineSegmentTool()
     tool.split_segment(l, 0, 3)

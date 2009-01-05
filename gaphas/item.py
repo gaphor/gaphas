@@ -227,10 +227,10 @@ class Item(object):
         cc = None # created constraint
         if horizontal is not None:
             p1, p2 = horizontal
-            cc = EqualsConstraint(p1[1], p2[1])
+            cc = EqualsConstraint(p1[1], p2[1], delta)
         elif vertical is not None:
             p1, p2 = vertical
-            cc = EqualsConstraint(p1[0], p2[0])
+            cc = EqualsConstraint(p1[0], p2[0], delta)
         elif left_of is not None:
             p1, p2 = left_of
             cc = LessThanConstraint(p1[1], p2[1], delta)
