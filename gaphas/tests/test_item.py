@@ -76,8 +76,8 @@ class ItemConstraintTestCase(unittest.TestCase):
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, LessThanConstraint))
-        self.assertEquals(2, c.smaller)
-        self.assertEquals(4, c.bigger)
+        self.assertEquals(1, c.smaller)
+        self.assertEquals(3, c.bigger)
 
 
     def test_above_constraint(self):
@@ -92,5 +92,5 @@ class ItemConstraintTestCase(unittest.TestCase):
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, LessThanConstraint))
-        self.assertEquals(1, c.smaller)
-        self.assertEquals(3, c.bigger)
+        self.assertEquals(2, c.smaller)
+        self.assertEquals(4, c.bigger)

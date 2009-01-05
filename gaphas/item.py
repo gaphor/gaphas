@@ -233,10 +233,10 @@ class Item(object):
             cc = EqualsConstraint(p1[0], p2[0], delta)
         elif left_of is not None:
             p1, p2 = left_of
-            cc = LessThanConstraint(p1[1], p2[1], delta)
+            cc = LessThanConstraint(p1[0], p2[0], delta)
         elif above is not None:
             p1, p2 = above
-            cc = LessThanConstraint(p1[0], p2[0], delta)
+            cc = LessThanConstraint(p1[1], p2[1], delta)
         elif line is not None:
             pos, l = line
             if align is None:
