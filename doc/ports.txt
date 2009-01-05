@@ -50,7 +50,7 @@ like::
 
             self.port = LinePort(self.start.pos, self.end.pos)
 
-            self.constraint(horizontal(self.start.pos, self.end.pos))
+            self.constraint(horizontal=(self.start.pos, self.end.pos))
 
 In case of `Element` item, each line port references positions of two
 handles, which keeps ports to lie over edges of rectangle. The same applies
