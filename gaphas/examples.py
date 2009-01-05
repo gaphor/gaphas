@@ -7,7 +7,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from gaphas.item import Element, Item, NW, NE,SW, SE
-from gaphas.connector import Handle, PointPort
+from gaphas.connector import Handle, PointPort, VariablePoint
 from gaphas.constraint import LessThanConstraint, EqualsConstraint, \
     BalanceConstraint
 from gaphas.solver import solvable, WEAK
@@ -40,7 +40,7 @@ class Box(Element):
 
 class PortoBox(Box):
     """
-    Box item with few falvours of ports.
+    Box item with few falvours of port(o)s.
     
     Default box ports are disabled. Three, non-default connectable ports
     are created (represented by ``x`` on the picture)
@@ -61,6 +61,7 @@ class PortoBox(Box):
         super(PortoBox, self).__init__(width, height)
 
         nw = self._handles[NW]
+        sw = self._handles[SW]
         ne = self._handles[NE]
         se = self._handles[SE]
 
@@ -76,15 +77,23 @@ class PortoBox(Box):
         #self.constraint(above=(ne.pos, self._hm.pos))
         #self.constraint(above=(self._hm.pos, se.pos))
 
+        self._sport = PointPort(VariablePoint((width / 2.0, height)))
+        l = sw.pos, se.pos
+        self.constraint(line=(self._sport.point, l))
+
 
     def draw(self, context):
         super(PortoBox, self).draw(context)
         c = context.cairo
 
         # draw movable port
-        hm = self._hm
-        c.rectangle(hm.x - 20 , hm.y - 5, 20, 10)
-        c.rectangle(hm.x - 1 , hm.y - 1, 2, 2)
+        x, y = self._hm.pos
+        c.rectangle(x - 20 , y - 5, 20, 10)
+        c.rectangle(x - 1 , y - 1, 2, 2)
+
+        x, y = self._sport.point
+        c.rectangle(x - 2 , y - 2, 4, 4)
+
         if context.hovered:
             c.set_source_rgba(.0, .8, 0, .8)
         else:
