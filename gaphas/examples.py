@@ -7,7 +7,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from gaphas.item import Element, Item, NW, NE,SW, SE
-from gaphas.connector import Handle, PointPort, VariablePoint
+from gaphas.connector import Handle, PointPort, LinePort, VariablePoint
 from gaphas.constraint import LessThanConstraint, EqualsConstraint, \
     BalanceConstraint
 from gaphas.solver import solvable, WEAK
@@ -60,6 +60,10 @@ class PortoBox(Box):
     def __init__(self, width=10, height=10):
         super(PortoBox, self).__init__(width, height)
 
+        # disable default ports
+        for p in self._ports:
+            p.connectable = False
+
         nw = self._handles[NW]
         sw = self._handles[SW]
         ne = self._handles[NE]
@@ -77,9 +81,15 @@ class PortoBox(Box):
         #self.constraint(above=(ne.pos, self._hm.pos))
         #self.constraint(above=(self._hm.pos, se.pos))
 
+        # static point port
         self._sport = PointPort(VariablePoint((width / 2.0, height)))
         l = sw.pos, se.pos
         self.constraint(line=(self._sport.point, l))
+        self._ports.append(self._sport)
+
+        # line port
+        self._lport = LinePort(nw.pos, se.pos)
+        self._ports.append(self._lport)
 
 
     def draw(self, context):
@@ -91,8 +101,15 @@ class PortoBox(Box):
         c.rectangle(x - 20 , y - 5, 20, 10)
         c.rectangle(x - 1 , y - 1, 2, 2)
 
+        # draw static port
         x, y = self._sport.point
         c.rectangle(x - 2 , y - 2, 4, 4)
+
+        # draw line port
+        x1, y1 = self._lport.start
+        x2, y2 = self._lport.end
+        c.move_to(x1, y1)
+        c.line_to(x2, y2)
 
         if context.hovered:
             c.set_source_rgba(.0, .8, 0, .8)
