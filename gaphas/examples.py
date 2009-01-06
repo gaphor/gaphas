@@ -47,7 +47,7 @@ class PortoBox(Box):
 
     - point port on the east edge, movable with a handle
     - static point port in the middle of the south edge
-    - line port from nort-west to south east corner
+    - line port from north-west to south east corner
 
          NW +--------+ NE
             |xx      |
@@ -71,6 +71,7 @@ class PortoBox(Box):
 
         # handle for movable port
         self._hm = Handle(strength=WEAK)
+        self._hm.pos = width, height / 2.0
         self._handles.append(self._hm)
 
         # movable port

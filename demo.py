@@ -369,10 +369,9 @@ def create_canvas(c=None):
 #        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
 #        c.add(bb, parent=b)
 
-    b = PortoBox()
+    b = PortoBox(60, 60)
     b.min_width = 40
     b.min_height = 50
-    b.width = b.height = 60
     b.matrix.translate(55, 55)
     c.add(b)
 
