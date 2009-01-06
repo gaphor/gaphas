@@ -8,12 +8,9 @@ __version__ = "$Revision$"
 
 from gaphas.item import Element, Item, NW, NE,SW, SE
 from gaphas.connector import Handle, PointPort, LinePort, VariablePoint
-from gaphas.constraint import LessThanConstraint, EqualsConstraint, \
-    BalanceConstraint
 from gaphas.solver import solvable, WEAK
 import tool
-from util import text_extents, text_align, text_multiline, path_ellipse
-from cairo import Matrix
+from util import text_align, text_multiline, path_ellipse
 
 class Box(Element):
     """ A Box has 4 handles (for a start):
@@ -156,9 +153,11 @@ class FatLine(Item):
         self._handles.extend((Handle(), Handle()))
 
         h1, h2 = self._handles
-        cons = self._constraints
-        cons.append(EqualsConstraint(a=h1.x, b=h2.x))
-        cons.append(LessThanConstraint(smaller=h1.y, bigger=h2.y, delta=20))
+
+        self._ports.append(LinePort(h1.pos, h2.pos))
+
+        self.constraint(vertical=(h1.pos, h2.pos))
+        self.constraint(above=(h1.pos, h2.pos), delta=20)
 
 
     def _set_height(self, height):
