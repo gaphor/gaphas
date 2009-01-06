@@ -148,6 +148,11 @@ class Text(Item):
 
 
 class FatLine(Item):
+    """
+    Simple, vertical line with two handles.
+
+    todo: rectangle port instead of line port would be nicer
+    """
     def __init__(self):
         super(FatLine, self).__init__()
         self._handles.extend((Handle(), Handle()))
