@@ -421,6 +421,13 @@ class Canvas(object):
                 import traceback
                 traceback.print_exc()
 
+    def _extend_dirty_items(self, dirty_items):
+        # item's can be marked dirty due to external constraints solving
+        if self._dirty_items:
+            dirty_items.extend(self._dirty_items)
+            self._dirty_items.clear()
+
+            dirty_items = self.sort(set(dirty_items), reverse=True)
 
     @nonrecursive
     def update_now(self):
@@ -433,6 +440,7 @@ class Canvas(object):
             self._dirty_index = False
 
         sort = self.sort
+        extend_dirty_items = self._extend_dirty_items
 
         # perform update requests for parents of dirty items
         dirty_items = self._dirty_items
@@ -461,11 +469,7 @@ class Canvas(object):
             assert not self._dirty_matrix_items, 'No matrices may have been marked dirty (%s)' % (self._dirty_matrix_items,)
 
             # item's can be marked dirty due to external constraints solving
-            if self._dirty_items:
-                dirty_items.extend(self._dirty_items)
-                self._dirty_items.clear()
-
-                dirty_items = sort(set(dirty_items), reverse=True)
+            extend_dirty_items(dirty_items)
 
             assert not self._dirty_items, 'No items may have been marked dirty (%s)' % (self._dirty_items,)
 
@@ -475,6 +479,14 @@ class Canvas(object):
 
             # recalculate matrices of normalized items
             dirty_matrix_items.update(self.update_matrices(normalized_items))
+
+            # ensure constraints are still true after normalization
+            self._solver.solve()
+
+            # item's can be marked dirty due to normalization and solving
+            extend_dirty_items(dirty_items)
+
+            assert not self._dirty_items, 'No items may have been marked dirty (%s)' % (self._dirty_items,)
 
             self._post_update_items(dirty_items, cr)
 

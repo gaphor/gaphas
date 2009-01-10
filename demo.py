@@ -203,8 +203,8 @@ def create_window(canvas, title, zoom=1.0):
             print 'Undo: invoking', event
             saveapply(*event)
             # Visualize each event:
-            while gtk.events_pending():
-                gtk.main_iteration()
+            #while gtk.events_pending():
+            #    gtk.main_iteration()
 
     b.connect('clicked', on_clicked)
     v.add(b)

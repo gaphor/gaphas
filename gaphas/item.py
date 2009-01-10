@@ -166,15 +166,15 @@ class Item(object):
         if handles:
             x, y = map(float, handles[0].pos)
             if x:
-                self.matrix._matrix.translate(x, 0)
+                self.matrix.translate(x, 0)
                 updated = True
                 for h in handles:
-                    h.x._value -= x
+                    h.x -= x
             if y:
-                self.matrix._matrix.translate(0, y)
+                self.matrix.translate(0, y)
                 updated = True
                 for h in handles:
-                    h.y._value -= y
+                    h.y -= y
         return updated
 
 
