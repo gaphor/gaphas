@@ -1,5 +1,5 @@
-Undo - implementing basic undo behavior with Gaphas
-===================================================
+Undo - implementing basic undo behaviour with Gaphas
+====================================================
 
 This document describes a basic undo system and tests Gaphas' classes with this
 system.
@@ -37,87 +37,7 @@ This simple undo function will revert all states collected in the undo_list:
 
 tree.py: Tree
 -------------
-Tree's ``add()`` and ``remove()`` methods are disabled by default.
-
-    >>> from gaphas.tree import Tree
-    >>> state.enable_dispatching(Tree.add)
-    >>> state.enable_dispatching(Tree._remove)
-
-One can create a nice tree:
-
-    >>> tree = Tree()
-    >>> tree.add(1)
-    >>> tree.nodes
-    [1]
-    >>> undo()
-    >>> tree.nodes
-    []
-    >>> undo_list[:] = redo_list[:]
-    >>> undo()
-    >>> tree.nodes
-    [1]
-    
-Adding and removing complete sub-trees also works:
-
-    >>> tree.add(2, parent=1)
-    >>> tree.add(3, parent=2)
-    >>> tree.add(4, parent=2)
-    >>> tree.add(5, parent=4)
-    >>> tree.nodes
-    [1, 2, 3, 4, 5]
-    >>> del undo_list[:]
-    >>> tree.remove(1)
-    >>> tree.nodes
-    []
-    >>> undo()
-    >>> tree.nodes
-    [1, 2, 3, 4, 5]
-    >>> tree.get_children(2)
-    [3, 4]
-    >>> tree.get_children(4)
-    [5]
-
-Undo the last undo action:
-
-    >>> undo_list[:] = redo_list[:]
-    >>> undo()
-    >>> tree.nodes
-    []
-    >>> undo_list[:] = redo_list[:]
-    >>> undo()
-    >>> tree.nodes
-    [1, 2, 3, 4, 5]
-    >>> tree.get_children(2)
-    [3, 4]
-    >>> tree.get_children(4)
-    [5]
-
-Moving a node from one node to another is easy:
-
-    >>> tree.reparent(3, parent=5)
-    >>> tree.get_children(2)
-    [4]
-    >>> tree.get_children(5)
-    [3]
-    >>> tree.nodes
-    [1, 2, 4, 5, 3]
-
-This change can be undone:
-
-    >>> undo()
-    >>> tree.nodes
-    [1, 2, 4, 5, 3]
-    >>> tree.get_children(2)
-    [4, 3]
-    >>> tree.get_children(5)
-    []
-
-As you can see, there's currently one flaw: the item is added at the end of the list.
-
-(disable dispatching again, not frustrating other tests)
-
-    >>> state.disable_dispatching(Tree.add)
-    >>> state.disable_dispatching(Tree._remove)
+Tree has no observed methods.
 
 matrix.py: Matrix
 -----------------
@@ -224,7 +144,9 @@ On the canvas only ``add()`` and ``remove()`` are monitored:
 
 Parent-child relationships are restored as well:
 
-    TODO!
+TODO!
+
+
     >>> child = Item()
     >>> canvas.add(child, parent=item)
     >>> child.canvas is canvas

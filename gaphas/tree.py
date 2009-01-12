@@ -7,8 +7,6 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from operator import attrgetter
-from state import observed, reversible_method, \
-        reversible_pair, disable_dispatching
 
 
 class Tree(object):
@@ -229,7 +227,6 @@ class Tree(object):
             # append to root node:
             nodes.append(node)
 
-    @observed
     def add(self, node, parent=None):
         """
         Add node to the tree. parent is the parent node, which may
@@ -246,7 +243,6 @@ class Tree(object):
         if parent:
             self._parents[node] = parent
 
-    @observed
     def _remove(self, node):
         # Remove from parent item
         self.get_siblings(node).remove(node)
@@ -281,7 +277,6 @@ class Tree(object):
         for c in self._children[node]:
             self._reparent_nodes(c, node)
         
-    @observed
     def reparent(self, node, parent):
         """
         Set new parent for a ``node``. ``Parent`` can be ``None``, indicating
@@ -321,24 +316,6 @@ class Tree(object):
         
         # reorganize nodes
         self._reparent_nodes(node, parent)
-
-
-    reversible_pair(add, _remove,
-            bind1={'parent': lambda self, node: self.get_parent(node) })
-
-    reversible_method(reparent, reverse=reparent,
-            bind={'parent': lambda self, node: self.get_parent(node) })
-
-    # Disable add/remove by default, since they are handled by canvas.Canvas
-    disable_dispatching(add)
-    disable_dispatching(_remove)
-
-
-__test__ = {
-    'Tree.add': Tree.add,
-    'Tree.remove': Tree.remove,
-    'Tree.reparent': Tree.reparent,
-    }
 
 
 # vi:sw=4:et

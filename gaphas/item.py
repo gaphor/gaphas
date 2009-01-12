@@ -13,7 +13,7 @@ from geometry import distance_line_point, distance_rectangle_point
 from gaphas.connector import Handle, LinePort
 from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
 from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
-from state import observed, reversible_method, reversible_pair, reversible_property, disable_dispatching
+from state import observed, reversible_method, reversible_pair, reversible_property
 
 class Item(object):
     """
@@ -158,8 +158,7 @@ class Item(object):
 
         Returns ``True`` if some updates have been done, ``False`` otherwise.
 
-        TODO: Add a decorator that prevents the matrix and handle position to
-              be observed.
+        See ``canvas._normalize()`` for tests.
         """
         updated = False
         handles = self._handles

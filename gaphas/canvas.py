@@ -124,7 +124,7 @@ class Canvas(object):
             h.connected_to = None
             h.disconnect = lambda: 0
 
-
+    @observed
     def reparent(self, item, parent):
         """
         Set new parent for an item.

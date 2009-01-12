@@ -6,7 +6,7 @@ __version__ = "$Revision: 2341 $"
 # $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
 
 from gaphas.solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
-from gaphas.state import observed, reversible_property, disable_dispatching
+from gaphas.state import observed, reversible_property
 from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.constraint import LineConstraint, PositionConstraint
 
@@ -32,19 +32,17 @@ class VariablePoint(object):
         self._x.strength = strength
         self._y.strength = strength
 
-    @observed
+    # _x is a Variable, therefore observed
     def _set_x(self, x):
         self._x = x
 
-    x = reversible_property(lambda s: s._x, _set_x, bind={'x': lambda self: float(self.x) })
-    disable_dispatching(_set_x)
+    x = property(lambda s: s._x, _set_x, bind={'x': lambda self: float(self.x) })
 
-    @observed
+    # _y is a Variable, therefore observed
     def _set_y(self, y):
         self._y = y
 
-    y = reversible_property(lambda s: s._y, _set_y, bind={'y': lambda self: float(self.y) })
-    disable_dispatching(_set_y)
+    y = property(lambda s: s._y, _set_y, bind={'y': lambda self: float(self.y) })
 
     @observed
     def _set_pos(self, pos):
