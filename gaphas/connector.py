@@ -36,13 +36,13 @@ class VariablePoint(object):
     def _set_x(self, x):
         self._x = x
 
-    x = property(lambda s: s._x, _set_x, bind={'x': lambda self: float(self.x) })
+    x = property(lambda s: s._x, _set_x)
 
     # _y is a Variable, therefore observed
     def _set_y(self, y):
         self._y = y
 
-    y = property(lambda s: s._y, _set_y, bind={'y': lambda self: float(self.y) })
+    y = property(lambda s: s._y, _set_y)
 
     @observed
     def _set_pos(self, pos):
