@@ -104,8 +104,6 @@ GTK+ and PyGTK_ are required.
 
     test_suite = 'nose.collector',
 
-    # TODO: include doc/ in tests!
-
     cmdclass={'build_doc': build_doc },
     )
       
