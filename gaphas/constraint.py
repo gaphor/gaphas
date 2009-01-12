@@ -60,12 +60,15 @@ class Constraint(object):
         Create new constraint, register all variables, and find weakest
         variables.
         """
-        self._solver_has_projections = False 
         self._variables = []
         for v in variables:
             self._variables.append(v)
 
         self.create_weakest_list()
+
+        # Used by the Solver for efficiency
+        self._solver_has_projections = False 
+
 
     def create_weakest_list(self):
         """
@@ -185,6 +188,7 @@ class CenterConstraint(Constraint):
         self.b = b
         self.center = center
 
+
     def solve_for(self, var):
         assert var in (self.a, self.b, self.center)
 
@@ -225,12 +229,14 @@ class LessThanConstraint(Constraint):
         self.bigger = bigger
         self.delta = delta
 
+
     def solve_for(self, var):
         if self.smaller.value > self.bigger.value - self.delta:
             if var is self.smaller:
                 self.bigger.value = self.smaller.value + self.delta
             elif var is self.bigger:
                 self.smaller.value = self.bigger.value - self.delta
+
 
 
 # Constants for the EquationConstraint
@@ -267,6 +273,7 @@ class EquationConstraint(Constraint):
             self._args[arg] = None
         self._set(**args)
 
+
     def __repr__(self):
         argstring = ', '.join(['%s=%s' % (arg, str(value)) for (arg, value) in
                              self._args.items()])
@@ -275,12 +282,14 @@ class EquationConstraint(Constraint):
         else:
             return 'EquationConstraint(%s)' % self._f.func_code.co_name
 
+
     def __getattr__(self, name):
         """
         Used to extract function argument values.
         """
         self._args[name]
         return self.solve_for(name)
+
 
     def __setattr__(self, name, value):
         """
@@ -299,6 +308,7 @@ class EquationConstraint(Constraint):
                 raise KeyError, name
         else:
             object.__setattr__(self, name, value)
+
 
     def _set(self, **args):
         """
@@ -429,6 +439,7 @@ class BalanceConstraint(Constraint):
         _update(var, value)
 
 
+
 class LineConstraint(Constraint):
     """
     Ensure a point is kept on a line.
@@ -444,6 +455,7 @@ class LineConstraint(Constraint):
         self._line = line
         self._point = point
         self.update_ratio()
+
 
     def update_ratio(self):
         """
@@ -479,6 +491,7 @@ class LineConstraint(Constraint):
     def solve_for(self, var=None):
         self._solve()
 
+
     def _solve(self):
         """
         Solve the equation for the connected_handle.
@@ -506,6 +519,7 @@ class LineConstraint(Constraint):
 
         _update(px, x)
         _update(py, y)
+
 
 
 class PositionConstraint(Constraint):
