@@ -40,6 +40,7 @@ class View(object):
         self._dropzone_item = None
 
         self._qtree = Quadtree()
+        self._bounds = Rectangle(0, 0, 0, 0)
 
         self._canvas = None
         if canvas:
