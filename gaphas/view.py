@@ -250,7 +250,7 @@ class View(object):
 
     def set_item_bounding_box(self, item, bounds):
         """
-        Update the bounding box of the item (in canvas coordinates).
+        Update the bounding box of the item (in item coordinates).
 
         Coordinates are calculated back to item coordinates, so matrix-only
         updates can occur.
@@ -268,7 +268,7 @@ class View(object):
         return self._qtree.get_bounds(item)
 
 
-    bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
+    bounding_box = property(lambda s: s._bounds) #Rectangle(*s._qtree.soft_bounds))
 
 
     def update_bounding_box(self, cr, items=None):
@@ -470,29 +470,30 @@ class GtkView(gtk.DrawingArea, View):
         self.queue_draw_refresh()
 
 
-    def _update_adjustment(self, adjustment, value, canvas_size, canvas_offset, viewport_size):
+    def _update_adjustment(self, adjustment, canvas_size, viewport_size):
         """
+        Update one gtk.Adjustment instance. Values are in view coordinates.
+
         >>> v = GtkView()
         >>> a = gtk.Adjustment()
         >>> v._hadjustment = a
-        >>> v._update_adjustment(a, 10, 100, 0, 20)
+        >>> v._update_adjustment(a, 100, 20)
         >>> a.page_size, a.page_increment, a.value
         (20.0, 20.0, 0.0)
         """
-        #canvas_size += viewport_size
-        #canvas_offset -= viewport_size
-        if viewport_size != adjustment.page_size or canvas_size != adjustment.upper:
+        canvas_size = max(canvas_size, viewport_size)
+        view_size = canvas_size + viewport_size
+        if viewport_size != adjustment.page_size or view_size != adjustment.upper:
+            adjustment.lower = 0
+            adjustment.upper = view_size
             adjustment.page_size = viewport_size
             adjustment.page_increment = viewport_size
-            adjustment.step_increment = viewport_size/10
-            adjustment.upper = adjustment.value + canvas_offset + canvas_size
-            adjustment.lower = 0 #adjustment.value + canvas_offset
-        
-        if adjustment.value > adjustment.upper - viewport_size:
-            adjustment.value = adjustment.upper - viewport_size
+            adjustment.step_increment = viewport_size / 10
+
+        if adjustment.value > canvas_size:
+            adjustment.value = canvas_size
         elif adjustment.value < 0:
             adjustment.value = 0
-
 
     @async(single=True)
     def update_adjustments(self, allocation=None):
@@ -504,17 +505,15 @@ class GtkView(gtk.DrawingArea, View):
 
         # Define a minimal view size:
         aw, ah = allocation.width, allocation.height 
-        x, y, w, h = self.bounding_box + (self.matrix.transform_point(0, 0) + (aw * 2, ah * 2))
+        x, y, w, h = self.bounding_box
+        ox, oy = self.matrix.transform_point(0, 0)
+
         self._update_adjustment(self._hadjustment,
-                                value = self._hadjustment.value,
-                                canvas_size=w,
-                                canvas_offset=x,
-                                viewport_size=allocation.width)
+                                canvas_size=w + x - ox,
+                                viewport_size=aw)
         self._update_adjustment(self._vadjustment,
-                                value = self._vadjustment.value,
-                                canvas_size=h,
-                                canvas_offset=y,
-                                viewport_size=allocation.height)
+                                canvas_size=h + y - oy,
+                                viewport_size=aw)
 
         x, y, w, h = self._qtree.bounds
         if w != aw or h != ah:
@@ -734,9 +733,9 @@ class GtkView(gtk.DrawingArea, View):
         value of the x/y adjustment (scrollbar).
         """
         if adj is self._hadjustment:
-            self._matrix.translate(- self._matrix[4] / self._matrix[0] - adj.value , 0)
+            self._matrix.translate(- self._matrix[4] - adj.value , 0)
         elif adj is self._vadjustment:
-            self._matrix.translate(0, - self._matrix[5] / self._matrix[3] - adj.value)
+            self._matrix.translate(0, - self._matrix[5] - adj.value)
 
         # Force recalculation of the bounding boxes:
         map(self.update_matrix, self._canvas.get_all_items())

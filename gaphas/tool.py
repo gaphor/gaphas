@@ -653,7 +653,7 @@ class PanTool(Tool):
         self.speed = 10
 
     def on_button_press(self,context,event):
-        if event.button == 2:
+        if event.button == 2 and not event.state:
             context.grab()
             self.x0, self.y0 = event.x, event.y
             return True
@@ -664,7 +664,7 @@ class PanTool(Tool):
         return True
 
     def on_motion_notify(self, context, event):
-        if event.state & gtk.gdk.BUTTON2_MASK:
+        if event.state & gtk.gdk.BUTTON2_MASK and not event.state:
             view = context.view
             dx = self.x0 - event.x
             dy = self.y0 - event.y
@@ -682,6 +682,9 @@ class PanTool(Tool):
             return True
 
     def on_scroll(self, context, event):
+        # No modifiers:
+        if event.state:
+            return
         direction = event.direction
         gdk = gtk.gdk
         adj = None
