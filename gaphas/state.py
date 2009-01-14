@@ -91,6 +91,11 @@ def enable_dispatching(func, enable=True):
     >>> enable_dispatching(callme, False)
     >>> callme()
 
+    Calling multiple times has no effect.
+
+    >>> enable_dispatching(callme, False)
+    >>> callme()
+
     ... and enable it again:
 
     >>> enable_dispatching(callme)

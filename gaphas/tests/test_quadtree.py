@@ -72,6 +72,26 @@ class QuadtreeTestCase(unittest.TestCase):
         assert len(qtree._bucket._buckets[1].items) == 10, \
                 qtree._bucket._buckets[1].items
 
+
+    def test_get_data(self):
+        """
+        Extra data may be added to a node:
+        """
+        qtree = Quadtree((0, 0, 100, 100))
+        for i in range(0, 100, 10):
+            for j in range(0, 100, 10):
+                qtree.add("%dx%d" % (i, j), (i, j, 10, 10), i+j)
+
+        for i in range(0, 100, 10):
+            for j in range(0, 100, 10):
+                assert i+j == qtree.get_data("%dx%d" % (i, j))
+
+    def test_clipped_bounds(self):
+        qtree = Quadtree((0, 0, 100, 100), capacity=10)
+        qtree.add(1, (-100, -100, 120, 120))
+        self.assertEquals((0, 0, 20, 20), qtree.get_clipped_bounds(1))
+
+
 if __name__ == '__main__':
     unittest.main()
 
