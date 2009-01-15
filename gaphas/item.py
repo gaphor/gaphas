@@ -7,10 +7,15 @@ __version__ = "$Revision$"
 
 from math import atan2
 from weakref import WeakKeyDictionary
+try:
+    # python 3.0 (better be prepared)
+    from weakref import WeakSet
+except ImportError:
+    from weakset import WeakSet
 
 from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
-from gaphas.connector import Handle, LinePort
+from connector import Handle, LinePort
 from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
 from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
 from state import observed, reversible_method, reversible_pair, reversible_property
@@ -36,6 +41,7 @@ class Item(object):
     - _matrix_i2v:  item to view coordinates matrices
     - _matrix_v2i:  view to item coordinates matrices
     - _sort_key:  used to sort items
+    - _canvas_projections:  used to sort items
     """
 
     def __init__(self):
@@ -52,7 +58,7 @@ class Item(object):
         # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
         self._matrix_i2v = WeakKeyDictionary()
         self._matrix_v2i = WeakKeyDictionary()
-
+	self._canvas_projections = WeakSet()
 
     # _set_canvas() is not observed, since this operation is initialized by
     # Canvas.add() and Canvas.remove()
@@ -281,6 +287,7 @@ class Item(object):
                 del d[n]
             except KeyError:
                 pass
+        # TODO: put _canvas_projections in a tuple or something
         return d
 
 
@@ -292,6 +299,7 @@ class Item(object):
             setattr(self, n, None)
         for n in ('_matrix_i2v', '_matrix_v2i'):
             setattr(self, n, WeakKeyDictionary())
+        self._canvas_projections = WeakSet()
         self.__dict__.update(state)
 
 

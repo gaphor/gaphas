@@ -345,7 +345,7 @@ class Projection(object):
 
     value = property(lambda s: s._var.value, _set_value)
 
-    strength = property(lambda s: s.variable().strength)
+    strength = property(lambda s: s._var.strength)
 
     def variable(self):
         """
@@ -404,6 +404,9 @@ class Solver(object):
         >>> c_eq.weakest()
         Variable(2, 20)
         """
+        # Peel of Projections:
+        while isinstance(variable, Projection):
+            variable = variable.variable()
         for c in variable._constraints:
             if not projections_only or c._solver_has_projections:
                 if not self._solving:

@@ -255,14 +255,14 @@ class Canvas(object):
         """
         Return a set of items that are connected to ``item``.
         The list contains tuples (item, handle). As a result an item may be
-            in the list more than once (depending on the number of handles that
-            are connected). If ``item`` is connected to itself it will also appear
-            in the list.
+        in the list more than once (depending on the number of handles that
+        are connected). If ``item`` is connected to itself it will also appear
+        in the list.
 
-            >>> c = Canvas()
-            >>> from gaphas import item
-            >>> i = item.Line()
-            >>> c.add(i)
+        >>> c = Canvas()
+        >>> from gaphas import item
+        >>> i = item.Line()
+        >>> c.add(i)
         >>> ii = item.Line()
         >>> c.add(ii)
         >>> iii = item.Line()
@@ -553,14 +553,9 @@ class Canvas(object):
         # request solving of external constraints associated with dirty items
         request_resolve = self._solver.request_resolve
         for item in items:
-            for h in item.handles():
-                request_resolve(h.x, projections_only=True)
-                request_resolve(h.y, projections_only=True)
-            # TODO: force updates for ports. Keep in mind the types:
-            #       PointPort and LinePort
-            #for p in item.ports():
-            #    request_resolve(p.x, projections_only=True)
-            #    request_resolve(p.y, projections_only=True)
+            for p in item._canvas_projections:
+                request_resolve(p[0], projections_only=True)
+                request_resolve(p[1], projections_only=True)
 
         # solve all constraints
         self._solver.solve()
@@ -698,10 +693,14 @@ class Canvas(object):
         returned. If there are more than one points, then tuple of
         projected points is returned.
         """
+        def reg(cp):
+            item._canvas_projections.add(cp)
+            return cp
+
         if len(points) == 1:
-            return CanvasProjection(points[0], item)
+            return reg(CanvasProjection(points[0], item))
         elif len(points) > 1:
-            return tuple(CanvasProjection(p, item) for p in points)
+            return tuple(reg(CanvasProjection(p, item)) for p in points)
         else:
             raise AttributeError('There should be at least one point specified')
 

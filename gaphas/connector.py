@@ -238,7 +238,9 @@ class PointPort(Port):
         """
         origin = canvas.project(glue_item, self.point)
         point = canvas.project(item, handle.pos)
-        return PositionConstraint(origin, point)
+        c = PositionConstraint(origin, point)
+        print 'PointPort', c
+        return c #PositionConstraint(origin, point)
 
 
 # vim: sw=4:et:ai
