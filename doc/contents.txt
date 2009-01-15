@@ -7,8 +7,11 @@ Gaphas Documentation
    ports
    state
    undo
+   api
+
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
 
