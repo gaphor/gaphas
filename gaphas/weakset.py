@@ -20,10 +20,11 @@ class WeakSet(object):
     will vanish from any WeakSets it may be a member of at that time.
     """
 
-    def __init__(self):
+    def __init__(self, objs=()):
         # Map id(obj) to obj.  By using ids as keys, we avoid requiring
         # that the elements be hashable or comparable.
         self.data = weakref.WeakValueDictionary()
+        for obj in objs: self.add(obj)
 
     def __len__(self):
         return len(self.data)

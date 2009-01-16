@@ -287,7 +287,7 @@ class Item(object):
                 del d[n]
             except KeyError:
                 pass
-        # TODO: put _canvas_projections in a tuple or something
+        d['_canvas_projections'] = tuple(self._canvas_projections)
         return d
 
 
@@ -299,8 +299,8 @@ class Item(object):
             setattr(self, n, None)
         for n in ('_matrix_i2v', '_matrix_v2i'):
             setattr(self, n, WeakKeyDictionary())
-        self._canvas_projections = WeakSet()
         self.__dict__.update(state)
+        self._canvas_projections = WeakSet(state['_canvas_projections'])
 
 
 [ NW,
