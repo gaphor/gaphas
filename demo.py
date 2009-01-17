@@ -17,8 +17,12 @@ It sports a small canvas and some trivial operations:
 __version__ = "$Revision$"
 # $HeadURL$
 
-import pygtk
-pygtk.require('2.0') 
+try:
+    import pygtk
+except ImportError:
+    pass
+else:
+    pygtk.require('2.0') 
 
 import math
 import gtk
@@ -280,7 +284,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
         try:
-            import pickle
+            import cPickle as pickle
             pickle.dump(view.canvas, f)
         finally:
             f.close()
@@ -294,7 +298,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import pickle
+            import cPickle as pickle
             canvas = pickle.load(f)
             canvas.update_now()
         finally:
