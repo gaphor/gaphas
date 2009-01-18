@@ -1022,6 +1022,7 @@ class ConnectHandleTool(HandleTool):
         self.create_constraint(line, handle, item, port)
 
         handle.connected_to = item
+        handle.connected_port = port
         handle.disconnect = DisconnectHandle(line, handle)
 
 
@@ -1146,6 +1147,7 @@ class DisconnectHandle(object):
         else:
             print 'constraint removed for', item, handle
         handle.connection_data = None
+        handle.connected_port = None
         handle.connected_to = None
         # Remove disconnect handler:
         handle.disconnect = None

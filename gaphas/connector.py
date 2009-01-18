@@ -92,6 +92,7 @@ class Handle(VariablePoint):
         self._movable = movable
         self._visible = True
         self._connected_to = None
+        self._connected_port = None
 
         # User data for the connection (e.g. constraints)
         self._connection_data = None
@@ -124,6 +125,13 @@ class Handle(VariablePoint):
 
     connected_to = reversible_property(lambda s: s._connected_to,
                                        _set_connected_to)
+
+    @observed
+    def _set_connected_port(self, port):
+        self._connected_port = port
+
+    connected_port = reversible_property(lambda s: s._connected_port,
+                                       _set_connected_port)
 
     @observed
     def _set_connection_data(self, connection_data):

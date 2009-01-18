@@ -205,6 +205,8 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         line, head = self._get_line()
         self.tool.connect(self.view, line, head, (120, 50))
         self.assertEquals(self.box1, head.connected_to)
+        self.assertTrue(head.connected_port is self.box1.ports()[0],
+            'port %s' % head.connected_port)
         self.assertTrue(head.connection_data is not None)
         self.assertTrue(isinstance(head.connection_data, LineConstraint))
         self.assertTrue(head.disconnect is not None)
@@ -212,6 +214,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         line, head = self._get_line()
         self.tool.connect(self.view, line, head, (90, 50))
         self.assertTrue(head.connected_to is None)
+        self.assertTrue(head.connected_port is None)
         self.assertTrue(head.connection_data is None)
 
 
@@ -223,6 +226,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
 
         self.tool.disconnect(self.view, line, head)
         self.assertTrue(head.connected_to is None)
+        self.assertTrue(head.connected_port is None)
         self.assertTrue(head.connection_data is None)
 
 
@@ -232,9 +236,11 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.tool.connect(self.view, line, head, (120, 50))
         assert head.connected_to is not None
         item = head.connected_to
+        port = head.connected_port
         constraint = head.connection_data
 
         assert item == self.box1
+        assert port == self.box1.ports()[0]
         assert item != self.box2
 
         # connect to box2, handle's connected item and connection data
@@ -242,7 +248,11 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.tool.connect(self.view, line, head, (120, 150))
         assert head.connected_to is not None
         self.assertEqual(self.box2, head.connected_to)
+        self.assertEqual(self.box2.ports()[0], head.connected_port)
+
+        # old connection does not exist
         self.assertNotEqual(item, head.connected_to)
+        self.assertNotEqual(port, head.connected_port)
         self.assertNotEqual(constraint, head.connection_data)
 
 
@@ -252,16 +262,18 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.tool.connect(self.view, line, head, (120, 50))
         assert head.connected_to is not None
         item = head.connected_to
+        port = head.connected_port
         constraint = head.connection_data
 
         assert item == self.box1
         assert item != self.box2
 
-        # connect to box1 again, handle's connected item should be the same
-        # but connection constraint will differ
+        # connect to box1 again, handle's connected item and port should be
+        # the same but connection constraint will differ
         connected = self.tool.connect(self.view, line, head, (120, 50))
         assert head.connected_to is not None
         self.assertEqual(self.box1, head.connected_to)
+        self.assertEqual(self.box1.ports()[0], head.connected_port)
         self.assertNotEqual(constraint, head.connection_data)
 
 
