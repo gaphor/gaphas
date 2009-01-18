@@ -1,8 +1,33 @@
 Constraints
 ===========
+There are problems related to canvas items, which can be solved in
+`declarative way <http://en.wikipedia.org/wiki/Declarative_programming>`_
+allowing for simpler and less error prone implementation of an item canvas.
 
-Item Point API
---------------
+For example, if an item should be a rectangle, then it could be declared
+that
 
-Variable API
-------------
+- bottom-right vertex should be below and on the left side of top-left
+  vertex
+- two top rectangle vertices should be always at the same y-axis
+- two left rectangle vertices should be always at the same x-axis
+- ...
+
+Above rules are constraints, which need to be applied to a rectangular
+item. The rules can be satisfied (constraints can be solved) using
+`constraint solver <http://en.wikipedia.org/wiki/Constraint_satisfaction_problem>`_.
+
+Gaphas implements its own constraint solver (`gaphas.solver` module).
+`Canvas` and `Item` classes provide API to constraint items.
+
+There are other projects providing constraint solvers
+
+- http://adaptagrams.sourceforge.net/
+- http://www.cs.washington.edu/research/constraints/cassowary/
+
+Item API
+--------
+
+Canvas API
+----------
+
