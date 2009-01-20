@@ -242,10 +242,6 @@ def revert_handler(event):
 
     >>> reversible_pair(SList.add, SList.remove, \
         bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
-    >>> _reverse[SList.add.im_func] # doctest: +ELLIPSIS
-    (<function remove at 0x...>, (['self', 'node'], None, None, None), {})
-    >>> _reverse[SList.remove.im_func] # doctest: +ELLIPSIS
-    (<function add at 0x...>, (['self', 'node', 'before'], None, None, (None,)), {'before': <function <lambda> at ...>})
     >>> def handler(event):
     ...     print 'handle', event
     >>> subscribers.add(handler)
