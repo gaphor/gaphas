@@ -1142,10 +1142,7 @@ class DisconnectHandle(object):
         try:
             canvas.solver.remove_constraint(handle.connection_data)
         except KeyError:
-            print 'constraint was already removed for', item, handle
             pass # constraint was alreasy removed
-        else:
-            print 'constraint removed for', item, handle
         handle.connection_data = None
         handle.connected_port = None
         handle.connected_to = None
