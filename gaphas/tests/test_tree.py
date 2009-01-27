@@ -150,6 +150,12 @@ class TreeTestCase(unittest.TestCase):
 
         assert tree.nodes == [n1, n2, n4, n5, n3], tree.nodes
 
+        tree.reparent(n4, parent=n1, index=0)
+        assert tree.nodes == [n1, n4, n5, n2, n3], tree.nodes
+        assert tree.get_children(n2) == [], tree.get_children(n2)
+        assert tree.get_children(n1) == [n4], tree.get_children(n1)
+        assert tree.get_children(n4) == [n5], tree.get_children(n4)
+
         tree.reparent(n4, parent=None, index=0)
         assert tree.nodes == [n4, n5, n1, n2, n3], tree.nodes
 

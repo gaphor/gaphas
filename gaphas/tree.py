@@ -209,23 +209,55 @@ class Tree(object):
         else:
             raise NotImplemented('index_key should be provided.')
 
-    def _add_to_nodes(self, node, parent):
+    def _add_to_nodes(self, node, parent, index=None):
         """
-        Called only from add()
+        Helper method to place nodes on the right location in the nodes list
+        Called only from add() and reparent()
         """
         nodes = self._nodes
-        if parent:
-            try:
-                next_uncle = self.get_next_sibling(parent)
-            except IndexError:
-                # parent has no younger brothers..
-                # place it before the next uncle of grant_parent:
-                self._add_to_nodes(node, self.get_parent(parent))
+        siblings = self._children[parent]
+        try:
+            atnode = siblings[index]
+        except (TypeError, IndexError):
+            index = len(siblings)
+            #self._add_to_nodes(node, parent)
+            if parent:
+                try:
+                    next_uncle = self.get_next_sibling(parent)
+                except IndexError:
+                    # parent has no younger brothers..
+                    # place it before the next uncle of grant_parent:
+                    return self._add_to_nodes(node, self.get_parent(parent))
+                else:
+                    nodes.insert(nodes.index(next_uncle), node)
             else:
-                nodes.insert(nodes.index(next_uncle), node)
+                # append to root node:
+                nodes.append(node)
         else:
-            # append to root node:
-            nodes.append(node)
+            print nodes, siblings, atnode, node
+            nodes.insert(nodes.index(atnode), node)
+
+
+    def _add(self, node, parent=None, index=None):
+        """
+        Helper method for both add() and reparent().
+        """
+        assert node not in self._nodes
+
+        siblings = self._children[parent]
+
+        self._add_to_nodes(node, parent, index)
+        
+        # Fix parent-child and child-parent relationship
+        try:
+            siblings.insert(index, node)
+        except TypeError:
+            siblings.append(node)
+
+        # Create new entry for it's own children:
+        if parent:
+            self._parents[node] = parent
+
 
     def add(self, node, parent=None, index=None):
         """
@@ -234,25 +266,9 @@ class Tree(object):
 
         For usage, see the unit tests.
         """
-
-        assert node not in self._nodes
-
-        siblings = self._children[parent]
-        try:
-            atnode = siblings[index]
-        except (TypeError, IndexError):
-            index = len(siblings)
-            self._add_to_nodes(node, parent)
-        else:
-            self._nodes.insert(self._nodes.index(atnode), node)
-        
-        # Fix parent-child and child-parent relationship
-        siblings.insert(index, node)
-
-        # Create new entry for it's own children:
+        self._add(node, parent, index)
         self._children[node] = []
-        if parent:
-            self._parents[node] = parent
+
 
     def _remove(self, node):
         # Remove from parent item
@@ -320,23 +336,29 @@ class Tree(object):
         >>> tree.nodes
         ['n4', 'n1', 'n3', 'n2']
         """
+        if parent is self.get_parent(node):
+            return
+
+	siblings = self._children[parent]
+
         # Add to new parent's children:
         self.get_siblings(node).remove(node)
+        self._nodes.remove(node)
 
-        self._parents[node] = parent
-
-        # Change this to get index working:
-	siblings = self._children[parent]
         try:
-            atnode = siblings[index]
-        except (TypeError, IndexError):
-            siblings.append(node)
-            # reorganize nodes
-            self._reparent_nodes(node, parent)
-        else:
-            self._nodes.insert(self._nodes.index(atnode), node)
+            del self._parents[node]
+        except KeyError:
+            pass
 
-        
+        self._add(node, parent, index)
+
+        assert self._parents.get(node) is parent
+        assert node in self._children[parent]
+        assert node in self.get_siblings(node)
+
+        # reorganize children in nodes list
+        for c in self._children[node]:
+            self._reparent_nodes(c, node)
 
 
 # vi: sw=4:et:ai
