@@ -237,7 +237,7 @@ class ToolChain(Tool):
         <gaphas.tool.ToolChain object at 0x...>
 
         Now the HoverTool has been substituted for the ItemTool:
-        
+
         >>> chain._tools # doctest: +ELLIPSIS
         [<gaphas.tool.ItemTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
         """
@@ -276,7 +276,7 @@ class ToolChain(Tool):
                 rt = getattr(tool, func)(context, event)
                 if rt:
                     return rt
-        
+
     def on_button_press(self, context, event):
         self._handle('on_button_press', context, event)
 
@@ -310,7 +310,7 @@ class HoverTool(Tool):
     """
     Make the item under the mouse cursor the "hovered item".
     """
-    
+
     def __init__(self):
         pass
 
@@ -328,7 +328,7 @@ class ItemTool(Tool):
     already selected items remain selected. The last selected item gets the
     focus (e.g. receives key press events).
     """
-    
+
     def __init__(self, buttons=(1,)):
         self.last_x = 0
         self.last_y = 0
@@ -461,7 +461,7 @@ class HandleTool(Tool):
         # Last try all items, checking the bounding box first
         x, y = event.x, event.y
         items = view.get_items_in_rectangle((x - 6, y - 6, 12, 12), reverse=True)
-        
+
         found_item, found_h = None, None
         for item in items:
             h = self._find_handle(view, event, item)
@@ -493,16 +493,16 @@ class HandleTool(Tool):
         Find an item that ``handle`` can connect to and create a connection.
         ``item`` is the ``Item`` owning the handle.
         ``vpos`` is the point in the pointer (view) coordinates.
-        
+
         A typical connect action may involve the following:
-        
+
         - Find an item near ``handle`` that can be connected to.
         - Move ``handle`` to the right position.
         - Set ``handle.connected_to`` to point to the new item.
         - Add constraints to the constraint solver (``view.canvas.solver``).
         - Set ``handle.disconnect`` to point to a method that can be called when
           the handle is disconnected (no arguments).
-        
+
         NOTE: ``connect()`` can not expect ``glue()`` has been called,
         therefore it should ensure the handle is moved to the correct location
         before.
@@ -514,7 +514,7 @@ class HandleTool(Tool):
         constraints. ``item`` is the Item owning the handle.
 
         A typical disconnect operation may look like this:
-        
+
         - Call ``handle.disconnect()`` (assigned in ``connect()``).
         - Disconnect existing constraints.
         - Set ``handle.connected_to`` to ``None``.
@@ -579,7 +579,7 @@ class HandleTool(Tool):
 
             # Do the actual move:
             self.move(view, item, handle, (x, y))
-            
+
             # do not request matrix update as matrix recalculation will be
             # performed due to item normalization if required
             item.request_update(matrix=False)
@@ -640,6 +640,8 @@ class RubberbandTool(Tool):
         cr.rectangle(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
         cr.fill()
 
+PAN_MASK = gtk.gdk.SHIFT_MASK | gtk.gdk.MOD1_MASK | gtk.gdk.CONTROL_MASK
+PAN_VALUE = 0
 
 class PanTool(Tool):
     """
@@ -653,7 +655,9 @@ class PanTool(Tool):
         self.speed = 10
 
     def on_button_press(self,context,event):
-        if event.button == 2 and not event.state:
+        if not event.state & PAN_MASK == PAN_VALUE:
+            return False
+        if event.button == 2:
             context.grab()
             self.x0, self.y0 = event.x, event.y
             return True
@@ -664,45 +668,118 @@ class PanTool(Tool):
         return True
 
     def on_motion_notify(self, context, event):
-        if event.state & gtk.gdk.BUTTON2_MASK and not event.state:
+        if event.state & gtk.gdk.BUTTON2_MASK:
             view = context.view
-            dx = self.x0 - event.x
-            dy = self.y0 - event.y
-            if dx:
-                adj = context.view.hadjustment
-                adj.value = adj.value + dx
-                adj.value_changed()
-                self.x0 = event.x
-
-            if dy:
-                adj = context.view.vadjustment
-                adj.value = adj.value + dy
-                adj.value_changed()
-                self.y0 = event.y
+            self.x1, self.y1 = event.x, event.y
+            dx = self.x1 - self.x0
+            dy = self.y1 - self.y0
+            view._matrix.translate(dx/view._matrix[0], dy/view._matrix[3])
+            # Make sure everything's updated
+            view.request_update((), view._canvas.get_all_items())
+            view.update_adjustments()
+            self.x0 = self.x1
+            self.y0 = self.y1
             return True
 
     def on_scroll(self, context, event):
-        # No modifiers:
-        if event.state:
-            return
+        # Ensure no modifiers
+        if not event.state & PAN_MASK == PAN_VALUE:
+            return False
+        view = context.view
         direction = event.direction
         gdk = gtk.gdk
-        adj = None
         if direction == gdk.SCROLL_LEFT:
-            adj = context.view.hadjustment
-            adj.value = adj.value - self.speed
+            view._matrix.translate(self.speed/view._matrix[0], 0)
         elif direction == gdk.SCROLL_RIGHT:
-            adj = context.view.hadjustment
-            adj.value = adj.value + self.speed
+            view._matrix.translate(-self.speed/view._matrix[0], 0)
         elif direction == gdk.SCROLL_UP:
-            adj = context.view.vadjustment
-            adj.value = adj.value - self.speed
+            view._matrix.translate(0, self.speed/view._matrix[3])
         elif direction == gdk.SCROLL_DOWN:
-            adj = context.view.vadjustment
-            adj.value = adj.value + self.speed
-        if adj:
-            adj.value_changed()
+            view._matrix.translate(0, -self.speed/view._matrix[3])
+        view.request_update((), view._canvas.get_all_items())
+        view.update_adjustments()
         return True
+
+
+ZOOM_MASK  = gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK | gtk.gdk.MOD1_MASK
+ZOOM_VALUE = gtk.gdk.CONTROL_MASK
+
+class ZoomTool(Tool):
+    """
+    Tool for zooming using either of two techniquies:
+        * ctrl + middle-mouse dragging in the up-down direction.
+        * ctrl + mouse-wheeel
+    """
+
+    def __init__(self):
+        self.x0, self.y0 = 0, 0
+        self.lastdiff = 0;
+
+    def on_button_press(self, context, event):
+        if event.button == 2 \
+                and event.state & ZOOM_MASK == ZOOM_VALUE:
+            print "GRABBING"
+            context.grab()
+            self.x0 = event.x
+            self.y0 = event.y
+            self.lastdiff = 0
+            return True
+
+    def on_button_release(self, context, event):
+        context.ungrab()
+        self.lastdiff = 0
+        return True
+
+    def on_motion_notify(self, context, event):
+        if event.state & ZOOM_MASK == ZOOM_VALUE \
+                and event.state & gtk.gdk.BUTTON2_MASK:
+            view = context.view
+            dy = event.y - self.y0
+
+            sx = view._matrix[0]
+            sy = view._matrix[3]
+            ox = (view._matrix[4] - self.x0) / sx
+            oy = (view._matrix[5] - self.y0) / sy
+
+            if abs(dy - self.lastdiff) > 20:
+                if dy - self.lastdiff < 0:
+                    factor = 1./0.9
+                else:
+                    factor = 0.9
+
+                view._matrix.translate(-ox, -oy)
+                view._matrix.scale(factor, factor)
+                view._matrix.translate(+ox, +oy)
+
+                # Make sure everything's updated
+                map(view.update_matrix, view._canvas.get_all_items())
+                view.request_update(view._canvas.get_all_items())
+                view.update_scrollbars_from_matrix(view.hadjustment,view.vadjustment)
+
+                self.lastdiff = dy;
+            return True
+
+    def on_scroll(self, context, event):
+        if event.state & gtk.gdk.CONTROL_MASK:
+            view = context.view
+            context.grab()
+            sx = view._matrix[0]
+            sy = view._matrix[3]
+            ox = (view._matrix[4] - event.x) / sx
+            oy = (view._matrix[5] - event.y) / sy
+            factor = 0.9
+            if event.direction == gtk.gdk.SCROLL_UP:    
+                factor = 1. / factor
+            view._matrix.translate(-ox, -oy)
+            view._matrix.scale(factor, factor)
+            view._matrix.translate(+ox, +oy)
+            # Make sure everything's updated
+            map(view.update_matrix, view._canvas.get_all_items())
+            view.request_update(view._canvas.get_all_items())
+            view.update_scrollbars_from_matrix(view.hadjustment,view.vadjustment)
+            context.ungrab()
+            return True
+
 
 
 class PlacementTool(Tool):
@@ -817,7 +894,7 @@ class TextEditTool(Tool):
 class ConnectHandleTool(HandleTool):
     """
     Tool for connecting two items.
-    
+
     There are two items involved. Handle of connecting item (usually
     a line) is being dragged by an user towards another item (item in
     short). Port of an item is found by the tool and connection is
@@ -865,11 +942,11 @@ class ConnectHandleTool(HandleTool):
             # update position of line's handle
             v2i = view.get_matrix_v2i(line).transform_point
             handle.pos = v2i(*glue_pos)
- 
+
         # else item and port will be set to None
         return item, port
 
- 
+
     def get_item_at_point(self, view, vpos, exclude=None):
         """
         Find item with port closest to specified position.
@@ -1176,7 +1253,7 @@ class LineSegmentTool(ConnectHandleTool):
         Split one line segment into ``count`` equal pieces.
 
         Two lists are returned
-        
+
         - list of created handles
         - list of created ports
 
@@ -1386,6 +1463,7 @@ def DefaultTool():
         append(HoverTool()). \
         append(LineSegmentTool()). \
         append(PanTool()). \
+        append(ZoomTool()). \
         append(ItemTool()). \
         append(TextEditTool()). \
         append(RubberbandTool())

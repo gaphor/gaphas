@@ -53,7 +53,7 @@ class Canvas(object):
 
 
     @observed
-    def add(self, item, parent=None):
+    def add(self, item, parent=None, index=None):
         """
         Add an item to the canvas.
 
@@ -67,7 +67,7 @@ class Canvas(object):
         True
         """
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
-        self._tree.add(item, parent)
+        self._tree.add(item, parent, index)
         item._set_canvas(self)
         self._dirty_index = True
 
@@ -108,7 +108,8 @@ class Canvas(object):
         self._remove(item)
 
     reversible_pair(add, _remove,
-                    bind1={'parent': lambda self, item: self.get_parent(item)})
+                    bind1={'parent': lambda self, item: self.get_parent(item),
+                           'index': lambda self, item: self._tree.get_siblings(item).index(item) })
 
 
     def remove_connections_to_item(self, item):
@@ -125,13 +126,17 @@ class Canvas(object):
             h.disconnect = lambda: 0
 
     @observed
-    def reparent(self, item, parent):
+    def reparent(self, item, parent, index=None):
         """
         Set new parent for an item.
         """
-        self._tree.reparent(item, parent)
+        self._tree.reparent(item, parent, index)
 
         self._dirty_index = True
+
+    reversible_method(reparent, reverse=reparent,
+                      bind={'parent': lambda self, item: self.get_parent(item),
+                            'index': lambda self, item: self._tree.get_siblings(item).index(item) })
 
 
     def get_all_items(self):

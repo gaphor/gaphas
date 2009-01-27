@@ -191,6 +191,42 @@ children):
     >>> canvas.get_children(item)			# doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
 
+As well as the reparent() method:
+
+    >>> canvas = Canvas()
+    >>> class NameItem(Item):
+    ...     def __init__(self, name):
+    ...         super(NameItem, self).__init__()
+    ...         self.name = name
+    ...     def __repr__(self):
+    ...         return '<%s>' % self.name
+    >>> ni1 = NameItem('a')
+    >>> canvas.add(ni1)
+    >>> ni2 = NameItem('b')
+    >>> canvas.add(ni2)
+    >>> ni3 = NameItem('c')
+    >>> canvas.add(ni3, parent=ni1)
+    >>> ni4 = NameItem('d')
+    >>> canvas.add(ni4, parent=ni3)
+    >>> canvas.get_all_items()
+    [<a>, <c>, <d>, <b>]
+    >>> del undo_list[:]
+    >>> canvas.reparent(ni3, parent=ni2)
+    >>> canvas.get_all_items()
+    [<a>, <b>, <c>, <d>]
+    >>> len(undo_list)
+    1
+    >>> undo()
+    >>> canvas.get_all_items()
+    [<a>, <c>, <d>, <b>]
+
+Redo should work too:
+
+    >>> undo_list[:] = redo_list[:]
+    >>> undo()
+    >>> canvas.get_all_items()
+    [<a>, <b>, <c>, <d>]
+
 connector.py: Handle
 --------------------
 Changing the Handle's position is reversible:

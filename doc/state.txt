@@ -39,7 +39,7 @@ It works (see how the add method automatically schedules the item for update):
     ...     print 'event handled', event
     >>> state.observers.add(handler)
     >>> canvas.add(item1)                              # doctest: +ELLIPSIS
-    event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None), {})
+    event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
     >>> canvas.add(item2, parent=item1)                # doctest: +ELLIPSIS
     event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
     >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
@@ -139,7 +139,7 @@ The inverse operation is easiest performed by the function ``saveapply()``. Of
 course an inverse operation is emitting a change event too:
 
     >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
-    event handler (<function add at 0x...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.Canvas object at 0x...>, 'parent': None})
+    event handler (<function add at 0x...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.Canvas object at 0x...>, 'parent': None, 'index': 0})
     >>> canvas.get_all_items()
     []
 

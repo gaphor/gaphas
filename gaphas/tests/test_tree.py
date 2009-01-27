@@ -54,6 +54,27 @@ class TreeTestCase(unittest.TestCase):
         assert tree.get_parent(n2) is None
         assert tree.get_parent(n1) is None
 
+    def test_add_on_index(self):
+        tree = Tree()
+        n1 = 'n1'
+        n2 = 'n2'
+        n3 = 'n3'
+        n4 = 'n4'
+        n5 = 'n5'
+
+        tree.add(n1)
+        tree.add(n2)
+        tree.add(n3, index=1)
+        assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
+        assert tree.nodes == [n1, n3, n2], tree.nodes
+        
+        tree.add(n4, parent=n3)
+        tree.add(n5, parent=n3, index=0)
+        assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
+        assert tree.nodes == [n1, n3, n5, n4, n2], tree.nodes
+        assert tree.get_children(n3) == [n5, n4], tree.get_children(n3)
+
+
     def test_remove(self):
         """
         Test removal of nodes.
@@ -113,4 +134,24 @@ class TreeTestCase(unittest.TestCase):
         else:
             raise AssertionError, 'Index should be out of range, not %s' % tree.get_previous_sibling(n1)
 
-# vi:sw=4:et
+    def test_reparent(self):
+        tree = Tree()
+        n1 = 'n1'
+        n2 = 'n2'
+        n3 = 'n3'
+        n4 = 'n4'
+        n5 = 'n5'
+
+        tree.add(n1)
+        tree.add(n2)
+        tree.add(n3)
+        tree.add(n4, parent=n2)
+        tree.add(n5, parent=n4)
+
+        assert tree.nodes == [n1, n2, n4, n5, n3], tree.nodes
+
+        tree.reparent(n4, parent=None, index=0)
+        assert tree.nodes == [n4, n5, n1, n2, n3], tree.nodes
+
+
+# vi:sw=4:et:ai

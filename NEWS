@@ -5,5 +5,7 @@
 - line segment tool implemented (code taken from gaphor)
 - implemented Item.constraint method to simplify item's constraint
   creation
+- The canvas (-view) is no longer tied to the (0, 0) position. Scrolling can
+  be done quite fluidly with the new PanTool implementation.
 - API changes
   - use positions instead of "x, y" pairs in all method calls

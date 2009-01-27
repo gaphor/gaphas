@@ -227,17 +227,28 @@ class Tree(object):
             # append to root node:
             nodes.append(node)
 
-    def add(self, node, parent=None):
+    def add(self, node, parent=None, index=None):
         """
         Add node to the tree. parent is the parent node, which may
         be None if the item should be added to the root item.
 
         For usage, see the unit tests.
         """
-        assert not self._children.get(node)
+
+        assert node not in self._nodes
+
         siblings = self._children[parent]
-        self._add_to_nodes(node, parent)
-        siblings.append(node)
+        try:
+            atnode = siblings[index]
+        except (TypeError, IndexError):
+            index = len(siblings)
+            self._add_to_nodes(node, parent)
+        else:
+            self._nodes.insert(self._nodes.index(atnode), node)
+        
+        # Fix parent-child and child-parent relationship
+        siblings.insert(index, node)
+
         # Create new entry for it's own children:
         self._children[node] = []
         if parent:
@@ -277,7 +288,7 @@ class Tree(object):
         for c in self._children[node]:
             self._reparent_nodes(c, node)
         
-    def reparent(self, node, parent):
+    def reparent(self, node, parent, index=None):
         """
         Set new parent for a ``node``. ``Parent`` can be ``None``, indicating
         it's added to the top.
@@ -311,11 +322,21 @@ class Tree(object):
         """
         # Add to new parent's children:
         self.get_siblings(node).remove(node)
-        self._children[parent].append(node)
+
         self._parents[node] = parent
+
+        # Change this to get index working:
+	siblings = self._children[parent]
+        try:
+            atnode = siblings[index]
+        except (TypeError, IndexError):
+            siblings.append(node)
+            # reorganize nodes
+            self._reparent_nodes(node, parent)
+        else:
+            self._nodes.insert(self._nodes.index(atnode), node)
+
         
-        # reorganize nodes
-        self._reparent_nodes(node, parent)
 
 
-# vi:sw=4:et
+# vi: sw=4:et:ai

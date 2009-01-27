@@ -269,7 +269,7 @@ class View(object):
         return self._qtree.get_bounds(item)
 
 
-    bounding_box = property(lambda s: s._bounds) #Rectangle(*s._qtree.soft_bounds))
+    bounding_box = property(lambda s: s._bounds)
 
 
     def update_bounding_box(self, cr, items=None):
@@ -471,55 +471,47 @@ class GtkView(gtk.DrawingArea, View):
         self.queue_draw_refresh()
 
 
-    def _update_adjustment(self, adjustment, canvas_size, viewport_size):
-        """
-        Update one gtk.Adjustment instance. Values are in view coordinates.
-
-        >>> v = GtkView()
-        >>> a = gtk.Adjustment()
-        >>> v._hadjustment = a
-        >>> v._update_adjustment(a, 100, 20)
-        >>> a.page_size, a.page_increment, a.value
-        (20.0, 20.0, 0.0)
-        """
-        canvas_size = max(canvas_size, viewport_size)
-        view_size = canvas_size + viewport_size
-        if viewport_size != adjustment.page_size or view_size != adjustment.upper:
-            adjustment.lower = 0
-            adjustment.upper = view_size
-            adjustment.page_size = viewport_size
-            adjustment.page_increment = viewport_size
-            adjustment.step_increment = viewport_size / 10
-
-        if adjustment.value > canvas_size:
-            adjustment.value = canvas_size
-        elif adjustment.value < 0:
-            adjustment.value = 0
-
     @async(single=True)
     def update_adjustments(self, allocation=None):
-        """
-        Update the allocation objects (for scrollbars).
-        """
         if not allocation:
             allocation = self.allocation
 
-        # Define a minimal view size:
-        aw, ah = allocation.width, allocation.height 
-        x, y, w, h = self.bounding_box
-        ox, oy = self.matrix.transform_point(0, 0)
+        hadjustment = self._hadjustment
+        vadjustment = self._vadjustment
 
-        self._update_adjustment(self._hadjustment,
-                                canvas_size=w + x - ox,
-                                viewport_size=aw)
-        self._update_adjustment(self._vadjustment,
-                                canvas_size=h + y - oy,
-                                viewport_size=aw)
+        # canvas limits (in view coordinates)
+        c = Rectangle(*self._qtree.soft_bounds)
 
-        x, y, w, h = self._qtree.bounds
-        if w != aw or h != ah:
-            self._qtree.resize((0, 0, aw, ah))
-        
+        # view limits
+        v = Rectangle(0, 0, self.allocation.width, self.allocation.height)
+
+        # union of these limits gives scrollbar limits
+        if v in c:
+            u = c
+        else:
+            u = c + v
+
+        # set lower limits
+        hadjustment.lower, vadjustment.lower = u.x, u.y
+
+        # set upper limits
+        hadjustment.upper, vadjustment.upper = u.x1, u.y1
+
+        # set position
+        if v.x != hadjustment.value or v.y != vadjustment.value:
+            hadjustment.value, vadjustment.value = v.x, v.y
+
+        # set page size
+        aw, ah = self.allocation.width, self.allocation.height
+        hadjustment.page_size = aw
+        vadjustment.page_size = ah
+
+        # set increments
+        hadjustment.page_increment = aw
+        hadjustment.step_increment = aw / 10
+        vadjustment.page_increment = ah
+        vadjustment.step_increment = ah / 10
+
 
     def queue_draw_item(self, *items):
         """
@@ -734,12 +726,11 @@ class GtkView(gtk.DrawingArea, View):
         value of the x/y adjustment (scrollbar).
         """
         if adj is self._hadjustment:
-            self._matrix.translate(- self._matrix[4] - adj.value , 0)
+            self._matrix.translate( - adj.value , 0)
         elif adj is self._vadjustment:
-            self._matrix.translate(0, - self._matrix[5] - adj.value)
+            self._matrix.translate(0, - adj.value)
 
         # Force recalculation of the bounding boxes:
-        map(self.update_matrix, self._canvas.get_all_items())
         self.request_update((), self._canvas.get_all_items())
 
         self.queue_draw_refresh()
