@@ -339,16 +339,12 @@ class Tree(object):
         if parent is self.get_parent(node):
             return
 
-	siblings = self._children[parent]
-
-        # Add to new parent's children:
-        self.get_siblings(node).remove(node)
+        # Remove all node references:
+        old_parent = self.get_parent(node)
+        self._children[old_parent].remove(node)
         self._nodes.remove(node)
-
-        try:
+        if old_parent:
             del self._parents[node]
-        except KeyError:
-            pass
 
         self._add(node, parent, index)
 
