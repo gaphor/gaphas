@@ -348,10 +348,6 @@ class Tree(object):
 
         self._add(node, parent, index)
 
-        assert self._parents.get(node) is parent
-        assert node in self._children[parent]
-        assert node in self.get_siblings(node)
-
         # reorganize children in nodes list
         for c in self._children[node]:
             self._reparent_nodes(c, node)
