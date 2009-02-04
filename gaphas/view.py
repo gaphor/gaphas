@@ -242,11 +242,12 @@ class View(object):
         """
         Zoom in/out by factor @factor.
         """
+        # TODO: should the scale factor be clipped?
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        map(self.update_matrix, self._canvas.get_all_items())
-        self.request_update(self._canvas.get_all_items())
+        #map(self.update_matrix, self._canvas.get_all_items())
+        self.request_update((), self._canvas.get_all_items())
 
 
     def set_item_bounding_box(self, item, bounds):
@@ -497,10 +498,6 @@ class GtkView(gtk.DrawingArea, View):
         # set upper limits
         hadjustment.upper, vadjustment.upper = u.x1, u.y1
 
-        # set position
-        if v.x != hadjustment.value or v.y != vadjustment.value:
-            hadjustment.value, vadjustment.value = v.x, v.y
-
         # set page size
         aw, ah = self.allocation.width, self.allocation.height
         hadjustment.page_size = aw
@@ -511,6 +508,10 @@ class GtkView(gtk.DrawingArea, View):
         hadjustment.step_increment = aw / 10
         vadjustment.page_increment = ah
         vadjustment.step_increment = ah / 10
+
+        # set position
+        if v.x != hadjustment.value or v.y != vadjustment.value:
+            hadjustment.value, vadjustment.value = v.x, v.y
 
 
     def queue_draw_item(self, *items):
@@ -534,7 +535,12 @@ class GtkView(gtk.DrawingArea, View):
         """
         Wrap draw_area to convert all values to ints.
         """
-        super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
+        try:
+            super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
+        except OverflowError:
+            # Okay, now the zoom factr is very large or something
+            a = self.allocation
+            super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
     def queue_draw_refresh(self):
@@ -725,10 +731,18 @@ class GtkView(gtk.DrawingArea, View):
         Change the transformation matrix of the view to reflect the
         value of the x/y adjustment (scrollbar).
         """
+        if adj.value == 0.0: return
+
+        # Can not use self._matrix.translate( - adj.value , 0) here, since
+        # the translate method effectively does a m * self._matrix, which
+        # will result in the translation being multiplied by the orig. matrix
+
+        m = Matrix()
         if adj is self._hadjustment:
-            self._matrix.translate( - adj.value , 0)
+            m.translate( - adj.value, 0)
         elif adj is self._vadjustment:
-            self._matrix.translate(0, - adj.value)
+            m.translate(0, - adj.value)
+        self._matrix *= m
 
         # Force recalculation of the bounding boxes:
         self.request_update((), self._canvas.get_all_items())
@@ -736,4 +750,4 @@ class GtkView(gtk.DrawingArea, View):
         self.queue_draw_refresh()
 
 
-# vim: sw=4:et:
+# vim: sw=4:et:ai

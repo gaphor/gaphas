@@ -676,7 +676,6 @@ class PanTool(Tool):
             view._matrix.translate(dx/view._matrix[0], dy/view._matrix[3])
             # Make sure everything's updated
             view.request_update((), view._canvas.get_all_items())
-            view.update_adjustments()
             self.x0 = self.x1
             self.y0 = self.y1
             return True
@@ -697,7 +696,6 @@ class PanTool(Tool):
         elif direction == gdk.SCROLL_DOWN:
             view._matrix.translate(0, -self.speed/view._matrix[3])
         view.request_update((), view._canvas.get_all_items())
-        view.update_adjustments()
         return True
 
 
@@ -716,6 +714,7 @@ class ZoomTool(Tool):
         self.lastdiff = 0;
 
     def on_button_press(self, context, event):
+        print 'ZOOM', event.state
         if event.button == 2 \
                 and event.state & ZOOM_MASK == ZOOM_VALUE:
             print "GRABBING"
@@ -747,14 +746,13 @@ class ZoomTool(Tool):
                 else:
                     factor = 0.9
 
-                view._matrix.translate(-ox, -oy)
-                view._matrix.scale(factor, factor)
-                view._matrix.translate(+ox, +oy)
+                m = view.matrix
+                m.translate(-ox, -oy)
+                m.scale(factor, factor)
+                m.translate(+ox, +oy)
 
                 # Make sure everything's updated
-                map(view.update_matrix, view._canvas.get_all_items())
-                view.request_update(view._canvas.get_all_items())
-                view.update_scrollbars_from_matrix(view.hadjustment,view.vadjustment)
+                view.request_update((), view._canvas.get_all_items())
 
                 self.lastdiff = dy;
             return True
@@ -774,12 +772,9 @@ class ZoomTool(Tool):
             view._matrix.scale(factor, factor)
             view._matrix.translate(+ox, +oy)
             # Make sure everything's updated
-            map(view.update_matrix, view._canvas.get_all_items())
-            view.request_update(view._canvas.get_all_items())
-            view.update_scrollbars_from_matrix(view.hadjustment,view.vadjustment)
+            view.request_update((), view._canvas.get_all_items())
             context.ungrab()
             return True
-
 
 
 class PlacementTool(Tool):
