@@ -4,12 +4,46 @@ API reference
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.canvas`
----------------------
+The API can be separated into three parts. First of all there's the model
+(canvas and items). Then there's the view (view) and controllers (tools).
 
-.. module:: gaphas.canvas
+Some more generic stuff is also described here.
 
-.. autoclass:: Canvas
-   :members:
-   :undoc-members:
+Canvas and items
+----------------
+
+.. toctree::
+   :maxdepth: 2
+
+   api/canvas
+   api/items
+   api/connectors
+   api/solver  
+   api/constraints  
+   api/utils
+
+
+View and tools
+--------------
+
+.. toctree::
+   :maxdepth: 2
+
+   api/view
+   api/gtkview
+   api/tools
+   api/painters
+
+
+Miscellaneous
+-------------
+
+.. toctree::
+   :maxdepth: 2
+
+   api/tree
+   api/matrix
+   api/quadtree
+   api/geometry
+   api/decorators
 

@@ -1,0 +1,16 @@
+#################
+Constraints
+#################
+
+The default constraint classes provided by Gaphas
+
+:mod: `gaphor.constraint`
+---------------------
+
+.. module:: gaphas.constraint
+
+.. autoclass:: Constraint
+   :members:
+   :undoc-members:
+
+TODO: And the rest

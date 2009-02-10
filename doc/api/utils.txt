@@ -1,0 +1,12 @@
+#########################
+Various utility functions
+#########################
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.utils`
+---------------------
+
+.. module:: gaphas.utils
+
+TODO: describe the rest

@@ -1,0 +1,16 @@
+##################################
+Interacting with the canvas (view)
+##################################
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.tool`
+---------------------
+
+.. module:: gaphas.tool
+
+.. autoclass:: Tool
+   :members:
+   :undoc-members:
+
+# TODO: describe the rest

@@ -1,0 +1,15 @@
+#################
+Constraint solver
+#################
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.solver`
+---------------------
+
+.. module:: gaphas.solver
+
+.. autoclass:: Solver
+   :members:
+   :undoc-members:
+

@@ -1,5 +1,5 @@
 Undo - implementing basic undo behaviour with Gaphas
-====================================================
+####################################################
 
 This document describes a basic undo system and tests Gaphas' classes with this
 system.
@@ -34,6 +34,12 @@ This simple undo function will revert all states collected in the undo_list:
     ...         state.saveapply(*e)
     ...     redo_list[:] = undo_list[:]
     ...     del undo_list[:]
+
+Undo functionality tests
+========================
+
+The following sections contain most of the basis unit tests for undo
+management.
 
 tree.py: Tree
 -------------

@@ -1,0 +1,15 @@
+########
+Quadtree
+########
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.quadtree`
+---------------------
+
+.. module:: gaphas.quadtree
+
+.. autoclass:: Quadtree
+   :members:
+   :undoc-members:
+

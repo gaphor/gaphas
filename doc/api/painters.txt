@@ -1,0 +1,16 @@
+##############################
+Painters - drawing on the View
+##############################
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.painter`
+---------------------
+
+.. module:: gaphas.painter
+
+.. autoclass:: Painter
+   :members:
+   :undoc-members:
+
+TODO: Add the rest

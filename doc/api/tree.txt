@@ -1,0 +1,15 @@
+##############
+Tree structure
+##############
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.tree`
+---------------------
+
+.. module:: gaphas.tree
+
+.. autoclass:: Tree
+   :members:
+   :undoc-members:
+
