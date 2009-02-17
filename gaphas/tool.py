@@ -540,7 +540,7 @@ class HandleTool(Tool):
 
             context.grab()
             if handle.connectable:
-                self.disconnect(view, item, handle)
+                self.remove_constraint(item, handle)
 
             return True
 
@@ -1212,7 +1212,8 @@ class DisconnectHandle(object):
         item = self.item
         handle = self.handle
         try:
-            canvas.solver.remove_constraint(handle.connection_data)
+            if handle.connection_data:
+                canvas.solver.remove_constraint(handle.connection_data)
         except KeyError:
             pass # constraint was alreasy removed
         handle.connection_data = None
