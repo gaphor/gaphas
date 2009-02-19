@@ -540,6 +540,7 @@ class HandleTool(Tool):
 
             context.grab()
             if handle.connectable:
+                # remove constraint to allow handle movement 
                 self.remove_constraint(item, handle)
 
             return True

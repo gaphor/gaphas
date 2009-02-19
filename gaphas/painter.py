@@ -286,8 +286,12 @@ class HandlePainter(Painter):
         for h in item.handles():
             if not h.visible:
                 continue
-            if h.connected_to:
+            # connected and not being moved, see HandleTool.on_button_press
+            if h.connected_to and h.connection_data:
                 r, g, b = 1, 0, 0
+            # connected but being moved, see HandleTool.on_button_press
+            elif h.connected_to:
+                r, g, b = 1, 0.6, 0
             elif h.movable:
                 r, g, b = 0, 1, 0
             else:
