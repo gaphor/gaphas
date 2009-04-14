@@ -57,7 +57,7 @@ class View(object):
         in the view.
         """
         if self._canvas:
-            self._qtree = Quadtree() #.clear()
+            self._qtree.clear()
             self._selected_items.clear()
             self._focused_item = None
             self._hovered_item = None
