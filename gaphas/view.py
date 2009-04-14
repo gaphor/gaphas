@@ -57,7 +57,11 @@ class View(object):
         in the view.
         """
         if self._canvas:
-            self._qtree = Quadtree()
+            self._qtree = Quadtree() #.clear()
+            self._selected_items.clear()
+            self._focused_item = None
+            self._hovered_item = None
+            self._dropzone_item = None
 
         self._canvas = canvas
 
@@ -442,7 +446,7 @@ class GtkView(gtk.DrawingArea, View):
         if self._canvas:
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
-
+        self.queue_draw_refresh()
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -653,7 +657,6 @@ class GtkView(gtk.DrawingArea, View):
 
     def do_realize(self):
         gtk.DrawingArea.do_realize(self)
-        allocation = self.allocation
 
         if self._canvas:
             self.request_update(self._canvas.get_all_items())

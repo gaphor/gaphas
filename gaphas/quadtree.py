@@ -184,6 +184,14 @@ class Quadtree(object):
             self._bucket.find_bucket(clipped_bounds).remove(item)
 
 
+    def clear(self):
+        """
+        Remove all items from the tree.
+        """
+        self._bucket.clear()
+        self._ids.clear()
+
+
     def rebuild(self):
         """
         Rebuild the tree structure.
