@@ -309,6 +309,23 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
 
+    b = gtk.Button('Unpickle (in place)')
+
+    def on_clicked(button, li):
+        f = open('demo.pickled', 'r')
+        try:
+            import cPickle as pickle
+            canvas = pickle.load(f)
+        finally:
+            f.close()
+        #[i.request_update() for i in canvas.get_all_items()]
+        canvas.update_now()
+        view.canvas = canvas
+
+    b.connect('clicked', on_clicked, [0])
+    v.add(b)
+
+
     # Add the actual View:
 
     t = gtk.Table(2,2)
