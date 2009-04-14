@@ -326,6 +326,16 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
 
+    b = gtk.Button('Reattach (in place)')
+
+    def on_clicked(button, li):
+        view.canvas = None
+        view.canvas = canvas
+
+    b.connect('clicked', on_clicked, [0])
+    v.add(b)
+
+
     # Add the actual View:
 
     t = gtk.Table(2,2)
