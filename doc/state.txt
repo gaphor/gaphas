@@ -20,15 +20,16 @@ The observer simply dispatches the function called (as ``<function ..>``, not as
     >>> state.observers.clear()
     >>> state.subscribers.clear()
 
+Let's start with creating a Canvas instance and some items:
+
     >>> from gaphas.canvas import Canvas
+    >>> from gaphas.item import Item
     >>> canvas = Canvas()
+    >>> item1, item2 = Item(), Item()
 
 For the sake of this test we disable the update code:
 
     >>> state.disable_dispatching(Canvas.request_update)
-
-    >>> from gaphas.item import Item
-    >>> item1, item2 = Item(), Item()
 
 For this demonstration let's use the Canvas class (which contains an add/remove
 method pair).
@@ -45,11 +46,14 @@ It works (see how the add method automatically schedules the item for update):
     >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
+Note that the handler is invoked before the actual call is made. This is
+important if you want to store the (old) state for an undo mechanism.
+
 Remember that this observer is just a simple method call notifier and knows
 nothing about the internals of the ``Canvas`` class (in this case the
 ``remove()`` method recursively calls ``remove()`` for each of it's children).
 Therefore some careful crafting of methods may be necessary in order to get the
-right effect:
+right effect (items should be removed in the right order, child first):
 
     >>> canvas.remove(item1)                           # doctest: +ELLIPSIS
     event handled (<function _remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})

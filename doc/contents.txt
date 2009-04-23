@@ -4,6 +4,7 @@ Gaphas Documentation
 .. toctree::
    :maxdepth: 2
 
+   index
    constraints
    ports
    state

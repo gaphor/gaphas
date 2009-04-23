@@ -1,0 +1,15 @@
+######
+Gaphas
+######
+
+Gaphas is a user interface component (widget) for working with diagrams.
+
+Diagrams can be crafted and exported to a variety of formats, including
+SVG and PDF.
+
+The modular design makes it easy to extend and reuse this component for various tasks, including modelling (e.g. Gaphor), EDA and system modelling.
+
+This document describes some of the basic ideas of Gaphas.
+
+Also, take a look at the Gaphas tech site on http://gaphor.devjavu.com/wiki/Tech.
+
