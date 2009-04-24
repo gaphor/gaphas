@@ -542,7 +542,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     num = a2 * c1 - a1 * c2
     y = ( (num < 0) and (num - offset) or (num + offset) ) / denom
 
-    return x, y;
+    return x, y
 
 
 def rectangle_contains(inner, outer):
