@@ -375,6 +375,8 @@ class GtkView(gtk.DrawingArea, View):
     
     # Signals: emited after the change takes effect.
     __gsignals__ = {
+        'set-scroll-adjustments': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                      (gtk.Adjustment, gtk.Adjustment)),
         'dropzone-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                       (gobject.TYPE_PYOBJECT,)),
         'hover-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
@@ -406,10 +408,12 @@ class GtkView(gtk.DrawingArea, View):
                         | gtk.gdk.KEY_RELEASE_MASK
                         | gtk.gdk.SCROLL_MASK)
 
-        self._hadjustment = hadjustment or gtk.Adjustment()
-        self._vadjustment = vadjustment or gtk.Adjustment()
-        self._hadjustment.connect('value-changed', self.on_adjustment_changed)
-        self._vadjustment.connect('value-changed', self.on_adjustment_changed)
+        self._hadjustment = None
+        self._vadjustment = None
+        self._hadjustment_handler_id = None
+        self._vadjustment_handler_id = None
+
+        self.emit('set-scroll-adjustments', hadjustment, vadjustment)
 
         self._tool = DefaultTool()
         
@@ -466,6 +470,27 @@ class GtkView(gtk.DrawingArea, View):
 
 
     vadjustment = property(lambda s: s._vadjustment)
+
+    
+    def do_set_scroll_adjustments(self, hadjustment, vadjustment):
+        print 'do_set_scroll_adjustments', hadjustment, vadjustment
+        if self._hadjustment_handler_id:
+            self._hadjustment.disconnect(self._hadjustment_handler_id)
+            self._hadjustment_handler_id = None
+        if self._vadjustment_handler_id:
+            self._vadjustment.disconnect(self._vadjustment_handler_id)
+            self._vadjustment_handler_id = None
+
+        self._hadjustment = hadjustment or gtk.Adjustment()
+        self._vadjustment = vadjustment or gtk.Adjustment()
+
+        self._hadjustment_handler_id = \
+                        self._hadjustment.connect('value-changed',
+                                                  self.on_adjustment_changed)
+        self._vadjustment_handler_id = \
+                        self._vadjustment.connect('value-changed',
+                                                  self.on_adjustment_changed)
+        self.update_adjustments()
 
 
     def zoom(self, factor):
@@ -542,7 +567,7 @@ class GtkView(gtk.DrawingArea, View):
         try:
             super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
         except OverflowError:
-            # Okay, now the zoom factr is very large or something
+            # Okay, now the zoom factor is very large or something
             a = self.allocation
             super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
@@ -751,6 +776,15 @@ class GtkView(gtk.DrawingArea, View):
         self.request_update((), self._canvas.get_all_items())
 
         self.queue_draw_refresh()
+
+
+# Set a signal to set adjustments. This way a ScrolledWindow can set its own
+# Adjustment objects on the View. Otherwise a warning is shown:
+#
+# GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget use
+# gtk_scrolled_window_add_with_viewport() instead
+
+GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 
 
 # vim: sw=4:et:ai
