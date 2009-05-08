@@ -160,7 +160,7 @@ class Item(object):
 
         Alternative implementation can also be created, e.g. set (0, 0) in
         the center of a circle or change it depending on the location of a
-        rotation poiny.
+        rotation point.
 
         Returns ``True`` if some updates have been done, ``False`` otherwise.
 
@@ -196,6 +196,28 @@ class Item(object):
         pass
 
     
+    def handles(self):
+        """
+        Return a list of handles owned by the item.
+        """
+        return self._handles
+
+
+    def ports(self):
+        """
+        Return list of ports.
+        """
+        return self._ports
+
+
+    def point(self, pos):
+        """
+        Get the distance from a point (``x``, ``y``) to the item.
+        ``x`` and ``y`` are in item coordinates.
+        """
+        pass
+
+
     def constraint(self,
             horizontal=None,
             vertical=None,
@@ -205,7 +227,7 @@ class Item(object):
             delta=0.0,
             align=None):
         """
-        Utility method to create item's internal constraint between
+        Utility (factory) method to create item's internal constraint between
         two positions or between a position and a line.
 
         Position is a tuple of coordinates, i.e. ``(2, 4)``.
@@ -230,19 +252,19 @@ class Item(object):
             Keep position ``p`` on line ``l``.
         """
         cc = None # created constraint
-        if horizontal is not None:
+        if horizontal:
             p1, p2 = horizontal
             cc = EqualsConstraint(p1[1], p2[1], delta)
-        elif vertical is not None:
+        elif vertical:
             p1, p2 = vertical
             cc = EqualsConstraint(p1[0], p2[0], delta)
-        elif left_of is not None:
+        elif left_of:
             p1, p2 = left_of
             cc = LessThanConstraint(p1[0], p2[0], delta)
-        elif above is not None:
+        elif above:
             p1, p2 = above
             cc = LessThanConstraint(p1[1], p2[1], delta)
-        elif line is not None:
+        elif line:
             pos, l = line
             if align is None:
                 cc = LineConstraint(line=l, point=pos)
@@ -253,28 +275,6 @@ class Item(object):
         assert cc is not None
         self._constraints.append(cc)
         return cc
-
-
-    def handles(self):
-        """
-        Return a list of handles owned by the item.
-        """
-        return self._handles
-
-
-    def ports(self):
-        """
-        Return list of ports.
-        """
-        return self._ports
-
-
-    def point(self, pos):
-        """
-        Get the distance from a point (``x``, ``y``) to the item.
-        ``x`` and ``y`` are in item coordinates.
-        """
-        pass
 
 
     def __getstate__(self):

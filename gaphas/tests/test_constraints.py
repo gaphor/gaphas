@@ -42,14 +42,14 @@ class LineAlignConstraintTestCase(unittest.TestCase):
         point = (Variable(15), Variable(10))
         lc = LineAlignConstraint(line=line, point=point, align=0.5, delta=5)
         lc.solve_for()
-        self.assertAlmostEqual(19.16, point[0].value, 0.01)
-        self.assertAlmostEqual(12.77, point[1].value, 0.01)
+        self.assertAlmostEqual(19.16, point[0].value, 2)
+        self.assertAlmostEqual(12.77, point[1].value, 2)
 
         line[1][0].value = 40
         line[1][1].value =  30
         lc.solve_for()
-        self.assertAlmostEqual(24.00, point[0].value, 0.01)
-        self.assertAlmostEqual(18.00, point[1].value, 0.01)
+        self.assertAlmostEqual(24.00, point[0].value, 2)
+        self.assertAlmostEqual(18.00, point[1].value, 2)
 
 
     def test_delta_below_zero(self):
@@ -59,11 +59,13 @@ class LineAlignConstraintTestCase(unittest.TestCase):
         point = (Variable(15), Variable(10))
         lc = LineAlignConstraint(line=line, point=point, align=0.5, delta=-5)
         lc.solve_for()
-        self.assertAlmostEqual(10.83, point[0].value, 0.01)
-        self.assertAlmostEqual(7.22, point[1].value, 0.01)
+        self.assertAlmostEqual(10.84, point[0].value, 2)
+        self.assertAlmostEqual(7.23, point[1].value, 2)
 
         line[1][0].value = 40
         line[1][1].value =  30
         lc.solve_for()
-        self.assertAlmostEqual(16.25, point[0].value, 0.01)
-        self.assertAlmostEqual(12.00, point[1].value, 0.01)
+        self.assertAlmostEqual(16.0, point[0].value, 2)
+        self.assertAlmostEqual(12.00, point[1].value, 2)
+
+# vim: sw=4:et:ai
