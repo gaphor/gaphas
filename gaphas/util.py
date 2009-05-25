@@ -36,6 +36,7 @@ def text_extents(cr, text, font=None, multiline=False, padding=1):
 def text_center(cr, x, y, text):
     text_align(cr, x, y, text, align_x=0, align_y=0)
 
+
 def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     """
     Draw text relative to (x, y).
@@ -65,6 +66,7 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     cr.move_to(x, y)
     cr.show_text(text)
 
+
 def text_multiline(cr, x, y, text, padding=1):
     """
     Draw a string of text with embedded newlines.
@@ -81,6 +83,20 @@ def text_multiline(cr, x, y, text, padding=1):
         y += h
         cr.move_to(x, y)
         cr.show_text(line)
+
+
+def text_underline(cr, x, y, text, offset=1.5):
+    """
+    Draw text with underline.
+    """
+    x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+    cr.move_to(x, y - y_bear)
+    cr.show_text(text)
+    cr.move_to(x, y - y_bear + offset)
+    cr.set_line_width(1.0)
+    cr.rel_line_to(x_adv, 0)
+    cr.stroke()
+
 
 def text_set_font(cr, font):
     """

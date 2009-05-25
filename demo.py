@@ -33,7 +33,7 @@ from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool, LineSegmentTool
 from gaphas.painter import ItemPainter
 from gaphas import state
-from gaphas.util import text_extents
+from gaphas.util import text_extents, text_underline
 
 from gaphas import painter
 #painter.DEBUG_DRAW_BOUNDING_BOX = True
@@ -101,6 +101,13 @@ class MyText(Text):
         cr.set_source_rgba(.3, .3, 1., .6)
         cr.stroke()
 
+
+class UnderlineText(Text):
+
+    def draw(self, context):
+        cr = context.cairo
+        text_underline(cr, 0, 0, "Some text(y)")
+ 
 
 def create_window(canvas, title, zoom=1.0):
     view = GtkView()
@@ -405,6 +412,10 @@ def create_canvas(c=None):
     b.min_height = 50
     b.matrix.translate(55, 55)
     c.add(b)
+
+    t = UnderlineText()
+    t.matrix.translate(70,30)
+    c.add(t)
 
     t = MyText('Single line')
     t.matrix.translate(70,70)
