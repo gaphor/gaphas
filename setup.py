@@ -87,11 +87,12 @@ setup(
 
     packages=find_packages(exclude=['ez_setup']),
 
-    setup_requires = 'nose >= 0.9.2',
+    setup_requires = 'nose >= 0.10.4',
 
     install_requires=[
      'decorator >= 3.0.0',
 #    'PyGTK >= 2.8.0',
+#    'cairo >= 1.8.2'
     ],
 
     zip_safe=False,

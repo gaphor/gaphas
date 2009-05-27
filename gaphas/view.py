@@ -324,12 +324,13 @@ class View(object):
         """
         Update item matrices related to view.
         """
-        i2v = item._matrix_i2c * self._matrix
+        i2v = item._matrix_i2c.multiply(self._matrix)
         item._matrix_i2v[self] = i2v
 
         v2i = Matrix(*i2v)
         v2i.invert()
         item._matrix_v2i[self] = v2i
+
 
     def _clear_matrices(self):
         """
