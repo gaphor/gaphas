@@ -542,7 +542,11 @@ class Canvas(object):
         item._matrix_i2c = Matrix(*item.matrix)
 
         if parent is not None:
-            item._matrix_i2c = item._matrix_i2c.multiply(parent._matrix_i2c)
+            try:
+                item._matrix_i2c = item._matrix_i2c.multiply(parent._matrix_i2c)
+            except AttributeError:
+                # Fall back to old behaviour
+                item._matrix_i2c *= parent._matrix_i2c
 
         if orig_matrix_i2c is None or orig_matrix_i2c != item._matrix_i2c:
             # calculate c2i matrix and view matrices

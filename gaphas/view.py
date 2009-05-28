@@ -324,7 +324,12 @@ class View(object):
         """
         Update item matrices related to view.
         """
-        i2v = item._matrix_i2c.multiply(self._matrix)
+        try:
+            i2v = item._matrix_i2c.multiply(self._matrix)
+        except AttributeError:
+            # Fall back to old behaviour
+            i2v = item._matrix_i2c * self._matrix
+
         item._matrix_i2v[self] = i2v
 
         v2i = Matrix(*i2v)
