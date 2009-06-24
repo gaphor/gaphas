@@ -479,7 +479,6 @@ class GtkView(gtk.DrawingArea, View):
 
     
     def do_set_scroll_adjustments(self, hadjustment, vadjustment):
-        print 'do_set_scroll_adjustments', hadjustment, vadjustment
         if self._hadjustment_handler_id:
             self._hadjustment.disconnect(self._hadjustment_handler_id)
             self._hadjustment_handler_id = None
