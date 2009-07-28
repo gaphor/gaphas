@@ -68,10 +68,11 @@ class Canvas(object):
         """
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
         self._tree.add(item, parent, index)
-        item._set_canvas(self)
         self._dirty_index = True
 
         self.update_matrix(item, parent)
+
+        item._set_canvas(self)
 
         self.request_update(item)
 
