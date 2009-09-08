@@ -41,7 +41,7 @@ from state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?
-EPSILON = 1e-10
+EPSILON = 1e-6
 
 # Variable Strengths:
 VERY_WEAK = 0
@@ -95,8 +95,11 @@ class Variable(object):
 
     @observed
     def set_value(self, value):
-        self._value = float(value)
-        self.dirty()
+        oldval = self._value
+        if abs(oldval - value) > EPSILON:
+            print id(self), oldval, value
+            self._value = float(value)
+            self.dirty()
 
     value = reversible_property(lambda s: s._value, set_value)
 
@@ -419,7 +422,7 @@ class Solver(object):
                     self._marked_cons.append(c)
                     if __debug__:
                         if self._marked_cons.count(c) > 100:
-                            raise JuggleError, 'Variable juggling detected, constraint %s' % c
+                            raise JuggleError, 'Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons))
 
 
     @observed
