@@ -176,7 +176,7 @@ canvas.py:
   ``Canvas``: ``add()`` and ``remove()``
 
 connector.py:
-  ``VariablePoint``: ``x`` and ``y`` properties
+  ``Position``: ``x`` and ``y`` properties
 
   ``Handle``: ``connectable``, ``movable``, ``visible``, ``connected_to`` and ``disconnect`` properties
 

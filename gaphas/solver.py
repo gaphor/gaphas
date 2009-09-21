@@ -97,7 +97,7 @@ class Variable(object):
     def set_value(self, value):
         oldval = self._value
         if abs(oldval - value) > EPSILON:
-            print id(self), oldval, value
+            #print id(self), oldval, value
             self._value = float(value)
             self.dirty()
 
@@ -376,6 +376,9 @@ class Solver(object):
         self._marked_cons = []
         self._solving = False
 
+    constraints = property(lambda s: s._constraints)
+
+
     def request_resolve(self, variable, projections_only=False):
         """
         Mark a variable as "dirty". This means it it solved the next time
@@ -402,7 +405,7 @@ class Solver(object):
         Variable(2, 20)
         >>> b.value=2.0
         >>> c_eq.weakest()
-        Variable(5, 20)
+        Variable(2, 20)
         >>> a.value=5.0
         >>> c_eq.weakest()
         Variable(2, 20)
@@ -621,6 +624,7 @@ class Solver(object):
             self._marked_cons = []
         finally:
             self._solving = False
+
 
 class solvable(object):
     """

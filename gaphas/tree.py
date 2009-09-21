@@ -124,7 +124,7 @@ class Tree(object):
         >>> tree.get_children('n1')
         ['n2']
         >>> tree.get_all_children('n1') # doctest: +ELLIPSIS
-        <generator object at 0x...>
+        <generator object get_all_children at 0x...>
         >>> list(tree.get_all_children('n1'))
         ['n2', 'n3']
         """
@@ -145,7 +145,7 @@ class Tree(object):
         >>> tree.get_parent('n3')
         'n2'
         >>> tree.get_ancestors('n3') # doctest: +ELLIPSIS
-        <generator object at 0x...>
+        <generator object get_ancestors at 0x...>
         >>> list(tree.get_ancestors('n3'))
         ['n2', 'n1']
         >>> list(tree.get_ancestors('n1'))
@@ -234,7 +234,6 @@ class Tree(object):
                 # append to root node:
                 nodes.append(node)
         else:
-            print nodes, siblings, atnode, node
             nodes.insert(nodes.index(atnode), node)
 
 

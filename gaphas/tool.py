@@ -435,7 +435,7 @@ class HandleTool(Tool):
         for h in item.handles():
             if not h.movable:
                 continue
-            wx, wy = i2v(h.x, h.y)
+            wx, wy = i2v(*h.pos)
             if -6 < (wx - x) < 6 and -6 < (wy - y) < 6:
                 return h
         return None
@@ -475,7 +475,7 @@ class HandleTool(Tool):
         Move the handle to position ``(x,y)``. ``x`` and ``y`` are in
         item coordnates. ``item`` is the item whose ``handle`` is moved.
         """
-        handle.x, handle.y = pos
+        handle.pos = pos
 
 
     def glue(self, view, item, handle, vpos):
@@ -1062,9 +1062,10 @@ class ConnectHandleTool(HandleTool):
         # disconnect when
         # - no connectable item
         # - currently connected item is not connectable item
+        connected_to = line.canvas.get_connected_to(line, handle)
         if not item \
-                or item and handle.connected_to is not item:
-            handle.disconnect()
+                or item and connected_to and connected_to[0] is not item:
+            self.disconnect(view, line, handle)
 
         # no connectable item, no connection
         if not item:
@@ -1092,11 +1093,15 @@ class ConnectHandleTool(HandleTool):
          port
             Port of connectable item.
         """
-        self.create_constraint(line, handle, item, port)
+        canvas = line.canvas
+        solver = canvas.solver
 
-        handle.connected_to = item
-        handle.connected_port = port
-        handle.disconnect = DisconnectHandle(line, handle)
+        if canvas.get_connected_to(line, handle):
+            canvas.disconnect_item(line, handle)
+
+        constraint = port.constraint(canvas, line, handle, item)
+
+        canvas.connect_item(line, handle, item, port, constraint=constraint)
 
 
     def disconnect(self, view, line, handle):
@@ -1111,8 +1116,7 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of connecting item.
         """
-        if handle.disconnect:
-            handle.disconnect()
+        line.canvas.disconnect_item(line, handle)
 
 
     @staticmethod
@@ -1126,7 +1130,7 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of a line connecting to an item.
          item
-            Item to be connected to a line.
+            Item the line will connect to.
         """
         port = None
         max_dist = sys.maxint
@@ -1151,37 +1155,7 @@ class ConnectHandleTool(HandleTool):
         return port
 
 
-    @staticmethod
-    def create_constraint(line, handle, item, port):
-        """
-        Create connection constraint between line's handle and item's port.
-
-        If constraint already exists, then it is removed and new constraint
-        is created instead.
-
-        :Parameters:
-         line
-            Line connecting to an item.
-         handle
-            Handle of a line connecting to an item.
-         item
-            Item to be connected to a line.
-         port
-            Item's port used for connection with a line.
-        """
-        canvas = line.canvas
-        solver = canvas.solver
-
-        if handle.connection_data:
-            solver.remove_constraint(handle.connection_data)
-
-        constraint = port.constraint(canvas, line, handle, item)
-        handle.connection_data = constraint
-        solver.add_constraint(constraint)
-
-
-    @staticmethod
-    def remove_constraint(line, handle):
+    def remove_constraint(self, line, handle):
         """
         Remove connection constraint created between line's handle and
         connected item's port.
@@ -1192,36 +1166,11 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of a line connecting to an item.
         """
-        if handle.connection_data:
-            line.canvas.solver.remove_constraint(handle.connection_data)
-            handle.connection_data = None
+        canvas = line.canvas
+        data = canvas.get_connection_data(line, handle)
+        if data:
+            canvas.solver.remove_constraint(data[0])
 
-
-
-class DisconnectHandle(object):
-
-    def __init__(self, item, handle):
-        self.canvas = item.canvas
-        self.item = item
-        self.handle = handle
-
-    def __call__(self):
-        self.handle_disconnect()
-
-    def handle_disconnect(self):
-        canvas = self.canvas
-        item = self.item
-        handle = self.handle
-        try:
-            if handle.connection_data:
-                canvas.solver.remove_constraint(handle.connection_data)
-        except KeyError:
-            pass # constraint was alreasy removed
-        handle.connection_data = None
-        handle.connected_port = None
-        handle.connected_to = None
-        # Remove disconnect handler:
-        handle.disconnect = None
 
 
 class LineSegmentTool(ConnectHandleTool):
@@ -1269,14 +1218,14 @@ class LineSegmentTool(ConnectHandleTool):
 
         def do_split(segment, count):
             handles = line.handles()
-            h0 = handles[segment]
-            h1 = handles[segment + 1]
-            dx, dy = h1.x - h0.x, h1.y - h0.y
-            new_h = line._create_handle((h0.x + dx / count, h0.y + dy / count))
+            p0 = handles[segment].pos
+            p1 = handles[segment + 1].pos
+            dx, dy = p1.x - p0.x, p1.y - p0.y
+            new_h = line._create_handle((p0.x + dx / count, p0.y + dy / count))
             line._reversible_insert_handle(segment + 1, new_h)
 
-            p0 = line._create_port(h0, new_h)
-            p1 = line._create_port(new_h, h1)
+            p0 = line._create_port(p0, new_h.pos)
+            p1 = line._create_port(new_h.pos, p1)
             line._reversible_remove_port(line.ports()[segment])
             line._reversible_insert_port(segment, p0)
             line._reversible_insert_port(segment + 1, p1)
@@ -1284,16 +1233,12 @@ class LineSegmentTool(ConnectHandleTool):
             if count > 2:
                 do_split(segment + 1, count - 1)
 
-        # get rid of connection constraints (to be recreated later)
-        citems, chandles = self._remove_constraints(line)
-
         do_split(segment, count)
 
         # force orthogonal constraints to be recreated
         line._update_orthogonal_constraints(line.orthogonal)
 
-        # recreate connection constraints
-        self._recreate_constraints(citems, chandles, line)
+        self._recreate_constraints(line)
 
         handles = line.handles()[segment + 1:segment + count]
         ports = line.ports()[segment:segment + count - 1]
@@ -1322,9 +1267,6 @@ class LineSegmentTool(ConnectHandleTool):
         if count < 2 or segment + count > len(line.ports()):
             raise ValueError('Incorrect count of segments')
 
-        # get rid of connection constraints (to be recreated later)
-        citems, chandles = self._remove_constraints(line)
-
         # remove handle and ports which share position with handle
         deleted_handles = line.handles()[segment + 1:segment + count]
         deleted_ports = line.ports()[segment:segment + count]
@@ -1335,21 +1277,20 @@ class LineSegmentTool(ConnectHandleTool):
 
         # create new port, which replaces old ports destroyed due to
         # deleted handle
-        h1 = line.handles()[segment]
-        h2 = line.handles()[segment + 1]
-        port = line._create_port(h1, h2)
+        p1 = line.handles()[segment].pos
+        p2 = line.handles()[segment + 1].pos
+        port = line._create_port(p1, p2)
         line._reversible_insert_port(segment, port)
 
         # force orthogonal constraints to be recreated
         line._update_orthogonal_constraints(line.orthogonal)
 
-        # recreate connection constraints
-        self._recreate_constraints(citems, chandles, line)
+        self._recreate_constraints(line)
 
         return deleted_handles, deleted_ports
 
 
-    def _recreate_constraints(self, lines, handles, item):
+    def _recreate_constraints(self, item):
         """
         Create connection constraints between connecting lines and an item.
 
@@ -1361,33 +1302,19 @@ class LineSegmentTool(ConnectHandleTool):
          item
             Item connected to lines.
         """
-        for line, h in zip(lines, handles):
-            port = ConnectHandleTool.find_port(line, h, item)
-            ConnectHandleTool.create_constraint(line, h, item, port)
+        if not item.canvas:
+            # No canvas, no constraints
+            return
 
+        canvas = item.canvas
+        solver = canvas.solver
+        for line, handle in list(canvas.get_connected_items(item)):
+            port = ConnectHandleTool.find_port(line, handle, item)
+            
+            constraint = port.constraint(canvas, line, handle, item)
 
-    def _remove_constraints(self, item):
-        """
-        Remove connection constraints established between an item and all
-        connecting items.
-
-        List of connecting items and list of connecting handles are
-        returned.
-
-        :Parameters:
-         item
-            Item, to which connections shall be removed.
-        """
-        lines = []
-        handles = []
-        if item.canvas: # no canvas, no connections
-            data = item.canvas.get_connected_items(item)
-            for line, h in data:
-                ConnectHandleTool.remove_constraint(line, h)
-            if data:
-                lines, handles = zip(*data)
-
-        return lines, handles
+            data = canvas.get_connection_data(line, handle)
+            canvas.reconnect_item(line, handle, constraint=constraint, callback=data[1])
 
 
     def on_button_press(self, context, event):
@@ -1404,8 +1331,8 @@ class LineSegmentTool(ConnectHandleTool):
             handles = item.handles()
             x, y = view.get_matrix_v2i(item).transform_point(event.x, event.y)
             for h1, h2 in zip(handles[:-1], handles[1:]):
-                xp = (h1.x + h2.x) / 2
-                yp = (h1.y + h2.y) / 2
+                xp = (h1.pos.x + h2.pos.x) / 2
+                yp = (h1.pos.y + h2.pos.y) / 2
                 if distance_point_point_fast((x,y), (xp, yp)) <= 4:
                     segment = handles.index(h1)
                     self.split_segment(item, segment)

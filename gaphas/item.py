@@ -96,8 +96,7 @@ class Item(object):
         Called when the canvas is unset for the item.
         This method can be used to dispose constraints.
         """
-        for h in self.handles():
-            h.disconnect()
+        self.canvas.disconnect_item(self)
 
         remove = self.canvas.solver.remove_constraint
         for c in self._constraints:
@@ -174,12 +173,12 @@ class Item(object):
                 self.matrix.translate(x, 0)
                 updated = True
                 for h in handles:
-                    h.x -= x
+                    h.pos.x -= x
             if y:
                 self.matrix.translate(0, y)
                 updated = True
                 for h in handles:
-                    h.y -= y
+                    h.pos.y -= y
         return updated
 
 
@@ -363,15 +362,15 @@ class Element(Item):
         >>> b.width = 20
         >>> b.width
         20.0
-        >>> b._handles[NW].x
+        >>> b._handles[NW].pos.x
         Variable(0, 40)
-        >>> b._handles[SE].x
+        >>> b._handles[SE].pos.x
         Variable(20, 40)
         """
         if width < self.min_width:
             width = self.min_width
         h = self._handles
-        h[SE].x = h[NW].x + width
+        h[SE].pos.x = h[NW].pos.x + width
 
 
     def _get_width(self):
@@ -380,7 +379,7 @@ class Element(Item):
         right handle.
         """
         h = self._handles
-        return float(h[SE].x) - float(h[NW].x)
+        return float(h[SE].pos.x) - float(h[NW].pos.x)
 
     width = property(_get_width, _set_width)
 
@@ -393,22 +392,22 @@ class Element(Item):
         >>> b.height = 2
         >>> b.height
         10.0
-        >>> b._handles[NW].y
+        >>> b._handles[NW].pos.y
         Variable(0, 40)
-        >>> b._handles[SE].y
+        >>> b._handles[SE].pos.y
         Variable(10, 40)
         """
         if height < self.min_height:
             height = self.min_height
         h = self._handles
-        h[SE].y = h[NW].y + height
+        h[SE].pos.y = h[NW].pos.y + height
 
     def _get_height(self):
         """
         Height.
         """
         h = self._handles
-        return float(h[SE].y) - float(h[NW].y)
+        return float(h[SE].pos.y) - float(h[NW].pos.y)
 
     height = property(_get_height, _set_height)
 
@@ -444,10 +443,14 @@ class Element(Item):
     def point(self, pos):
         """
         Distance from the point (x, y) to the item.
+
+        >>> e = Element()
+        >>> e.point((20, 10))
+        10.0
         """
         h = self._handles
-        hnw, hse = h[NW], h[SE]
-        return distance_rectangle_point(map(float, (hnw.x, hnw.y, hse.x, hse.y)), pos)
+        pnw, pse = h[NW].pos, h[SE].pos
+        return distance_rectangle_point(map(float, (pnw.x, pnw.y, pse.x, pse.y)), pos)
 
 
 class Line(Item):
@@ -517,12 +520,14 @@ class Line(Item):
         cons = []
         rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
+            p0 = h0.pos
+            p1 = h1.pos
             if pos % 2 == rest: # odd
-                cons.append(add(eq(a=h0.x, b=h1.x)))
+                cons.append(add(eq(a=p0.x, b=p1.x)))
             else:
-                cons.append(add(eq(a=h0.y, b=h1.y)))
-            self.canvas.solver.request_resolve(h1.x)
-            self.canvas.solver.request_resolve(h1.y)
+                cons.append(add(eq(a=p0.y, b=p1.y)))
+            self.canvas.solver.request_resolve(p1.x)
+            self.canvas.solver.request_resolve(p1.y)
         self._set_orthogonal_constraints(cons)
         self.request_update()
 
@@ -609,8 +614,8 @@ class Line(Item):
         return Handle(pos, strength=strength)
 
     
-    def _create_port(self, h1, h2):
-        return LinePort(h1.pos, h2.pos)
+    def _create_port(self, p1, p2):
+        return LinePort(p1, p2)
 
 
     def _update_ports(self):
@@ -641,9 +646,11 @@ class Line(Item):
         """
         super(Line, self).post_update(context)
         h0, h1 = self._handles[:2]
-        self._head_angle = atan2(h1.y - h0.y, h1.x - h0.x)
+        p0, p1 = h0.pos, h1.pos
+        self._head_angle = atan2(p1.y - p0.y, p1.x - p0.x)
         h1, h0 = self._handles[-2:]
-        self._tail_angle = atan2(h1.y - h0.y, h1.x - h0.x)
+        p1, p0 = h1.pos, h0.pos
+        self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)
 
     def closest_segment(self, pos):
         """
@@ -657,9 +664,10 @@ class Line(Item):
         (0.70710678118654757, (4.5, 4.5), 0)
         """
         h = self._handles
+        hpos = map(getattr, h, ['pos'] * len(h))
 
         # create a list of (distance, point_on_line) tuples:
-        distances = map(distance_line_point, h[:-1], h[1:], [pos] * (len(h) - 1))
+        distances = map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
         distances, pols = zip(*distances)
         return reduce(min, zip(distances, pols, range(len(distances))))
 
@@ -675,7 +683,6 @@ class Line(Item):
         >>> '%.3f' % a.point((29, 29))
         '0.784'
         """
-        h = self._handles
         distance, point, segment = self.closest_segment(pos)
         return max(0, distance - self.fuzziness)
 
@@ -697,11 +704,11 @@ class Line(Item):
         Draw the line itself.
         See Item.draw(context).
         """
-        def draw_line_end(handle, angle, draw):
+        def draw_line_end(pos, angle, draw):
             cr = context.cairo
             cr.save()
             try:
-                cr.translate(handle.x, handle.y)
+                cr.translate(*pos)
                 cr.rotate(angle)
                 draw(context)
             finally:
@@ -709,11 +716,10 @@ class Line(Item):
 
         cr = context.cairo
         cr.set_line_width(self.line_width)
-        draw_line_end(self._handles[0], self._head_angle, self.draw_head)
+        draw_line_end(self._handles[0].pos, self._head_angle, self.draw_head)
         for h in self._handles[1:-1]:
-            cr.line_to(h.x, h.y)
-        h0, h1 = self._handles[-2:]
-        draw_line_end(self._handles[-1], self._tail_angle, self.draw_tail)
+            cr.line_to(*h.pos)
+        draw_line_end(self._handles[-1].pos, self._tail_angle, self.draw_tail)
         cr.stroke()
 
         ### debug code to draw line ports

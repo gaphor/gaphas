@@ -35,16 +35,16 @@ class ElementTestCase(unittest.TestCase):
             count = 1
 
         for i in range(count):
-            h_se.x += 100      # h.se.{x,y} = 10, now
-            h_se.y += 100
+            h_se.pos.x += 100      # h.se.{x,y} = 10, now
+            h_se.pos.y += 100
             box.request_update()
             canvas.update()
 
-        self.assertEquals(110 * count, h_se.x) # h_se changed above, should remain the same
-        self.assertEquals(110 * count, float(h_se.y))
+        self.assertEquals(110 * count, h_se.pos.x) # h_se changed above, should remain the same
+        self.assertEquals(110 * count, float(h_se.pos.y))
 
-        self.assertEquals(110 * count, float(h_ne.x))
-        self.assertEquals(110 * count, float(h_sw.y))
+        self.assertEquals(110 * count, float(h_ne.pos.x))
+        self.assertEquals(110 * count, float(h_sw.pos.y))
 
 
     def test_minimal_se(self):
@@ -63,15 +63,17 @@ class ElementTestCase(unittest.TestCase):
         assert h_sw is handles[SW]
         assert h_se is handles[SE]
 
-        h_se.x -= 20      # h.se.{x,y} == -10
-        h_se.y -= 20
-        assert h_se.x == h_se.y == -10
+        h_se.pos.x -= 20      # h.se.{x,y} == -10
+        h_se.pos.y -= 20
+        assert h_se.pos.x == h_se.pos.y == -10
 
         box.request_update()
         canvas.update()
 
-        self.assertEquals(10, h_se.x) # h_se changed above, should be 10
-        self.assertEquals(10, h_se.y)
+        self.assertEquals(10, h_se.pos.x) # h_se changed above, should be 10
+        self.assertEquals(10, h_se.pos.y)
 
-        self.assertEquals(10, h_ne.x)
-        self.assertEquals(10, h_sw.y)
+        self.assertEquals(10, h_ne.pos.x)
+        self.assertEquals(10, h_sw.pos.y)
+
+# vim:sw=4:et:ai

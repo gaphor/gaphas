@@ -422,11 +422,11 @@ def create_canvas(c=None):
     c.add(t)
 
     l = MyLine()
+    c.add(l)
     l.handles()[1].pos = (30, 30)
     tool = LineSegmentTool()
     tool.split_segment(l, 0, 3)
     l.matrix.translate(30, 60)
-    c.add(l)
     l.orthogonal = True
 
     off_y = 0
