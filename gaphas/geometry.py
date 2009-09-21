@@ -2,7 +2,7 @@
 Geometry functions.
 
 Rectangle is a utility class for working with rectangles (unions and
-intersections)
+intersections).
 
 A point is represented as a tuple `(x, y)`.
 
