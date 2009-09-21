@@ -256,7 +256,9 @@ class View(object):
 
     def set_item_bounding_box(self, item, bounds):
         """
-        Update the bounding box of the item (in item coordinates).
+        Update the bounding box of the item.
+
+        ``bounds`` is in view coordinates.
 
         Coordinates are calculated back to item coordinates, so matrix-only
         updates can occur.
@@ -269,7 +271,7 @@ class View(object):
 
     def get_item_bounding_box(self, item):
         """
-        Get the bounding box for the item, in canvas coordinates.
+        Get the bounding box for the item, in view coordinates.
         """
         return self._qtree.get_bounds(item)
 
