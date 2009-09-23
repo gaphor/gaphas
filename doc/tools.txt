@@ -1,6 +1,8 @@
 Tools proposal
 ==============
 
+ - 2009-06-15
+
 Tools are used to handle user actions, like moving a mouse pointer over the
 screen and clicking on items in the canvas.
 
@@ -8,169 +10,81 @@ Tools are registered on the View. They have some internal state (e.g. when and
 where a mouse button was pressed). Therefore tools can not be reused by
 different views.
 
-The problem with tools on a diagram canvas, such as Gaphas is that they have
-to do so much (too much). To deal with this the tools have been split into
-several smaller tools, each with a specific purpose (deal with handles, items,
-hover, selection). The division as it has been made in Gaphas 0.4 is to coarse
-grained, however. If you want to add extra functionality, like snap to grid,
-item alignment and context menus, a lot of extra code has to be written.
+---- Thoughts - 2009-09-21 ----
+What this may boil down to is that the events that can happen on an item need
+to be defined.
 
-The current implementation has a linear list of tools where each tool is
-executed until one returns ``True``. If in the mean time one tool is interested
-in other events (e.g.  after a mouse button press event) it can "grab" the
-events, so no other tools are executed until the grab is released.
+Those are:
+ - grabbed (button press on item)
+    * handle is grabbed (let item figure this out ;).
+    * center of line segment is grabbed (will cause segment to split)
+ - ungrabbed (button release)
+ - move (item is moved -> hover + grabbed)
+ - item is hovered over
+    * item is hovered over while another item is being moved
+    * item is hovered over while dragging something else (DnD)
+ - key is pressed
+ - key is released
+ - modifier is pressed (e.g. may cause mouse pointer to change, giving a hit
+   about what a grab event will do.
 
-In this proposal a new structure is suggested for dealing with user events.
+The idea behind this is that we can define specific roles to the items,
+depending on the role (state) we provide them with.
 
-The basics are:
+This may reduce the number of tools to at most a few: all logic is implemented
+in the roles.
 
-* Tools are more fine grained.
-* Tools can not decide if other tools should be executed (e.g. a tool that
- handles alignment of items)
-* By default the whole chain is executed. Since this may not be optimal it may
- be concidered to arrange the tools in a tree structure.
-* It should be possible to manipulate the tool chain after creation.
-* In most cases a sequence of press-move-release should be considered an
- "atomic" action.
+An approach described previously scatters the behaviour over a whole bunch of
+tools. In this approach more fine grained tooling was proposed.
 
-Example:
+It's more important to separate the _What_ and the _How_.
 
-``ItemTool`` deals with both selection of the tool (on key press) and moving
-the selected items (on motion notify with button pressed). This tool united
-two different behaviours.
+The _What_ needs to be decided in a tool. Based on this the _How_ logic can be
+applied to the item at hand. For example: if an item is clicked, it should mark
+*itself* as the focused item. Same for dragging: if an item is dragged it should
+update itself based on the event information. It may even apply this to all
+other selected items.
 
-Same goes for ``HandleTool``, which selects (focus) the item who's handle is
-pressed. It also deals with resizing the item who's handle is grabbed.
-And the connecting of Handles to Ports is also handled here. It also sets the
-``hovered_item``.
+This means that the number of tools may even be reduced. On the counter side,
+it may very well be possible that programmers have to write their own tooling.
 
-Decomposition of tools:
+The advantage is that more complex behaviour can be composed. Since the
+decision on what should happen is done in the tool, the Role which is then
+given to the item ensures a certain behaviour is performed.
 
-1. Hover tool - mark item the mouse is currently over
+If this is done elegntly, those roles should be easely usable from the model
+layer as well. This will (for example) fix the issues with handle connection
+(for which a handle tool is needed).
 
-2. Item select tool - click on an item to select it
+For a start the following tools will be implemented:
 
-3. Item move tool - click on an item and move it (should not perform selection)
+1. Item tool (comprises old Hover, Item, Handle, connect and line segment tool)
 
-4. Drop zone tool (find items the dragged item(s) can be put into)
+2. Placement tool - For item placement
 
-5. Rubberband selection tool
+3. RubberbandTool - for rubberband selection
 
-6. Alignment tool for items - when moving an item align it to other items
+4. Pan tool - scroll the canvas over the screen
 
-7. Alignment tool for handles - when moving a handle align it to other items
+5. Zoom tool - deal with zoom-in/out events (key press)
 
-8. Snap to grid for items - Change item placement (not event.[xy]) so the upper left point of the item snaps to a grid
+6. ToolChain - The tool chain
 
-9. Snap to grid for handles - Change handle position to grid position
+Only the first tool will drastically change. The Item tool does some ``if ...
+else ...`` logic and applies a Role to a certain item. This role will be used
+to perform the actions required.
 
-10. Placement tool - place item on the canvas, after which other tools (e.g. handle motion) may take over.
+Also the Placement Tool no longer invokes a HandleTool. It will just apply
+the required role to the item and get it executed.
 
-11. Handle select tool - select a handle
-
-12. Handle move tool - deal with handle motion
-
-13. Pan tool - scroll the canvas over the screen
-
-14. Zoom tool - deal with zoom-in/out events (key press)
-
-15. text edit tool - if clicked on text, open a text-edit popup window
-
-16. Handle connect tool - If handle has been moved, look for items to connect to in the proximity of the moved handle.
-
-17. Line segment tool - deal with splitting of lines
-
-18. Tools that expose behaviours for specific item types (example: line segment
-tool and item alignment, which only has to deal with elements (nodes); a tool for rotating elements)
-
-Reading through the tool definitions a few things come up:
-
-* Tools may depend on other tools e.g. Handle motion depends on a handle being
-clicked on by the user. Alignment tools depend on item or handles being moved
-
-* Each tool should perform one action, and one action only. Heavy tools can not
-be used for customized behaviour (like snap to grid).
-
-* Tools can change how items on the canvas are drawn. E.g. when the mouse
-pointer is hovering over an item or when an item is dragged over it
-(selected, focus, etc). Now the possible states are hard-coded in the View.
-Maybe some mechanism should be made so tools can set a context for the items
-to be drawn (e.g. can act differently when hovering a handle.
-
-Differences with Gaphas 0.4 and earlier
----------------------------------------
-
-Currently the View is passed as part of the context for a view. The new
-implementation will assign a View on construction time and does not need to
-provide a Context on every invocation.
+The sequence of press-move-release should be considered an "atomic" action. No
+explicit grabbing is required on this one. If a tool handles a press event, it
+automatically receives all following move events and the release event.
 
 
+Big changes from Gaphas 0.4 tool include:
 
-Open issues
------------
-
-Do we still need a ``focused_item``, ``selected_items`` and such in the View?
-Should this be some state that is shared between tools (Borg pattern?). This
-information is used by other instances as well (e.g. Painters).
-
-Should View be used to share state between tools (like ``selected_items``)? If
-so, maybe a special container object should be created where tools can set
-their variables on. Maybe it's even possible to share instance dicts?
-
-Should tools find out if events can be handled by them (e.g.
-``tool.can_handle(event)``)? Maybe tools should configure which events they
-want to handle (static)?
-
-Use a generic event method (not one for each event type as it is now)?
-
-How do we know if certain tools should be executed after other tools have been
-executed?
-
-Tool details
-============
-
-Through tools, some information becomes available. For example a hndleSelectTool requires a Button-press-event and provides a geabbed handle if available. Handle motion event requires a grabbed handle and a motion-event. It provides the handle with a new position (which is input for the Handle Connect Tool).
-
-The normal motion tool requires a focused or selected item(s) and a motion-event. It provides new positions to the items.
-
-1. There are 2 levels of state changes, one that lasts as long as an event is being handled and one that lasts multiple events (e.g. from button press, through motion, to button release).
-
-2. Tools should act on state changes. *If* a handle is moved, it should try to connect.
-
-3. Do we need to implement all things as tools. E.g. alignment can be done as a reaction on a item or handle motion event, and not as a separate tool.
-
-
-Handle motion tool
-------------------
-
-  In: selected (focused/grabbed) handle + motion event
-  Out: new handle position
-
-If the mouse pointer is pressed on a handle, that handle becomes the selected handle.
-This handle has the privilege of being moved around (on motion events) until the
-mouse button is released.
-
-
-
-Handle connect tool
--------------------
-
-  In: moved handle (new handle position)
-  Out: handle glued/connected or nothing
-
-The handle connect tool deals with the dynamics of connecting one item to another.
-The actual connection is established between a Handle and a Port. Connections are
-stored on the canvas (Canvas.connect_item() and Canvas.disconnect_item()).
-
-The tool will, based on the current location of a Handle, try to find a Port near that
-handle. If one is found, the handle location is moved to that point, indicating a "glue".
-
-If the mouse button is released, the tool will try to connect the handle to the glued
-port. The port type will by default determine the kind of constraint that's created.
-
-The tool will provide entry points where applications can provide additional constraints
-for connecting. Also a callback should be provided in case a connection is broken. This
-will provide the application feedback an allows it to update the state.
-
-Moving already connected handles is a different issue: we need to (temporally) disable
-the constraint in order to allow the handle to be moved freely. If the handle is connected to the same item a new constraint should be created and the current connection can be updated (unless it's connected to another port on the same item
+ * Tools can contain state and should be used for one view only.
+ * Grabbing is done automatically for press-move-release event sequence.
+ * The _What_ is separated from the _How_, leaving less tools and less
+   overhead (like finding the item under the mouse pointer).
