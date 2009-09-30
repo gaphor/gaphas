@@ -505,7 +505,6 @@ class HandleTool(Tool):
             view.focused_item = item
             self.grab_handle(item, handle)
 
-            #context.grab()
             if handle.connectable:
                 # remove constraint to allow handle movement 
                 self.remove_constraint(item, handle)
@@ -523,7 +522,6 @@ class HandleTool(Tool):
             if grabbed_handle and grabbed_handle.connectable:
                 self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
         finally:
-            #context.ungrab()
             self.ungrab_handle()
 
         if grabbed_handle:
@@ -575,13 +573,11 @@ class RubberbandTool(Tool):
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
 
     def on_button_press(self, context, event):
-        #context.grab()
         self.x0, self.y0 = event.x, event.y
         self.x1, self.y1 = event.x, event.y
         return True
 
     def on_button_release(self, context, event):
-        #context.ungrab()
         self.queue_draw(context.view)
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
         context.view.select_in_rectangle((min(x0, x1), min(y0, y1),
