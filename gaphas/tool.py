@@ -195,6 +195,7 @@ class ToolChain(Tool):
     """
 
     def __init__(self):
+        super(ToolChain, self).__init__()
         self._tools = []
         self._grabbed_tool = None
 
@@ -315,7 +316,6 @@ class ItemTool(Tool):
         self._buttons = buttons
         self._movable_items = set()
 
-    def 
     def on_button_press(self, context, event):
 ### TODO: make keys configurable
         view = context.view
