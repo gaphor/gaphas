@@ -34,10 +34,12 @@ class View(object):
         self._painter = DefaultPainter()
 
         # Handling selections.
+        ### TODO: Move this to a context?
         self._selected_items = set()
         self._focused_item = None
         self._hovered_item = None
         self._dropzone_item = None
+        ###/
 
         self._qtree = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)
@@ -161,7 +163,7 @@ class View(object):
         """
         Unset the hovered item.
         """
-        self.hovered_item = None
+        self._set_hovered_item(None)
         
 
     hovered_item = property(lambda s: s._hovered_item,
@@ -183,7 +185,7 @@ class View(object):
         """
         Unset dropzone item.
         """
-        self._dropzone_item = None
+        self._set_dropzone_item(None)
 
 
     dropzone_item = property(lambda s: s._dropzone_item,
@@ -456,6 +458,7 @@ class GtkView(gtk.DrawingArea, View):
         Set the tool to use. Tools should implement tool.Tool.
         """
         self._tool = tool
+        tool.set_view(self)
         self.emit('tool-changed')
 
 
@@ -550,7 +553,8 @@ class GtkView(gtk.DrawingArea, View):
         get_bounds = self._qtree.get_bounds
         for item in items:
             try:
-                queue_draw_area(*get_bounds(item))
+                if item:
+                    queue_draw_area(*get_bounds(item))
             except KeyError:
                 pass # No bounds calculated yet? bummer.
 

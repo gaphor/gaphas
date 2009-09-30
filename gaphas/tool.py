@@ -86,10 +86,17 @@ class Tool(object):
         gtk.gdk.SCROLL: 'on_scroll'
     }
 
-    def __init__(self):
-        pass
+    def __init__(self, view=None):
+        self.view = view
+
+    def set_view(self, view):
+        self.view = view
 
     def handle(self, context, event):
+        """
+        Deal with the event. The event is dispatched to a specific handler
+        for the event type.
+        """
         handler = self.EVENT_HANDLERS.get(event.type)
         if handler:
             return getattr(self, handler)(context, event) and True or False
@@ -191,44 +198,52 @@ class ToolChain(Tool):
         self._tools = []
         self._grabbed_tool = None
 
+    def set_view(self, view):
+        self.view = view
+        for tool in self._tools:
+            tool.view = self.view
+
     def append(self, tool):
         """
         Append a tool to the chain. Self is returned.
         """
         self._tools.append(tool)
+        tool.view = self.view
         return self
 
-    def prepend(self, tool):
-        """
-        Prepend a tool to the chain. Self is returned.
-        """
-        self._tools.insert(0, tool)
-        return self
+#    def prepend(self, tool):
+#        """
+#        Prepend a tool to the chain. Self is returned.
+#        """
+#        self._tools.insert(0, tool)
+#        tool.view = self.view
+#        return self
 
-    def swap(self, old_tool_class, new_tool):
-        """
-        Swap one tool for another. Note that the first argument is the tool's
-        class (type), not an instance.
-
-        >>> chain = ToolChain().append(HoverTool()).append(RubberbandTool())
-        >>> chain._tools # doctest: +ELLIPSIS
-        [<gaphas.tool.HoverTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
-        >>> chain.swap(HoverTool, ItemTool()) # doctest: +ELLIPSIS
-        <gaphas.tool.ToolChain object at 0x...>
-
-        Now the HoverTool has been substituted for the ItemTool:
-
-        >>> chain._tools # doctest: +ELLIPSIS
-        [<gaphas.tool.ItemTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
-        """
-        tools = self._tools
-        for i in xrange(len(tools)):
-            if type(tools[i]) is old_tool_class:
-                if self._grabbed_tool is tools[i]:
-                    raise ValueError, 'Can\'t swap tools since %s is grabbed' % tools[i]
-                tools[i] = new_tool
-                break
-        return self
+#    def swap(self, old_tool_class, new_tool):
+#        """
+#        Swap one tool for another. Note that the first argument is the tool's
+#        class (type), not an instance.
+#
+#        >>> chain = ToolChain().append(HoverTool()).append(RubberbandTool())
+#        >>> chain._tools # doctest: +ELLIPSIS
+#        [<gaphas.tool.HoverTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
+#        >>> chain.swap(HoverTool, ItemTool()) # doctest: +ELLIPSIS
+#        <gaphas.tool.ToolChain object at 0x...>
+#
+#        Now the HoverTool has been substituted for the ItemTool:
+#
+#        >>> chain._tools # doctest: +ELLIPSIS
+#        [<gaphas.tool.ItemTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
+#        """
+#        tools = self._tools
+#        for i in xrange(len(tools)):
+#            if type(tools[i]) is old_tool_class:
+#                if self._grabbed_tool is tools[i]:
+#                    raise ValueError, 'Can\'t swap tools since %s is grabbed' % tools[i]
+#                tools[i] = new_tool
+#                new_tool.view = self.view
+#                break
+#        return self
 
     def grab(self, tool):
         if not self._grabbed_tool:
@@ -300,9 +315,14 @@ class ItemTool(Tool):
         self._buttons = buttons
         self._movable_items = set()
 
+    def 
     def on_button_press(self, context, event):
 ### TODO: make keys configurable
         view = context.view
+        old_hovered = view.hovered_item
+        item = view.hovered_item = view.get_item_at_point((event.x, event.y))
+
+
         if event.button not in self._buttons:
             return False
         self.last_x, self.last_y = event.x, event.y
@@ -320,8 +340,9 @@ class ItemTool(Tool):
                 view.unselect_item(view.hovered_item)
 ###/
             else:
-                view.focused_item = view.hovered_item
 ### to role
+# with Selected.played_by(item)
+                view.focused_item = view.hovered_item
                 # Filter the items that should eventually be moved
                 get_ancestors = view.canvas.get_ancestors
                 selected_items = set(view.selected_items)
