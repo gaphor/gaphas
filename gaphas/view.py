@@ -20,7 +20,7 @@ from decorators import nonrecursive
 DEBUG_DRAW_BOUNDING_BOX = False
 DEBUG_DRAW_QUADTREE = False
 
-# The default cursor (in case of a cursor reset)
+# The default cursor (use in case of a cursor reset)
 DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
 
 

@@ -29,9 +29,6 @@ Tools can handle events in different ways
 
 - event can be ignored
 - tool can handle the event (obviously)
-- event and all successive events can be grabbed until the tool is done
-  (e.g. on a button press/release), see `Context.grab` and `Context.ungrab`
-  methods
 """
 
 __version__ = "$Revision$"
@@ -64,14 +61,15 @@ class ToolContext(Context):
         """
         Grab the view (or tool, depending on the implementation).
         """
-        self.view.grab_focus()
+        print 'Calling ToolContext.grab() is deprecated'
+        pass
 
     def ungrab(self):
         """
         Ungrab the view.
         """
+        print 'Calling ToolContext.ungrab() is deprecated'
         pass
-
 
 
 class Tool(object):
@@ -127,7 +125,6 @@ class Tool(object):
         Not that double and tripple clicks'...
         """
         if DEBUG_TOOL: print 'on_button_release', context, event
-        pass
 
     def on_double_click(self, context, event):
         """
@@ -135,7 +132,6 @@ class Tool(object):
         on the View.
         """
         if DEBUG_TOOL: print 'on_double_click', context, event
-        pass
 
     def on_triple_click(self, context, event):
         """
@@ -143,35 +139,30 @@ class Tool(object):
         on the View.
         """
         if DEBUG_TOOL: print 'on_triple_click', context, event
-        pass
 
     def on_motion_notify(self, context, event):
         """
         Mouse (pointer) is moved.
         """
         if DEBUG_TOOL: print 'on_motion_notify', context, event
-        pass
 
     def on_key_press(self, context, event):
         """
         Keyboard key is pressed.
         """
         if DEBUG_TOOL: print 'on_key_press', context, event
-        pass
 
     def on_key_release(self, context, event):
         """
         Keyboard key is released again (follows a key press normally).
         """
         if DEBUG_TOOL: print 'on_key_release', context, event
-        pass
 
     def on_scroll(self, context, event):
         """
         Scroll wheel was turned.
         """
         if DEBUG_TOOL: print 'on_scroll', context, event, event.direction
-        pass
 
     def draw(self, context):
         """
@@ -185,36 +176,6 @@ class Tool(object):
         """
         pass
 
-
-class ToolChainContext(Context):
-    """
-    ToolChainContext is a wrapper for the ToolContext.
-    In addition to normal grab/ungrab behavior, it selects the tool that
-    is requesting the grab() as the one tool that will receive subsequent
-    requests until it is ungrab()'ed.
-    """
-
-    def __init__(self, tool_chain, tool_context, **kwargs):
-        super(ToolChainContext, self).__init__(**kwargs)
-        self.__dict__['_tool_chain'] = tool_chain
-        self.__dict__['_tool_context'] = tool_context
-
-    def __getattr__(self, key):
-        """
-        Delegate the getattr request to the wrapped tool_context.
-        """
-        return getattr(self._tool_context, key)
-
-    def set_tool(self, tool):
-        self.__dict__['_tool'] = tool
-
-    def grab(self):
-        self._tool_context.grab()
-        self._tool_chain.grab(self._tool)
-
-    def ungrab(self):
-        self._tool_context.ungrab()
-        self._tool_chain.ungrab(self._tool)
 
 
 class ToolChain(Tool):
@@ -283,17 +244,25 @@ class ToolChain(Tool):
         """
         Handle the event by calling each tool until the event is handled
         or grabbed.
+
+        If a tool is returning True on a button press event, the motion and
+        button release events are also passed to this 
         """
-        context = ToolChainContext(tool_chain=self, tool_context=context)
-        if self._grabbed_tool and event.type not in (gtk.gdk._2BUTTON_PRESS, gtk.gdk._3BUTTON_PRESS):
-            context.set_tool(self._grabbed_tool)
-            return self._grabbed_tool.handle(context, event)
+        handler = self.EVENT_HANDLERS.get(event.type)
+        if self._grabbed_tool and handler:
+            try:
+                return self._grabbed_tool.handle(context, event)
+            finally:
+                if event.type == gtk.gdk.BUTTON_RELEASE:
+                    self.ungrab(self._grabbed_tool)
         else:
             for tool in self._tools:
                 if DEBUG_TOOL_CHAIN: print 'tool', tool
-                context.set_tool(tool)
                 rt = tool.handle(context, event)
                 if rt:
+                    if event.type == gtk.gdk.BUTTON_PRESS:
+                        context.view.grab_focus()
+                        self.grab(tool)
                     return rt
 
 
@@ -352,7 +321,6 @@ class ItemTool(Tool):
 ###/
             else:
                 view.focused_item = view.hovered_item
-                context.grab()
 ### to role
                 # Filter the items that should eventually be moved
                 get_ancestors = view.canvas.get_ancestors
@@ -368,7 +336,6 @@ class ItemTool(Tool):
         if event.button not in self._buttons:
             return False
         self._movable_items.clear()
-        context.ungrab()
         return True
 
     def on_motion_notify(self, context, event):
@@ -538,7 +505,7 @@ class HandleTool(Tool):
             view.focused_item = item
             self.grab_handle(item, handle)
 
-            context.grab()
+            #context.grab()
             if handle.connectable:
                 # remove constraint to allow handle movement 
                 self.remove_constraint(item, handle)
@@ -556,7 +523,7 @@ class HandleTool(Tool):
             if grabbed_handle and grabbed_handle.connectable:
                 self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
         finally:
-            context.ungrab()
+            #context.ungrab()
             self.ungrab_handle()
 
         if grabbed_handle:
@@ -608,13 +575,13 @@ class RubberbandTool(Tool):
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
 
     def on_button_press(self, context, event):
-        context.grab()
+        #context.grab()
         self.x0, self.y0 = event.x, event.y
         self.x1, self.y1 = event.x, event.y
         return True
 
     def on_button_release(self, context, event):
-        context.ungrab()
+        #context.ungrab()
         self.queue_draw(context.view)
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
         context.view.select_in_rectangle((min(x0, x1), min(y0, y1),
@@ -659,12 +626,10 @@ class PanTool(Tool):
         if not event.state & PAN_MASK == PAN_VALUE:
             return False
         if event.button == 2:
-            context.grab()
             self.x0, self.y0 = event.x, event.y
             return True
 
     def on_button_release(self, context, event):
-        context.ungrab()
         self.x0, self.y0 = event.x, event.y
         return True
 
@@ -719,14 +684,12 @@ class ZoomTool(Tool):
         if event.button == 2 \
                 and event.state & ZOOM_MASK == ZOOM_VALUE:
             print "GRABBING"
-            context.grab()
             self.x0 = event.x
             self.y0 = event.y
             self.lastdiff = 0
             return True
 
     def on_button_release(self, context, event):
-        context.ungrab()
         self.lastdiff = 0
         return True
 
@@ -761,7 +724,6 @@ class ZoomTool(Tool):
     def on_scroll(self, context, event):
         if event.state & gtk.gdk.CONTROL_MASK:
             view = context.view
-            context.grab()
             sx = view._matrix[0]
             sy = view._matrix[3]
             ox = (view._matrix[4] - event.x) / sx
@@ -774,7 +736,6 @@ class ZoomTool(Tool):
             view._matrix.translate(+ox, +oy)
             # Make sure everything's updated
             view.request_update((), view._canvas.get_all_items())
-            context.ungrab()
             return True
 
 
@@ -808,7 +769,6 @@ class PlacementTool(Tool):
         if h.movable:
             self._handle_tool.grab_handle(new_item, h)
             self._grabbed_handle = h
-            context.grab()
         return True
 
 
@@ -822,7 +782,6 @@ class PlacementTool(Tool):
 
 
     def on_button_release(self, context, event):
-        context.ungrab()
         if self._grabbed_handle:
             self._handle_tool.on_button_release(context, event)
             self._grabbed_handle = None
@@ -1345,7 +1304,6 @@ class LineSegmentTool(ConnectHandleTool):
 
                     self.grab_handle(item, item.handles()[segment + 1])
 ###/
-                    context.grab()
                     return True
 
     def on_button_release(self, context, event):
