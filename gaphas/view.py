@@ -351,18 +351,6 @@ class View(object):
                 pass
 
 
-# Map GDK events to tool methods
-EVENT_HANDLERS = {
-    gtk.gdk.BUTTON_PRESS: 'on_button_press',
-    gtk.gdk.BUTTON_RELEASE: 'on_button_release',
-    gtk.gdk._2BUTTON_PRESS: 'on_double_click',
-    gtk.gdk._3BUTTON_PRESS: 'on_triple_click',
-    gtk.gdk.MOTION_NOTIFY: 'on_motion_notify',
-    gtk.gdk.KEY_PRESS: 'on_key_press',
-    gtk.gdk.KEY_RELEASE: 'on_key_release',
-    gtk.gdk.SCROLL: 'on_scroll'
-}
-
 
 
 class GtkView(gtk.DrawingArea, View):
@@ -755,9 +743,8 @@ class GtkView(gtk.DrawingArea, View):
         """
         Handle GDK events. Events are delegated to a `tool.Tool`.
         """
-        handler = EVENT_HANDLERS.get(event.type)
-        if self._tool and handler:
-            return getattr(self._tool, handler)(ToolContext(view=self), event) and True or False
+        if self._tool:
+            return self._tool.handle(ToolContext(view=self), event) and True or False
         return False
 
 
@@ -788,8 +775,8 @@ class GtkView(gtk.DrawingArea, View):
 # Set a signal to set adjustments. This way a ScrolledWindow can set its own
 # Adjustment objects on the View. Otherwise a warning is shown:
 #
-# GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget use
-# gtk_scrolled_window_add_with_viewport() instead
+#   GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget
+#   use gtk_scrolled_window_add_with_viewport() instead
 
 GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 

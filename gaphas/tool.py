@@ -73,10 +73,29 @@ class ToolContext(Context):
         pass
 
 
+
 class Tool(object):
+
+    # Map GDK events to tool methods
+    EVENT_HANDLERS = {
+        gtk.gdk.BUTTON_PRESS: 'on_button_press',
+        gtk.gdk.BUTTON_RELEASE: 'on_button_release',
+        gtk.gdk._2BUTTON_PRESS: 'on_double_click',
+        gtk.gdk._3BUTTON_PRESS: 'on_triple_click',
+        gtk.gdk.MOTION_NOTIFY: 'on_motion_notify',
+        gtk.gdk.KEY_PRESS: 'on_key_press',
+        gtk.gdk.KEY_RELEASE: 'on_key_release',
+        gtk.gdk.SCROLL: 'on_scroll'
+    }
 
     def __init__(self):
         pass
+
+    def handle(self, context, event):
+        handler = self.EVENT_HANDLERS.get(event.type)
+        if handler:
+            return getattr(self, handler)(context, event) and True or False
+        return False
 
     def on_button_press(self, context, event):
         """
@@ -260,7 +279,7 @@ class ToolChain(Tool):
             if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
             self._grabbed_tool = None
 
-    def _handle(self, func, context, event):
+    def handle(self, context, event):
         """
         Handle the event by calling each tool until the event is handled
         or grabbed.
@@ -268,38 +287,15 @@ class ToolChain(Tool):
         context = ToolChainContext(tool_chain=self, tool_context=context)
         if self._grabbed_tool and event.type not in (gtk.gdk._2BUTTON_PRESS, gtk.gdk._3BUTTON_PRESS):
             context.set_tool(self._grabbed_tool)
-            return getattr(self._grabbed_tool, func)(context, event)
+            return self._grabbed_tool.handle(context, event)
         else:
             for tool in self._tools:
                 if DEBUG_TOOL_CHAIN: print 'tool', tool
                 context.set_tool(tool)
-                rt = getattr(tool, func)(context, event)
+                rt = tool.handle(context, event)
                 if rt:
                     return rt
 
-    def on_button_press(self, context, event):
-        self._handle('on_button_press', context, event)
-
-    def on_button_release(self, context, event):
-        self._handle('on_button_release', context, event)
-
-    def on_double_click(self, context, event):
-        self._handle('on_double_click', context, event)
-
-    def on_triple_click(self, context, event):
-        self._handle('on_triple_click', context, event)
-
-    def on_motion_notify(self, context, event):
-        self._handle('on_motion_notify', context, event)
-
-    def on_key_press(self, context, event):
-        self._handle('on_key_press', context, event)
-
-    def on_key_release(self, context, event):
-        self._handle('on_key_release', context, event)
-
-    def on_scroll(self, context, event):
-        self._handle('on_scroll', context, event)
 
     def draw(self, context):
         if self._grabbed_tool:
@@ -336,6 +332,7 @@ class ItemTool(Tool):
         self._movable_items = set()
 
     def on_button_press(self, context, event):
+### TODO: make keys configurable
         view = context.view
         if event.button not in self._buttons:
             return False
@@ -345,15 +342,18 @@ class ItemTool(Tool):
         if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                 or view.hovered_item in view.selected_items):
             del view.selected_items
+### Add hover check
         if view.hovered_item:
             if view.hovered_item in view.selected_items and \
                     event.state & gtk.gdk.CONTROL_MASK:
+### To role Select.unselect()
                 view.focused_item = None
                 view.unselect_item(view.hovered_item)
+###/
             else:
                 view.focused_item = view.hovered_item
                 context.grab()
-
+### to role
                 # Filter the items that should eventually be moved
                 get_ancestors = view.canvas.get_ancestors
                 selected_items = set(view.selected_items)
@@ -361,7 +361,7 @@ class ItemTool(Tool):
                     # Do not move subitems of selected items
                     if not set(get_ancestors(i)).intersection(selected_items):
                         self._movable_items.add(i)
-
+###/
             return True
 
     def on_button_release(self, context, event):
@@ -999,6 +999,7 @@ class ConnectHandleTool(HandleTool):
         return item, port, glue_pos
 
 
+### To role
     def can_glue(self, view, line, handle, item, port):
         """
         Determine if line's handle can connect to a port of an item.
@@ -1022,6 +1023,7 @@ class ConnectHandleTool(HandleTool):
         return True
 
 
+# Needed??
     def post_connect(self, line, handle, item, port):
         """
         The method is invoked just after low-level connection is performed
@@ -1042,6 +1044,7 @@ class ConnectHandleTool(HandleTool):
         pass
 
 
+# Move to Connector.connect()
     def connect(self, view, line, handle, vpos):
         """
         Connect a handle of a line to connectable item.
@@ -1078,6 +1081,7 @@ class ConnectHandleTool(HandleTool):
         self.post_connect(line, handle, item, port)
 
 
+# To role Connector.connect_handle
     def connect_handle(self, line, handle, item, port):
         """
         Create constraint between handle of a line and port of connectable
@@ -1104,6 +1108,7 @@ class ConnectHandleTool(HandleTool):
         canvas.connect_item(line, handle, item, port, constraint=constraint)
 
 
+### To role Connector.disconnect()
     def disconnect(self, view, line, handle):
         """
         Disconnect line (connecting item) from an item.
@@ -1328,9 +1333,10 @@ class LineSegmentTool(ConnectHandleTool):
         view = context.view
         item = view.hovered_item
         if item and item is view.focused_item and isinstance(item, Line):
+### To role SegmentSplitter.add_handle(segment)
             handles = item.handles()
             x, y = view.get_matrix_v2i(item).transform_point(event.x, event.y)
-            for h1, h2 in zip(handles[:-1], handles[1:]):
+            for h1, h2 in zip(handles, handles[1:]):
                 xp = (h1.pos.x + h2.pos.x) / 2
                 yp = (h1.pos.y + h2.pos.y) / 2
                 if distance_point_point_fast((x,y), (xp, yp)) <= 4:
@@ -1338,9 +1344,9 @@ class LineSegmentTool(ConnectHandleTool):
                     self.split_segment(item, segment)
 
                     self.grab_handle(item, item.handles()[segment + 1])
+###/
                     context.grab()
                     return True
-
 
     def on_button_release(self, context, event):
         """
