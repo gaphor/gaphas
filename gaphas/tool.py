@@ -42,6 +42,8 @@ from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
+from gaphas.itemrole import Selection
+
 
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
@@ -277,7 +279,7 @@ class ToolChain(Tool):
                 rt = tool.handle(context, event)
                 if rt:
                     if event.type == gtk.gdk.BUTTON_PRESS:
-                        context.view.grab_focus()
+                        self.view.grab_focus()
                         self.grab(tool)
                     return rt
 
@@ -296,7 +298,7 @@ class HoverTool(Tool):
         pass
 
     def on_motion_notify(self, context, event):
-        view = context.view
+        view = self.view
         old_hovered = view.hovered_item
         view.hovered_item = view.get_item_at_point((event.x, event.y))
         return None
@@ -316,9 +318,21 @@ class ItemTool(Tool):
         self._buttons = buttons
         self._movable_items = set()
 
+    def movable_items(self):
+        """
+        Filter the items that should eventually be moved
+        """
+        view = self.view
+        get_ancestors = view.canvas.get_ancestors
+        selected_items = set(view.selected_items)
+        for i in selected_items:
+            # Do not move subitems of selected items
+            if not set(get_ancestors(i)).intersection(selected_items):
+                yield i
+
     def on_button_press(self, context, event):
-### TODO: make keys configurable
-        view = context.view
+    ### TODO: make keys configurable
+        view = self.view
         old_hovered = view.hovered_item
         item = view.hovered_item = view.get_item_at_point((event.x, event.y))
 
@@ -331,26 +345,16 @@ class ItemTool(Tool):
         if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                 or view.hovered_item in view.selected_items):
             del view.selected_items
-### Add hover check
+
         if view.hovered_item:
             if view.hovered_item in view.selected_items and \
                     event.state & gtk.gdk.CONTROL_MASK:
-### To role Select.unselect()
-                view.focused_item = None
-                view.unselect_item(view.hovered_item)
-###/
+                with Selection.played_by(item):
+                    item.unselect(view)
             else:
-### to role
-# with Selected.played_by(item)
-                view.focused_item = view.hovered_item
-                # Filter the items that should eventually be moved
-                get_ancestors = view.canvas.get_ancestors
-                selected_items = set(view.selected_items)
-                for i in selected_items:
-                    # Do not move subitems of selected items
-                    if not set(get_ancestors(i)).intersection(selected_items):
-                        self._movable_items.add(i)
-###/
+                with Selection.played_by(item):
+                    item.focus(view)
+                self._movable_items = set(self.movable_items())
             return True
 
     def on_button_release(self, context, event):
@@ -366,7 +370,7 @@ class ItemTool(Tool):
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
             # Move selected items
-            view = context.view
+            view = self.view
             canvas = view.canvas
 
             # Calculate the distance the item has to be moved
@@ -514,7 +518,7 @@ class HandleTool(Tool):
         top of a Handle (item.Handle), that handle is grabbed and can be
         dragged around.
         """
-        view = context.view
+        view = self.view
         item, handle = self.find_handle(view, event)
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
@@ -539,7 +543,7 @@ class HandleTool(Tool):
         # queue extra redraw to make sure the item is drawn properly
         grabbed_handle, grabbed_item = self._grabbed_handle, self._grabbed_item
         try:
-            view = context.view
+            view = self.view
             if grabbed_handle and grabbed_handle.connectable:
                 self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
         finally:
@@ -555,7 +559,7 @@ class HandleTool(Tool):
         else, if the pointer is over a handle, make the owning item the
         hovered-item.
         """
-        view = context.view
+        view = self.view
         if self._grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
             canvas = view.canvas
             item = self._grabbed_item
@@ -599,15 +603,15 @@ class RubberbandTool(Tool):
         return True
 
     def on_button_release(self, context, event):
-        self.queue_draw(context.view)
+        self.queue_draw(self.view)
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
-        context.view.select_in_rectangle((min(x0, x1), min(y0, y1),
+        self.view.select_in_rectangle((min(x0, x1), min(y0, y1),
                  abs(x1 - x0), abs(y1 - y0)))
         return True
 
     def on_motion_notify(self, context, event):
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
-            view = context.view
+            view = self.view
             self.queue_draw(view)
             self.x1, self.y1 = event.x, event.y
             self.queue_draw(view)
@@ -652,7 +656,7 @@ class PanTool(Tool):
 
     def on_motion_notify(self, context, event):
         if event.state & gtk.gdk.BUTTON2_MASK:
-            view = context.view
+            view = self.view
             self.x1, self.y1 = event.x, event.y
             dx = self.x1 - self.x0
             dy = self.y1 - self.y0
@@ -667,7 +671,7 @@ class PanTool(Tool):
         # Ensure no modifiers
         if not event.state & PAN_MASK == PAN_VALUE:
             return False
-        view = context.view
+        view = self.view
         direction = event.direction
         gdk = gtk.gdk
         if direction == gdk.SCROLL_LEFT:
@@ -713,7 +717,7 @@ class ZoomTool(Tool):
     def on_motion_notify(self, context, event):
         if event.state & ZOOM_MASK == ZOOM_VALUE \
                 and event.state & gtk.gdk.BUTTON2_MASK:
-            view = context.view
+            view = self.view
             dy = event.y - self.y0
 
             sx = view._matrix[0]
@@ -740,7 +744,7 @@ class ZoomTool(Tool):
 
     def on_scroll(self, context, event):
         if event.state & gtk.gdk.CONTROL_MASK:
-            view = context.view
+            view = self.view
             sx = view._matrix[0]
             sy = view._matrix[3]
             ox = (view._matrix[4] - event.x) / sx
@@ -772,7 +776,7 @@ class PlacementTool(Tool):
 
 
     def on_button_press(self, context, event):
-        view = context.view
+        view = self.view
         canvas = view.canvas
         new_item = self._create_item(context, (event.x, event.y))
         # Enforce matrix update, as a good matrix is required for the handle
@@ -790,7 +794,7 @@ class PlacementTool(Tool):
 
 
     def _create_item(self, context, pos):
-        view = context.view
+        view = self.view
         canvas = view.canvas
         item = self._factory()
         x, y = view.get_matrix_v2i(item).transform_point(*pos)
@@ -830,7 +834,7 @@ class TextEditTool(Tool):
         window.set_property('decorated', False)
         window.set_resize_mode(gtk.RESIZE_IMMEDIATE)
         #window.set_modal(True)
-        window.set_parent_window(context.view.window)
+        window.set_parent_window(self.view.window)
         buffer = gtk.TextBuffer()
         text_view = gtk.TextView()
         text_view.set_buffer(buffer)
@@ -838,7 +842,7 @@ class TextEditTool(Tool):
         window.add(text_view)
         window.size_allocate(gtk.gdk.Rectangle(int(event.x), int(event.y), 50, 50))
         #window.move(int(event.x), int(event.y))
-        cursor_pos = context.view.get_toplevel().get_screen().get_display().get_pointer()
+        cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)
@@ -1306,7 +1310,7 @@ class LineSegmentTool(ConnectHandleTool):
         if super(LineSegmentTool, self).on_button_press(context, event):
             return True
 
-        view = context.view
+        view = self.view
         item = view.hovered_item
         if item and item is view.focused_item and isinstance(item, Line):
 ### To role SegmentSplitter.add_handle(segment)
@@ -1352,7 +1356,7 @@ class LineSegmentTool(ConnectHandleTool):
                 d, p = distance_line_point(before.pos, after.pos, grabbed_handle.pos)
 
                 if d < 2:
-                    assert len(context.view.canvas.solver._marked_cons) == 0
+                    assert len(self.view.canvas.solver._marked_cons) == 0
                     self.merge_segment(grabbed_item, segment)
 
             return True
@@ -1364,8 +1368,8 @@ def DefaultTool():
     The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
         #append(ConnectHandleTool()). \
+        #append(HoverTool()). \
     chain = ToolChain(). \
-        append(HoverTool()). \
         append(LineSegmentTool()). \
         append(PanTool()). \
         append(ZoomTool()). \

@@ -320,10 +320,11 @@ class LineSegmentToolTestCase(unittest.TestCase):
         """Test if line is splitted while pressing it in the middle
         """
         tool = LineSegmentTool()
+        tool.set_view(self.view)
+
         def dummy_grab(): pass
 
-        context = Context(view=self.view,
-                grab=dummy_grab,
+        context = Context(grab=dummy_grab,
                 ungrab=dummy_grab)
 
         head, tail = self.line.handles()
@@ -340,10 +341,10 @@ class LineSegmentToolTestCase(unittest.TestCase):
         """Test if line is merged by moving handle onto adjacent handle
         """
         tool = LineSegmentTool()
+        tool.set_view(self.view)
         def dummy_grab(): pass
 
-        context = Context(view=self.view,
-                grab=dummy_grab,
+        context = Context(grab=dummy_grab,
                 ungrab=dummy_grab)
 
         self.view.hovered_item = self.line
@@ -361,10 +362,11 @@ class LineSegmentToolTestCase(unittest.TestCase):
         """Test if proper segment is merged
         """
         tool = LineSegmentTool()
+        tool.set_view(self.view)
+
         def dummy_grab(): pass
 
-        context = Context(view=self.view,
-                grab=dummy_grab,
+        context = Context(grab=dummy_grab,
                 ungrab=dummy_grab)
 
         self.view.hovered_item = self.line

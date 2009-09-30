@@ -414,13 +414,8 @@ class GtkView(gtk.DrawingArea, View):
         self.emit('set-scroll-adjustments', hadjustment, vadjustment)
 
         self._tool = DefaultTool()
+        self._tool.set_view(self)
         
-        # TODO: add some "tool" to do some low priority event post-processing
-        #    This way we can add features like element alignment in a fairly
-        #    non-intrusive way. Add a few methods that allow tools to mark
-        #    item/handle pairs for post-processing.
-        #    maybe adding it to the tool context would be enough (?).
-
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
 
