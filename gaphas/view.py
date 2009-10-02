@@ -70,9 +70,16 @@ class View(object):
     canvas = property(lambda s: s._canvas, _set_canvas)
 
 
-    def emit(self, args, **kwargs):
+    def emit(self, *args, **kwargs):
         """
         Placeholder method for signal emission functionality.
+        """
+        pass
+
+
+    def queue_draw_item(self, *items):
+        """
+        Placeholder for item redraw queueing.
         """
         pass
 

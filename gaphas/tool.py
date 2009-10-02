@@ -42,8 +42,7 @@ from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
-from gaphas.itemrole import Selection
-
+from gaphas.itemrole import Selection, Connector, ConnectionSink
 
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
@@ -318,6 +317,9 @@ class ItemTool(Tool):
         self._buttons = buttons
         self._movable_items = set()
 
+    def get_item(self):
+        return self.view.hovered_item
+
     def movable_items(self):
         """
         Filter the items that should eventually be moved
@@ -325,28 +327,28 @@ class ItemTool(Tool):
         view = self.view
         get_ancestors = view.canvas.get_ancestors
         selected_items = set(view.selected_items)
-        for i in selected_items:
+        for item in selected_items:
             # Do not move subitems of selected items
-            if not set(get_ancestors(i)).intersection(selected_items):
-                yield i
+            if not set(get_ancestors(item)).intersection(selected_items):
+                yield item
 
     def on_button_press(self, context, event):
-    ### TODO: make keys configurable
+        ### TODO: make keys configurable
         view = self.view
-        old_hovered = view.hovered_item
-        item = view.hovered_item = view.get_item_at_point((event.x, event.y))
-
+        item = self.get_item()
 
         if event.button not in self._buttons:
             return False
+        
         self.last_x, self.last_y = event.x, event.y
+
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
         if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
-                or view.hovered_item in view.selected_items):
+                or item in view.selected_items):
             del view.selected_items
 
-        if view.hovered_item:
+        if item:
             if view.hovered_item in view.selected_items and \
                     event.state & gtk.gdk.CONTROL_MASK:
                 with Selection.played_by(item):
@@ -377,11 +379,11 @@ class ItemTool(Tool):
             dx, dy = event.x - self.last_x, event.y - self.last_y
 
             # Now do the actual moving.
-            for i in self._movable_items:
+            for item in self._movable_items:
                 # Move the item and schedule it for an update
-                v2i = view.get_matrix_v2i(i)
-                i.matrix.translate(*v2i.transform_distance(dx, dy))
-                canvas.request_matrix_update(i)
+                v2i = view.get_matrix_v2i(item)
+                with Selection.played_by(item):
+                    item.move(*v2i.transform_distance(dx, dy))
 
             # TODO: if isinstance(item, Element):
             #   schedule item to be handled by some "guides" tool
@@ -523,17 +525,21 @@ class HandleTool(Tool):
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
+### TODO: duplicate from ItemTool
             if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                     or view.hovered_item in view.selected_items):
                 del view.selected_items
             view.hovered_item = item
             view.focused_item = item
+###/
             self.grab_handle(item, handle)
 
             if handle.connectable:
                 # remove constraint to allow handle movement 
+### TODO: To role
                 self.remove_constraint(item, handle)
-
+                # Connector(item).remove_constraint(handle)
+###/
             return True
 
     def on_button_release(self, context, event):
@@ -1101,7 +1107,8 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of connecting item.
         """
-        line.canvas.disconnect_item(line, handle)
+        with Connector.played_by(line):
+            line.disconnect(handle)
 
 
     @staticmethod
@@ -1117,27 +1124,15 @@ class ConnectHandleTool(HandleTool):
          item
             Item the line will connect to.
         """
-        port = None
-        max_dist = sys.maxint
+        #port = None
+        #max_dist = sys.maxint
         canvas = item.canvas
 
-        # line's handle position to canvas coordinates
-        i2c = canvas.get_matrix_i2c(line)
-        hx, hy = i2c.transform_point(*handle.pos)
-
-        # from canvas to item coordinates
-        c2i = canvas.get_matrix_c2i(item)
-        ix, iy = c2i.transform_point(hx, hy)
+        ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
 
         # find the port using item's coordinates
-        for p in item.ports():
-            pg, d = p.glue((ix, iy))
-            if d >= max_dist:
-                continue
-            port = p
-            max_dist = d
-
-        return port
+        with ConnectionSink.played_by(item):
+            return item.glue((ix, iy))
 
 
     def remove_constraint(self, line, handle):
@@ -1151,10 +1146,12 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of a line connecting to an item.
         """
-        canvas = line.canvas
-        data = canvas.get_connection_data(line, handle)
-        if data:
-            canvas.solver.remove_constraint(data[0])
+        with Connector.played_by(line):
+            line.remove_constraints(handle)
+        #canvas = line.canvas
+        #data = canvas.get_connection_data(line, handle)
+        #if data:
+            #canvas.solver.remove_constraint(data[0])
 
 
 
@@ -1322,9 +1319,8 @@ class LineSegmentTool(ConnectHandleTool):
                 if distance_point_point_fast((x,y), (xp, yp)) <= 4:
                     segment = handles.index(h1)
                     self.split_segment(item, segment)
-
-                    self.grab_handle(item, item.handles()[segment + 1])
 ###/
+                    self.grab_handle(item, item.handles()[segment + 1])
                     return True
 
     def on_button_release(self, context, event):
@@ -1368,8 +1364,8 @@ def DefaultTool():
     The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
         #append(ConnectHandleTool()). \
-        #append(HoverTool()). \
     chain = ToolChain(). \
+        append(HoverTool()). \
         append(LineSegmentTool()). \
         append(PanTool()). \
         append(ZoomTool()). \

@@ -492,6 +492,15 @@ class Canvas(object):
             self.update_matrix(item)
         return item._matrix_c2i
 
+    def get_matrix_i2i(self, from_item, to_item, calculate=False):
+        i2c = self.get_matrix_i2c(from_item, calculate)
+        c2i = self.get_matrix_c2i(to_item, calculate)
+        try:
+            return i2c.multiply(c2i)
+        except AttributeError:
+            # Fall back to old behaviour
+            return i2c * c2i
+        
     #{ Update cycle
 
     @observed

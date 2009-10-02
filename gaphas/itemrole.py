@@ -7,39 +7,70 @@ from roles import RoleType
 class Selection(object):
     """
     A role for items. When dealing with selection.
+
+    Behaviour can be overridden by applying the @assignto decorator
+    to a subclass.
     """
     __metaclass__ = RoleType
 
     def focus(self, view):
+        """
+        Set selection on the view.
+        """
         view.focused_item = self
-
-    def select(self, view, unselect=False):
-        view.focused_item = this
-        # Filter the items that should eventually be moved
-        get_ancestors = view.canvas.get_ancestors
-        selected_items = set(view.selected_items)
-        for i in selected_items:
-            # Do not move subitems of selected items
-            if not set(get_ancestors(i)).intersection(selected_items):
-                self._movable_items.add(i)
 
     def unselect(self, view):
         view.focused_item = None
         view.unselect_item(self)
 
-    def move(self, event):
-        # TODO: don't want events here
-        pass
+    def move(self, dx, dy):
+        self.matrix.translate(dx, dy)
+        self.canvas.request_matrix_update(self)
 
 
-def Connecter(object):
+class Connector(object):
     __metaclass__ = RoleType
 
-    def connect_to(self, sink):
+    def connect(self, sink):
         pass
 
-def Sink(object):
+    def remove_constraints(self, handle):
+        """
+        Disable the constraints for a handle. The handle can then move
+        freely."
+        """
+        canvas = self.canvas
+        data = canvas.get_connection_data(self, handle)
+        if data:
+            canvas.solver.remove_constraint(data[0])
+
+    def disconnect(self, handle):
+        """
+        Disconnect the handle from.
+        """
+        self.canvas.disconnect_item(self, handle)
+
+
+class ConnectionSink(object):
+    """
+    This role should be applied to items that is connected to.
+    """
     __metaclass__ = RoleType
+
+    def glue(self, pos):
+        """
+        Glue to the closest item on the canvas.
+        If the item can connect, it returns a port.
+        """
+        port = None
+        for p in self.ports():
+            pg, d = p.glue((x, y))
+            if d >= max_dist:
+                continue
+            port = p
+            max_dist = d
+
+        return port
 
 
 # vim:sw=4:et:ai

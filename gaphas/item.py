@@ -28,7 +28,7 @@ class Item(object):
 
     - matrix: item's transformation matrix
     - canvas: canvas, which owns an item
-    - constraints: list ofitem constraints, automatically registered
+    - constraints: list of item constraints, automatically registered
       when the item is added to a canvas; may be extended in subclasses
 
     Private:

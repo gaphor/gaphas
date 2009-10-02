@@ -8,6 +8,7 @@ __version__ = "$Revision$"
 from math import pi
 import cairo
 
+
 def text_extents(cr, text, font=None, multiline=False, padding=1):
     """
     Simple way to determine the size of a piece of text.
