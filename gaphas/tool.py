@@ -1078,7 +1078,7 @@ class ConnectHandleTool(HandleTool):
         self.post_connect(line, handle, item, port)
 
 
-    def connect_handle(self, line, handle, item, port):
+    def connect_handle(self, line, handle, item, port, callback=None):
         """
         Create constraint between handle of a line and port of connectable
         item.
@@ -1092,6 +1092,8 @@ class ConnectHandleTool(HandleTool):
             Connectable item.
          port
             Port of connectable item.
+         callback
+            Function to be called on disconnection.
         """
         canvas = line.canvas
         solver = canvas.solver
@@ -1101,7 +1103,9 @@ class ConnectHandleTool(HandleTool):
 
         constraint = port.constraint(canvas, line, handle, item)
 
-        canvas.connect_item(line, handle, item, port, constraint=constraint)
+        canvas.connect_item(line, handle, item, port,
+            constraint,
+            callback=callback)
 
 
     def disconnect(self, view, line, handle):
