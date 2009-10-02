@@ -248,10 +248,24 @@ class Canvas(object):
     @observed
     def connect_item(self, hitem, handle, pitem, port, constraint, callback=None):
         """
-        Create a connection. The connection is registered and the constraint is
-        added to the constraint solver.
+        Create a connection between two items. The connection is registered
+        and the constraint is added to the constraint solver.
 
         The callback is invoked when the connection is broken.
+
+        :Parameters:
+         hitem
+            Connecting item (i.e. a line).
+         handle
+            Handle of connecting item.
+         pitem
+            Connectable item (i.e. a box).
+         port
+            Port of connectable item.
+         constraint
+            Constraint to keep the connection in place.
+         callback
+            Function to be called on disconnection.
         """
         self._connections.insert(hitem, handle, pitem, port, constraint, callback)
         if constraint:
