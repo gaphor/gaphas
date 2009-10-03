@@ -246,7 +246,7 @@ class Canvas(object):
 
 
     @observed
-    def connect_item(self, hitem, handle, pitem, port, constraint, callback=None):
+    def connect_item(self, hitem, handle, pitem, port, constraint=None, callback=None):
         """
         Create a connection between two items. The connection is registered
         and the constraint is added to the constraint solver.
