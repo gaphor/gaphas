@@ -558,13 +558,16 @@ class GtkView(gtk.DrawingArea, View):
 
         TODO: Should we also create a (sorted) list of items that need redrawal?
         """
-        queue_draw_area = self.queue_draw_area
         get_bounds = self._qtree.get_bounds
-        for item in items:
-            try:
-                queue_draw_area(*get_bounds(item))
-            except KeyError:
-                pass # No bounds calculated yet? bummer.
+        try:
+            bounds = get_bounds(items[0])
+            for item in items[1:]:
+                bounds += get_bounds(item)
+            self.queue_draw_area(*bounds)
+        except IndexError:
+            pass
+        except KeyError:
+            pass # No bounds calculated yet? bummer.
 
 
     def queue_draw_area(self, x, y, w, h):
