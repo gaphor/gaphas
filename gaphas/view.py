@@ -651,7 +651,7 @@ class GtkView(gtk.DrawingArea, View):
             self.queue_draw_item(*dirty_matrix_items)
 
             # Request bb recalculation for all 'really' dirty items
-            self.update_bounding_box(dirty_items)
+            self.update_bounding_box(set(dirty_items))
         finally:
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
