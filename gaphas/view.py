@@ -626,17 +626,15 @@ class GtkView(gtk.DrawingArea, View):
         dirty_matrix_items = self._dirty_matrix_items
 
         try:
-            for i in dirty_items:
-                self.queue_draw_item(i)
+            self.queue_draw_item(*dirty_items)
 
+            # Mark old bb section for update
+            self.queue_draw_item(*dirty_matrix_items)
             for i in dirty_matrix_items:
                 if i not in self._qtree:
                     dirty_items.add(i)
                     self.update_matrix(i)
                     continue
-
-                # Mark old bb section for update
-                self.queue_draw_item(i)
 
                 self.update_matrix(i)
 
@@ -650,10 +648,10 @@ class GtkView(gtk.DrawingArea, View):
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
 
-                self.queue_draw_item(i)
+            self.queue_draw_item(*dirty_matrix_items)
 
             # Request bb recalculation for all 'really' dirty items
-            self.update_bounding_box(set(dirty_items))
+            self.update_bounding_box(dirty_items)
         finally:
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
