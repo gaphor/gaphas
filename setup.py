@@ -94,7 +94,7 @@ setup(
 
     install_requires=[
      'decorator >= 3.0.0',
-     'roles >= 0.5.0',
+     'roles >= 0.6.0',
 #    'PyGTK >= 2.8.0',
 #    'cairo >= 1.8.2'
     ],
