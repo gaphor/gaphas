@@ -83,6 +83,7 @@ class async(object):
     def __call__(self, func):
         async_id = '_async_id_%s' % func.__name__
         def wrapper(*args, **kwargs):
+            global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
             if gobject.main_depth() == 0:
                 return func(*args, **kwargs)
