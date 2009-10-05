@@ -283,15 +283,15 @@ class HandlePainter(Painter):
 
         cairo.set_line_width(1)
 
-        get_connected_to = view.canvas.get_connected_to
+        get_connection = view.canvas.get_connection
         for h in item.handles():
             if not h.visible:
                 continue
             # connected and not being moved, see HandleTool.on_button_press
-            if get_connected_to(item, h): # and connection_data
+            if get_connection(h):
                 r, g, b = 1, 0, 0
             # connected but being moved, see HandleTool.on_button_press
-            elif get_connected_to(item, h):
+            elif get_connection(h):
                 r, g, b = 1, 0.6, 0
             elif h.movable:
                 r, g, b = 0, 1, 0

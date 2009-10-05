@@ -12,20 +12,25 @@ class Table(object):
         """
         Create a new Store instance with columns and indexes:
 
-        >>> Table(("foo", "bar", "baz"), (2,))            # doctest: +ELLIPSIS
+        >>> from collections import namedtuple
+        >>> C = namedtuple('C', "foo bar baz")
+        >>> Table(C, (2,))            # doctest: +ELLIPSIS
         <gaphas.table.Table object at 0x...>
         """
-        self._columns = tuple(columns)
+        self._columns = columns
         self._indexes = tuple(indexes)
-        index = [None,] * len(columns)
+
+        fields = columns._fields
+        k = len(fields)
+
+        # create data structure, which acts as cache
+        index = [None,] * k
         for i in indexes:
             index[i] = dict()
         self._index = tuple(index)
 
-        cindex = dict()
-        for i in range(len(columns)):
-            cindex[columns[i]] = index[i]
-        self._cindex = cindex
+        # map attributes to index
+        self._cindex = dict(zip(fields, range(k)))
 
 
     columns = property(lambda s: s._columns)
@@ -35,7 +40,9 @@ class Table(object):
         """
         Add a set of values to the store.
 
-        >>> s = Table(("foo", "bar", "baz"), (1, 2,))
+        >>> from collections import namedtuple
+        >>> C = namedtuple('C', "foo bar baz")
+        >>> s = Table(C, (1, 2,))
         >>> s.insert('a', 'b', 'c')
         >>> s.insert(1, 2, 3)
 
@@ -47,15 +54,17 @@ class Table(object):
         ...
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
-        if len(values) != len(self._columns):
-            raise ValueError, "Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._columns))
+        if len(values) != len(self._columns._fields):
+            raise ValueError, "Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._columns._fields))
         # Add value to index entries
         index = self._index
         for i in self._indexes:
-            try:
-                index[i][values[i]].add(values)
-            except KeyError:
-                index[i][values[i]] = set([values])
+            v = values[i]
+            data = self._columns._make(values)
+            if v in index[i]:
+                index[i][v].add(data)
+            else:
+                index[i][v] = set([data])
 
 
     def delete(self, *_row, **kv):
@@ -116,7 +125,9 @@ class Table(object):
         """
         Get rows (tuples) for each key defined. An iterator is returned.
 
-        >>> s = Table(("foo", "bar", "baz"), (0, 1,))
+        >>> from collections import namedtuple
+        >>> C = namedtuple('C', "foo bar baz")
+        >>> s = Table(C, (0, 1,))
         >>> s.insert('a', 'b', 'c')
         >>> s.insert(1, 2, 3)
         >>> s.insert('a', 'v', 'd')
@@ -139,21 +150,23 @@ class Table(object):
         ...
         AttributeError: Column 'baz' is not indexed
         """
+        index = self._index
         cindex = self._cindex
-        rows = None
+
+        bad = set(kv.keys()) - set(cindex.keys())
+        if len(bad) == 1:
+            raise AttributeError("Column '%s' is not indexed" % bad.pop())
+        elif len(bad) > 1:
+            raise AttributeError("Columns %s are not indexed" % str(bad))
+
+        rows = set()
         for key, val in kv.items():
-            d = cindex[key]
-            if d is None:
-                raise AttributeError, "Column '%s' is not indexed" % key
-            try:
-                if rows is None:
-                    rows = set(d[val])
-                else:
-                    rows.intersection_update(d[val])
-            except KeyError:
-                # No such value, bail out
-                return iter(())
-        return iter(rows or ())
+            if val is None:
+                continue
+            i = cindex.get(key)
+            if val in index[i]:
+                rows.intersection_update(index[i][val])
+        return iter(rows)
 
 
 # vi:sw=4:et:ai
