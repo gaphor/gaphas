@@ -386,7 +386,7 @@ class Canvas(object):
         >>> c.reconnect_item(i, i.handles()[0], cons2, lambda: 0)
         >>> c.get_connection(i.handles()[0]) # doctest: +ELLIPSIS
         Connection(item=<gaphas.item.Line object at 0x...)
-        >>> c.get_connection(i.handles()[0])[0].constraint is cons2
+        >>> c.get_connection(i.handles()[0]).constraint is cons2
         True
         >>> cons1 in c.solver.constraints
         False
