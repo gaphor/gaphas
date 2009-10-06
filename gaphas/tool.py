@@ -1062,9 +1062,9 @@ class ConnectHandleTool(HandleTool):
         # disconnect when
         # - no connectable item
         # - currently connected item is not connectable item
-        connected_to = line.canvas.get_connected_to(line, handle)
+        info = line.canvas.get_connection(handle)
         if not item \
-                or item and connected_to and connected_to[0] is not item:
+                or item and info and info.connected is not item:
             self.disconnect(view, line, handle)
 
         # no connectable item, no connection
@@ -1098,7 +1098,7 @@ class ConnectHandleTool(HandleTool):
         canvas = line.canvas
         solver = canvas.solver
 
-        if canvas.get_connected_to(line, handle):
+        if canvas.get_connection(handle):
             canvas.disconnect_item(line, handle)
 
         constraint = port.constraint(canvas, line, handle, item)
@@ -1171,9 +1171,9 @@ class ConnectHandleTool(HandleTool):
             Handle of a line connecting to an item.
         """
         canvas = line.canvas
-        data = canvas.get_connection_data(line, handle)
+        data = canvas.get_connection(handle)
         if data:
-            canvas.solver.remove_constraint(data[0])
+            canvas.solver.remove_constraint(data.constraint)
 
 
 
@@ -1299,12 +1299,8 @@ class LineSegmentTool(ConnectHandleTool):
         Create connection constraints between connecting lines and an item.
 
         :Parameters:
-         lines
-            Lines connecting to an item.
-         handles
-            Handles connecting to an item.
          item
-            Item connected to lines.
+            Connected item.
         """
         if not item.canvas:
             # No canvas, no constraints
@@ -1312,7 +1308,7 @@ class LineSegmentTool(ConnectHandleTool):
 
         canvas = item.canvas
         solver = canvas.solver
-        for line, handle in list(canvas.get_connected_items(item)):
+        for line, handle in list(canvas.get_connections(connected=item)):
             port = ConnectHandleTool.find_port(line, handle, item)
             
             constraint = port.constraint(canvas, line, handle, item)
