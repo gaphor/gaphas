@@ -105,7 +105,7 @@ class Table(object):
         if _row and kv:
             raise ValueError, "Should either provide a row or a query statement, not both"
         if _row:
-            assert len(_row) == len(self._type)
+            assert len(_row) == len(self._type._fields)
             rows = (_row,)
         else:
             rows = self.query(**kv)
