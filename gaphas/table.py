@@ -163,15 +163,15 @@ class Table(object):
         elif len(bad) > 1:
             raise AttributeError("Columns %s are not indexed" % str(tuple(bad)))
 
+        r = iter([])
         items = tuple((n, v) for n, v in kv.items() if v is not None)
         if all(v in index[n] for n, v in items):
+            rows = (index[n][v] for n, v in items)
             try:
-                rows = (index[n][v] for n, v in items)
-                return iter(reduce(set.intersection, rows))
+                r = iter(reduce(set.intersection, rows))
             except TypeError, ex:
-                return iter([])
-        else:
-            return iter([])
+                pass
+        return r
 
 
 # vi:sw=4:et:ai
