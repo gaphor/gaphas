@@ -208,7 +208,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.assertTrue(cinfo is not None)
         self.assertEquals(self.box1, cinfo.connected)
         self.assertTrue(cinfo.port is self.box1.ports()[0],
-            'port %s' % cport)
+            'port %s' % cinfo.port)
         self.assertTrue(isinstance(cinfo.connected, LineConstraint))
         # No default callback defined:
         self.assertTrue(cinfo.port is None)
@@ -276,7 +276,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         connected = self.tool.connect(self.view, line, head, (120, 50))
         cinfo = self.canvas.get_connection(head)
         assert cinfo is not None
-        self.assertEqual(self.box1, cinfo.item)
+        self.assertEqual(self.box1, cinfo.connected)
         self.assertEqual(self.box1.ports()[0], cinfo.port)
         self.assertNotEqual(constraint, cinfo.constraints)
 
