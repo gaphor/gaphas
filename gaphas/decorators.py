@@ -8,7 +8,6 @@ __version__ = "$Revision$"
 import gobject
 from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
-import operator
 
 
 DEBUG_ASYNC = False
@@ -82,7 +81,9 @@ class async(object):
         self.priority = priority
 
     def __call__(self, func):
+        async_id = '_async_id_%s' % func.__name__
         def wrapper(*args, **kwargs):
+            global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
             if gobject.main_depth() == 0:
                 return func(*args, **kwargs)
@@ -92,10 +93,10 @@ class async(object):
                     func(*args, **kwargs)
                 gobject.idle_add(async_wrapper, priority=self.priority)
             else:
+                # Idle handlers should be registered per instance
                 holder = args[0]
                 try:
-                    f = operator.attrgetter('_async_id_%s' % func.__name__)
-                    if f(holder):
+                    if getattr(holder, async_id):
                         return
                 except AttributeError, e:
                     def async_wrapper():
@@ -103,10 +104,10 @@ class async(object):
                         try:
                             func(*args, **kwargs)
                         finally:
-                            holder.__delattr__('_async_id_%s' % func.__name__)
+                            delattr(holder, async_id)
                         return False
 
-                    holder.__setattr__('_async_id_%s' % func.__name__,
+                    setattr(holder, async_id,
                         gobject.idle_add(async_wrapper, priority=self.priority))
         return wrapper
 
