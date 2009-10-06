@@ -1294,27 +1294,28 @@ class LineSegmentTool(ConnectHandleTool):
         return deleted_handles, deleted_ports
 
 
-    def _recreate_constraints(self, item):
+    def _recreate_constraints(self, connected):
         """
         Create connection constraints between connecting lines and an item.
 
         :Parameters:
-         item
+         connected
             Connected item.
         """
-        if not item.canvas:
+        if not connected.canvas:
             # No canvas, no constraints
             return
 
-        canvas = item.canvas
+        canvas = connected.canvas
         solver = canvas.solver
-        for line, handle in list(canvas.get_connections(connected=item)):
-            port = ConnectHandleTool.find_port(line, handle, item)
+        for cinfo in list(canvas.get_connections(connected=connected)):
+            item, handle = cinfo.item, cinfo.handle
+            port = ConnectHandleTool.find_port(item, handle, connected)
             
-            constraint = port.constraint(canvas, line, handle, item)
+            constraint = port.constraint(canvas, item, handle, connected)
 
-            data = canvas.get_connection_data(line, handle)
-            canvas.reconnect_item(line, handle, constraint=constraint, callback=data[1])
+            cinfo = canvas.get_connection(handle)
+            canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
 
 
     def on_button_press(self, context, event):
