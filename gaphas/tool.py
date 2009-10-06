@@ -48,15 +48,23 @@ DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
 
 
-class ToolContext(Context):
+class ToolContext(object):
     """
     Special context for tools.
+    ToolContext can be updated.
     """
 
-    view = None
-
-    def __init__(self, **kwargs):
+    def __init__(self, view, **kwargs):
         super(ToolContext, self).__init__(**kwargs)
+        self.view = view
+
+
+    def __getattr__(self, key):
+        try:
+            return self.__dict__[key]
+        except KeyError:
+            return getattr(self._view, key)
+
 
     def grab(self):
         """
@@ -93,7 +101,7 @@ class Tool(object):
     def set_view(self, view):
         self.view = view
 
-    def handle(self, context, event):
+    def handle(self, event, context=None):
         """
         Deal with the event. The event is dispatched to a specific handler
         for the event type.
@@ -199,6 +207,7 @@ class ToolChain(Tool):
         super(ToolChain, self).__init__()
         self._tools = []
         self._grabbed_tool = None
+        self._context = None
 
     def set_view(self, view):
         self.view = view
@@ -213,40 +222,6 @@ class ToolChain(Tool):
         tool.view = self.view
         return self
 
-#    def prepend(self, tool):
-#        """
-#        Prepend a tool to the chain. Self is returned.
-#        """
-#        self._tools.insert(0, tool)
-#        tool.view = self.view
-#        return self
-
-#    def swap(self, old_tool_class, new_tool):
-#        """
-#        Swap one tool for another. Note that the first argument is the tool's
-#        class (type), not an instance.
-#
-#        >>> chain = ToolChain().append(HoverTool()).append(RubberbandTool())
-#        >>> chain._tools # doctest: +ELLIPSIS
-#        [<gaphas.tool.HoverTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
-#        >>> chain.swap(HoverTool, ItemTool()) # doctest: +ELLIPSIS
-#        <gaphas.tool.ToolChain object at 0x...>
-#
-#        Now the HoverTool has been substituted for the ItemTool:
-#
-#        >>> chain._tools # doctest: +ELLIPSIS
-#        [<gaphas.tool.ItemTool object at 0x...>, <gaphas.tool.RubberbandTool object at 0x...>]
-#        """
-#        tools = self._tools
-#        for i in xrange(len(tools)):
-#            if type(tools[i]) is old_tool_class:
-#                if self._grabbed_tool is tools[i]:
-#                    raise ValueError, 'Can\'t swap tools since %s is grabbed' % tools[i]
-#                tools[i] = new_tool
-#                new_tool.view = self.view
-#                break
-#        return self
-
     def grab(self, tool):
         if not self._grabbed_tool:
             if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
@@ -257,7 +232,7 @@ class ToolChain(Tool):
             if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
             self._grabbed_tool = None
 
-    def handle(self, context, event):
+    def handle(self, event):
         """
         Handle the event by calling each tool until the event is handled
         or grabbed.
@@ -268,18 +243,26 @@ class ToolChain(Tool):
         handler = self.EVENT_HANDLERS.get(event.type)
         if self._grabbed_tool and handler:
             try:
-                return self._grabbed_tool.handle(context, event)
+                return self._grabbed_tool.handle(event)
             finally:
                 if event.type == gtk.gdk.BUTTON_RELEASE:
                     self.ungrab(self._grabbed_tool)
+                    # tear down context
+                    self._context = None
         else:
+            ctx = self._context
+            if not ctx:
+                ctx = ToolContext(view=self.view)
+
             for tool in self._tools:
                 if DEBUG_TOOL_CHAIN: print 'tool', tool
-                rt = tool.handle(context, event)
+                rt = tool.handle(event, ctx)
                 if rt:
                     if event.type == gtk.gdk.BUTTON_PRESS:
                         self.view.grab_focus()
                         self.grab(tool)
+                        # store context for next invocation
+                        self._context = ctx
                     return rt
 
 
@@ -352,10 +335,10 @@ class ItemTool(Tool):
             if view.hovered_item in view.selected_items and \
                     event.state & gtk.gdk.CONTROL_MASK:
                 with Selection.played_by(item):
-                    item.unselect(view)
+                    item.unselect(context)
             else:
                 with Selection.played_by(item):
-                    item.focus(view)
+                    item.focus(context)
                 self._movable_items = set(self.movable_items())
             return True
 
@@ -464,12 +447,15 @@ class HandleTool(Tool):
         return None, None
 
 
-    def move(self, view, item, handle, pos):
+    def move(self, item, handle, pos):
         """
         Move the handle to position ``(x,y)``. ``x`` and ``y`` are in
         item coordnates. ``item`` is the item whose ``handle`` is moved.
         """
-        handle.pos = pos
+        v2i = self.view.get_matrix_v2i(item)
+        x, y = v2i.transform_point(*pos)
+
+        handle.pos = (x, y)
 
 
     def glue(self, view, item, handle, vpos):
@@ -529,17 +515,14 @@ class HandleTool(Tool):
             if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
                     or view.hovered_item in view.selected_items):
                 del view.selected_items
+###/
             view.hovered_item = item
             view.focused_item = item
-###/
             self.grab_handle(item, handle)
 
             if handle.connectable:
                 # remove constraint to allow handle movement 
-### TODO: To role
                 self.remove_constraint(item, handle)
-                # Connector(item).remove_constraint(handle)
-###/
             return True
 
     def on_button_release(self, context, event):
@@ -571,11 +554,8 @@ class HandleTool(Tool):
             item = self._grabbed_item
             handle = self._grabbed_handle
 
-            v2i = view.get_matrix_v2i(item)
-            x, y = v2i.transform_point(event.x, event.y)
-
             # Do the actual move:
-            self.move(view, item, handle, (x, y))
+            self.move(item, handle, (event.x, event.y))
 
             # do not request matrix update as matrix recalculation will be
             # performed due to item normalization if required
@@ -1135,23 +1115,19 @@ class ConnectHandleTool(HandleTool):
             return item.glue((ix, iy))
 
 
-    def remove_constraint(self, line, handle):
+    def remove_constraint(self, item, handle):
         """
         Remove connection constraint created between line's handle and
         connected item's port.
 
         :Parameters:
-         line
-            Line connecting to an item.
+         item
+            Item connecting to an item.
          handle
             Handle of a line connecting to an item.
         """
-        with Connector.played_by(line):
-            line.remove_constraints(handle)
-        #canvas = line.canvas
-        #data = canvas.get_connection_data(line, handle)
-        #if data:
-            #canvas.solver.remove_constraint(data[0])
+        with Connector.played_by(item):
+            item.remove_constraints(handle)
 
 
 

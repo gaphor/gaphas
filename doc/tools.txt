@@ -88,3 +88,32 @@ Big changes from Gaphas 0.4 tool include:
  * Grabbing is done automatically for press-move-release event sequence.
  * The _What_ is separated from the _How_, leaving less tools and less
    overhead (like finding the item under the mouse pointer).
+
+
+
+Handle tool
+-----------
+
+Button press:
+  for every item at pointer position:
+    find a handle
+    if a handle is found:
+      select the item (focus) and the handle
+      if constraints attached:
+        disconnect constraints
+      
+Move the handle:
+  change position
+  find a port to glue to
+  if port found:
+    change position to port position
+
+Button release:
+  ungrab handle
+  find port to glue to
+  if port found:
+    change position to port position
+    if previously connected and new port is of another item:
+      disconnect from previous item completely
+    connect to port
+

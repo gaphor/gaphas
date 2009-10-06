@@ -420,8 +420,7 @@ class GtkView(gtk.DrawingArea, View):
 
         self.emit('set-scroll-adjustments', hadjustment, vadjustment)
 
-        self._tool = DefaultTool()
-        self._tool.set_view(self)
+        self._set_tool(DefaultTool())
         
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
@@ -750,7 +749,7 @@ class GtkView(gtk.DrawingArea, View):
         Handle GDK events. Events are delegated to a `tool.Tool`.
         """
         if self._tool:
-            return self._tool.handle(ToolContext(view=self), event) and True or False
+            return self._tool.handle(event) and True or False
         return False
 
 

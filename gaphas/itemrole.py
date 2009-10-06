@@ -13,19 +13,32 @@ class Selection(object):
     """
     __metaclass__ = RoleType
 
-    def focus(self, view):
+    def focus(self, context):
         """
         Set selection on the view.
         """
-        view.focused_item = self
+        context.view.focused_item = self
 
-    def unselect(self, view):
-        view.focused_item = None
-        view.unselect_item(self)
+    def unselect(self, context):
+        context.view.focused_item = None
+        context.view.unselect_item(self)
 
     def move(self, dx, dy):
         self.matrix.translate(dx, dy)
         self.canvas.request_matrix_update(self)
+
+
+class HandleSelection(object):
+    __metaclass__ = RoleType
+
+    def focus(self, context):
+        view = context.view
+        handle = context.handle
+        view.focused_item = self
+        context.grabbed_handle = handle
+
+    def move(self, dx, dy):
+        pass
 
 
 class Connector(object):
@@ -63,8 +76,9 @@ class ConnectionSink(object):
         If the item can connect, it returns a port.
         """
         port = None
+        max_dist = 10e6
         for p in self.ports():
-            pg, d = p.glue((x, y))
+            pg, d = p.glue(pos)
             if d >= max_dist:
                 continue
             port = p
