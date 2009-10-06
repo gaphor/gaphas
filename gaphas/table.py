@@ -17,23 +17,19 @@ class Table(object):
         >>> Table(C, (2,))            # doctest: +ELLIPSIS
         <gaphas.table.Table object at 0x...>
         """
-        self._columns = columns
-        self._indexes = tuple(indexes)
-
         fields = columns._fields
-        k = len(fields)
+
+        self._type = columns
+        self._indexes = tuple(fields[i] for i in indexes)
 
         # create data structure, which acts as cache
-        index = [None,] * k
-        for i in indexes:
-            index[i] = dict()
-        self._index = tuple(index)
-
-        # map attributes to index
-        self._cindex = dict(zip(fields, range(k)))
+        index = {}
+        for n in fields:
+            index[n] = dict()
+        self._index = index
 
 
-    columns = property(lambda s: s._columns)
+    columns = property(lambda s: s._type)
 
 
     def insert(self, *values):
@@ -54,17 +50,17 @@ class Table(object):
         ...
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
-        if len(values) != len(self._columns._fields):
-            raise ValueError, "Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._columns._fields))
+        if len(values) != len(self._type._fields):
+            raise ValueError, "Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._type._fields))
         # Add value to index entries
         index = self._index
-        for i in self._indexes:
-            v = values[i]
-            data = self._columns._make(values)
-            if v in index[i]:
-                index[i][v].add(data)
+        data = self._type._make(values)
+        for n in self._indexes:
+            v = getattr(data, n)
+            if v in index[n]:
+                index[n][v].add(data)
             else:
-                index[i][v] = set([data])
+                index[n][v] = set([data])
 
 
     def delete(self, *_row, **kv):
@@ -72,7 +68,9 @@ class Table(object):
         Remove value from the table. Either a complete set may be given or
         just one entry in "column=value" style.
 
-        >>> s = Table(("foo", "bar", "baz"), (0, 1,))
+        >>> from collections import namedtuple
+        >>> C = namedtuple('C', "foo bar baz")
+        >>> s = Table(C, (0, 1,))
         >>> s.insert('a', 'b', 'c')
         >>> s.insert(1, 2, 3)
         >>> s.insert('a', 'v', 'd')
@@ -107,12 +105,12 @@ class Table(object):
         if _row and kv:
             raise ValueError, "Should either provide a row or a query statement, not both"
         if _row:
-            assert len(_row) == len(self._columns)
+            assert len(_row) == len(self._type)
             rows = (_row,)
         else:
             rows = self.query(**kv)
 
-        columns = self._columns
+        columns = self._type
         for col, index in enumerate(self._index):
             if index:
                 for row in rows:
@@ -132,41 +130,47 @@ class Table(object):
         >>> s.insert(1, 2, 3)
         >>> s.insert('a', 'v', 'd')
         >>> list(s.query(foo='a'))
-        [('a', 'b', 'c'), ('a', 'v', 'd')]
+        [C(foo='a', bar='b', baz='c'), C(foo='a', bar='v', baz='d')]
         >>> list(s.query(foo='a', bar='v'))
-        [('a', 'v', 'd')]
+        [C(foo='a', bar='v', baz='d')]
         >>> list(s.query(foo='a', bar='q'))
         []
         >>> list(s.query(bar=2))
-        [(1, 2, 3)]
+        [C(foo=1, bar=2, baz=3)]
         >>> list(s.query(foo=42))
         []
         >>> list(s.query(invalid_column_name=42))         # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
-        KeyError: 'invalid_column_name'
+        KeyError: "Invalid column 'invalid_column_name'"
         >>> list(s.query(baz=42))                         # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
         AttributeError: Column 'baz' is not indexed
         """
         index = self._index
-        cindex = self._cindex
 
-        bad = set(kv.keys()) - set(cindex.keys())
+        bad = set(kv.keys()) - set(self._type._fields)
+        if len(bad) == 1:
+            raise KeyError("Invalid column '%s'" % bad.pop())
+        elif len(bad) > 1:
+            raise KeyError("Invalid columns '%s'" % str(tuple(bad)))
+
+        bad = set(kv.keys()) - set(self._indexes)
         if len(bad) == 1:
             raise AttributeError("Column '%s' is not indexed" % bad.pop())
         elif len(bad) > 1:
-            raise AttributeError("Columns %s are not indexed" % str(bad))
+            raise AttributeError("Columns %s are not indexed" % str(tuple(bad)))
 
-        rows = set()
-        for key, val in kv.items():
-            if val is None:
-                continue
-            i = cindex.get(key)
-            if val in index[i]:
-                rows.intersection_update(index[i][val])
-        return iter(rows)
+        items = tuple((n, v) for n, v in kv.items() if v is not None)
+        if all(v in index[n] for n, v in items):
+            try:
+                rows = (index[n][v] for n, v in items)
+                return reduce(set.intersection, rows)
+            except TypeError, ex:
+                return iter([])
+        else:
+            return iter([])
 
 
 # vi:sw=4:et:ai
