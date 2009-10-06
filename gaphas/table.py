@@ -111,7 +111,7 @@ class Table(object):
         rows = list(self.query(**kv))
 
         index = self._index
-        for row in list(rows):
+        for row in rows:
             for i, n in enumerate(self._indexes):
                 v = row[i]
                 if v in index[n]:
