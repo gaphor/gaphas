@@ -367,8 +367,8 @@ Now remove the line from the canvas:
 The handles are disconnected:
 
     >>> l.canvas
-    >>> canvas.get_connected_to(l, l.handles()[0])
-    >>> canvas.get_connected_to(l, l.handles()[1])
+    >>> canvas.get_connection(l.handles()[0])
+    >>> canvas.get_connection(l.handles()[1])
 
 Undoing the remove() action should put everything back in place again:
 
@@ -376,10 +376,10 @@ Undoing the remove() action should put everything back in place again:
 
     >>> l.canvas                                        # doctest: +ELLIPSIS
     <gaphas.canvas.Canvas object at 0x...>
-    >>> canvas.get_connected_to(l, l.handles()[0])      # doctest: +ELLIPSIS
-    (<gaphas.item.Item object at 0x...>, None)
-    >>> canvas.get_connected_to(l, l.handles()[1])      # doctest: +ELLIPSIS
-    (<gaphas.item.Item object at 0x...>, None)
+    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    Connection(item=<gaphas.item.Line object at 0x...>)
+    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    Connection(item=<gaphas.item.Line object at 0x...>)
 
 
 solver.py: Variable
