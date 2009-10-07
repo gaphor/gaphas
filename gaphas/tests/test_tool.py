@@ -215,7 +215,8 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
 
         line, head = self._get_line()
         self.tool.connect(self.view, line, head, (111190, 50))
-        cinfo = self.canvas.get_connection(head)
+        cinfo2 = self.canvas.get_connection(head)
+        assert (cinfo is not cinfo2)
         self.assertTrue(cinfo is None)
 
 
