@@ -8,6 +8,7 @@ from gaphas.item import Item
 from gaphas.itemrole import Selection
 from gaphas.canvas import Canvas
 from gaphas.view import View
+from gaphas.tool import ToolContext
 
 class ItemRoleTestCase(unittest.TestCase):
     """
@@ -17,7 +18,7 @@ class ItemRoleTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
         self.view = View(self.canvas)
-
+        self.context = ToolContext(view=self.view)
 
     def test_selection_select(self):
         """
@@ -28,10 +29,10 @@ class ItemRoleTestCase(unittest.TestCase):
         self.canvas.add(item)
         with Selection.played_by(item):
             assert item not in view.selected_items
-            item.focus(view)
+            item.focus(self.context)
             assert item in view.selected_items
             assert item is view.focused_item
-            item.unselect(view)
+            item.unselect(self.context)
             assert item not in view.selected_items
             assert None is view.focused_item
 
