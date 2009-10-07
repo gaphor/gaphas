@@ -95,13 +95,14 @@ class Tool(object):
         gtk.gdk.SCROLL: 'on_scroll'
     }
 
-    def __init__(self, view=None):
-        self.view = view
+    def __init__(self):
+        self.view = None
+        self._context = None
 
     def set_view(self, view):
         self.view = view
 
-    def handle(self, event, context=None):
+    def _dispatch(self, context, event):
         """
         Deal with the event. The event is dispatched to a specific handler
         for the event type.
@@ -110,6 +111,23 @@ class Tool(object):
         if handler:
             return getattr(self, handler)(context, event) and True or False
         return False
+
+
+    def handle(self, event):
+        context = self._context
+        if not context:
+            context = ToolContext(view=self.view)
+
+        handled = self._dispatch(context, event)
+        if handled:
+            if event.type == gtk.gdk.BUTTON_PRESS:
+                # store context for next invocation
+                self._context = context
+        if event.type == gtk.gdk.BUTTON_RELEASE:
+            # tear down context
+            self._context = None
+        return handled
+
 
     def on_button_press(self, context, event):
         """
@@ -247,22 +265,14 @@ class ToolChain(Tool):
             finally:
                 if event.type == gtk.gdk.BUTTON_RELEASE:
                     self.ungrab(self._grabbed_tool)
-                    # tear down context
-                    self._context = None
         else:
-            ctx = self._context
-            if not ctx:
-                ctx = ToolContext(view=self.view)
-
             for tool in self._tools:
                 if DEBUG_TOOL_CHAIN: print 'tool', tool
-                rt = tool.handle(event, ctx)
+                rt = tool.handle(event)
                 if rt:
                     if event.type == gtk.gdk.BUTTON_PRESS:
                         self.view.grab_focus()
                         self.grab(tool)
-                        # store context for next invocation
-                        self._context = ctx
                     return rt
 
 
@@ -275,9 +285,6 @@ class HoverTool(Tool):
     """
     Make the item under the mouse cursor the "hovered item".
     """
-
-    def __init__(self):
-        pass
 
     def on_motion_notify(self, context, event):
         view = self.view
@@ -295,6 +302,7 @@ class ItemTool(Tool):
     """
 
     def __init__(self, buttons=(1,)):
+        super(ItemTool, self).__init__()
         self.last_x = 0
         self.last_y = 0
         self._buttons = buttons
@@ -314,6 +322,20 @@ class ItemTool(Tool):
             # Do not move subitems of selected items
             if not set(get_ancestors(item)).intersection(selected_items):
                 yield item
+        
+    def update_context(self, context, item, event):
+        """
+        Update x, y, dx and dy in the context.
+        """
+        # Calculate the distance the item has to be moved
+        x, y = event.x, event.y
+        dx, dy = x - self.last_x, y - self.last_y
+
+        # Move the item and schedule it for an update
+        v2i = self.view.get_matrix_v2i(item)
+        context.dx, context.dy = v2i.transform_distance(dx, dy)
+        context.x, context.y = v2i.transform_point(x, y)
+
 
     def on_button_press(self, context, event):
         ### TODO: make keys configurable
@@ -324,6 +346,8 @@ class ItemTool(Tool):
             return False
         
         self.last_x, self.last_y = event.x, event.y
+        if item:
+            self.update_context(context, item, event)
 
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
@@ -338,7 +362,7 @@ class ItemTool(Tool):
                     item.unselect(context)
             else:
                 with Selection.played_by(item):
-                    item.focus(context)
+                    item.select(context)
                 self._movable_items = set(self.movable_items())
             return True
 
@@ -358,15 +382,11 @@ class ItemTool(Tool):
             view = self.view
             canvas = view.canvas
 
-            # Calculate the distance the item has to be moved
-            dx, dy = event.x - self.last_x, event.y - self.last_y
-
             # Now do the actual moving.
             for item in self._movable_items:
-                # Move the item and schedule it for an update
-                v2i = view.get_matrix_v2i(item)
+                self.update_context(context, item, event)
                 with Selection.played_by(item):
-                    item.move(*v2i.transform_distance(dx, dy))
+                    item.move(context)
 
             # TODO: if isinstance(item, Element):
             #   schedule item to be handled by some "guides" tool
@@ -384,6 +404,7 @@ class HandleTool(Tool):
     """
 
     def __init__(self):
+        super(HandleTool, self).__init__()
         self._grabbed_handle = None
         self._grabbed_item = None
 
@@ -581,6 +602,7 @@ class HandleTool(Tool):
 class RubberbandTool(Tool):
 
     def __init__(self):
+        super(RubberbandTool, self).__init__()
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
 
     def on_button_press(self, context, event):
@@ -626,6 +648,7 @@ class PanTool(Tool):
     """
 
     def __init__(self):
+        super(PanTool, self).__init__()
         self.x0, self.y0 = 0, 0
         self.speed = 10
 
@@ -683,6 +706,7 @@ class ZoomTool(Tool):
     """
 
     def __init__(self):
+        super(ZoomTool, self).__init__()
         self.x0, self.y0 = 0, 0
         self.lastdiff = 0;
 
@@ -749,6 +773,7 @@ class ZoomTool(Tool):
 class PlacementTool(Tool):
 
     def __init__(self, factory, handle_tool, handle_index):
+        super(PlacementTool, self).__init__()
         self._factory = factory
         self._handle_tool = handle_tool
         self._handle_index = handle_index
@@ -810,6 +835,7 @@ class TextEditTool(Tool):
     """
 
     def __init__(self):
+        super(TextEditTool, self).__init__()
         pass
 
     def on_double_click(self, context, event):

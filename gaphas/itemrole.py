@@ -13,7 +13,7 @@ class Selection(object):
     """
     __metaclass__ = RoleType
 
-    def focus(self, context):
+    def select(self, context):
         """
         Set selection on the view.
         """
@@ -23,13 +23,20 @@ class Selection(object):
         context.view.focused_item = None
         context.view.unselect_item(self)
 
-    def move(self, dx, dy):
-        self.matrix.translate(dx, dy)
+    def move(self, context):
+        """
+        Move the item. The context should contain at lease ``dx`` and ``dy``.
+        """
+        self.matrix.translate(context.dx, context.dy)
         self.canvas.request_matrix_update(self)
-
 
 class HandleSelection(object):
     __metaclass__ = RoleType
+
+    def find_handle(self, context):
+        """
+        Find a handle on the selected item.
+        """
 
     def focus(self, context):
         view = context.view
