@@ -974,13 +974,13 @@ class CanvasProjection(object):
     def _on_change_x(self, value):
         item = self._item
         self._px = value
-        self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
+        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
         item.canvas.request_update(item, matrix=False)
 
     def _on_change_y(self, value):
         item = self._item
         self._py = value
-        self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
+        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
         item.canvas.request_update(item, matrix=False)
 
     def _get_value(self):
@@ -989,7 +989,7 @@ class CanvasProjection(object):
         a value attribute with the real value.
         """
         item = self._item
-        x, y = self._point
+        x, y = self._point.x, self._point.y
         self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
         return self._px, self._py
 
