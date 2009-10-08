@@ -6,7 +6,7 @@ import unittest
 
 from gaphas.item import Item
 from gaphas.itemrole import Selection
-from gaphas.canvas import Canvas
+from gaphas.canvas import Canvas, Context
 from gaphas.view import View
 from gaphas.tool import ToolContext
 
@@ -29,7 +29,7 @@ class ItemRoleTestCase(unittest.TestCase):
         self.canvas.add(item)
         with Selection.played_by(item):
             assert item not in view.selected_items
-            item.focus(self.context)
+            item.select(self.context)
             assert item in view.selected_items
             assert item is view.focused_item
             item.unselect(self.context)
@@ -46,7 +46,7 @@ class ItemRoleTestCase(unittest.TestCase):
         self.canvas.add(item)
         with Selection.played_by(item):
             self.assertEquals((1, 0, 0, 1, 0, 0), tuple(item.matrix))
-            item.move(12, 26)
+            item.move(Context(dx=12, dy=26))
             self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
 
 # vim:sw=4:et:ai

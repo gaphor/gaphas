@@ -322,10 +322,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool = LineSegmentTool()
         tool.set_view(self.view)
 
-        def dummy_grab(): pass
-
-        context = Context(grab=dummy_grab,
-                ungrab=dummy_grab)
+        context = Context()
 
         head, tail = self.line.handles()
 
@@ -344,8 +341,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool.set_view(self.view)
         def dummy_grab(): pass
 
-        context = Context(grab=dummy_grab,
-                ungrab=dummy_grab)
+        context = Context()
 
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
@@ -364,10 +360,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool = LineSegmentTool()
         tool.set_view(self.view)
 
-        def dummy_grab(): pass
-
-        context = Context(grab=dummy_grab,
-                ungrab=dummy_grab)
+        context = Context()
 
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
@@ -626,11 +619,8 @@ class LineMergeTestCase(TestCaseBase):
         """Test if constraints are recreated after line merge
         """
         tool = LineSegmentTool()
-        def dummy_grab(): pass
 
-        context = Context(view=self.view,
-                grab=dummy_grab,
-                ungrab=dummy_grab)
+        context = Context()
 
         # connect line2 to self.line
         line2 = Line()
