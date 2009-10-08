@@ -560,7 +560,8 @@ class GtkView(gtk.DrawingArea, View):
         """
         get_bounds = self._qtree.get_bounds
         try:
-            bounds = get_bounds(items[0])
+            # create a copy, otherwise we'll change the original rectangle
+            bounds = Rectangle(*get_bounds(items[0]))
             for item in items[1:]:
                 bounds += get_bounds(item)
             self.queue_draw_area(*bounds)
