@@ -271,7 +271,7 @@ class HandlePainter(Painter):
     Draw handles of items that are marked as selected in the view.
     """
 
-    def _draw_handles(self, item, view, cairo, opacity=None):
+    def _draw_handles(self, item, view, cairo, opacity=None, inner=False):
         """
         Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
@@ -302,6 +302,8 @@ class HandlePainter(Painter):
             cairo.set_antialias(ANTIALIAS_NONE)
             cairo.translate(*i2v.transform_point(*h.pos))
             cairo.rectangle(-4, -4, 8, 8)
+            if inner:
+                cairo.rectangle(-3, -3, 6, 6)
             cairo.set_source_rgba(r, g, b, opacity)
             cairo.fill_preserve()
             if h.connectable:
@@ -326,7 +328,7 @@ class HandlePainter(Painter):
             self._draw_handles(item, view, cairo, opacity=.25)
         item = view.dropzone_item
         if item and item not in view.selected_items:
-            self._draw_handles(item, view, cairo, opacity=.25)
+            self._draw_handles(item, view, cairo, opacity=.25, inner=True)
 
 
 class ToolPainter(Painter):
