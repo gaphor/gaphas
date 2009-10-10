@@ -317,18 +317,11 @@ class Canvas(object):
         Disconnect the connections of an item. If handle is not None, only the
         connection for that handle is disconnected.
         """
-        if handle:
-            result = self._connections.query(item=item, handle=handle)
-        else:
-            result = self._connections.query(item=item)
-
-        for hi, h, pi, p, c, cb in result:
-            self._disconnect_item(hi, h, pi, p, c, cb)
-
-        if handle:
-            self._connections.delete(item=item, handle=handle)
-        else:
-            self._connections.delete(item=item)
+        # disconnect on canvas level
+        for r in self._connections.query(item=item, handle=handle):
+            self._disconnect_item(*r)
+        # remove connections from cache
+        self._connections.delete(item=item, handle=handle)
 
 
     @observed
