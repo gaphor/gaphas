@@ -511,6 +511,7 @@ class LineSplitTestCase(TestCaseBase):
         assert len(self.line.handles()) == 3
         h1, h2, h3 = self.line.handles()
 
+        cinfo = self.canvas.get_connection(head)
         # connection shall be reconstrained between 1st and 2nd handle
         self.assertEquals(h1.pos, cinfo.constraint._line[0]._point)
         self.assertEquals(h2.pos, cinfo.constraint._line[1]._point)
