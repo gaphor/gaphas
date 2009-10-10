@@ -195,7 +195,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
 
     def _get_line(self):
         line = Line()
-        head = self.line.handles()[0]
+        head = line.handles()[0]
         self.canvas.add(line)
         return line, head
 
@@ -214,10 +214,10 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.assertTrue(cinfo.callback is None)
 
         line, head = self._get_line()
-        self.tool.connect(self.view, line, head, (111190, 50))
+        self.tool.connect(self.view, line, head, (90, 50))
         cinfo2 = self.canvas.get_connection(head)
-        assert (cinfo is not cinfo2)
-        self.assertTrue(cinfo is None)
+        self.assertTrue(cinfo is not cinfo2, cinfo2)
+        self.assertTrue(cinfo2 is None, cinfo2)
 
 
     def test_disconnect(self):
