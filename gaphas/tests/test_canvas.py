@@ -27,8 +27,9 @@ class MatricesTestCase(unittest.TestCase):
         c = Canvas()
         b1 = Box()
         b2 = Box()
-        c.add(b1, b2)
-        c.reparent(b1, None)
+        c.add(b1)
+        c.add(b2, b1)
+        c.reparent(b2, None)
 
 # fixme: what about multiple constraints for a handle?
 #        what about 1d projection?
