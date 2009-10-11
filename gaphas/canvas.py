@@ -312,24 +312,24 @@ class Canvas(object):
             self._solver.add_constraint(constraint)
 
 
-    def disconnect_item(self, item, handle=None):
+    def disconnect_item(self, item, handle=None, call_callback=True):
         """
         Disconnect the connections of an item. If handle is not None, only the
         connection for that handle is disconnected.
         """
         # disconnect on canvas level
         for r in self._connections.query(item=item, handle=handle):
-            self._disconnect_item(*r)
+            self._disconnect_item(*r, call_callback=call_callback)
         # remove connections from cache
         self._connections.delete(item=item, handle=handle)
 
 
     @observed
-    def _disconnect_item(self, item, handle, connected, port, constraint, callback):
+    def _disconnect_item(self, item, handle, connected, port, constraint, callback, call_callback=True):
         # Same arguments as connect_item, makes reverser easy
         if constraint:
             self._solver.remove_constraint(constraint)
-        if callback:
+        if callback and call_callback:
             callback()
 
     reversible_pair(connect_item, _disconnect_item)

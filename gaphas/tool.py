@@ -1041,6 +1041,29 @@ class ConnectHandleTool(HandleTool):
         pass
 
 
+    def move_connection(self, view, item, handle, connected, port):
+        """
+        This methods is invoked just before disconnection from an item,
+        when there is connection to new item to be established.
+
+        It can be overriden by deriving tools to perform connection
+        movement in higher level of an application stack.
+
+        :Parameters:
+         view
+            View used by user.
+         item
+            Item connecting to new connected item.
+         handle
+            Handle of item connecting to new connected item.
+         item
+            New connected item.
+         port
+            Port of new connected item.
+        """
+        pass
+
+
     def connect(self, view, line, handle, vpos):
         """
         Connect a handle of a line to connectable item.
@@ -1062,13 +1085,16 @@ class ConnectHandleTool(HandleTool):
         # - no connectable item
         # - currently connected item is not connectable item
         info = line.canvas.get_connection(handle)
-        if not item \
-                or item and info and info.connected is not item:
-            self.disconnect(view, line, handle)
 
-        # no connectable item, no connection
+        # no new connectable item, then diconnect and exit
         if not item:
+            self.disconnect(view, line, handle)
             return
+
+        # moving connection to other item
+        if info and info.connected is not item:
+            self.move_connection(view, line, handle, item, port)
+            self.disconnect(view, line, handle)
 
         # low-level connection
         self.connect_handle(line, handle, item, port)
@@ -1098,7 +1124,7 @@ class ConnectHandleTool(HandleTool):
         solver = canvas.solver
 
         if canvas.get_connection(handle):
-            canvas.disconnect_item(line, handle)
+            canvas.disconnect_item(line, handle, call_callback=False)
 
         constraint = port.constraint(canvas, line, handle, item)
 
