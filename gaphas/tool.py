@@ -814,7 +814,6 @@ class PlacementTool(Tool):
 
     def _create_item(self, context, pos):
         view = context.view
-        canvas = view.canvas
         item = self._factory()
         x, y = view.get_matrix_v2i(item).transform_point(*pos)
         item.matrix.translate(x, y)
