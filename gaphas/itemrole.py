@@ -23,6 +23,10 @@ class Selection(object):
         context.view.focused_item = None
         context.view.unselect_item(self)
 
+
+class InMotion(object):
+    __metaclass__ = RoleType
+
     def move(self, context):
         """
         Move the item. The context should contain at lease ``dx`` and ``dy``.
@@ -30,13 +34,24 @@ class Selection(object):
         self.matrix.translate(context.dx, context.dy)
         self.canvas.request_matrix_update(self)
 
+
 class HandleSelection(object):
     __metaclass__ = RoleType
 
     def find_handle(self, context):
         """
-        Find a handle on the selected item.
+        Find a handle on the selected item. The handle is stored in
+        ``context.handle``.
         """
+        x, y = context.x, context.y
+        d = context.distance
+        for h in self.handles():
+            if not h.movable:
+                continue
+            hx, hy = h.pos
+            if -d < (hx - x) < d and -d < (hy - y) < d:
+                context.handle = h
+                return h
 
     def focus(self, context):
         view = context.view
@@ -44,8 +59,13 @@ class HandleSelection(object):
         view.focused_item = self
         context.grabbed_handle = handle
 
-    def move(self, dx, dy):
-        pass
+
+class HandleInMotion(object):
+    __metaclass__ = RoleType
+
+    def move(self, context):
+        context.handle.pos = (context.x, context.y)
+        # TODO: GLUE
 
 
 class Connector(object):

@@ -42,7 +42,8 @@ from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
-from gaphas.itemrole import Selection, Connector, ConnectionSink
+from gaphas.itemrole import Selection, InMotion, HandleSelection, HandleInMotion, \
+        Connector, ConnectionSink
 
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
@@ -98,9 +99,25 @@ class Tool(object):
     def __init__(self):
         self.view = None
         self._context = None
+        self.last_x, self.last_y = 0, 0
 
     def set_view(self, view):
         self.view = view
+
+    def update_context(self, context, item, event):
+        """
+        Update x, y, dx and dy in the context.
+        """
+        # Calculate the distance the item has to be moved
+        x, y = event.x, event.y
+        dx, dy = x - self.last_x, y - self.last_y
+
+        # Move the item and schedule it for an update
+        v2i = self.view.get_matrix_v2i(item)
+        context.dx, context.dy = v2i.transform_distance(dx, dy)
+        context.x, context.y = v2i.transform_point(x, y)
+        self.last_x, self.last_y = x, y
+
 
     def _dispatch(self, context, event):
         """
@@ -299,12 +316,12 @@ class ItemTool(Tool):
     the currently "hovered item" is selected. If CTRL or SHIFT are pressed,
     already selected items remain selected. The last selected item gets the
     focus (e.g. receives key press events).
+
+    The roles used are Selection (select, unselect) and InMotion (move).
     """
 
     def __init__(self, buttons=(1,)):
         super(ItemTool, self).__init__()
-        self.last_x = 0
-        self.last_y = 0
         self._buttons = buttons
         self._movable_items = set()
 
@@ -323,19 +340,6 @@ class ItemTool(Tool):
             if not set(get_ancestors(item)).intersection(selected_items):
                 yield item
         
-    def update_context(self, context, item, event):
-        """
-        Update x, y, dx and dy in the context.
-        """
-        # Calculate the distance the item has to be moved
-        x, y = event.x, event.y
-        dx, dy = x - self.last_x, y - self.last_y
-
-        # Move the item and schedule it for an update
-        v2i = self.view.get_matrix_v2i(item)
-        context.dx, context.dy = v2i.transform_distance(dx, dy)
-        context.x, context.y = v2i.transform_point(x, y)
-
 
     def on_button_press(self, context, event):
         ### TODO: make keys configurable
@@ -361,14 +365,17 @@ class ItemTool(Tool):
                 with Selection.played_by(item):
                     item.unselect(context)
             else:
-                with Selection.played_by(item):
-                    item.select(context)
+                Selection(item)
+                item.select(context)
                 self._movable_items = set(self.movable_items())
             return True
 
     def on_button_release(self, context, event):
         if event.button not in self._buttons:
             return False
+        Selection.revoke(self.get_item())
+        for item in self._movable_items:
+            InMotion.revoke(item)
         self._movable_items.clear()
         return True
 
@@ -385,15 +392,14 @@ class ItemTool(Tool):
             # Now do the actual moving.
             for item in self._movable_items:
                 self.update_context(context, item, event)
-                with Selection.played_by(item):
-                    item.move(context)
+                InMotion.assign(item)
+                item.move(context)
 
             # TODO: if isinstance(item, Element):
             #   schedule item to be handled by some "guides" tool
             #   that tries to align the handle with some other Element's
             #   handle.
 
-            self.last_x, self.last_y = event.x, event.y
             return True
 
 
@@ -424,35 +430,35 @@ class HandleTool(Tool):
         self._grabbed_handle = None
         self._grabbed_item = None
 
-    def _find_handle(self, view, event, item):
+    def _find_handle(self, context, event, item):
         """
         Find item's handle at (event.x, event.y)
         """
+        view = self.view
         i2v = view.get_matrix_i2v(item).transform_point
         x, y = event.x, event.y
-        for h in item.handles():
-            if not h.movable:
-                continue
-            wx, wy = i2v(*h.pos)
-            if -6 < (wx - x) < 6 and -6 < (wy - y) < 6:
-                return h
-        return None
+        self.update_context(context, item, event)
+        context.distance = view.get_matrix_v2i(item).transform_distance(6, 0)[0]
+        with HandleSelection.played_by(item):
+            return item.find_handle(context)
 
 
-    def find_handle(self, view, event):
+    def find_handle(self, context, event):
         """
         Look for a handle at (event.x, event.y) and return the
         tuple (item, handle).
         """
+        view = self.view
+        find_handle = self._find_handle
         # The focused item is the prefered item for handle grabbing
         if view.focused_item:
-            h = self._find_handle(view, event, view.focused_item)
+            h = find_handle(context, event, view.focused_item)
             if h:
                 return view.focused_item, h
 
         # then try hovered item
         if view.hovered_item:
-            h = self._find_handle(view, event, view.hovered_item)
+            h = find_handle(context, event, view.hovered_item)
             if h:
                 return view.hovered_item, h
 
@@ -462,21 +468,21 @@ class HandleTool(Tool):
 
         found_item, found_h = None, None
         for item in items:
-            h = self._find_handle(view, event, item)
+            h = find_handle(view, event, item)
             if h:
                 return item, h
         return None, None
 
 
-    def move(self, item, handle, pos):
+    def move(self, item, context):
         """
-        Move the handle to position ``(x,y)``. ``x`` and ``y`` are in
-        item coordnates. ``item`` is the item whose ``handle`` is moved.
         """
-        v2i = self.view.get_matrix_v2i(item)
-        x, y = v2i.transform_point(*pos)
+        #self.update_context(context, item, event)
+        #v2i = self.view.get_matrix_v2i(item)
+        #x, y = v2i.transform_point(*pos)
 
-        handle.pos = (x, y)
+        with HandleInMotion.played_by(item):
+            item.move(context)
 
 
     def glue(self, view, item, handle, vpos):
@@ -528,7 +534,7 @@ class HandleTool(Tool):
         dragged around.
         """
         view = self.view
-        item, handle = self.find_handle(view, event)
+        item, handle = self.find_handle(context, event)
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
@@ -576,7 +582,9 @@ class HandleTool(Tool):
             handle = self._grabbed_handle
 
             # Do the actual move:
-            self.move(item, handle, (event.x, event.y))
+            #self.move(item, handle, (event.x, event.y))
+            self.update_context(context, item, event)
+            self.move(item, context)
 
             # do not request matrix update as matrix recalculation will be
             # performed due to item normalization if required

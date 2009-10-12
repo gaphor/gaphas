@@ -5,7 +5,7 @@ Generic gaphas item tests.
 import unittest
 
 from gaphas.item import Item
-from gaphas.itemrole import Selection
+from gaphas.itemrole import Selection, InMotion
 from gaphas.canvas import Canvas, Context
 from gaphas.view import View
 from gaphas.tool import ToolContext
@@ -44,7 +44,7 @@ class ItemRoleTestCase(unittest.TestCase):
         view = self.view
         item = Item()
         self.canvas.add(item)
-        with Selection.played_by(item):
+        with InMotion.played_by(item):
             self.assertEquals((1, 0, 0, 1, 0, 0), tuple(item.matrix))
             item.move(Context(dx=12, dy=26))
             self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
