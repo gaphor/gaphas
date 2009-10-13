@@ -4,7 +4,7 @@ Test all the tools provided by gaphas.
 
 import unittest
 
-from gaphas.tool import ConnectHandleTool, LineSegmentTool
+from gaphas.tool import ToolContext, ConnectHandleTool, LineSegmentTool
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Item, Element, Line
@@ -319,7 +319,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool = LineSegmentTool()
         tool.set_view(self.view)
 
-        context = Context()
+        context = ToolContext(view=self.view)
 
         head, tail = self.line.handles()
 
@@ -338,7 +338,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool.set_view(self.view)
         def dummy_grab(): pass
 
-        context = Context()
+        context = ToolContext(view=self.view)
 
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
@@ -357,7 +357,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool = LineSegmentTool()
         tool.set_view(self.view)
 
-        context = Context()
+        context = ToolContext(view=self.view)
 
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
@@ -617,7 +617,7 @@ class LineMergeTestCase(TestCaseBase):
         """
         tool = LineSegmentTool()
 
-        context = Context()
+        context = ToolContext(view=self.view)
 
         # connect line2 to self.line
         line2 = Line()

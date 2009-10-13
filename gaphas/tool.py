@@ -483,7 +483,7 @@ class HandleTool(Tool):
         #x, y = v2i.transform_point(*pos)
         handle = self._grabbed_handle
         with HandleInMotion.played_by(handle):
-            handle.move(context.x, context.y)
+            handle.move(x, y)
 
 
     def glue(self, view, item, handle, vpos):
