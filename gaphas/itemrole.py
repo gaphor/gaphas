@@ -2,6 +2,7 @@
 Defines roles for Items. Roles are a means to add behaviour to an item.
 """
 
+import sys
 from roles import RoleType
 
 class Selection(object):
@@ -38,33 +39,25 @@ class InMotion(object):
 class HandleSelection(object):
     __metaclass__ = RoleType
 
-    def find_handle(self, context):
+    def find_handle(self, x, y, distance=sys.maxint):
         """
         Find a handle on the selected item. The handle is stored in
         ``context.handle``.
         """
-        x, y = context.x, context.y
-        d = context.distance
+        d = distance
         for h in self.handles():
             if not h.movable:
                 continue
             hx, hy = h.pos
             if -d < (hx - x) < d and -d < (hy - y) < d:
-                context.handle = h
                 return h
-
-    def focus(self, context):
-        view = context.view
-        handle = context.handle
-        view.focused_item = self
-        context.grabbed_handle = handle
 
 
 class HandleInMotion(object):
     __metaclass__ = RoleType
 
-    def move(self, context):
-        context.handle.pos = (context.x, context.y)
+    def move(self, x, y):
+        self.pos = (x, y)
         # TODO: GLUE
 
 
@@ -97,7 +90,7 @@ class ConnectionSink(object):
     """
     __metaclass__ = RoleType
 
-    def glue(self, pos):
+    def find_port(self, pos):
         """
         Glue to the closest item on the canvas.
         If the item can connect, it returns a port.

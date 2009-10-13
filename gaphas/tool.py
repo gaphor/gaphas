@@ -438,9 +438,10 @@ class HandleTool(Tool):
         i2v = view.get_matrix_i2v(item).transform_point
         x, y = event.x, event.y
         self.update_context(context, item, event)
-        context.distance = view.get_matrix_v2i(item).transform_distance(6, 0)[0]
+        distance = view.get_matrix_v2i(item).transform_distance(6, 0)[0]
+
         with HandleSelection.played_by(item):
-            return item.find_handle(context)
+            return item.find_handle(context.x, context.y, distance)
 
 
     def find_handle(self, context, event):
@@ -474,15 +475,15 @@ class HandleTool(Tool):
         return None, None
 
 
-    def move(self, item, context):
+    def move(self, x, y):
         """
         """
         #self.update_context(context, item, event)
         #v2i = self.view.get_matrix_v2i(item)
         #x, y = v2i.transform_point(*pos)
-
-        with HandleInMotion.played_by(item):
-            item.move(context)
+        handle = self._grabbed_handle
+        with HandleInMotion.played_by(handle):
+            handle.move(context.x, context.y)
 
 
     def glue(self, view, item, handle, vpos):
@@ -545,6 +546,7 @@ class HandleTool(Tool):
 ###/
             view.hovered_item = item
             view.focused_item = item
+
             self.grab_handle(item, handle)
 
             if handle.connectable:
@@ -584,7 +586,7 @@ class HandleTool(Tool):
             # Do the actual move:
             #self.move(item, handle, (event.x, event.y))
             self.update_context(context, item, event)
-            self.move(item, context)
+            self.move(context.x, context.y)
 
             # do not request matrix update as matrix recalculation will be
             # performed due to item normalization if required
@@ -1146,7 +1148,7 @@ class ConnectHandleTool(HandleTool):
 
         # find the port using item's coordinates
         with ConnectionSink.played_by(item):
-            return item.glue((ix, iy))
+            return item.find_port((ix, iy))
 
 
     def remove_constraint(self, item, handle):
