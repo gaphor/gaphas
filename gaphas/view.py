@@ -550,14 +550,17 @@ class GtkView(gtk.DrawingArea, View):
 
         TODO: Should we also create a (sorted) list of items that need redrawal?
         """
-        queue_draw_area = self.queue_draw_area
         get_bounds = self._qtree.get_bounds
-        for item in items:
-            try:
-                if item:
-                    queue_draw_area(*get_bounds(item))
-            except KeyError:
-                pass # No bounds calculated yet? bummer.
+        try:
+            # create a copy, otherwise we'll change the original rectangle
+            bounds = Rectangle(*get_bounds(items[0]))
+            for item in items[1:]:
+                bounds += get_bounds(item)
+            self.queue_draw_area(*bounds)
+        except IndexError:
+            pass
+        except KeyError:
+            pass # No bounds calculated yet? bummer.
 
 
     def queue_draw_area(self, x, y, w, h):
@@ -619,17 +622,15 @@ class GtkView(gtk.DrawingArea, View):
         dirty_matrix_items = self._dirty_matrix_items
 
         try:
-            for i in dirty_items:
-                self.queue_draw_item(i)
+            self.queue_draw_item(*dirty_items)
 
+            # Mark old bb section for update
+            self.queue_draw_item(*dirty_matrix_items)
             for i in dirty_matrix_items:
                 if i not in self._qtree:
                     dirty_items.add(i)
                     self.update_matrix(i)
                     continue
-
-                # Mark old bb section for update
-                self.queue_draw_item(i)
 
                 self.update_matrix(i)
 
@@ -643,7 +644,7 @@ class GtkView(gtk.DrawingArea, View):
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
 
-                self.queue_draw_item(i)
+            self.queue_draw_item(*dirty_matrix_items)
 
             # Request bb recalculation for all 'really' dirty items
             self.update_bounding_box(set(dirty_items))

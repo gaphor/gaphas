@@ -814,10 +814,9 @@ class PlacementTool(Tool):
         return True
 
 
-    def _create_item(self, context, pos):
-        view = self.view
-        canvas = view.canvas
-        item = self._factory()
+    def _create_item(self, context, pos, **kw):
+        view = context.view
+        item = self._factory(**kw)
         x, y = view.get_matrix_v2i(item).transform_point(*pos)
         item.matrix.translate(x, y)
         return item
@@ -1067,9 +1066,9 @@ class ConnectHandleTool(HandleTool):
         # disconnect when
         # - no connectable item
         # - currently connected item is not connectable item
-        connected_to = line.canvas.get_connected_to(line, handle)
+        info = line.canvas.get_connection(handle)
         if not item \
-                or item and connected_to and connected_to[0] is not item:
+                or item and info and info.connected is not item:
             self.disconnect(view, line, handle)
 
         # no connectable item, no connection
@@ -1084,7 +1083,7 @@ class ConnectHandleTool(HandleTool):
 
 
 # To role Connector.connect_handle
-    def connect_handle(self, line, handle, item, port):
+    def connect_handle(self, line, handle, item, port, callback=None):
         """
         Create constraint between handle of a line and port of connectable
         item.
@@ -1098,16 +1097,20 @@ class ConnectHandleTool(HandleTool):
             Connectable item.
          port
             Port of connectable item.
+         callback
+            Function to be called on disconnection.
         """
         canvas = line.canvas
         solver = canvas.solver
 
-        if canvas.get_connected_to(line, handle):
+        if canvas.get_connection(handle):
             canvas.disconnect_item(line, handle)
 
         constraint = port.constraint(canvas, line, handle, item)
 
-        canvas.connect_item(line, handle, item, port, constraint=constraint)
+        canvas.connect_item(line, handle, item, port,
+            constraint,
+            callback=callback)
 
 
 ### To role Connector.disconnect()
@@ -1284,31 +1287,28 @@ class LineSegmentTool(ConnectHandleTool):
         return deleted_handles, deleted_ports
 
 
-    def _recreate_constraints(self, item):
+    def _recreate_constraints(self, connected):
         """
         Create connection constraints between connecting lines and an item.
 
         :Parameters:
-         lines
-            Lines connecting to an item.
-         handles
-            Handles connecting to an item.
-         item
-            Item connected to lines.
+         connected
+            Connected item.
         """
-        if not item.canvas:
+        if not connected.canvas:
             # No canvas, no constraints
             return
 
-        canvas = item.canvas
+        canvas = connected.canvas
         solver = canvas.solver
-        for line, handle in list(canvas.get_connected_items(item)):
-            port = ConnectHandleTool.find_port(line, handle, item)
+        for cinfo in list(canvas.get_connections(connected=connected)):
+            item, handle = cinfo.item, cinfo.handle
+            port = ConnectHandleTool.find_port(item, handle, connected)
             
-            constraint = port.constraint(canvas, line, handle, item)
+            constraint = port.constraint(canvas, item, handle, connected)
 
-            data = canvas.get_connection_data(line, handle)
-            canvas.reconnect_item(line, handle, constraint=constraint, callback=data[1])
+            cinfo = canvas.get_connection(handle)
+            canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
 
 
     def on_button_press(self, context, event):

@@ -1,10 +1,36 @@
 """
 A Canvas owns a set of Items and acts as a container for both the items
 and a constraint solver.
+
+Connections
+===========
+
+Getting Connection Information
+==============================
+To get connected item to a handle::
+
+    c = canvas.get_connection(handle)
+    if c != None:
+        print c.connected
+        print c.port
+        print c.constraint
+
+
+To get all connected items (i.e. items on both sides of a line)::
+
+    classes = (i.connected for i in canvas.get_connections(item=line))
+
+
+To get connecting items (i.e. all lines connected to a class)::
+
+    lines = (c.item for c in canvas.get_connections(connected=item))
+
 """
 
 __version__ = "$Revision$"
 # $HeadURL$
+
+from collections import namedtuple
 
 from cairo import Matrix
 from gaphas import tree
@@ -12,6 +38,20 @@ from gaphas import solver
 from gaphas import table
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
 from state import observed, reversible_method, reversible_pair
+
+
+#
+# Information about two connected items
+#
+# - item: connecting item
+# - handle: handle of connecting item (points connected item)
+# - connected: connected item
+# - port: port of connected item
+# - constraint: optional connection constraint
+# - callback: optional disconnection callback
+#
+Connection = namedtuple('Connection',
+        'item handle connected port constraint callback')
 
 
 class Context(object):
@@ -43,7 +83,7 @@ class Canvas(object):
     def __init__(self):
         self._tree = tree.Tree()
         self._solver = solver.Solver()
-        self._connections = table.Table(('hitem', 'handle', 'pitem', 'port', 'constraint', 'callback'), (0, 1, 2, 3))
+        self._connections = table.Table(Connection, range(4))
         self._dirty_items = set()
         self._dirty_matrix_items = set()
         self._dirty_index = False
@@ -246,14 +286,28 @@ class Canvas(object):
 
 
     @observed
-    def connect_item(self, hitem, handle, pitem, port, constraint, callback=None):
+    def connect_item(self, item, handle, connected, port, constraint=None, callback=None):
         """
-        Create a connection. The connection is registered and the constraint is
-        added to the constraint solver.
+        Create a connection between two items. The connection is registered
+        and the constraint is added to the constraint solver.
 
         The callback is invoked when the connection is broken.
+
+        :Parameters:
+         item
+            Connecting item (i.e. a line).
+         handle
+            Handle of connecting item.
+         connected
+            Connected item (i.e. a box).
+         port
+            Port of connected item.
+         constraint
+            Constraint to keep the connection in place.
+         callback
+            Function to be called on disconnection.
         """
-        self._connections.insert(hitem, handle, pitem, port, constraint, callback)
+        self._connections.insert(item, handle, connected, port, constraint, callback)
         if constraint:
             self._solver.add_constraint(constraint)
 
@@ -263,22 +317,15 @@ class Canvas(object):
         Disconnect the connections of an item. If handle is not None, only the
         connection for that handle is disconnected.
         """
-        if handle:
-            result = self._connections.query(hitem=item, handle=handle)
-        else:
-            result = self._connections.query(hitem=item)
-
-        for hi, h, pi, p, c, cb in result:
-            self._disconnect_item(hi, h, pi, p, c, cb)
-
-        if handle:
-            self._connections.delete(hitem=item, handle=handle)
-        else:
-            self._connections.delete(hitem=item)
+        # disconnect on canvas level
+        for r in self._connections.query(item=item, handle=handle):
+            self._disconnect_item(*r)
+        # remove connections from cache
+        self._connections.delete(item=item, handle=handle)
 
 
     @observed
-    def _disconnect_item(self, hitem, handle, pitem, port, constraint, callback):
+    def _disconnect_item(self, item, handle, connected, port, constraint, callback):
         # Same arguments as connect_item, makes reverser easy
         if constraint:
             self._solver.remove_constraint(constraint)
@@ -295,13 +342,14 @@ class Canvas(object):
         This is some brute force cleanup (e.g. if constraints are referenced
         by items, those references are not cleaned up).
         """
-        for hi, h, pi, p, c, cb in self._connections.query(pitem=item):
-            if cb: cb()
-        self._connections.delete(pitem=item)
+        for hi, h, pi, p, c, cb in self._connections.query(connected=item):
+            if cb:
+                cb()
+        self._connections.delete(connected=item)
     
 
     @observed
-    def reconnect_item(self, item, handle, constraint, callback=None):
+    def reconnect_item(self, item, handle, constraint=None, callback=None):
         """
         Update an existing connection. This is mainly useful to provide a new
         constraint or callback to the connection. ``item`` and ``handle`` are
@@ -319,20 +367,19 @@ class Canvas(object):
         We need a few constraints, because that's what we're updating:
 
         >>> from gaphas.constraint import EqualsConstraint
-        >>> cons1 = EqualsConstraint(i.handles()[0].x, i.handles()[0].x)
-        >>> cons2 = EqualsConstraint(i.handles()[0].y, i.handles()[0].y)
-
+        >>> cons1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
+        >>> cons2 = EqualsConstraint(i.handles()[0].pos.y, i.handles()[0].pos.y)
         >>> c.connect_item(i, i.handles()[0], ii, ii.ports()[0], cons1)
-        >>> c.get_connection_data(i, i.handles()[0]) # doctest: +ELLIPSIS
-        (<gaphas.constraint.EqualsConstraint object ...>, None)
-        >>> c.get_connection_data(i, i.handles()[0])[0] is cons1
+        >>> c.get_connection(i.handles()[0]) # doctest: +ELLIPSIS
+        Connection(item=<gaphas.item.Line object at 0x...)
+        >>> c.get_connection(i.handles()[0]).constraint is cons1
         True
         >>> cons1 in c.solver.constraints
         True
         >>> c.reconnect_item(i, i.handles()[0], cons2, lambda: 0)
-        >>> c.get_connection_data(i, i.handles()[0]) # doctest: +ELLIPSIS
-        (<gaphas.constraint.EqualsConstraint object ...>, <function <lambda> ...>)
-        >>> c.get_connection_data(i, i.handles()[0])[0] is cons2
+        >>> c.get_connection(i.handles()[0]) # doctest: +ELLIPSIS
+        Connection(item=<gaphas.item.Line object at 0x...)
+        >>> c.get_connection(i.handles()[0]).constraint is cons2
         True
         >>> cons1 in c.solver.constraints
         False
@@ -340,34 +387,32 @@ class Canvas(object):
         True
 
         An exception is raised if no connection exists:
-
         >>> c.reconnect_item(ii, ii.handles()[0], cons2, lambda: 0) # doctest: +ELLIPSIS
         Traceback (most recent call last):
           ...
         ValueError: No data available for item ...
         """
         # checks:
-        connected_to = self.get_connected_to(item, handle)
-        data = self.get_connection_data(item, handle)
-        if not connected_to or not data:
+        cinfo = self.get_connection(handle)
+        if not cinfo:
             raise ValueError, 'No data available for item "%s" and handle "%s"' % (item, handle)
 
-        if data[0]:
-            self._solver.remove_constraint(data[0])
-        self._connections.delete(hitem=item, handle=handle)
+        if cinfo.constraint:
+            self._solver.remove_constraint(cinfo.constraint)
+        self._connections.delete(item=cinfo.item, handle=cinfo.handle)
 
-        self._connections.insert(item, handle, connected_to[0], connected_to[1], constraint, callback)
+        self._connections.insert(item, handle, cinfo.connected, cinfo.port, constraint, cinfo.callback)
         if constraint:
             self._solver.add_constraint(constraint)
 
     reversible_method(reconnect_item, reverse=reconnect_item,
-                      bind={'constraint': lambda self, item, handle: self.get_connection_data(item, handle)[0],
-                            'callback': lambda self, item, handle: self.get_connection_data(item, handle)[1] })
+                      bind={'constraint': lambda self, item, handle: self.get_connection(handle).contraint,
+                            'callback': lambda self, item, handle: self.get_connection(handle).callback })
 
 
-    def get_connected_to(self, item, handle):
+    def get_connection(self, handle):
         """
-        Returns the item + port a handle is connected to.
+        Get connection information for specified handle.
 
         >>> c = Canvas()
         >>> from gaphas.item import Line
@@ -377,45 +422,23 @@ class Canvas(object):
         >>> c.add(i)
         >>> ii = item.Line()
         >>> c.add(ii)
-        >>> c.connect_item(i, i.handles()[0], ii, ii.ports()[0], None)
-        >>> c.get_connected_to(i, i.handles()[0]) # doctest: +ELLIPSIS
-        (<gaphas.item.Line ...>, <gaphas.connector.LinePort ...>)
-        >>> c.get_connected_to(i, i.handles()[1]) # doctest: +ELLIPSIS
-        >>> c.get_connected_to(ii, ii.handles()[0]) # doctest: +ELLIPSIS
+        >>> c.connect_item(i, i.handles()[0], ii, ii.ports()[0])
+        >>> c.get_connection(i.handles()[0])     # doctest: +ELLIPSIS
+        Connection(item=<gaphas.item.Line object at 0x...)
+        >>> c.get_connection(i.handles()[1])     # doctest: +ELLIPSIS
+        >>> c.get_connection(ii.handles()[0])    # doctest: +ELLIPSIS
         """
         try:
-            return tuple(self._connections.query(hitem=item, handle=handle))[0][2:4]
-        except IndexError:
+            return self._connections.query(handle=handle).next()
+        except StopIteration, ex:
             return None
 
 
-    def get_connection_data(self, item, handle):
+    def get_connections(self, item=None, handle=None, connected=None, port=None):
         """
-        Get data (connection + callback) related to a connection.
+        Return an iterator of connection information.
 
-        >>> c = Canvas()
-        >>> from gaphas.item import Line
-        >>> line = Line()
-        >>> from gaphas import item
-        >>> i = item.Line()
-        >>> c.add(i)
-        >>> ii = item.Line()
-        >>> c.add(ii)
-        >>> c.connect_item(i, i.handles()[0], ii, ii.ports()[0], None)
-        >>> c.get_connection_data(i, i.handles()[0]) # doctest: +ELLIPSIS
-        (None, None)
-        >>> c.get_connection_data(ii, ii.handles()[0]) # doctest: +ELLIPSIS
-        """
-        try:
-            return tuple(self._connections.query(hitem=item, handle=handle))[0][4:6]
-        except IndexError:
-            return None
-
-
-    def get_connected_items(self, item):
-        """
-        Return a set of items that are connected to ``item``.
-        The list contains tuples (item, handle). As a result an item may be
+        The list contains  (item, handle). As a result an item may be
         in the list more than once (depending on the number of handles that
         are connected). If ``item`` is connected to itself it will also appear
         in the list.
@@ -429,16 +452,24 @@ class Canvas(object):
         >>> iii = item.Line()
         >>> c.add (iii)
         >>> c.connect_item(i, i.handles()[0], ii, ii.ports()[0], None)
-        >>> list(c.get_connected_items(i))
+
+        >>> list(c.get_connections(item=i)) # doctest: +ELLIPSIS
+        [Connection(item=<gaphas.item.Line object at 0x...]
+        >>> list(c.get_connections(connected=i))
         []
+        >>> list(c.get_connections(connected=ii)) # doctest: +ELLIPSIS
+        [Connection(item=<gaphas.item.Line object at 0x...]
+
         >>> c.connect_item(ii, ii.handles()[0], iii, iii.ports()[0], None)
-        >>> list(c.get_connected_items(ii)) # doctest: +ELLIPSIS
-        [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
-        >>> list(c.get_connected_items(iii)) # doctest: +ELLIPSIS
-        [(<gaphas.item.Line ...>, <Handle object on (0, 0)>)]
+        >>> list(c.get_connections(item=ii)) # doctest: +ELLIPSIS
+        [Connection(item=<gaphas.item.Line object at 0x...]
+        >>> list(c.get_connections(connected=iii)) # doctest: +ELLIPSIS
+        [Connection(item=<gaphas.item.Line object at 0x...]
         """
-        for hi, h, pi, p, c, cb in self._connections.query(pitem=item):
-            yield hi, h
+        return self._connections.query(item=item,
+                handle=handle,
+                connected=connected,
+                port=port)
 
         
     def sort(self, items, reverse=False):
@@ -741,7 +772,7 @@ class Canvas(object):
 
         For example having an item
 
-        >>> from item import Element
+        >>> from gaphas.item import Element
         >>> c = Canvas()
         >>> e = Element()
         >>> c.add(e)
@@ -916,7 +947,7 @@ class CanvasProjection(object):
     (Projections).
 
     >>> canvas = Canvas()
-    >>> from item import Element
+    >>> from gaphas.item import Element
     >>> a = Element()
     >>> canvas.add(a)
     >>> a.matrix.translate(30, 2)
@@ -945,13 +976,13 @@ class CanvasProjection(object):
     def _on_change_x(self, value):
         item = self._item
         self._px = value
-        self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
+        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
         item.canvas.request_update(item, matrix=False)
 
     def _on_change_y(self, value):
         item = self._item
         self._py = value
-        self._point[0].value, self._point[1].value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
+        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
         item.canvas.request_update(item, matrix=False)
 
     def _get_value(self):
@@ -960,7 +991,7 @@ class CanvasProjection(object):
         a value attribute with the real value.
         """
         item = self._item
-        x, y = self._point
+        x, y = self._point.x, self._point.y
         self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
         return self._px, self._py
 

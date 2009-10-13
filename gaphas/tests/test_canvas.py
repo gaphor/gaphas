@@ -23,6 +23,14 @@ class MatricesTestCase(unittest.TestCase):
         self.assertEquals(i._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 0))
         self.assertEquals(ii._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 8))
 
+    def test_reparent(self):
+        c = Canvas()
+        b1 = Box()
+        b2 = Box()
+        c.add(b1)
+        c.add(b2, b1)
+        c.reparent(b2, None)
+
 # fixme: what about multiple constraints for a handle?
 #        what about 1d projection?
 

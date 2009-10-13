@@ -271,7 +271,7 @@ class HandlePainter(Painter):
     Draw handles of items that are marked as selected in the view.
     """
 
-    def _draw_handles(self, item, view, cairo, opacity=None):
+    def _draw_handles(self, item, view, cairo, opacity=None, inner=False):
         """
         Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
@@ -283,15 +283,15 @@ class HandlePainter(Painter):
 
         cairo.set_line_width(1)
 
-        get_connected_to = view.canvas.get_connected_to
+        get_connection = view.canvas.get_connection
         for h in item.handles():
             if not h.visible:
                 continue
             # connected and not being moved, see HandleTool.on_button_press
-            if get_connected_to(item, h): # and connection_data
+            if get_connection(h):
                 r, g, b = 1, 0, 0
             # connected but being moved, see HandleTool.on_button_press
-            elif get_connected_to(item, h):
+            elif get_connection(h):
                 r, g, b = 1, 0.6, 0
             elif h.movable:
                 r, g, b = 0, 1, 0
@@ -302,6 +302,8 @@ class HandlePainter(Painter):
             cairo.set_antialias(ANTIALIAS_NONE)
             cairo.translate(*i2v.transform_point(*h.pos))
             cairo.rectangle(-4, -4, 8, 8)
+            if inner:
+                cairo.rectangle(-3, -3, 6, 6)
             cairo.set_source_rgba(r, g, b, opacity)
             cairo.fill_preserve()
             if h.connectable:
@@ -324,6 +326,9 @@ class HandlePainter(Painter):
         item = view.hovered_item
         if item and item not in view.selected_items:
             self._draw_handles(item, view, cairo, opacity=.25)
+        item = view.dropzone_item
+        if item and item not in view.selected_items:
+            self._draw_handles(item, view, cairo, opacity=.25, inner=True)
 
 
 class ToolPainter(Painter):

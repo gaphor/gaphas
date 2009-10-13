@@ -73,9 +73,10 @@ class Connector(object):
         freely."
         """
         canvas = self.canvas
-        data = canvas.get_connection_data(self, handle)
+        data = canvas.get_connection(handle)
         if data:
-            canvas.solver.remove_constraint(data[0])
+            canvas.solver.remove_constraint(data.constraint)
+
 
     def disconnect(self, handle):
         """
