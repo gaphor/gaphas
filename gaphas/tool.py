@@ -423,12 +423,22 @@ class HandleTool(Tool):
         self._grabbed_item = item
         self._grabbed_handle = handle
 
+        with HandleSelection.played_by(handle):
+            handle.select(self.view)
+
+
     def ungrab_handle(self):
         """
         Reset _grabbed_handle and _grabbed_item.
         """
+        handle = self._grabbed_handle
         self._grabbed_handle = None
         self._grabbed_item = None
+
+        if handle:
+            with HandleSelection.played_by(handle):
+                handle.unselect(self.view)
+
 
     def _find_handle(self, context, event, item):
         """
@@ -438,10 +448,15 @@ class HandleTool(Tool):
         i2v = view.get_matrix_i2v(item).transform_point
         x, y = event.x, event.y
         self.update_context(context, item, event)
-        distance = view.get_matrix_v2i(item).transform_distance(6, 0)[0]
+        d = view.get_matrix_v2i(item).transform_distance(6, 0)[0]
+        x, y = context.x, context.y
 
-        with HandleSelection.played_by(item):
-            return item.find_handle(context.x, context.y, distance)
+        for h in item.handles():
+            if not h.movable:
+                continue
+            hx, hy = h.pos
+            if -d < (hx - x) < d and -d < (hy - y) < d:
+                return h
 
 
     def find_handle(self, context, event):
@@ -1075,12 +1090,14 @@ class ConnectHandleTool(HandleTool):
         if not item:
             return
 
+# define sink by item and port.
+# TODO: to role
         # low-level connection
         self.connect_handle(line, handle, item, port)
 
         # connection in higher level of application stack
         self.post_connect(line, handle, item, port)
-
+##
 
 # To role Connector.connect_handle
     def connect_handle(self, line, handle, item, port, callback=None):
@@ -1113,7 +1130,6 @@ class ConnectHandleTool(HandleTool):
             callback=callback)
 
 
-### To role Connector.disconnect()
     def disconnect(self, view, line, handle):
         """
         Disconnect line (connecting item) from an item.

@@ -37,23 +37,22 @@ class InMotion(object):
 
 
 class HandleSelection(object):
+    """
+    Deal with selection of the handle.
+    """
     __metaclass__ = RoleType
 
-    def find_handle(self, x, y, distance=sys.maxint):
-        """
-        Find a handle on the selected item. The handle is stored in
-        ``context.handle``.
-        """
-        d = distance
-        for h in self.handles():
-            if not h.movable:
-                continue
-            hx, hy = h.pos
-            if -d < (hx - x) < d and -d < (hy - y) < d:
-                return h
+    def select(self, view):
+        pass
+
+    def unselect(self, view):
+        pass
 
 
 class HandleInMotion(object):
+    """
+    Move a handle (role is applied to the handle)
+    """
     __metaclass__ = RoleType
 
     def move(self, x, y):
@@ -65,6 +64,11 @@ class Connector(object):
     __metaclass__ = RoleType
 
     def connect(self, sink):
+        # low-level connection
+        self.connect_handle(line, handle, item, port)
+
+        # connection in higher level of application stack
+        self.post_connect(line, handle, item, port)
         pass
 
     def remove_constraints(self, handle):
