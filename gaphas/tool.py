@@ -42,8 +42,10 @@ from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
-from gaphas.itemrole import Selection, InMotion, HandleSelection, HandleInMotion, \
+from gaphas.aspect import Selection, InMotion, \
+        HandleSelection, HandleInMotion, \
         Connector, ConnectionSink
+
 
 DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
@@ -365,17 +367,14 @@ class ItemTool(Tool):
                 with Selection.played_by(item):
                     item.unselect(context)
             else:
-                Selection(item)
-                item.select(context)
+                selection = Selection(item)
+                selection.select(context)
                 self._movable_items = set(self.movable_items())
             return True
 
     def on_button_release(self, context, event):
         if event.button not in self._buttons:
             return False
-        Selection.revoke(self.get_item())
-        for item in self._movable_items:
-            InMotion.revoke(item)
         self._movable_items.clear()
         return True
 
@@ -392,8 +391,8 @@ class ItemTool(Tool):
             # Now do the actual moving.
             for item in self._movable_items:
                 self.update_context(context, item, event)
-                InMotion.assign(item)
-                item.move(context)
+                inmotion = InMotion(item)
+                inmotion.move(context)
 
             # TODO: if isinstance(item, Element):
             #   schedule item to be handled by some "guides" tool
@@ -423,8 +422,8 @@ class HandleTool(Tool):
         self._grabbed_item = item
         self._grabbed_handle = handle
 
-        with HandleSelection.played_by(handle):
-            handle.select(self.view)
+        selection = HandleSelection(handle)
+        selection.select(self.view)
 
 
     def ungrab_handle(self):
@@ -436,8 +435,8 @@ class HandleTool(Tool):
         self._grabbed_item = None
 
         if handle:
-            with HandleSelection.played_by(handle):
-                handle.unselect(self.view)
+            selection = HandleSelection(handle)
+            selection.unselect(self.view)
 
 
     def _find_handle(self, context, event, item):
@@ -497,8 +496,8 @@ class HandleTool(Tool):
         #v2i = self.view.get_matrix_v2i(item)
         #x, y = v2i.transform_point(*pos)
         handle = self._grabbed_handle
-        with HandleInMotion.played_by(handle):
-            handle.move(x, y)
+        inmotion = HandleInMotion(handle)
+        inmotion.move(x, y)
 
 
     def glue(self, view, item, handle, vpos):
@@ -1169,8 +1168,8 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of connecting item.
         """
-        with Connector.played_by(line):
-            line.disconnect(handle)
+        connector = Connector(line)
+        connector.disconnect(handle)
 
 
     @staticmethod
@@ -1193,8 +1192,8 @@ class ConnectHandleTool(HandleTool):
         ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
 
         # find the port using item's coordinates
-        with ConnectionSink.played_by(item):
-            return item.find_port((ix, iy))
+        sink = ConnectionSink(item)
+        return sink.find_port((ix, iy))
 
 
     def remove_constraint(self, item, handle):
@@ -1208,8 +1207,8 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of a line connecting to an item.
         """
-        with Connector.played_by(item):
-            item.remove_constraints(handle)
+        connector = Connector(item)
+        connector.remove_constraints(handle)
 
 
 
