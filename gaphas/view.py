@@ -11,7 +11,7 @@ from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle
 from quadtree import Quadtree
-from tool import ToolContext, DefaultTool
+from tool import DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
 from decorators import async, PRIORITY_HIGH_IDLE
 from decorators import nonrecursive

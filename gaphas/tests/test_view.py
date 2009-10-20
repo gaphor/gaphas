@@ -8,7 +8,7 @@ from gaphas.view import View, GtkView
 from gaphas.canvas import Canvas, Context
 from gaphas.item import Line
 from gaphas.examples import Box
-from gaphas.tool import ToolContext, HoverTool
+from gaphas.tool import HoverTool
 
 
 class ViewTestCase(unittest.TestCase):

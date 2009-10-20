@@ -9,7 +9,7 @@ from gaphas.aspect import Aspect, aspectfactory, aspect
 from gaphas.aspect import Selection, InMotion
 from gaphas.canvas import Canvas, Context
 from gaphas.view import View
-from gaphas.tool import ToolContext
+
 
 class AspectTestCase(unittest.TestCase):
     """

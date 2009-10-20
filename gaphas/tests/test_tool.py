@@ -4,7 +4,7 @@ Test all the tools provided by gaphas.
 
 import unittest
 
-from gaphas.tool import ToolContext, ConnectHandleTool, LineSegmentTool
+from gaphas.tool import ConnectHandleTool, LineSegmentTool
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Item, Element, Line
@@ -319,13 +319,11 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool = LineSegmentTool()
         tool.set_view(self.view)
 
-        context = ToolContext(view=self.view)
-
         head, tail = self.line.handles()
 
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
-        tool.on_button_press(context, Event(x=50, y=50, state=0))
+        tool.on_button_press(Event(x=50, y=50, state=0))
         self.assertEquals(3, len(self.line.handles()))
         self.assertEquals(self.head, head)
         self.assertEquals(self.tail, tail)
@@ -338,16 +336,14 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool.set_view(self.view)
         def dummy_grab(): pass
 
-        context = ToolContext(view=self.view)
-
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
-        tool.on_button_press(context, Event(x=50, y=50, state=0))
+        tool.on_button_press(Event(x=50, y=50, state=0))
         # start with 2 segments
         assert len(self.line.handles()) == 3
 
         # try to merge, now
-        tool.on_button_release(context, Event(x=0, y=0, state=0))
+        tool.on_button_release(Event(x=0, y=0, state=0))
         self.assertEquals(2, len(self.line.handles()))
 
 
@@ -357,12 +353,10 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool = LineSegmentTool()
         tool.set_view(self.view)
 
-        context = ToolContext(view=self.view)
-
         self.view.hovered_item = self.line
         self.view.focused_item = self.line
-        tool.on_button_press(context, Event(x=50, y=50, state=0))
-        tool.on_button_press(context, Event(x=75, y=75, state=0))
+        tool.on_button_press(Event(x=50, y=50, state=0))
+        tool.on_button_press(Event(x=75, y=75, state=0))
         # start with 3 segments
         assert len(self.line.handles()) == 4
 
@@ -372,7 +366,7 @@ class LineSegmentToolTestCase(unittest.TestCase):
 
         # try to merge, now
         tool.grab_handle(self.line, self.line.handles()[1])
-        tool.on_button_release(context, Event(x=0, y=0, state=0))
+        tool.on_button_release(Event(x=0, y=0, state=0))
         # check if line merging was performed
         assert len(self.line.handles()) == 3
         
@@ -616,8 +610,6 @@ class LineMergeTestCase(TestCaseBase):
         """Test if constraints are recreated after line merge
         """
         tool = LineSegmentTool()
-
-        context = ToolContext(view=self.view)
 
         # connect line2 to self.line
         line2 = Line()

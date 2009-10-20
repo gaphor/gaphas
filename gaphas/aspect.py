@@ -122,20 +122,37 @@ class HandleSelection(object):
         pass
 
 
-@aspect(Handle)
+@aspect(Item)
 @aspectfactory
 class HandleInMotion(object):
     """
     Move a handle (role is applied to the handle)
     """
 
-    def __init__(self, item, view):
+    def __init__(self, item, handle, view):
         self.item = item
+        self.handle = handle
         self.view = view
+        self.last_x, self.last_y = None, None
+
+    def start_move(self, x, y):
+        self.last_x, self.last_y = x, y
 
     def move(self, x, y):
-        self.item.pos = (x, y)
+        item = self.item
+        handle = self.handle
+        view = self.view
+
         # TODO: GLUE
+        v2i = view.get_matrix_v2i(item)
+
+        x, y = v2i.transform_point(x, y)
+
+        self.handle.pos = (x, y)
+
+        # do not request matrix update as matrix recalculation will be
+        # performed due to item normalization if required
+        item.request_update(matrix=False)
 
 
 @aspect(Item)
