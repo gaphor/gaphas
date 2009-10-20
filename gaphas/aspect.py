@@ -126,33 +126,64 @@ class HandleInMotion(object):
 @aspectfactory
 class Connector(object):
 
-    def __init__(self, item):
+    def __init__(self, item, handle):
         self.item = item
+        self.handle = handle
 
     def connect(self, sink):
         # low-level connection
-        self.connect_handle(line, handle, item, port)
+        self.connect_handle(self.item, self.handle, sink.item, sink.port)
 
         # connection in higher level of application stack
-        self.post_connect(line, handle, item, port)
+        #self.post_connect(line, handle, item, port)
         pass
 
-    def remove_constraints(self, handle):
+    def connect_handle(self, line, handle, item, port, callback=None):
+        """
+        Create constraint between handle of a line and port of connectable
+        item.
+
+        :Parameters:
+         line
+            Connecting item.
+         handle
+            Handle of connecting item.
+         item
+            Connectable item.
+         port
+            Port of connectable item.
+         callback
+            Function to be called on disconnection.
+        """
+        canvas = line.canvas
+        solver = canvas.solver
+
+        if canvas.get_connection(handle):
+            canvas.disconnect_item(line, handle)
+
+        constraint = port.constraint(canvas, line, handle, item)
+
+        canvas.connect_item(line, handle, item, port,
+            constraint,
+            callback=callback)
+
+
+    def remove_constraints(self):
         """
         Disable the constraints for a handle. The handle can then move
         freely."
         """
         canvas = self.item.canvas
-        data = canvas.get_connection(handle)
+        data = canvas.get_connection(self.handle)
         if data:
             canvas.solver.remove_constraint(data.constraint)
 
 
-    def disconnect(self, handle):
+    def disconnect(self):
         """
         Disconnect the handle from.
         """
-        self.item.canvas.disconnect_item(self.item, handle)
+        self.item.canvas.disconnect_item(self.item, self.handle)
 
 
 @aspect(Item)
@@ -162,8 +193,9 @@ class ConnectionSink(object):
     This role should be applied to items that is connected to.
     """
 
-    def __init__(self, item):
+    def __init__(self, item, port):
         self.item = item
+        self.port = port
 
     def find_port(self, pos):
         """

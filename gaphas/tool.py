@@ -364,8 +364,8 @@ class ItemTool(Tool):
         if item:
             if view.hovered_item in view.selected_items and \
                     event.state & gtk.gdk.CONTROL_MASK:
-                with Selection.played_by(item):
-                    item.unselect(context)
+                selection = Selection(item)
+                selection.unselect(view)
             else:
                 selection = Selection(item)
                 selection.select(context)
@@ -1038,28 +1038,7 @@ class ConnectHandleTool(HandleTool):
         return True
 
 
-# Needed??
-    def post_connect(self, line, handle, item, port):
-        """
-        The method is invoked just after low-level connection is performed
-        by `ConnectHandleTool.connect` method. It can be overriden by
-        deriving tools to perform connection in higher level of application
-        stack.
-
-        :Parameters:
-         line
-            Item connecting to connectable item.
-         handle
-            Handle of line connecting to connectable item.
-         item
-            Connectable item.
-         port
-            Port of connectable item.
-        """
-        pass
-
-
-    def move_connection(self, view, item, handle, connected, port):
+    def move_connection(self, item, handle, connected, port):
         """
         This methods is invoked just before disconnection from an item,
         when there is connection to new item to be established.
@@ -1068,8 +1047,6 @@ class ConnectHandleTool(HandleTool):
         movement in higher level of an application stack.
 
         :Parameters:
-         view
-            View used by user.
          item
             Item connecting to new connected item.
          handle
@@ -1100,60 +1077,24 @@ class ConnectHandleTool(HandleTool):
         # find connectable item and its port
         item, port = self.glue(view, line, handle, vpos)
 
-        # disconnect when
-        # - no connectable item
-        # - currently connected item is not connectable item
-        info = line.canvas.get_connection(handle)
-
         # no new connectable item, then diconnect and exit
         if not item:
             self.disconnect(view, line, handle)
             return
 
-# define sink by item and port.
-# TODO: to role
+        # disconnect when
+        # - no connectable item
+        # - currently connected item is not connectable item
+        info = line.canvas.get_connection(handle)
 
         # moving connection to other item
         if info and info.connected is not item:
-            self.move_connection(view, line, handle, item, port)
+            self.move_connection(line, handle, item, port)
             self.disconnect(view, line, handle)
 
-        # low-level connection
-        self.connect_handle(line, handle, item, port)
-
-        # connection in higher level of application stack
-        self.post_connect(line, handle, item, port)
-##
-
-# To role Connector.connect_handle
-    def connect_handle(self, line, handle, item, port, callback=None):
-        """
-        Create constraint between handle of a line and port of connectable
-        item.
-
-        :Parameters:
-         line
-            Connecting item.
-         handle
-            Handle of connecting item.
-         item
-            Connectable item.
-         port
-            Port of connectable item.
-         callback
-            Function to be called on disconnection.
-        """
-        canvas = line.canvas
-        solver = canvas.solver
-
-        if canvas.get_connection(handle):
-            canvas.disconnect_item(line, handle, call_callback=False)
-
-        constraint = port.constraint(canvas, line, handle, item)
-
-        canvas.connect_item(line, handle, item, port,
-            constraint,
-            callback=callback)
+        connector = Connector(line, handle)
+        sink = ConnectionSink(item, port)
+        connector.connect(sink)
 
 
     def disconnect(self, view, line, handle):
@@ -1168,8 +1109,8 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of connecting item.
         """
-        connector = Connector(line)
-        connector.disconnect(handle)
+        connector = Connector(line, handle)
+        connector.disconnect()
 
 
     @staticmethod
@@ -1192,7 +1133,7 @@ class ConnectHandleTool(HandleTool):
         ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
 
         # find the port using item's coordinates
-        sink = ConnectionSink(item)
+        sink = ConnectionSink(item, None)
         return sink.find_port((ix, iy))
 
 
@@ -1207,8 +1148,8 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of a line connecting to an item.
         """
-        connector = Connector(item)
-        connector.remove_constraints(handle)
+        connector = Connector(item, handle)
+        connector.remove_constraints()
 
 
 
