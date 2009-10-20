@@ -61,33 +61,47 @@ class Selection(object):
     to a subclass.
     """
 
-    def __init__(self, item):
+    def __init__(self, item, view):
         self.item = item
+        self.view = view
 
-    def select(self, context):
+    def select(self):
         """
         Set selection on the view.
         """
-        context.view.focused_item = self.item
+        self.view.focused_item = self.item
 
-    def unselect(self, context):
-        context.view.focused_item = None
-        context.view.unselect_item(self.item)
+    def unselect(self):
+        self.view.focused_item = None
+        self.view.unselect_item(self.item)
 
 
 @aspect(Item)
 @aspectfactory
 class InMotion(object):
 
-    def __init__(self, item):
+    def __init__(self, item, view):
         self.item = item
+        self.view = view
+        self.last_x, self.last_y = None, None
 
-    def move(self, context):
+    def start_move(self, x, y):
+        self.last_x, self.last_y = x, y
+
+    def move(self, x, y):
         """
-        Move the item. The context should contain at lease ``dx`` and ``dy``.
+        Move the item. x and y are in view coordinates.
         """
-        self.item.matrix.translate(context.dx, context.dy)
-        self.item.canvas.request_matrix_update(self.item)
+        item = self.item
+        view = self.view
+        v2i = view.get_matrix_v2i(item)
+
+        dx, dy = x - self.last_x, y - self.last_y
+        dx, dy = v2i.transform_distance(dx, dy)
+        self.last_x, self.last_y = x, y
+
+        item.matrix.translate(dx, dy)
+        item.canvas.request_matrix_update(item)
 
 
 @aspect(Handle)
@@ -97,13 +111,14 @@ class HandleSelection(object):
     Deal with selection of the handle.
     """
 
-    def __init__(self, handle):
+    def __init__(self, handle, view):
         self.handle = handle
+        self.view = view
 
-    def select(self, view):
+    def select(self):
         pass
 
-    def unselect(self, view):
+    def unselect(self):
         pass
 
 
@@ -114,8 +129,9 @@ class HandleInMotion(object):
     Move a handle (role is applied to the handle)
     """
 
-    def __init__(self, item):
+    def __init__(self, item, view):
         self.item = item
+        self.view = view
 
     def move(self, x, y):
         self.item.pos = (x, y)

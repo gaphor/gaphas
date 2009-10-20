@@ -19,7 +19,6 @@ class AspectTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
         self.view = View(self.canvas)
-        self.context = ToolContext(view=self.view)
 
     def test_aspect_decorator(self):
         class A(object): pass
@@ -72,12 +71,12 @@ class AspectTestCase(unittest.TestCase):
         view = self.view
         item = Item()
         self.canvas.add(item)
-        selection = Selection(item)
+        selection = Selection(item, view)
         assert item not in view.selected_items
-        selection.select(self.context)
+        selection.select()
         assert item in view.selected_items
         assert item is view.focused_item
-        selection.unselect(self.context)
+        selection.unselect()
         assert item not in view.selected_items
         assert None is view.focused_item
 
@@ -89,9 +88,10 @@ class AspectTestCase(unittest.TestCase):
         view = self.view
         item = Item()
         self.canvas.add(item)
-        inmotion = InMotion(item)
+        inmotion = InMotion(item, view)
         self.assertEquals((1, 0, 0, 1, 0, 0), tuple(item.matrix))
-        inmotion.move(Context(dx=12, dy=26))
+        inmotion.start_move(x=0, y=0)
+        inmotion.move(x=12, y=26)
         self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
 
 # vim:sw=4:et:ai

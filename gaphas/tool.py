@@ -326,6 +326,8 @@ class ItemTool(Tool):
         super(ItemTool, self).__init__()
         self._buttons = buttons
         self._movable_items = set()
+        self._move_started = False
+
 
     def get_item(self):
         return self.view.hovered_item
@@ -340,7 +342,7 @@ class ItemTool(Tool):
         for item in selected_items:
             # Do not move subitems of selected items
             if not set(get_ancestors(item)).intersection(selected_items):
-                yield item
+                yield InMotion(item, view)
         
 
     def on_button_press(self, context, event):
@@ -351,10 +353,6 @@ class ItemTool(Tool):
         if event.button not in self._buttons:
             return False
         
-        self.last_x, self.last_y = event.x, event.y
-        if item:
-            self.update_context(context, item, event)
-
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
         if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
@@ -364,12 +362,13 @@ class ItemTool(Tool):
         if item:
             if view.hovered_item in view.selected_items and \
                     event.state & gtk.gdk.CONTROL_MASK:
-                selection = Selection(item)
-                selection.unselect(view)
+                selection = Selection(item, view)
+                selection.unselect()
             else:
-                selection = Selection(item)
-                selection.select(context)
+                selection = Selection(item, view)
+                selection.select()
                 self._movable_items = set(self.movable_items())
+                self._move_started = False
             return True
 
     def on_button_release(self, context, event):
@@ -384,15 +383,14 @@ class ItemTool(Tool):
         If a button is pressed move the items around.
         """
         if event.state & gtk.gdk.BUTTON_PRESS_MASK:
-            # Move selected items
-            view = self.view
-            canvas = view.canvas
 
-            # Now do the actual moving.
-            for item in self._movable_items:
-                self.update_context(context, item, event)
-                inmotion = InMotion(item)
-                inmotion.move(context)
+            if not self._move_started:
+                for inmotion in self._movable_items:
+                    inmotion.start_move(event.x, event.y)
+                self._move_started = True
+
+            for inmotion in self._movable_items:
+                inmotion.move(event.x, event.y)
 
             # TODO: if isinstance(item, Element):
             #   schedule item to be handled by some "guides" tool
@@ -422,8 +420,8 @@ class HandleTool(Tool):
         self._grabbed_item = item
         self._grabbed_handle = handle
 
-        selection = HandleSelection(handle)
-        selection.select(self.view)
+        selection = HandleSelection(handle, self.view)
+        selection.select()
 
 
     def ungrab_handle(self):
@@ -435,8 +433,8 @@ class HandleTool(Tool):
         self._grabbed_item = None
 
         if handle:
-            selection = HandleSelection(handle)
-            selection.unselect(self.view)
+            selection = HandleSelection(handle, self.view)
+            selection.unselect()
 
 
     def _find_handle(self, context, event, item):
@@ -446,9 +444,9 @@ class HandleTool(Tool):
         view = self.view
         i2v = view.get_matrix_i2v(item).transform_point
         x, y = event.x, event.y
-        self.update_context(context, item, event)
-        d = view.get_matrix_v2i(item).transform_distance(6, 0)[0]
-        x, y = context.x, context.y
+        v2i = view.get_matrix_v2i(item)
+        d = v2i.transform_distance(6, 0)[0]
+        x, y = v2i.transform_point(event.x, event.y)
 
         for h in item.handles():
             if not h.movable:
@@ -492,11 +490,8 @@ class HandleTool(Tool):
     def move(self, x, y):
         """
         """
-        #self.update_context(context, item, event)
-        #v2i = self.view.get_matrix_v2i(item)
-        #x, y = v2i.transform_point(*pos)
         handle = self._grabbed_handle
-        inmotion = HandleInMotion(handle)
+        inmotion = HandleInMotion(handle, self.view)
         inmotion.move(x, y)
 
 
