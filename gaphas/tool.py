@@ -239,6 +239,48 @@ class ToolChain(Tool):
             self._grabbed_tool.draw(context)
 
 
+def find_handle(view, event):
+    """
+    Look for a handle at (event.x, event.y) and return the
+    tuple (item, handle).
+    """
+    def find(item):
+        """ Find item's handle at (event.x, event.y) """
+        v2i = view.get_matrix_v2i(item)
+        d = v2i.transform_distance(6, 0)[0]
+        x, y = v2i.transform_point(event.x, event.y)
+
+        for h in item.handles():
+            if not h.movable:
+                continue
+            hx, hy = h.pos
+            if -d < (hx - x) < d and -d < (hy - y) < d:
+                return h
+
+    # The focused item is the prefered item for handle grabbing
+    if view.focused_item:
+        h = find(view.focused_item)
+        if h:
+            return view.focused_item, h
+
+    # then try hovered item
+    if view.hovered_item:
+        h = find(view.hovered_item)
+        if h:
+            return view.hovered_item, h
+
+    # Last try all items, checking the bounding box first
+    x, y = event.x, event.y
+    items = view.get_items_in_rectangle((x - 6, y - 6, 12, 12), reverse=True)
+
+    found_item, found_h = None, None
+    for item in items:
+        h = find(item)
+        if h:
+            return item, h
+    return None, None
+
+
 class HoverTool(Tool):
     """
     Make the item under the mouse cursor the "hovered item".
@@ -246,9 +288,11 @@ class HoverTool(Tool):
 
     def on_motion_notify(self, event):
         view = self.view
-        old_hovered = view.hovered_item
-        view.hovered_item = view.get_item_at_point((event.x, event.y))
-        return None
+        item, port = find_handle(view, event)
+        if item:
+            view.hovered_item = item
+        else:
+            view.hovered_item = view.get_item_at_point((event.x, event.y))
 
 
 class ItemTool(Tool):
@@ -374,53 +418,6 @@ class HandleTool(Tool):
             selection.unselect()
 
 
-    def _find_handle(self, event, item):
-        """
-        Find item's handle at (event.x, event.y)
-        """
-        view = self.view
-        v2i = view.get_matrix_v2i(item)
-        d = v2i.transform_distance(6, 0)[0]
-        x, y = v2i.transform_point(event.x, event.y)
-
-        for h in item.handles():
-            if not h.movable:
-                continue
-            hx, hy = h.pos
-            if -d < (hx - x) < d and -d < (hy - y) < d:
-                return h
-
-
-    def find_handle(self, event):
-        """
-        Look for a handle at (event.x, event.y) and return the
-        tuple (item, handle).
-        """
-        view = self.view
-        find_handle = self._find_handle
-        # The focused item is the prefered item for handle grabbing
-        if view.focused_item:
-            h = find_handle(event, view.focused_item)
-            if h:
-                return view.focused_item, h
-
-        # then try hovered item
-        if view.hovered_item:
-            h = find_handle(event, view.hovered_item)
-            if h:
-                return view.hovered_item, h
-
-        # Last try all items, checking the bounding box first
-        x, y = event.x, event.y
-        items = view.get_items_in_rectangle((x - 6, y - 6, 12, 12), reverse=True)
-
-        found_item, found_h = None, None
-        for item in items:
-            h = find_handle(event, item)
-            if h:
-                return item, h
-        return None, None
-
 
     def glue(self, view, item, handle, vpos):
         """
@@ -471,7 +468,7 @@ class HandleTool(Tool):
         dragged around.
         """
         view = self.view
-        item, handle = self.find_handle(event)
+        item, handle = find_handle(view, event)
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
@@ -532,13 +529,6 @@ class HandleTool(Tool):
                 self.glue(view, item, handle, (event.x, event.y))
 
             return True
-        else:
-# TODO: move this to HoverItem
-            # Make the item who's handle we hover over the hovered_item:
-            item, handle = self.find_handle(event)
-            if item:
-                view.hovered_item = item
-                return True
 
 
 class RubberbandTool(Tool):
