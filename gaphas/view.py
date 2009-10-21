@@ -138,7 +138,7 @@ class View(object):
         """
         Items that loose focus remain selected.
         """
-        self.focused_item = None
+        self._set_focused_item(None)
         
 
     focused_item = property(lambda s: s._focused_item,
@@ -150,9 +150,8 @@ class View(object):
         """
         Set the hovered item.
         """
-        if not item is self._hovered_item:
-            self.queue_draw_item(self._hovered_item, item)
         if item is not self._hovered_item:
+            self.queue_draw_item(self._hovered_item, item)
             self._hovered_item = item
             self.emit('hover-changed', item)
 
@@ -559,6 +558,7 @@ class GtkView(gtk.DrawingArea, View):
         TODO: Should we also create a (sorted) list of items that need redrawal?
         """
         get_bounds = self._qtree.get_bounds
+        items = filter(None, items)
         try:
             # create a copy, otherwise we'll change the original rectangle
             bounds = Rectangle(*get_bounds(items[0]))
