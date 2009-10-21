@@ -230,6 +230,48 @@ class View(object):
         return None
 
 
+    def get_handle_at_point(self, pos):
+        """
+        Look for a handle at ``pos`` and return the
+        tuple (item, handle).
+        """
+        def find(item):
+            """ Find item's handle at pos """
+            v2i = self.get_matrix_v2i(item)
+            d = v2i.transform_distance(6, 0)[0]
+            x, y = v2i.transform_point(*pos)
+
+            for h in item.handles():
+                if not h.movable:
+                    continue
+                hx, hy = h.pos
+                if -d < (hx - x) < d and -d < (hy - y) < d:
+                    return h
+
+        # The focused item is the prefered item for handle grabbing
+        if self.focused_item:
+            h = find(self.focused_item)
+            if h:
+                return self.focused_item, h
+
+        # then try hovered item
+        if self.hovered_item:
+            h = find(self.hovered_item)
+            if h:
+                return self.hovered_item, h
+
+        # Last try all items, checking the bounding box first
+        x, y = pos
+        items = self.get_items_in_rectangle((x - 6, y - 6, 12, 12), reverse=True)
+
+        found_item, found_h = None, None
+        for item in items:
+            h = find(item)
+            if h:
+                return item, h
+        return None, None
+
+
     def get_items_in_rectangle(self, rect, intersect=True, reverse=False):
         """
         Return the items in the rectangle 'rect'.
