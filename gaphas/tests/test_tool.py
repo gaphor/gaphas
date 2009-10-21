@@ -70,7 +70,7 @@ def simple_canvas(self):
     self.view.update()
     win.show()
 
-    self.tool = ConnectHandleTool()
+    self.tool = ConnectHandleTool(self.view)
 
 
 
@@ -103,29 +103,29 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
         ports = self.box1.ports()
 
         # glue to port nw-ne
-        item, port = self.tool.glue(self.view, self.line, self.head, (120, 50))
+        item, port = self.tool.glue(self.line, self.head, (120, 50))
         self.assertEquals(item, self.box1)
         self.assertEquals(ports[0], port)
 
         # glue to port ne-se
-        item, port = self.tool.glue(self.view, self.line, self.head, (140, 70))
+        item, port = self.tool.glue(self.line, self.head, (140, 70))
         self.assertEquals(item, self.box1)
         self.assertEquals(ports[1], port)
 
         # glue to port se-sw
-        item, port = self.tool.glue(self.view, self.line, self.head, (120, 90))
+        item, port = self.tool.glue(self.line, self.head, (120, 90))
         self.assertEquals(item, self.box1)
         self.assertEquals(ports[2], port)
 
         # glue to port sw-nw
-        item, port = self.tool.glue(self.view, self.line, self.head, (100, 70))
+        item, port = self.tool.glue(self.line, self.head, (100, 70))
         self.assertEquals(item, self.box1)
         self.assertEquals(ports[3], port)
         
 
     def test_failed_glue(self):
         """Test glue from too far distance"""
-        item, port = self.tool.glue(self.view, self.line, self.head, (90, 50))
+        item, port = self.tool.glue(self.line, self.head, (90, 50))
         self.assertTrue(item is None)
         self.assertTrue(port is None)
 
@@ -149,8 +149,8 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
                 self._calls += 1
                 return True
 
-        tool = Tool()
-        item, port = tool.glue(self.view, self.line, self.head, (120, 50))
+        tool = Tool(self.view)
+        item, port = tool.glue(self.line, self.head, (120, 50))
         assert item and port
         self.assertEquals(1, tool._calls)
 
@@ -162,8 +162,8 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
             def can_glue(self, *args):
                 return False
 
-        tool = Tool()
-        item, port = tool.glue(self.view, self.line, self.head, (120, 50))
+        tool = Tool(self.view)
+        item, port = tool.glue(self.line, self.head, (120, 50))
         self.assertTrue(item is None)
         self.assertTrue(port is None)
 
@@ -179,9 +179,9 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
             def can_glue(self, *args):
                 self._calls += 1
 
-        tool = Tool()
+        tool = Tool(self.view)
         # at 300, 50 there should be no item
-        item, port = tool.glue(self.view, self.line, self.head, (300, 50))
+        item, port = tool.glue(self.line, self.head, (300, 50))
         assert item is None and port is None
         self.assertEquals(0, tool._calls)
 
@@ -486,7 +486,7 @@ class LineSplitTestCase(TestCaseBase):
     def test_constraints_after_split(self):
         """Test if constraints are recreated after line split
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
 
         # connect line2 to self.line
         line2 = Line()
@@ -516,7 +516,7 @@ class LineSplitTestCase(TestCaseBase):
         assert len(self.line.handles()) == 2
         assert len(self.line.ports()) == 1
 
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
         tool.split_segment(self.line, 0)
         assert len(self.line.handles()) == 3
         assert len(self.line.ports()) == 2
@@ -539,7 +539,7 @@ class LineSplitTestCase(TestCaseBase):
         self.assertEquals(1, len(self.line._orthogonal_constraints))
         self.assertEquals(2, len(self.line.handles()))
 
-        LineSegmentTool().split_segment(self.line, 0)
+        LineSegmentTool(self.view).split_segment(self.line, 0)
 
         # 3 handles and 2 ports are expected
         # 2 constraints keep the self.line orthogonal
@@ -551,7 +551,7 @@ class LineSplitTestCase(TestCaseBase):
     def test_params_errors(self):
         """Test parameter error exceptions
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
 
         # there is only 1 segment
         line = Line()
@@ -574,7 +574,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_merge_first_single(self):
         """Test single line merging starting from 1st segment
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
         self.line.handles()[1].pos = (20, 0)
         tool.split_segment(self.line, 0)
 
@@ -609,7 +609,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_constraints_after_merge(self):
         """Test if constraints are recreated after line merge
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
 
         # connect line2 to self.line
         line2 = Line()
@@ -637,7 +637,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_merge_multiple(self):
         """Test multiple line merge
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
         self.line.handles()[1].pos = (20, 16)
         tool.split_segment(self.line, 0, count=3)
  
@@ -664,7 +664,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_merge_undo(self):
         """Test line merging undo
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
 
         self.line.handles()[1].pos = (20, 0)
 
@@ -692,7 +692,7 @@ class LineMergeTestCase(TestCaseBase):
         """
         self.assertEquals(12, len(self.canvas.solver._constraints))
 
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
         self.line.handles()[-1].pos = 100, 100
 
         # prepare the self.line for merging
@@ -715,7 +715,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_params_errors(self):
         """Test parameter error exceptions
         """
-        tool = LineSegmentTool()
+        tool = LineSegmentTool(self.view)
 
         line = Line()
         self.canvas.add(line)

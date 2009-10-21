@@ -143,12 +143,13 @@ class HandleInMotion(object):
         handle = self.handle
         view = self.view
 
-        # TODO: GLUE
         v2i = view.get_matrix_v2i(item)
 
         x, y = v2i.transform_point(x, y)
 
         self.handle.pos = (x, y)
+
+        # TODO: GLUE
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required

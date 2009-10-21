@@ -180,8 +180,8 @@ class ToolChain(Tool):
     is received. Should make sure this doesn't end up in dangling states.
     """
 
-    def __init__(self):
-        super(ToolChain, self).__init__()
+    def __init__(self, view=None):
+        super(ToolChain, self).__init__(view)
         self._tools = []
         self._grabbed_tool = None
 
@@ -263,8 +263,8 @@ class ItemTool(Tool):
     The roles used are Selection (select, unselect) and InMotion (move).
     """
 
-    def __init__(self, buttons=(1,)):
-        super(ItemTool, self).__init__()
+    def __init__(self, view=None, buttons=(1,)):
+        super(ItemTool, self).__init__(view)
         self._buttons = buttons
         self._movable_items = set()
 
@@ -274,7 +274,9 @@ class ItemTool(Tool):
 
     def movable_items(self):
         """
-        Filter the items that should eventually be moved
+        Filter the items that should eventually be moved.
+
+        Returns InMotion aspects for the items.
         """
         view = self.view
         get_ancestors = view.canvas.get_ancestors
@@ -341,12 +343,14 @@ class ItemTool(Tool):
 
 class HandleTool(Tool):
     """
-    Tool for moving handles around. By default this tool does not provide
-    connecting handles to another item (see `ConnectHandleTool`).
+    Tool for moving handles around.
+
+    By default this tool does not provide connecting handles to another item
+    (see `ConnectHandleTool`).
     """
 
-    def __init__(self):
-        super(HandleTool, self).__init__()
+    def __init__(self, view=None):
+        super(HandleTool, self).__init__(view)
         self.grabbed_handle = None
         self.grabbed_item = None
         self.motion_handle = None
@@ -354,7 +358,7 @@ class HandleTool(Tool):
     def grab_handle(self, item, handle):
         """
         Grab a specific handle. This can be used from the PlacementTool
-        (and unittests) to set the state of the handle tool.
+        to set the state of the handle tool.
         """
         assert item is None and handle is None or handle in item.handles()
         self.grabbed_item = item
@@ -375,49 +379,6 @@ class HandleTool(Tool):
             selection = HandleSelection(handle, self.view)
             selection.unselect()
 
-
-
-    def glue(self, view, item, handle, vpos):
-        """
-        Find an item that ``handle`` can connect to. ``item`` is the ``Item``
-        owing the handle.
-        ``vpos`` is the point in the pointer (view) coordinates.
-
-        The ``glue()`` code should take care of moving ``handle`` to the
-        correct position, creating a glue effect.
-        """
-
-    def connect(self, view, item, handle, vpos):
-        """
-        Find an item that ``handle`` can connect to and create a connection.
-        ``item`` is the ``Item`` owning the handle.
-        ``vpos`` is the point in the pointer (view) coordinates.
-
-        A typical connect action may involve the following:
-
-        - Find an item near ``handle`` that can be connected to.
-        - Move ``handle`` to the right position.
-        - Set ``handle.connected_to`` to point to the new item.
-        - Add constraints to the constraint solver (``view.canvas.solver``).
-        - Set ``handle.disconnect`` to point to a method that can be called when
-          the handle is disconnected (no arguments).
-
-        NOTE: ``connect()`` can not expect ``glue()`` has been called,
-        therefore it should ensure the handle is moved to the correct location
-        before.
-        """
-
-    def disconnect(self, view, item, handle):
-        """
-        Disconnect the handle. This mostly comes down to removing 
-        constraints. ``item`` is the Item owning the handle.
-
-        A typical disconnect operation may look like this:
-
-        - Call ``handle.disconnect()`` (assigned in ``connect()``).
-        - Disconnect existing constraints.
-        - Set ``handle.connected_to`` to ``None``.
-        """
 
     def on_button_press(self, event):
         """
@@ -442,9 +403,6 @@ class HandleTool(Tool):
 
             self.grab_handle(item, handle)
 
-            if handle.connectable:
-                # remove constraint to allow handle movement 
-                self.remove_constraint(item, handle)
             return True
 
     def on_button_release(self, event):
@@ -453,13 +411,9 @@ class HandleTool(Tool):
         """
         # queue extra redraw to make sure the item is drawn properly
         grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
-        try:
-            self.motion_handle = None
-            view = self.view
-            if grabbed_handle and grabbed_handle.connectable:
-                self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
-        finally:
-            self.ungrab_handle()
+        self.motion_handle = None
+
+        self.ungrab_handle()
 
         if grabbed_handle:
             grabbed_item.request_update()
@@ -483,16 +437,13 @@ class HandleTool(Tool):
                 self.motion_handle.start_move(x, y)
             self.motion_handle.move(x, y)
 
-            if self.grabbed_handle.connectable:
-                self.glue(view, item, handle, (event.x, event.y))
-
             return True
 
 
 class RubberbandTool(Tool):
 
-    def __init__(self):
-        super(RubberbandTool, self).__init__()
+    def __init__(self, view=None):
+        super(RubberbandTool, self).__init__(view)
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
 
     def on_button_press(self, event):
@@ -537,8 +488,8 @@ class PanTool(Tool):
     placed later in the ToolChain.
     """
 
-    def __init__(self):
-        super(PanTool, self).__init__()
+    def __init__(self, view=None):
+        super(PanTool, self).__init__(view)
         self.x0, self.y0 = 0, 0
         self.speed = 10
 
@@ -590,21 +541,20 @@ ZOOM_VALUE = gtk.gdk.CONTROL_MASK
 
 class ZoomTool(Tool):
     """
-    Tool for zooming using either of two techniquies:
-        * ctrl + middle-mouse dragging in the up-down direction.
-        * ctrl + mouse-wheeel
+    Tool for zooming using either of two techniques:
+
+    - ctrl + middle-mouse dragging in the up-down direction.
+    - ctrl + mouse-wheeel
     """
 
-    def __init__(self):
-        super(ZoomTool, self).__init__()
+    def __init__(self, view=None):
+        super(ZoomTool, self).__init__(view)
         self.x0, self.y0 = 0, 0
         self.lastdiff = 0;
 
     def on_button_press(self, event):
-        print 'ZOOM', event.state
         if event.button == 2 \
                 and event.state & ZOOM_MASK == ZOOM_VALUE:
-            print "GRABBING"
             self.x0 = event.x
             self.y0 = event.y
             self.lastdiff = 0
@@ -724,8 +674,8 @@ class TextEditTool(Tool):
     position.
     """
 
-    def __init__(self):
-        super(TextEditTool, self).__init__()
+    def __init__(self, view=None):
+        super(TextEditTool, self).__init__(view)
         pass
 
     def on_double_click(self, event):
@@ -756,11 +706,11 @@ class TextEditTool(Tool):
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
-        if event.keyval == gtk.keysyms.Return:
-            print 'Enter!'
+        #if event.keyval == gtk.keysyms.Return:
+            #print 'Enter!'
             #widget.get_toplevel().destroy()
-        elif event.keyval == gtk.keysyms.Escape:
-            print 'Escape!'
+        if event.keyval == gtk.keysyms.Escape:
+            #print 'Escape!'
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
@@ -782,7 +732,7 @@ class ConnectHandleTool(HandleTool):
     # distance between line and item
     GLUE_DISTANCE = 10
 
-    def glue(self, view, line, handle, vpos):
+    def glue(self, line, handle, vpos):
         """
         Find an item for connection with a line.
 
@@ -807,12 +757,13 @@ class ConnectHandleTool(HandleTool):
         if not handle.connectable:
             return None
 
+        view = self.view
         item, port, glue_pos = \
-                self.get_item_at_point(view, vpos, exclude=(line,))
+                self.get_port_at_point(vpos, exclude=(line,))
 
         # check if line and found item can be connected on closest port
         if port is not None and \
-                not self.can_glue(view, line, handle, item, port):
+                not self.can_glue(line, handle, item, port):
             item, port = None, None
 
         if port is not None:
@@ -825,7 +776,7 @@ class ConnectHandleTool(HandleTool):
         return item, port
 
 
-    def get_item_at_point(self, view, vpos, exclude=None):
+    def get_port_at_point(self, vpos, exclude=None):
         """
         Find item with port closest to specified position.
 
@@ -839,13 +790,12 @@ class ConnectHandleTool(HandleTool):
         - closest point on found port (in view coordinates)
 
         :Parameters:
-         view
-            View used by user.
          vpos
             Position specified in view coordinates.
          exclude
             Set of items to ignore.
         """
+        view = self.view
         dist = self.GLUE_DISTANCE
         v2i = view.get_matrix_v2i
         vx, vy = vpos
@@ -882,7 +832,7 @@ class ConnectHandleTool(HandleTool):
 
 
 ### To role
-    def can_glue(self, view, line, handle, item, port):
+    def can_glue(self, line, handle, item, port):
         """
         Determine if line's handle can connect to a port of an item.
 
@@ -942,7 +892,7 @@ class ConnectHandleTool(HandleTool):
             Handle of connecting item.
         """
         # find connectable item and its port
-        item, port = self.glue(view, line, handle, vpos)
+        item, port = self.glue(line, handle, vpos)
 
         # no new connectable item, then diconnect and exit
         if not item:
@@ -1017,6 +967,31 @@ class ConnectHandleTool(HandleTool):
         """
         connector = Connector(item, handle)
         connector.remove_constraints()
+
+    def on_button_press(self, event):
+        res = super(ConnectHandleTool, self).on_button_press(event)
+        if self.grabbed_handle and self.grabbed_handle.connectable:
+            self.remove_constraint(self.grabbed_item, self.grabbed_handle)
+        return res
+
+    def on_button_release(self, event):
+        view = self.view
+        grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
+        try:
+            if grabbed_handle and grabbed_handle.connectable:
+                self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
+        finally:
+            return super(ConnectHandleTool, self).on_button_release(event)
+
+
+    def on_motion_notify(self, event):
+        super(ConnectHandleTool, self).on_motion_notify(event)
+        handle = self.grabbed_handle
+        if handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
+            if handle.connectable:
+                self.glue(self.grabbed_item, handle, (event.x, event.y))
+
+            return True
 
 
 
