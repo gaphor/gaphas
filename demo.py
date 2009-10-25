@@ -30,7 +30,8 @@ import cairo
 from gaphas import Canvas, GtkView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line, NW, SE
-from gaphas.tool import PlacementTool, HandleTool, LineSegmentTool
+from gaphas.tool import PlacementTool, HandleTool
+from gaphas.aspect import Segment
 from gaphas.painter import ItemPainter
 from gaphas import state
 from gaphas.util import text_extents, text_underline
@@ -169,9 +170,9 @@ def create_window(canvas, title, zoom=1.0):
 
     def on_clicked(button):
         if isinstance(view.focused_item, Line):
-            tool = LineSegmentTool()
-            tool.split_segment(view.focused_item, 0)
-            view.queue_draw_item(view.focused_item, handles=True)
+            segment = Segment(view.focused_item, view)
+            segment.split_segment(0)
+            view.queue_draw_item(view.focused_item)
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -424,8 +425,8 @@ def create_canvas(c=None):
     l = MyLine()
     c.add(l)
     l.handles()[1].pos = (30, 30)
-    tool = LineSegmentTool()
-    tool.split_segment(l, 0, 3)
+    segment = Segment(l, view=None)
+    segment.split_segment(0, 3)
     l.matrix.translate(30, 60)
     l.orthogonal = True
 

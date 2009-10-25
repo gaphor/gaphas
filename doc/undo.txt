@@ -328,8 +328,8 @@ This is our basis for further testing.
 
     >>> del undo_list[:]
 
-    >>> from gaphas import tool
-    >>> tool.LineSegmentTool().split_segment(l, 0)      # doctest: +ELLIPSIS
+    >>> from gaphas import aspect
+    >>> aspect.Segment(l, None).split_segment(0)      # doctest: +ELLIPSIS
     ([<Handle object on (5, 5)>], [<gaphas.connector.LinePort object at 0x...>])
     >>> l.handles()
     [<Handle object on (0, 0)>, <Handle object on (5, 5)>, <Handle object on (10, 10)>]

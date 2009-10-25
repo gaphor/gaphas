@@ -5,8 +5,8 @@ Generic gaphas item tests.
 import unittest
 
 from gaphas.item import Item
-from gaphas.aspect import Aspect, aspectfactory, aspect
-from gaphas.aspect import Selection, InMotion
+from gaphas.aspect import Aspect, aspect
+from gaphas.aspect import Selection, InMotion, Segment
 from gaphas.canvas import Canvas, Context
 from gaphas.view import View
 
@@ -25,7 +25,7 @@ class AspectTestCase(unittest.TestCase):
         class B(A): pass
         class C(A): pass
 
-        @aspectfactory
+        @aspect(None)
         class MyAspect(Aspect):
             def __init__(self, item, arg2, arg3):
                 self.item, self.arg2, self.arg3 = item, arg2, arg3
@@ -49,7 +49,6 @@ class AspectTestCase(unittest.TestCase):
         assert asp.arg3 == 2
 
         @aspect(B)
-        @aspectfactory
         class CustomAspect(Aspect):
             def __init__(self, item):
                 self.item = item
@@ -93,5 +92,31 @@ class AspectTestCase(unittest.TestCase):
         inmotion.start_move(x=0, y=0)
         inmotion.move(x=12, y=26)
         self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
+
+    def test_segment_fails_for_item(self):
+        """
+        Test if Segment aspect can be applied to Item
+        """
+        item = Item()
+        try:
+            s = Segment(item, self.view)
+            print item, 'segment aspect:', s
+        except TypeError, e:
+            print 'TypeError', e
+        else:
+            assert False, 'Should not be reached'
+
+    def test_segment(self):
+        """
+        """
+        view = self.view
+        from gaphas.item import Line
+        line = Line()
+        self.canvas.add(line)
+        segment = Segment(line, self.view)
+        self.assertEquals(2, len(line.handles()))
+        segment.split((5, 5))
+        self.assertEquals(3, len(line.handles()))
+
 
 # vim:sw=4:et:ai

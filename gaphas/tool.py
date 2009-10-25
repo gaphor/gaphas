@@ -44,7 +44,8 @@ from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
 from gaphas.aspect import Selection, InMotion, \
         HandleSelection, HandleInMotion, \
-        Connector, ConnectionSink
+        Connector, ConnectionSink, \
+        Segment
 
 
 DEBUG_TOOL = False
@@ -615,13 +616,13 @@ class PlacementTool(Tool):
     def __init__(self, view, factory, handle_tool, handle_index):
         super(PlacementTool, self).__init__(view)
         self._factory = factory
-        self._handle_tool = handle_tool
+        self.handle_tool = handle_tool
         handle_tool.set_view(view)
         self._handle_index = handle_index
         self._new_item = None
-        self._grabbed_handle = None
+        self.grabbed_handle = None
 
-    handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
+    #handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
     handle_index = property(lambda s: s._handle_index,
                             doc="Index of handle to be used by handle_tool")
     new_item = property(lambda s: s._new_item, doc="The newly created item")
@@ -640,8 +641,8 @@ class PlacementTool(Tool):
 
         h = new_item.handles()[self._handle_index]
         if h.movable:
-            self._handle_tool.grab_handle(new_item, h)
-            self._grabbed_handle = h
+            self.handle_tool.grab_handle(new_item, h)
+            self.grabbed_handle = h
         return True
 
 
@@ -654,15 +655,15 @@ class PlacementTool(Tool):
 
 
     def on_button_release(self, event):
-        if self._grabbed_handle:
-            self._handle_tool.on_button_release(event)
-            self._grabbed_handle = None
+        if self.grabbed_handle:
+            self.handle_tool.on_button_release(event)
+            self.grabbed_handle = None
         self._new_item = None
         return True
 
     def on_motion_notify(self, event):
-        if self._grabbed_handle:
-            return self._handle_tool.on_motion_notify(event)
+        if self.grabbed_handle:
+            return self.handle_tool.on_motion_notify(event)
         else:
             # act as if the event is handled if we have a new item
             return bool(self._new_item)
@@ -676,7 +677,7 @@ class TextEditTool(Tool):
 
     def __init__(self, view=None):
         super(TextEditTool, self).__init__(view)
-        pass
+
 
     def on_double_click(self, event):
         """
@@ -714,7 +715,7 @@ class TextEditTool(Tool):
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
-        print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
+        #print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
         widget.destroy()
 
 
@@ -831,8 +832,7 @@ class ConnectHandleTool(HandleTool):
         return item, port, glue_pos
 
 
-### To role
-    def can_glue(self, line, handle, item, port):
+    def can_glue(self, item, handle, connected, port):
         """
         Determine if line's handle can connect to a port of an item.
 
@@ -843,16 +843,18 @@ class ConnectHandleTool(HandleTool):
         :Parameters:
          view
             View used by user.
-         line
+         item
             Item connecting to connectable item.
          handle
             Handle of line connecting to connectable item.
-         item
+         connected
             Connectable item.
          port
             Port of connectable item.
         """
-        return True
+        connector = Connector(item, handle)
+        sink = ConnectionSink(connected, port)
+        return connector.allow(sink)
 
 
     def move_connection(self, item, handle, connected, port):
@@ -876,82 +878,55 @@ class ConnectHandleTool(HandleTool):
         pass
 
 
-# Move to Connector.connect()
-    def connect(self, view, line, handle, vpos):
+    def connect(self, item, handle, vpos):
         """
-        Connect a handle of a line to connectable item.
+        Connect a handle of a item to connectable item.
 
         Connectable item is found by `ConnectHandleTool.glue` method.
 
         :Parameters:
          view
             View used by user.
-         line
+         item
             Connecting item.
          handle
             Handle of connecting item.
         """
         # find connectable item and its port
-        item, port = self.glue(line, handle, vpos)
+        connectable, port = self.glue(item, handle, vpos)
 
         # no new connectable item, then diconnect and exit
         if not item:
-            self.disconnect(view, line, handle)
+            self.disconnect(item, handle)
             return
 
         # disconnect when
         # - no connectable item
         # - currently connected item is not connectable item
-        info = line.canvas.get_connection(handle)
+        info = item.canvas.get_connection(handle)
 
         # moving connection to other item
-        if info and info.connected is not item:
-            self.move_connection(line, handle, item, port)
-            self.disconnect(view, line, handle)
+        if info and info.connected is not connectable:
+            self.move_connection(item, handle, connectable, port)
+            self.disconnect(item, handle)
 
-        connector = Connector(line, handle)
-        sink = ConnectionSink(item, port)
+        connector = Connector(item, handle)
+        sink = ConnectionSink(connectable, port)
         connector.connect(sink)
 
 
-    def disconnect(self, view, line, handle):
+    def disconnect(self, item, handle):
         """
         Disconnect line (connecting item) from an item.
 
         :Parameters:
-         view
-            View used by user.
-         line
+         item
             Connecting item.
          handle
             Handle of connecting item.
         """
-        connector = Connector(line, handle)
+        connector = Connector(item, handle)
         connector.disconnect()
-
-
-    @staticmethod
-    def find_port(line, handle, item):
-        """
-        Find port of an item at position of line's handle.
-
-        :Parameters:
-         line
-            Line supposed to connect to an item.
-         handle
-            Handle of a line connecting to an item.
-         item
-            Item the line will connect to.
-        """
-        #port = None
-        #max_dist = sys.maxint
-        canvas = item.canvas
-
-        ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
-
-        # find the port using item's coordinates
-        sink = ConnectionSink(item, None)
-        return sink.find_port((ix, iy))
 
 
     def remove_constraint(self, item, handle):
@@ -979,7 +954,7 @@ class ConnectHandleTool(HandleTool):
         grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
         try:
             if grabbed_handle and grabbed_handle.connectable:
-                self.connect(view, grabbed_item, grabbed_handle, (event.x, event.y))
+                self.connect(grabbed_item, grabbed_handle, (event.x, event.y))
         finally:
             return super(ConnectHandleTool, self).on_button_release(event)
 
@@ -994,6 +969,8 @@ class ConnectHandleTool(HandleTool):
             return True
 
 
+
+# TODO: make this inherit from Tool
 
 class LineSegmentTool(ConnectHandleTool):
     """
@@ -1016,124 +993,11 @@ class LineSegmentTool(ConnectHandleTool):
     `LineSegmentTool.split_segment` and `LineSegmentTool.merge_segment`
     methods.
     """
-    def split_segment(self, line, segment, count=2):
-        """
-        Split one line segment into ``count`` equal pieces.
 
-        Two lists are returned
+    def __init__(self, view=None, handle_tool=None):
+        super(LineSegmentTool, self).__init__(view)
+        self.handle_tool = handle_tool or HandleTool(view)
 
-        - list of created handles
-        - list of created ports
-
-        :Parameters:
-         line
-            Line item, which segment shall be split.
-         segment
-            Segment number to split (starting from zero).
-         count
-            Amount of new segments to be created (minimum 2). 
-        """
-        if segment < 0 or segment >= len(line.ports()):
-            raise ValueError('Incorrect segment')
-        if count < 2:
-            raise ValueError('Incorrect count of segments')
-
-        def do_split(segment, count):
-            handles = line.handles()
-            p0 = handles[segment].pos
-            p1 = handles[segment + 1].pos
-            dx, dy = p1.x - p0.x, p1.y - p0.y
-            new_h = line._create_handle((p0.x + dx / count, p0.y + dy / count))
-            line._reversible_insert_handle(segment + 1, new_h)
-
-            p0 = line._create_port(p0, new_h.pos)
-            p1 = line._create_port(new_h.pos, p1)
-            line._reversible_remove_port(line.ports()[segment])
-            line._reversible_insert_port(segment, p0)
-            line._reversible_insert_port(segment + 1, p1)
-
-            if count > 2:
-                do_split(segment + 1, count - 1)
-
-        do_split(segment, count)
-
-        # force orthogonal constraints to be recreated
-        line._update_orthogonal_constraints(line.orthogonal)
-
-        self._recreate_constraints(line)
-
-        handles = line.handles()[segment + 1:segment + count]
-        ports = line.ports()[segment:segment + count - 1]
-        return handles, ports
-
-
-    def merge_segment(self, line, segment, count=2):
-        """
-        Merge two (or more) line segments.
-
-        Tuple of two lists is returned, list of deleted handles and list of
-        deleted ports.
-
-        :Parameters:
-         line
-            Line item, which segments shall be merged.
-         segment
-            Segment number to start merging from (starting from zero).
-         count
-            Amount of segments to be merged (minimum 2). 
-        """
-        if len(line.ports()) < 2:
-            raise ValueError('Cannot merge line with one segment')
-        if segment < 0 or segment >= len(line.ports()):
-            raise ValueError('Incorrect segment')
-        if count < 2 or segment + count > len(line.ports()):
-            raise ValueError('Incorrect count of segments')
-
-        # remove handle and ports which share position with handle
-        deleted_handles = line.handles()[segment + 1:segment + count]
-        deleted_ports = line.ports()[segment:segment + count]
-        for h in deleted_handles:
-            line._reversible_remove_handle(h)
-        for p in deleted_ports:
-            line._reversible_remove_port(p)
-
-        # create new port, which replaces old ports destroyed due to
-        # deleted handle
-        p1 = line.handles()[segment].pos
-        p2 = line.handles()[segment + 1].pos
-        port = line._create_port(p1, p2)
-        line._reversible_insert_port(segment, port)
-
-        # force orthogonal constraints to be recreated
-        line._update_orthogonal_constraints(line.orthogonal)
-
-        self._recreate_constraints(line)
-
-        return deleted_handles, deleted_ports
-
-
-    def _recreate_constraints(self, connected):
-        """
-        Create connection constraints between connecting lines and an item.
-
-        :Parameters:
-         connected
-            Connected item.
-        """
-        if not connected.canvas:
-            # No canvas, no constraints
-            return
-
-        canvas = connected.canvas
-        solver = canvas.solver
-        for cinfo in list(canvas.get_connections(connected=connected)):
-            item, handle = cinfo.item, cinfo.handle
-            port = ConnectHandleTool.find_port(item, handle, connected)
-            
-            constraint = port.constraint(canvas, item, handle, connected)
-
-            cinfo = canvas.get_connection(handle)
-            canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
 
 
     def on_button_press(self, event):
@@ -1147,17 +1011,14 @@ class LineSegmentTool(ConnectHandleTool):
         view = self.view
         item = view.hovered_item
         if item and item is view.focused_item and isinstance(item, Line):
-### To role SegmentSplitter.add_handle(segment)
-            handles = item.handles()
-            x, y = view.get_matrix_v2i(item).transform_point(event.x, event.y)
-            for h1, h2 in zip(handles, handles[1:]):
-                xp = (h1.pos.x + h2.pos.x) / 2
-                yp = (h1.pos.y + h2.pos.y) / 2
-                if distance_point_point_fast((x,y), (xp, yp)) <= 4:
-                    segment = handles.index(h1)
-                    self.split_segment(item, segment)
-###/
-                    self.grab_handle(item, item.handles()[segment + 1])
+            try:
+                segment = Segment(item, view)
+            except TypeError:
+                pass
+            else:
+                new_handle = segment.split((event.x, event.y))
+                if new_handle:
+                    self.grab_handle(item, new_handle)
                     return True
 
     def on_button_release(self, event):
@@ -1190,10 +1051,9 @@ class LineSegmentTool(ConnectHandleTool):
 
                 if d < 2:
                     assert len(self.view.canvas.solver._marked_cons) == 0
-                    self.merge_segment(grabbed_item, segment)
+                    Segment(grabbed_item, self.view).merge_segment(segment)
 
             return True
-
 
 
 def DefaultTool():
@@ -1203,12 +1063,13 @@ def DefaultTool():
         #append(ConnectHandleTool()). \
     chain = ToolChain(). \
         append(HoverTool()). \
-        append(LineSegmentTool()). \
+        append(ConnectHandleTool()). \
         append(PanTool()). \
         append(ZoomTool()). \
         append(ItemTool()). \
         append(TextEditTool()). \
         append(RubberbandTool())
+        #append(LineSegmentTool()). \
     return chain
 
 

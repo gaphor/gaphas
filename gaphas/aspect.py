@@ -4,15 +4,18 @@ and items.
 """
 
 import sys
-from gaphas.item import Item
+from gaphas.item import Item, Line
 from gaphas.connector import Handle
-
+from gaphas.geometry import distance_point_point_fast
 
 class Aspect(object):
     """
     Aspects are intermediate objects that act between a Tool and an Item.
+
+    Aspects should define of what they are aspects by using the @aspect
+    decorator.
     """
-    # _regs = {} # class -> aspect map; defined by @aspectfactory
+    # _regs = {} # class -> aspect map; defined by @aspect
 
     @classmethod
     def _lookup(cls, itemcls):
@@ -25,20 +28,11 @@ class Aspect(object):
                 return regs[c]
             except KeyError:
                 pass
-        else:
-            raise TypeError("class %s can not be instantiated through %s" % (cls, itemcls))
+        raise TypeError("class %s can not be instantiated through %s" % (cls, itemcls))
 
     def __new__(cls, item, *args, **kwargs):
         aspectcls = cls._lookup(type(item))
         return super(Aspect, cls).__new__(aspectcls, item, *args, **kwargs) 
-
-
-def aspectfactory(cls):
-    """
-    Define class as the toplevel aspect
-    """
-    cls._regs = {}
-    return cls
 
 
 def aspect(itemcls):
@@ -46,14 +40,16 @@ def aspect(itemcls):
     Aspect decorator.
     """
     def wrapper(cls):
-        cls._regs[itemcls] = cls
+        try:
+            cls._regs[itemcls] = cls
+        except AttributeError:
+            cls._regs = { itemcls: cls }
         return cls
     return wrapper
 
 
 @aspect(Item)
-@aspectfactory
-class Selection(object):
+class Selection(Aspect):
     """
     A role for items. When dealing with selection.
 
@@ -77,8 +73,7 @@ class Selection(object):
 
 
 @aspect(Item)
-@aspectfactory
-class InMotion(object):
+class InMotion(Aspect):
 
     def __init__(self, item, view):
         self.item = item
@@ -105,8 +100,7 @@ class InMotion(object):
 
 
 @aspect(Handle)
-@aspectfactory
-class HandleSelection(object):
+class HandleSelection(Aspect):
     """
     Deal with selection of the handle.
     """
@@ -123,8 +117,7 @@ class HandleSelection(object):
 
 
 @aspect(Item)
-@aspectfactory
-class HandleInMotion(object):
+class HandleInMotion(Aspect):
     """
     Move a handle (role is applied to the handle)
     """
@@ -157,12 +150,18 @@ class HandleInMotion(object):
 
 
 @aspect(Item)
-@aspectfactory
-class Connector(object):
+class Connector(Aspect):
 
     def __init__(self, item, handle):
         self.item = item
         self.handle = handle
+
+    def allow(self, sink):
+        """
+        Return True if a connection is allowed. False otherwise.
+        """
+        return True
+
 
     def connect(self, sink):
         # low-level connection
@@ -221,8 +220,7 @@ class Connector(object):
 
 
 @aspect(Item)
-@aspectfactory
-class ConnectionSink(object):
+class ConnectionSink(Aspect):
     """
     This role should be applied to items that is connected to.
     """
@@ -246,6 +244,156 @@ class ConnectionSink(object):
             max_dist = d
 
         return port
+
+
+@aspect(Line)
+class Segment(Aspect):
+
+    def __init__(self, item, view):
+        self.item = item
+        self.view = view
+
+    def split(self, pos):
+            item = self.item
+            handles = item.handles()
+            x, y = self.view.get_matrix_v2i(item).transform_point(*pos)
+            for h1, h2 in zip(handles, handles[1:]):
+                xp = (h1.pos.x + h2.pos.x) / 2
+                yp = (h1.pos.y + h2.pos.y) / 2
+                if distance_point_point_fast((x,y), (xp, yp)) <= 4:
+                    segment = handles.index(h1)
+                    handles, ports = self.split_segment(segment)
+                    return handles and handles[0]
+
+    def split_segment(self, segment, count=2):
+        """
+        Split one item segment into ``count`` equal pieces.
+
+        Two lists are returned
+
+        - list of created handles
+        - list of created ports
+
+        :Parameters:
+         segment
+            Segment number to split (starting from zero).
+         count
+            Amount of new segments to be created (minimum 2). 
+        """
+        item = self.item
+        if segment < 0 or segment >= len(item.ports()):
+            raise ValueError('Incorrect segment')
+        if count < 2:
+            raise ValueError('Incorrect count of segments')
+
+        def do_split(segment, count):
+            handles = item.handles()
+            p0 = handles[segment].pos
+            p1 = handles[segment + 1].pos
+            dx, dy = p1.x - p0.x, p1.y - p0.y
+            new_h = item._create_handle((p0.x + dx / count, p0.y + dy / count))
+            item._reversible_insert_handle(segment + 1, new_h)
+
+            p0 = item._create_port(p0, new_h.pos)
+            p1 = item._create_port(new_h.pos, p1)
+            item._reversible_remove_port(item.ports()[segment])
+            item._reversible_insert_port(segment, p0)
+            item._reversible_insert_port(segment + 1, p1)
+
+            if count > 2:
+                do_split(segment + 1, count - 1)
+
+        do_split(segment, count)
+
+        # force orthogonal constraints to be recreated
+        item._update_orthogonal_constraints(item.orthogonal)
+
+        self._recreate_constraints()
+
+        handles = item.handles()[segment + 1:segment + count]
+        ports = item.ports()[segment:segment + count - 1]
+        return handles, ports
+
+
+    def merge_segment(self, segment, count=2):
+        """
+        Merge two (or more) item segments.
+
+        Tuple of two lists is returned, list of deleted handles and list of
+        deleted ports.
+
+        :Parameters:
+         segment
+            Segment number to start merging from (starting from zero).
+         count
+            Amount of segments to be merged (minimum 2). 
+        """
+        item = self.item
+        if len(item.ports()) < 2:
+            raise ValueError('Cannot merge item with one segment')
+        if segment < 0 or segment >= len(item.ports()):
+            print segment, len(item.ports())
+            raise ValueError('Incorrect segment')
+        if count < 2 or segment + count > len(item.ports()):
+            raise ValueError('Incorrect count of segments')
+
+        # remove handle and ports which share position with handle
+        deleted_handles = item.handles()[segment + 1:segment + count]
+        deleted_ports = item.ports()[segment:segment + count]
+        for h in deleted_handles:
+            item._reversible_remove_handle(h)
+        for p in deleted_ports:
+            item._reversible_remove_port(p)
+
+        # create new port, which replaces old ports destroyed due to
+        # deleted handle
+        p1 = item.handles()[segment].pos
+        p2 = item.handles()[segment + 1].pos
+        port = item._create_port(p1, p2)
+        item._reversible_insert_port(segment, port)
+
+        # force orthogonal constraints to be recreated
+        item._update_orthogonal_constraints(item.orthogonal)
+
+        self._recreate_constraints()
+
+        return deleted_handles, deleted_ports
+
+
+    def _recreate_constraints(self):
+        """
+        Create connection constraints between connecting lines and an item.
+
+        :Parameters:
+         connected
+            Connected item.
+        """
+        connected = self.item
+        def find_port(line, handle, item):
+            #port = None
+            #max_dist = sys.maxint
+            canvas = item.canvas
+
+            ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
+
+            # find the port using item's coordinates
+            sink = ConnectionSink(item, None)
+            return sink.find_port((ix, iy))
+
+        if not connected.canvas:
+            # No canvas, no constraints
+            return
+
+        canvas = connected.canvas
+        solver = canvas.solver
+        for cinfo in list(canvas.get_connections(connected=connected)):
+            item, handle = cinfo.item, cinfo.handle
+            port = find_port(item, handle, connected)
+            
+            constraint = port.constraint(canvas, item, handle, connected)
+
+            cinfo = canvas.get_connection(handle)
+            canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
 
 
 # vim:sw=4:et:ai

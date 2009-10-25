@@ -346,7 +346,7 @@ class ToolPainter(Painter):
             view.tool.draw(Context(view=view, cairo=cairo))
             cairo.restore()
 
-
+# Move this to tool.
 class LineSegmentPainter(Painter):
     """
     This painter draws pseudo-hanldes on gaphas.item.Line objects. Each
