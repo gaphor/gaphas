@@ -896,7 +896,7 @@ class ConnectHandleTool(HandleTool):
         connectable, port = self.glue(item, handle, vpos)
 
         # no new connectable item, then diconnect and exit
-        if not item:
+        if not connectable:
             self.disconnect(item, handle)
             return
 

@@ -580,7 +580,6 @@ class LineMergeTestCase(TestCaseBase):
     def test_merge_first_single(self):
         """Test single line merging starting from 1st segment
         """
-        tool = LineSegmentTool(self.view)
         self.line.handles()[1].pos = (20, 0)
         segment = Segment(self.line, self.view)
         segment.split_segment(0)
@@ -646,7 +645,6 @@ class LineMergeTestCase(TestCaseBase):
     def test_merge_multiple(self):
         """Test multiple line merge
         """
-        tool = LineSegmentTool(self.view)
         self.line.handles()[1].pos = (20, 16)
         segment = Segment(self.line, self.view)
         segment.split_segment(0, count=3)
@@ -674,8 +672,6 @@ class LineMergeTestCase(TestCaseBase):
     def test_merge_undo(self):
         """Test line merging undo
         """
-        tool = LineSegmentTool(self.view)
-
         self.line.handles()[1].pos = (20, 0)
 
         segment = Segment(self.line, self.view)
@@ -704,7 +700,6 @@ class LineMergeTestCase(TestCaseBase):
         """
         self.assertEquals(12, len(self.canvas.solver._constraints))
 
-        tool = LineSegmentTool(self.view)
         self.line.handles()[-1].pos = 100, 100
 
         segment = Segment(self.line, self.view)
@@ -728,8 +723,6 @@ class LineMergeTestCase(TestCaseBase):
     def test_params_errors(self):
         """Test parameter error exceptions
         """
-        tool = LineSegmentTool(self.view)
-
         line = Line()
         self.canvas.add(line)
         segment = Segment(line, self.view)
@@ -739,12 +732,14 @@ class LineMergeTestCase(TestCaseBase):
  
         line = Line()
         self.canvas.add(line)
+        segment = Segment(line, self.view)
         segment.split_segment(0)
         # no segment no 2
         self.assertRaises(ValueError, segment.merge_segment, 2)
  
         line = Line()
         self.canvas.add(line)
+        segment = Segment(line, self.view)
         segment.split_segment(0)
         # can't merge one or less segments :)
         self.assertRaises(ValueError, segment.merge_segment, 0, 1)
@@ -752,11 +747,13 @@ class LineMergeTestCase(TestCaseBase):
         line = Line()
         self.canvas.add(line)
         self.assertEquals(2, len(line.handles()))
+        segment = Segment(line, self.view)
         # can't merge line with one segment
         self.assertRaises(ValueError, segment.merge_segment, 0)
 
         line = Line()
         self.canvas.add(line)
+        segment = Segment(line, self.view)
         segment.split_segment(0)
         # 2 segments: no 0 and 1. cannot merge as there are no segments
         # after segment no 1
@@ -764,6 +761,7 @@ class LineMergeTestCase(TestCaseBase):
 
         line = Line()
         self.canvas.add(line)
+        segment = Segment(line, self.view)
         segment.split_segment(0)
         # 2 segments: no 0 and 1. cannot merge 3 segments as there are no 3
         # segments
