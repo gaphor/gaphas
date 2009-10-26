@@ -15,12 +15,12 @@ class Aspect(object):
     Aspects should define of what they are aspects by using the @aspect
     decorator.
     """
-    # _regs = {} # class -> aspect map; defined by @aspect
+    # _aspect_register = {} # class -> aspect map; defined by @aspect
 
     @classmethod
     def _lookup(cls, itemcls):
         try:
-            regs = cls._regs
+            regs = cls._aspect_register
         except AttributeError:
             raise TypeError("No factory class defined for aspect %s" % cls)
         for c in itemcls.__mro__:
@@ -41,9 +41,9 @@ def aspect(itemcls):
     """
     def wrapper(cls):
         try:
-            cls._regs[itemcls] = cls
+            cls._aspect_register[itemcls] = cls
         except AttributeError:
-            cls._regs = { itemcls: cls }
+            cls._aspect_register = { itemcls: cls }
         return cls
     return wrapper
 

@@ -106,31 +106,30 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
         ports = self.box1.ports()
 
         # glue to port nw-ne
-        item, port = self.tool.glue(self.line, self.head, (120, 50))
-        self.assertEquals(item, self.box1)
-        self.assertEquals(ports[0], port)
+        sink = self.tool.glue(self.line, self.head, (120, 50))
+        self.assertEquals(sink.item, self.box1)
+        self.assertEquals(ports[0], sink.port)
 
         # glue to port ne-se
-        item, port = self.tool.glue(self.line, self.head, (140, 70))
-        self.assertEquals(item, self.box1)
-        self.assertEquals(ports[1], port)
+        sink = self.tool.glue(self.line, self.head, (140, 70))
+        self.assertEquals(sink.item, self.box1)
+        self.assertEquals(ports[1], sink.port)
 
         # glue to port se-sw
-        item, port = self.tool.glue(self.line, self.head, (120, 90))
-        self.assertEquals(item, self.box1)
-        self.assertEquals(ports[2], port)
+        sink = self.tool.glue(self.line, self.head, (120, 90))
+        self.assertEquals(sink.item, self.box1)
+        self.assertEquals(ports[2], sink.port)
 
         # glue to port sw-nw
-        item, port = self.tool.glue(self.line, self.head, (100, 70))
-        self.assertEquals(item, self.box1)
-        self.assertEquals(ports[3], port)
+        sink = self.tool.glue(self.line, self.head, (100, 70))
+        self.assertEquals(sink.item, self.box1)
+        self.assertEquals(ports[3], sink.port)
         
 
     def test_failed_glue(self):
         """Test glue from too far distance"""
-        item, port = self.tool.glue(self.line, self.head, (90, 50))
-        self.assertTrue(item is None)
-        self.assertTrue(port is None)
+        sink = self.tool.glue(self.line, self.head, (90, 50))
+        self.assertTrue(sink is None)
 
 
 #    def test_glue_call_can_glue_once(self):
@@ -184,8 +183,8 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
 
         tool = Tool(self.view)
         # at 300, 50 there should be no item
-        item, port = tool.glue(self.line, self.head, (300, 50))
-        assert item is None and port is None
+        sink = tool.glue(self.line, self.head, (300, 50))
+        assert sink is None
         self.assertEquals(0, tool._calls)
 
 
@@ -362,13 +361,14 @@ class LineSegmentToolTestCase(unittest.TestCase):
         tool.on_button_press(Event(x=75, y=75, state=0))
         # start with 3 segments
         assert len(self.line.handles()) == 4
+        assert len(self.line.ports()) == 3
 
         # ports to be removed
         port1 = self.line.ports()[0]
         port2 = self.line.ports()[1]
 
         # try to merge, now
-        tool.grab_handle(self.line, self.line.handles()[1])
+        tool.handle_tool.grab_handle(self.line, self.line.handles()[1])
         tool.on_button_release(Event(x=0, y=0, state=0))
         # check if line merging was performed
         assert len(self.line.handles()) == 3

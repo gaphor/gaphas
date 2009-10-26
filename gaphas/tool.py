@@ -189,7 +189,7 @@ class ToolChain(Tool):
     def set_view(self, view):
         self.view = view
         for tool in self._tools:
-            tool.view = self.view
+            tool.set_view(self.view)
 
     def append(self, tool):
         """
@@ -756,10 +756,7 @@ class ConnectHandleTool(HandleTool):
             position in view coordinates
         """
         connector = Connector(item, handle, self.view)
-        sink = connector.glue(vpos)
-        if sink:
-            return sink.item, sink.port
-        return None, None
+        return connector.glue(vpos)
 
 
     def can_glue(self, item, handle, connected, port):
@@ -823,10 +820,10 @@ class ConnectHandleTool(HandleTool):
             Handle of connecting item.
         """
         # find connectable item and its port
-        connectable, port = self.glue(item, handle, vpos)
+        sink = self.glue(item, handle, vpos)
 
         # no new connectable item, then diconnect and exit
-        if not connectable:
+        if not sink:
             self.disconnect(item, handle)
             return
 
@@ -836,12 +833,11 @@ class ConnectHandleTool(HandleTool):
         info = item.canvas.get_connection(handle)
 
         # moving connection to other item
-        if info and info.connected is not connectable:
-            self.move_connection(item, handle, connectable, port)
+        if info and info.connected is not sink.item:
+            self.move_connection(item, handle, sink.item, sink.port)
             self.disconnect(item, handle)
 
         connector = Connector(item, handle, self.view)
-        sink = ConnectionSink(connectable, port)
         connector.connect(sink)
 
 
@@ -902,7 +898,7 @@ class ConnectHandleTool(HandleTool):
 
 # TODO: make this inherit from Tool
 
-class LineSegmentTool(ConnectHandleTool):
+class LineSegmentTool(Tool):
     """
     Line segment tool provides functionality for splitting and merging line
     segments.
@@ -927,7 +923,13 @@ class LineSegmentTool(ConnectHandleTool):
     def __init__(self, view=None, handle_tool=None):
         super(LineSegmentTool, self).__init__(view)
         self.handle_tool = handle_tool or HandleTool(view)
+        self.grabbed_handle = None
+        self.grabbed_item = None
 
+
+    def set_view(self, view):
+        super(LineSegmentTool, self).set_view(view)
+        self.handle_tool.set_view(view)
 
 
     def on_button_press(self, event):
@@ -935,12 +937,9 @@ class LineSegmentTool(ConnectHandleTool):
         In addition to the normal behaviour, the button press event creates
         new handles if it is activated on the middle of a line segment.
         """
-        if super(LineSegmentTool, self).on_button_press(event):
-            return True
-
         view = self.view
         item = view.hovered_item
-        if item and item is view.focused_item and isinstance(item, Line):
+        if item and item is view.focused_item:
             try:
                 segment = Segment(item, view)
             except TypeError:
@@ -948,7 +947,9 @@ class LineSegmentTool(ConnectHandleTool):
             else:
                 new_handle = segment.split((event.x, event.y))
                 if new_handle:
-                    self.grab_handle(item, new_handle)
+                    self.handle_tool.grab_handle(item, new_handle)
+                    self.grabbed_handle = new_handle
+                    self.grabbed_item = item
                     return True
 
     def on_button_release(self, event):
@@ -959,47 +960,56 @@ class LineSegmentTool(ConnectHandleTool):
         """
         grabbed_handle = self.grabbed_handle
         grabbed_item = self.grabbed_item
-        if super(LineSegmentTool, self).on_button_release(event):
-            if grabbed_handle and grabbed_item:
-                handles = grabbed_item.handles()
+        if grabbed_handle and grabbed_item:
+            handles = grabbed_item.handles()
 
-                # don't merge using first or last handle
-                if handles[0] is grabbed_handle or handles[-1] is grabbed_handle:
-                    return True
+            self.handle_tool.ungrab_handle()
 
-                handle_index = handles.index(grabbed_handle)
-                segment = handle_index - 1
+            # don't merge using first or last handle
+            if handles[0] is grabbed_handle or handles[-1] is grabbed_handle:
+                return True
 
-                # cannot merge starting from last segment
-                if segment == len(grabbed_item.ports()) - 1:
-                    segment =- 1
-                assert segment >= 0 and segment < len(grabbed_item.ports()) - 1
+            handle_index = handles.index(grabbed_handle)
+            segment = handle_index - 1
 
-                before = handles[handle_index - 1]
-                after = handles[handle_index + 1]
-                d, p = distance_line_point(before.pos, after.pos, grabbed_handle.pos)
+            # cannot merge starting from last segment
+            if segment == len(grabbed_item.ports()) - 1:
+                segment =- 1
+            assert segment >= 0 and segment < len(grabbed_item.ports()) - 1
 
-                if d < 2:
-                    assert len(self.view.canvas.solver._marked_cons) == 0
-                    Segment(grabbed_item, self.view).merge_segment(segment)
+            before = handles[handle_index - 1]
+            after = handles[handle_index + 1]
+            d, p = distance_line_point(before.pos, after.pos, grabbed_handle.pos)
 
-            return True
+            if d < 2:
+                assert len(self.view.canvas.solver._marked_cons) == 0
+                Segment(grabbed_item, self.view).merge_segment(segment)
+
+            if grabbed_handle:
+                grabbed_item.request_update()
+
+            self.grabbed_handle = None
+            self.grabbed_item = None
+        return True
+
+    def on_motion_notify(self, event):
+        if self.grabbed_handle:
+            return self.handle_tool.on_motion_notify(event)
 
 
 def DefaultTool():
     """
     The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
-        #append(ConnectHandleTool()). \
     chain = ToolChain(). \
         append(HoverTool()). \
         append(ConnectHandleTool()). \
+        append(LineSegmentTool()). \
         append(PanTool()). \
         append(ZoomTool()). \
         append(ItemTool()). \
         append(TextEditTool()). \
         append(RubberbandTool())
-        #append(LineSegmentTool()). \
     return chain
 
 
