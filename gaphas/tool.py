@@ -733,103 +733,33 @@ class ConnectHandleTool(HandleTool):
     # distance between line and item
     GLUE_DISTANCE = 10
 
-    def glue(self, line, handle, vpos):
+    def glue(self, item, handle, vpos):
         """
-        Find an item for connection with a line.
+        Find an item for connection with a item.
 
         Method looks for items in glue rectangle (which is defined by
         ``vpos`` (vx, vy) and glue distance), then finds the closest port.
 
         Glue position for closest port is calculated as well. Handle of
-        a line is moved to glue point to indicate that connection is about
+        a item is moved to glue point to indicate that connection is about
         to happen.
 
         Found item and its connection port are returned. If item is not
         found nor suitable port, then tuple `(None, None)` is returned.
 
         :Parameters:
-         view
-            View used by user.
-         line
+         item
             Connecting item.
          handle
-            Handle of line (connecting item).
-        """
-        if not handle.connectable:
-            return None
-
-        view = self.view
-        item, port, glue_pos = \
-                self.get_port_at_point(vpos, exclude=(line,))
-
-        # check if line and found item can be connected on closest port
-        if port is not None and \
-                not self.can_glue(line, handle, item, port):
-            item, port = None, None
-
-        if port is not None:
-            # transform coordinates from view space to the line space and
-            # update position of line's handle
-            v2i = view.get_matrix_v2i(line).transform_point
-            handle.pos = v2i(*glue_pos)
-
-        # else item and port will be set to None
-        return item, port
-
-
-    def get_port_at_point(self, vpos, exclude=None):
-        """
-        Find item with port closest to specified position.
-
-        List of items to be ignored can be specified with `exclude`
-        parameter.
-
-        Tuple is returned
-
-        - found item
-        - closest, connectable port
-        - closest point on found port (in view coordinates)
-
-        :Parameters:
+            Handle of item (connecting item).
          vpos
-            Position specified in view coordinates.
-         exclude
-            Set of items to ignore.
+            position in view coordinates
         """
-        view = self.view
-        dist = self.GLUE_DISTANCE
-        v2i = view.get_matrix_v2i
-        vx, vy = vpos
-
-        max_dist = dist
-        port = None
-        glue_pos = None
-        item = None
-
-        rect = (vx - dist, vy - dist, dist * 2, dist * 2)
-        items = view.get_items_in_rectangle(rect, reverse=True)
-        for i in items:
-            if i in exclude:
-                continue
-            for p in i.ports():
-                if not p.connectable:
-                    continue
-
-                ix, iy = v2i(i).transform_point(vx, vy)
-                pg, d = p.glue((ix, iy))
-
-                if d >= max_dist:
-                    continue
-
-                item = i
-                port = p
-
-                # transform coordinates from connectable item space to view
-                # space
-                i2v = view.get_matrix_i2v(i).transform_point
-                glue_pos = i2v(*pg)
-
-        return item, port, glue_pos
+        connector = Connector(item, handle, self.view)
+        sink = connector.glue(vpos)
+        if sink:
+            return sink.item, sink.port
+        return None, None
 
 
     def can_glue(self, item, handle, connected, port):
@@ -852,7 +782,7 @@ class ConnectHandleTool(HandleTool):
          port
             Port of connectable item.
         """
-        connector = Connector(item, handle)
+        connector = Connector(item, handle, self.view)
         sink = ConnectionSink(connected, port)
         return connector.allow(sink)
 
@@ -910,7 +840,7 @@ class ConnectHandleTool(HandleTool):
             self.move_connection(item, handle, connectable, port)
             self.disconnect(item, handle)
 
-        connector = Connector(item, handle)
+        connector = Connector(item, handle, self.view)
         sink = ConnectionSink(connectable, port)
         connector.connect(sink)
 
@@ -925,7 +855,7 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of connecting item.
         """
-        connector = Connector(item, handle)
+        connector = Connector(item, handle, self.view)
         connector.disconnect()
 
 
@@ -940,7 +870,7 @@ class ConnectHandleTool(HandleTool):
          handle
             Handle of a line connecting to an item.
         """
-        connector = Connector(item, handle)
+        connector = Connector(item, handle, self.view)
         connector.remove_constraints()
 
     def on_button_press(self, event):

@@ -152,9 +152,12 @@ class HandleInMotion(Aspect):
 @aspect(Item)
 class Connector(Aspect):
 
-    def __init__(self, item, handle):
+    GLUE_DISTANCE = 10 # Glue distance in view points
+
+    def __init__(self, item, handle, view):
         self.item = item
         self.handle = handle
+        self.view = view
 
     def allow(self, sink):
         """
@@ -162,6 +165,33 @@ class Connector(Aspect):
         """
         return True
 
+    def glue(self, pos, distance=GLUE_DISTANCE):
+        """
+        Glue to an item near a specific point. Returns a ConnectionSink or None
+        """
+        item = self.item
+        handle = self.handle
+        view = self.view
+
+        if not handle.connectable:
+            return None
+
+        connectable, port, glue_pos = \
+                view.get_port_at_point(pos, distance=distance, exclude=(item,))
+
+        # check if item and found item can be connected on closest port
+        if port is not None:
+            assert connectable is not None
+
+            sink = ConnectionSink(connectable, port)
+
+            if self.allow(sink):
+                # transform coordinates from view space to the item space and
+                # update position of item's handle
+                v2i = view.get_matrix_v2i(item).transform_point
+                handle.pos = v2i(*glue_pos)
+                return sink
+        return None
 
     def connect(self, sink):
         # low-level connection
