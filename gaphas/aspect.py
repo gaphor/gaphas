@@ -6,7 +6,7 @@ and items.
 import sys
 from gaphas.item import Item, Line
 from gaphas.connector import Handle
-from gaphas.geometry import distance_point_point_fast
+from gaphas.geometry import distance_point_point_fast, distance_line_point
 
 class Aspect(object):
     """
@@ -18,35 +18,38 @@ class Aspect(object):
     # _aspect_register = {} # class -> aspect map; defined by @aspect
 
     @classmethod
-    def _lookup(cls, itemcls):
+    def _lookup(cls, material):
         try:
             regs = cls._aspect_register
         except AttributeError:
             raise TypeError("No factory class defined for aspect %s" % cls)
-        for c in itemcls.__mro__:
+        for c in material.__mro__:
             try:
                 return regs[c]
             except KeyError:
                 pass
-        raise TypeError("class %s can not be instantiated through %s" % (cls, itemcls))
+        raise TypeError("class %s can not be instantiated through %s" % (cls, material))
 
     def __new__(cls, item, *args, **kwargs):
-        print 'aspect:', cls, item, args, kwargs
+        #print 'aspect:', cls, item, args, kwargs
         aspectcls = cls._lookup(type(item))
         #return super(Aspect, cls).__new__(aspectcls, item, *args, **kwargs) 
-        return super(Aspect, cls).__new__(aspectcls)
+        new = super(Aspect, cls).__new__(aspectcls)
+        print 'aspect:', item, '->', new
+        return new
         #return object.__new__(aspectcls)
 
 
-def aspect(itemcls):
+def aspect(*material):
     """
     Aspect decorator.
     """
     def wrapper(cls):
-        try:
-            cls._aspect_register[itemcls] = cls
-        except AttributeError:
-            cls._aspect_register = { itemcls: cls }
+        for c in material:
+            try:
+                cls._aspect_register[c] = cls
+            except AttributeError:
+                cls._aspect_register = { c: cls }
         return cls
     return wrapper
 
@@ -100,6 +103,20 @@ class InMotion(Aspect):
 
         item.matrix.translate(dx, dy)
         item.canvas.request_matrix_update(item)
+
+
+@aspect(type(None), Item)
+class HandleFinder(Aspect):
+    """
+    Deals with the task of finding handles.
+    """
+
+    def __init__(self, item, view):
+        self.item = item
+        self.view = view
+
+    def get_handle_at_point(self, pos):
+        return self.view.get_handle_at_point(pos)
 
 
 @aspect(Item)
@@ -280,6 +297,10 @@ class ConnectionSink(Aspect):
         return port
 
 
+##
+## Fancy features for Lines
+##
+
 @aspect(Line)
 class Segment(Aspect):
 
@@ -429,5 +450,69 @@ class Segment(Aspect):
             cinfo = canvas.get_connection(handle)
             canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
 
+
+@aspect(Line)
+class SegmentHandleFinder(HandleFinder):
+    """
+    Find a handle on a line, create a new one if the mouse is located
+    between two handles. The position aligns with the points drawn by
+    the SegmentPainter.
+    """
+
+    def get_handle_at_point(self, pos):
+        view = self.view
+        item = view.hovered_item
+        handle = None
+        if self.item is view.focused_item:
+            try:
+                segment = Segment(self.item, self.view)
+            except TypeError:
+                pass
+            else:
+                handle = segment.split(pos)
+
+        if not handle:
+            item, handle = super(SegmentHandleFinder, self).get_handle_at_point(pos)
+        return item, handle
+
+
+@aspect(Line)
+class SegmentHandleSelection(HandleSelection):
+    """
+    In addition to the default behaviour, merge segments if the handle is
+    released.
+    """
+
+    def unselect(self):
+        item = self.item
+        handle = self.handle
+        handles = item.handles()
+
+        # don't merge using first or last handle
+        if handles[0] is handle or handles[-1] is handle:
+            return True
+
+        print 'release segment handle'
+
+        handle_index = handles.index(handle)
+        segment = handle_index - 1
+
+        # cannot merge starting from last segment
+        if segment == len(item.ports()) - 1:
+            segment =- 1
+        assert segment >= 0 and segment < len(item.ports()) - 1
+
+        before = handles[handle_index - 1]
+        after = handles[handle_index + 1]
+        d, p = distance_line_point(before.pos, after.pos, handle.pos)
+
+        print handle_index, before.pos, after.pos, handle.pos
+
+        if d < 2:
+            assert len(self.view.canvas.solver._marked_cons) == 0
+            Segment(item, self.view).merge_segment(segment)
+
+        if handle:
+            item.request_update()
 
 # vim:sw=4:et:ai

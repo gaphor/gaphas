@@ -5,8 +5,7 @@ Generic gaphas item tests.
 import unittest
 
 from gaphas.item import Item, Line
-from gaphas.aspect import Aspect, aspect
-from gaphas.aspect import Selection, InMotion, Segment
+from gaphas.aspect import *
 from gaphas.canvas import Canvas, Context
 from gaphas.view import View
 from gaphas import state
@@ -38,12 +37,14 @@ class AspectTestCase(unittest.TestCase):
 
         a = A()
         asp = MyAspect(a, 1, 2)
+        assert type(asp) is A_Aspect, asp
         assert asp.item is a
         assert asp.arg2 == 1
         assert asp.arg3 == 2
 
         b =B()
         asp = MyAspect(b, 1, 2)    # doctest: +ELLIPSIS
+        assert type(asp) is B_Aspect, asp
         assert asp.item is b
         assert asp.arg2 == 1
         assert asp.arg3 == 2
@@ -547,5 +548,25 @@ class LineMergeTestCase(TestCaseBase):
         # 2 segments: no 0 and 1. cannot merge 3 segments as there are no 3
         # segments
         self.assertRaises(ValueError, segment.merge_segment, 0, 3)
+
+
+class SegmentHandlesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.canvas = Canvas()
+        self.line = Line()
+        self.canvas.add(self.line)
+        self.view = View(self.canvas)
+
+
+    def testHandleFinder(self):
+        assert 2 == len(HandleFinder._aspect_register), HandleFinder._aspect_register
+        finder = HandleFinder(self.line, self.view)
+        assert type(finder) is SegmentHandleFinder, type(finder)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
 
 # vim:sw=4:et:ai

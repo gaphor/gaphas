@@ -4,7 +4,7 @@ Test all the tools provided by gaphas.
 
 import unittest
 
-from gaphas.tool import ConnectHandleTool, LineSegmentTool
+from gaphas.tool import ConnectHandleTool
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Item, Element, Line
@@ -274,88 +274,6 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         head.pos = 100, 55
         port = self.tool.find_port(line, head, self.box1)
         self.assertEquals(p4, port)
-
-
-
-class LineSegmentToolTestCase(unittest.TestCase):
-    """
-    Line segment tool tests.
-    """
-    def setUp(self):
-        simple_canvas(self)
-
-    def test_split(self):
-        """Test if line is splitted while pressing it in the middle
-        """
-        tool = LineSegmentTool()
-        tool.set_view(self.view)
-
-        head, tail = self.line.handles()
-
-        self.view.hovered_item = self.line
-        self.view.focused_item = self.line
-        tool.on_button_press(Event(x=50, y=50, state=0))
-        self.assertEquals(3, len(self.line.handles()))
-        self.assertEquals(self.head, head)
-        self.assertEquals(self.tail, tail)
-
-
-    def test_merge(self):
-        """Test if line is merged by moving handle onto adjacent handle
-        """
-        tool = LineSegmentTool()
-        tool.set_view(self.view)
-        def dummy_grab(): pass
-
-        self.view.hovered_item = self.line
-        self.view.focused_item = self.line
-        tool.on_button_press(Event(x=50, y=50, state=0))
-        # start with 2 segments
-        assert len(self.line.handles()) == 3
-
-        # try to merge, now
-        tool.on_button_release(Event(x=0, y=0, state=0))
-        self.assertEquals(2, len(self.line.handles()))
-
-
-    def test_merged_segment(self):
-        """Test if proper segment is merged
-        """
-        tool = LineSegmentTool()
-        tool.set_view(self.view)
-
-        self.view.hovered_item = self.line
-        self.view.focused_item = self.line
-        tool.on_button_press(Event(x=50, y=50, state=0))
-        tool.on_button_press(Event(x=75, y=75, state=0))
-        # start with 3 segments
-        assert len(self.line.handles()) == 4
-        assert len(self.line.ports()) == 3
-
-        # ports to be removed
-        port1 = self.line.ports()[0]
-        port2 = self.line.ports()[1]
-
-        # try to merge, now
-        tool.handle_tool.grab_handle(self.line, self.line.handles()[1])
-        tool.on_button_release(Event(x=0, y=0, state=0))
-        # check if line merging was performed
-        assert len(self.line.handles()) == 3
-        assert len(self.line.ports()) == 2
-        
-        # check if proper segments were merged
-        #self.assertFalse(port1 in self.line.ports(), "%s (%s)" % (port1, self.line.ports()))
-        self.assertFalse(port2 in self.line.ports())
-
-        handles = self.line.handles()
-        self.assertTrue(port1.start is handles[0].pos)
-        self.assertTrue(port1.end is handles[1].pos)
-
-        ports = self.line.ports()
-        self.assertTrue(ports[0].start is handles[0].pos)
-        self.assertTrue(ports[0].end is handles[1].pos)
-        self.assertTrue(ports[1].start is handles[1].pos)
-        self.assertTrue(ports[1].end is handles[2].pos)
 
 
 # vim: sw=4:et:ai

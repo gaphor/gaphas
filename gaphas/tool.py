@@ -43,7 +43,7 @@ from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
 from gaphas.aspect import Selection, InMotion, \
-        HandleSelection, HandleInMotion, \
+        HandleFinder, HandleSelection, HandleInMotion, \
         Connector, ConnectionSink, \
         Segment
 
@@ -389,7 +389,11 @@ class HandleTool(Tool):
         dragged around.
         """
         view = self.view
-        item, handle = view.get_handle_at_point((event.x, event.y))
+        #item, handle = view.get_handle_at_point((event.x, event.y))
+        #if not handle and view.hovered_item
+
+        item, handle = HandleFinder(view.hovered_item, view).get_handle_at_point((event.x, event.y))
+
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
@@ -897,112 +901,6 @@ class ConnectHandleTool(HandleTool):
 
 
 
-# TODO: make this inherit from Tool
-
-class LineSegmentTool(Tool):
-    """
-    Line segment tool provides functionality for splitting and merging line
-    segments.
-
-    Line segment is defined by two adjacent handles.
-
-    Line splitting is performed by clicking a line in the middle of
-    a segment.
-
-    Line merging is performed by moving a handle onto adjacent handle.
-
-    Please note, that this tool provides functionality without involving
-    context menu. Any further research into line spliting/merging
-    functionality should take into account this assumption and new
-    improvements (or even this tool replacement) shall be behavior based.
-
-    It is possible to use this tool from a menu by using
-    `LineSegmentTool.split_segment` and `LineSegmentTool.merge_segment`
-    methods.
-    """
-
-    def __init__(self, view=None, handle_tool=None):
-        super(LineSegmentTool, self).__init__(view)
-        self.handle_tool = handle_tool or HandleTool(view)
-        self.grabbed_handle = None
-        self.grabbed_item = None
-
-
-    def set_view(self, view):
-        super(LineSegmentTool, self).set_view(view)
-        self.handle_tool.set_view(view)
-
-
-    def on_button_press(self, event):
-        """
-        In addition to the normal behaviour, the button press event creates
-        new handles if it is activated on the middle of a line segment.
-        """
-        view = self.view
-        item = view.hovered_item
-        if item and item is view.focused_item:
-            try:
-                segment = Segment(item, view)
-            except TypeError:
-                pass
-            else:
-                new_handle = segment.split((event.x, event.y))
-                if new_handle:
-                    print 'new handle', new_handle, self.handle_tool.grabbed_handle
-                    self.handle_tool.grab_handle(item, new_handle)
-                    self.grabbed_handle = new_handle
-                    self.grabbed_item = item
-                    return True
-
-    def on_button_release(self, event):
-        """
-        In addition to the normal behavior, the button release event
-        removes line segment if grabbed handle is close enough to an
-        adjacent handle.
-        """
-        grabbed_handle = self.grabbed_handle
-        grabbed_item = self.grabbed_item
-        if grabbed_handle and grabbed_item:
-            handles = grabbed_item.handles()
-
-            self.handle_tool.ungrab_handle()
-
-            # don't merge using first or last handle
-            if handles[0] is grabbed_handle or handles[-1] is grabbed_handle:
-                return True
-
-            print 'release segment handle'
-
-            handle_index = handles.index(grabbed_handle)
-            segment = handle_index - 1
-
-            # cannot merge starting from last segment
-            if segment == len(grabbed_item.ports()) - 1:
-                segment =- 1
-            assert segment >= 0 and segment < len(grabbed_item.ports()) - 1
-
-            before = handles[handle_index - 1]
-            after = handles[handle_index + 1]
-            d, p = distance_line_point(before.pos, after.pos, grabbed_handle.pos)
-
-            print handle_index, before.pos, after.pos, grabbed_handle.pos
-
-            if d < 2:
-                assert len(self.view.canvas.solver._marked_cons) == 0
-                Segment(grabbed_item, self.view).merge_segment(segment)
-
-            if grabbed_handle:
-                grabbed_item.request_update()
-
-            self.grabbed_handle = None
-            self.grabbed_item = None
-        return True
-
-    def on_motion_notify(self, event):
-        if self.grabbed_handle:
-            return self.handle_tool.on_motion_notify(event)
-
-
 def DefaultTool():
     """
     The default tool chain build from HoverTool, ItemTool and HandleTool.
@@ -1010,7 +908,6 @@ def DefaultTool():
     chain = ToolChain(). \
         append(HoverTool()). \
         append(ConnectHandleTool()). \
-        append(LineSegmentTool()). \
         append(PanTool()). \
         append(ZoomTool()). \
         append(ItemTool()). \
