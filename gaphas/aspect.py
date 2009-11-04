@@ -31,8 +31,11 @@ class Aspect(object):
         raise TypeError("class %s can not be instantiated through %s" % (cls, itemcls))
 
     def __new__(cls, item, *args, **kwargs):
+        print 'aspect:', cls, item, args, kwargs
         aspectcls = cls._lookup(type(item))
-        return super(Aspect, cls).__new__(aspectcls, item, *args, **kwargs) 
+        #return super(Aspect, cls).__new__(aspectcls, item, *args, **kwargs) 
+        return super(Aspect, cls).__new__(aspectcls)
+        #return object.__new__(aspectcls)
 
 
 def aspect(itemcls):
@@ -99,13 +102,14 @@ class InMotion(Aspect):
         item.canvas.request_matrix_update(item)
 
 
-@aspect(Handle)
+@aspect(Item)
 class HandleSelection(Aspect):
     """
     Deal with selection of the handle.
     """
 
-    def __init__(self, handle, view):
+    def __init__(self, item, handle, view):
+        self.item = item
         self.handle = handle
         self.view = view
 
@@ -284,16 +288,16 @@ class Segment(Aspect):
         self.view = view
 
     def split(self, pos):
-            item = self.item
-            handles = item.handles()
-            x, y = self.view.get_matrix_v2i(item).transform_point(*pos)
-            for h1, h2 in zip(handles, handles[1:]):
-                xp = (h1.pos.x + h2.pos.x) / 2
-                yp = (h1.pos.y + h2.pos.y) / 2
-                if distance_point_point_fast((x,y), (xp, yp)) <= 4:
-                    segment = handles.index(h1)
-                    handles, ports = self.split_segment(segment)
-                    return handles and handles[0]
+        item = self.item
+        handles = item.handles()
+        x, y = self.view.get_matrix_v2i(item).transform_point(*pos)
+        for h1, h2 in zip(handles, handles[1:]):
+            xp = (h1.pos.x + h2.pos.x) / 2
+            yp = (h1.pos.y + h2.pos.y) / 2
+            if distance_point_point_fast((x,y), (xp, yp)) <= 4:
+                segment = handles.index(h1)
+                handles, ports = self.split_segment(segment)
+                return handles and handles[0]
 
     def split_segment(self, segment, count=2):
         """

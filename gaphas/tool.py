@@ -365,7 +365,7 @@ class HandleTool(Tool):
         self.grabbed_item = item
         self.grabbed_handle = handle
 
-        selection = HandleSelection(handle, self.view)
+        selection = HandleSelection(item, handle, self.view)
         selection.select()
 
 
@@ -373,11 +373,12 @@ class HandleTool(Tool):
         """
         Reset grabbed_handle and grabbed_item.
         """
+        item = self.grabbed_item
         handle = self.grabbed_handle
         self.grabbed_handle = None
         self.grabbed_item = None
         if handle:
-            selection = HandleSelection(handle, self.view)
+            selection = HandleSelection(item, handle, self.view)
             selection.unselect()
 
 
@@ -947,6 +948,7 @@ class LineSegmentTool(Tool):
             else:
                 new_handle = segment.split((event.x, event.y))
                 if new_handle:
+                    print 'new handle', new_handle, self.handle_tool.grabbed_handle
                     self.handle_tool.grab_handle(item, new_handle)
                     self.grabbed_handle = new_handle
                     self.grabbed_item = item
@@ -969,6 +971,8 @@ class LineSegmentTool(Tool):
             if handles[0] is grabbed_handle or handles[-1] is grabbed_handle:
                 return True
 
+            print 'release segment handle'
+
             handle_index = handles.index(grabbed_handle)
             segment = handle_index - 1
 
@@ -980,6 +984,8 @@ class LineSegmentTool(Tool):
             before = handles[handle_index - 1]
             after = handles[handle_index + 1]
             d, p = distance_line_point(before.pos, after.pos, grabbed_handle.pos)
+
+            print handle_index, before.pos, after.pos, grabbed_handle.pos
 
             if d < 2:
                 assert len(self.view.canvas.solver._marked_cons) == 0
