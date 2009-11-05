@@ -31,25 +31,35 @@ class Aspect(object):
         raise TypeError("class %s can not be instantiated through %s" % (cls, material))
 
     def __new__(cls, item, *args, **kwargs):
-        #print 'aspect:', cls, item, args, kwargs
         aspectcls = cls._lookup(type(item))
-        #return super(Aspect, cls).__new__(aspectcls, item, *args, **kwargs) 
-        new = super(Aspect, cls).__new__(aspectcls)
-        print 'aspect:', item, '->', new
-        return new
-        #return object.__new__(aspectcls)
+        return super(Aspect, cls).__new__(aspectcls)
 
 
-def aspect(*material):
+def aspect(*materials):
     """
     Aspect decorator.
+
+    Define an aspect. Aspects need to be defined to specific objects
+    (first constructor argument). Multiple materials (subject classes)
+    can be defined.
+
+    Given a class:
+
+    >>> class A(object):
+    ...     pass
+
+    An aspect for this class may look like:
+
+    >>> @aspect(A)
+    ... class MyAspect(Aspect):
+    ...     pass
     """
     def wrapper(cls):
-        for c in material:
+        for m in materials:
             try:
-                cls._aspect_register[c] = cls
+                cls._aspect_register[m] = cls
             except AttributeError:
-                cls._aspect_register = { c: cls }
+                cls._aspect_register = { m: cls }
         return cls
     return wrapper
 
@@ -59,7 +69,7 @@ class Selection(Aspect):
     """
     A role for items. When dealing with selection.
 
-    Behaviour can be overridden by applying the @assignto decorator
+    Behaviour can be overridden by applying the @aspect decorator
     to a subclass.
     """
 
@@ -80,16 +90,21 @@ class Selection(Aspect):
 
 @aspect(Item)
 class InMotion(Aspect):
+    """
+    Aspect for dealing with motion on an item.
+
+    In this case the item is moved.
+    """
 
     def __init__(self, item, view):
         self.item = item
         self.view = view
         self.last_x, self.last_y = None, None
 
-    def start_move(self, x, y):
-        self.last_x, self.last_y = x, y
+    def start_move(self, pos):
+        self.last_x, self.last_y = pos
 
-    def move(self, x, y):
+    def move(self, pos):
         """
         Move the item. x and y are in view coordinates.
         """
@@ -97,12 +112,16 @@ class InMotion(Aspect):
         view = self.view
         v2i = view.get_matrix_v2i(item)
 
+        x, y = pos
         dx, dy = x - self.last_x, y - self.last_y
         dx, dy = v2i.transform_distance(dx, dy)
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
         item.canvas.request_matrix_update(item)
+
+    def stop_move(self):
+        pass
 
 
 @aspect(type(None), Item)
@@ -149,17 +168,17 @@ class HandleInMotion(Aspect):
         self.view = view
         self.last_x, self.last_y = None, None
 
-    def start_move(self, x, y):
-        self.last_x, self.last_y = x, y
+    def start_move(self, pos):
+        self.last_x, self.last_y = pos
 
-    def move(self, x, y):
+    def move(self, pos):
         item = self.item
         handle = self.handle
         view = self.view
 
         v2i = view.get_matrix_v2i(item)
 
-        x, y = v2i.transform_point(x, y)
+        x, y = v2i.transform_point(*pos)
 
         self.handle.pos = (x, y)
 
@@ -168,6 +187,9 @@ class HandleInMotion(Aspect):
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
         item.request_update(matrix=False)
+
+    def stop_move(self):
+        pass
 
 
 @aspect(Item)
@@ -491,8 +513,6 @@ class SegmentHandleSelection(HandleSelection):
         # don't merge using first or last handle
         if handles[0] is handle or handles[-1] is handle:
             return True
-
-        print 'release segment handle'
 
         handle_index = handles.index(handle)
         segment = handle_index - 1

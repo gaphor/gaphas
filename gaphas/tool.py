@@ -316,6 +316,8 @@ class ItemTool(Tool):
     def on_button_release(self, event):
         if event.button not in self._buttons:
             return False
+        for inmotion in self._movable_items:
+            inmotion.stop_move()
         self._movable_items.clear()
         return True
 
@@ -329,10 +331,10 @@ class ItemTool(Tool):
             if not self._movable_items:
                 self._movable_items = set(self.movable_items())
                 for inmotion in self._movable_items:
-                    inmotion.start_move(event.x, event.y)
+                    inmotion.start_move((event.x, event.y))
 
             for inmotion in self._movable_items:
-                inmotion.move(event.x, event.y)
+                inmotion.move((event.x, event.y))
 
             # TODO: if isinstance(item, Element):
             #   schedule item to be handled by some "guides" tool
@@ -417,6 +419,7 @@ class HandleTool(Tool):
         """
         # queue extra redraw to make sure the item is drawn properly
         grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
+        self.motion_handle.stop_move()
         self.motion_handle = None
 
         self.ungrab_handle()
@@ -440,8 +443,8 @@ class HandleTool(Tool):
 
             if not self.motion_handle:
                 self.motion_handle = HandleInMotion(item, handle, self.view)
-                self.motion_handle.start_move(x, y)
-            self.motion_handle.move(x, y)
+                self.motion_handle.start_move((x, y))
+            self.motion_handle.move((x, y))
 
             return True
 

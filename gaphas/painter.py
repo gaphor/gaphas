@@ -343,7 +343,7 @@ class ToolPainter(Painter):
         if view.tool:
             cairo.save()
             cairo.identity_matrix()
-            view.tool.draw(Context(view=view, cairo=cairo))
+            view.tool.draw(context)
             cairo.restore()
 
 # Move this to tool.
