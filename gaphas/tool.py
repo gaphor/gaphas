@@ -68,7 +68,6 @@ class Tool(object):
 
     def __init__(self, view=None):
         self.view = view
-        self.last_x, self.last_y = 0, 0
 
     def set_view(self, view):
         self.view = view
@@ -81,7 +80,11 @@ class Tool(object):
         """
         handler = self.EVENT_HANDLERS.get(event.type)
         if handler:
+            #try:
             return getattr(self, handler)(event) and True or False
+            #except TypeError, e:
+            #    print 'Unable to execute', self, handler, event
+            #    raise e
         return False
 
 
@@ -247,11 +250,12 @@ class HoverTool(Tool):
 
     def on_motion_notify(self, event):
         view = self.view
-        item, port = view.get_handle_at_point((event.x, event.y))
+        pos = event.x, event.y
+        item, port = view.get_handle_at_point(pos)
         if item:
             view.hovered_item = item
         else:
-            view.hovered_item = view.get_item_at_point((event.x, event.y))
+            view.hovered_item = view.get_item_at_point(pos)
 
 
 class ItemTool(Tool):
@@ -336,11 +340,6 @@ class ItemTool(Tool):
             for inmotion in self._movable_items:
                 inmotion.move((event.x, event.y))
 
-            # TODO: if isinstance(item, Element):
-            #   schedule item to be handled by some "guides" tool
-            #   that tries to align the handle with some other Element's
-            #   handle.
-
             return True
 
 
@@ -419,8 +418,10 @@ class HandleTool(Tool):
         """
         # queue extra redraw to make sure the item is drawn properly
         grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
-        self.motion_handle.stop_move()
-        self.motion_handle = None
+
+        if self.motion_handle:
+            self.motion_handle.stop_move()
+            self.motion_handle = None
 
         self.ungrab_handle()
 
@@ -439,12 +440,12 @@ class HandleTool(Tool):
             canvas = view.canvas
             item = self.grabbed_item
             handle = self.grabbed_handle
-            x, y = event.x, event.y
+            pos = event.x, event.y
 
             if not self.motion_handle:
                 self.motion_handle = HandleInMotion(item, handle, self.view)
-                self.motion_handle.start_move((x, y))
-            self.motion_handle.move((x, y))
+                self.motion_handle.start_move(pos)
+            self.motion_handle.move(pos)
 
             return True
 

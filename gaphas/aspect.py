@@ -4,7 +4,8 @@ and items.
 """
 
 import sys
-from gaphas.item import Item, Line
+from gaphas.item import Item, Line, Element
+import gtk.gdk
 from gaphas.connector import Handle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 
@@ -154,6 +155,25 @@ class HandleSelection(Aspect):
 
     def unselect(self):
         pass
+
+@aspect(Element)
+class ElementHandleSelection(HandleSelection):
+    CURSORS = (
+            gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
+            gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
+            gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
+            gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER) )
+
+    def select(self):
+        index = self.item.handles().index(self.handle)
+        if index < 4:
+            self.view.window.set_cursor(self.CURSORS[index])
+
+    def unselect(self):
+        from view import DEFAULT_CURSOR
+        cursor = gtk.gdk.Cursor(DEFAULT_CURSOR)
+        self.view.window.set_cursor(cursor)
+
 
 
 @aspect(Item)
@@ -409,7 +429,6 @@ class Segment(Aspect):
         if len(item.ports()) < 2:
             raise ValueError('Cannot merge item with one segment')
         if segment < 0 or segment >= len(item.ports()):
-            print segment, len(item.ports())
             raise ValueError('Incorrect segment')
         if count < 2 or segment + count > len(item.ports()):
             raise ValueError('Incorrect count of segments')
@@ -525,8 +544,6 @@ class SegmentHandleSelection(HandleSelection):
         before = handles[handle_index - 1]
         after = handles[handle_index + 1]
         d, p = distance_line_point(before.pos, after.pos, handle.pos)
-
-        print handle_index, before.pos, after.pos, handle.pos
 
         if d < 2:
             assert len(self.view.canvas.solver._marked_cons) == 0
