@@ -251,7 +251,8 @@ class HoverTool(Tool):
     def on_motion_notify(self, event):
         view = self.view
         pos = event.x, event.y
-        item, port = view.get_handle_at_point(pos)
+        ## TODO: to aspect
+        item, handle = view.get_handle_at_point(pos)
         if item:
             view.hovered_item = item
         else:

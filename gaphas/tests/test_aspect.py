@@ -90,8 +90,8 @@ class AspectTestCase(unittest.TestCase):
         self.canvas.add(item)
         inmotion = InMotion(item, view)
         self.assertEquals((1, 0, 0, 1, 0, 0), tuple(item.matrix))
-        inmotion.start_move(x=0, y=0)
-        inmotion.move(x=12, y=26)
+        inmotion.start_move((0, 0))
+        inmotion.move((12, 26))
         self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
 
     def test_segment_fails_for_item(self):
@@ -560,7 +560,7 @@ class SegmentHandlesTest(unittest.TestCase):
 
 
     def testHandleFinder(self):
-        assert 2 == len(HandleFinder._aspect_register), HandleFinder._aspect_register
+        assert 3 == len(HandleFinder._aspect_register), HandleFinder._aspect_register
         finder = HandleFinder(self.line, self.view)
         assert type(finder) is SegmentHandleFinder, type(finder)
 

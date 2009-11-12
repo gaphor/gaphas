@@ -258,13 +258,13 @@ class Connector(Aspect):
 
     def connect(self, sink):
         # low-level connection
-        self.connect_handle(self.item, self.handle, sink.item, sink.port)
+        self.connect_handle(sink)
 
         # connection in higher level of application stack
         #self.post_connect(line, handle, item, port)
-        pass
 
-    def connect_handle(self, line, handle, item, port, callback=None):
+
+    def connect_handle(self, sink, callback=None):
         """
         Create constraint between handle of a line and port of connectable
         item.
@@ -281,17 +281,18 @@ class Connector(Aspect):
          callback
             Function to be called on disconnection.
         """
-        canvas = line.canvas
+        canvas = self.view.canvas
         solver = canvas.solver
+        handle = self.handle
+        item = self.item
 
         if canvas.get_connection(handle):
-            canvas.disconnect_item(line, handle)
+            canvas.disconnect_item(item, handle)
 
-        constraint = port.constraint(canvas, line, handle, item)
+        constraint = sink.port.constraint(canvas, item, handle, sink.item)
 
-        canvas.connect_item(line, handle, item, port,
-            constraint,
-            callback=callback)
+        canvas.connect_item(item, handle, sink.item, sink.port,
+            constraint, callback=callback)
 
 
     def remove_constraints(self):
