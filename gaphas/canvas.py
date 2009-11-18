@@ -495,8 +495,6 @@ class Canvas(object):
         return self._tree.sort(items, index_key='_canvas_index', reverse=reverse)
 
 
-    #{ Matrices
-
     def get_matrix_i2c(self, item, calculate=False):
         """
         Get the Item to Canvas matrix for ``item``.
@@ -532,7 +530,6 @@ class Canvas(object):
             # Fall back to old behaviour
             return i2c * c2i
         
-    #{ Update cycle
 
     @observed
     def request_update(self, item, update=True, matrix=True):
@@ -809,8 +806,6 @@ class Canvas(object):
         """
         self._tree.index_nodes('_canvas_index')
 
-
-    #{ Views
 
     def register_view(self, view):
         """
