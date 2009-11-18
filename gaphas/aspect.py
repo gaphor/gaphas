@@ -281,7 +281,7 @@ class Connector(Aspect):
          callback
             Function to be called on disconnection.
         """
-        canvas = self.view.canvas
+        canvas = self.item.canvas
         solver = canvas.solver
         handle = self.handle
         item = self.item
