@@ -48,11 +48,38 @@ from gaphas.aspect import Selection, InMotion, \
         Segment
 
 
-DEBUG_TOOL = False
 DEBUG_TOOL_CHAIN = False
+
+Event = Context
 
 
 class Tool(object):
+    """
+    Base class for a tool. This class 
+    A word on click events:
+
+    Mouse (pointer) button click. A button press is normally followed by
+    a button release. Double and triple clicks should work together with
+    the button methods.
+
+    A single click is emited as:
+            on_button_press
+            on_button_release
+
+    In case of a double click:
+            on_button_press (x 2)
+            on_double_click
+            on_button_release
+
+    In case of a tripple click:
+            on_button_press (x 3)
+            on_triple_click
+            on_button_release
+    """
+
+    # Custom events:
+    GRAB = -100
+    UNGRAB = -101
 
     # Map GDK events to tool methods
     EVENT_HANDLERS = {
@@ -63,8 +90,14 @@ class Tool(object):
         gtk.gdk.MOTION_NOTIFY: 'on_motion_notify',
         gtk.gdk.KEY_PRESS: 'on_key_press',
         gtk.gdk.KEY_RELEASE: 'on_key_release',
-        gtk.gdk.SCROLL: 'on_scroll'
+        gtk.gdk.SCROLL: 'on_scroll',
+        # Custom events:
+        GRAB: 'on_grab',
+        UNGRAB: 'on_ungrab',
     }
+
+    # Those events force the tool to release the grabbed tool.
+    FORCE_UNGRAB_EVENTS = (gtk.gdk._2BUTTON_PRESS, gtk.gdk._3BUTTON_PRESS)
 
     def __init__(self, view=None):
         self.view = view
@@ -79,87 +112,20 @@ class Tool(object):
         for the event type.
         """
         handler = self.EVENT_HANDLERS.get(event.type)
+        #print event.type, handler
         if handler:
-            #try:
-            return getattr(self, handler)(event) and True or False
-            #except TypeError, e:
-            #    print 'Unable to execute', self, handler, event
-            #    raise e
+            try:
+                h = getattr(self, handler)
+            except AttributeError:
+                pass # No handler
+            else:
+                return h(event) and True or False
         return False
 
 
     def handle(self, event):
         return self._dispatch(event)
 
-
-    def on_button_press(self, event):
-        """
-        Mouse (pointer) button click. A button press is normally followed by
-        a button release. Double and triple clicks should work together with
-        the button methods.
-
-        A single click is emited as:
-                on_button_press
-                on_button_release
-
-        In case of a double click:
-                single click +
-                on_button_press
-                on_double_click
-                on_button_release
-
-        In case of a tripple click:
-                double click +
-                on_button_press
-                on_triple_click
-                on_button_release
-        """
-        if DEBUG_TOOL: print 'on_button_press', event
-
-    def on_button_release(self, event):
-        """
-        Button release event, that follows on a button press event.
-        Not that double and tripple clicks'...
-        """
-        if DEBUG_TOOL: print 'on_button_release', event
-
-    def on_double_click(self, event):
-        """
-        Event emited when the user does a double click (click-click)
-        on the View.
-        """
-        if DEBUG_TOOL: print 'on_double_click', event
-
-    def on_triple_click(self, event):
-        """
-        Event emited when the user does a triple click (click-click-click)
-        on the View.
-        """
-        if DEBUG_TOOL: print 'on_triple_click', event
-
-    def on_motion_notify(self, event):
-        """
-        Mouse (pointer) is moved.
-        """
-        if DEBUG_TOOL: print 'on_motion_notify', event
-
-    def on_key_press(self, event):
-        """
-        Keyboard key is pressed.
-        """
-        if DEBUG_TOOL: print 'on_key_press', event
-
-    def on_key_release(self, event):
-        """
-        Keyboard key is released again (follows a key press normally).
-        """
-        if DEBUG_TOOL: print 'on_key_release', event
-
-    def on_scroll(self, event):
-        """
-        Scroll wheel was turned.
-        """
-        if DEBUG_TOOL: print 'on_scroll', event, event.direction
 
     def draw(self, context):
         """
@@ -205,12 +171,26 @@ class ToolChain(Tool):
     def grab(self, tool):
         if not self._grabbed_tool:
             if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
+            # Send grab event
+            event = Event(type=Tool.GRAB)
+            tool.handle(event)
             self._grabbed_tool = tool
 
     def ungrab(self, tool):
         if self._grabbed_tool is tool:
             if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
+            # Send ungrab event
+            event = Event(type=Tool.UNGRAB)
+            tool.handle(event)
             self._grabbed_tool = None
+
+    def validate_grabbed_tool(self, event):
+        """
+        Check if it's valid to have a grabbed tool on an event. If not the
+        grabbed tool will be released.
+        """
+        if event.type in self.FORCE_UNGRAB_EVENTS:
+            self.ungrab(self._grabbed_tool)
 
     def handle(self, event):
         """
@@ -221,6 +201,9 @@ class ToolChain(Tool):
         button release events are also passed to this 
         """
         handler = self.EVENT_HANDLERS.get(event.type)
+        
+        self.validate_grabbed_tool(event)
+
         if self._grabbed_tool and handler:
             try:
                 return self._grabbed_tool.handle(event)
