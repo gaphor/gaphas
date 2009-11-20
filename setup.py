@@ -94,6 +94,7 @@ setup(
 
     install_requires=[
      'decorator >= 3.0.0',
+     'simplegeneric >= 0.6',
 #    'PyGTK >= 2.8.0',
 #    'cairo >= 1.8.2'
     ],

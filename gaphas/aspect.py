@@ -4,69 +4,20 @@ and items.
 """
 
 import sys
-from gaphas.item import Item, Line, Element
 import gtk.gdk
+from simplegeneric import generic
+from gaphas.item import Item, Line, Element
 from gaphas.connector import Handle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 
-class Aspect(object):
-    """
-    Aspects are intermediate objects that act between a Tool and an Item.
 
-    Aspects should define of what they are aspects by using the @aspect
-    decorator.
-    """
-    # _aspect_register = {} # class -> aspect map; defined by @aspect
-
-    @classmethod
-    def _lookup(cls, material):
-        try:
-            regs = cls._aspect_register
-        except AttributeError:
-            raise TypeError("No factory class defined for aspect %s" % cls)
-        for c in material.__mro__:
-            try:
-                return regs[c]
-            except KeyError:
-                pass
-        raise TypeError("class %s can not be instantiated through %s" % (cls, material))
-
-    def __new__(cls, item, *args, **kwargs):
-        aspectcls = cls._lookup(type(item))
-        return super(Aspect, cls).__new__(aspectcls)
+@generic
+def Selection(item, view):
+    raise TypeError
 
 
-def aspect(*materials):
-    """
-    Aspect decorator.
-
-    Define an aspect. Aspects need to be defined to specific objects
-    (first constructor argument). Multiple materials (subject classes)
-    can be defined.
-
-    Given a class:
-
-    >>> class A(object):
-    ...     pass
-
-    An aspect for this class may look like:
-
-    >>> @aspect(A)
-    ... class MyAspect(Aspect):
-    ...     pass
-    """
-    def wrapper(cls):
-        for m in materials:
-            try:
-                cls._aspect_register[m] = cls
-            except AttributeError:
-                cls._aspect_register = { m: cls }
-        return cls
-    return wrapper
-
-
-@aspect(Item)
-class Selection(Aspect):
+@Selection.when_type(Item)
+class ItemSelection(object):
     """
     A role for items. When dealing with selection.
 
@@ -89,8 +40,13 @@ class Selection(Aspect):
         self.view.unselect_item(self.item)
 
 
-@aspect(Item)
-class InMotion(Aspect):
+@generic
+def InMotion(item, view):
+    raise TypeError
+
+
+@InMotion.when_type(Item)
+class ItemInMotion(object):
     """
     Aspect for dealing with motion on an item.
 
@@ -125,8 +81,14 @@ class InMotion(Aspect):
         pass
 
 
-@aspect(type(None), Item)
-class HandleFinder(Aspect):
+@generic
+def HandleFinder(item, view):
+    raise TypeError
+
+
+@HandleFinder.when_object(None)
+@HandleFinder.when_type(Item)
+class ItemHandleFinder(object):
     """
     Deals with the task of finding handles.
     """
@@ -139,8 +101,13 @@ class HandleFinder(Aspect):
         return self.view.get_handle_at_point(pos)
 
 
-@aspect(Item)
-class HandleSelection(Aspect):
+@generic
+def HandleSelection(item, handle, view):
+    raise TypeError
+
+
+@HandleSelection.when_type(Item)
+class ItemHandleSelection(object):
     """
     Deal with selection of the handle.
     """
@@ -156,8 +123,8 @@ class HandleSelection(Aspect):
     def unselect(self):
         pass
 
-@aspect(Element)
-class ElementHandleSelection(HandleSelection):
+@HandleSelection.when_type(Element)
+class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
             gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
@@ -176,8 +143,13 @@ class ElementHandleSelection(HandleSelection):
 
 
 
-@aspect(Item)
-class HandleInMotion(Aspect):
+@generic
+def HandleInMotion(item, handle, view):
+    raise TypeError
+
+
+@HandleInMotion.when_type(Item)
+class ItemHandleInMotion(object):
     """
     Move a handle (role is applied to the handle)
     """
@@ -212,8 +184,13 @@ class HandleInMotion(Aspect):
         pass
 
 
-@aspect(Item)
-class Connector(Aspect):
+@generic
+def Connector(item, handle, view):
+    raise TypeError
+
+
+@Connector.when_type(Item)
+class ItemConnector(object):
 
     GLUE_DISTANCE = 10 # Glue distance in view points
 
@@ -313,8 +290,13 @@ class Connector(Aspect):
         self.item.canvas.disconnect_item(self.item, self.handle)
 
 
-@aspect(Item)
-class ConnectionSink(Aspect):
+@generic
+def ConnectionSink(item, port):
+    raise TypeError
+
+
+@ConnectionSink.when_type(Item)
+class ConnectionSink(object):
     """
     This role should be applied to items that is connected to.
     """
@@ -344,8 +326,13 @@ class ConnectionSink(Aspect):
 ## Fancy features for Lines
 ##
 
-@aspect(Line)
-class Segment(Aspect):
+@generic
+def Segment(item, view):
+    raise TypeError
+
+
+@Segment.when_type(Line)
+class LineSegment(object):
 
     def __init__(self, item, view):
         self.item = item
@@ -493,8 +480,8 @@ class Segment(Aspect):
             canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
 
 
-@aspect(Line)
-class SegmentHandleFinder(HandleFinder):
+@HandleFinder.when_type(Line)
+class SegmentHandleFinder(ItemHandleFinder):
     """
     Find a handle on a line, create a new one if the mouse is located
     between two handles. The position aligns with the points drawn by
@@ -518,8 +505,8 @@ class SegmentHandleFinder(HandleFinder):
         return item, handle
 
 
-@aspect(Line)
-class SegmentHandleSelection(HandleSelection):
+@HandleSelection.when_type(Line)
+class SegmentHandleSelection(ItemHandleSelection):
     """
     In addition to the default behaviour, merge segments if the handle is
     released.

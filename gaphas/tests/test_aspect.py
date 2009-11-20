@@ -19,50 +19,6 @@ class AspectTestCase(unittest.TestCase):
         self.canvas = Canvas()
         self.view = View(self.canvas)
 
-    def test_aspect_decorator(self):
-        class A(object): pass
-        class B(A): pass
-        class C(A): pass
-
-        @aspect(None)
-        class MyAspect(Aspect):
-            def __init__(self, item, arg2, arg3):
-                self.item, self.arg2, self.arg3 = item, arg2, arg3
-        @aspect(A)
-        class A_Aspect(MyAspect):
-            pass
-        @aspect(B)
-        class B_Aspect(MyAspect):
-            pass
-
-        a = A()
-        asp = MyAspect(a, 1, 2)
-        assert type(asp) is A_Aspect, asp
-        assert asp.item is a
-        assert asp.arg2 == 1
-        assert asp.arg3 == 2
-
-        b =B()
-        asp = MyAspect(b, 1, 2)    # doctest: +ELLIPSIS
-        assert type(asp) is B_Aspect, asp
-        assert asp.item is b
-        assert asp.arg2 == 1
-        assert asp.arg3 == 2
-
-        @aspect(B)
-        class CustomAspect(Aspect):
-            def __init__(self, item):
-                self.item = item
-    
-        b = B()
-        asp = CustomAspect(b)      # doctest: +ELLIPSIS
-        assert asp.item is b
-
-        asp = MyAspect(b, 1, 2)    # doctest: +ELLIPSIS
-        assert asp.item is b
-        assert asp.arg2 == 1
-        assert asp.arg3 == 2
-
 
     def test_selection_select(self):
         """
@@ -560,7 +516,6 @@ class SegmentHandlesTest(unittest.TestCase):
 
 
     def testHandleFinder(self):
-        assert 3 == len(HandleFinder._aspect_register), HandleFinder._aspect_register
         finder = HandleFinder(self.line, self.view)
         assert type(finder) is SegmentHandleFinder, type(finder)
 
