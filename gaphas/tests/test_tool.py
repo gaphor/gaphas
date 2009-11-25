@@ -191,18 +191,6 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.assertTrue(cinfo2 is None, cinfo2)
 
 
-    def test_disconnect(self):
-        """Test disconnection from an item"""
-        line, head = self._get_line()
-        self.tool.connect(line, head, (120, 50))
-
-        assert line.canvas.get_connection(head) is not None
-
-
-        self.tool.disconnect(line, head)
-        self.assertTrue(self.canvas.get_connection(head) is None)
-
-
     def test_reconnect_another(self):
         """Test reconnection to another item"""
         line, head = self._get_line()

@@ -162,6 +162,11 @@ class ItemHandleInMotion(object):
 
     def start_move(self, pos):
         self.last_x, self.last_y = pos
+        canvas = self.item.canvas
+
+        cinfo = canvas.get_connection(self.handle)
+        if cinfo:
+            canvas.solver.remove_constraint(cinfo.constraint)
 
     def move(self, pos):
         item = self.item
@@ -271,6 +276,13 @@ class ItemConnector(object):
         canvas.connect_item(item, handle, sink.item, sink.port,
             constraint, callback=callback)
 
+    def reconnect(self, sink):
+        """
+        Reconnect an item (it has already an existing connection).
+        """
+        self.disconnect()
+        self.connect(sink)
+
 
     def remove_constraints(self):
         """
@@ -278,9 +290,9 @@ class ItemConnector(object):
         freely."
         """
         canvas = self.item.canvas
-        data = canvas.get_connection(self.handle)
-        if data:
-            canvas.solver.remove_constraint(data.constraint)
+        cinfo = canvas.get_connection(self.handle)
+        if cinfo:
+            canvas.solver.remove_constraint(cinfo.constraint)
 
 
     def disconnect(self):

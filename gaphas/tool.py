@@ -752,52 +752,6 @@ class ConnectHandleTool(HandleTool):
         return connector.glue(vpos)
 
 
-    def can_glue(self, item, handle, connected, port):
-        """
-        Determine if line's handle can connect to a port of an item.
-
-        `True` is returned by default. Override this method to disallow
-        glueing in higher level of application stack (i.e. when classes of
-        line and item does not match).
-
-        :Parameters:
-         view
-            View used by user.
-         item
-            Item connecting to connectable item.
-         handle
-            Handle of line connecting to connectable item.
-         connected
-            Connectable item.
-         port
-            Port of connectable item.
-        """
-        connector = Connector(item, handle, self.view)
-        sink = ConnectionSink(connected, port)
-        return connector.allow(sink)
-
-
-    def move_connection(self, item, handle, connected, port):
-        """
-        This methods is invoked just before disconnection from an item,
-        when there is connection to new item to be established.
-
-        It can be overriden by deriving tools to perform connection
-        movement in higher level of an application stack.
-
-        :Parameters:
-         item
-            Item connecting to new connected item.
-         handle
-            Handle of item connecting to new connected item.
-         item
-            New connected item.
-         port
-            Port of new connected item.
-        """
-        pass
-
-
     def connect(self, item, handle, vpos):
         """
         Connect a handle of a item to connectable item.
@@ -805,68 +759,46 @@ class ConnectHandleTool(HandleTool):
         Connectable item is found by `ConnectHandleTool.glue` method.
 
         :Parameters:
-         view
-            View used by user.
          item
             Connecting item.
          handle
             Handle of connecting item.
+         vpos
+            Position to connect to (or near at least)
         """
+        connector = Connector(item, handle, self.view)
+
         # find connectable item and its port
-        sink = self.glue(item, handle, vpos)
+        sink = connector.glue(vpos)
 
         # no new connectable item, then diconnect and exit
         if not sink:
-            self.disconnect(item, handle)
+            connector.disconnect()
             return
 
-        # disconnect when
-        # - no connectable item
-        # - currently connected item is not connectable item
         info = item.canvas.get_connection(handle)
 
-        # moving connection to other item
-        if info and info.connected is not sink.item:
-            self.move_connection(item, handle, sink.item, sink.port)
-            self.disconnect(item, handle)
-
-        connector = Connector(item, handle, self.view)
-        connector.connect(sink)
+        if info:
+            # moving connection to other item or different place on same item
+            connector.reconnect(sink)
+        else:
+            connector.connect(sink)
 
 
-    def disconnect(self, item, handle):
-        """
-        Disconnect line (connecting item) from an item.
-
-        :Parameters:
-         item
-            Connecting item.
-         handle
-            Handle of connecting item.
-        """
-        connector = Connector(item, handle, self.view)
-        connector.disconnect()
+#    def remove_constraint(self, item, handle):
+#        """
+#        Remove constraint on the handle, so it can be freely moved.
+#        """
+#        connector = Connector(item, handle, self.view)
+#        connector.remove_constraint()
 
 
-    def remove_constraint(self, item, handle):
-        """
-        Remove connection constraint created between line's handle and
-        connected item's port.
+#    def on_button_press(self, event):
+#        res = super(ConnectHandleTool, self).on_button_press(event)
+#        if self.grabbed_handle and self.grabbed_handle.connectable:
+#            self.remove_constraint(self.grabbed_item, self.grabbed_handle)
+#        return res
 
-        :Parameters:
-         item
-            Item connecting to an item.
-         handle
-            Handle of a line connecting to an item.
-        """
-        connector = Connector(item, handle, self.view)
-        connector.remove_constraints()
-
-    def on_button_press(self, event):
-        res = super(ConnectHandleTool, self).on_button_press(event)
-        if self.grabbed_handle and self.grabbed_handle.connectable:
-            self.remove_constraint(self.grabbed_item, self.grabbed_handle)
-        return res
 
     def on_button_release(self, event):
         view = self.view
