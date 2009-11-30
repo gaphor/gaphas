@@ -771,33 +771,14 @@ class ConnectHandleTool(HandleTool):
         # find connectable item and its port
         sink = connector.glue(vpos)
 
-        # no new connectable item, then diconnect and exit
-        if not sink:
-            connector.disconnect()
-            return
-
         info = item.canvas.get_connection(handle)
 
-        if info:
-            # moving connection to other item or different place on same item
-            connector.reconnect(sink)
-        else:
+        # no new connectable item, then diconnect and exit
+        if info and not sink:
+            connector.disconnect()
+        elif sink:
+            # connect() also takes care of reconnecting
             connector.connect(sink)
-
-
-#    def remove_constraint(self, item, handle):
-#        """
-#        Remove constraint on the handle, so it can be freely moved.
-#        """
-#        connector = Connector(item, handle, self.view)
-#        connector.remove_constraint()
-
-
-#    def on_button_press(self, event):
-#        res = super(ConnectHandleTool, self).on_button_press(event)
-#        if self.grabbed_handle and self.grabbed_handle.connectable:
-#            self.remove_constraint(self.grabbed_item, self.grabbed_handle)
-#        return res
 
 
     def on_button_release(self, event):

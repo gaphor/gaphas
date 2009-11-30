@@ -204,15 +204,12 @@ class ItemConnector(object):
         self.handle = handle
         self.view = view
 
-    def allow(self, sink):
-        """
-        Return True if a connection is allowed. False otherwise.
-        """
-        return True
 
     def glue(self, pos, distance=GLUE_DISTANCE):
         """
-        Glue to an item near a specific point. Returns a ConnectionSink or None
+        Glue to an item near a specific point.
+
+        Returns a ConnectionSink or None.
         """
         item = self.item
         handle = self.handle
@@ -238,12 +235,15 @@ class ItemConnector(object):
                 return sink
         return None
 
-    def connect(self, sink):
-        # low-level connection
-        self.connect_handle(sink)
 
-        # connection in higher level of application stack
-        #self.post_connect(line, handle, item, port)
+    def connect(self, sink):
+        """
+        Connect the handle to a sink (item, port).
+
+        Note that connect() also takes care of disconnecting in case a handle
+        is reattached to another element.
+        """
+        self.connect_handle(sink)
 
 
     def connect_handle(self, sink, callback=None):
@@ -276,28 +276,10 @@ class ItemConnector(object):
         canvas.connect_item(item, handle, sink.item, sink.port,
             constraint, callback=callback)
 
-    def reconnect(self, sink):
-        """
-        Reconnect an item (it has already an existing connection).
-        """
-        self.disconnect()
-        self.connect(sink)
-
-
-    def remove_constraints(self):
-        """
-        Disable the constraints for a handle. The handle can then move
-        freely."
-        """
-        canvas = self.item.canvas
-        cinfo = canvas.get_connection(self.handle)
-        if cinfo:
-            canvas.solver.remove_constraint(cinfo.constraint)
-
 
     def disconnect(self):
         """
-        Disconnect the handle from.
+        Disconnect the handle from the attached element.
         """
         self.item.canvas.disconnect_item(self.item, self.handle)
 
