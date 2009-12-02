@@ -154,6 +154,8 @@ class ItemHandleInMotion(object):
     Move a handle (role is applied to the handle)
     """
 
+    GLUE_DISTANCE = 10
+
     def __init__(self, item, handle, view):
         self.item = item
         self.handle = handle
@@ -179,7 +181,7 @@ class ItemHandleInMotion(object):
 
         self.handle.pos = (x, y)
 
-        # TODO: GLUE
+        sink = self.glue(pos)
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
@@ -187,23 +189,6 @@ class ItemHandleInMotion(object):
 
     def stop_move(self):
         pass
-
-
-@generic
-def Connector(item, handle, view):
-    raise TypeError
-
-
-@Connector.when_type(Item)
-class ItemConnector(object):
-
-    GLUE_DISTANCE = 10 # Glue distance in view points
-
-    def __init__(self, item, handle, view):
-        self.item = item
-        self.handle = handle
-        self.view = view
-
 
     def glue(self, pos, distance=GLUE_DISTANCE):
         """
@@ -225,15 +210,34 @@ class ItemConnector(object):
         if port is not None:
             assert connectable is not None
 
+            connector = Connector(self.item, self.handle)
             sink = ConnectionSink(connectable, port)
 
-            if self.allow(sink):
+            if connector.allow(sink):
                 # transform coordinates from view space to the item space and
                 # update position of item's handle
                 v2i = view.get_matrix_v2i(item).transform_point
                 handle.pos = v2i(*glue_pos)
                 return sink
         return None
+
+
+@generic
+def Connector(item, handle):
+    raise TypeError
+
+
+@Connector.when_type(Item)
+class ItemConnector(object):
+
+    GLUE_DISTANCE = 10 # Glue distance in view points
+
+    def __init__(self, item, handle):
+        self.item = item
+        self.handle = handle
+
+    def allow(self, sink):
+        return True
 
 
     def connect(self, sink):
@@ -252,14 +256,8 @@ class ItemConnector(object):
         item.
 
         :Parameters:
-         line
-            Connecting item.
-         handle
-            Handle of connecting item.
-         item
-            Connectable item.
-         port
-            Port of connectable item.
+         sink
+            Connectable item and port.
          callback
             Function to be called on disconnection.
         """

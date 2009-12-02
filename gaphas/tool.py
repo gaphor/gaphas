@@ -723,33 +723,16 @@ class ConnectHandleTool(HandleTool):
     established by creating a constraint between line's handle and item's
     port.
     """
-    # distance between line and item
-    GLUE_DISTANCE = 10
 
     def glue(self, item, handle, vpos):
         """
-        Find an item for connection with a item.
-
-        Method looks for items in glue rectangle (which is defined by
-        ``vpos`` (vx, vy) and glue distance), then finds the closest port.
-
-        Glue position for closest port is calculated as well. Handle of
-        a item is moved to glue point to indicate that connection is about
-        to happen.
-
-        Found item and its connection port are returned. If item is not
-        found nor suitable port, then tuple `(None, None)` is returned.
-
-        :Parameters:
-         item
-            Connecting item.
-         handle
-            Handle of item (connecting item).
-         vpos
-            position in view coordinates
+        Perform a small glue action to ensure the handle is at a proper
+        location for connecting.
         """
-        connector = Connector(item, handle, self.view)
-        return connector.glue(vpos)
+        if self.motion_handle:
+            return self.motion_handle.glue(vpos)
+        else:
+            return HandleInMotion(item, handle, self.view).glue(vpos)
 
 
     def connect(self, item, handle, vpos):
@@ -766,10 +749,10 @@ class ConnectHandleTool(HandleTool):
          vpos
             Position to connect to (or near at least)
         """
-        connector = Connector(item, handle, self.view)
+        connector = Connector(item, handle)
 
         # find connectable item and its port
-        sink = connector.glue(vpos)
+        sink = self.glue(item, handle, vpos)
 
         info = item.canvas.get_connection(handle)
 
@@ -783,22 +766,23 @@ class ConnectHandleTool(HandleTool):
 
     def on_button_release(self, event):
         view = self.view
-        grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
+        item = self.grabbed_item
+        handle = self.grabbed_handle
         try:
-            if grabbed_handle and grabbed_handle.connectable:
-                self.connect(grabbed_item, grabbed_handle, (event.x, event.y))
+            if handle and handle.connectable:
+                self.connect(item, handle, (event.x, event.y))
         finally:
             return super(ConnectHandleTool, self).on_button_release(event)
 
 
-    def on_motion_notify(self, event):
-        super(ConnectHandleTool, self).on_motion_notify(event)
-        handle = self.grabbed_handle
-        if handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
-            if handle.connectable:
-                self.glue(self.grabbed_item, handle, (event.x, event.y))
-
-            return True
+#    def on_motion_notify(self, event):
+#        super(ConnectHandleTool, self).on_motion_notify(event)
+#        handle = self.grabbed_handle
+#        if handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
+#            if handle.connectable:
+#                self.glue(self.grabbed_item, handle, (event.x, event.y))
+#
+#            return True
 
 
 
