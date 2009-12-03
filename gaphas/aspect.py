@@ -239,6 +239,17 @@ class ItemConnector(object):
     def allow(self, sink):
         return True
 
+    def glue(self, sink):
+        """
+        Glue the Connector handle on the sink's port.
+        """
+        handle = self.handle
+        item = self.item
+        matrix = item.canvas.get_matrix_i2i(item, sink.item)
+        pos = matrix.transform_point(*handle.pos)
+        gluepos, dist = sink.port.glue(pos)
+        matrix.invert()
+        handle.pos = matrix.transform_point(*gluepos)
 
     def connect(self, sink):
         """
@@ -247,6 +258,15 @@ class ItemConnector(object):
         Note that connect() also takes care of disconnecting in case a handle
         is reattached to another element.
         """
+        if not self.allow(sink):
+            return
+
+        # Ensure the handle is not connected to some other element
+        if canvas.get_connection(self.handle):
+            self.disconnect()
+
+        self.glue(sink)
+
         self.connect_handle(sink)
 
 
@@ -262,12 +282,8 @@ class ItemConnector(object):
             Function to be called on disconnection.
         """
         canvas = self.item.canvas
-        solver = canvas.solver
         handle = self.handle
         item = self.item
-
-        if canvas.get_connection(handle):
-            canvas.disconnect_item(item, handle)
 
         constraint = sink.port.constraint(canvas, item, handle, sink.item)
 
@@ -461,7 +477,6 @@ class LineSegment(object):
             return
 
         canvas = connected.canvas
-        solver = canvas.solver
         for cinfo in list(canvas.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
