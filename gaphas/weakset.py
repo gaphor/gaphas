@@ -31,6 +31,17 @@ class WeakSet:
         return sum(x() is not None for x in self.data)
 
     def __contains__(self, item):
+	"""
+        >>> class C(object): pass
+        >>> a = C()
+        >>> b = C()
+        >>> ws = WeakSet((a, b))
+        >>> a in ws
+        True
+        >>> a = C()
+        >>> a in ws
+        False
+	"""
         return ref(item) in self.data
 
     def __reduce__(self):
@@ -41,12 +52,34 @@ class WeakSet:
         self.data.add(ref(item, self._remove))
 
     def clear(self):
+        """
+        >>> class C(object): pass
+        >>> s = C(), C()
+        >>> ws = WeakSet(s)
+        >>> list(ws)            # doctest: +ELLIPSIS
+        [<gaphas.weakset.C object at 0x...>, <gaphas.weakset.C object at 0x...>]
+        >>> ws.clear()
+        >>> list(ws)
+        []
+        """
         self.data.clear()
 
     def copy(self):
         return self.__class__(self)
 
     def pop(self):
+        """
+        >>> class C(object): pass
+        >>> a, b = C(), C()
+        >>> ws = WeakSet((a, b))
+        >>> len(ws)
+        2
+        >>> ws.pop()  # doctest: +ELLIPSIS
+        <gaphas.weakset.C object at 0x...>
+        >>> len(ws)
+        1
+        """
+
         while True:
             try:
                 itemref = self.data.pop()
@@ -90,6 +123,7 @@ class WeakSet:
             self.data.clear()
         else:
             self.data.difference_update(ref(item) for item in other)
+
     def __isub__(self, other):
         if self is other:
             self.data.clear()
@@ -122,10 +156,21 @@ class WeakSet:
         return self.data >= set(ref(item) for item in other)
 
     def __eq__(self, other):
+        """
+        >>> class C(object): pass
+        >>> a, b = C(), C()
+        >>> ws1 = WeakSet((a, b))
+        >>> ws2 = WeakSet((a, b))
+        >>> ws1 == ws2
+        True
+        >>> ws1 == WeakSet((a, ))
+        False
+        """
         return self.data == set(ref(item) for item in other)
 
     def symmetric_difference(self, other):
         return self._apply(other, self.data.symmetric_difference)
+
     __xor__ = symmetric_difference
 
     def symmetric_difference_update(self, other):
@@ -133,6 +178,7 @@ class WeakSet:
             self.data.clear()
         else:
             self.data.symmetric_difference_update(ref(item) for item in other)
+
     def __ixor__(self, other):
         if self is other:
             self.data.clear()
@@ -142,7 +188,10 @@ class WeakSet:
 
     def union(self, other):
         return self._apply(other, self.data.union)
+
     __or__ = union
 
     def isdisjoint(self, other):
         return len(self.intersection(other)) == 0
+
+# vim:sw=4:et:ai
