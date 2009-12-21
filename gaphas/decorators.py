@@ -39,12 +39,22 @@ class async(object):
     ...     def a(self):
     ...         print 'idle-a', gobject.main_depth()
     
-    Methods can also set sinle mode to True (the method is only scheduled one).
+    Methods can also set single mode to True (the method is only scheduled one).
 
     >>> class B(object):
     ...     @async(single=True)
     ...     def b(self):
     ...         print 'idle-b', gobject.main_depth()
+
+    Also a timeout property can be provided:
+
+    >>> class C(object):
+    ...     @async(timeout=50)
+    ...     def c1(self):
+    ...         print 'idle-c1', gobject.main_depth()
+    ...     @async(single=True, timeout=60)
+    ...     def c2(self):
+    ...         print 'idle-c2', gobject.main_depth()
 
     This is a helper function used to test classes A and B from within the GTK+
     main loop:
@@ -53,6 +63,11 @@ class async(object):
     ...     print 'before'
     ...     a = A()
     ...     b = B()
+    ...     c = C()
+    ...     c.c1()
+    ...     c.c1()
+    ...     c.c2()
+    ...     c.c2()
     ...     a.a()
     ...     b.b()
     ...     a.a()
@@ -71,17 +86,33 @@ class async(object):
     idle-a 1
     idle-a 1
     idle-b 1
+    idle-c1 1
+    idle-c1 1
+    idle-c2 1
 
     As you can see, although ``b.b()`` has been called three times, it's only
     executed once.
     """
 
-    def __init__(self, single=False, priority=gobject.PRIORITY_DEFAULT):
+    def __init__(self, single=False, timeout=0, priority=gobject.PRIORITY_DEFAULT):
         self.single = single
+        self.timeout = timeout
         self.priority = priority
+
+    def source(self, func):
+        timeout = self.timeout
+        if timeout > 0:
+            s = gobject.Timeout(timeout)
+        else:
+            s = gobject.Idle()
+        s.set_callback(func)
+        s.priority = self.priority
+        return s
 
     def __call__(self, func):
         async_id = '_async_id_%s' % func.__name__
+        source = self.source
+
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
@@ -91,7 +122,7 @@ class async(object):
                 def async_wrapper():
                     if DEBUG_ASYNC: print 'async:', func, args, kwargs
                     func(*args, **kwargs)
-                gobject.idle_add(async_wrapper, priority=self.priority)
+                source(async_wrapper).attach()
             else:
                 # Idle handlers should be registered per instance
                 holder = args[0]
@@ -107,8 +138,7 @@ class async(object):
                             delattr(holder, async_id)
                         return False
 
-                    setattr(holder, async_id,
-                        gobject.idle_add(async_wrapper, priority=self.priority))
+                    setattr(holder, async_id, source(async_wrapper).attach())
         return wrapper
 
 
@@ -178,4 +208,4 @@ class recursive(object):
         return wrapper
 
 
-# vim:sw=4:et
+# vim:sw=4:et:ai
