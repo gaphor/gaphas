@@ -1,3 +1,15 @@
+0.5.0
+-----
+- Split tools in tools and aspects, separating the _what_ from the _how_.
+  For this, a dependency to the simplegeneric module is introduced.
+- Renamed VariablePoint to Position.
+- Handle is no longer inheriting from VariablePoint/Position.
+- Handle connections are no longer registered on the handle, but are
+  maintained in the Canvas instance. This makes for much easier querying
+  (e.g. which elements are attached to some element).
+  Added a Table class to support this functionality.
+- Added a timeout property on the @async decorator. The method is invoked
+  the amunt of milliseconds after the first invocation.
 
 0.4.1
 ------
