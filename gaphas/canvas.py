@@ -364,7 +364,7 @@ class Canvas(object):
     
 
     @observed
-    def reconnect_item(self, item, handle, constraint=None, callback=None):
+    def reconnect_item(self, item, handle, constraint=None):
         """
         Update an existing connection. This is mainly useful to provide a new
         constraint or callback to the connection. ``item`` and ``handle`` are
@@ -421,8 +421,7 @@ class Canvas(object):
             self._solver.add_constraint(constraint)
 
     reversible_method(reconnect_item, reverse=reconnect_item,
-                      bind={'constraint': lambda self, item, handle: self.get_connection(handle).contraint,
-                            'callback': lambda self, item, handle: self.get_connection(handle).callback })
+                      bind={'constraint': lambda self, item, handle: self.get_connection(handle).contraint })
 
 
     def get_connection(self, handle):

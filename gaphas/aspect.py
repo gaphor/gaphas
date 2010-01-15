@@ -484,7 +484,7 @@ class LineSegment(object):
             constraint = port.constraint(canvas, item, handle, connected)
 
             cinfo = canvas.get_connection(handle)
-            canvas.reconnect_item(item, handle, constraint=constraint, callback=cinfo.callback)
+            canvas.reconnect_item(item, handle, constraint=constraint)
 
 
 @HandleFinder.when_type(Line)
