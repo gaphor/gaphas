@@ -54,6 +54,13 @@ Connection = namedtuple('Connection',
         'item handle connected port constraint callback')
 
 
+class ConnectionError(Exception):
+    """
+    Exception raised when there is an error when connecting an items with
+    each other.
+    """
+
+
 class Context(object):
     """
     Context used for updating and drawing items in a drawing canvas.
@@ -291,6 +298,8 @@ class Canvas(object):
         Create a connection between two items. The connection is registered
         and the constraint is added to the constraint solver.
 
+        The pair (item, handle) should be unique and not yet connected.
+
         The callback is invoked when the connection is broken.
 
         :Parameters:
@@ -306,7 +315,13 @@ class Canvas(object):
             Constraint to keep the connection in place.
          callback
             Function to be called on disconnection.
+
+        ConnectionError is raised in case handle is already registered on a
+        connection.
         """
+        if self.get_connection(handle):
+            raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
+
         self._connections.insert(item, handle, connected, port, constraint, callback)
         if constraint:
             self._solver.add_constraint(constraint)

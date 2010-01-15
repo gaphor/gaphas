@@ -1,6 +1,6 @@
 import unittest
 
-from gaphas.canvas import Canvas
+from gaphas.canvas import Canvas, ConnectionError
 from gaphas.examples import Box
 from gaphas.item import Line, Handle
 from gaphas.constraint import BalanceConstraint, EqualsConstraint
@@ -34,29 +34,64 @@ class MatricesTestCase(unittest.TestCase):
 # fixme: what about multiple constraints for a handle?
 #        what about 1d projection?
 
-###class ConstraintProjectionTestCase(unittest.TestCase):
-###    def test_line_projection(self):
-###        """Test projection with line's handle on element's side"""
-###        line = Line()
-###        line.matrix.translate(15, 50)
-###        h1, h2 = line.handles()
-###        h1.x, h1.y = 0, 0
-###        h2.x, h2.y = 20, 20
-###
-###        box = Box()
-###        box.matrix.translate(10, 10)
-###        box.width = 40
-###        box.height = 20
-###        h_nw, h_ne, h_se, h_sw = box.handles()
-###
-###
-###        canvas = Canvas()
-###        canvas.add(line)
-###        canvas.add(box)
-###
-###        # move line's second handle on box side
-###        h2.x, h2.y = 5, -20
-###
+def count(i):
+    return len(list(i))
+
+
+class CanvasTestCase(unittest.TestCase):
+
+    def test_connect_item(self):
+        b1 = Box()
+        b2 = Box()
+        l = Line()
+        c = Canvas()
+        c.add(b1)
+        c.add(b2)
+        c.add(l)
+
+        c.connect_item(l, l.handles()[0], b1, b1.ports()[0])
+        assert count(c.get_connections(handle=l.handles()[0])) == 1
+	
+        # Add the same
+        try:
+            c.connect_item(l, l.handles()[0], b1, b1.ports()[0])
+        except ConnectionError:
+            pass # ok, as expected
+        else:
+            assert False, 'ConnectionError should have been raised'
+        assert count(c.get_connections(handle=l.handles()[0])) == 1
+
+        # Same item, different port
+        #c.connect_item(l, l.handles()[0], b1, b1.ports()[-1])
+        #assert count(c.get_connections(handle=l.handles()[0])) == 1
+
+        # Different item
+        #c.connect_item(l, l.handles()[0], b2, b2.ports()[0])
+        #assert count(c.get_connections(handle=l.handles()[0])) == 1
+
+
+class ConstraintProjectionTestCase(unittest.TestCase):
+    def test_line_projection(self):
+        """Test projection with line's handle on element's side"""
+        line = Line()
+        line.matrix.translate(15, 50)
+        h1, h2 = line.handles()
+        h1.x, h1.y = 0, 0
+        h2.x, h2.y = 20, 20
+
+        box = Box()
+        box.matrix.translate(10, 10)
+        box.width = 40
+        box.height = 20
+        h_nw, h_ne, h_se, h_sw = box.handles()
+
+        canvas = Canvas()
+        canvas.add(line)
+        canvas.add(box)
+
+        # move line's second handle on box side
+        h2.x, h2.y = 5, -20
+
 ###        bc = BalanceConstraint(band=(h_sw.x, h_se.x), v=h2.x, balance=0.25)
 ###        canvas.projector(bc, x={h_sw.x: box, h_se.x: box, h2.x: line})
 ###        canvas._solver.add_constraint(bc)
@@ -189,3 +224,5 @@ class MatricesTestCase(unittest.TestCase):
 ###
 ###        self.assertTrue(eq1 in canvas.canvas_constraints(l1))
 ###        self.assertTrue(eq2 in canvas.canvas_constraints(l1))
+
+# vim:sw=4:et:ai
