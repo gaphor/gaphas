@@ -261,10 +261,6 @@ class ItemConnector(object):
         if not self.allow(sink):
             return
 
-        # Ensure the handle is not connected to some other element
-        if self.item.canvas.get_connection(self.handle):
-            self.disconnect()
-
         self.glue(sink)
 
         self.connect_handle(sink)

@@ -119,7 +119,7 @@ class Tool(object):
             except AttributeError:
                 pass # No handler
             else:
-                return h(event) and True or False
+                return bool(h(event))
         return False
 
 
@@ -757,10 +757,9 @@ class ConnectHandleTool(HandleTool):
         info = item.canvas.get_connection(handle)
 
         # no new connectable item, then diconnect and exit
-        if info and not sink:
+        if info:
             connector.disconnect()
-        elif sink:
-            # connect() also takes care of reconnecting
+        if sink:
             connector.connect(sink)
 
 
