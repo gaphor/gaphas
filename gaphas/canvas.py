@@ -1004,17 +1004,17 @@ class CanvasProjection(object):
         self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
         return self._px, self._py
 
+    pos = property(lambda self: map(VariableProjection,
+                                    self._point, self._get_value(),
+                                    (self._on_change_x, self._on_change_y)))
+
     def __getitem__(self, key):
         # Note: we can not use bound methods as callbacks, since that will
         #       cause pickle to fail.
-        return map(VariableProjection,
-                   self._point, self._get_value(),
-                   (self._on_change_x, self._on_change_y))[key]
+        return self.pos[key]
         
     def __iter__(self):
-        return iter(map(VariableProjection,
-                        self._point, self._get_value(),
-                        (self._on_change_x, self._on_change_y)))
+        return iter(self.pos)
 
 
 # Additional tests in @observed methods
