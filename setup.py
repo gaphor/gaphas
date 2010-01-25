@@ -79,7 +79,7 @@ setup(
     author="Arjan J. Molenaar",
     author_email='arjanmol@users.sourceforge.net',
 
-    url='http://gaphor.devjavu.com/wiki/Subprojects/Gaphas',
+    url='http://gaphor.sourceforge.net',
 
     #download_url='http://cheeseshop.python.org/',
 
