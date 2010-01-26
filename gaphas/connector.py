@@ -17,7 +17,7 @@ def deprecated(e):
 
 class Position(object):
     """
-    A point constructed of two ``Variable``s.
+    A point constructed of two `Variable`'s.
 
     >>> vp = Position((3, 5))
     >>> vp.x, vp.y

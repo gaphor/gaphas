@@ -4,9 +4,23 @@ Various utility functions
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.utils`
+:mod: `gaphor.util`
 ---------------------
 
-.. module:: gaphas.utils
+.. module:: gaphas.util
 
-TODO: describe the rest
+.. autofunction:: text_extents
+
+.. autofunction:: text_center
+
+.. autofunction:: text_align
+
+.. autofunction:: text_multiline
+
+.. autofunction:: text_underline
+
+.. autofunction:: text_set_font
+
+.. autofunction:: path_ellipse
+
+

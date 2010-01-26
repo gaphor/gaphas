@@ -1,0 +1,15 @@
+##############
+Table structure
+##############
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.table`
+---------------------
+
+.. module:: gaphas.table
+
+.. autoclass:: Table
+   :members:
+   :undoc-members:
+

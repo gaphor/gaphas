@@ -13,4 +13,43 @@ This part describes the API of Gaphas.
    :members:
    :undoc-members:
 
-# TODO: describe the rest
+.. autoclass:: ToolChain
+   :members:
+   :undoc-members:
+
+.. autoclass:: ItemTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: HandleTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: ConnectHandleTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: HoverTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: RubberbandTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: PanTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: ZoomTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: PlacementTool
+   :members:
+   :undoc-members:
+
+.. autoclass:: TextEditTool
+   :members:
+   :undoc-members:
+

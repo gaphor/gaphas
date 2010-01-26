@@ -43,6 +43,7 @@ Miscellaneous
 
    api/tree
    api/matrix
+   api/table
    api/quadtree
    api/geometry
    api/decorators

@@ -9,6 +9,10 @@ This part describes the API of Gaphas.
 
 .. module:: gaphas.connector
 
+.. autoclass:: Position
+   :members:
+   :undoc-members:
+
 .. autoclass:: Handle
    :members:
    :undoc-members:
