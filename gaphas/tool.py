@@ -44,8 +44,7 @@ from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
 from gaphas.aspect import Selection, InMotion, \
         HandleFinder, HandleSelection, HandleInMotion, \
-        Connector, ConnectionSink, \
-        Segment
+        Connector
 
 
 DEBUG_TOOL_CHAIN = False

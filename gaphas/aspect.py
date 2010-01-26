@@ -300,7 +300,7 @@ def ConnectionSink(item, port):
 
 
 @ConnectionSink.when_type(Item)
-class ConnectionSink(object):
+class ItemConnectionSink(object):
     """
     This role should be applied to items that is connected to.
     """
