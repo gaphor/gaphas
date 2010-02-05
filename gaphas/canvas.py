@@ -358,8 +358,13 @@ class Canvas(object):
         by items, those references are not cleaned up).
         """
         for hi, h, pi, p, c, cb in self._connections.query(connected=item):
+            if c:
+                self._solver.remove_constraint(c)
             if cb:
                 cb()
+        #disconnect_item = self._disconnect_item
+        #for cinfo in self._connections.query(connected=item):
+        #    disconnect_item(*cinfo)
         self._connections.delete(connected=item)
     
 
@@ -404,8 +409,9 @@ class Canvas(object):
         An exception is raised if no connection exists:
         >>> c.reconnect_item(ii, ii.handles()[0], cons2, lambda: 0) # doctest: +ELLIPSIS
         Traceback (most recent call last):
-          ...
+        ...
         ValueError: No data available for item ...
+
         """
         # checks:
         cinfo = self.get_connection(handle)

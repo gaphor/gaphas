@@ -115,11 +115,52 @@ class ConstraintProjectionTestCase(unittest.TestCase):
 ###        self.assertEquals(-10, h2.y)
 
 
-###class CanvasConstraintTestCase(unittest.TestCase):
+class CanvasConstraintTestCase(unittest.TestCase):
+
+    def test_remove_connected_item(self):
+        """Test adding canvas constraint"""
+        canvas = Canvas()
+
+        from gaphas.aspect import Connector, ConnectionSink
+
+        l1 = Line()
+        canvas.add(l1)
+
+
+        b1 = Box()
+        canvas.add(b1)
+
+        number_cons1 = len(canvas.solver.constraints)
+
+        b2 = Box()
+        canvas.add(b2)
+
+        number_cons2 = len(canvas.solver.constraints)
+
+        conn = Connector(l1, l1.handles()[0])
+        sink = ConnectionSink(b1, b1.ports()[0])
+
+        conn.connect(sink)
+
+        assert canvas.get_connection(l1.handles()[0])
+
+        conn = Connector(l1, l1.handles()[1])
+        sink = ConnectionSink(b2, b2.ports()[0])
+
+        conn.connect(sink)
+
+        assert canvas.get_connection(l1.handles()[1])
+
+
+        self.assertEquals(number_cons2 + 2, len(canvas.solver.constraints))
+
+        canvas.remove(b1)
+
+        self.assertEquals(number_cons1 + 1, len(canvas.solver.constraints))
+        
 ###    def test_adding_constraint(self):
 ###        """Test adding canvas constraint"""
 ###        canvas = Canvas()
-###        cons = canvas._canvas_constraints
 ###
 ###        l1 = Line()
 ###        canvas.add(l1)
