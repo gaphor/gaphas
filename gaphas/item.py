@@ -508,6 +508,7 @@ class Line(Item):
 
         for c in self._orthogonal_constraints:
             self.canvas.solver.remove_constraint(c)
+        del self._orthogonal_constraints[:]
 
         if not orthogonal:
             return
@@ -547,6 +548,8 @@ class Line(Item):
         >>> a.orthogonal
         False
         """
+        if orthogonal and len(self.handles()) < 3:
+            raise ValueError, "Can't set orthogonal line with less than 3 handles"
         self._update_orthogonal_constraints(orthogonal)
 
     orthogonal = reversible_property(lambda s: bool(s._orthogonal_constraints), _set_orthogonal)
