@@ -4,3 +4,5 @@ version = '0.5'
 release = version
 source_suffix = '.txt'
 master_doc = 'contents'
+#html_theme = 'traditional'
+unused_docs = 'constraints.txt index.txt tools.txt comparison.txt'

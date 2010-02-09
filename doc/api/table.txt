@@ -1,6 +1,6 @@
-##############
+###############
 Table structure
-##############
+###############
 
 This part describes the API of Gaphas.
 
