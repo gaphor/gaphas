@@ -629,7 +629,7 @@ class Line(Item):
         self._ports = []
         handles = self._handles
         for h1, h2 in zip(handles[:-1], handles[1:]):
-            self._ports.append(LinePort(h1.pos, h2.pos))
+            self._ports.append(self._create_port(h1.pos, h2.pos))
 
 
     def opposite(self, handle):
