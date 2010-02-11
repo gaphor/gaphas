@@ -233,6 +233,10 @@ Redo should work too:
     >>> canvas.get_all_items()
     [<a>, <b>, <c>, <d>]
 
+
+Undo/redo a connection: see gaphas/tests/test_undo.py
+
+
 connector.py: Handle
 --------------------
 Changing the Handle's position is reversible:
@@ -300,6 +304,13 @@ A line has the following properties: ``line_width``, ``fuzziness``,
 
     >>> from gaphas import Line
     >>> l = Line()
+
+Let's first add a segment to the line, to test orthogonal lines as well.
+
+    >>> from gaphas.aspect import Segment
+    >>> segment = Segment(l, None)
+    >>> _ = segment.split_segment(0)
+
     >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
     (2, 0, False, False)
 
