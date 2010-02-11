@@ -333,10 +333,8 @@ class Canvas(object):
         connection for that handle is disconnected.
         """
         # disconnect on canvas level
-        for r in self._connections.query(item=item, handle=handle):
+        for r in list(self._connections.query(item=item, handle=handle)):
             self._disconnect_item(*r, call_callback=call_callback)
-        # remove connections from cache
-        self._connections.delete(item=item, handle=handle)
 
 
     @observed
@@ -344,6 +342,8 @@ class Canvas(object):
         # Same arguments as connect_item, makes reverser easy
         if constraint:
             self._solver.remove_constraint(constraint)
+        # remove connections from cache
+        self._connections.delete(item, handle, connected, port, constraint, callback)
         if callback and call_callback:
             callback()
 
@@ -357,15 +357,9 @@ class Canvas(object):
         This is some brute force cleanup (e.g. if constraints are referenced
         by items, those references are not cleaned up).
         """
-        for hi, h, pi, p, c, cb in self._connections.query(connected=item):
-            if c:
-                self._solver.remove_constraint(c)
-            if cb:
-                cb()
-        #disconnect_item = self._disconnect_item
-        #for cinfo in self._connections.query(connected=item):
-        #    disconnect_item(*cinfo)
-        self._connections.delete(connected=item)
+        disconnect_item = self._disconnect_item
+        for cinfo in list(self._connections.query(connected=item)):
+            disconnect_item(*cinfo)
     
 
     @observed

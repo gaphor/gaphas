@@ -41,7 +41,7 @@ class UndoTestCase(unittest.TestCase):
         b1 = Box()
 
         b2 = Box()
-        l = Line()
+        line = Line()
 
         canvas = Canvas()
         canvas.add(b1)
@@ -50,40 +50,45 @@ class UndoTestCase(unittest.TestCase):
         canvas.add(b2)
         self.assertEquals(12, len(canvas.solver.constraints))
         
-        canvas.add(l)
+        canvas.add(line)
 
         sink = ConnectionSink(b1, b1.ports()[0])
-        connector = Connector(l, l.handles()[0])
+        connector = Connector(line, line.handles()[0])
         connector.connect(sink)
 
         sink = ConnectionSink(b2, b2.ports()[0])
-        connector = Connector(l, l.handles()[-1])
+        connector = Connector(line, line.handles()[-1])
         connector.connect(sink)
 
         self.assertEquals(14, len(canvas.solver.constraints))
+        self.assertEquals(2, len(list(canvas.get_connections(item=line))))
         
         del undo_list[:]
 
+        # Here disconnect is not invoked!
         canvas.remove(b2)
 
         self.assertEquals(7, len(canvas.solver.constraints))
+        self.assertEquals(1, len(list(canvas.get_connections(item=line))))
 
-        cinfo = canvas.get_connection(l.handles()[0])
+        cinfo = canvas.get_connection(line.handles()[0])
         self.assertEquals(b1, cinfo.connected)
 
-        cinfo = canvas.get_connection(l.handles()[-1])
+        cinfo = canvas.get_connection(line.handles()[-1])
         self.assertEquals(None, cinfo)
 
         undo()
 
         self.assertEquals(14, len(canvas.solver.constraints))
+        self.assertEquals(2, len(list(canvas.get_connections(item=line))))
 
-        cinfo = canvas.get_connection(l.handles()[0])
+        cinfo = canvas.get_connection(line.handles()[0])
         self.assertEquals(b1, cinfo.connected)
 
-        cinfo = canvas.get_connection(l.handles()[-1])
+        cinfo = canvas.get_connection(line.handles()[-1])
         self.assertEquals(b2, cinfo.connected)
 
         
-
+if __name__ == '__main__':
+    unittest.main()
 # vim:sw=4:et:ai
