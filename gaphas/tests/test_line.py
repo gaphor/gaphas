@@ -3,6 +3,7 @@ import unittest
 from gaphas.item import Line
 from gaphas.canvas import Canvas
 from gaphas import state
+from gaphas.aspect import Segment
 
 
 undo_list = []
@@ -57,25 +58,28 @@ class LineTestCase(TestCaseBase):
         assert not line.horizontal
         assert len(canvas.solver._constraints) == 0
 
+        segment = Segment(line, None)
+        segment.split_segment(0)
+
         line.orthogonal = True
 
-        self.assertEquals(1, len(canvas.solver._constraints))
+        self.assertEquals(2, len(canvas.solver._constraints))
         after_ortho = set(canvas.solver._constraints)
 
         del undo_list[:]
         line.horizontal = True
 
-        self.assertEquals(1, len(canvas.solver._constraints))
+        self.assertEquals(2, len(canvas.solver._constraints))
 
         undo()
 
         self.assertFalse(line.horizontal)
-        self.assertEquals(1, len(canvas.solver._constraints))
+        self.assertEquals(2, len(canvas.solver._constraints))
 
         line.horizontal = True
 
         self.assertTrue(line.horizontal)
-        self.assertEquals(1, len(canvas.solver._constraints))
+        self.assertEquals(2, len(canvas.solver._constraints))
 
 
     def test_orthogonal_line_undo(self):
@@ -85,14 +89,17 @@ class LineTestCase(TestCaseBase):
         line = Line()
         canvas.add(line)
 
+        segment = Segment(line, None)
+        segment.split_segment(0)
+
         # start with no orthogonal constraints
         assert len(canvas.solver._constraints) == 0
 
         line.orthogonal = True
 
         # check orthogonal constraints
-        assert len(canvas.solver._constraints) == 1
-        assert len(line.handles()) == 2
+        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEquals(3, len(line.handles()))
 
         undo()
 
