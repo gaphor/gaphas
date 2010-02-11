@@ -269,19 +269,22 @@ class LineSplitTestCase(TestCaseBase):
         # start with no orthogonal constraints
         assert len(self.line._orthogonal_constraints) == 0
 
+        segment = Segment(self.line, None)
+        segment.split_segment(0)
+
         self.line.orthogonal = True
 
         # check orthogonal constraints
-        self.assertEquals(1, len(self.line._orthogonal_constraints))
-        self.assertEquals(2, len(self.line.handles()))
+        self.assertEquals(2, len(self.line._orthogonal_constraints))
+        self.assertEquals(3, len(self.line.handles()))
 
         Segment(self.line, self.view).split_segment(0)
 
         # 3 handles and 2 ports are expected
         # 2 constraints keep the self.line orthogonal
-        self.assertEquals(2, len(self.line._orthogonal_constraints))
-        self.assertEquals(3, len(self.line.handles()))
-        self.assertEquals(2, len(self.line.ports()))
+        self.assertEquals(3, len(self.line._orthogonal_constraints))
+        self.assertEquals(4, len(self.line.handles()))
+        self.assertEquals(3, len(self.line.ports()))
 
 
     def test_params_errors(self):

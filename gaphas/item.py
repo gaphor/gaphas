@@ -571,7 +571,7 @@ class Line(Item):
         False
         """
         self._inner_set_horizontal(horizontal)
-        self._update_orthogonal_constraints(self._orthogonal_constraints)
+        self._update_orthogonal_constraints(self.orthogonal)
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
