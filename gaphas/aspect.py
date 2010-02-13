@@ -1,6 +1,12 @@
 """
 Defines aspects for Items. Aspects form intermediate items between tools
 and items.
+
+Note: This module uses Phillip J. Eby's simplegeneric module. This module
+transforms the generic class (used as fall-back) to a generic function. In
+order to inherit from this class you should inherit from Class.default.
+The simplegeneric module is dispatching opnly based on the first argument.
+For Gaphas that's enough.
 """
 
 import sys
@@ -12,12 +18,7 @@ from gaphas.geometry import distance_point_point_fast, distance_line_point
 
 
 @generic
-def Selection(item, view):
-    raise TypeError
-
-
-@Selection.when_type(Item)
-class ItemSelection(object):
+class Selection(object):
     """
     A role for items. When dealing with selection.
 
@@ -41,12 +42,7 @@ class ItemSelection(object):
 
 
 @generic
-def InMotion(item, view):
-    raise TypeError
-
-
-@InMotion.when_type(Item)
-class ItemInMotion(object):
+class InMotion(object):
     """
     Aspect for dealing with motion on an item.
 
@@ -82,13 +78,7 @@ class ItemInMotion(object):
 
 
 @generic
-def HandleFinder(item, view):
-    raise TypeError
-
-
-@HandleFinder.when_object(None)
-@HandleFinder.when_type(Item)
-class ItemHandleFinder(object):
+class HandleFinder(object):
     """
     Deals with the task of finding handles.
     """
@@ -102,12 +92,7 @@ class ItemHandleFinder(object):
 
 
 @generic
-def HandleSelection(item, handle, view):
-    raise TypeError
-
-
-@HandleSelection.when_type(Item)
-class ItemHandleSelection(object):
+class HandleSelection(object):
     """
     Deal with selection of the handle.
     """
@@ -124,12 +109,17 @@ class ItemHandleSelection(object):
         pass
 
 @HandleSelection.when_type(Element)
-class ElementHandleSelection(ItemHandleSelection):
+class ElementHandleSelection(object):
     CURSORS = (
             gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER) )
+
+    def __init__(self, item, handle, view):
+        self.item = item
+        self.handle = handle
+        self.view = view
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -144,12 +134,7 @@ class ElementHandleSelection(ItemHandleSelection):
 
 
 @generic
-def HandleInMotion(item, handle, view):
-    raise TypeError
-
-
-@HandleInMotion.when_type(Item)
-class ItemHandleInMotion(object):
+class HandleInMotion(object):
     """
     Move a handle (role is applied to the handle)
     """
@@ -223,12 +208,7 @@ class ItemHandleInMotion(object):
 
 
 @generic
-def Connector(item, handle):
-    raise TypeError
-
-
-@Connector.when_type(Item)
-class ItemConnector(object):
+class Connector(object):
 
     GLUE_DISTANCE = 10 # Glue distance in view points
 
@@ -295,12 +275,7 @@ class ItemConnector(object):
 
 
 @generic
-def ConnectionSink(item, port):
-    raise TypeError
-
-
-@ConnectionSink.when_type(Item)
-class ItemConnectionSink(object):
+class ConnectionSink(object):
     """
     This role should be applied to items that is connected to.
     """
@@ -331,8 +306,10 @@ class ItemConnectionSink(object):
 ##
 
 @generic
-def Segment(item, view):
-    raise TypeError
+class Segment(object):
+
+    def __init__(self, item, view):
+        raise TypeError
 
 
 @Segment.when_type(Line)
@@ -484,7 +461,7 @@ class LineSegment(object):
 
 
 @HandleFinder.when_type(Line)
-class SegmentHandleFinder(ItemHandleFinder):
+class SegmentHandleFinder(HandleFinder.default):
     """
     Find a handle on a line, create a new one if the mouse is located
     between two handles. The position aligns with the points drawn by
@@ -509,7 +486,7 @@ class SegmentHandleFinder(ItemHandleFinder):
 
 
 @HandleSelection.when_type(Line)
-class SegmentHandleSelection(ItemHandleSelection):
+class SegmentHandleSelection(HandleSelection.default):
     """
     In addition to the default behaviour, merge segments if the handle is
     released.
