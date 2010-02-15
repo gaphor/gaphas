@@ -62,7 +62,7 @@ class Item(object):
 
     # _set_canvas() is not observed, since this operation is initialized by
     # Canvas.add() and Canvas.remove()
-    #@observed
+    @observed
     def _set_canvas(self, canvas):
         """
         Set the canvas. Should only be called from Canvas.add and

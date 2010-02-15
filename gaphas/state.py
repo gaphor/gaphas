@@ -18,10 +18,8 @@ For this to work the revert_handler has to be added to the observers set::
 
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 import types, inspect
+import threading
 from decorator import decorator
 
 # This string is added to each docstring in order to denote is's observed
@@ -44,6 +42,9 @@ subscribers = set()
 # Subscribe to low-level change events:
 observers = set()
 
+# Perform locking (should be per thread?).
+mutex = threading.Lock()
+
 def observed(func):
     """
     Simple observer, dispatches events to functions registered in the observers
@@ -58,12 +59,14 @@ def observed(func):
     """
     def wrapper(func, *args, **kwargs):
         o = func.__observer__
+        acquired = mutex.acquire(False)
         try:
-            if o.__dispatched__:
+            if acquired and o.__dispatched__:
                 dispatch((o, args, kwargs), queue=observers)
-        except AttributeError:
-            pass
-        return func(*args, **kwargs)
+            return func(*args, **kwargs)
+        finally:
+            if acquired:
+                mutex.release()
     dec = decorator(wrapper)(func)
     
     func.__observer__ = dec
@@ -280,8 +283,8 @@ def revert_handler(event):
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
-    dispatch((reverse, kwargs), queue=subscribers)
 
+    dispatch((reverse, kwargs), queue=subscribers)
 
 def saveapply(func, kw):
     """

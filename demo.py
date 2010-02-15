@@ -182,7 +182,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button):
         if view.focused_item:
             canvas.remove(view.focused_item)
-            print 'items:', canvas.get_all_items()
+            #print 'items:', canvas.get_all_items()
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -209,11 +209,13 @@ def create_window(canvas, title, zoom=1.0):
         global undo_list
         apply_me = list(undo_list)
         del undo_list[:]
+        print 'Actions on the undo stack:', len(apply_me)
         apply_me.reverse()
         saveapply = state.saveapply
         for event in apply_me:
             print 'Undo: invoking', event
             saveapply(*event)
+            print 'New undo stack size:', len(undo_list)
             # Visualize each event:
             #while gtk.events_pending():
             #    gtk.main_iteration()

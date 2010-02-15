@@ -131,7 +131,6 @@ class Canvas(object):
         Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order.
         """
-        self.remove_connections_to_item(item)
         item._set_canvas(None)
         self._tree.remove(item)
         self._update_views(removed_items=(item,))
@@ -154,6 +153,7 @@ class Canvas(object):
         """
         for child in reversed(self.get_children(item)):
             self.remove(child)
+        self.remove_connections_to_item(item)
         self._remove(item)
 
     reversible_pair(add, _remove,
@@ -292,7 +292,6 @@ class Canvas(object):
         return self._tree.get_all_children(item)
 
 
-    @observed
     def connect_item(self, item, handle, connected, port, constraint=None, callback=None):
         """
         Create a connection between two items. The connection is registered
@@ -319,10 +318,8 @@ class Canvas(object):
         ConnectionError is raised in case handle is already registered on a
         connection.
         """
-        if self.get_connection(handle):
-            raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
+        self._connect_item(item, handle, connected, port, constraint, callback)
 
-        self._connections.insert(item, handle, connected, port, constraint, callback)
         if constraint:
             self._solver.add_constraint(constraint)
 
@@ -333,21 +330,29 @@ class Canvas(object):
         connection for that handle is disconnected.
         """
         # disconnect on canvas level
-        for r in list(self._connections.query(item=item, handle=handle)):
-            self._disconnect_item(*r, call_callback=call_callback)
+        for i, h, c, p, constraint, cb in list(self._connections.query(item=item, handle=handle)):
+            # Same arguments as connect_item, makes reverser easy
+            if constraint:
+                self._solver.remove_constraint(constraint)
+            self._disconnect_item(i, h, c, p, constraint, cb, call_callback=call_callback)
+
+
+    @observed
+    def _connect_item(self, item, handle, connected, port, constraint=None, callback=None):
+        if self.get_connection(handle):
+            raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
+
+        self._connections.insert(item, handle, connected, port, constraint, callback)
 
 
     @observed
     def _disconnect_item(self, item, handle, connected, port, constraint, callback, call_callback=True):
-        # Same arguments as connect_item, makes reverser easy
-        if constraint:
-            self._solver.remove_constraint(constraint)
         # remove connections from cache
         self._connections.delete(item, handle, connected, port, constraint, callback)
         if callback and call_callback:
             callback()
 
-    reversible_pair(connect_item, _disconnect_item)
+    reversible_pair(_connect_item, _disconnect_item)
 
 
     def remove_connections_to_item(self, item):

@@ -68,7 +68,7 @@ class UndoTestCase(unittest.TestCase):
         # Here disconnect is not invoked!
         canvas.remove(b2)
 
-        self.assertEquals(7, len(canvas.solver.constraints))
+        self.assertEquals(8, len(canvas.solver.constraints))
         self.assertEquals(1, len(list(canvas.get_connections(item=line))))
 
         cinfo = canvas.get_connection(line.handles()[0])
