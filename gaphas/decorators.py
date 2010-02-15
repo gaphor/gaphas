@@ -5,6 +5,7 @@ Custom decorators.
 __version__ = "$Revision$"
 # $HeadURL$
 
+import threading
 import gobject
 from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
@@ -156,21 +157,16 @@ def nonrecursive(func):
     >>> A().a()
     1
     """
+    m = threading.Lock()
     def wrapper(*args, **kwargs):
         """
         Decorate function with a mutex that prohibits recursice execution.
         """
-        try:
-            if func._executing:
-                return
-        except AttributeError:
-            # _executed not present
-            pass
-        try:
-            func._executing = True
-            return func(*args, **kwargs)
-        finally:
-            del func._executing
+        if m.acquire(False):
+            try:
+                return func(*args, **kwargs)
+            finally:
+                m.release()
     return wrapper
 
 
