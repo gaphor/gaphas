@@ -17,8 +17,7 @@ from gaphas.connector import Handle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 
 
-@generic
-class Selection(object):
+class ItemSelection(object):
     """
     A role for items. When dealing with selection.
 
@@ -41,8 +40,10 @@ class Selection(object):
         self.view.unselect_item(self.item)
 
 
-@generic
-class InMotion(object):
+Selection = generic(ItemSelection)
+
+
+class ItemInMotion(object):
     """
     Aspect for dealing with motion on an item.
 
@@ -77,8 +78,10 @@ class InMotion(object):
         pass
 
 
-@generic
-class HandleFinder(object):
+InMotion = generic(ItemInMotion)
+
+
+class ItemHandleFinder(object):
     """
     Deals with the task of finding handles.
     """
@@ -91,8 +94,10 @@ class HandleFinder(object):
         return self.view.get_handle_at_point(pos)
 
 
-@generic
-class HandleSelection(object):
+HandleFinder = generic(ItemHandleFinder)
+
+
+class ItemHandleSelection(object):
     """
     Deal with selection of the handle.
     """
@@ -108,18 +113,17 @@ class HandleSelection(object):
     def unselect(self):
         pass
 
+
+HandleSelection = generic(ItemHandleSelection)
+
+
 @HandleSelection.when_type(Element)
-class ElementHandleSelection(object):
+class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
             gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
             gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER) )
-
-    def __init__(self, item, handle, view):
-        self.item = item
-        self.handle = handle
-        self.view = view
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -133,8 +137,7 @@ class ElementHandleSelection(object):
 
 
 
-@generic
-class HandleInMotion(object):
+class ItemHandleInMotion(object):
     """
     Move a handle (role is applied to the handle)
     """
@@ -207,8 +210,10 @@ class HandleInMotion(object):
         return None
 
 
-@generic
-class Connector(object):
+HandleInMotion = generic(ItemHandleInMotion)
+
+
+class ItemConnector(object):
 
     GLUE_DISTANCE = 10 # Glue distance in view points
 
@@ -274,8 +279,10 @@ class Connector(object):
         self.item.canvas.disconnect_item(self.item, self.handle)
 
 
-@generic
-class ConnectionSink(object):
+Connector = generic(ItemConnector)
+
+
+class ItemConnectionSink(object):
     """
     This role should be applied to items that is connected to.
     """
@@ -299,6 +306,9 @@ class ConnectionSink(object):
             max_dist = d
 
         return port
+
+
+ConnectionSink = generic(ItemConnectionSink)
 
 
 ##
@@ -461,7 +471,7 @@ class LineSegment(object):
 
 
 @HandleFinder.when_type(Line)
-class SegmentHandleFinder(HandleFinder.default):
+class SegmentHandleFinder(ItemHandleFinder):
     """
     Find a handle on a line, create a new one if the mouse is located
     between two handles. The position aligns with the points drawn by
@@ -486,7 +496,7 @@ class SegmentHandleFinder(HandleFinder.default):
 
 
 @HandleSelection.when_type(Line)
-class SegmentHandleSelection(HandleSelection.default):
+class SegmentHandleSelection(ItemHandleSelection):
     """
     In addition to the default behaviour, merge segments if the handle is
     released.
