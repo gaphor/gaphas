@@ -292,6 +292,7 @@ class Canvas(object):
         return self._tree.get_all_children(item)
 
 
+    @observed
     def connect_item(self, item, handle, connected, port, constraint=None, callback=None):
         """
         Create a connection between two items. The connection is registered
@@ -318,7 +319,10 @@ class Canvas(object):
         ConnectionError is raised in case handle is already registered on a
         connection.
         """
-        self._connect_item(item, handle, connected, port, constraint, callback)
+        if self.get_connection(handle):
+            raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
+
+        self._connections.insert(item, handle, connected, port, constraint, callback)
 
         if constraint:
             self._solver.add_constraint(constraint)
@@ -335,16 +339,6 @@ class Canvas(object):
 
 
     @observed
-    def _connect_item(self, item, handle, connected, port, constraint=None, callback=None):
-        """
-        Internal connect item. Forms a reversible pait with _disconnect_item.
-        """
-        if self.get_connection(handle):
-            raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
-
-        self._connections.insert(item, handle, connected, port, constraint, callback)
-
-
     def _disconnect_item(self, item, handle, connected, port, constraint, callback):
         """
         Perform the real disconnect.
@@ -352,19 +346,12 @@ class Canvas(object):
         # Same arguments as connect_item, makes reverser easy
         if constraint:
             self._solver.remove_constraint(constraint)
-        self._disconnect_item2(item, handle, connected, port, constraint, callback)
 
-
-    @observed
-    def _disconnect_item2(self, item, handle, connected, port, constraint, callback):
-        """
-        Internal disconnect item. Forms a reversible part with _connect_item.
-        """
         self._connections.delete(item, handle, connected, port, constraint, callback)
         if callback:
             callback()
 
-    reversible_pair(_connect_item, _disconnect_item2)
+    reversible_pair(connect_item, _disconnect_item)
 
 
     def remove_connections_to_item(self, item):
