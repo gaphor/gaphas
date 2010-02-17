@@ -324,45 +324,61 @@ class Canvas(object):
             self._solver.add_constraint(constraint)
 
 
-    def disconnect_item(self, item, handle=None, call_callback=True):
+    def disconnect_item(self, item, handle=None):
         """
         Disconnect the connections of an item. If handle is not None, only the
         connection for that handle is disconnected.
         """
         # disconnect on canvas level
-        for i, h, c, p, constraint, cb in list(self._connections.query(item=item, handle=handle)):
-            # Same arguments as connect_item, makes reverser easy
-            if constraint:
-                self._solver.remove_constraint(constraint)
-            self._disconnect_item(i, h, c, p, constraint, cb, call_callback=call_callback)
+        for cinfo in list(self._connections.query(item=item, handle=handle)):
+            self._disconnect_item(*cinfo)
 
 
     @observed
     def _connect_item(self, item, handle, connected, port, constraint=None, callback=None):
+        """
+        Internal connect item. Forms a reversible pait with _disconnect_item.
+        """
         if self.get_connection(handle):
             raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
 
         self._connections.insert(item, handle, connected, port, constraint, callback)
 
 
+    def _disconnect_item(self, item, handle, connected, port, constraint, callback):
+        """
+        Perform the real disconnect.
+        """
+        # Same arguments as connect_item, makes reverser easy
+        if constraint:
+            self._solver.remove_constraint(constraint)
+        self._disconnect_item2(item, handle, connected, port, constraint, callback)
+
+
     @observed
-    def _disconnect_item(self, item, handle, connected, port, constraint, callback, call_callback=True):
-        # remove connections from cache
+    def _disconnect_item2(self, item, handle, connected, port, constraint, callback):
+        """
+        Internal disconnect item. Forms a reversible part with _connect_item.
+        """
         self._connections.delete(item, handle, connected, port, constraint, callback)
-        if callback and call_callback:
+        if callback:
             callback()
 
-    reversible_pair(_connect_item, _disconnect_item)
+    reversible_pair(_connect_item, _disconnect_item2)
 
 
     def remove_connections_to_item(self, item):
         """
         Remove all connections (handles connected to and constraints)
-        for a specific item.
+        for a specific item (to and from the item).
         This is some brute force cleanup (e.g. if constraints are referenced
         by items, those references are not cleaned up).
         """
         disconnect_item = self._disconnect_item
+        # remove connections from this item
+        for cinfo in list(self._connections.query(item=item)):
+            disconnect_item(*cinfo)
+        # remove constraints to this item
         for cinfo in list(self._connections.query(connected=item)):
             disconnect_item(*cinfo)
     

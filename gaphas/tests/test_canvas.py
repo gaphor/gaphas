@@ -69,8 +69,98 @@ class CanvasTestCase(unittest.TestCase):
         #c.connect_item(l, l.handles()[0], b2, b2.ports()[0])
         #assert count(c.get_connections(handle=l.handles()[0])) == 1
 
+    def test_disconnect_item_with_callback(self):
+        b1 = Box()
+        b2 = Box()
+        l = Line()
+        c = Canvas()
+        c.add(b1)
+        c.add(b2)
+        c.add(l)
+
+        events = []
+        def callback():
+            events.append('called')
+
+        c.connect_item(l, l.handles()[0], b1, b1.ports()[0], callback=callback)
+        assert count(c.get_connections(handle=l.handles()[0])) == 1
+	
+        c.disconnect_item(l, l.handles()[0])
+        assert count(c.get_connections(handle=l.handles()[0])) == 0
+        assert events == ['called']
+
+
+    def test_disconnect_item_with_constraint(self):
+        b1 = Box()
+        b2 = Box()
+        l = Line()
+        c = Canvas()
+        c.add(b1)
+        c.add(b2)
+        c.add(l)
+
+        cons = b1.ports()[0].constraint(c, l, l.handles()[0], b1)
+
+        c.connect_item(l, l.handles()[0], b1, b1.ports()[0], constraint=cons)
+        assert count(c.get_connections(handle=l.handles()[0])) == 1
+	
+        ncons = len(c.solver.constraints)
+        assert ncons == 13
+
+        c.disconnect_item(l, l.handles()[0])
+        assert count(c.get_connections(handle=l.handles()[0])) == 0
+
+        assert len(c.solver.constraints) == 12
+
+
+    def test_disconnect_item_by_deleting_element(self):
+        b1 = Box()
+        b2 = Box()
+        l = Line()
+        c = Canvas()
+        c.add(b1)
+        c.add(b2)
+        c.add(l)
+
+        events = []
+        def callback():
+            events.append('called')
+
+        c.connect_item(l, l.handles()[0], b1, b1.ports()[0], callback=callback)
+        assert count(c.get_connections(handle=l.handles()[0])) == 1
+	
+        c.remove(b1)
+
+        assert count(c.get_connections(handle=l.handles()[0])) == 0
+        assert events == ['called']
+
+
+    def test_disconnect_item_with_constraint_by_deleting_element(self):
+        b1 = Box()
+        b2 = Box()
+        l = Line()
+        c = Canvas()
+        c.add(b1)
+        c.add(b2)
+        c.add(l)
+
+        cons = b1.ports()[0].constraint(c, l, l.handles()[0], b1)
+
+        c.connect_item(l, l.handles()[0], b1, b1.ports()[0], constraint=cons)
+        assert count(c.get_connections(handle=l.handles()[0])) == 1
+	
+        ncons = len(c.solver.constraints)
+        assert ncons == 13
+
+        c.remove(b1)
+
+        assert count(c.get_connections(handle=l.handles()[0])) == 0
+
+        self.assertEquals(6, len(c.solver.constraints))
+
 
 class ConstraintProjectionTestCase(unittest.TestCase):
+
     def test_line_projection(self):
         """Test projection with line's handle on element's side"""
         line = Line()
@@ -156,6 +246,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 
         canvas.remove(b1)
 
+        # Expecting a class + line connected at one end only
         self.assertEquals(number_cons1 + 1, len(canvas.solver.constraints))
         
 ###    def test_adding_constraint(self):
