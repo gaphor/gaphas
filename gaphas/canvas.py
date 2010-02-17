@@ -347,9 +347,10 @@ class Canvas(object):
         if constraint:
             self._solver.remove_constraint(constraint)
 
-        self._connections.delete(item, handle, connected, port, constraint, callback)
         if callback:
             callback()
+
+        self._connections.delete(item, handle, connected, port, constraint, callback)
 
     reversible_pair(connect_item, _disconnect_item)
 
