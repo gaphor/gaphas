@@ -27,10 +27,6 @@ Let's start with creating a Canvas instance and some items:
     >>> canvas = Canvas()
     >>> item1, item2 = Item(), Item()
 
-For the sake of this test we disable the update code:
-
-    >>> state.disable_dispatching(Canvas.request_update)
-
 For this demonstration let's use the Canvas class (which contains an add/remove
 method pair).
 
@@ -196,9 +192,4 @@ matrix.py:
   ``Matrix``: ``invert()``, ``translate()``, ``rotate()`` and ``scale()``
 
 Test cases are described in undo.txt.
-
-Oh, we should enable dispatching for ``Canvas.request_update``, otherwise we
-may frustrate other tests.
-
-    >>> state.enable_dispatching(Canvas.request_update)
 

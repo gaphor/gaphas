@@ -61,7 +61,7 @@ def observed(func):
         o = func.__observer__
         acquired = mutex.acquire(False)
         try:
-            if acquired and o.__dispatched__:
+            if acquired:
                 dispatch((o, args, kwargs), queue=observers)
             return func(*args, **kwargs)
         finally:
@@ -70,56 +70,7 @@ def observed(func):
     dec = decorator(wrapper)(func)
     
     func.__observer__ = dec
-    if DISPATCH_BY_DEFAULT:
-        dec.__dispatched__ = True
     return dec
-
-
-def enable_dispatching(func, enable=True):
-    """
-    Enable/disable dispatching for a specific function.
-
-    >>> @observed
-    ... def callme():
-    ...     pass
-    >>> def handler(event):
-    ...   print 'event'
-    >>> observers.add(handler)
-
-    By default dispatching is enabled (set DISPATCH_BY_DEFAULT=False to
-    disable this behavior).
-
-    >>> callme()
-    event
-    >>> enable_dispatching(callme, False)
-    >>> callme()
-
-    Calling multiple times has no effect.
-
-    >>> enable_dispatching(callme, False)
-    >>> callme()
-
-    ... and enable it again:
-
-    >>> enable_dispatching(callme)
-    >>> callme()
-    event
-    >>> observers.remove(handler)
-    """
-    func = getfunction(func)
-    if enable:
-        func.__dispatched__ = True
-    else:
-        try:
-            del func.__dispatched__
-        except AttributeError:
-            pass
-
-def disable_dispatching(func, disable=True):
-    """
-    Inverse operation of enable_dispatching()
-    """
-    enable_dispatching(func, not disable)
 
 
 def dispatch(event, queue):

@@ -60,8 +60,6 @@ class Item(object):
         self._matrix_v2i = WeakKeyDictionary()
 	self._canvas_projections = WeakSet()
 
-    # _set_canvas() is not observed, since this operation is initialized by
-    # Canvas.add() and Canvas.remove()
     @observed
     def _set_canvas(self, canvas):
         """
@@ -75,7 +73,7 @@ class Item(object):
         if canvas:
             self.setup_canvas()
 
-    canvas = reversible_property(lambda s: s._canvas,
+    canvas = reversible_property(lambda s: s._canvas, _set_canvas,
                 doc="Canvas owning this item")
 
     constraints = property(lambda s: s._constraints,

@@ -121,10 +121,10 @@ canvas.py: Canvas
 The ``request_update()`` method is observed:
 
     >>> len(undo_list)
-    2
+    1
     >>> canvas.request_update(item)
     >>> len(undo_list)
-    3
+    2
 
 On the canvas only ``add()`` and ``remove()`` are monitored:
 
@@ -366,6 +366,10 @@ Also creation and removal of connected lines is recorded and can be undone:
     >>> canvas.add(l)
     >>> real_connect(l, l.handles()[0], b0)
     >>> real_connect(l, l.handles()[1], b1)
+    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    Connection(item=<gaphas.item.Line object at 0x...>)
+    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    Connection(item=<gaphas.item.Line object at 0x...>)
 
 Clear already collected undo data:
 

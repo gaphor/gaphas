@@ -426,7 +426,7 @@ class Canvas(object):
             self._solver.add_constraint(constraint)
 
     reversible_method(reconnect_item, reverse=reconnect_item,
-                      bind={'constraint': lambda self, item, handle: self.get_connection(handle).contraint })
+                      bind={'constraint': lambda self, item, handle: self.get_connection(handle).constraint })
 
 
     def get_connection(self, handle):
