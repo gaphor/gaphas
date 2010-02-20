@@ -790,10 +790,10 @@ class GtkView(gtk.DrawingArea, View):
             # (weak refs), better do it explicitly to be sure.
             self._clear_matrices()
             self.canvas = None
-        self._qtree = None
+        self._qtree.clear()
 
-        self._dirty_items = None
-        self._dirty_matrix_items = None
+        self._dirty_items.clear()
+        self._dirty_matrix_items.clear()
 
         gtk.DrawingArea.do_unrealize(self)
 
