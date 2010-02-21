@@ -53,12 +53,7 @@ class CanvasTestCase(unittest.TestCase):
         assert count(c.get_connections(handle=l.handles()[0])) == 1
 	
         # Add the same
-        try:
-            c.connect_item(l, l.handles()[0], b1, b1.ports()[0])
-        except ConnectionError:
-            pass # ok, as expected
-        else:
-            assert False, 'ConnectionError should have been raised'
+        self.assertRaises(ConnectionError, c.connect_item, l, l.handles()[0], b1, b1.ports()[0])
         assert count(c.get_connections(handle=l.handles()[0])) == 1
 
         # Same item, different port
