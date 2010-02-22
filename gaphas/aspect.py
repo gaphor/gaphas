@@ -243,6 +243,13 @@ class ItemConnector(object):
         Note that connect() also takes care of disconnecting in case a handle
         is reattached to another element.
         """
+
+        cinfo = self.item.canvas.get_connection(self.handle)
+
+        # Already connected? disconnect first.
+        if cinfo:
+            self.disconnect()
+
         if not self.allow(sink):
             return
 

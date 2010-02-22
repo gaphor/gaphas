@@ -31,6 +31,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 from collections import namedtuple
+import logging
 
 from cairo import Matrix
 from gaphas import tree
@@ -618,25 +619,16 @@ class Canvas(object):
 
     def _pre_update_items(self, items, cr):
         context_map = dict()
+        c = Context(cairo=cr)
         for item in items:
-            c = Context(cairo=cr)
-            try:
-                item.pre_update(c)
-            except Exception, e:
-                print 'Error while pre-updating item %s' % item
-                import traceback
-                traceback.print_exc()
+            item.pre_update(c)
 
 
     def _post_update_items(self, items, cr):
+        c = Context(cairo=cr)
         for item in items:
-            c = Context(cairo=cr)
-            try:
-                item.post_update(c)
-            except Exception, e:
-                print 'Error while updating item %s' % item
-                import traceback
-                traceback.print_exc()
+            item.post_update(c)
+
 
     def _extend_dirty_items(self, dirty_items):
         # item's can be marked dirty due to external constraints solving
@@ -708,9 +700,7 @@ class Canvas(object):
             self._post_update_items(dirty_items, cr)
 
         except Exception, e:
-            print 'Error while updating canvas'
-            import traceback
-            traceback.print_exc()
+            logging.error('Error while updating canvas', e)
 
         assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
                 'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
