@@ -1,3 +1,11 @@
+0.6.0
+-----
+- Handlers are no longer called recursively for observed methods/properties.
+- removed enable_dispatching() and disable_dispatching() calls.
+- Made aspect code simpler.
+- Moved disconnect code from tool to aspect, as stated in Aspect's docstring.
+- Fixed issues in connections (mainly undoing them)
+
 0.5.0
 -----
 - Split tools in tools and aspects, separating the _what_ from the _how_.
