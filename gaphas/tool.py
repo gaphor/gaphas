@@ -753,13 +753,13 @@ class ConnectHandleTool(HandleTool):
         # find connectable item and its port
         sink = self.glue(item, handle, vpos)
 
-        #info = item.canvas.get_connection(handle)
-
         # no new connectable item, then diconnect and exit
-        #if info:
-        #    connector.disconnect()
         if sink:
             connector.connect(sink)
+        else:
+            cinfo = item.canvas.get_connection(handle)
+            if cinfo:
+                connector.disconnect()
 
 
     def on_button_release(self, event):
