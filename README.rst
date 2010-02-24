@@ -3,6 +3,13 @@ Gaphor's Canvas
 
 This module contains a new canvas implementation for Gaphor.
 
+Homepage: http://github.com/amolenaar/gaphas
+
+Issue tracker: http://gaphor.lighthouseapp.com
+
+Mailing list: gaphor-dev@googlegroups.com
+
+
 The basic idea is:
 
 - Items (canvas items) can be added to a Canvas.

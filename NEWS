@@ -4,7 +4,8 @@
 - removed enable_dispatching() and disable_dispatching() calls.
 - Made aspect code simpler.
 - Moved disconnect code from tool to aspect, as stated in Aspect's docstring.
-- Fixed issues in connections (mainly undoing them)
+- Fixed issues in connections.
+- Lot's of fixes and testing has been done on the undo mechanism.
 
 0.5.0
 -----
