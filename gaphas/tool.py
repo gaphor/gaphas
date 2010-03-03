@@ -42,7 +42,7 @@ from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
-from gaphas.aspect import Selection, InMotion, \
+from gaphas.aspect import Finder, Selection, InMotion, \
         HandleFinder, HandleSelection, HandleInMotion, \
         Connector
 
@@ -234,11 +234,11 @@ class HoverTool(Tool):
         view = self.view
         pos = event.x, event.y
         ## TODO: to aspect
-        item, handle = view.get_handle_at_point(pos)
+        item, handle = HandleFinder(view.hovered_item, view).get_handle_at_point(pos)
         if item:
             view.hovered_item = item
         else:
-            view.hovered_item = view.get_item_at_point(pos)
+            view.hovered_item = Finder(view).get_item_at_point(pos)
 
 
 class ItemTool(Tool):

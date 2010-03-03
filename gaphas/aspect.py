@@ -17,6 +17,21 @@ from gaphas.connector import Handle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 
 
+class ItemFinder(object):
+    """
+    Find an item on the canvas.
+    """
+
+    def __init__(self, view):
+        self.view = view
+
+    def get_item_at_point(self, pos):
+        return self.view.get_item_at_point(pos)
+
+
+Finder = generic(ItemFinder)
+
+
 class ItemSelection(object):
     """
     A role for items. When dealing with selection.
