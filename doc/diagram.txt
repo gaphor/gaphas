@@ -24,4 +24,15 @@ Tool
    Tools are used to handle user events (such as mouse movement and button presses).
 Aspects
    Tools do not modify the items directly. They use aspects (not the AOP kind) as intermediate step. Since aspects are defined as generic functions, the behaviour for each diagram item type can be slightly different.
+
+Tools
+-----
+
+Several tools_ are used to make the overall user experience complete.
+
+.. image:: tools.png
+   :width: 532
+
+
 .. _quadtree: quadtree.html
+.. _tools: tools.html

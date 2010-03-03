@@ -1,5 +1,5 @@
-Tools proposal
-==============
+Interacting with diagrams
+=========================
 
 Tools are used to handle user actions, like moving a mouse pointer over the
 screen and clicking on items in the canvas.
@@ -90,7 +90,16 @@ The advantage is that more complex behaviour can be composed. Since the
 decision on what should happen is done in the tool, the aspect which is then
 used to work on the item ensures a certain behaviour is performed.
 
-TODO: List of aspects, with image?
+.. image:: tools.png
+   :width: 700
+
+The diagram above shows the relation between tools and their aspects. Note that
+tools that delegate their behaviour to aspects have more than one aspects. The
+reason is that there are different concerns involved in defining what the tools
+should do. Typically ``ItemTool`` will be selecting the actual item and takes
+care of moving it around as well. ``HandleTool`` does similar things for
+handles.
+
 
 
 Big changes from Gaphas 0.4 tool include:
