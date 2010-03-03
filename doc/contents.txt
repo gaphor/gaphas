@@ -33,6 +33,7 @@ Table of Contents
    :maxdepth: 2
 
    diagram
+   tools
    ports
    state
    undo
