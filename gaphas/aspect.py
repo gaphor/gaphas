@@ -26,7 +26,8 @@ class ItemFinder(object):
         self.view = view
 
     def get_item_at_point(self, pos):
-        return self.view.get_item_at_point(pos)
+        item, handle = self.view.get_handle_at_point(pos)
+        return item or self.view.get_item_at_point(pos)
 
 
 Finder = generic(ItemFinder)
