@@ -779,11 +779,11 @@ class ConnectHandleTool(HandleTool):
 
 
 
-def DefaultTool():
+def DefaultTool(view=None):
     """
     The default tool chain build from HoverTool, ItemTool and HandleTool.
     """
-    chain = ToolChain(). \
+    return ToolChain(view). \
         append(HoverTool()). \
         append(ConnectHandleTool()). \
         append(PanTool()). \
@@ -791,7 +791,6 @@ def DefaultTool():
         append(ItemTool()). \
         append(TextEditTool()). \
         append(RubberbandTool())
-    return chain
 
 
 # vim: sw=4:et:ai
