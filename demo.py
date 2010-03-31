@@ -31,7 +31,7 @@ from gaphas import Canvas, GtkView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
-from gaphas.aspect import Segment
+from gaphas.segment import Segment
 from gaphas.painter import ItemPainter
 from gaphas import state
 from gaphas.util import text_extents, text_underline

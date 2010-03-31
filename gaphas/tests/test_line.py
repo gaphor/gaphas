@@ -3,7 +3,7 @@ import unittest
 from gaphas.item import Line
 from gaphas.canvas import Canvas
 from gaphas import state
-from gaphas.aspect import Segment
+from gaphas.segment import Segment
 
 
 undo_list = []

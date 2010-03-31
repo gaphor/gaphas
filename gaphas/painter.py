@@ -15,6 +15,8 @@ from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
 from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.item import Line
+from gaphas.aspect import PaintFocused
+
 
 DEBUG_DRAW_BOUNDING_BOX = False
 
@@ -332,14 +334,14 @@ class HandlePainter(Painter):
         cairo = context.cairo
         # Order matters here:
         for item in canvas.sort(view.selected_items):
-            self._draw_handles(item, view, cairo)
+            self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
         item = view.hovered_item
         if item and item not in view.selected_items:
-            self._draw_handles(item, view, cairo, opacity=.25)
+            self._draw_handles(item, cairo, opacity=.25)
         item = view.dropzone_item
         if item and item not in view.selected_items:
-            self._draw_handles(item, view, cairo, opacity=.25, inner=True)
+            self._draw_handles(item, cairo, opacity=.25, inner=True)
 
 
 class ToolPainter(Painter):
@@ -357,41 +359,17 @@ class ToolPainter(Painter):
             view.tool.draw(context)
             cairo.restore()
 
-# Move this to segment module.
-class LineSegmentPainter(Painter):
+class FocusedItemPainter(Painter):
     """
-    This painter draws pseudo-hanldes on gaphas.item.Line objects. Each
-    line can be split by dragging those points, which will result in
-    a new handle.
-
-    ConnectHandleTool take care of performing the user
-    interaction required for this feature.
+    This painter allows for drawing on top off all other layers for the
+    focused item.
     """
 
     def paint(self, context):
         view = self.view
         item = view.hovered_item
-        if item and item is view.focused_item and isinstance(item, Line):
-            cr = context.cairo
-            h = item.handles()
-            for h1, h2 in zip(h[:-1], h[1:]):
-                p1, p2 = h1.pos, h2.pos
-                cx = (p1.x + p2.x) / 2
-                cy = (p1.y + p2.y) / 2
-                cr.save()
-                cr.identity_matrix()
-                m = Matrix(*view.get_matrix_i2v(item))
-
-                cr.set_antialias(ANTIALIAS_NONE)
-                cr.translate(*m.transform_point(cx, cy))
-                cr.rectangle(-3, -3, 6, 6)
-                cr.set_source_rgba(0, 0.5, 0, .4)
-                cr.fill_preserve()
-                cr.set_source_rgba(.25, .25, .25, .6)
-                cr.set_line_width(1)
-                cr.stroke()
-                cr.restore()
-
+        if item and item is view.focused_item:
+            PaintFocused(item, view).paint(context)
 
 
 def DefaultPainter(view=None):
@@ -401,7 +379,7 @@ def DefaultPainter(view=None):
     return PainterChain(view). \
         append(ItemPainter()). \
         append(HandlePainter()). \
-        append(LineSegmentPainter()). \
+        append(FocusedItemPainter()). \
         append(ToolPainter())
 
 

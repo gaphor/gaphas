@@ -13,7 +13,7 @@ from gaphas.constraint import LineConstraint
 from gaphas.canvas import Context
 from gaphas import state
 
-from gaphas.aspect import Segment, Connector, ConnectionSink
+from gaphas.aspect import Connector, ConnectionSink
 
 
 Event = Context
