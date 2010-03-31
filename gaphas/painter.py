@@ -27,6 +27,12 @@ class Painter(object):
     Painter interface.
     """
 
+    def __init__(self, view=None):
+        self.view = view
+
+    def set_view(self, view):
+        self.view = view
+
     def paint(self, context):
         """
         Do the paint action (called from the View).
@@ -40,14 +46,22 @@ class PainterChain(Painter):
     like ToolChain.
     """
 
-    def __init__(self):
+    def __init__(self, view=None):
+        super(PainterChain, self).__init__(view)
         self._painters = []
+
+    def set_view(self, view):
+        self.view = view
+        for painters in self._painters:
+            painter.set_view(self.view)
 
     def append(self, painter):
         """
         Add a painter to the list of painters.
         """
         self._painters.append(painter)
+        painter.set_view(self.view)
+        return self
 
     def prepend(self, painter):
         """
@@ -66,7 +80,7 @@ class PainterChain(Painter):
 class DrawContext(Context):
     """
     Special context for draw()'ing the item. The draw-context contains
-    stuff like the view, the cairo context and properties like selected and
+    stuff like the cairo context and properties like selected and
     focused.
     """
 
@@ -80,14 +94,14 @@ class ItemPainter(Painter):
 
     draw_all = False
 
-    def _draw_item(self, item, view, cairo, area=None):
+    def _draw_item(self, item, cairo, area=None):
+        view = self.view
         cairo.save()
         try:
             cairo.set_matrix(view.matrix)
             cairo.transform(view.canvas.get_matrix_i2c(item))
 
             item.draw(DrawContext(painter=self,
-                                  view=view,
                                   cairo=cairo,
                                   _area=area,
                                   _item=item,
@@ -100,17 +114,18 @@ class ItemPainter(Painter):
         finally:
             cairo.restore()
 
-    def _draw_items(self, items, view, cairo, area=None):
+    def _draw_items(self, items, cairo, area=None):
         """
         Draw the items.
         """
         for item in items:
             #if not area or area - view.get_item_bounding_box(item):
-            self._draw_item(item, view, cairo, area=area)
+            self._draw_item(item, cairo, area=area)
             if DEBUG_DRAW_BOUNDING_BOX:
-                self._draw_bounds(item, view, cairo)
+                self._draw_bounds(item, cairo)
 
-    def _draw_bounds(self, item, view, cairo):
+    def _draw_bounds(self, item, cairo):
+        view = self.view
         try:
             b = view.get_item_bounding_box(item)
         except KeyError:
@@ -126,12 +141,9 @@ class ItemPainter(Painter):
 
     def paint(self, context):
         cairo = context.cairo
-        view = context.view
-        area = context.area
-        items = context.items
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-        self._draw_items(items, view, cairo, area)
+        self._draw_items(context.items, cairo, context.area)
 
 
 class CairoBoundingBoxContext(object):
@@ -237,12 +249,13 @@ class BoundingBoxPainter(ItemPainter):
 
     draw_all = True
 
-    def _draw_item(self, item, view, cairo, area=None):
+    def _draw_item(self, item, cairo, area=None):
         cairo = CairoBoundingBoxContext(cairo)
-        super(BoundingBoxPainter, self)._draw_item(item, view, cairo)
+        super(BoundingBoxPainter, self)._draw_item(item, cairo)
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.
+        view = self.view
         i2v = view.get_matrix_i2v(item).transform_point
         for h in item.handles():
             cx, cy = i2v(*h.pos)
@@ -252,18 +265,15 @@ class BoundingBoxPainter(ItemPainter):
         view.set_item_bounding_box(item, bounds)
 
 
-    def _draw_items(self, items, view, cairo, area=None):
+    def _draw_items(self, items, cairo, area=None):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, view, cairo)
+            self._draw_item(item, cairo)
 
     def paint(self, context):
-        cairo = context.cairo
-        view = context.view
-        items = context.items
-        self._draw_items(items, view, cairo)
+        self._draw_items(context.items, context.cairo)
 
 
 class HandlePainter(Painter):
@@ -271,11 +281,12 @@ class HandlePainter(Painter):
     Draw handles of items that are marked as selected in the view.
     """
 
-    def _draw_handles(self, item, view, cairo, opacity=None, inner=False):
+    def _draw_handles(self, item, cairo, opacity=None, inner=False):
         """
         Draw handles for an item.
         The handles are drawn in non-antialiased mode for clearity.
         """
+        view = self.view
         cairo.save()
         i2v = view.get_matrix_i2v(item)
         if not opacity:
@@ -316,7 +327,7 @@ class HandlePainter(Painter):
         cairo.restore()
 
     def paint(self, context):
-        view = context.view
+        view = self.view
         canvas = view.canvas
         cairo = context.cairo
         # Order matters here:
@@ -338,7 +349,7 @@ class ToolPainter(Painter):
     """
 
     def paint(self, context):
-        view = context.view
+        view = self.view
         cairo = context.cairo
         if view.tool:
             cairo.save()
@@ -346,7 +357,7 @@ class ToolPainter(Painter):
             view.tool.draw(context)
             cairo.restore()
 
-# Move this to tool.
+# Move this to segment module.
 class LineSegmentPainter(Painter):
     """
     This painter draws pseudo-hanldes on gaphas.item.Line objects. Each
@@ -358,7 +369,7 @@ class LineSegmentPainter(Painter):
     """
 
     def paint(self, context):
-        view = context.view
+        view = self.view
         item = view.hovered_item
         if item and item is view.focused_item and isinstance(item, Line):
             cr = context.cairo
@@ -383,16 +394,15 @@ class LineSegmentPainter(Painter):
 
 
 
-def DefaultPainter():
+def DefaultPainter(view=None):
     """
     Default painter, containing item, handle and tool painters.
     """
-    chain = PainterChain()
-    chain.append(ItemPainter())
-    chain.append(HandlePainter())
-    chain.append(LineSegmentPainter())
-    chain.append(ToolPainter())
-    return chain
+    return PainterChain(view). \
+        append(ItemPainter()). \
+        append(HandlePainter()). \
+        append(LineSegmentPainter()). \
+        append(ToolPainter())
 
 
-# vim: sw=4:et:
+# vim: sw=4:et:ai

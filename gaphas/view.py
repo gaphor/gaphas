@@ -31,7 +31,7 @@ class View(object):
 
     def __init__(self, canvas=None):
         self._matrix = Matrix()
-        self._painter = DefaultPainter()
+        self._painter = DefaultPainter(self)
 
         # Handling selections.
         ### TODO: Move this to a context?
@@ -204,6 +204,7 @@ class View(object):
         Set the painter to use. Painters should implement painter.Painter.
         """
         self._painter = painter
+        painter.set_view(self)
         self.emit('painter-changed')
 
 
@@ -389,13 +390,12 @@ class View(object):
         Update the bounding boxes of the canvas items for this view, in 
         canvas coordinates.
         """
-        painter = BoundingBoxPainter()
+        painter = BoundingBoxPainter(self)
         if items is None:
             items = self.canvas.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
-        painter.paint(Context(view=self,
-                              cairo=cr,
+        painter.paint(Context(cairo=cr,
                               items=items))
 
         # Update the view's bounding box with the rest of the items
@@ -403,8 +403,7 @@ class View(object):
 
 
     def paint(self, cr):
-        self._painter.paint(Context(view=self,
-                                    cairo=cr,
+        self._painter.paint(Context(cairo=cr,
                                     items=self.canvas.get_all_items(),
                                     area=None))
 
@@ -813,8 +812,7 @@ class GtkView(gtk.DrawingArea, View):
         cr.clip()
 
         area = Rectangle(x, y, width=w, height=h)
-        self._painter.paint(Context(view=self,
-                                    cairo=cr,
+        self._painter.paint(Context(cairo=cr,
                                     items=self.get_items_in_rectangle(area),
                                     area=area))
 
