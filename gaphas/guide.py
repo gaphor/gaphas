@@ -5,6 +5,7 @@ Module implements guides when moving items and handles around.
 from simplegeneric import generic
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
+from gaphas.connector import Handle
 from gaphas.item import Item, Element, Line, SE
 
 
@@ -87,66 +88,18 @@ class Guides(object):
         return self.h
 
 
-@InMotion.when_type(Item)
-class GuidedItemInMotion(ItemInMotion):
+class GuideMixin(object):
     """
-    Move the item, lock position on any element that's located at the same
-    location.
+    Helper methods for guides.
     """
+
     MARGIN = 2
 
-    def get_view_dimensions(self):
-        try:
-            allocation = self.view.allocation
-        except AttributeError:
-            return 0, 0
-        return allocation.width, allocation.height
-
-
-    def move(self, pos):
-        item = self.item
-        view = self.view
-
-        w, h = self.get_view_dimensions()
-
-        px, py = pos
-        pdx, pdy = px - self.last_x, py - self.last_y
-        
-        children_and_self = set(view.canvas.get_all_children(item))
-        children_and_self.add(item)
-
-        dx, edges_x = self.find_vertical_guides(pdx, h, children_and_self)
-
-        dy, edges_y = self.find_horizontal_guides(pdy, w, children_and_self)
-
-        newpos = px + dx, py + dy
-
-        # Call super class, with new position
-        super(GuidedItemInMotion, self).move(newpos)
-
-        self.queue_draw_guides()
-
-        view.guides = Guides(edges_x, edges_y)
-
-        self.queue_draw_guides()
-
-
-    def stop_move(self):
-        self.queue_draw_guides()
-        try:
-            del self.view.guides
-        except AttributeError:
-            # No problem if guides do not exist.
-            pass
-
-
-    def find_vertical_guides(self, pdx, height, children_and_self):
+    def find_vertical_guides(self, item_vedges, pdx, height, children_and_self):
         view = self.view
         item = self.item
         i2v = self.view.get_matrix_i2v
-        tp = i2v(item).transform_point
         margin = self.MARGIN
-        item_vedges = [tp(x, 0)[0] + pdx for x in Guide(item).vertical()]
         items = []
         for x in item_vedges:
             items.append(view.get_items_in_rectangle((x - margin, 0, margin*2, height)))
@@ -163,13 +116,11 @@ class GuidedItemInMotion(ItemInMotion):
         return dx, edges_x
 
 
-    def find_horizontal_guides(self, pdy, width, children_and_self):
+    def find_horizontal_guides(self, item_hedges, pdy, width, children_and_self):
         view = self.view
         item = self.item
         i2v = self.view.get_matrix_i2v
-        tp = i2v(item).transform_point
         margin = self.MARGIN
-        item_hedges = [tp(0, y)[1] + pdy for y in Guide(item).horizontal()]
         items = []
         for y in item_hedges:
             items.append(view.get_items_in_rectangle((0, y - margin, width, margin*2)))
@@ -186,6 +137,14 @@ class GuidedItemInMotion(ItemInMotion):
 
         dy, edges_y = self.find_closest(item_hedges, hedges)
         return dy, edges_y
+
+
+    def get_view_dimensions(self):
+        try:
+            allocation = self.view.allocation
+        except AttributeError, e:
+            return 0, 0
+        return allocation.width, allocation.height
 
 
     def queue_draw_guides(self):
@@ -222,6 +181,111 @@ class GuidedItemInMotion(ItemInMotion):
             return 0, ()
 
 
+@InMotion.when_type(Item)
+class GuidedItemInMotion(GuideMixin, ItemInMotion):
+    """
+    Move the item, lock position on any element that's located at the same
+    location.
+    """
+
+    def move(self, pos):
+        item = self.item
+        view = self.view
+
+        transform = view.get_matrix_i2v(item).transform_point
+        w, h = self.get_view_dimensions()
+
+        px, py = pos
+        pdx, pdy = px - self.last_x, py - self.last_y
+        
+        children_and_self = set(view.canvas.get_all_children(item))
+        children_and_self.add(item)
+
+        item_guide = Guide(item)
+        item_vedges = [transform(x, 0)[0] + pdx for x in item_guide.vertical()]
+        dx, edges_x = self.find_vertical_guides(item_vedges, pdx, h, children_and_self)
+
+        item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
+        dy, edges_y = self.find_horizontal_guides(item_hedges, pdy, w, children_and_self)
+
+        newpos = px + dx, py + dy
+
+        # Call super class, with new position
+        super(GuidedItemInMotion, self).move(newpos)
+
+        self.queue_draw_guides()
+
+        view.guides = Guides(edges_x, edges_y)
+
+        self.queue_draw_guides()
+
+
+    def stop_move(self):
+        self.queue_draw_guides()
+        try:
+            del self.view.guides
+        except AttributeError:
+            # No problem if guides do not exist.
+            pass
+
+
+@HandleInMotion.when_type(Item)
+class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
+
+    def move(self, pos):
+        item = self.item
+        handle = self.handle
+        view = self.view
+
+        v2i = view.get_matrix_v2i(item)
+
+        x, y = v2i.transform_point(*pos)
+
+        self.handle.pos = (x, y)
+
+        sink = self.glue(pos)
+
+        if not sink:
+            x, y = pos
+
+            # Find a guide
+            children_and_self = set(view.canvas.get_all_children(item))
+            children_and_self.add(item)
+
+            w, h = self.get_view_dimensions()
+
+            dx, edges_x = self.find_vertical_guides((x,), 0, h, children_and_self)
+
+            dy, edges_y = self.find_horizontal_guides((y,), 0, w, children_and_self)
+
+            newpos = x + dx, y + dy
+
+            x, y = v2i.transform_point(*newpos)
+
+            self.handle.pos = (x, y)
+            #super(GuidedItemHandleInMotion, self).move(newpos)
+
+            self.queue_draw_guides()
+
+            view.guides = Guides(edges_x, edges_y)
+
+            self.queue_draw_guides()
+
+        # do not request matrix update as matrix recalculation will be
+        # performed due to item normalization if required
+        #item.request_update(matrix=False)
+        item.request_update()
+
+
+    def stop_move(self):
+        self.queue_draw_guides()
+        try:
+            del self.view.guides
+        except AttributeError:
+            # No problem if guides do not exist.
+            pass
+
+
 @PaintFocused.when_type(Item)
 class GuidePainter(ItemPaintFocused):
 
@@ -240,7 +304,6 @@ class GuidePainter(ItemPaintFocused):
         try:
             cr.set_line_width(1)
             cr.set_source_rgba(0.0, 0.0, 1.0, 0.6)
-            #cr.set_antialias(ANTIALIAS_NONE)
             for g in guides.vertical():
                 cr.move_to(g, 0)
                 cr.line_to(g, h)
