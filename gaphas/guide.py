@@ -5,7 +5,7 @@ Module implements guides when moving items and handles around.
 from simplegeneric import generic
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
-from gaphas.item import Item, Element, SE
+from gaphas.item import Item, Element, Line, SE
 
 
 class ItemGuide(object):
@@ -43,7 +43,36 @@ class ElementGuide(ItemGuide):
         x = self.item.width
         return (0, x/2, x)
 
-# TODO: Create guides on orthogonal lines
+@Guide.when_type(Line)
+class LineGuide(ItemGuide):
+    """
+    Support guides for orthogonal lines.
+    """
+
+    def horizontal(self):
+        line = self.item
+        if line.orthogonal:
+            if line.horizontal:
+                for i, h in enumerate(line.handles()):
+                    if i % 2 == 1:
+                        yield h.pos.y
+            else:
+                for i, h in enumerate(line.handles()):
+                    if i % 2 == 0 and i > 0:
+                        yield h.pos.y
+
+    def vertical(self):
+        line = self.item
+        if line.orthogonal:
+            if line.horizontal:
+                for i, h in enumerate(line.handles()):
+                    if i % 2 == 0 and i > 0:
+                        yield h.pos.x
+            else:
+                for i, h in enumerate(line.handles()):
+                    if i % 2 == 1:
+                        yield h.pos.x
+
 
 class Guides(object):
 
