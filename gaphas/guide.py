@@ -37,11 +37,11 @@ class ElementGuide(ItemGuide):
 
     def horizontal(self):
         y = self.item.height
-        return (0, y)
+        return (0, y/2, y)
 
     def vertical(self):
         x = self.item.width
-        return (0, x)
+        return (0, x/2, x)
 
 # TODO: Create guides on orthogonal lines
 
@@ -67,7 +67,6 @@ class GuidedItemInMotion(ItemInMotion):
     MARGIN = 2
 
     def move(self, pos):
-        margin = self.MARGIN
         item = self.item
         view = self.view
 
@@ -77,52 +76,14 @@ class GuidedItemInMotion(ItemInMotion):
         px, py = pos
         pdx, pdy = px - self.last_x, py - self.last_y
         
-        i2v = self.view.get_matrix_i2v
-
-        children_and_self = set(view.canvas.get_children(item))
+        children_and_self = set(view.canvas.get_all_children(item))
         children_and_self.add(item)
 
-        item_guide = Guide(item)
-        tp = i2v(item).transform_point
+        dx, edges_x = self.find_vertical_guides(pdx, h, children_and_self)
 
-        # Vertical:
+        dy, edges_y = self.find_horizontal_guides(pdy, w, children_and_self)
 
-        item_vedges = [tp(x, 0)[0] + pdx for x in item_guide.vertical()]
-        items = []
-        for x in item_vedges:
-            items.append(view.get_items_in_rectangle((x - margin, 0, margin*2, h)))
-        try:
-            guides = map(Guide, reduce(set.union, map(set, items)) - children_and_self)
-        except TypeError:
-            guides = []
-
-        vedges = set()
-        for g in guides:
-            for x in g.vertical():
-                vedges.add(i2v(g.item).transform_point(x, 0)[0])
-
-        dx, edges_x = self.find_closest(item_vedges, vedges)
-
-        # Horizontal:
-
-        item_hedges = [tp(0, y)[1] + pdy for y in item_guide.horizontal()]
-        items = []
-        for y in item_hedges:
-            items.append(view.get_items_in_rectangle((0, y - margin, w, margin*2)))
-        try:
-            guides = map(Guide, reduce(set.union, map(set, items)) - children_and_self)
-        except TypeError:
-            guides = []
-
-        # Translate edges to canvas or view coordinates
-        hedges = set()
-        for g in guides:
-            for y in g.horizontal():
-                hedges.add(i2v(g.item).transform_point(0, y)[1])
-
-        dy, edges_y = self.find_closest(item_hedges, hedges)
-
-        newpos = pos[0] + dx, pos[1] + dy
+        newpos = px + dx, py + dy
 
         # Call super class, with new position
         super(GuidedItemInMotion, self).move(newpos)
@@ -141,6 +102,54 @@ class GuidedItemInMotion(ItemInMotion):
         except AttributeError:
             # No problem if guides do not exist.
             pass
+
+
+    def find_vertical_guides(self, pdx, height, children_and_self):
+        view = self.view
+        item = self.item
+        i2v = self.view.get_matrix_i2v
+        tp = i2v(item).transform_point
+        margin = self.MARGIN
+        item_vedges = [tp(x, 0)[0] + pdx for x in Guide(item).vertical()]
+        items = []
+        for x in item_vedges:
+            items.append(view.get_items_in_rectangle((x - margin, 0, margin*2, height)))
+        try:
+            guides = map(Guide, reduce(set.union, map(set, items)) - children_and_self)
+        except TypeError:
+            guides = []
+
+        vedges = set()
+        for g in guides:
+            for x in g.vertical():
+                vedges.add(i2v(g.item).transform_point(x, 0)[0])
+        dx, edges_x = self.find_closest(item_vedges, vedges)
+        return dx, edges_x
+
+
+    def find_horizontal_guides(self, pdy, width, children_and_self):
+        view = self.view
+        item = self.item
+        i2v = self.view.get_matrix_i2v
+        tp = i2v(item).transform_point
+        margin = self.MARGIN
+        item_hedges = [tp(0, y)[1] + pdy for y in Guide(item).horizontal()]
+        items = []
+        for y in item_hedges:
+            items.append(view.get_items_in_rectangle((0, y - margin, width, margin*2)))
+        try:
+            guides = map(Guide, reduce(set.union, map(set, items)) - children_and_self)
+        except TypeError:
+            guides = []
+
+        # Translate edges to canvas or view coordinates
+        hedges = set()
+        for g in guides:
+            for y in g.horizontal():
+                hedges.add(i2v(g.item).transform_point(0, y)[1])
+
+        dy, edges_y = self.find_closest(item_hedges, hedges)
+        return dy, edges_y
 
 
     def queue_draw_guides(self):

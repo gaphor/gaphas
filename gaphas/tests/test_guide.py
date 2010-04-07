@@ -37,10 +37,12 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(10, e1.height)
         anchors = Guide(e1).horizontal()
         self.assertEquals(0.0, anchors[0])
-        self.assertEquals(10.0, anchors[1])
+        self.assertEquals(5.0, anchors[1])
+        self.assertEquals(10.0, anchors[2])
         anchors = Guide(e1).vertical()
         self.assertEquals(0.0, anchors[0])
-        self.assertEquals(10.0, anchors[1])
+        self.assertEquals(5.0, anchors[1])
+        self.assertEquals(10.0, anchors[2])
 
     def test_guide_item_in_motion(self):
         e1 = Element()
@@ -67,14 +69,21 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(0, e3.matrix[5])
 
         # Moved back to guided lines:
-        for y in range(0, 5):
-            guider.move((2, y))
-            self.assertEquals(2, e3.matrix[4])
+        for d in range(0, 3):
+            print 'move to', d
+            guider.move((d, d))
+            self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
+
+        for d in range(3, 5):
+            print 'move to', d
+            guider.move((d, d))
+            self.assertEquals(5, e3.matrix[4])
+            self.assertEquals(5, e3.matrix[5])
 
         guider.move((20, 20))
         self.assertEquals(20, e3.matrix[4])
-        self.assertEquals(30, e3.matrix[5])
+        self.assertEquals(20, e3.matrix[5])
 
 
     def test_guide_item_in_motion_2(self):
@@ -102,16 +111,22 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(0, e3.matrix[5])
 
         # Moved back to guided lines:
-        for y in range(4, 9):
+        for y in range(4, 6):
             print 'move to', y
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
+        for y in range(6, 9):
+            print 'move to', y
+            guider.move((3, y))
+            self.assertEquals(0, e3.matrix[4])
+            self.assertEquals(5, e3.matrix[5])
+
         # Take into account initial cursor offset of (3, 3)
         guider.move((20, 23))
         self.assertEquals(17, e3.matrix[4])
-        self.assertEquals(30, e3.matrix[5])
+        self.assertEquals(20, e3.matrix[5])
 
 
 # vim:sw=4:et:ai
