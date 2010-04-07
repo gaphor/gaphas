@@ -95,12 +95,19 @@ class GuidedItemInMotion(ItemInMotion):
     """
     MARGIN = 2
 
+    def get_view_dimensions(self):
+        try:
+            allocation = self.view.allocation
+        except AttributeError:
+            return 0, 0
+        return allocation.width, allocation.height
+
+
     def move(self, pos):
         item = self.item
         view = self.view
 
-        allocation = view.allocation
-        w, h = allocation.width, allocation.height
+        w, h = self.get_view_dimensions()
 
         px, py = pos
         pdx, pdy = px - self.last_x, py - self.last_y
@@ -188,8 +195,7 @@ class GuidedItemInMotion(ItemInMotion):
         except AttributeError:
             return
 
-        allocation = view.allocation
-        w, h = allocation.width, allocation.height
+        w, h = self.get_view_dimensions()
 
         for x in guides.vertical():
             view.queue_draw_area(x-1, 0, x+2, h)
