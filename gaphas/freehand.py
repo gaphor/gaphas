@@ -13,11 +13,8 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 """
 
 from math import sqrt
-from random import random
+from random import Random
 from painter import Context
-
-def rand():
-    return random() - 0.5
 
 
 class FreeHandCairoContext(object):
@@ -42,6 +39,8 @@ class FreeHandCairoContext(object):
         # the length, but maxes out at 20.
         offset = length/10 * self.sloppiness
         if offset > 20: offset = 20
+
+        rand = Random((from_x, from_y, x, y, length, offset)).random
 
         # Overshoot the destination a little, as one might if drawing with a pen.
         to_x = x + self.sloppiness * rand() * offset/4
@@ -83,6 +82,7 @@ class FreeHandCairoContext(object):
     def curve_to(self, x1, y1, x2, y2, x3, y3):
         cr = self.cr
         from_x, from_y = cr.get_current_point()
+        rand = Random((from_x, from_y, x1, y1, x2, y2, x3, y3)).random
         
         r = rand()
         c1_x = from_x + r * (x1-from_x)
@@ -111,6 +111,8 @@ class FreeHandCairoContext(object):
         radius2 = Math.sqrt( (cx-x)*(cx-x) + 
                 (cy-y)*(cy-y));
 
+        rand = Random((cx, cy, x, y, radius1, radius2)).random
+
         # place first control point
         c1_x = from_x + self.KAPPA * (cx - from_x) + rand() * self.sloppiness * radius1 / 2
         c1_y = from_y + self.KAPPA * (cy - from_y) + rand() * self.sloppiness * radius1 / 2
@@ -122,12 +124,14 @@ class FreeHandCairoContext(object):
         cr.curve_to(c1_x, c1_y, c2_x, c2_y, x3, y3)
 
     def rectangle(self, x, y, width, height):
+        x1 = x + width
+        y1 = y + height
         self.move_to(x, y)
-        self.rel_line_to(width, 0)
-        self.rel_line_to(0, height)
-        self.rel_line_to(-width, 0)
+        self.line_to(x1, y)
+        self.line_to(x1, y1)
+        self.line_to(x, y1)
         if self.sloppiness > 0.1:
-            self.rel_line_to(0, -height)
+            self.line_to(x, y)
         else:
             self.close_path()
         
