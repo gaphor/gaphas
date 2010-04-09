@@ -54,7 +54,7 @@ class PainterChain(Painter):
 
     def set_view(self, view):
         self.view = view
-        for painters in self._painters:
+        for painter in self._painters:
             painter.set_view(self.view)
 
     def append(self, painter):
