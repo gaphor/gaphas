@@ -233,20 +233,15 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
     def move(self, pos):
-        item = self.item
-        handle = self.handle
-        view = self.view
 
-        v2i = view.get_matrix_v2i(item)
-
-        x, y = v2i.transform_point(*pos)
-
-        self.handle.pos = (x, y)
-
-        sink = self.glue(pos)
-
+        sink = super(GuidedItemHandleInMotion, self).move(pos)
+        
         if not sink:
+            item = self.item
+            handle = self.handle
+            view = self.view
             x, y = pos
+            v2i = view.get_matrix_v2i(item)
 
             # Find a guide
             children_and_self = set(view.canvas.get_all_children(item))

@@ -188,6 +188,8 @@ class ItemHandleInMotion(object):
         # performed due to item normalization if required
         item.request_update(matrix=False)
 
+        return sink
+
     def stop_move(self):
         pass
 
