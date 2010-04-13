@@ -266,10 +266,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
             self.queue_draw_guides()
 
-        # do not request matrix update as matrix recalculation will be
-        # performed due to item normalization if required
-        #item.request_update(matrix=False)
-        item.request_update()
+            item.request_update()
 
 
     def stop_move(self):
