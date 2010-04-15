@@ -32,6 +32,7 @@ class View(object):
     def __init__(self, canvas=None):
         self._matrix = Matrix()
         self._painter = DefaultPainter(self)
+        self._bounding_box_painter = BoundingBoxPainter(self)
 
         # Handling selections.
         ### TODO: Move this to a context?
@@ -209,6 +210,18 @@ class View(object):
 
 
     painter = property(lambda s: s._painter, _set_painter)
+
+
+    def _set_bounding_box_painter(self, painter):
+        """
+        Set the painter to use for bounding box calculations.
+        """
+        self._bounding_box_painter = painter
+        painter.set_view(self)
+        self.emit('painter-changed')
+
+
+    bounding_box_painter = property(lambda s: s._bounding_box_painter, _set_bounding_box_painter)
 
 
     def get_item_at_point(self, pos, selected=True):
@@ -390,13 +403,14 @@ class View(object):
         Update the bounding boxes of the canvas items for this view, in 
         canvas coordinates.
         """
-        painter = BoundingBoxPainter(self)
+        painter = self._bounding_box_painter
         if items is None:
             items = self.canvas.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
         painter.paint(Context(cairo=cr,
-                              items=items))
+                              items=items,
+                              area=None))
 
         # Update the view's bounding box with the rest of the items
         self._bounds = Rectangle(*self._qtree.soft_bounds)

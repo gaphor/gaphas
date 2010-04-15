@@ -22,7 +22,6 @@ class Box(Element):
         super(Box, self).__init__(width, height)
 
     def draw(self, context):
-        #print 'Box.draw', self
         c = context.cairo
         nw = self._handles[NW].pos
         c.rectangle(nw.x, nw.y, self.width, self.height)
@@ -94,6 +93,11 @@ class PortoBox(Box):
         super(PortoBox, self).draw(context)
         c = context.cairo
 
+        if context.hovered:
+            c.set_source_rgba(.0, .8, 0, .8)
+        else:
+            c.set_source_rgba(.9, .0, .0, .8)
+
         # draw movable port
         x, y = self._hm.pos
         c.rectangle(x - 20 , y - 5, 20, 10)
@@ -103,17 +107,14 @@ class PortoBox(Box):
         x, y = self._sport.point
         c.rectangle(x - 2 , y - 2, 4, 4)
 
+        c.fill_preserve()
+
         # draw line port
         x1, y1 = self._lport.start
         x2, y2 = self._lport.end
         c.move_to(x1, y1)
         c.line_to(x2, y2)
 
-        if context.hovered:
-            c.set_source_rgba(.0, .8, 0, .8)
-        else:
-            c.set_source_rgba(.9, .0, .0, .8)
-        c.fill_preserve()
         c.set_source_rgb(0,0,0.8)
         c.stroke()
 

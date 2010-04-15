@@ -33,9 +33,10 @@ from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
 from gaphas.segment import Segment
 import gaphas.guide
-from gaphas.painter import ItemPainter
+from gaphas.painter import PainterChain, ItemPainter, HandlePainter, FocusedItemPainter, ToolPainter, BoundingBoxPainter
 from gaphas import state
 from gaphas.util import text_extents, text_underline
+from gaphas.freehand import FreeHandPainter
 
 from gaphas import painter
 #painter.DEBUG_DRAW_BOUNDING_BOX = True
@@ -113,7 +114,12 @@ class UnderlineText(Text):
 
 def create_window(canvas, title, zoom=1.0):
     view = GtkView()
-
+    view.painter = PainterChain(). \
+        append(FreeHandPainter(ItemPainter())). \
+        append(HandlePainter()). \
+        append(FocusedItemPainter()). \
+        append(ToolPainter())
+    view.bounding_box_painter = FreeHandPainter(BoundingBoxPainter())
     w = gtk.Window()
     w.set_title(title)
     h = gtk.HBox()
