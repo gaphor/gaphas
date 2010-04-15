@@ -26,14 +26,34 @@ Canvas and items
 View and tools
 --------------
 
+Everything related to displaying the canvas and interacting with it.
+
 .. toctree::
    :maxdepth: 2
 
    api/view
    api/gtkview
-   api/tools
    api/painters
 
+Interacting with the canvas is done through tools. Tools tell _what_ has to be done (like moving). To make an element move aspects are defined. Aspects tell _how_ the behaviour has to be performed.
+
+.. toctree::
+   :maxdepth: 2
+
+   api/tools
+   api/aspect
+
+Extended behaviour
+~~~~~~~~~~~~~~~~~~
+
+By importing the following modules, extra behaviour is added to the default
+view behaviour.
+
+.. toctree::
+   :maxdepth: 2
+
+   api/segment
+   api/guide
 
 Miscellaneous
 -------------

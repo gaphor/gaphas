@@ -1,0 +1,31 @@
+#################
+Line segmentation
+#################
+
+This part describes the API of Gaphas.
+
+:mod: `gaphor.segment`
+----------------------
+
+.. module:: gaphas.segment
+
+.. autoclass:: Segment
+   :members:
+   :undoc-members:
+
+.. autoclass:: LineSegment
+   :members:
+   :undoc-members:
+
+.. autoclass:: SegmentHandleFinder
+   :members:
+   :undoc-members:
+
+.. autoclass:: SegmentHandleSelection
+   :members:
+   :undoc-members:
+
+.. autoclass:: LineSegmentPainter
+   :members:
+   :undoc-members:
+
