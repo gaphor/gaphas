@@ -41,7 +41,7 @@ Interacting with the canvas is done through tools. Tools tell _what_ has to be d
    :maxdepth: 2
 
    api/tools
-   api/aspect
+   api/aspects
 
 Extended behaviour
 ~~~~~~~~~~~~~~~~~~

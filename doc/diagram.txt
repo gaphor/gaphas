@@ -8,21 +8,21 @@ This class diagram describes the basic layout of Gaphas.
 
 One-oh-one:
 
-Canvas
+:doc:`api/canvas`
    The main canvas class (container for Items)
-Item
+:doc:`api/items`
    Objects placed on a Canvas. Items can draw themselves, but not act on user events
-Solver
+:doc:`api/solver`
    A constraint solver. Nice to have when you want to connect items together in a generic way.
-View
+:doc:`api/view`
    Base class that renders content (`paint()`). The view is responsible for the calculation of bounding boxes. This information is stored in a quadtree_ data structure for fast access.
-GtkView
+:doc:`api/gtkview`
    A view to be used in GTK+ applications. This view class is interactive. Interaction with users is handled by Tools.
-Painter
+:doc:`api/painters`
    Painters are the workers when it comes to painting items.
-Tool
+:doc:`api/tools`
    Tools are used to handle user events (such as mouse movement and button presses).
-Aspects
+:doc:`api/aspects`
    Tools do not modify the items directly. They use aspects (not the AOP kind) as intermediate step. Since aspects are defined as generic functions, the behaviour for each diagram item type can be slightly different.
 
 Tools

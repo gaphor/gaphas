@@ -1,6 +1,6 @@
-##############################
-Painters - drawing on the View
-##############################
+########
+Painters
+########
 
 This part describes the API of Gaphas.
 

@@ -1,6 +1,6 @@
-###################
-Aspects - The _How_
-###################
+#######
+Aspects
+#######
 
 TODO: Explain aspects
 

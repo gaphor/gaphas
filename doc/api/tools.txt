@@ -1,6 +1,6 @@
-##################################
-Interacting with the canvas (view)
-##################################
+#####
+Tools
+#####
 
 This part describes the API of Gaphas.
 

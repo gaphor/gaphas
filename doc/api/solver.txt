@@ -1,6 +1,6 @@
-#################
-Constraint solver
-#################
+######
+Solver
+######
 
 This part describes the API of Gaphas.
 
