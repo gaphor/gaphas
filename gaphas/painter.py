@@ -217,7 +217,7 @@ class CairoBoundingBoxContext(object):
         """
         cr = self._cairo
         if not b:
-            b = self._extents(cr.path_extents, line_width=True)
+            b = self._extents(cr.stroke_extents, line_width=True)
         cr.stroke()
 
     def stroke_preserve(self, b=None):
@@ -226,7 +226,7 @@ class CairoBoundingBoxContext(object):
         """
         cr = self._cairo
         if not b:
-            b = self._extents(cr.path_extents, line_width=True)
+            b = self._extents(cr.stroke_extents, line_width=True)
 
     def show_text(self, utf8, b=None):
         """
