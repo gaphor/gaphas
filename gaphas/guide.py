@@ -95,7 +95,7 @@ class GuideMixin(object):
 
     MARGIN = 2
 
-    def find_vertical_guides(self, item_vedges, pdx, height, children_and_self):
+    def find_vertical_guides(self, item_vedges, pdx, height, excluded_items):
         view = self.view
         item = self.item
         i2v = self.view.get_matrix_i2v
@@ -104,7 +104,7 @@ class GuideMixin(object):
         for x in item_vedges:
             items.append(view.get_items_in_rectangle((x - margin, 0, margin*2, height)))
         try:
-            guides = map(Guide, reduce(set.union, map(set, items)) - children_and_self)
+            guides = map(Guide, reduce(set.union, map(set, items)) - excluded_items)
         except TypeError:
             guides = []
 
@@ -116,7 +116,7 @@ class GuideMixin(object):
         return dx, edges_x
 
 
-    def find_horizontal_guides(self, item_hedges, pdy, width, children_and_self):
+    def find_horizontal_guides(self, item_hedges, pdy, width, excluded_items):
         view = self.view
         item = self.item
         i2v = self.view.get_matrix_i2v
@@ -125,7 +125,7 @@ class GuideMixin(object):
         for y in item_hedges:
             items.append(view.get_items_in_rectangle((0, y - margin, width, margin*2)))
         try:
-            guides = map(Guide, reduce(set.union, map(set, items)) - children_and_self)
+            guides = map(Guide, reduce(set.union, map(set, items)) - excluded_items)
         except TypeError:
             guides = []
 
@@ -188,6 +188,18 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
     location.
     """
 
+    def get_excluded_items(self):
+        """
+        Get a set of items excluded from guide calculation.
+        """
+        item = self.item
+        view = self.view
+
+        excluded_items = set(view.canvas.get_all_children(item))
+        excluded_items.add(item)
+        excluded_items.update(view.selected_items)
+        return excluded_items
+
     def move(self, pos):
         item = self.item
         view = self.view
@@ -198,15 +210,14 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
         px, py = pos
         pdx, pdy = px - self.last_x, py - self.last_y
         
-        children_and_self = set(view.canvas.get_all_children(item))
-        children_and_self.add(item)
+        excluded_items = self.get_excluded_items()
 
         item_guide = Guide(item)
         item_vedges = [transform(x, 0)[0] + pdx for x in item_guide.vertical()]
-        dx, edges_x = self.find_vertical_guides(item_vedges, pdx, h, children_and_self)
+        dx, edges_x = self.find_vertical_guides(item_vedges, pdx, h, excluded_items)
 
         item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
-        dy, edges_y = self.find_horizontal_guides(item_hedges, pdy, w, children_and_self)
+        dy, edges_y = self.find_horizontal_guides(item_hedges, pdy, w, excluded_items)
 
         newpos = px + dx, py + dy
 
@@ -243,15 +254,13 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             x, y = pos
             v2i = view.get_matrix_v2i(item)
 
-            # Find a guide
-            children_and_self = set(view.canvas.get_all_children(item))
-            children_and_self.add(item)
+            excluded_items = self.get_excluded_items()
 
             w, h = self.get_view_dimensions()
 
-            dx, edges_x = self.find_vertical_guides((x,), 0, h, children_and_self)
+            dx, edges_x = self.find_vertical_guides((x,), 0, h, excluded_items)
 
-            dy, edges_y = self.find_horizontal_guides((y,), 0, w, children_and_self)
+            dy, edges_y = self.find_horizontal_guides((y,), 0, w, excluded_items)
 
             newpos = x + dx, y + dy
 
