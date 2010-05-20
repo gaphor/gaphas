@@ -139,6 +139,19 @@ class GuideMixin(object):
         return dy, edges_y
 
 
+    def get_excluded_items(self):
+        """
+        Get a set of items excluded from guide calculation.
+        """
+        item = self.item
+        view = self.view
+
+        excluded_items = set(view.canvas.get_all_children(item))
+        excluded_items.add(item)
+        excluded_items.update(view.selected_items)
+        return excluded_items
+
+
     def get_view_dimensions(self):
         try:
             allocation = self.view.allocation
@@ -187,18 +200,6 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
     Move the item, lock position on any element that's located at the same
     location.
     """
-
-    def get_excluded_items(self):
-        """
-        Get a set of items excluded from guide calculation.
-        """
-        item = self.item
-        view = self.view
-
-        excluded_items = set(view.canvas.get_all_children(item))
-        excluded_items.add(item)
-        excluded_items.update(view.selected_items)
-        return excluded_items
 
     def move(self, pos):
         item = self.item
