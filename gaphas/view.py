@@ -617,7 +617,7 @@ class GtkView(gtk.DrawingArea, View):
         c = Rectangle(*self._qtree.soft_bounds)
 
         # view limits
-        v = Rectangle(0, 0, self.allocation.width, self.allocation.height)
+        v = Rectangle(0, 0, allocation.width, allocation.height)
 
         # union of these limits gives scrollbar limits
         if v in c:
@@ -632,7 +632,7 @@ class GtkView(gtk.DrawingArea, View):
         hadjustment.upper, vadjustment.upper = u.x1, u.y1
 
         # set page size
-        aw, ah = self.allocation.width, self.allocation.height
+        aw, ah = allocation.width, allocation.height
         hadjustment.page_size = aw
         vadjustment.page_size = ah
 
