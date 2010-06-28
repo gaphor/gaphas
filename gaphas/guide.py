@@ -44,6 +44,7 @@ class ElementGuide(ItemGuide):
         x = self.item.width
         return (0, x/2, x)
 
+
 @Guide.when_type(Line)
 class LineGuide(ItemGuide):
     """
