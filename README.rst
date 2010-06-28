@@ -200,41 +200,6 @@ has to be applied in order to undo the operation.
 See state.txt and undo.txt for details and usage examples.
 
 
-Files
-=====
-
-Canvas independent classes:
-
-tree.py:
-    Central tree structure
-solver.py:
-    A constraint solver (infinite domain, based on diacanvas2's solver)
-constraint.py:
-    Constraint implementation.
-geometry.py:
-    Matrix, Rectangle calculations.
-quadtree.py:
-    A QuadTree spacial index. Used in the View to pick items quickly.
-
-Canvas classes:
-
-item.py:
-    Canvas item
-connector.py:
-    Handle and Port for items
-canvas.py:
-    Canvas class
-view.py:
-    Canvas view (renderer) class
-tool.py:
-    Base class for Tools (which handle events on the view).
-
-Other:
-
-examples.py:
-    Simple example classes.
-
-
 Guidelines
 ==========
 
