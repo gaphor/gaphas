@@ -241,28 +241,9 @@ Guidelines
 Documentation should be in UK English.
 
 Following the `Python coding guidelines`_ indentation should be 4 spaces
-(no tabs), function and method names should be ``lowercase_with_underscore()``,
-and files should contain a ``__version__`` property, like this::
-
-  __version__ = "$Revision$"
-  # $HeadURL$
-
-It should be placed after the module docstring.
-
-This inhibits that for each .py file, the svn:keywords property should be set
-to ``Revision HeadURL``. This can be done manually::
-
-  $ svn propset svn:keywords "Revision HeadURL" myfile.py
-
-or by configuring your ~/.subversion/config file to use auto-props::
-
-  [miscellany]
-  # ...
-  enable-auto-props = yes
-
-  [auto-props]
-  # ...
-  *.py = svn:keywords=Revision HeadURL
+(no tabs), function and method names should be ``lowercase_with_underscore()``.
+We're using two white lines as separator between methods, as it makes method
+boundries more clear.
 
 
 .. _Python coding guidelines: http://www.python.org/dev/peps/pep-0008/
