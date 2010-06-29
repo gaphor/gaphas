@@ -103,8 +103,8 @@ class FreeHandCairoContext(object):
         c1_y = from_y + r * (y1-from_y)
 
         r = rand()
-        c1_x = x3 + r * (x2-x3)
-        c1_y = y3 + r * (y2-y3)
+        c2_x = x3 + r * (x2-x3)
+        c2_y = y3 + r * (y2-y3)
 
         cr.curve_to(c1_x, c1_y, c2_x, c2_y, x3, y3)
 
