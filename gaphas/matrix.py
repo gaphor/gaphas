@@ -48,6 +48,10 @@ class Matrix(object):
     def translate(self, tx, ty):
         self._matrix.translate(tx, ty)
 
+    @observed
+    def multiply(self, m):
+        return self._matrix.multiply(m)
+
     reversible_method(invert, invert)
     reversible_method(rotate, rotate,
                       { 'radians': lambda radians: -radians })
