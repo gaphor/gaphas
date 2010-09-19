@@ -1,6 +1,9 @@
-0.6.1
+0.7.0
 -----
 - Painters are bound to a specific view, like tools
+- Introduced aspects for finding items and handles
+- New feature: Guides, for aligning elements
+- Free hand drawing style
 
 0.6.0
 -----
