@@ -1,5 +1,5 @@
 """
-Helper funtions and classes for Cairo (drawing engine used by the canvas).
+Helper functions and classes for Cairo (drawing engine used by the canvas).
 """
 
 __version__ = "$Revision$"

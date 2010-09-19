@@ -10,7 +10,7 @@ Getting Connection Information
 To get connected item to a handle::
 
     c = canvas.get_connection(handle)
-    if c != None:
+    if c is not None:
         print c.connected
         print c.port
         print c.constraint
