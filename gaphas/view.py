@@ -688,6 +688,7 @@ class GtkView(gtk.DrawingArea, View):
         a = self.allocation
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
+
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
         Request update for items. Items will get a full update treatment, while
@@ -798,7 +799,6 @@ class GtkView(gtk.DrawingArea, View):
             # Although Item._matrix_{i2v|v2i} keys are automatically removed
             # (weak refs), better do it explicitly to be sure.
             self._clear_matrices()
-            self.canvas = None
         self._qtree.clear()
 
         self._dirty_items.clear()
