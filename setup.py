@@ -37,7 +37,7 @@ setup(
     long_description=__doc__,
 
     classifiers=[
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Environment :: X11 Applications :: GTK',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',

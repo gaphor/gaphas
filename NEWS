@@ -1,3 +1,7 @@
+0.7.1
+-----
+- Views no longer lose reference to canvas on unrealize()
+
 0.7.0
 -----
 - Painters are bound to a specific view, like tools
