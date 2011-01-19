@@ -700,7 +700,7 @@ class Canvas(object):
             self._post_update_items(dirty_items, cr)
 
         except Exception, e:
-            logging.error('Error while updating canvas', e)
+            logging.error('Error while updating canvas', exc_info=e)
 
         assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
                 'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
