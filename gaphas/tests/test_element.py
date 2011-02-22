@@ -9,6 +9,26 @@ from gaphas.item import NW, NE, SE, SW
 
 class ElementTestCase(unittest.TestCase):
 
+    def test_creation_with_size(self):
+        """
+        Test if initial size holds when added to a canvas.
+        """
+        canvas = Canvas()
+        box = Box(150, 153)
+
+        assert box.width == 150, box.width
+        assert box.height == 153, box.height
+        assert box.handles()[SE].pos.x == 150, box.handles()[SE].pos.x
+        assert box.handles()[SE].pos.y == 153, box.handles()[SE].pos.y
+
+        canvas.add(box)
+
+        assert box.width == 150, box.width
+        assert box.height == 153, box.height
+        assert box.handles()[SE].pos.x == 150, box.handles()[SE].pos.x
+        assert box.handles()[SE].pos.y == 153, box.handles()[SE].pos.y
+
+
     def test_resize_se(self):
         """
         Test resizing of element by dragging it SE handle.

@@ -350,9 +350,9 @@ class Element(Item):
     def setup_canvas(self):
         super(Element, self).setup_canvas()
 
-        # Set width/height explicitly, so the element will maintain it
-        self.width = self.width
-        self.height = self.height
+        # Trigger solver to honour width/height by SE handle pos
+        self._handles[SE].pos.x.dirty()
+        self._handles[SE].pos.y.dirty()
 
     def _set_width(self, width):
         """
