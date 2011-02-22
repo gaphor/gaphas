@@ -791,6 +791,9 @@ class GtkView(gtk.DrawingArea, View):
     def do_realize(self):
         gtk.DrawingArea.do_realize(self)
 
+        # Ensure updates are propagated
+        self._canvas.register_view(self)
+
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
 
@@ -803,6 +806,8 @@ class GtkView(gtk.DrawingArea, View):
 
         self._dirty_items.clear()
         self._dirty_matrix_items.clear()
+
+        self._canvas.unregister_view(self)
 
         gtk.DrawingArea.do_unrealize(self)
 
