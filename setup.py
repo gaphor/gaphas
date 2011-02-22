@@ -21,7 +21,7 @@ GTK+ and PyGTK_ are required.
 .. _PyGTK: http://www.pygtk.org/
 """
 
-VERSION = '0.7.1'
+VERSION = '0.7.2'
 
 from ez_setup import use_setuptools
 
