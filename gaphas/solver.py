@@ -423,9 +423,8 @@ class Solver(object):
                 else:
                     c.mark_dirty(variable)
                     self._marked_cons.append(c)
-                    if __debug__:
-                        if self._marked_cons.count(c) > 100:
-                            raise JuggleError, 'Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons))
+                    if self._marked_cons.count(c) > 100:
+                        raise JuggleError, 'Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons))
 
 
     @observed
