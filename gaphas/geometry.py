@@ -44,15 +44,17 @@ class Rectangle(object):
     """
 
     def __init__(self, x=0, y=0, width=None, height=None, x1=0, y1=0):
-        self.x = x
-        self.y = y
         if width is None:
-            self.width = x1 - x
+            self.x = min(x, x1)
+            self.width = abs(x1 - x)
         else:
+            self.x = x
             self.width = width
         if height is None:
-            self.height = y1 - y
+            self.y = min(y, y1)
+            self.height = abs(y1 - y)
         else:
+            self.y = y
             self.height = height
 
     def _set_x1(self, x1):
