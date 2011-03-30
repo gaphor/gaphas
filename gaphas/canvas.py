@@ -375,8 +375,8 @@ class Canvas(object):
     @observed
     def reconnect_item(self, item, handle, constraint=None):
         """
-        Update an existing connection. This is mainly useful to provide a new
-        constraint or callback to the connection. ``item`` and ``handle`` are
+        Update an existing connection. This is used to provide a new
+        constraint to the connection. ``item`` and ``handle`` are
         the keys to the to-be-updated connection.
 
         >>> c = Canvas()
