@@ -224,13 +224,15 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
         newpos = px + dx, py + dy
 
         # Call super class, with new position
-        super(GuidedItemInMotion, self).move(newpos)
+        sink = super(GuidedItemInMotion, self).move(newpos)
 
         self.queue_draw_guides()
 
         view.guides = Guides(edges_x, edges_y)
 
         self.queue_draw_guides()
+
+        return sink
 
 
     def stop_move(self):
