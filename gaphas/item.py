@@ -621,7 +621,8 @@ class Line(Item):
 
     def _update_ports(self):
         """
-        Update line ports.
+        Update line ports. This destroys all previously created ports and
+        should only be used when initializing the line.
         """
         assert len(self._handles) >= 2, 'Not enough segments'
         self._ports = []
