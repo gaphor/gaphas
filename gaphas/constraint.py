@@ -465,12 +465,12 @@ class LineConstraint(Constraint):
         >>> lc = LineConstraint(line=line, point=point)
         >>> lc.update_ratio()
         >>> lc.ratio_x, lc.ratio_y
-        (0.5, 0.20000000000000001)
+        (0.5, 0.2)
         >>> line[1][0].value = 40
         >>> line[1][1].value = 30
         >>> lc.solve_for(point[0])
         >>> lc.ratio_x, lc.ratio_y
-        (0.5, 0.20000000000000001)
+        (0.5, 0.2)
         >>> point
         (Variable(20, 20), Variable(6, 20))
         """

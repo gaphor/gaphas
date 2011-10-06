@@ -663,7 +663,7 @@ class Line(Item):
 
         >>> a = Line()
         >>> a.closest_segment((4, 5))
-        (0.70710678118654757, (4.5, 4.5), 0)
+        (0.7071067811865476, (4.5, 4.5), 0)
         """
         h = self._handles
         hpos = map(getattr, h, ['pos'] * len(h))

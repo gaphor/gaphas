@@ -400,7 +400,7 @@ class Canvas(object):
         True
         >>> cons1 in c.solver.constraints
         True
-        >>> c.reconnect_item(i, i.handles()[0], cons2, lambda: 0)
+        >>> c.reconnect_item(i, i.handles()[0], cons2)
         >>> c.get_connection(i.handles()[0]) # doctest: +ELLIPSIS
         Connection(item=<gaphas.item.Line object at 0x...)
         >>> c.get_connection(i.handles()[0]).constraint is cons2
@@ -411,7 +411,7 @@ class Canvas(object):
         True
 
         An exception is raised if no connection exists:
-        >>> c.reconnect_item(ii, ii.handles()[0], cons2, lambda: 0) # doctest: +ELLIPSIS
+        >>> c.reconnect_item(ii, ii.handles()[0], cons2) # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
         ValueError: No data available for item ...
