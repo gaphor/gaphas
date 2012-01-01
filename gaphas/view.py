@@ -440,11 +440,12 @@ class View(object):
         """
         Update item matrices related to view.
         """
+        matrix_i2c = self.canvas.get_matrix_i2c(item)
         try:
-            i2v = item._matrix_i2c.multiply(self._matrix)
+            i2v = matrix_i2c.multiply(self._matrix)
         except AttributeError:
             # Fall back to old behaviour
-            i2v = item._matrix_i2c * self._matrix
+            i2v = matrix_i2c * self._matrix
 
         item._matrix_i2v[self] = i2v
 
