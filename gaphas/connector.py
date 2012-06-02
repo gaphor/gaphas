@@ -28,25 +28,13 @@ class Position(object):
     (Variable(3, 20), Variable(5, 20))
     """
 
-    _x = solvable(varname='_v_x')
-    _y = solvable(varname='_v_y')
+    x = solvable(varname='_v_x')
+    y = solvable(varname='_v_y')
 
     def __init__(self, pos, strength=NORMAL):
-        self._x, self._y = pos
-        self._x.strength = strength
-        self._y.strength = strength
-
-    # _x is a Variable, therefore observed
-    def _set_x(self, x):
-        self._x = x
-
-    x = property(lambda s: s._x, _set_x)
-
-    # _y is a Variable, therefore observed
-    def _set_y(self, y):
-        self._y = y
-
-    y = property(lambda s: s._y, _set_y)
+        self.x, self.y = pos
+        self.x.strength = strength
+        self.y.strength = strength
 
     @observed
     def _set_pos(self, pos):
@@ -58,7 +46,7 @@ class Position(object):
     pos = property(lambda s: (s.x, s.y), _set_pos)
 
     def __str__(self):
-        return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self._x), float(self._y))
+        return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self.x), float(self.y))
     __repr__ = __str__
 
     def __getitem__(self, index):
