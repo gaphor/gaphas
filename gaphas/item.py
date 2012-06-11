@@ -316,8 +316,6 @@ class Element(Item):
 
     min_width = solvable(strength=REQUIRED, varname='_min_width')
     min_height = solvable(strength=REQUIRED, varname='_min_height')
-    width = solvable(varname='_width')
-    height = solvable(varname='_height')
 
     def __init__(self, width=10, height=10):
         super(Element, self).__init__()
