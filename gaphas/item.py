@@ -16,7 +16,7 @@ except ImportError:
 from matrix import Matrix
 from geometry import distance_line_point, distance_rectangle_point
 from connector import Handle, LinePort
-from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
+from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
 from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
 from state import observed, reversible_method, reversible_pair, reversible_property
 
@@ -314,6 +314,11 @@ class Element(Item):
      SW +---+ SE
     """
 
+    min_width = solvable(strength=REQUIRED, varname='_min_width')
+    min_height = solvable(strength=REQUIRED, varname='_min_height')
+    width = solvable(varname='_width')
+    height = solvable(varname='_height')
+
     def __init__(self, width=10, height=10):
         super(Element, self).__init__()
         self._handles = [ h(strength=VERY_STRONG) for h in [Handle]*4 ]
@@ -338,13 +343,18 @@ class Element(Item):
             LinePort(h_sw.pos, h_nw.pos)
         ]
 
-        # create minimal size constraints
-        self._c_min_w = self.constraint(left_of=(h_nw.pos, h_se.pos), delta=10)
-        self._c_min_h = self.constraint(above=(h_nw.pos, h_se.pos), delta=10)
+        # initialize min_x variables
+        self.min_width, self.min_height = 10, 10
 
-        # set width/height when minimal size constraints exist
+        # create minimal size constraints
+        self.constraint(left_of=(h_nw.pos, h_se.pos), delta=self._min_width)
+        self.constraint(above=(h_nw.pos, h_se.pos), delta=self._min_height)
+
         self.width = width
         self.height = height
+
+        # TODO: constraints that calculate width and height based on handle pos
+        #self.constraints.append(EqualsConstraint(p1[1], p2[1], delta))
 
 
     def setup_canvas(self):
@@ -365,8 +375,6 @@ class Element(Item):
         >>> b._handles[SE].pos.x
         Variable(20, 40)
         """
-        if width < self.min_width:
-            width = self.min_width
         h = self._handles
         h[SE].pos.x = h[NW].pos.x + width
 
@@ -395,8 +403,6 @@ class Element(Item):
         >>> b._handles[SE].pos.y
         Variable(10, 40)
         """
-        if height < self.min_height:
-            height = self.min_height
         h = self._handles
         h[SE].pos.y = h[NW].pos.y + height
 
@@ -409,33 +415,33 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
-    @observed
-    def _set_min_width(self, min_width):
-        """
-        Set minimal width.
-        """
-        if min_width < 0:
-            raise ValueError, 'Minimal width cannot be less than 0'
+    #@observed
+    #def _set_min_width(self, min_width):
+    #    """
+    #    Set minimal width.
+    #    """
+    #    if min_width < 0:
+    #        raise ValueError, 'Minimal width cannot be less than 0'
+#
+        #self._c_min_w.delta = min_width
+        #if self.canvas:
+            #self.canvas.solver.request_resolve_constraint(self._c_min_w)
 
-        self._c_min_w.delta = min_width
-        if self.canvas:
-            self.canvas.solver.request_resolve_constraint(self._c_min_w)
+    #min_width = reversible_property(lambda s: s._c_min_w.delta, _set_min_width)
 
-    min_width = reversible_property(lambda s: s._c_min_w.delta, _set_min_width)
-
-    @observed
-    def _set_min_height(self, min_height):
-        """
-        Set minimal height.
-        """
-        if min_height < 0:
-            raise ValueError, 'Minimal height cannot be less than 0'
-
-        self._c_min_h.delta = min_height
-        if self.canvas:
-            self.canvas.solver.request_resolve_constraint(self._c_min_h)
-
-    min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
+#    @observed
+#    def _set_min_height(self, min_height):
+#        """
+#        Set minimal height.
+#        """
+#        if min_height < 0:
+#            raise ValueError, 'Minimal height cannot be less than 0'
+#
+#        self._c_min_h.delta = min_height
+#        if self.canvas:
+#            self.canvas.solver.request_resolve_constraint(self._c_min_h)
+#
+#    min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
     def normalize(self):
         """

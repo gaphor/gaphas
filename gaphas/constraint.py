@@ -59,10 +59,14 @@ class Constraint(object):
         """
         Create new constraint, register all variables, and find weakest
         variables.
+
+        Any value can be added. It is assumed to be a variable if it has a
+        'strength' attribute.
         """
         self._variables = []
         for v in variables:
-            self._variables.append(v)
+            if hasattr(v, 'strength'):
+                self._variables.append(v)
 
         self.create_weakest_list()
 
@@ -130,7 +134,10 @@ class Constraint(object):
 
 class EqualsConstraint(Constraint):
     """
-    Constraint, which ensures that two arguments ``a`` and ``b`` are equal,
+    Constraint, which ensures that two arguments ``a`` and ``b`` are equal:
+
+        a + delta = b
+
     for example
     >>> from solver import Variable
     >>> a, b = Variable(1.0), Variable(2.0)
@@ -145,18 +152,20 @@ class EqualsConstraint(Constraint):
     """
 
     def __init__(self, a=None, b=None, delta=0.0):
-        super(EqualsConstraint, self).__init__(a, b)
+        super(EqualsConstraint, self).__init__(a, b, delta)
         self.a = a
         self.b = b
-        self._delta = delta
+        self.delta = delta
 
 
     def solve_for(self, var):
-        assert var in (self.a, self.b)
+        assert var in (self.a, self.b, self.delta)
 
         _update(*((var is self.a) and \
-                (self.a, self.b.value + self._delta) or \
-                (self.b, self.a.value + self._delta)))
+                (self.a, self.b.value - self.delta) or \
+                (var is self.b) and \
+                (self.b, self.a.value + self.delta) or \
+                (self.delta, self.b.value - self.a.value)))
 
 
 
@@ -224,7 +233,7 @@ class LessThanConstraint(Constraint):
     """
 
     def __init__(self, smaller=None, bigger=None, delta=0.0):
-        super(LessThanConstraint, self).__init__(smaller, bigger)
+        super(LessThanConstraint, self).__init__(smaller, bigger, delta)
         self.smaller = smaller
         self.bigger = bigger
         self.delta = delta
@@ -236,6 +245,9 @@ class LessThanConstraint(Constraint):
                 self.bigger.value = self.smaller.value + self.delta
             elif var is self.bigger:
                 self.smaller.value = self.bigger.value - self.delta
+            elif var is self.delta:
+                self.delta.value = self.bigger.value - self.smaller.value
+
 
 
 
