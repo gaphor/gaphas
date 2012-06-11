@@ -45,10 +45,10 @@ class UndoTestCase(unittest.TestCase):
 
         canvas = Canvas()
         canvas.add(b1)
-        self.assertEquals(6, len(canvas.solver.constraints))
+        self.assertEquals(2, len(canvas.solver.constraints))
 
         canvas.add(b2)
-        self.assertEquals(12, len(canvas.solver.constraints))
+        self.assertEquals(4, len(canvas.solver.constraints))
         
         canvas.add(line)
 
@@ -60,7 +60,7 @@ class UndoTestCase(unittest.TestCase):
         connector = Connector(line, line.handles()[-1])
         connector.connect(sink)
 
-        self.assertEquals(14, len(canvas.solver.constraints))
+        self.assertEquals(6, len(canvas.solver.constraints))
         self.assertEquals(2, len(list(canvas.get_connections(item=line))))
         
         del undo_list[:]
@@ -68,7 +68,7 @@ class UndoTestCase(unittest.TestCase):
         # Here disconnect is not invoked!
         canvas.remove(b2)
 
-        self.assertEquals(7, len(canvas.solver.constraints))
+        self.assertEquals(3, len(canvas.solver.constraints))
         self.assertEquals(1, len(list(canvas.get_connections(item=line))))
 
         cinfo = canvas.get_connection(line.handles()[0])
@@ -82,7 +82,7 @@ class UndoTestCase(unittest.TestCase):
 
         undo()
 
-        self.assertEquals(14, len(canvas.solver.constraints))
+        self.assertEquals(6, len(canvas.solver.constraints))
         self.assertEquals(2, len(list(canvas.get_connections(item=line))))
 
         cinfo = canvas.get_connection(line.handles()[0])

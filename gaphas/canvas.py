@@ -802,7 +802,7 @@ class Canvas(object):
         >>> c._normalize([e])          # doctest: +ELLIPSIS
         set([<gaphas.item.Element object at ...>])
         >>> e.handles()
-        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (-1, 10)>]
+        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
         """
         dirty_matrix_items = set()
         for item in items:

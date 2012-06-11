@@ -100,12 +100,12 @@ class CanvasTestCase(unittest.TestCase):
         assert count(c.get_connections(handle=l.handles()[0])) == 1
 	
         ncons = len(c.solver.constraints)
-        assert ncons == 13
+        assert ncons == 5
 
         c.disconnect_item(l, l.handles()[0])
         assert count(c.get_connections(handle=l.handles()[0])) == 0
 
-        assert len(c.solver.constraints) == 12
+        assert len(c.solver.constraints) == 4
 
 
     def test_disconnect_item_by_deleting_element(self):
@@ -145,13 +145,13 @@ class CanvasTestCase(unittest.TestCase):
         assert count(c.get_connections(handle=l.handles()[0])) == 1
 	
         ncons = len(c.solver.constraints)
-        assert ncons == 13
+        assert ncons == 5
 
         c.remove(b1)
 
         assert count(c.get_connections(handle=l.handles()[0])) == 0
 
-        self.assertEquals(6, len(c.solver.constraints))
+        self.assertEquals(2, len(c.solver.constraints))
 
 
 class ConstraintProjectionTestCase(unittest.TestCase):

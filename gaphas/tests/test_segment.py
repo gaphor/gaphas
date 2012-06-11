@@ -408,7 +408,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_orthogonal_line_merge(self):
         """Test orthogonal line merging
         """
-        self.assertEquals(12, len(self.canvas.solver._constraints))
+        self.assertEquals(4, len(self.canvas.solver._constraints))
 
         self.line.handles()[-1].pos = 100, 100
 
@@ -418,14 +418,14 @@ class LineMergeTestCase(TestCaseBase):
         segment.split_segment(0)
         self.line.orthogonal = True
 
-        self.assertEquals(12 + 3, len(self.canvas.solver._constraints))
+        self.assertEquals(4 + 3, len(self.canvas.solver._constraints))
         self.assertEquals(4, len(self.line.handles()))
         self.assertEquals(3, len(self.line.ports()))
 
         # test the merging
         segment.merge_segment(0)
 
-        self.assertEquals(12 + 2, len(self.canvas.solver._constraints))
+        self.assertEquals(4 + 2, len(self.canvas.solver._constraints))
         self.assertEquals(3, len(self.line.handles()))
         self.assertEquals(2, len(self.line.ports()))
 

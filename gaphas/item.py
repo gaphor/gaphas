@@ -324,6 +324,12 @@ class Element(Item):
         h_sw = handles[SW]
         h_se = handles[SE]
 
+        # Share variables
+        h_sw.pos.set_x(h_nw.pos.x)
+        h_se.pos.set_x(h_ne.pos.x)
+        h_ne.pos.set_y(h_nw.pos.y)
+        h_se.pos.set_y(h_sw.pos.y)
+
         # edge of element define default element ports
         self._ports = [
             LinePort(h_nw.pos, h_ne.pos),
@@ -331,12 +337,6 @@ class Element(Item):
             LinePort(h_se.pos, h_sw.pos), 
             LinePort(h_sw.pos, h_nw.pos)
         ]
-
-        # setup constraints
-        self.constraint(horizontal=(h_nw.pos, h_ne.pos))
-        self.constraint(horizontal=(h_se.pos, h_sw.pos))
-        self.constraint(vertical=(h_nw.pos, h_sw.pos))
-        self.constraint(vertical=(h_se.pos, h_ne.pos))
 
         # create minimal size constraints
         self._c_min_w = self.constraint(left_of=(h_nw.pos, h_se.pos), delta=10)
@@ -437,6 +437,26 @@ class Element(Item):
 
     min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
+    def normalize(self):
+        """
+        Normalize only NW and SE handles
+        """
+        updated = False
+        handles = self._handles
+        handles = (handles[NW], handles[SE])
+        if handles:
+            x, y = map(float, handles[0].pos)
+            if x:
+                self.matrix.translate(x, 0)
+                updated = True
+                for h in handles:
+                    h.pos.x -= x
+            if y:
+                self.matrix.translate(0, y)
+                updated = True
+                for h in handles:
+                    h.pos.y -= y
+        return updated
         
     def point(self, pos):
         """
