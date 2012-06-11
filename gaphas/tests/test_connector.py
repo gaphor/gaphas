@@ -1,6 +1,7 @@
 
 import unittest
 from gaphas.connector import Position, Handle
+from gaphas.solver import Variable
 
 class PositionTestCase(unittest.TestCase):
 
@@ -14,7 +15,18 @@ class PositionTestCase(unittest.TestCase):
         self.assertEquals(1, pos.x)
         self.assertEquals(2, pos.y)
 
-
+    def test_set_xy(self):
+        pos = Position((1,2))
+        x = Variable()
+        y = Variable()
+        assert x is not pos.x
+        assert y is not pos.y
+        
+        pos.set_x(x)
+        pos.set_y(y)
+        assert x is pos.x
+        assert y is pos.y
+        
 class HandleTestCase(unittest.TestCase):
 
     def test_handle_x_y(self):

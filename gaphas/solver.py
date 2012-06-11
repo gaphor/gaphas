@@ -667,7 +667,8 @@ class solvable(object):
             setattr(obj, self._varname, v)
             v.value = value
 
-
+    def setvar(self, obj, v):
+        setattr(obj, self._varname, v)
 
 
 class JuggleError(AssertionError):

@@ -45,6 +45,22 @@ class Position(object):
 
     pos = property(lambda s: (s.x, s.y), _set_pos)
 
+    def set_x(self, vx):
+        """
+        Set the variable for x.
+
+        NOTE: This changes the variable object itself, not only the value!
+        """
+        self._v_x = vx
+
+    def set_y(self, vy):
+        """
+        Set the variable for y.
+
+        NOTE: This changes the variable object itself, not only the value!
+        """
+        self._v_y = vy
+
     def __str__(self):
         return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self.x), float(self.y))
     __repr__ = __str__
