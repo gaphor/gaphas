@@ -123,6 +123,11 @@ class Constraint(object):
                 return
 
     def solve(self):
+        """
+        Solve the constraint. This is done by determining the weakest variable and calling
+        solve_for() for that variable. The weakest variable is always in the set of variables
+        with the weakest strength. The least recently changed variable is considered the weakest.
+        """
         wvar = c.weakest()
         c.solve_for(wvar)
    
