@@ -616,8 +616,7 @@ class Solver(object):
             while n < len(marked_cons):
                 c = marked_cons[n]
                 if not c.disabled:
-                    wvar = c.weakest()
-                    c.solve_for(wvar)
+                    c.solve()
                 n += 1
 
             self._marked_cons = []

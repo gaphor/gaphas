@@ -122,7 +122,10 @@ class Constraint(object):
                 self._weakest.append(p)
                 return
 
-
+    def solve(self):
+        wvar = c.weakest()
+        c.solve_for(wvar)
+   
     def solve_for(self, var):
         """
         Solve the constraint for a given variable.
