@@ -128,8 +128,8 @@ class Constraint(object):
         solve_for() for that variable. The weakest variable is always in the set of variables
         with the weakest strength. The least recently changed variable is considered the weakest.
         """
-        wvar = c.weakest()
-        c.solve_for(wvar)
+        wvar = self.weakest()
+        self.solve_for(wvar)
    
     def solve_for(self, var):
         """

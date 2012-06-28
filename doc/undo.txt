@@ -282,14 +282,14 @@ An element has ``min_height`` and ``min_width`` properties.
     >>> from gaphas import Element
     >>> e = Element()
     >>> e.min_height, e.min_width
-    (10, 10)
+    (Variable(10, 100), Variable(10, 100))
     >>> e.min_height, e.min_width = 30, 40
     >>> e.min_height, e.min_width
-    (30, 40)
+    (Variable(30, 100), Variable(40, 100))
 
     >>> undo()
     >>> e.min_height, e.min_width
-    (10, 10)
+    (Variable(0, 100), Variable(0, 100))
     
     >>> canvas = Canvas()
     >>> canvas.add(e)

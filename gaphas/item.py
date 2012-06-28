@@ -395,11 +395,11 @@ class Element(Item):
         20.0
         >>> b.height = 2
         >>> b.height
-        10.0
+        2.0
         >>> b._handles[NW].pos.y
         Variable(0, 40)
         >>> b._handles[SE].pos.y
-        Variable(10, 40)
+        Variable(2, 40)
         """
         h = self._handles
         h[SE].pos.y = h[NW].pos.y + height
