@@ -4,6 +4,7 @@ Test cases for the View class.
 
 import unittest
 import gtk
+import math
 from gaphas.view import View, GtkView
 from gaphas.canvas import Canvas, Context
 from gaphas.item import Line
@@ -84,6 +85,25 @@ class ViewTestCase(unittest.TestCase):
 
         window.destroy()
 
+    def test_get_handle_at_point(self):
+        canvas = Canvas()
+        view = GtkView(canvas)
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.add(view)
+        window.show_all()
+
+        box = Box()
+        box.min_width = 20
+        box.min_height = 30
+        box.matrix.translate(20, 20)
+        box.matrix.rotate(math.pi/1.5)
+        canvas.add(box)
+
+        p = canvas.get_matrix_i2c(box).transform_point(0, 20)
+        p = canvas.get_matrix_c2i(box).transform_point(20, 20)
+        i, h = view.get_handle_at_point((20, 20))
+        assert i is box
+        assert h is box.handles()[0]
 
     def test_item_removal(self):
         canvas = Canvas()

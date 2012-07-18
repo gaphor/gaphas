@@ -247,7 +247,7 @@ class View(object):
         def find(item):
             """ Find item's handle at pos """
             v2i = self.get_matrix_v2i(item)
-            d = v2i.transform_distance(distance, 0)[0]
+            d = abs(v2i.transform_distance(distance, 0)[0])
             x, y = v2i.transform_point(*pos)
 
             for h in item.handles():
