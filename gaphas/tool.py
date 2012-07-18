@@ -368,8 +368,6 @@ class HandleTool(Tool):
         dragged around.
         """
         view = self.view
-        #item, handle = view.get_handle_at_point((event.x, event.y))
-        #if not handle and view.hovered_item
 
         item, handle = HandleFinder(view.hovered_item, view).get_handle_at_point((event.x, event.y))
 
