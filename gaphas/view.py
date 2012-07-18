@@ -381,7 +381,7 @@ class View(object):
         v2i = self.get_matrix_v2i(item).transform_point
         ix0, iy0 = v2i(bounds.x, bounds.y)
         ix1, iy1 = v2i(bounds.x1, bounds.y1)
-        self._qtree.add(item=item, bounds=bounds, data=Rectangle(ix0, iy0, x1=ix1, y1=iy1))
+        self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
 
 
     def get_item_bounding_box(self, item):
@@ -747,8 +747,8 @@ class GtkView(gtk.DrawingArea, View):
                     # on quadtree data (= bb in item coordinates).
                     bounds = self._qtree.get_data(i)
                     i2v = self.get_matrix_i2v(i).transform_point
-                    x0, y0 = i2v(bounds.x, bounds.y)
-                    x1, y1 = i2v(bounds.x1, bounds.y1)
+                    x0, y0 = i2v(bounds[0], bounds[1])
+                    x1, y1 = i2v(bounds[2], bounds[3])
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
 

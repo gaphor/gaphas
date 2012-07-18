@@ -121,7 +121,6 @@ class ItemPainter(Painter):
         Draw the items.
         """
         for item in items:
-            #if not area or area - view.get_item_bounding_box(item):
             self._draw_item(item, cairo, area=area)
             if DEBUG_DRAW_BOUNDING_BOX:
                 self._draw_bounds(item, cairo)
