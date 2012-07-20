@@ -9,7 +9,7 @@ import gobject
 import gtk
 from cairo import Matrix
 from canvas import Context
-from geometry import Rectangle
+from geometry import Rectangle, distance_point_point_fast
 from quadtree import Quadtree
 from tool import DefaultTool
 from painter import DefaultPainter, BoundingBoxPainter
@@ -247,7 +247,7 @@ class View(object):
         def find(item):
             """ Find item's handle at pos """
             v2i = self.get_matrix_v2i(item)
-            d = abs(v2i.transform_distance(distance, 0)[0])
+            d = distance_point_point_fast(v2i.transform_distance(0, distance))
             x, y = v2i.transform_point(*pos)
 
             for h in item.handles():

@@ -99,6 +99,24 @@ class ViewTestCase(unittest.TestCase):
         box.matrix.rotate(math.pi/1.5)
         canvas.add(box)
 
+        i, h = view.get_handle_at_point((20, 20))
+        assert i is box
+        assert h is box.handles()[0]
+
+    def test_get_handle_at_point_at_pi_div_2(self):
+        canvas = Canvas()
+        view = GtkView(canvas)
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.add(view)
+        window.show_all()
+
+        box = Box()
+        box.min_width = 20
+        box.min_height = 30
+        box.matrix.translate(20, 20)
+        box.matrix.rotate(math.pi/2)
+        canvas.add(box)
+
         p = canvas.get_matrix_i2c(box).transform_point(0, 20)
         p = canvas.get_matrix_c2i(box).transform_point(20, 20)
         i, h = view.get_handle_at_point((20, 20))

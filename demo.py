@@ -403,8 +403,8 @@ def create_canvas(c=None):
 
     # AJM: extra boxes:
     bb = Box()
-    print 'box', bb
-    bb.matrix.rotate(math.pi/4.)
+    print 'rotated box', bb
+    bb.matrix.rotate(math.pi/1.567)
     c.add(bb, parent=b)
 #    for i in xrange(10):
 #        bb=Box()

@@ -264,7 +264,7 @@ def distance_point_point(point1, point2=(0., 0.)):
     return sqrt(dx*dx + dy*dy)
 
 
-def distance_point_point_fast(point1, point2):
+def distance_point_point_fast(point1, point2=(0., 0.)):
     """
     Return the distance from point ``point1`` to ``point2``. This version is
     faster than ``distance_point_point()``, but less precise.
