@@ -448,18 +448,17 @@ class Element(Item):
         updated = False
         handles = self._handles
         handles = (handles[NW], handles[SE])
-        if handles:
-            x, y = map(float, handles[0].pos)
-            if x:
-                self.matrix.translate(x, 0)
-                updated = True
-                for h in handles:
-                    h.pos.x -= x
-            if y:
-                self.matrix.translate(0, y)
-                updated = True
-                for h in handles:
-                    h.pos.y -= y
+        x, y = map(float, handles[0].pos)
+        if x:
+            self.matrix.translate(x, 0)
+            updated = True
+            for h in handles:
+                h.pos.x -= x
+        if y:
+            self.matrix.translate(0, y)
+            updated = True
+            for h in handles:
+                h.pos.y -= y
         return updated
         
     def point(self, pos):
