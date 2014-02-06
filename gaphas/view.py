@@ -5,8 +5,7 @@ This module contains everything to display a Canvas on a screen.
 __version__ = "$Revision$"
 # $HeadURL$
 
-from gi.repository import GObject
-from gi.repository import Gtk
+from gi.repository import GObject, Gtk, Gdk
 from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle, distance_point_point_fast
@@ -895,7 +894,8 @@ class GtkView(Gtk.DrawingArea, View):
 #   GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget
 #   use gtk_scrolled_window_add_with_viewport() instead
 
-GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
+# FixMe: implement Scrollable interface!
+# GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 
 
 # vim: sw=4:et:ai

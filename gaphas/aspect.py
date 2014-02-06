@@ -9,7 +9,7 @@ The simplegeneric module is dispatching opnly based on the first argument.
 For Gaphas that's enough.
 """
 
-import Gtk.gdk
+from gi.repository import Gdk
 from simplegeneric import generic
 from gaphas.item import Item, Element
 
@@ -133,10 +133,10 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-            Gdk.Cursor.new(Gdk.TOP_LEFT_CORNER),
-            Gdk.Cursor.new(Gdk.TOP_RIGHT_CORNER),
-            Gdk.Cursor.new(Gdk.BOTTOM_RIGHT_CORNER),
-            Gdk.Cursor.new(Gdk.BOTTOM_LEFT_CORNER) )
+            Gdk.Cursor.new(Gdk.CursorType.TOP_LEFT_CORNER),
+            Gdk.Cursor.new(Gdk.CursorType.TOP_RIGHT_CORNER),
+            Gdk.Cursor.new(Gdk.CursorType.BOTTOM_RIGHT_CORNER),
+            Gdk.Cursor.new(Gdk.CursorType.BOTTOM_LEFT_CORNER) )
 
     def select(self):
         index = self.item.handles().index(self.handle)

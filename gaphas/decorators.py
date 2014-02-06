@@ -7,7 +7,7 @@ __version__ = "$Revision$"
 
 import threading
 from gi.repository import GObject
-from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
+from gi.repository.GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 
 
@@ -95,7 +95,7 @@ class async(object):
     executed once.
     """
 
-    def __init__(self, single=False, timeout=0, priority=GObject.PRIORITY_DEFAULT):
+    def __init__(self, single=False, timeout=0, priority=PRIORITY_DEFAULT):
         self.single = single
         self.timeout = timeout
         self.priority = priority
