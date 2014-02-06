@@ -33,8 +33,7 @@ Tools can handle events in different ways
 
 import sys
 
-import cairo
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, cairo
 from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
@@ -108,7 +107,6 @@ class Tool(object):
         for the event type.
         """
         handler = self.EVENT_HANDLERS.get(event.type)
-        #print event.type, handler
         if handler:
             try:
                 h = getattr(self, handler)
@@ -272,7 +270,7 @@ class ItemTool(Tool):
         view = self.view
         item = self.get_item()
 
-        if event.button not in self._buttons:
+        if event.get_button()[1] not in self._buttons:
             return False
         
         # Deselect all items unless CTRL or SHIFT is pressed
@@ -293,7 +291,7 @@ class ItemTool(Tool):
             return True
 
     def on_button_release(self, event):
-        if event.button not in self._buttons:
+        if event.get_button()[1] not in self._buttons:
             return False
         for inmotion in self._movable_items:
             inmotion.stop_move()
@@ -457,7 +455,7 @@ class RubberbandTool(Tool):
         cr = context.cairo
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
         cr.set_line_width(1.0)
-        cr.set_source_rgba(.5, .5, .7, .6)
+        cr.set_source_rgba(.5, .5, .7, .5)
         cr.rectangle(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
         cr.fill()
 
@@ -479,7 +477,7 @@ class PanTool(Tool):
     def on_button_press(self, event):
         if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
             return False
-        if event.button == 2:
+        if event.get_button()[1] == 2:
             self.x0, self.y0 = event.x, event.y
             return True
 
@@ -536,7 +534,7 @@ class ZoomTool(Tool):
         self.lastdiff = 0;
 
     def on_button_press(self, event):
-        if event.button == 2 \
+        if event.get_button()[1] == 2 \
                 and event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE:
             self.x0 = event.x
             self.y0 = event.y
@@ -666,19 +664,24 @@ class TextEditTool(Tool):
         """
         window = Gtk.Window()
         window.set_property('decorated', False)
-        window.set_resize_mode(Gtk.RESIZE_IMMEDIATE)
-        window.set_parent_window(self.view.window)
+        window.set_resize_mode(Gtk.ResizeMode.IMMEDIATE)
+        window.set_parent_window(self.view.get_window())
         buffer = Gtk.TextBuffer()
         text_view = Gtk.TextView()
         text_view.set_buffer(buffer)
         text_view.show()
         window.add(text_view)
-        window.size_allocate((int(event.x), int(event.y), 50, 50))
+        allocate = cairo.RectangleInt()
+        allocate.x = int(event.x)
+        allocate.y = int(event.y)
+        allocate.width = 50
+        allocate.height = 50
+        window.size_allocate(allocate)
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)
-        window.show()
+        window.show_all()
         return True
 
     def _on_key_press_event(self, widget, event, buffer):

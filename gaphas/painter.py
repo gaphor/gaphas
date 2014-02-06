@@ -101,7 +101,6 @@ class ItemPainter(Painter):
         cairo.save()
         try:
             cairo.transform(view.canvas.get_matrix_i2c(item))
-            print 'drawing item', item, cairo.get_matrix()
             item.draw(DrawContext(painter=self,
                                   cairo=cairo,
                                   _area=area,
@@ -359,7 +358,6 @@ class ToolPainter(Painter):
         cairo = context.cairo
         if view.tool:
             cairo.save()
-            cairo.identity_matrix()
             view.tool.draw(context)
             cairo.restore()
 

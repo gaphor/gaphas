@@ -259,24 +259,16 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             v2i = view.get_matrix_v2i(item)
 
             excluded_items = self.get_excluded_items()
-
             w, h = self.get_view_dimensions()
-
             dx, edges_x = self.find_vertical_guides((x,), 0, h, excluded_items)
-
             dy, edges_y = self.find_horizontal_guides((y,), 0, w, excluded_items)
-
             newpos = x + dx, y + dy
 
             x, y = v2i.transform_point(*newpos)
-
             self.handle.pos = (x, y)
-            #super(GuidedItemHandleInMotion, self).move(newpos)
-
             self.queue_draw_guides()
 
             view.guides = Guides(edges_x, edges_y)
-
             self.queue_draw_guides()
 
             item.request_update()
@@ -302,7 +294,7 @@ class GuidePainter(ItemPaintFocused):
         
         cr = context.cairo
         view = self.view
-        allocation = view.allocation
+        allocation = view.get_allocation()
         w, h = allocation.width, allocation.height
 
         cr.save()
