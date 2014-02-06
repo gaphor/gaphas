@@ -508,12 +508,12 @@ class GtkView(Gtk.DrawingArea, View):
         View.__init__(self, canvas)
 
         self.set_flags(Gtk.CAN_FOCUS)
-        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
-                        | Gdk.EventMask.BUTTON_RELEASE_MASK
-                        | Gdk.EventMask.POINTER_MOTION_MASK
-                        | Gdk.EventMask.KEY_PRESS_MASK
-                        | Gdk.EventMask.KEY_RELEASE_MASK
-                        | Gdk.EventMask.SCROLL_MASK)
+        self.add_events(Gdk.ModifierType.BUTTON_PRESS_MASK
+                        | Gdk.ModifierType.BUTTON_RELEASE_MASK
+                        | Gdk.ModifierType.POINTER_MOTION_MASK
+                        | Gdk.ModifierType.KEY_PRESS_MASK
+                        | Gdk.ModifierType.KEY_RELEASE_MASK
+                        | Gdk.ModifierType.SCROLL_MASK)
 
         self._hadjustment = None
         self._vadjustment = None
@@ -682,7 +682,7 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Redraw the entire view.
         """
-        a = self.allocation
+        a = self.props.allocation
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
@@ -720,7 +720,7 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Update view status according to the items updated by the canvas.
         """
-        if not self.window: return
+        if not self.get_window(): return
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
@@ -762,7 +762,7 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Update bounding box is not necessary.
         """
-        cr = self.window.cairo_create()
+        cr = self.get_window().cairo_create()
 
         cr.save()
         cr.rectangle(0, 0, 0, 0)
@@ -817,7 +817,7 @@ class GtkView(Gtk.DrawingArea, View):
 
         area = event.area
         x, y, w, h = area.x, area.y, area.width, area.height
-        cr = self.window.cairo_create()
+        cr = self.get_window().cairo_create()
 
         # Draw no more than nessesary.
         cr.rectangle(x, y, w, h)

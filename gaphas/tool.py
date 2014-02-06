@@ -305,7 +305,7 @@ class ItemTool(Tool):
         Normally do nothing.
         If a button is pressed move the items around.
         """
-        if event.get_state() & Gdk.EventMask.BUTTON_PRESS_MASK:
+        if event.get_state() & Gdk.ModifierType.BUTTON_PRESS_MASK:
 
             if not self._movable_items:
                 self._movable_items = set(self.movable_items())
@@ -409,7 +409,7 @@ class HandleTool(Tool):
         hovered-item.
         """
         view = self.view
-        if self.grabbed_handle and event.get_state() & Gdk.EventMask.BUTTON_PRESS_MASK:
+        if self.grabbed_handle and event.get_state() & Gdk.ModifierType.BUTTON_PRESS_MASK:
             canvas = view.canvas
             item = self.grabbed_item
             handle = self.grabbed_handle
@@ -442,7 +442,7 @@ class RubberbandTool(Tool):
         return True
 
     def on_motion_notify(self, event):
-        if event.get_state() & Gdk.EventMask.BUTTON_PRESS_MASK:
+        if event.get_state() & Gdk.ModifierType.BUTTON_PRESS_MASK:
             view = self.view
             self.queue_draw(view)
             self.x1, self.y1 = event.x, event.y
