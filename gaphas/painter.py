@@ -100,9 +100,8 @@ class ItemPainter(Painter):
         view = self.view
         cairo.save()
         try:
-            cairo.set_matrix(view.matrix)
             cairo.transform(view.canvas.get_matrix_i2c(item))
-
+            print 'drawing item', item, cairo.get_matrix()
             item.draw(DrawContext(painter=self,
                                   cairo=cairo,
                                   _area=area,
@@ -144,7 +143,11 @@ class ItemPainter(Painter):
         cairo = context.cairo
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
+
+        cairo.save()
+        cairo.transform(self.view.matrix)
         self._draw_items(context.items, cairo, context.area)
+        cairo.restore()
 
 
 class CairoBoundingBoxContext(object):
@@ -294,6 +297,7 @@ class HandlePainter(Painter):
             opacity = (item is view.focused_item) and .7 or .4
 
         cairo.set_line_width(1)
+        cairo.set_antialias(ANTIALIAS_NONE)
 
         get_connection = view.canvas.get_connection
         for h in item.handles():
@@ -310,8 +314,8 @@ class HandlePainter(Painter):
             else:
                 r, g, b = 0, 0, 1
 
-            cairo.identity_matrix()
-            cairo.set_antialias(ANTIALIAS_NONE)
+            #cairo.identity_matrix()
+            cairo.save()
             cairo.translate(*i2v.transform_point(*h.pos))
             cairo.rectangle(-4, -4, 8, 8)
             if inner:
@@ -325,6 +329,7 @@ class HandlePainter(Painter):
                 cairo.line_to(-2, 3)
             cairo.set_source_rgba(r/4., g/4., b/4., opacity*1.3)
             cairo.stroke()
+            cairo.restore()
         cairo.restore()
 
     def paint(self, context):
