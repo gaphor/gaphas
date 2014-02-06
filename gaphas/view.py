@@ -5,8 +5,8 @@ This module contains everything to display a Canvas on a screen.
 __version__ = "$Revision$"
 # $HeadURL$
 
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 from cairo import Matrix
 from canvas import Context
 from geometry import Rectangle, distance_point_point_fast
@@ -21,7 +21,7 @@ DEBUG_DRAW_BOUNDING_BOX = False
 DEBUG_DRAW_QUADTREE = False
 
 # The default cursor (use in case of a cursor reset)
-DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
+DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
 class View(object):
@@ -468,7 +468,7 @@ class View(object):
 
 
 
-class GtkView(gtk.DrawingArea, View):
+class GtkView(Gtk.DrawingArea, View):
     # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
     """
     GTK+ widget for rendering a canvas.Canvas to a screen.
@@ -486,38 +486,38 @@ class GtkView(gtk.DrawingArea, View):
     
     # Signals: emited after the change takes effect.
     __gsignals__ = {
-        'set-scroll-adjustments': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                      (gtk.Adjustment, gtk.Adjustment)),
-        'dropzone-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                      (gobject.TYPE_PYOBJECT,)),
-        'hover-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                      (gobject.TYPE_PYOBJECT,)),
-        'focus-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                      (gobject.TYPE_PYOBJECT,)),
-        'selection-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                      (gobject.TYPE_PYOBJECT,)),
-        'tool-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+        'set-scroll-adjustments': (GObject.SignalFlags.RUN_LAST, None,
+                      (Gtk.Adjustment, Gtk.Adjustment)),
+        'dropzone-changed': (GObject.SignalFlags.RUN_LAST, None,
+                      (GObject.TYPE_PYOBJECT,)),
+        'hover-changed': (GObject.SignalFlags.RUN_LAST, None,
+                      (GObject.TYPE_PYOBJECT,)),
+        'focus-changed': (GObject.SignalFlags.RUN_LAST, None,
+                      (GObject.TYPE_PYOBJECT,)),
+        'selection-changed': (GObject.SignalFlags.RUN_LAST, None,
+                      (GObject.TYPE_PYOBJECT,)),
+        'tool-changed': (GObject.SignalFlags.RUN_LAST, None,
                       ()),
-        'painter-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+        'painter-changed': (GObject.SignalFlags.RUN_LAST, None,
                       ())
     }
 
 
     def __init__(self, canvas=None, hadjustment=None, vadjustment=None):
-        gtk.DrawingArea.__init__(self)
+        GObject.GObject.__init__(self)
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
 
         View.__init__(self, canvas)
 
-        self.set_flags(gtk.CAN_FOCUS)
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK
-                        | gtk.gdk.BUTTON_RELEASE_MASK
-                        | gtk.gdk.POINTER_MOTION_MASK
-                        | gtk.gdk.KEY_PRESS_MASK
-                        | gtk.gdk.KEY_RELEASE_MASK
-                        | gtk.gdk.SCROLL_MASK)
+        self.set_flags(Gtk.CAN_FOCUS)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
+                        | Gdk.EventMask.BUTTON_RELEASE_MASK
+                        | Gdk.EventMask.POINTER_MOTION_MASK
+                        | Gdk.EventMask.KEY_PRESS_MASK
+                        | Gdk.EventMask.KEY_RELEASE_MASK
+                        | Gdk.EventMask.SCROLL_MASK)
 
         self._hadjustment = None
         self._vadjustment = None
@@ -529,14 +529,14 @@ class GtkView(gtk.DrawingArea, View):
         self._set_tool(DefaultTool())
         
         # Set background to white.
-        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
+        self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
 
 
     def emit(self, *args, **kwargs):
         """
         Delegate signal emissions to the DrawingArea (=GTK+)
         """
-        gtk.DrawingArea.emit(self, *args, **kwargs)
+        Gtk.DrawingArea.emit(self, *args, **kwargs)
 
 
     def _set_canvas(self, canvas):
@@ -586,8 +586,8 @@ class GtkView(gtk.DrawingArea, View):
             self._vadjustment.disconnect(self._vadjustment_handler_id)
             self._vadjustment_handler_id = None
 
-        self._hadjustment = hadjustment or gtk.Adjustment()
-        self._vadjustment = vadjustment or gtk.Adjustment()
+        self._hadjustment = hadjustment or Gtk.Adjustment()
+        self._vadjustment = vadjustment or Gtk.Adjustment()
 
         self._hadjustment_handler_id = \
                         self._hadjustment.connect('value-changed',
@@ -784,13 +784,13 @@ class GtkView(gtk.DrawingArea, View):
         """
         Allocate the widget size ``(x, y, width, height)``.
         """
-        gtk.DrawingArea.do_size_allocate(self, allocation)
+        Gtk.DrawingArea.do_size_allocate(self, allocation)
         self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
        
 
     def do_realize(self):
-        gtk.DrawingArea.do_realize(self)
+        Gtk.DrawingArea.do_realize(self)
 
         # Ensure updates are propagated
         self._canvas.register_view(self)
@@ -810,7 +810,7 @@ class GtkView(gtk.DrawingArea, View):
 
         self._canvas.unregister_view(self)
 
-        gtk.DrawingArea.do_unrealize(self)
+        Gtk.DrawingArea.do_unrealize(self)
 
     def do_expose_event(self, event):
         """

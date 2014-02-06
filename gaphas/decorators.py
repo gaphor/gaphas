@@ -6,7 +6,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 import threading
-import gobject
+from gi.repository import GObject
 from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 
@@ -36,26 +36,26 @@ class async(object):
     Simple method:
     
     >>> class A(object):
-    ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
+    ...     @async(single=False, priority=GObject.PRIORITY_HIGH)
     ...     def a(self):
-    ...         print 'idle-a', gobject.main_depth()
+    ...         print 'idle-a', GObject.main_depth()
     
     Methods can also set single mode to True (the method is only scheduled one).
 
     >>> class B(object):
     ...     @async(single=True)
     ...     def b(self):
-    ...         print 'idle-b', gobject.main_depth()
+    ...         print 'idle-b', GObject.main_depth()
 
     Also a timeout property can be provided:
 
     >>> class C(object):
     ...     @async(timeout=50)
     ...     def c1(self):
-    ...         print 'idle-c1', gobject.main_depth()
+    ...         print 'idle-c1', GObject.main_depth()
     ...     @async(single=True, timeout=60)
     ...     def c2(self):
-    ...         print 'idle-c2', gobject.main_depth()
+    ...         print 'idle-c2', GObject.main_depth()
 
     This is a helper function used to test classes A and B from within the GTK+
     main loop:
@@ -76,11 +76,11 @@ class async(object):
     ...     a.a()
     ...     b.b()
     ...     print 'after'
-    ...     gobject.timeout_add(100, gtk.main_quit)
-    >>> gobject.timeout_add(1, delayed) > 0 # timeout id may vary
+    ...     GObject.timeout_add(100, Gtk.main_quit)
+    >>> GObject.timeout_add(1, delayed) > 0 # timeout id may vary
     True
-    >>> import gtk
-    >>> gtk.main()
+    >>> from gi.repository import Gtk
+    >>> Gtk.main()
     before
     after
     idle-a 1
@@ -95,7 +95,7 @@ class async(object):
     executed once.
     """
 
-    def __init__(self, single=False, timeout=0, priority=gobject.PRIORITY_DEFAULT):
+    def __init__(self, single=False, timeout=0, priority=GObject.PRIORITY_DEFAULT):
         self.single = single
         self.timeout = timeout
         self.priority = priority
@@ -103,9 +103,9 @@ class async(object):
     def source(self, func):
         timeout = self.timeout
         if timeout > 0:
-            s = gobject.Timeout(timeout)
+            s = GObject.Timeout(timeout)
         else:
-            s = gobject.Idle()
+            s = GObject.Idle()
         s.set_callback(func)
         s.priority = self.priority
         return s
@@ -117,7 +117,7 @@ class async(object):
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
-            if gobject.main_depth() == 0:
+            if GObject.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
                 def async_wrapper():

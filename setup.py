@@ -18,7 +18,7 @@ Some more features:
 GTK+ and PyGTK_ are required.
 
 .. _Cairo: http://cairographics.org/
-.. _PyGTK: http://www.pygtk.org/
+.. _PyGTK: http://www.pyGtk.org/
 """
 
 VERSION = '0.7.2'
