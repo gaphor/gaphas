@@ -838,21 +838,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
-    def do_expose_event(self, event):
+    def do_draw(self, cr):
         """
         Render canvas to the screen.
         """
         if not self._canvas:
             return
 
-        area = event.area
-        x, y, w, h = area.x, area.y, area.width, area.height
-        cr = self.get_window().cairo_create()
-
-        # Draw no more than nessesary.
-        cr.rectangle(x, y, w, h)
-        cr.clip()
-
+        allocation = self.get_allocation()
+        x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
         area = Rectangle(x, y, width=w, height=h)
         self._painter.paint(Context(cairo=cr,
                                     items=self.get_items_in_rectangle(area),
