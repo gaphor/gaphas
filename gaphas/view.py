@@ -464,7 +464,7 @@ class View(object):
 
 
 
-class GtkView(Gtk.DrawingArea, View):
+class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
     """
     GTK+ widget for rendering a canvas.Canvas to a screen.
@@ -498,6 +498,18 @@ class GtkView(Gtk.DrawingArea, View):
                       ())
     }
 
+    __gproperties__ = {
+        "hscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+                           "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
+                           GObject.PARAM_READWRITE),
+        "hadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
+                        GObject.PARAM_READWRITE),
+        "vscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+                           "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
+                           GObject.PARAM_READWRITE),
+        "vadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
+                        GObject.PARAM_READWRITE),
+    }
 
     def __init__(self, canvas=None, hadjustment=None, vadjustment=None):
         GObject.GObject.__init__(self)
@@ -527,6 +539,21 @@ class GtkView(Gtk.DrawingArea, View):
         # Set background to white.
         self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
 
+    def do_set_properties(self, pspec, value):
+        if pspec.name == 'hadjustment':
+            self.do_set_scroll_adjustments(self._hadjustment, value)
+        elif pspec.name == 'vadjustment':
+            self.do_set_scroll_adjustments(value, self._vadjustment)
+        else:
+            raise AttributeError, 'Unknown property %s' % pspec.name
+
+    def do_get_properties(self, pspec, value):
+        if pspec.name == 'hadjustment':
+            return self._hadjustment
+        elif pspec.name == 'vadjustment':
+            return self._vadjustment
+        else:
+            raise AttributeError, 'Unknown property %s' % pspec.name
 
     def emit(self, *args, **kwargs):
         """
