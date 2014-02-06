@@ -527,6 +527,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                         | Gdk.EventMask.KEY_RELEASE_MASK
                         | Gdk.EventMask.SCROLL_MASK)
 
+        self._hscroll_policy = None
+        self._vscroll_policy = None
         self._hadjustment = None
         self._vadjustment = None
         self._hadjustment_handler_id = None
@@ -539,16 +541,24 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # Set background to white.
         self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
 
-    def do_set_properties(self, pspec, value):
-        if pspec.name == 'hadjustment':
-            self.do_set_scroll_adjustments(self._hadjustment, value)
-        elif pspec.name == 'vadjustment':
+    def do_set_property(self, pspec, value):
+        if pspec.name == 'hscroll-policy':
+            self._hscroll_policy = value
+        elif pspec.name == 'vscroll-policy':
+            self._vscroll_policy = value
+        elif pspec.name == 'hadjustment':
             self.do_set_scroll_adjustments(value, self._vadjustment)
+        elif pspec.name == 'vadjustment':
+            self.do_set_scroll_adjustments(self._hadjustment, value)
         else:
             raise AttributeError, 'Unknown property %s' % pspec.name
 
-    def do_get_properties(self, pspec, value):
-        if pspec.name == 'hadjustment':
+    def do_get_property(self, pspec):
+        if pspec.name == 'hscroll-policy':
+            return self._hscroll_policy
+        elif pspec.name == 'vscroll-policy':
+            return self._vscroll_policy
+        elif pspec.name == 'hadjustment':
             return self._hadjustment
         elif pspec.name == 'vadjustment':
             return self._vadjustment
@@ -602,6 +612,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     
     def do_set_scroll_adjustments(self, hadjustment, vadjustment):
+        print 'View set scroll adjustments', self, hadjustment, vadjustment
+
         if self._hadjustment_handler_id:
             self._hadjustment.disconnect(self._hadjustment_handler_id)
             self._hadjustment_handler_id = None
@@ -633,6 +645,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def update_adjustments(self, allocation=None):
         if not allocation:
             allocation = self.get_allocation()
+
+        print 'View update adjustments', self, allocation
 
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
@@ -672,7 +686,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if v.x != hadjustment.get_value() or v.y != vadjustment.get_value():
             hadjustment.set_value(v.x)
             vadjustment.set_value(v.y)
-
+        print 'done update adj.'
 
     def queue_draw_item(self, *items):
         """
@@ -811,7 +825,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Allocate the widget size ``(x, y, width, height)``.
         """
         Gtk.DrawingArea.do_size_allocate(self, allocation)
-        self.update_adjustments(allocation)
+        #self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
        
 
@@ -823,6 +837,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         if self._canvas:
             self.request_update(self._canvas.get_all_items())
+
 
     def do_unrealize(self):
         if self.canvas:
@@ -838,6 +853,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
+
     def do_draw(self, cr):
         """
         Render canvas to the screen.
@@ -845,7 +861,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if not self._canvas:
             return
 
-        allocation = self.get_allocation()
+        _, allocation = Gdk.cairo_get_clip_rectangle(cr)
         x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
         area = Rectangle(x, y, width=w, height=h)
         self._painter.paint(Context(cairo=cr,
@@ -890,7 +906,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Change the transformation matrix of the view to reflect the
         value of the x/y adjustment (scrollbar).
         """
-        if adj.value == 0.0: return
+        value = adj.get_value()
+        if value == 0.0: return
 
         # Can not use self._matrix.translate( - adj.value , 0) here, since
         # the translate method effectively does a m * self._matrix, which
@@ -898,9 +915,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         m = Matrix()
         if adj is self._hadjustment:
-            m.translate( - adj.value, 0)
+            m.translate( - value, 0)
         elif adj is self._vadjustment:
-            m.translate(0, - adj.value)
+            m.translate(0, - value)
         self._matrix *= m
 
         # Force recalculation of the bounding boxes:

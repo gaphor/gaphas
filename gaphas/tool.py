@@ -409,7 +409,7 @@ class HandleTool(Tool):
         hovered-item.
         """
         view = self.view
-        if self.grabbed_handle and event.get_state()[1] & Gdk.ModifierType.BUTTON_PRESS_MASK:
+        if self.grabbed_handle and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
             canvas = view.canvas
             item = self.grabbed_item
             handle = self.grabbed_handle
@@ -488,7 +488,7 @@ class PanTool(Tool):
         return True
 
     def on_motion_notify(self, event):
-        if event.get_state()[1] & Gdk.ModifierType.BUTTON2_MASK:
+        if event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
             view = self.view
             self.x1, self.y1 = event.x, event.y
             dx = self.x1 - self.x0
@@ -549,7 +549,7 @@ class ZoomTool(Tool):
 
     def on_motion_notify(self, event):
         if event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE \
-                and event.get_state()[1] & Gdk.ModifierType.BUTTON2_MASK:
+                and event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
             view = self.view
             dy = event.y - self.y0
 

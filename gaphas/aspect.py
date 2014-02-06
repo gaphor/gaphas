@@ -141,12 +141,12 @@ class ElementHandleSelection(ItemHandleSelection):
     def select(self):
         index = self.item.handles().index(self.handle)
         if index < 4:
-            self.view.window.set_cursor(self.CURSORS[index])
+            self.view.get_window().set_cursor(self.CURSORS[index])
 
     def unselect(self):
         from view import DEFAULT_CURSOR
         cursor = Gdk.Cursor.new(DEFAULT_CURSOR)
-        self.view.window.set_cursor(cursor)
+        self.view.get_window().set_cursor(cursor)
 
 
 
