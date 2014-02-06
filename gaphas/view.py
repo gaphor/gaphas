@@ -507,13 +507,13 @@ class GtkView(Gtk.DrawingArea, View):
 
         View.__init__(self, canvas)
 
-        self.set_flags(Gtk.CAN_FOCUS)
-        self.add_events(Gdk.ModifierType.BUTTON_PRESS_MASK
-                        | Gdk.ModifierType.BUTTON_RELEASE_MASK
-                        | Gdk.ModifierType.POINTER_MOTION_MASK
-                        | Gdk.ModifierType.KEY_PRESS_MASK
-                        | Gdk.ModifierType.KEY_RELEASE_MASK
-                        | Gdk.ModifierType.SCROLL_MASK)
+        self.set_can_focus(True)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
+                        | Gdk.EventMask.BUTTON_RELEASE_MASK
+                        | Gdk.EventMask.POINTER_MOTION_MASK
+                        | Gdk.EventMask.KEY_PRESS_MASK
+                        | Gdk.EventMask.KEY_RELEASE_MASK
+                        | Gdk.EventMask.SCROLL_MASK)
 
         self._hadjustment = None
         self._vadjustment = None
@@ -605,7 +605,7 @@ class GtkView(Gtk.DrawingArea, View):
     @async(single=True)
     def update_adjustments(self, allocation=None):
         if not allocation:
-            allocation = self.allocation
+            allocation = self.get_allocation()
 
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
@@ -623,25 +623,28 @@ class GtkView(Gtk.DrawingArea, View):
             u = c + v
 
         # set lower limits
-        hadjustment.lower, vadjustment.lower = u.x, u.y
+        hadjustment.set_lower(u.x)
+        vadjustment.set_lower(u.y)
 
         # set upper limits
-        hadjustment.upper, vadjustment.upper = u.x1, u.y1
+        hadjustment.set_upper(u.x1)
+        vadjustment.set_upper(u.y1)
 
         # set page size
         aw, ah = allocation.width, allocation.height
-        hadjustment.page_size = aw
-        vadjustment.page_size = ah
+        hadjustment.set_page_size(aw)
+        vadjustment.set_page_size(ah)
 
         # set increments
-        hadjustment.page_increment = aw
-        hadjustment.step_increment = aw / 10
-        vadjustment.page_increment = ah
-        vadjustment.step_increment = ah / 10
+        hadjustment.set_page_increment(aw)
+        hadjustment.set_step_increment(aw / 10)
+        vadjustment.set_page_increment(ah)
+        vadjustment.set_step_increment(ah / 10)
 
         # set position
-        if v.x != hadjustment.value or v.y != vadjustment.value:
-            hadjustment.value, vadjustment.value = v.x, v.y
+        if v.x != hadjustment.get_value() or v.y != vadjustment.get_value():
+            hadjustment.set_value(v.x)
+            vadjustment.set_value(v.y)
 
 
     def queue_draw_item(self, *items):
@@ -674,7 +677,7 @@ class GtkView(Gtk.DrawingArea, View):
             super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
         except OverflowError:
             # Okay, now the zoom factor is very large or something
-            a = self.allocation
+            a = self.get_allocation()
             super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
@@ -682,7 +685,7 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Redraw the entire view.
         """
-        a = self.props.allocation
+        a = self.get_allocation()
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
