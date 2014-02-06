@@ -2,9 +2,6 @@
 Custom decorators.
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 import threading
 from gi.repository import GObject
 from gi.repository.GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \

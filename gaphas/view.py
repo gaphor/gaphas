@@ -2,9 +2,6 @@
 This module contains everything to display a Canvas on a screen.
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 from gi.repository import GObject, Gtk, Gdk
 from cairo import Matrix
 from canvas import Context

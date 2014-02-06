@@ -2,9 +2,6 @@
 Basic items.
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 from math import atan2
 from weakref import WeakKeyDictionary
 try:

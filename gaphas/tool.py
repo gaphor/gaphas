@@ -31,9 +31,6 @@ Tools can handle events in different ways
 - tool can handle the event (obviously)
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 import sys
 
 import cairo
@@ -607,7 +604,6 @@ class PlacementTool(Tool):
         self._new_item = None
         self.grabbed_handle = None
 
-    #handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
     handle_index = property(lambda s: s._handle_index,
                             doc="Index of handle to be used by handle_tool")
     new_item = property(lambda s: s._new_item, doc="The newly created item")
@@ -671,7 +667,6 @@ class TextEditTool(Tool):
         window = Gtk.Window()
         window.set_property('decorated', False)
         window.set_resize_mode(Gtk.RESIZE_IMMEDIATE)
-        #window.set_modal(True)
         window.set_parent_window(self.view.window)
         buffer = Gtk.TextBuffer()
         text_view = Gtk.TextView()
@@ -679,28 +674,18 @@ class TextEditTool(Tool):
         text_view.show()
         window.add(text_view)
         window.size_allocate((int(event.x), int(event.y), 50, 50))
-        #window.move(int(event.x), int(event.y))
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)
-        #text_view.set_size_request(50, 50)
         window.show()
-        #text_view.grab_focus()
-        #window.set_uposition(event.x, event.y)
-        #window.focus
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
-        #if event.keyval == Gdk.KEY_Return:
-            #print 'Enter!'
-            #widget.get_toplevel().destroy()
         if event.keyval == Gdk.KEY_Escape:
-            #print 'Escape!'
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
-        #print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
         widget.destroy()
 
 
@@ -764,17 +749,6 @@ class ConnectHandleTool(HandleTool):
                 self.connect(item, handle, (event.x, event.y))
         finally:
             return super(ConnectHandleTool, self).on_button_release(event)
-
-
-#    def on_motion_notify(self, event):
-#        super(ConnectHandleTool, self).on_motion_notify(event)
-#        handle = self.grabbed_handle
-#        if handle and event.get_state() & Gdk.EventMask.BUTTON_PRESS_MASK:
-#            if handle.connectable:
-#                self.glue(self.grabbed_item, handle, (event.x, event.y))
-#
-#            return True
-
 
 
 def DefaultTool(view=None):

@@ -27,9 +27,6 @@ To get connecting items (i.e. all lines connected to a class)::
 
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 from collections import namedtuple
 import logging
 
