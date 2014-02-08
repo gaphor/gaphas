@@ -547,9 +547,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif pspec.name == 'vscroll-policy':
             self._vscroll_policy = value
         elif pspec.name == 'hadjustment':
-            self.do_set_scroll_adjustments(value, self._vadjustment)
+            self._set_scroll_adjustments(value, self._vadjustment)
         elif pspec.name == 'vadjustment':
-            self.do_set_scroll_adjustments(self._hadjustment, value)
+            self._set_scroll_adjustments(self._hadjustment, value)
         else:
             raise AttributeError, 'Unknown property %s' % pspec.name
 
@@ -611,9 +611,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     vadjustment = property(lambda s: s._vadjustment)
 
     
-    def do_set_scroll_adjustments(self, hadjustment, vadjustment):
-        print 'View set scroll adjustments', self, hadjustment, vadjustment
-
+    def _set_scroll_adjustments(self, hadjustment, vadjustment):
         if self._hadjustment_handler_id:
             self._hadjustment.disconnect(self._hadjustment_handler_id)
             self._hadjustment_handler_id = None
@@ -632,7 +630,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                                                   self.on_adjustment_changed)
         self.update_adjustments()
 
-
+        
     def zoom(self, factor):
         """
         Zoom in/out by factor ``factor``.
@@ -818,16 +816,18 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
 
     @nonrecursive
-    def do_size_allocate(self, allocation):
+    def do_configure_event(self, event):
         """
-        Allocate the widget size ``(x, y, width, height)``.
+        Widget size has changed.
         """
-        Gtk.DrawingArea.do_size_allocate(self, allocation)
-        #self.update_adjustments(allocation)
-        self._qtree.resize((0, 0, allocation.width, allocation.height))
-       
+        self.update_adjustments(event)
+        self._qtree.resize((0, 0, event.width, event.height))
+
 
     def do_realize(self):
+        """
+        The ::realize signal is emitted when widget is associated with a ``GdkWindow``.
+        """
         Gtk.DrawingArea.do_realize(self)
 
         # Ensure updates are propagated
@@ -838,6 +838,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
 
     def do_unrealize(self):
+        """
+        The ::unrealize signal is emitted when the ``GdkWindow`` associated with widget is destroyed.
+        """
         if self.canvas:
             # Although Item._matrix_{i2v|v2i} keys are automatically removed
             # (weak refs), better do it explicitly to be sure.
@@ -922,16 +925,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.request_update((), self._canvas.get_all_items())
 
         self.queue_draw_refresh()
-
-
-# Set a signal to set adjustments. This way a ScrolledWindow can set its own
-# Adjustment objects on the View. Otherwise a warning is shown:
-#
-#   GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget
-#   use gtk_scrolled_window_add_with_viewport() instead
-
-# FixMe: implement Scrollable interface!
-# GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 
 
 # vim: sw=4:et:ai
