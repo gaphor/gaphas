@@ -15,13 +15,13 @@ Some more features:
 - User interaction is handled by Tools. Tools can be chained.
 - Versatile undo/redo system
 
-GTK+ and PyGTK_ are required.
+GTK+ and PyGObject3_ are required.
 
 .. _Cairo: http://cairographics.org/
-.. _PyGTK: http://www.pyGtk.org/
+.. _PyGObject3: http://live.gnome.org/PyGObject
 """
 
-VERSION = '0.7.2'
+VERSION = '0.8.0'
 
 from ez_setup import use_setuptools
 
@@ -48,9 +48,9 @@ setup(
     keywords='',
 
     author="Arjan J. Molenaar",
-    author_email='arjanmol@users.sourceforge.net',
+    author_email='gaphor@gmail.com',
 
-    url='http://gaphor.sourceforge.net',
+    url='http://github.com/amolenaar/gaphas',
 
     #download_url='http://cheeseshop.python.org/',
 
@@ -66,8 +66,7 @@ setup(
     install_requires=[
      'decorator >= 3.0.0',
      'simplegeneric >= 0.6',
-#    'PyGTK >= 2.8.0',
-#    'cairo >= 1.8.2'
+     'pygobject >= 3.10.0'
     ],
 
     zip_safe=False,
