@@ -646,8 +646,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if not allocation:
             allocation = self.get_allocation()
 
-        print 'View update adjustments', self, allocation
-
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
 
@@ -686,7 +684,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if v.x != hadjustment.get_value() or v.y != vadjustment.get_value():
             hadjustment.set_value(v.x)
             vadjustment.set_value(v.y)
-        print 'done update adj.'
+
 
     def queue_draw_item(self, *items):
         """
