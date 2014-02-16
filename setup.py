@@ -66,7 +66,7 @@ setup(
     install_requires=[
      'decorator >= 3.0.0',
      'simplegeneric >= 0.6',
-     'pygobject >= 3.10.0'
+     #'pygobject >= 3.10.0'
     ],
 
     zip_safe=False,
