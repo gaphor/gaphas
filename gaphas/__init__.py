@@ -1,5 +1,5 @@
 """
-Gaphas 
+Gaphas
 ======
 
 Gaphor's Canvas.

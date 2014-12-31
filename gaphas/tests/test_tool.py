@@ -29,15 +29,15 @@ def simple_canvas(self):
     self.box1 = Box()
     self.canvas.add(self.box1)
     self.box1.matrix.translate(100, 50)
-    self.box1.width = 40 
-    self.box1.height = 40 
+    self.box1.width = 40
+    self.box1.height = 40
     self.box1.request_update()
 
     self.box2 = Box()
     self.canvas.add(self.box2)
     self.box2.matrix.translate(100, 150)
-    self.box2.width = 50 
-    self.box2.height = 50 
+    self.box2.width = 50
+    self.box2.height = 50
     self.box2.request_update()
 
     self.line = Line()
@@ -93,7 +93,7 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
         sink = self.tool.glue(self.line, self.head, (100, 70))
         self.assertEquals(sink.item, self.box1)
         self.assertEquals(ports[3], sink.port)
-        
+
 
     def test_failed_glue(self):
         """Test glue from too far distance"""
@@ -115,7 +115,7 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
 #            def __init__(self, *args):
 #                super(Tool, self).__init__(*args)
 #                self._calls = 0
-#                
+#
 #            def can_glue(self, *args):
 #                self._calls += 1
 #                return True

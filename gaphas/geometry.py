@@ -63,7 +63,7 @@ class Rectangle(object):
         width = x1 - self.x
         if width < 0: width = 0
         self.width = width
-        
+
     x1 = property(lambda s: s.x + s.width, _set_x1)
 
     def _set_y1(self, y1):
@@ -86,7 +86,7 @@ class Rectangle(object):
         self.y -= delta
         self.width += delta * 2
         self.height += delta * 2
-        
+
     def __repr__(self):
         """
         >>> Rectangle(5,7,20,25)
@@ -119,7 +119,7 @@ class Rectangle(object):
         >>> if r: 'no'
         """
         return self.width > 0 and self.height > 0
-    
+
     def __eq__(self, other):
         return (type(self) is type(other)) \
                 and self.x == other.x \
@@ -311,7 +311,7 @@ def point_on_rectangle(rect, point, border=False):
     Return the point on which ``point`` can be projecten on the rectangle.
     ``border = True`` will make sure the point is bound to the border of
     the reactangle. Otherwise, if the point is in the rectangle, it's okay.
-    
+
     >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
     (10, 0)
     >>> point_on_rectangle((0, 0, 10, 10), (5, 12))
@@ -375,7 +375,7 @@ def point_on_rectangle(rect, point, border=False):
 def distance_line_point(line_start, line_end, point):
     """
     Calculate the distance of a ``point`` from a line. The line is marked
-    by begin and end point ``line_start`` and ``line_end``. 
+    by begin and end point ``line_start`` and ``line_end``.
 
     A tuple is returned containing the distance and point on the line.
 
@@ -481,31 +481,31 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     #     In the following code, 'long' values have been used for this
     #     purpose, instead of 'int'.
     #
-   
+
     x1, y1 = line1_start
     x2, y2 = line1_end
     x3, y3 = line2_start
     x4, y4 = line2_end
-    
+
     #long a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
     #long r1, r2, r3, r4;         /* 'Sign' values */
     #long denom, offset, num;     /* Intermediate values */
 
     # Compute a1, b1, c1, where line joining points 1 and 2
     # is "a1 x  +  b1 y  +  c1  =  0".
-    
+
     a1 = y2 - y1
     b1 = x1 - x2
     c1 = x2 * y1 - x1 * y2
 
     # Compute r3 and r4.
-    
+
     r3 = a1 * x3 + b1 * y3 + c1
     r4 = a1 * x4 + b1 * y4 + c1
 
     # Check signs of r3 and r4.  If both point 3 and point 4 lie on
     # same side of line 1, the line segments do not intersect.
-    
+
     if r3 and r4 and (r3 * r4) >= 0:
         return None # ( DONT_INTERSECT )
 
@@ -523,12 +523,12 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # Check signs of r1 and r2.  If both point 1 and point 2 lie
     # on same side of second line segment, the line segments do
     # not intersect.
-    
+
     if r1 and r2 and (r1 * r2) >= 0: #SAME_SIGNS( r1, r2 ))
         return None # ( DONT_INTERSECT )
 
-    # Line segments intersect: compute intersection point. 
-    
+    # Line segments intersect: compute intersection point.
+
     denom = a1 * b2 - a2 * b1
     if not denom:
         return None # ( COLLINEAR )
@@ -537,7 +537,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # The denom/2 is to get rounding instead of truncating.  It
     # is added or subtracted to the numerator, depending upon the
     # sign of the numerator.
-    
+
     num = b1 * c2 - b2 * c1
     x = ( (num < 0) and (num - offset) or (num + offset) ) / denom
 

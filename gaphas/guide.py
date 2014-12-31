@@ -211,7 +211,7 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 
         px, py = pos
         pdx, pdy = px - self.last_x, py - self.last_y
-        
+
         excluded_items = self.get_excluded_items()
 
         item_guide = Guide(item)
@@ -250,7 +250,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
     def move(self, pos):
 
         sink = super(GuidedItemHandleInMotion, self).move(pos)
-        
+
         if not sink:
             item = self.item
             handle = self.handle
@@ -299,7 +299,7 @@ class GuidePainter(ItemPaintFocused):
             guides = self.view.guides
         except AttributeError:
             return
-        
+
         cr = context.cairo
         view = self.view
         allocation = view.allocation

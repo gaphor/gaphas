@@ -26,7 +26,7 @@ DEFAULT_CURSOR = gtk.gdk.LEFT_PTR
 
 class View(object):
     """
-    View class for gaphas.Canvas objects. 
+    View class for gaphas.Canvas objects.
     """
 
     def __init__(self, canvas=None):
@@ -145,7 +145,7 @@ class View(object):
         Items that loose focus remain selected.
         """
         self._set_focused_item(None)
-        
+
 
     focused_item = property(lambda s: s._focused_item,
                             _set_focused_item, _del_focused_item,
@@ -167,7 +167,7 @@ class View(object):
         Unset the hovered item.
         """
         self._set_hovered_item(None)
-        
+
 
     hovered_item = property(lambda s: s._hovered_item,
                             _set_hovered_item, _del_hovered_item,
@@ -396,7 +396,7 @@ class View(object):
 
     def update_bounding_box(self, cr, items=None):
         """
-        Update the bounding boxes of the canvas items for this view, in 
+        Update the bounding boxes of the canvas items for this view, in
         canvas coordinates.
         """
         painter = self._bounding_box_painter
@@ -483,7 +483,7 @@ class GtkView(gtk.DrawingArea, View):
 
     # Just defined a name to make GTK register this class.
     __gtype_name__ = 'GaphasView'
-    
+
     # Signals: emited after the change takes effect.
     __gsignals__ = {
         'set-scroll-adjustments': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
@@ -527,7 +527,7 @@ class GtkView(gtk.DrawingArea, View):
         self.emit('set-scroll-adjustments', hadjustment, vadjustment)
 
         self._set_tool(DefaultTool())
-        
+
         # Set background to white.
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFF'))
 
@@ -551,7 +551,7 @@ class GtkView(gtk.DrawingArea, View):
             self._canvas.unregister_view(self)
 
         super(GtkView, self)._set_canvas(canvas)
-        
+
         if self._canvas:
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
@@ -577,7 +577,7 @@ class GtkView(gtk.DrawingArea, View):
 
     vadjustment = property(lambda s: s._vadjustment)
 
-    
+
     def do_set_scroll_adjustments(self, hadjustment, vadjustment):
         if self._hadjustment_handler_id:
             self._hadjustment.disconnect(self._hadjustment_handler_id)
@@ -787,7 +787,7 @@ class GtkView(gtk.DrawingArea, View):
         gtk.DrawingArea.do_size_allocate(self, allocation)
         self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
-       
+
 
     def do_realize(self):
         gtk.DrawingArea.do_realize(self)

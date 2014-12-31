@@ -12,7 +12,7 @@ from operator import attrgetter
 class Tree(object):
     """
     A Tree structure. Nodes are stores in a depth-first order.
-    
+
     ``None`` is the root node.
 
     @invariant: len(self._children) == len(self._nodes) + 1
@@ -186,7 +186,7 @@ class Tree(object):
     def sort(self, nodes, index_key, reverse=False):
         """
         Sort a set (or list) of nodes.
-        
+
         >>> class A(object):
         ...     def __init__(self, n):
         ...         self.n = n
@@ -246,7 +246,7 @@ class Tree(object):
         siblings = self._children[parent]
 
         self._add_to_nodes(node, parent, index)
-        
+
         # Fix parent-child and child-parent relationship
         try:
             siblings.insert(index, node)
@@ -302,7 +302,7 @@ class Tree(object):
         self._add_to_nodes(node, parent)
         for c in self._children[node]:
             self._reparent_nodes(c, node)
-        
+
     def reparent(self, node, parent, index=None):
         """
         Set new parent for a ``node``. ``Parent`` can be ``None``, indicating
@@ -323,7 +323,7 @@ class Tree(object):
         ['n1', 'n3', 'n2']
 
         If a node contains children, those are also moved:
-        
+
         >>> tree.add('n4')
         >>> tree.nodes
         ['n1', 'n3', 'n2', 'n4']

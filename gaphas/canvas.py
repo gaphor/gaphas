@@ -97,7 +97,7 @@ class Canvas(object):
         self._dirty_index = False
 
         self._registered_views = set()
-    
+
     solver = property(lambda s: s._solver)
 
 
@@ -370,7 +370,7 @@ class Canvas(object):
         # remove constraints to this item
         for cinfo in list(self._connections.query(connected=item)):
             disconnect_item(*cinfo)
-    
+
 
     @observed
     def reconnect_item(self, item, handle, constraint=None):
@@ -495,7 +495,7 @@ class Canvas(object):
                 connected=connected,
                 port=port)
 
-        
+
     def sort(self, items, reverse=False):
         """
         Sort a list of items in the order in which they are traversed in
@@ -553,12 +553,12 @@ class Canvas(object):
         except AttributeError:
             # Fall back to old behaviour
             return i2c * c2i
-        
+
 
     @observed
     def request_update(self, item, update=True, matrix=True):
         """
-        Set an update request for the item. 
+        Set an update request for the item.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -808,7 +808,7 @@ class Canvas(object):
         for item in items:
             if item.normalize():
                 dirty_matrix_items.add(item)
-                
+
         return dirty_matrix_items
 
 
@@ -921,7 +921,7 @@ class VariableProjection(solver.Projection):
 
     The value has been set in the "other" coordinate system. A callback is
     executed when the value changes.
-    
+
     It's a simple Variable-like class, following the Projection protocol:
 
     >>> def notify_me(val):
@@ -1011,7 +1011,7 @@ class CanvasProjection(object):
         # Note: we can not use bound methods as callbacks, since that will
         #       cause pickle to fail.
         return self.pos[key]
-        
+
     def __iter__(self):
         return iter(self.pos)
 
