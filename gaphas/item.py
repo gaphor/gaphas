@@ -413,33 +413,6 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
-    #@observed
-    #def _set_min_width(self, min_width):
-    #    """
-    #    Set minimal width.
-    #    """
-    #    if min_width < 0:
-    #        raise ValueError, 'Minimal width cannot be less than 0'
-#
-        #self._c_min_w.delta = min_width
-        #if self.canvas:
-            #self.canvas.solver.request_resolve_constraint(self._c_min_w)
-
-    #min_width = reversible_property(lambda s: s._c_min_w.delta, _set_min_width)
-
-#    @observed
-#    def _set_min_height(self, min_height):
-#        """
-#        Set minimal height.
-#        """
-#        if min_height < 0:
-#            raise ValueError, 'Minimal height cannot be less than 0'
-#
-#        self._c_min_h.delta = min_height
-#        if self.canvas:
-#            self.canvas.solver.request_resolve_constraint(self._c_min_h)
-#
-#    min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
     def normalize(self):
         """
