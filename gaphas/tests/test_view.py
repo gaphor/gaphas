@@ -47,7 +47,7 @@ class ViewTestCase(unittest.TestCase):
         while gtk.events_pending():
             gtk.main_iteration()
 
-        try: 
+        try:
             assert view2.get_item_bounding_box(box)
             assert view1.get_item_bounding_box(box)
             assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
@@ -153,10 +153,10 @@ class ViewTestCase(unittest.TestCase):
         canvas = Canvas()
 
         # Simple views do not register on the canvas
-        
+
         view = View(canvas)
         assert len(canvas._registered_views) == 0
-        
+
         box = Box()
         canvas.add(box)
 
@@ -168,7 +168,7 @@ class ViewTestCase(unittest.TestCase):
 
         view = GtkView(canvas)
         assert len(canvas._registered_views) == 1
-        
+
         # No entry, since GtkView is not realized and has no window
         assert not box._matrix_i2v.has_key(view)
         assert not box._matrix_v2i.has_key(view)
@@ -222,7 +222,7 @@ class ViewTestCase(unittest.TestCase):
 
         assert not box._matrix_i2v.has_key(view)
         assert not box._matrix_v2i.has_key(view)
-        
+
 
     def test_scroll_adjustments_signal(self):
         def handler(self, hadj, vadj):

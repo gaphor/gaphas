@@ -85,10 +85,10 @@ class Quadtree(object):
     def __init__(self, bounds=(0, 0, 0, 0), capacity=10):
         """
         Create a new Quadtree instance.
-        
+
         Bounds is the boundries of the quadtree. this is fixed and do not
         change depending on the contents.
-        
+
         Capacity defines the number of elements in one tree bucket (default: 10)
         """
         self._capacity = capacity
@@ -235,7 +235,7 @@ class Quadtree(object):
         Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_contains))
-        
+
 
     def find_intersect(self, rect):
         """
@@ -244,7 +244,7 @@ class Quadtree(object):
         Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_intersects))
-        
+
 
     def __len__(self):
         """
@@ -315,7 +315,7 @@ class QuadtreeBucket(object):
         The item should be contained by *this* bucket (not a sub-bucket).
         """
         del self.items[item]
-        
+
 
     def update(self, item, new_bounds):
         """
@@ -367,7 +367,7 @@ class QuadtreeBucket(object):
             for bucket in self._buckets:
                 for item in bucket.find(rect, method=method):
                     yield item
-                
+
 
     def clear(self):
         """

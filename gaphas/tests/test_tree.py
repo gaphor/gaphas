@@ -67,7 +67,7 @@ class TreeTestCase(unittest.TestCase):
         tree.add(n3, index=1)
         assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
         assert tree.nodes == [n1, n3, n2], tree.nodes
-        
+
         tree.add(n4, parent=n3)
         tree.add(n5, parent=n3, index=0)
         assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
@@ -111,11 +111,11 @@ class TreeTestCase(unittest.TestCase):
         n1 = 'n1'
         n2 = 'n2'
         n3 = 'n3'
-        
+
         tree.add(n1)
         tree.add(n2)
         tree.add(n3)
-        
+
         assert tree.get_next_sibling(n1) is n2
         assert tree.get_next_sibling(n2) is n3
         try:

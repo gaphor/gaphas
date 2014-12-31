@@ -50,7 +50,7 @@ class LineSegment(object):
          segment
             Segment number to split (starting from zero).
          count
-            Amount of new segments to be created (minimum 2). 
+            Amount of new segments to be created (minimum 2).
         """
         item = self.item
         if segment < 0 or segment >= len(item.ports()):
@@ -98,7 +98,7 @@ class LineSegment(object):
          segment
             Segment number to start merging from (starting from zero).
          count
-            Amount of segments to be merged (minimum 2). 
+            Amount of segments to be merged (minimum 2).
         """
         item = self.item
         if len(item.ports()) < 2:
@@ -159,7 +159,7 @@ class LineSegment(object):
         for cinfo in list(canvas.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
-            
+
             constraint = port.constraint(canvas, item, handle, connected)
 
             cinfo = canvas.get_connection(handle)
