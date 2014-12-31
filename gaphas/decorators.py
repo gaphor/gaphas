@@ -34,12 +34,12 @@ class async(object):
     'Hi'
 
     Simple method:
-    
+
     >>> class A(object):
     ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
     ...     def a(self):
     ...         print 'idle-a', gobject.main_depth()
-    
+
     Methods can also set single mode to True (the method is only scheduled one).
 
     >>> class B(object):

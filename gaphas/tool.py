@@ -54,7 +54,7 @@ Event = Context
 
 class Tool(object):
     """
-    Base class for a tool. This class 
+    Base class for a tool. This class
     A word on click events:
 
     Mouse (pointer) button click. A button press is normally followed by
@@ -197,10 +197,10 @@ class ToolChain(Tool):
         or grabbed.
 
         If a tool is returning True on a button press event, the motion and
-        button release events are also passed to this 
+        button release events are also passed to this
         """
         handler = self.EVENT_HANDLERS.get(event.type)
-        
+
         self.validate_grabbed_tool(event)
 
         if self._grabbed_tool and handler:
@@ -268,7 +268,7 @@ class ItemTool(Tool):
             # Do not move subitems of selected items
             if not set(get_ancestors(item)).intersection(selected_items):
                 yield InMotion(item, view)
-        
+
 
     def on_button_press(self, event):
         ### TODO: make keys configurable
@@ -277,7 +277,7 @@ class ItemTool(Tool):
 
         if event.button not in self._buttons:
             return False
-        
+
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
         if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
@@ -586,7 +586,7 @@ class ZoomTool(Tool):
             ox = (view._matrix[4] - event.x) / sx
             oy = (view._matrix[5] - event.y) / sy
             factor = 0.9
-            if event.direction == gtk.gdk.SCROLL_UP:    
+            if event.direction == gtk.gdk.SCROLL_UP:
                 factor = 1. / factor
             view._matrix.translate(-ox, -oy)
             view._matrix.scale(factor, factor)

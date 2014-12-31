@@ -36,7 +36,7 @@ class UndoTestCase(unittest.TestCase):
     def shutDown(self):
         state.observers.remove(state.revert_handler)
         state.subscribers.remove(undo_handler)
-    
+
     def testUndoOnDeletedElement(self):
         b1 = Box()
 
@@ -49,7 +49,7 @@ class UndoTestCase(unittest.TestCase):
 
         canvas.add(b2)
         self.assertEquals(4, len(canvas.solver.constraints))
-        
+
         canvas.add(line)
 
         sink = ConnectionSink(b1, b1.ports()[0])
@@ -62,7 +62,7 @@ class UndoTestCase(unittest.TestCase):
 
         self.assertEquals(6, len(canvas.solver.constraints))
         self.assertEquals(2, len(list(canvas.get_connections(item=line))))
-        
+
         del undo_list[:]
 
         # Here disconnect is not invoked!
@@ -93,7 +93,7 @@ class UndoTestCase(unittest.TestCase):
 
 #        self.assertEquals(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
 #        self.assertTrue(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
-        
+
 if __name__ == '__main__':
     unittest.main()
 # vim:sw=4:et:ai

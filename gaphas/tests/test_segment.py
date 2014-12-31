@@ -100,7 +100,7 @@ class LineSplitTestCase(TestCaseBase):
         self.assertEquals(h2.pos, old_port.end)
 
         segment = Segment(self.line, self.view)
-        
+
         handles, ports = segment.split_segment(0)
         handle = handles[0]
         self.assertEquals(1, len(handles))
@@ -358,11 +358,11 @@ class LineMergeTestCase(TestCaseBase):
         self.line.handles()[1].pos = (20, 16)
         segment = Segment(self.line, self.view)
         segment.split_segment(0, count=3)
- 
+
         # start with 4 handles and 3 ports, merge 3 segments
         assert len(self.line.handles()) == 4
         assert len(self.line.ports()) == 3
- 
+
         print self.line.handles()
         handles, ports = segment.merge_segment(0, count=3)
         self.assertEquals(2, len(handles))
@@ -378,7 +378,7 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEquals((0, 0), port.start.pos)
         self.assertEquals((20, 16), port.end.pos)
 
- 
+
     def test_merge_undo(self):
         """Test line merging undo
         """
@@ -393,18 +393,18 @@ class LineMergeTestCase(TestCaseBase):
 
         # clear undo stack before merging
         del undo_list[:]
- 
+
         # merge with empty undo stack
         segment.merge_segment(0)
         assert len(self.line.handles()) == 2
         assert len(self.line.ports()) == 1
- 
+
         # after merge undo, 3 handles and 2 ports are expected again
         undo()
         self.assertEquals(3, len(self.line.handles()))
         self.assertEquals(2, len(self.line.ports()))
- 
- 
+
+
     def test_orthogonal_line_merge(self):
         """Test orthogonal line merging
         """
@@ -429,7 +429,7 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEquals(3, len(self.line.handles()))
         self.assertEquals(2, len(self.line.ports()))
 
- 
+
     def test_params_errors(self):
         """Test parameter error exceptions
         """
@@ -439,21 +439,21 @@ class LineMergeTestCase(TestCaseBase):
         segment.split_segment(0)
         # no segment -1
         self.assertRaises(ValueError, segment.merge_segment, -1)
- 
+
         line = Line()
         self.canvas.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # no segment no 2
         self.assertRaises(ValueError, segment.merge_segment, 2)
- 
+
         line = Line()
         self.canvas.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # can't merge one or less segments :)
         self.assertRaises(ValueError, segment.merge_segment, 0, 1)
- 
+
         line = Line()
         self.canvas.add(line)
         self.assertEquals(2, len(line.handles()))

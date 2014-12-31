@@ -32,7 +32,7 @@ from decorator import decorator
 DISPATCH_BY_DEFAULT = True
 
 # Add/remove methods from this subscribers list.
-# Subscribers should have signature method(event) where event is a 
+# Subscribers should have signature method(event) where event is a
 # Event has the form: (func, keywords)
 # Since most events originate from methods, it's save to call
 # saveapply(func, keywords) for those functions
@@ -68,7 +68,7 @@ def observed(func):
             if acquired:
                 mutex.release()
     dec = decorator(wrapper)(func)
-    
+
     func.__observer__ = dec
     return dec
 
@@ -133,7 +133,7 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
     """
     Replacement for the property descriptor. In addition to creating a
-    property instance, the property is registered as reversible and 
+    property instance, the property is registered as reversible and
     reverse events can be send out when changes occur.
 
     Cave eat: we can't handle both fset and fdel in the proper way. Therefore
@@ -168,7 +168,7 @@ def revert_handler(event):
     First thing to do is to actually enable the revert_handler:
 
     >>> observers.add(revert_handler)
-    
+
     First let's define our simple list:
 
     >>> class SList(object):
