@@ -57,7 +57,7 @@ class Variable(object):
     Representation of a variable in the constraint solver.
     Each Variable has a @value and a @strength. Ina constraint the
     weakest variables are changed.
-    
+
     You can even do some calculating with it. The Variable always represents
     a float variable.
     """
@@ -82,7 +82,7 @@ class Variable(object):
         """
         Mark the variable dirty in both the constraint solver and attached
         constraints.
-        
+
         Variables are marked dirty also during constraints solving to
         solve all dependent constraints, i.e. two equals constraints
         between 3 variables.
@@ -572,7 +572,7 @@ class Solver(object):
                     # All iteration have completed succesfully,
                     # so all variables are in the constraint
                     yield c
-                    
+
 
     def solve(self):
         """
@@ -639,9 +639,9 @@ class solvable(object):
     >>> a._v_x
     Variable(12, 20)
     >>> a.x = 3
-    >>> a.x 
+    >>> a.x
     Variable(3, 20)
-    >>> a.y 
+    >>> a.y
     Variable(0, 30)
     """
 

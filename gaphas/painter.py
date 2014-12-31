@@ -87,7 +87,7 @@ class DrawContext(Context):
     """
 
     deprecated = False
-    
+
     def __init__(self, **kwargs):
         super(DrawContext, self).__init__(**kwargs)
 

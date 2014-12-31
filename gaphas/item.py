@@ -58,7 +58,7 @@ class Item(object):
         # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
         self._matrix_i2v = WeakKeyDictionary()
         self._matrix_v2i = WeakKeyDictionary()
-	self._canvas_projections = WeakSet()
+        self._canvas_projections = WeakSet()
 
     @observed
     def _set_canvas(self, canvas):
@@ -151,7 +151,7 @@ class Item(object):
         """
         Update handle positions of the item, so the first handle is always
         located at (0, 0).
-        
+
         Note that, since this method basically does some housekeeping during
         the update phase, there's no need to keep track of the changes.
 
@@ -192,7 +192,7 @@ class Item(object):
         """
         pass
 
-    
+
     def handles(self):
         """
         Return a list of handles owned by the item.
@@ -336,8 +336,8 @@ class Element(Item):
         # edge of element define default element ports
         self._ports = [
             LinePort(h_nw.pos, h_ne.pos),
-            LinePort(h_ne.pos, h_se.pos), 
-            LinePort(h_se.pos, h_sw.pos), 
+            LinePort(h_ne.pos, h_se.pos),
+            LinePort(h_se.pos, h_sw.pos),
             LinePort(h_sw.pos, h_nw.pos)
         ]
 
@@ -460,7 +460,7 @@ class Element(Item):
             for h in handles:
                 h.pos.y -= y
         return updated
-        
+
     def point(self, pos):
         """
         Distance from the point (x, y) to the item.
@@ -637,7 +637,7 @@ class Line(Item):
     def _create_handle(self, pos, strength=WEAK):
         return Handle(pos, strength=strength)
 
-    
+
     def _create_port(self, p1, p2):
         return LinePort(p1, p2)
 
@@ -680,7 +680,7 @@ class Line(Item):
     def closest_segment(self, pos):
         """
         Obtain a tuple (distance, point_on_line, segment).
-        Distance is the distance from point to the closest line segment 
+        Distance is the distance from point to the closest line segment
         Point_on_line is the reflection of the point on the line.
         Segment is the line segment closest to (x, y)
 

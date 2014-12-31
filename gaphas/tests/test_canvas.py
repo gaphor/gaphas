@@ -51,7 +51,7 @@ class CanvasTestCase(unittest.TestCase):
 
         c.connect_item(l, l.handles()[0], b1, b1.ports()[0])
         assert count(c.get_connections(handle=l.handles()[0])) == 1
-	
+
         # Add the same
         self.assertRaises(ConnectionError, c.connect_item, l, l.handles()[0], b1, b1.ports()[0])
         assert count(c.get_connections(handle=l.handles()[0])) == 1
@@ -79,7 +79,7 @@ class CanvasTestCase(unittest.TestCase):
 
         c.connect_item(l, l.handles()[0], b1, b1.ports()[0], callback=callback)
         assert count(c.get_connections(handle=l.handles()[0])) == 1
-	
+
         c.disconnect_item(l, l.handles()[0])
         assert count(c.get_connections(handle=l.handles()[0])) == 0
         assert events == ['called']
@@ -98,7 +98,7 @@ class CanvasTestCase(unittest.TestCase):
 
         c.connect_item(l, l.handles()[0], b1, b1.ports()[0], constraint=cons)
         assert count(c.get_connections(handle=l.handles()[0])) == 1
-	
+
         ncons = len(c.solver.constraints)
         assert ncons == 5
 
@@ -123,7 +123,7 @@ class CanvasTestCase(unittest.TestCase):
 
         c.connect_item(l, l.handles()[0], b1, b1.ports()[0], callback=callback)
         assert count(c.get_connections(handle=l.handles()[0])) == 1
-	
+
         c.remove(b1)
 
         assert count(c.get_connections(handle=l.handles()[0])) == 0
@@ -143,7 +143,7 @@ class CanvasTestCase(unittest.TestCase):
 
         c.connect_item(l, l.handles()[0], b1, b1.ports()[0], constraint=cons)
         assert count(c.get_connections(handle=l.handles()[0])) == 1
-	
+
         ncons = len(c.solver.constraints)
         assert ncons == 5
 
@@ -243,7 +243,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 
         # Expecting a class + line connected at one end only
         self.assertEquals(number_cons1 + 1, len(canvas.solver.constraints))
-        
+
 ###    def test_adding_constraint(self):
 ###        """Test adding canvas constraint"""
 ###        canvas = Canvas()

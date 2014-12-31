@@ -31,7 +31,7 @@ class WeakSet:
         return sum(x() is not None for x in self.data)
 
     def __contains__(self, item):
-	"""
+        """
         >>> class C(object): pass
         >>> a = C()
         >>> b = C()
@@ -41,7 +41,7 @@ class WeakSet:
         >>> a = C()
         >>> a in ws
         False
-	"""
+        """
         return ref(item) in self.data
 
     def __reduce__(self):

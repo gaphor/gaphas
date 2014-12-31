@@ -36,8 +36,8 @@ class Box(Element):
 
 class PortoBox(Box):
     """
-    Box item with few falvours of port(o)s.
-    
+    Box item with few flavours of port(o)s.
+
     Default box ports are disabled. Three, non-default connectable ports
     are created (represented by ``x`` on the picture).
 

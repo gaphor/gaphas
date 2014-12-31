@@ -4,7 +4,7 @@ Cairo context using Steve Hanov's freehand drawing code.
     # Crazyline. By Steve Hanov, 2008
     # Released to the public domain.
 
-    # The idea is to draw a curve, setting two control points at random 
+    # The idea is to draw a curve, setting two control points at random
     # close to each side of the line. The longer the line, the sloppier
     # it's drawn.
 
@@ -58,7 +58,7 @@ class FreeHandCairoContext(object):
         to_x = x + sloppiness * rand() * offset/4
         to_y = y + sloppiness * rand() * offset/4
 
-        # t1 and t2 are coordinates of a line shifted under or to the right of 
+        # t1 and t2 are coordinates of a line shifted under or to the right of
         # our original.
         t1_x = from_x + offset
         t1_y = from_y + offset
@@ -70,7 +70,7 @@ class FreeHandCairoContext(object):
         control1_x = t1_x + r * (t2_x-t1_x)
         control1_y = t1_y + r * (t2_y-t1_y)
 
-        # now make t1 and t2 the coordinates of our line shifted above 
+        # now make t1 and t2 the coordinates of our line shifted above
         # and to the left of the original.
 
         t1_x = from_x - offset
@@ -97,7 +97,7 @@ class FreeHandCairoContext(object):
 
         dev_x, dev_y = cr.user_to_device(x3, y3)
         rand = Random((from_x, from_y, dev_x, dev_y, x1, y1, x2, y2, x3, y3)).random
-        
+
         r = rand()
         c1_x = from_x + r * (x1-from_x)
         c1_y = from_y + r * (y1-from_y)
@@ -119,10 +119,10 @@ class FreeHandCairoContext(object):
         from_x, from_y = cr.get_current_point()
 
         # calculate radius of the circle.
-        radius1 = Math.sqrt( (cx-from_x)*(cx-from_x) + 
+        radius1 = Math.sqrt( (cx-from_x)*(cx-from_x) +
                 (cy-from_y)*(cy-from_y));
 
-        radius2 = Math.sqrt( (cx-x)*(cx-x) + 
+        radius2 = Math.sqrt( (cx-x)*(cx-x) +
                 (cy-y)*(cy-y));
 
         dev_x, dev_y = cr.user_to_device(x, y)
@@ -149,7 +149,7 @@ class FreeHandCairoContext(object):
             self.line_to(x, y)
         else:
             self.close_path()
-        
+
 
 class FreeHandPainter(object):
 

@@ -71,7 +71,7 @@ class Constraint(object):
         self.create_weakest_list()
 
         # Used by the Solver for efficiency
-        self._solver_has_projections = False 
+        self._solver_has_projections = False
 
 
     def create_weakest_list(self):
@@ -130,7 +130,7 @@ class Constraint(object):
         """
         wvar = self.weakest()
         self.solve_for(wvar)
-   
+
     def solve_for(self, var):
         """
         Solve the constraint for a given variable.
@@ -283,7 +283,7 @@ class EquationConstraint(Constraint):
 
     From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/303396
     """
-    
+
     def __init__(self, f, **args):
         super(EquationConstraint, self).__init__(*args.values())
         self._f = f
@@ -348,7 +348,7 @@ class EquationConstraint(Constraint):
         for nm, v in self._args.items():
             args[nm] = v.value
             if v is var: arg = nm
-        v = self._solve_for(arg, args) 
+        v = self._solve_for(arg, args)
         if var.value != v:
             var.value = v
 
@@ -507,7 +507,7 @@ class LineConstraint(Constraint):
         except ZeroDivisionError:
             self.ratio_y = 0.0
 
-        
+
     def solve_for(self, var=None):
         self._solve()
 
@@ -515,7 +515,7 @@ class LineConstraint(Constraint):
     def _solve(self):
         """
         Solve the equation for the connected_handle.
-        
+
         >>> from gaphas.solver import Variable
         >>> line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
         >>> point = (Variable(15), Variable(4))
@@ -558,7 +558,7 @@ class PositionConstraint(Constraint):
         self._origin = origin
         self._point = point
 
-        
+
     def solve_for(self, var=None):
         """
         Ensure that point's coordinates are the same as coordinates of the
@@ -605,7 +605,7 @@ class LineAlignConstraint(Constraint):
         self._align = align
         self._delta = delta
 
-        
+
     def solve_for(self, var=None):
         sx, sy = self._line[0]
         ex, ey = self._line[1]
