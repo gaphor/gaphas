@@ -1,6 +1,6 @@
 """
-Tools provide interactive behavior to a `View` by handling specific events
-sent by view.
+Tools provide interactive behavior to a `View` by handling specific
+events sent by view.
 
 Some of implemented tools are
 
@@ -22,8 +22,8 @@ Some of implemented tools are
 `PlacementTool`
     for placing items on the canvas
 
-The tools are chained with `ToolChain` class (it is a tool as well), which
-allows to combine functionality provided by different tools.
+The tools are chained with `ToolChain` class (it is a tool as well),
+which allows to combine functionality provided by different tools.
 
 Tools can handle events in different ways
 
@@ -57,9 +57,9 @@ class Tool(object):
     Base class for a tool. This class
     A word on click events:
 
-    Mouse (pointer) button click. A button press is normally followed by
-    a button release. Double and triple clicks should work together with
-    the button methods.
+    Mouse (pointer) button click. A button press is normally followed
+    by a button release. Double and triple clicks should work together
+    with the button methods.
 
     A single click is emited as:
             on_button_press
@@ -107,8 +107,8 @@ class Tool(object):
 
     def _dispatch(self, event):
         """
-        Deal with the event. The event is dispatched to a specific handler
-        for the event type.
+        Deal with the event. The event is dispatched to a specific
+        handler for the event type.
         """
         handler = self.EVENT_HANDLERS.get(event.type)
         #print event.type, handler
@@ -128,9 +128,9 @@ class Tool(object):
 
     def draw(self, context):
         """
-        Some tools (such as Rubberband selection) may need to draw something
-        on the canvas. This can be done through the draw() method. This is
-        called after all items are drawn.
+        Some tools (such as Rubberband selection) may need to draw
+        something on the canvas. This can be done through the draw()
+        method. This is called after all items are drawn.
         The context contains the following fields:
 
         - context: the render context (contains context.view and context.cairo)
@@ -142,11 +142,12 @@ class Tool(object):
 
 class ToolChain(Tool):
     """
-    A ToolChain can be used to chain tools together, for example HoverTool,
-    HandleTool, SelectionTool.
+    A ToolChain can be used to chain tools together, for example
+    HoverTool, HandleTool, SelectionTool.
 
-    The grabbed item is bypassed in case a double or tripple click event
-    is received. Should make sure this doesn't end up in dangling states.
+    The grabbed item is bypassed in case a double or tripple click
+    event is received. Should make sure this doesn't end up in
+    dangling states.
     """
 
     def __init__(self, view=None):
@@ -185,19 +186,19 @@ class ToolChain(Tool):
 
     def validate_grabbed_tool(self, event):
         """
-        Check if it's valid to have a grabbed tool on an event. If not the
-        grabbed tool will be released.
+        Check if it's valid to have a grabbed tool on an event. If not
+        the grabbed tool will be released.
         """
         if event.type in self.FORCE_UNGRAB_EVENTS:
             self.ungrab(self._grabbed_tool)
 
     def handle(self, event):
         """
-        Handle the event by calling each tool until the event is handled
-        or grabbed.
+        Handle the event by calling each tool until the event is
+        handled or grabbed.
 
-        If a tool is returning True on a button press event, the motion and
-        button release events are also passed to this
+        If a tool is returning True on a button press event, the
+        motion and button release events are also passed to this
         """
         handler = self.EVENT_HANDLERS.get(event.type)
 
@@ -239,9 +240,9 @@ class HoverTool(Tool):
 class ItemTool(Tool):
     """
     ItemTool does selection and dragging of items. On a button click,
-    the currently "hovered item" is selected. If CTRL or SHIFT are pressed,
-    already selected items remain selected. The last selected item gets the
-    focus (e.g. receives key press events).
+    the currently "hovered item" is selected. If CTRL or SHIFT are
+    pressed, already selected items remain selected. The last selected
+    item gets the focus (e.g. receives key press events).
 
     The roles used are Selection (select, unselect) and InMotion (move).
     """
@@ -325,8 +326,8 @@ class HandleTool(Tool):
     """
     Tool for moving handles around.
 
-    By default this tool does not provide connecting handles to another item
-    (see `ConnectHandleTool`).
+    By default this tool does not provide connecting handles to
+    another item (see `ConnectHandleTool`).
     """
 
     def __init__(self, view=None):
@@ -337,8 +338,8 @@ class HandleTool(Tool):
 
     def grab_handle(self, item, handle):
         """
-        Grab a specific handle. This can be used from the PlacementTool
-        to set the state of the handle tool.
+        Grab a specific handle. This can be used from the
+        PlacementTool to set the state of the handle tool.
         """
         assert item is None and handle is None or handle in item.handles()
         self.grabbed_item = item
@@ -363,9 +364,9 @@ class HandleTool(Tool):
 
     def on_button_press(self, event):
         """
-        Handle button press events. If the (mouse) button is pressed on
-        top of a Handle (item.Handle), that handle is grabbed and can be
-        dragged around.
+        Handle button press events. If the (mouse) button is pressed
+        on top of a Handle (item.Handle), that handle is grabbed and
+        can be dragged around.
         """
         view = self.view
 
@@ -408,8 +409,8 @@ class HandleTool(Tool):
     def on_motion_notify(self, event):
         """
         Handle motion events. If a handle is grabbed: drag it around,
-        else, if the pointer is over a handle, make the owning item the
-        hovered-item.
+        else, if the pointer is over a handle, make the owning item
+        the hovered-item.
         """
         view = self.view
         if self.grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
@@ -470,8 +471,8 @@ PAN_VALUE = 0
 class PanTool(Tool):
     """
     Captures drag events with the middle mouse button and uses them to
-    translate the canvas within the view. Trumps the ZoomTool, so should be
-    placed later in the ToolChain.
+    translate the canvas within the view. Trumps the ZoomTool, so
+    should be placed later in the ToolChain.
     """
 
     def __init__(self, view=None):
@@ -656,8 +657,8 @@ class PlacementTool(Tool):
 
 class TextEditTool(Tool):
     """
-    Demo of a text edit tool (just displays a text edit box at the cursor
-    position.
+    Demo of a text edit tool (just displays a text edit box at the
+    cursor position.
     """
 
     def __init__(self, view=None):
@@ -709,17 +710,17 @@ class ConnectHandleTool(HandleTool):
     """
     Tool for connecting two items.
 
-    There are two items involved. Handle of connecting item (usually
-    a line) is being dragged by an user towards another item (item in
+    There are two items involved. Handle of connecting item (usually a
+    line) is being dragged by an user towards another item (item in
     short). Port of an item is found by the tool and connection is
-    established by creating a constraint between line's handle and item's
-    port.
+    established by creating a constraint between line's handle and
+    item's port.
     """
 
     def glue(self, item, handle, vpos):
         """
-        Perform a small glue action to ensure the handle is at a proper
-        location for connecting.
+        Perform a small glue action to ensure the handle is at a
+        proper location for connecting.
         """
         if self.motion_handle:
             return self.motion_handle.glue(vpos)

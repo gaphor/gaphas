@@ -1,6 +1,6 @@
 """
-A Canvas owns a set of Items and acts as a container for both the items
-and a constraint solver.
+A Canvas owns a set of Items and acts as a container for both the
+items and a constraint solver.
 
 Connections
 ===========
@@ -57,8 +57,8 @@ Connection = namedtuple('Connection',
 
 class ConnectionError(Exception):
     """
-    Exception raised when there is an error when connecting an items with
-    each other.
+    Exception raised when there is an error when connecting an items
+    with each other.
     """
 
 
@@ -129,8 +129,8 @@ class Canvas(object):
     @observed
     def _remove(self, item):
         """
-        Remove is done in a separate, @observed, method so the undo system
-        can restore removed items in the right order.
+        Remove is done in a separate, @observed, method so the undo
+        system can restore removed items in the right order.
         """
         item._set_canvas(None)
         self._tree.remove(item)
@@ -296,8 +296,9 @@ class Canvas(object):
     @observed
     def connect_item(self, item, handle, connected, port, constraint=None, callback=None):
         """
-        Create a connection between two items. The connection is registered
-        and the constraint is added to the constraint solver.
+        Create a connection between two items. The connection is
+        registered and the constraint is added to the constraint
+        solver.
 
         The pair (item, handle) should be unique and not yet connected.
 
@@ -317,8 +318,8 @@ class Canvas(object):
          callback
             Function to be called on disconnection.
 
-        ConnectionError is raised in case handle is already registered on a
-        connection.
+        ConnectionError is raised in case handle is already registered
+        on a connection.
         """
         if self.get_connection(handle):
             raise ConnectionError('Handle %r of item %r is already connected' % (handle, item))
@@ -331,8 +332,8 @@ class Canvas(object):
 
     def disconnect_item(self, item, handle=None):
         """
-        Disconnect the connections of an item. If handle is not None, only the
-        connection for that handle is disconnected.
+        Disconnect the connections of an item. If handle is not None,
+        only the connection for that handle is disconnected.
         """
         # disconnect on canvas level
         for cinfo in list(self._connections.query(item=item, handle=handle)):
@@ -359,9 +360,9 @@ class Canvas(object):
     def remove_connections_to_item(self, item):
         """
         Remove all connections (handles connected to and constraints)
-        for a specific item (to and from the item).
-        This is some brute force cleanup (e.g. if constraints are referenced
-        by items, those references are not cleaned up).
+        for a specific item (to and from the item).  This is some
+        brute force cleanup (e.g. if constraints are referenced by
+        items, those references are not cleaned up).
         """
         disconnect_item = self._disconnect_item
         # remove connections from this item
@@ -462,10 +463,10 @@ class Canvas(object):
         """
         Return an iterator of connection information.
 
-        The list contains  (item, handle). As a result an item may be
-        in the list more than once (depending on the number of handles that
-        are connected). If ``item`` is connected to itself it will also appear
-        in the list.
+        The list contains (item, handle). As a result an item may be
+        in the list more than once (depending on the number of handles
+        that are connected). If ``item`` is connected to itself it
+        will also appear in the list.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -498,8 +499,8 @@ class Canvas(object):
 
     def sort(self, items, reverse=False):
         """
-        Sort a list of items in the order in which they are traversed in
-        the canvas (Depth first).
+        Sort a list of items in the order in which they are traversed
+        in the canvas (Depth first).
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -524,12 +525,13 @@ class Canvas(object):
         Get the Item to Canvas matrix for ``item``.
 
         item:
-            The item who's item-to-canvas transformation matrix should be
-            found
+            The item who's item-to-canvas transformation matrix should
+            be found
         calculate:
             True will allow this function to actually calculate it,
-            in stead of raising an `AttributeError` when no matrix is present
-            yet. Note that out-of-date matrices are not recalculated.
+            instead of raising an `AttributeError` when no matrix is
+            present yet. Note that out-of-date matrices are not
+            recalculated.
         """
         if item._matrix_i2c is None or calculate:
             self.update_matrix(item)
@@ -591,7 +593,8 @@ class Canvas(object):
 
     def require_update(self):
         """
-        Returns ``True`` or ``False`` depending on if an update is needed.
+        Returns ``True`` or ``False`` depending on if an update is
+        needed.
 
         >>> c=Canvas()
         >>> c.require_update()
@@ -710,8 +713,8 @@ class Canvas(object):
 
     def update_matrices(self, items):
         """
-        Recalculate matrices of the items. Items' children matrices are
-        recalculated, too.
+        Recalculate matrices of the items. Items' children matrices
+        are recalculated, too.
 
         Return items, which matrices were recalculated.
         """
@@ -758,8 +761,8 @@ class Canvas(object):
 
     def update_constraints(self, items):
         """
-        Update constraints. Also variables may be marked as dirty before the
-        constraint solver kicks in.
+        Update constraints. Also variables may be marked as dirty
+        before the constraint solver kicks in.
         """
         # request solving of external constraints associated with dirty items
         request_resolve = self._solver.request_resolve
@@ -774,8 +777,8 @@ class Canvas(object):
 
     def _normalize(self, items):
         """
-        Update handle positions of items, so the first handle is always
-        located at (0, 0).
+        Update handle positions of items, so the first handle is
+        always located at (0, 0).
 
         Return those items, which matrices changed due to first handle
         movement.
@@ -814,24 +817,26 @@ class Canvas(object):
 
     def update_index(self):
         """
-        Provide each item in the canvas with an index attribute. This makes
-        for fast searching of items.
+        Provide each item in the canvas with an index attribute. This
+        makes for fast searching of items.
         """
         self._tree.index_nodes('_canvas_index')
 
 
     def register_view(self, view):
         """
-        Register a view on this canvas. This method is called when setting
-        a canvas on a view and should not be called directly from user code.
+        Register a view on this canvas. This method is called when
+        setting a canvas on a view and should not be called directly
+        from user code.
         """
         self._registered_views.add(view)
 
 
     def unregister_view(self, view):
         """
-        Unregister a view on this canvas. This method is called when setting
-        a canvas on a view and should not be called directly from user code.
+        Unregister a view on this canvas. This method is called when
+        setting a canvas on a view and should not be called directly
+        from user code.
         """
         self._registered_views.discard(view)
 
@@ -848,11 +853,12 @@ class Canvas(object):
         """
         Try to obtain a Cairo context.
 
-        This is a not-so-clean way to solve issues like calculating the
-        bounding box for a piece of text (for that you'll need a CairoContext).
-        The Cairo context is created by a View registered as view on this
-        canvas. By lack of registered views, a PNG image surface is created
-        that is used to create a context.
+        This is a not-so-clean way to solve issues like calculating
+        the bounding box for a piece of text (for that you'll need a
+        CairoContext).  The Cairo context is created by a View
+        registered as view on this canvas. By lack of registered
+        views, a PNG image surface is created that is used to create a
+        context.
 
         >>> c = Canvas()
         >>> c.update_now()
@@ -919,8 +925,8 @@ class VariableProjection(solver.Projection):
     """
     Project a single `solver.Variable` to another space/coordinate system.
 
-    The value has been set in the "other" coordinate system. A callback is
-    executed when the value changes.
+    The value has been set in the "other" coordinate system. A
+    callback is executed when the value changes.
 
     It's a simple Variable-like class, following the Projection protocol:
 
@@ -950,8 +956,8 @@ class VariableProjection(solver.Projection):
 
 class CanvasProjection(object):
     """
-    Project a point as Canvas coordinates.
-    Although this is a projection, it behaves like a tuple with two Variables
+    Project a point as Canvas coordinates.  Although this is a
+    projection, it behaves like a tuple with two Variables
     (Projections).
 
     >>> canvas = Canvas()

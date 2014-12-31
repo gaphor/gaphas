@@ -1,12 +1,11 @@
 """
 Cairo context using Steve Hanov's freehand drawing code.
 
-    # Crazyline. By Steve Hanov, 2008
-    # Released to the public domain.
+    # Crazyline. By Steve Hanov, 2008 Released to the public domain.
 
-    # The idea is to draw a curve, setting two control points at random
-    # close to each side of the line. The longer the line, the sloppier
-    # it's drawn.
+    # The idea is to draw a curve, setting two control points at
+    # random close to each side of the line. The longer the line, the
+    # sloppier it's drawn.
 
 See: http://stevehanov.ca/blog/index.php?id=33 and
      http://stevehanov.ca/blog/index.php?id=93

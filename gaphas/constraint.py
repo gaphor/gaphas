@@ -1,8 +1,8 @@
 """
-This module contains several flavors of constraint classes.
-Each has a method `Constraint.solve_for(name)` and a method
-`Constraint.mark_dirty(v)`. These methods are used by the constraint solver
-(`solver.Solver`) to set the variables.
+This module contains several flavors of constraint classes.  Each has
+a method `Constraint.solve_for(name)` and a method
+`Constraint.mark_dirty(v)`. These methods are used by the constraint
+solver (`solver.Solver`) to set the variables.
 
 Variables should be of type `solver.Variable`.
 
@@ -20,12 +20,12 @@ EquationConstraint
 BalanceConstraint
     Keeps three variables in line, maintaining a specific ratio.
 LineConstraint
-    Solves the equation where a line is connected to a line or side at a
-    specific point.
+    Solves the equation where a line is connected to a line or side at
+    a specific point.
 
-New constraint class should derive from Constraint class abstract class and
-implement `Constraint.solve_for(Variable)` method to update a variable with
-appropriate value.
+New constraint class should derive from Constraint class abstract
+class and implement `Constraint.solve_for(Variable)` method to update
+a variable with appropriate value.
 """
 
 from __future__ import division
@@ -57,11 +57,11 @@ class Constraint(object):
 
     def __init__(self, *variables):
         """
-        Create new constraint, register all variables, and find weakest
-        variables.
+        Create new constraint, register all variables, and find
+        weakest variables.
 
-        Any value can be added. It is assumed to be a variable if it has a
-        'strength' attribute.
+        Any value can be added. It is assumed to be a variable if it
+        has a 'strength' attribute.
         """
         self._variables = []
         for v in variables:
@@ -93,8 +93,8 @@ class Constraint(object):
 
     def weakest(self):
         """
-        Return the weakest variable. The weakest variable should be always
-        as first element of Constraint._weakest list.
+        Return the weakest variable. The weakest variable should be
+        always as first element of Constraint._weakest list.
         """
         return self._weakest[0]
 
@@ -102,8 +102,8 @@ class Constraint(object):
     def mark_dirty(self, v):
         """
         Mark variable v dirty and if possible move it to the end of
-        Constraint._weakest list to maintain weakest variable invariants
-        (see gaphas.solver module documentation).
+        Constraint._weakest list to maintain weakest variable
+        invariants (see gaphas.solver module documentation).
         """
         weakest = self.weakest()
         # Fast lane:
@@ -124,9 +124,11 @@ class Constraint(object):
 
     def solve(self):
         """
-        Solve the constraint. This is done by determining the weakest variable and calling
-        solve_for() for that variable. The weakest variable is always in the set of variables
-        with the weakest strength. The least recently changed variable is considered the weakest.
+        Solve the constraint. This is done by determining the weakest
+        variable and calling solve_for() for that variable. The
+        weakest variable is always in the set of variables with the
+        weakest strength. The least recently changed variable is
+        considered the weakest.
         """
         wvar = self.weakest()
         self.solve_for(wvar)
@@ -180,8 +182,8 @@ class EqualsConstraint(Constraint):
 class CenterConstraint(Constraint):
     """
     Simple Constraint, takes three arguments: 'a', 'b' and center.
-    When solved, the constraint ensures 'center' is located in the middle
-    of 'a' and 'b'.
+    When solved, the constraint ensures 'center' is located in the
+    middle of 'a' and 'b'.
 
     >>> from solver import Variable
     >>> a, b, center = Variable(1.0), Variable(3.0), Variable()
@@ -216,9 +218,10 @@ class CenterConstraint(Constraint):
 
 class LessThanConstraint(Constraint):
     """
-    Ensure ``smaller`` is less than ``bigger``. The variable that is passed
-    as to-be-solved is left alone (cause it is the variable that has not
-    been moved lately). Instead the other variable is solved.
+    Ensure ``smaller`` is less than ``bigger``. The variable that is
+    passed as to-be-solved is left alone (cause it is the variable
+    that has not been moved lately). Instead the other variable is
+    solved.
 
     >>> from solver import Variable
     >>> a, b = Variable(3.0), Variable(2.0)
@@ -266,9 +269,9 @@ class EquationConstraint(Constraint):
     """
     Equation solver using attributes and introspection.
 
-    Takes a function, named arg value (opt.) and returns a Constraint object
-    Calling EquationConstraint.solve_for will solve the equation for
-    variable ``arg``, so that the outcome is 0.
+    Takes a function, named arg value (opt.) and returns a Constraint
+    object Calling EquationConstraint.solve_for will solve the
+    equation for variable ``arg``, so that the outcome is 0.
 
     >>> from solver import Variable
     >>> a, b, c = Variable(), Variable(4), Variable(5)
@@ -406,8 +409,8 @@ class EquationConstraint(Constraint):
 
 class BalanceConstraint(Constraint):
     """
-    Ensure that a variable ``v`` is between values specified by ``band``
-    and in distance proportional from ``band[0]``.
+    Ensure that a variable ``v`` is between values specified by
+    ``band`` and in distance proportional from ``band[0]``.
 
     Consider
 
@@ -572,8 +575,8 @@ class PositionConstraint(Constraint):
 
 class LineAlignConstraint(Constraint):
     """
-    Ensure a point is kept on a line in position specified by align and padding
-    information.
+    Ensure a point is kept on a line in position specified by align
+    and padding information.
 
     Align is specified as a number between 0 and 1, for example
      0

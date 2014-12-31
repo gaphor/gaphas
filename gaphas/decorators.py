@@ -16,16 +16,17 @@ DEBUG_ASYNC = False
 
 class async(object):
     """
-    Instead of calling the function, schedule an idle handler at a given
-    priority. This requires the async'ed method to be called from within
-    the GTK main loop. Otherwise the method is executed directly.
+    Instead of calling the function, schedule an idle handler at a
+    given priority. This requires the async'ed method to be called
+    from within the GTK main loop. Otherwise the method is executed
+    directly.
 
     Note:
         the current implementation of async single mode only works for
         methods, not functions.
 
-    Calling the async function from outside the gtk main loop will yield
-    imediate execution:
+    Calling the async function from outside the gtk main loop will
+    yield immediate execution:
 
     async just works on functions (as long as ``single=False``):
 
@@ -40,7 +41,8 @@ class async(object):
     ...     def a(self):
     ...         print 'idle-a', gobject.main_depth()
 
-    Methods can also set single mode to True (the method is only scheduled one).
+    Methods can also set single mode to True (the method is only
+    scheduled one).
 
     >>> class B(object):
     ...     @async(single=True)
@@ -57,8 +59,8 @@ class async(object):
     ...     def c2(self):
     ...         print 'idle-c2', gobject.main_depth()
 
-    This is a helper function used to test classes A and B from within the GTK+
-    main loop:
+    This is a helper function used to test classes A and B from within
+    the GTK+ main loop:
 
     >>> def delayed():
     ...     print 'before'
@@ -91,8 +93,8 @@ class async(object):
     idle-c1 1
     idle-c2 1
 
-    As you can see, although ``b.b()`` has been called three times, it's only
-    executed once.
+    As you can see, although ``b.b()`` has been called three times,
+    it's only executed once.
     """
 
     def __init__(self, single=False, timeout=0, priority=gobject.PRIORITY_DEFAULT):
@@ -160,7 +162,7 @@ def nonrecursive(func):
     m = threading.Lock()
     def wrapper(*args, **kwargs):
         """
-        Decorate function with a mutex that prohibits recursice execution.
+        Decorate function with a mutex that prohibits recursive execution.
         """
         if m.acquire(False):
             try:

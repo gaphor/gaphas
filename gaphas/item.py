@@ -125,9 +125,9 @@ class Item(object):
         - change matrix
         - move handles
 
-        Gaphas does not guarantee that any canvas invariant is valid at
-        this point (i.e. constraints are not solved, first handle is not in
-        position (0, 0), etc).
+        Gaphas does not guarantee that any canvas invariant is valid
+        at this point (i.e. constraints are not solved, first handle
+        is not in position (0, 0), etc).
         """
         pass
 
@@ -139,8 +139,8 @@ class Item(object):
         If some variables should be used during drawing or in another
         update, then they should be calculated in post method.
 
-        Changing matrix or moving handles programmatically is really not
-        advised to be performed here.
+        Changing matrix or moving handles programmatically is really
+        not advised to be performed here.
 
         All canvas invariants are true.
         """
@@ -149,17 +149,19 @@ class Item(object):
 
     def normalize(self):
         """
-        Update handle positions of the item, so the first handle is always
-        located at (0, 0).
+        Update handle positions of the item, so the first handle is
+        always located at (0, 0).
 
-        Note that, since this method basically does some housekeeping during
-        the update phase, there's no need to keep track of the changes.
+        Note that, since this method basically does some housekeeping
+        during the update phase, there's no need to keep track of the
+        changes.
 
-        Alternative implementation can also be created, e.g. set (0, 0) in
-        the center of a circle or change it depending on the location of a
-        rotation point.
+        Alternative implementation can also be created, e.g. set (0,
+        0) in the center of a circle or change it depending on the
+        location of a rotation point.
 
-        Returns ``True`` if some updates have been done, ``False`` otherwise.
+        Returns ``True`` if some updates have been done, ``False``
+        otherwise.
 
         See ``canvas._normalize()`` for tests.
         """
@@ -187,8 +189,10 @@ class Item(object):
 
         - cairo: the Cairo Context use this one to draw
         - view: the view that is to be rendered to
-        - selected, focused, hovered, dropzone: view state of items (True/False)
-        - draw_all: a request to draw everything, for bounding box calculations
+        - selected, focused, hovered, dropzone: view state of items
+          (True/False)
+        - draw_all: a request to draw everything, for bounding box
+          calculations
         """
         pass
 
@@ -224,8 +228,8 @@ class Item(object):
             delta=0.0,
             align=None):
         """
-        Utility (factory) method to create item's internal constraint between
-        two positions or between a position and a line.
+        Utility (factory) method to create item's internal constraint
+        between two positions or between a position and a line.
 
         Position is a tuple of coordinates, i.e. ``(2, 4)``.
 
@@ -452,18 +456,20 @@ class Line(Item):
     A Line item.
 
     Properties:
-     - fuzziness (0.0..n): an extra margin that should be taken into account
-         when calculating the distance from the line (using point()).
-     - orthogonal (bool): wherther or not the line should be orthogonal
-         (only straight angles)
+     - fuzziness (0.0..n): an extra margin that should be taken into
+         account when calculating the distance from the line (using
+         point()).
+     - orthogonal (bool): whether or not the line should be
+         orthogonal (only straight angles)
      - horizontal: first line segment is horizontal
      - line_width: width of the line to be drawn
 
-    This line also supports arrow heads on both the begin and end of the
-    line. These are drawn with the methods draw_head(context) and
-    draw_tail(context). The coordinate system is altered so the methods do
-    not have to know about the angle of the line segment (e.g. drawing a line
-    from (10, 10) via (0, 0) to (10, -10) will draw an arrow point).
+    This line also supports arrow heads on both the begin and end of
+    the line. These are drawn with the methods draw_head(context) and
+    draw_tail(context). The coordinate system is altered so the
+    methods do not have to know about the angle of the line segment
+    (e.g. drawing a line from (10, 10) via (0, 0) to (10, -10) will
+    draw an arrow point).
     """
 
     def __init__(self):
@@ -529,7 +535,8 @@ class Line(Item):
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):
         """
-        Setter for the constraints maintained. Required for the undo system.
+        Setter for the constraints maintained. Required for the undo
+        system.
         """
         self._orthogonal_constraints = orthogonal_constraints
 
@@ -617,8 +624,8 @@ class Line(Item):
 
     def _update_ports(self):
         """
-        Update line ports. This destroys all previously created ports and
-        should only be used when initializing the line.
+        Update line ports. This destroys all previously created ports
+        and should only be used when initializing the line.
         """
         assert len(self._handles) >= 2, 'Not enough segments'
         self._ports = []
@@ -652,8 +659,8 @@ class Line(Item):
 
     def closest_segment(self, pos):
         """
-        Obtain a tuple (distance, point_on_line, segment).
-        Distance is the distance from point to the closest line segment
+        Obtain a tuple (distance, point_on_line, segment).  Distance
+        is the distance from point to the closest line segment
         Point_on_line is the reflection of the point on the line.
         Segment is the line segment closest to (x, y)
 

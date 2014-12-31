@@ -127,8 +127,8 @@ class View(object):
 
     def _set_focused_item(self, item):
         """
-        Set the focused item, this item is also added to the selected_items
-        set.
+        Set the focused item, this item is also added to the
+        selected_items set.
         """
         if not item is self._focused_item:
             self.queue_draw_item(self._focused_item, item)
@@ -375,8 +375,8 @@ class View(object):
 
         ``bounds`` is in view coordinates.
 
-        Coordinates are calculated back to item coordinates, so matrix-only
-        updates can occur.
+        Coordinates are calculated back to item coordinates, so
+        matrix-only updates can occur.
         """
         v2i = self.get_matrix_v2i(item).transform_point
         ix0, iy0 = v2i(bounds.x, bounds.y)
@@ -396,8 +396,8 @@ class View(object):
 
     def update_bounding_box(self, cr, items=None):
         """
-        Update the bounding boxes of the canvas items for this view, in
-        canvas coordinates.
+        Update the bounding boxes of the canvas items for this view,
+        in canvas coordinates.
         """
         painter = self._bounding_box_painter
         if items is None:
@@ -471,14 +471,15 @@ class View(object):
 class GtkView(gtk.DrawingArea, View):
     # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
     """
-    GTK+ widget for rendering a canvas.Canvas to a screen.
-    The view uses Tools from `tool.py` to handle events and Painters
-    from `painter.py` to draw. Both are configurable.
+    GTK+ widget for rendering a canvas.Canvas to a screen.  The view
+    uses Tools from `tool.py` to handle events and Painters from
+    `painter.py` to draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.
 
-    This view registers itself on the canvas, so it will receive update events.
+    This view registers itself on the canvas, so it will receive
+    update events.
     """
 
     # Just defined a name to make GTK register this class.
@@ -650,11 +651,12 @@ class GtkView(gtk.DrawingArea, View):
 
     def queue_draw_item(self, *items):
         """
-        Like ``DrawingArea.queue_draw_area``, but use the bounds of the
-        item as update areas. Of course with a pythonic flavor: update
-        any number of items at once.
+        Like ``DrawingArea.queue_draw_area``, but use the bounds of
+        the item as update areas. Of course with a pythonic flavor:
+        update any number of items at once.
 
-        TODO: Should we also create a (sorted) list of items that need redrawal?
+        TODO: Should we also create a (sorted) list of items that need
+        redrawal?
         """
         get_bounds = self._qtree.get_bounds
         items = filter(None, items)
@@ -692,8 +694,9 @@ class GtkView(gtk.DrawingArea, View):
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
-        Request update for items. Items will get a full update treatment, while
-        ``matrix_only_items`` will only have their bounding box recalculated.
+        Request update for items. Items will get a full update
+        treatment, while ``matrix_only_items`` will only have their
+        bounding box recalculated.
         """
         if items:
             self._dirty_items.update(items)

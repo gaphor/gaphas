@@ -1,6 +1,5 @@
 """
 Simple class containing the tree structure for the canvas items.
-
 """
 
 __version__ = "$Revision$"
@@ -158,8 +157,8 @@ class Tree(object):
 
     def index_nodes(self, index_key):
         """
-        Provide each item in the tree with an index attribute. This makes
-        for fast sorting of items.
+        Provide each item in the tree with an index attribute. This
+        makes for fast sorting of items.
 
         >>> class A(object):
         ...     def __init__(self, n):
@@ -211,8 +210,8 @@ class Tree(object):
 
     def _add_to_nodes(self, node, parent, index=None):
         """
-        Helper method to place nodes on the right location in the nodes list
-        Called only from add() and reparent()
+        Helper method to place nodes on the right location in the
+        nodes list Called only from add() and reparent()
         """
         nodes = self._nodes
         siblings = self._children[parent]
@@ -260,8 +259,8 @@ class Tree(object):
 
     def add(self, node, parent=None, index=None):
         """
-        Add node to the tree. parent is the parent node, which may
-        be None if the item should be added to the root item.
+        Add node to the tree. parent is the parent node, which may be
+        None if the item should be added to the root item.
 
         For usage, see the unit tests.
         """
@@ -294,9 +293,9 @@ class Tree(object):
     def _reparent_nodes(self, node, parent):
         """
         Helper for reparent().
-        The _children and _parent trees can be left intact as far as children
-        of the reparented node are concerned. Only the position in the
-        _nodes list changes.
+        The _children and _parent trees can be left intact as far as
+        children of the reparented node are concerned. Only the
+        position in the _nodes list changes.
         """
         self._nodes.remove(node)
         self._add_to_nodes(node, parent)
@@ -305,8 +304,8 @@ class Tree(object):
 
     def reparent(self, node, parent, index=None):
         """
-        Set new parent for a ``node``. ``Parent`` can be ``None``, indicating
-        it's added to the top.
+        Set new parent for a ``node``. ``Parent`` can be ``None``,
+        indicating it's added to the top.
 
         >>> tree = Tree()
         >>> tree.add('n1')

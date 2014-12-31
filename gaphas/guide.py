@@ -198,8 +198,8 @@ class GuideMixin(object):
 @InMotion.when_type(Item)
 class GuidedItemInMotion(GuideMixin, ItemInMotion):
     """
-    Move the item, lock position on any element that's located at the same
-    location.
+    Move the item, lock position on any element that's located at the
+    same location.
     """
 
     def move(self, pos):

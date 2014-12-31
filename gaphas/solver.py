@@ -1,21 +1,23 @@
 """
-Constraint solver allows to define constraint between two or more different
-variables and keep this constraint always true when one or more of the
-constrained variables change. For example, one may want to keep two
-variables always equal.
+Constraint solver allows to define constraint between two or more
+different variables and keep this constraint always true when one or
+more of the constrained variables change. For example, one may want to
+keep two variables always equal.
 
-Variables change and at some point of time we want to make all constraints
-valid again. This process is called solving constraints.
+Variables change and at some point of time we want to make all
+constraints valid again. This process is called solving constraints.
 
-Gaphas' solver allows to define constraints between Variable instances.
-Constraint classes are defined in `gaphas.constraint` module.
+Gaphas' solver allows to define constraints between Variable
+instances.  Constraint classes are defined in `gaphas.constraint`
+module.
 
 How It Works
 ------------
-Every constraint contains list of variables and has to be registered in
-solver object. Variables change (`Variable.dirty()`, `Solver.request_resolve()`
-methods) and their constraints are marked by solver as dirty. To solve
-constraints, solver loops through dirty constraints and asks constraint for
+Every constraint contains list of variables and has to be registered
+in solver object. Variables change (`Variable.dirty()`,
+`Solver.request_resolve()` methods) and their constraints are marked
+by solver as dirty. To solve constraints, solver loops through dirty
+constraints and asks constraint for
 a variable (called weakest variable), which
 
 - has the lowest strength
@@ -26,9 +28,10 @@ a variable (called weakest variable), which
 
 (weakest variable invariants defined above)
 
-Having weakest variable (`constraint.Constraint.weakest()` method) every
-constraint is being asked to solve itself (`constraint.Constraint.solve_for()`
-method) changing appropriate variables to make the constraint valid again.
+Having weakest variable (`constraint.Constraint.weakest()` method)
+every constraint is being asked to solve itself
+(`constraint.Constraint.solve_for()` method) changing appropriate
+variables to make the constraint valid again.
 """
 
 from __future__ import division
@@ -58,8 +61,8 @@ class Variable(object):
     Each Variable has a @value and a @strength. Ina constraint the
     weakest variables are changed.
 
-    You can even do some calculating with it. The Variable always represents
-    a float variable.
+    You can even do some calculating with it. The Variable always
+    represents a float variable.
     """
 
     def __init__(self, value=0.0, strength=NORMAL):
@@ -80,8 +83,8 @@ class Variable(object):
 
     def dirty(self):
         """
-        Mark the variable dirty in both the constraint solver and attached
-        constraints.
+        Mark the variable dirty in both the constraint solver and
+        attached constraints.
 
         Variables are marked dirty also during constraints solving to
         solve all dependent constraints, i.e. two equals constraints
@@ -314,8 +317,9 @@ class Projection(object):
     Projections are used to convert values from one space to another,
     e.g. from Canvas to Item space or visa versa.
 
-    In order to be a Projection the ``value`` and ``strength`` properties
-    should be implemented and a method named ``variable()`` should be present.
+    In order to be a Projection the ``value`` and ``strength``
+    properties should be implemented and a method named ``variable()``
+    should be present.
 
     Projections should inherit from this class.
 
@@ -381,12 +385,12 @@ class Solver(object):
 
     def request_resolve(self, variable, projections_only=False):
         """
-        Mark a variable as "dirty". This means it it solved the next time
-        the constraints are resolved.
+        Mark a variable as "dirty". This means it it solved the next
+        time the constraints are resolved.
 
         If projections_only is set to True, only constraints using the
-        variable through a Projection instance (e.i. variable itself is not
-        in `constraint.Constraint.variables()`) are marked.
+        variable through a Projection instance (e.i. variable itself
+        is not in `constraint.Constraint.variables()`) are marked.
 
         Example:
 
@@ -431,8 +435,8 @@ class Solver(object):
     def add_constraint(self, constraint):
         """
         Add a constraint.
-        The actual constraint is returned, so the constraint can be removed
-        later on.
+        The actual constraint is returned, so the constraint can be
+        removed later on.
 
         Example:
 
@@ -672,8 +676,8 @@ class solvable(object):
 
 class JuggleError(AssertionError):
     """
-    Variable juggling exception. Raised when constraint's variables are
-    marking each other dirty forever.
+    Variable juggling exception. Raised when constraint's variables
+    are marking each other dirty forever.
     """
 
 

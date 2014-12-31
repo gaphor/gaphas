@@ -1,5 +1,6 @@
 """
-Helper functions and classes for Cairo (drawing engine used by the canvas).
+Helper functions and classes for Cairo (drawing engine used by the
+canvas).
 """
 
 __version__ = "$Revision$"
@@ -101,9 +102,9 @@ def text_underline(cr, x, y, text, offset=1.5):
 
 def text_set_font(cr, font):
     """
-    Set the font from a string. E.g. 'sans 10' or 'sans italic bold 12'
-    only restriction is that the font name should be the first option and
-    the font size as last argument
+    Set the font from a string. E.g. 'sans 10' or 'sans italic bold
+    12' only restriction is that the font name should be the first
+    option and the font size as last argument
     """
     font = font.split()
     cr.select_font_face(font[0],

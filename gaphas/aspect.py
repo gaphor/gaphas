@@ -1,12 +1,12 @@
 """
-Defines aspects for Items. Aspects form intermediate items between tools
-and items.
+Defines aspects for Items. Aspects form intermediate items between
+tools and items.
 
-Note: This module uses Phillip J. Eby's simplegeneric module. This module
-transforms the generic class (used as fall-back) to a generic function. In
-order to inherit from this class you should inherit from Class.default.
-The simplegeneric module is dispatching opnly based on the first argument.
-For Gaphas that's enough.
+Note: This module uses Phillip J. Eby's simplegeneric module. This
+module transforms the generic class (used as fall-back) to a generic
+function. In order to inherit from this class you should inherit from
+Class.default.  The simplegeneric module is dispatching opnly based on
+the first argument.  For Gaphas that's enough.
 """
 
 import gtk.gdk
@@ -217,8 +217,8 @@ class ItemHandleInMotion(object):
             sink = ConnectionSink(connectable, port)
 
             if connector.allow(sink):
-                # transform coordinates from view space to the item space and
-                # update position of item's handle
+                # transform coordinates from view space to the item
+                # space and update position of item's handle
                 v2i = view.get_matrix_v2i(item).transform_point
                 handle.pos = v2i(*glue_pos)
                 return sink
@@ -255,8 +255,8 @@ class ItemConnector(object):
         """
         Connect the handle to a sink (item, port).
 
-        Note that connect() also takes care of disconnecting in case a handle
-        is reattached to another element.
+        Note that connect() also takes care of disconnecting in case a
+        handle is reattached to another element.
         """
 
         cinfo = self.item.canvas.get_connection(self.handle)
@@ -275,8 +275,8 @@ class ItemConnector(object):
 
     def connect_handle(self, sink, callback=None):
         """
-        Create constraint between handle of a line and port of connectable
-        item.
+        Create constraint between handle of a line and port of
+        connectable item.
 
         :Parameters:
          sink

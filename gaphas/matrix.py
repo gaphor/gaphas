@@ -1,11 +1,11 @@
 """
-Some Gaphor specific updates to the canvas. This is done by setting the
-correct properties on gaphas' modules.
+Some Gaphor specific updates to the canvas. This is done by setting
+the correct properties on gaphas' modules.
 
 Matrix
 ------
-Small utility class wrapping cairo.Matrix. The `Matrix` class
-adds state preservation capabilities.
+Small utility class wrapping cairo.Matrix. The `Matrix` class adds
+state preservation capabilities.
 """
 
 __version__ = "$Revision$"
