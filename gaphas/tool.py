@@ -766,17 +766,6 @@ class ConnectHandleTool(HandleTool):
             return super(ConnectHandleTool, self).on_button_release(event)
 
 
-#    def on_motion_notify(self, event):
-#        super(ConnectHandleTool, self).on_motion_notify(event)
-#        handle = self.grabbed_handle
-#        if handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
-#            if handle.connectable:
-#                self.glue(self.grabbed_item, handle, (event.x, event.y))
-#
-#            return True
-
-
-
 def DefaultTool(view=None):
     """
     The default tool chain build from HoverTool, ItemTool and HandleTool.
