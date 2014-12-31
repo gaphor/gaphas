@@ -136,7 +136,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
     property instance, the property is registered as reversible and
     reverse events can be send out when changes occur.
 
-    Cave eat: we can't handle both fset and fdel in the proper way. Therefore
+    Caveat: we can't handle both fset and fdel in the proper way. Therefore
     fdel should somehow invoke fset. (persinally, I hardly use fdel)
 
     See revert_handler() for doctesting.
