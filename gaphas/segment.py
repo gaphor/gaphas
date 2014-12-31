@@ -231,7 +231,7 @@ class SegmentHandleSelection(ItemHandleSelection):
 @PaintFocused.when_type(Line)
 class LineSegmentPainter(ItemPaintFocused):
     """
-    This painter draws pseudo-hanldes on gaphas.item.Line objects. Each
+    This painter draws pseudo-handles on gaphas.item.Line objects. Each
     line can be split by dragging those points, which will result in
     a new handle.
 

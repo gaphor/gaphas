@@ -285,7 +285,7 @@ class HandlePainter(Painter):
     def _draw_handles(self, item, cairo, opacity=None, inner=False):
         """
         Draw handles for an item.
-        The handles are drawn in non-antialiased mode for clearity.
+        The handles are drawn in non-antialiased mode for clarity.
         """
         view = self.view
         cairo.save()
