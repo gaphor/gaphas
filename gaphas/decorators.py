@@ -117,7 +117,7 @@ class async(object):
             if GObject.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
-                def async_wrapper(_):
+                def async_wrapper(*x):
                     if DEBUG_ASYNC: print 'async:', func, args, kwargs
                     func(*args, **kwargs)
                 source(async_wrapper).attach()
@@ -128,7 +128,7 @@ class async(object):
                     if getattr(holder, async_id):
                         return
                 except AttributeError, e:
-                    def async_wrapper(_):
+                    def async_wrapper(*x):
                         if DEBUG_ASYNC: print 'async:', func, args, kwargs
                         try:
                             func(*args, **kwargs)
