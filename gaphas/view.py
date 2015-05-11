@@ -534,7 +534,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._hadjustment_handler_id = None
         self._vadjustment_handler_id = None
 
-        self.emit('set-scroll-adjustments', hadjustment, vadjustment)
+        self._set_scroll_adjustments(None, None)
 
         self._set_tool(DefaultTool())
         
