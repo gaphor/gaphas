@@ -503,8 +503,7 @@ class PanTool(Tool):
         if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
             return False
         view = self.view
-        direction = event.direction
-        gdk = Gtk.gdk
+        direction = event.scroll.direction
         if direction == Gdk.ScrollDirection.LEFT:
             view._matrix.translate(self.speed/view._matrix[0], 0)
         elif direction == Gdk.ScrollDirection.RIGHT:
@@ -578,10 +577,10 @@ class ZoomTool(Tool):
             view = self.view
             sx = view._matrix[0]
             sy = view._matrix[3]
-            ox = (view._matrix[4] - event.x) / sx
-            oy = (view._matrix[5] - event.y) / sy
+            ox = (view._matrix[4] - event.scroll.x) / sx
+            oy = (view._matrix[5] - event.scroll.y) / sy
             factor = 0.9
-            if event.direction == Gdk.ScrollDirection.UP:    
+            if event.scroll.direction == Gdk.ScrollDirection.UP:
                 factor = 1. / factor
             view._matrix.translate(-ox, -oy)
             view._matrix.scale(factor, factor)
