@@ -482,8 +482,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     
     # Signals: emited after the change takes effect.
     __gsignals__ = {
-        'set-scroll-adjustments': (GObject.SignalFlags.RUN_LAST, None,
-                      (Gtk.Adjustment, Gtk.Adjustment)),
         'dropzone-changed': (GObject.SignalFlags.RUN_LAST, None,
                       (GObject.TYPE_PYOBJECT,)),
         'hover-changed': (GObject.SignalFlags.RUN_LAST, None,

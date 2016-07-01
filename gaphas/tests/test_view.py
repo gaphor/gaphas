@@ -224,18 +224,6 @@ class ViewTestCase(unittest.TestCase):
         assert not box._matrix_v2i.has_key(view)
         
 
-    def test_scroll_adjustments_signal(self):
-        def handler(self, hadj, vadj):
-            self.handled = True
-
-        sc = Gtk.ScrolledWindow()
-        view = GtkView(Canvas())
-        view.connect('set-scroll-adjustments', handler)
-        sc.add(view)
-
-        assert view.handled
-
-
     def test_scroll_adjustments(self):
         sc = Gtk.ScrolledWindow()
         view = GtkView(Canvas())
