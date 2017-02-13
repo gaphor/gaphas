@@ -670,7 +670,7 @@ class TextEditTool(Tool):
         text_view.set_buffer(buffer)
         text_view.show()
         window.add(text_view)
-        allocate = cairo.RectangleInt()
+        allocate = Gdk.Rectangle()
         allocate.x = int(event.x)
         allocate.y = int(event.y)
         allocate.width = 50
