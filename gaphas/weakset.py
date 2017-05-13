@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Backport of the Python 3.0 weakref.WeakSet() class.
 
