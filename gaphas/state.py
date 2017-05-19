@@ -19,14 +19,17 @@ For this to work the revert_handler has to be added to the observers set::
 """
 
 from __future__ import absolute_import
-import types, inspect
+
+import inspect
 import threading
-from decorator import decorator
+import types
+
 import six
+from decorator import decorator
 from six.moves import zip
 
 # This string is added to each docstring in order to denote is's observed
-#OBSERVED_DOCSTRING = \
+# OBSERVED_DOCSTRING = \
 #        '\n\n        This method is @observed. See gaphas.state for extra info.\n'
 
 # Tell @observed to dispatch invokation messages by default
@@ -41,12 +44,12 @@ DISPATCH_BY_DEFAULT = True
 # saveapply(func, keywords) for those functions
 subscribers = set()
 
-
 # Subscribe to low-level change events:
 observers = set()
 
 # Perform locking (should be per thread?).
 mutex = threading.Lock()
+
 
 def observed(func):
     """
@@ -60,6 +63,7 @@ def observed(func):
     Also note that the events are dispatched *before* the function is invoked.
     This is an important feature, esp. for the reverter code.
     """
+
     def wrapper(func, *args, **kwargs):
         o = func.__observer__
         acquired = mutex.acquire(False)
@@ -70,8 +74,9 @@ def observed(func):
         finally:
             if acquired:
                 mutex.release()
+
     dec = decorator(wrapper)(func)
-    
+
     func.__observer__ = dec
     return dec
 
@@ -98,7 +103,8 @@ def dispatch(event, queue):
     >>> observers.remove(handler)
     >>> callme()
     """
-    for s in queue: s(event)
+    for s in queue:
+        s(event)
 
 
 _reverse = dict()
@@ -155,8 +161,8 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
         argself, argvalue = argnames
         func = getfunction(fset)
-        b = { argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
-                    {'fget': fget}) }
+        b = {argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself},
+                            {'fget': fget})}
         b.update(bind)
         _reverse[func] = (func, spec, b)
 
@@ -232,13 +238,16 @@ def revert_handler(event):
     for arg, binding in six.iteritems(bind):
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])
-    if spec[1]: argnames.append(revspec[1])
-    if spec[2]: argnames.append(revspec[2])
+    if spec[1]:
+        argnames.append(revspec[1])
+    if spec[2]:
+        argnames.append(revspec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
 
     dispatch((reverse, kwargs), queue=subscribers)
+
 
 def saveapply(func, kw):
     """
@@ -248,8 +257,10 @@ def saveapply(func, kw):
     """
     spec = inspect.getargspec(func)
     argnames = list(spec[0])
-    if spec[1]: argnames.append(spec[1])
-    if spec[2]: argnames.append(spec[2])
+    if spec[1]:
+        argnames.append(spec[1])
+    if spec[2]:
+        argnames.append(spec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
@@ -263,6 +274,5 @@ def getfunction(func):
     if isinstance(func, types.UnboundMethodType):
         return func.__func__
     return func
-
 
 # vim:sw=4:et:ai

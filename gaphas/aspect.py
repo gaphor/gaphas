@@ -10,9 +10,11 @@ For Gaphas that's enough.
 """
 
 from __future__ import absolute_import
+
 from gi.repository import Gdk
 from simplegeneric import generic
-from gaphas.item import Item, Element
+
+from gaphas.item import Element
 
 
 class ItemFinder(object):
@@ -134,10 +136,10 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-            Gdk.Cursor.new(Gdk.CursorType.TOP_LEFT_CORNER),
-            Gdk.Cursor.new(Gdk.CursorType.TOP_RIGHT_CORNER),
-            Gdk.Cursor.new(Gdk.CursorType.BOTTOM_RIGHT_CORNER),
-            Gdk.Cursor.new(Gdk.CursorType.BOTTOM_LEFT_CORNER) )
+        Gdk.Cursor.new(Gdk.CursorType.TOP_LEFT_CORNER),
+        Gdk.Cursor.new(Gdk.CursorType.TOP_RIGHT_CORNER),
+        Gdk.Cursor.new(Gdk.CursorType.BOTTOM_RIGHT_CORNER),
+        Gdk.Cursor.new(Gdk.CursorType.BOTTOM_LEFT_CORNER))
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -148,7 +150,6 @@ class ElementHandleSelection(ItemHandleSelection):
         from .view import DEFAULT_CURSOR
         cursor = Gdk.Cursor.new(DEFAULT_CURSOR)
         self.view.get_window().set_cursor(cursor)
-
 
 
 class ItemHandleInMotion(object):
@@ -208,7 +209,7 @@ class ItemHandleInMotion(object):
             return None
 
         connectable, port, glue_pos = \
-                view.get_port_at_point(pos, distance=distance, exclude=(item,))
+            view.get_port_at_point(pos, distance=distance, exclude=(item,))
 
         # check if item and found item can be connected on closest port
         if port is not None:
@@ -230,8 +231,7 @@ HandleInMotion = generic(ItemHandleInMotion)
 
 
 class ItemConnector(object):
-
-    GLUE_DISTANCE = 10 # Glue distance in view points
+    GLUE_DISTANCE = 10  # Glue distance in view points
 
     def __init__(self, item, handle):
         self.item = item
@@ -273,7 +273,6 @@ class ItemConnector(object):
 
         self.connect_handle(sink)
 
-
     def connect_handle(self, sink, callback=None):
         """
         Create constraint between handle of a line and port of connectable
@@ -292,8 +291,7 @@ class ItemConnector(object):
         constraint = sink.port.constraint(canvas, item, handle, sink.item)
 
         canvas.connect_item(item, handle, sink.item, sink.port,
-            constraint, callback=callback)
-
+                            constraint, callback=callback)
 
     def disconnect(self):
         """
@@ -334,9 +332,9 @@ class ItemConnectionSink(object):
 ConnectionSink = generic(ItemConnectionSink)
 
 
-##
-## Painter aspects
-##
+#
+# Painter aspects
+#
 
 class ItemPaintFocused(object):
     """

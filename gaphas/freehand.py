@@ -13,13 +13,14 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 """
 
 from __future__ import absolute_import
+
 from math import sqrt
 from random import Random
-from .painter import Context
+
+from gaphas.painter import Context
 
 
 class FreeHandCairoContext(object):
-
     KAPPA = 0.5522847498
 
     def __init__(self, cr, sloppiness=0.5):
@@ -34,7 +35,7 @@ class FreeHandCairoContext(object):
         * Drunk: 2.0
         """
         self.cr = cr
-        self.sloppiness = sloppiness # In range 0.0 .. 2.0
+        self.sloppiness = sloppiness  # In range 0.0 .. 2.0
 
     def __getattr__(self, key):
         return getattr(self.cr, key)
@@ -45,19 +46,20 @@ class FreeHandCairoContext(object):
         from_x, from_y = cr.get_current_point()
 
         # calculate the length of the line.
-        length = sqrt( (x-from_x)*(x-from_x) + (y-from_y)*(y-from_y))
+        length = sqrt((x - from_x) * (x - from_x) + (y - from_y) * (y - from_y))
 
         # This offset determines how sloppy the line is drawn. It depends on
         # the length, but maxes out at 20.
-        offset = length/10 * sloppiness
-        if offset > 20: offset = 20
+        offset = length / 10 * sloppiness
+        if offset > 20:
+            offset = 20
 
         dev_x, dev_y = cr.user_to_device(x, y)
         rand = Random((from_x, from_y, dev_x, dev_y, length, offset)).random
 
         # Overshoot the destination a little, as one might if drawing with a pen.
-        to_x = x + sloppiness * rand() * offset/4
-        to_y = y + sloppiness * rand() * offset/4
+        to_x = x + sloppiness * rand() * offset / 4
+        to_y = y + sloppiness * rand() * offset / 4
 
         # t1 and t2 are coordinates of a line shifted under or to the right of 
         # our original.
@@ -68,8 +70,8 @@ class FreeHandCairoContext(object):
 
         # create a control point at random along our shifted line.
         r = rand()
-        control1_x = t1_x + r * (t2_x-t1_x)
-        control1_y = t1_y + r * (t2_y-t1_y)
+        control1_x = t1_x + r * (t2_x - t1_x)
+        control1_y = t1_y + r * (t2_y - t1_y)
 
         # now make t1 and t2 the coordinates of our line shifted above 
         # and to the left of the original.
@@ -81,8 +83,8 @@ class FreeHandCairoContext(object):
 
         # create a second control point at random along the shifted line.
         r = rand()
-        control2_x = t1_x + r * (t2_x-t1_x)
-        control2_y = t1_y + r * (t2_y-t1_y)
+        control2_x = t1_x + r * (t2_x - t1_x)
+        control2_y = t1_y + r * (t2_y - t1_y)
 
         # draw the line!
         cr.curve_to(control1_x, control1_y, control2_x, control2_y, to_x, to_y)
@@ -98,33 +100,32 @@ class FreeHandCairoContext(object):
 
         dev_x, dev_y = cr.user_to_device(x3, y3)
         rand = Random((from_x, from_y, dev_x, dev_y, x1, y1, x2, y2, x3, y3)).random
-        
-        r = rand()
-        c1_x = from_x + r * (x1-from_x)
-        c1_y = from_y + r * (y1-from_y)
 
         r = rand()
-        c2_x = x3 + r * (x2-x3)
-        c2_y = y3 + r * (y2-y3)
+        c1_x = from_x + r * (x1 - from_x)
+        c1_y = from_y + r * (y1 - from_y)
+
+        r = rand()
+        c2_x = x3 + r * (x2 - x3)
+        c2_y = y3 + r * (y2 - y3)
 
         cr.curve_to(c1_x, c1_y, c2_x, c2_y, x3, y3)
 
     def rel_curve_to(self, dx1, dy1, dx2, dy2, dx3, dy3):
         cr = self.cr
         from_x, from_y = cr.get_current_point()
-        self.curve_to(from_x+dx1, from_y+dy1, from_x+dx2, from_y+dy2, from_x+dx3, from_y+dy3)
-
+        self.curve_to(from_x + dx1, from_y + dy1, from_x + dx2, from_y + dy2, from_x + dx3, from_y + dy3)
 
     def corner_to(self, cx, cy, x, y):
         cr = self.cr
         from_x, from_y = cr.get_current_point()
 
         # calculate radius of the circle.
-        radius1 = Math.sqrt( (cx-from_x)*(cx-from_x) + 
-                (cy-from_y)*(cy-from_y));
+        radius1 = Math.sqrt((cx - from_x) * (cx - from_x) +
+                            (cy - from_y) * (cy - from_y))
 
-        radius2 = Math.sqrt( (cx-x)*(cx-x) + 
-                (cy-y)*(cy-y));
+        radius2 = Math.sqrt((cx - x) * (cx - x) +
+                            (cy - y) * (cy - y))
 
         dev_x, dev_y = cr.user_to_device(x, y)
         rand = Random((cx, cy, dev_x, dev_y, radius1, radius2)).random
@@ -150,10 +151,9 @@ class FreeHandCairoContext(object):
             self.line_to(x, y)
         else:
             self.close_path()
-        
+
 
 class FreeHandPainter(object):
-
     def __init__(self, subpainter, sloppiness=1.0, view=None):
         self.subpainter = subpainter
         self.view = view
@@ -164,8 +164,8 @@ class FreeHandPainter(object):
         self.subpainter.set_view(view)
 
     def paint(self, context):
-        subcontext = Context(cairo=FreeHandCairoContext(context.cairo, self.sloppiness), items=context.items, area=context.area)
+        subcontext = Context(cairo=FreeHandCairoContext(context.cairo, self.sloppiness), items=context.items,
+                             area=context.area)
         self.subpainter.paint(subcontext)
-
 
 # vi:sw=4:et:ai

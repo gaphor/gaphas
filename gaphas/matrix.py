@@ -9,11 +9,15 @@ adds state preservation capabilities.
 """
 
 from __future__ import absolute_import
-__version__ = "$Revision$"
-# $HeadURL$
 
 import cairo
-from .state import observed, reversible_method
+
+from gaphas.state import observed, reversible_method
+
+__version__ = "$Revision$"
+
+
+# $HeadURL$
 
 
 class Matrix(object):
@@ -55,11 +59,11 @@ class Matrix(object):
 
     reversible_method(invert, invert)
     reversible_method(rotate, rotate,
-                      { 'radians': lambda radians: -radians })
+                      {'radians': lambda radians: -radians})
     reversible_method(scale, scale,
-                      { 'sx': lambda sx: 1/sx, 'sy': lambda sy: 1/sy })
+                      {'sx': lambda sx: 1 / sx, 'sy': lambda sy: 1 / sy})
     reversible_method(translate, translate,
-                      { 'tx': lambda tx: -tx, 'ty': lambda ty: -ty })
+                      {'tx': lambda tx: -tx, 'ty': lambda ty: -ty})
 
     def transform_distance(self, dx, dy):
         self._matrix.transform_distance(dx, dy)
@@ -95,7 +99,7 @@ class Matrix(object):
     @observed
     def __rmul__(self, other):
         return self._matrix.__rmul__(other)
- 
+
     def __repr__(self):
         return 'Matrix(%g, %g, %g, %g, %g, %g)' % tuple(self._matrix)
 

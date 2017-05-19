@@ -3,26 +3,26 @@ Allow for easily adding segments to lines.
 """
 
 from __future__ import absolute_import
+
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic
+from six.moves import zip
+
+from gaphas.aspect import ConnectionSink
+from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
+from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
-from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
-from gaphas.aspect import ConnectionSink
-from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
-from six.moves import zip
 
 
 @generic
 class Segment(object):
-
     def __init__(self, item, view):
         raise TypeError
 
 
 @Segment.when_type(Line)
 class LineSegment(object):
-
     def __init__(self, item, view):
         self.item = item
         self.view = view
@@ -34,7 +34,7 @@ class LineSegment(object):
         for h1, h2 in zip(handles, handles[1:]):
             xp = (h1.pos.x + h2.pos.x) / 2
             yp = (h1.pos.y + h2.pos.y) / 2
-            if distance_point_point_fast((x,y), (xp, yp)) <= 4:
+            if distance_point_point_fast((x, y), (xp, yp)) <= 4:
                 segment = handles.index(h1)
                 handles, ports = self.split_segment(segment)
                 return handles and handles[0]
@@ -88,7 +88,6 @@ class LineSegment(object):
         ports = item.ports()[segment:segment + count - 1]
         return handles, ports
 
-
     def merge_segment(self, segment, count=2):
         """
         Merge two (or more) item segments.
@@ -132,7 +131,6 @@ class LineSegment(object):
 
         return deleted_handles, deleted_ports
 
-
     def _recreate_constraints(self):
         """
         Create connection constraints between connecting lines and an item.
@@ -142,9 +140,10 @@ class LineSegment(object):
             Connected item.
         """
         connected = self.item
+
         def find_port(line, handle, item):
-            #port = None
-            #max_dist = sys.maxint
+            # port = None
+            # max_dist = sys.maxint
             canvas = item.canvas
 
             ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
@@ -161,7 +160,7 @@ class LineSegment(object):
         for cinfo in list(canvas.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
-            
+
             constraint = port.constraint(canvas, item, handle, connected)
 
             cinfo = canvas.get_connection(handle)
@@ -214,7 +213,7 @@ class SegmentHandleSelection(ItemHandleSelection):
 
         # cannot merge starting from last segment
         if segment == len(item.ports()) - 1:
-            segment =- 1
+            segment = - 1
         assert segment >= 0 and segment < len(item.ports()) - 1
 
         before = handles[handle_index - 1]
@@ -227,7 +226,6 @@ class SegmentHandleSelection(ItemHandleSelection):
 
         if handle:
             item.request_update()
-
 
 
 @PaintFocused.when_type(Line)
@@ -264,7 +262,5 @@ class LineSegmentPainter(ItemPaintFocused):
                 cr.set_line_width(1)
                 cr.stroke()
                 cr.restore()
-
-
 
 # vim:sw=4:et:ai

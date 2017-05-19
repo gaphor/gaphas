@@ -8,22 +8,22 @@ and handles).
 """
 
 from __future__ import absolute_import
-__version__ = "$Revision$"
-# $HeadURL$
 
-from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
+from cairo import ANTIALIAS_NONE, LINE_JOIN_ROUND
 
+from gaphas.aspect import PaintFocused
 from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
-from gaphas.item import Line
-from gaphas.aspect import PaintFocused
 
+__version__ = "$Revision$"
+# $HeadURL$
 
 DEBUG_DRAW_BOUNDING_BOX = False
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
 TOLERANCE = 0.8
+
 
 class Painter(object):
     """
@@ -88,13 +88,12 @@ class DrawContext(Context):
     """
 
     deprecated = False
-    
+
     def __init__(self, **kwargs):
         super(DrawContext, self).__init__(**kwargs)
 
 
 class ItemPainter(Painter):
-
     draw_all = False
 
     def _draw_item(self, item, cairo, area=None):
@@ -129,7 +128,7 @@ class ItemPainter(Painter):
         try:
             b = view.get_item_bounding_box(item)
         except KeyError:
-            pass # No bounding box right now..
+            pass  # No bounding box right now..
         else:
             cairo.save()
             cairo.identity_matrix()
@@ -159,7 +158,7 @@ class CairoBoundingBoxContext(object):
 
     def __init__(self, cairo):
         self._cairo = cairo
-        self._bounds = None # a Rectangle object
+        self._bounds = None  # a Rectangle object
 
     def __getattr__(self, key):
         return getattr(self._cairo, key)
@@ -190,9 +189,9 @@ class CairoBoundingBoxContext(object):
         cr.restore()
         if b and line_width:
             # Do this after the restore(), so we can get the proper width.
-            lw = cr.get_line_width()/2
+            lw = cr.get_line_width() / 2
             d = cr.user_to_device_distance(lw, lw)
-            b.expand(d[0]+d[1])
+            b.expand(d[0] + d[1])
         self._update_bounds(b)
         return b
 
@@ -238,8 +237,8 @@ class CairoBoundingBoxContext(object):
         if not b:
             x, y = cr.get_current_point()
             e = cr.text_extents(utf8)
-            x0, y0 = cr.user_to_device(x+e[0], y+e[1])
-            x1, y1 = cr.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
+            x0, y0 = cr.user_to_device(x + e[0], y + e[1])
+            x1, y1 = cr.user_to_device(x + e[0] + e[2], y + e[1] + e[3])
             b = Rectangle(x0, y0, x1=x1, y1=y1)
             self._update_bounds(b)
         cr.show_text(utf8)
@@ -267,7 +266,6 @@ class BoundingBoxPainter(ItemPainter):
 
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
-
 
     def _draw_items(self, items, cairo, area=None):
         """
@@ -314,7 +312,7 @@ class HandlePainter(Painter):
             else:
                 r, g, b = 0, 0, 1
 
-            #cairo.identity_matrix()
+            # cairo.identity_matrix()
             cairo.save()
             cairo.translate(*i2v.transform_point(*h.pos))
             cairo.rectangle(-4, -4, 8, 8)
@@ -327,7 +325,7 @@ class HandlePainter(Painter):
                 cairo.line_to(2, 3)
                 cairo.move_to(2, -2)
                 cairo.line_to(-2, 3)
-            cairo.set_source_rgba(r/4., g/4., b/4., opacity*1.3)
+            cairo.set_source_rgba(r / 4., g / 4., b / 4., opacity * 1.3)
             cairo.stroke()
             cairo.restore()
         cairo.restore()
@@ -362,6 +360,7 @@ class ToolPainter(Painter):
             view.tool.draw(context)
             cairo.restore()
 
+
 class FocusedItemPainter(Painter):
     """
     This painter allows for drawing on top off all other layers for the
@@ -384,6 +383,5 @@ def DefaultPainter(view=None):
         append(HandlePainter()). \
         append(FocusedItemPainter()). \
         append(ToolPainter())
-
 
 # vim: sw=4:et:ai

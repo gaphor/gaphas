@@ -4,8 +4,12 @@ would in a database table, with indexes on the desired "columns."
 """
 
 from __future__ import absolute_import
-from six.moves import zip
+
 from functools import reduce
+
+from six.moves import zip
+
+
 class Table(object):
     """
     A Table structure with indexing. Optimized for lookups.
@@ -30,9 +34,7 @@ class Table(object):
             index[n] = dict()
         self._index = index
 
-
     columns = property(lambda s: s._type)
-
 
     def insert(self, *values):
         """
@@ -53,7 +55,9 @@ class Table(object):
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
         if len(values) != len(self._type._fields):
-            raise ValueError("Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._type._fields)))
+            raise ValueError("Number of arguments doesn't match the number of columns (%d != %d)" % (
+                len(values), len(self._type._fields))
+                             )
         # Add value to index entries
         index = self._index
         data = self._type._make(values)
@@ -63,7 +67,6 @@ class Table(object):
                 index[n][v].add(data)
             else:
                 index[n][v] = set([data])
-
 
     def delete(self, *_row, **kv):
         """
@@ -122,7 +125,6 @@ class Table(object):
                     if len(index[n][v]) == 0:
                         del index[n][v]
 
-
     def query(self, **kv):
         """
         Get rows (tuples) for each key defined. An iterator is returned.
@@ -175,6 +177,5 @@ class Table(object):
             except TypeError as ex:
                 pass
         return r
-
 
 # vi:sw=4:et:ai

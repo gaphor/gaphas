@@ -28,13 +28,12 @@ implement `Constraint.solve_for(Variable)` method to update a variable with
 appropriate value.
 """
 
-from __future__ import division
 from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
-import operator
-import math
-from .solver import Projection
 
+import math
+from gaphas.solver import Projection
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -42,6 +41,7 @@ __version__ = "$Revision$"
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
+
 
 def _update(variable, value):
     if abs(variable.value - value) > EPSILON:
@@ -73,8 +73,7 @@ class Constraint(object):
         self.create_weakest_list()
 
         # Used by the Solver for efficiency
-        self._solver_has_projections = False 
-
+        self._solver_has_projections = False
 
     def create_weakest_list(self):
         """
@@ -84,7 +83,6 @@ class Constraint(object):
         strength = min(v.strength for v in self._variables)
         self._weakest = [v for v in self._variables if v.strength == strength]
 
-
     def variables(self):
         """
         Return an iterator which iterates over the variables that are
@@ -92,14 +90,12 @@ class Constraint(object):
         """
         return self._variables
 
-
     def weakest(self):
         """
         Return the weakest variable. The weakest variable should be always
         as first element of Constraint._weakest list.
         """
         return self._weakest[0]
-
 
     def mark_dirty(self, v):
         """
@@ -132,14 +128,13 @@ class Constraint(object):
         """
         wvar = self.weakest()
         self.solve_for(wvar)
-   
+
     def solve_for(self, var):
         """
         Solve the constraint for a given variable.
         The variable itself is updated.
         """
         raise NotImplemented
-
 
 
 class EqualsConstraint(Constraint):
@@ -167,16 +162,12 @@ class EqualsConstraint(Constraint):
         self.b = b
         self.delta = delta
 
-
     def solve_for(self, var):
         assert var in (self.a, self.b, self.delta)
 
-        _update(*((var is self.a) and \
-                (self.a, self.b.value - self.delta) or \
-                (var is self.b) and \
-                (self.b, self.a.value + self.delta) or \
-                (self.delta, self.b.value - self.a.value)))
-
+        _update(*((var is self.a) and (self.a, self.b.value - self.delta) or (var is self.b) and
+                  (self.b, self.a.value + self.delta) or
+                  (self.delta, self.b.value - self.a.value)))
 
 
 class CenterConstraint(Constraint):
@@ -207,13 +198,11 @@ class CenterConstraint(Constraint):
         self.b = b
         self.center = center
 
-
     def solve_for(self, var):
         assert var in (self.a, self.b, self.center)
 
         v = (self.a.value + self.b.value) / 2.0
         _update(self.center, v)
-
 
 
 class LessThanConstraint(Constraint):
@@ -248,7 +237,6 @@ class LessThanConstraint(Constraint):
         self.bigger = bigger
         self.delta = delta
 
-
     def solve_for(self, var):
         if self.smaller.value > self.bigger.value - self.delta:
             if var is self.smaller:
@@ -259,10 +247,9 @@ class LessThanConstraint(Constraint):
                 self.delta.value = self.bigger.value - self.smaller.value
 
 
-
-
 # Constants for the EquationConstraint
-ITERLIMIT = 1000        # iteration limit
+ITERLIMIT = 1000  # iteration limit
+
 
 class EquationConstraint(Constraint):
     """
@@ -285,7 +272,7 @@ class EquationConstraint(Constraint):
 
     From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/303396
     """
-    
+
     def __init__(self, f, **args):
         super(EquationConstraint, self).__init__(*list(args.values()))
         self._f = f
@@ -295,15 +282,13 @@ class EquationConstraint(Constraint):
             self._args[arg] = None
         self._set(**args)
 
-
     def __repr__(self):
         argstring = ', '.join(['%s=%s' % (arg, str(value)) for (arg, value) in
-                             self._args.items()])
+                               self._args.items()])
         if argstring:
             return 'EquationConstraint(%s, %s)' % (self._f.__code__.co_name, argstring)
         else:
             return 'EquationConstraint(%s)' % self._f.__code__.co_name
-
 
     def __getattr__(self, name):
         """
@@ -311,7 +296,6 @@ class EquationConstraint(Constraint):
         """
         self._args[name]
         return self.solve_for(name)
-
 
     def __setattr__(self, name, value):
         """
@@ -331,7 +315,6 @@ class EquationConstraint(Constraint):
         else:
             object.__setattr__(self, name, value)
 
-
     def _set(self, **args):
         """
         Sets values of function arguments.
@@ -339,7 +322,6 @@ class EquationConstraint(Constraint):
         for arg in args:
             self._args[arg]  # raise exception if arg not in _args
             setattr(self, arg, args[arg])
-
 
     def solve_for(self, var):
         """
@@ -350,17 +332,16 @@ class EquationConstraint(Constraint):
         for nm, v in self._args.items():
             args[nm] = v.value
             if v is var: arg = nm
-        v = self._solve_for(arg, args) 
+        v = self._solve_for(arg, args)
         if var.value != v:
             var.value = v
-
 
     def _solve_for(self, arg, args):
         """
         Newton's method solver
         """
-        #args = self._args
-        close_runs = 10   # after getting close, do more passes
+        # args = self._args
+        close_runs = 10  # after getting close, do more passes
         if args[arg]:
             x0 = args[arg]
         else:
@@ -368,23 +349,25 @@ class EquationConstraint(Constraint):
         if x0 == 0:
             x1 = 1
         else:
-            x1 = x0*1.1
+            x1 = x0 * 1.1
+
         def f(x):
             """function to solve"""
             args[arg] = x
             return self._f(**args)
+
         fx0 = f(x0)
         n = 0
-        while 1:                    # Newton's method loop here
+        while 1:  # Newton's method loop here
             fx1 = f(x1)
             if fx1 == 0 or x1 == x0:  # managed to nail it exactly
                 break
-            if abs(fx1-fx0) < EPSILON:    # very close
+            if abs(fx1 - fx0) < EPSILON:  # very close
                 close_flag = True
-                if close_runs == 0:       # been close several times
+                if close_runs == 0:  # been close several times
                     break
                 else:
-                    close_runs -= 1       # try some more
+                    close_runs -= 1  # try some more
             else:
                 close_flag = False
             if n > ITERLIMIT:
@@ -397,13 +380,12 @@ class EquationConstraint(Constraint):
                 else:
                     print('Zero slope and not close enough to solution')
                     break
-            x2 = x0 - fx0 / slope           # New 'x1'
+            x2 = x0 - fx0 / slope  # New 'x1'
             fx0 = fx1
             x0 = x1
             x1 = x2
             n += 1
         return x1
-
 
 
 class BalanceConstraint(Constraint):
@@ -444,7 +426,6 @@ class BalanceConstraint(Constraint):
         if self.balance is None:
             self.update_balance()
 
-
     def update_balance(self):
         b1, b2 = self.band
         w = b2 - b1
@@ -453,13 +434,11 @@ class BalanceConstraint(Constraint):
         else:
             self.balance = 0
 
-
     def solve_for(self, var):
         b1, b2 = self.band
         w = b2.value - b1.value
         value = b1.value + w * self.balance
         _update(var, value)
-
 
 
 class LineConstraint(Constraint):
@@ -477,7 +456,6 @@ class LineConstraint(Constraint):
         self._line = line
         self._point = point
         self.update_ratio()
-
 
     def update_ratio(self):
         """
@@ -509,10 +487,8 @@ class LineConstraint(Constraint):
         except ZeroDivisionError:
             self.ratio_y = 0.0
 
-        
     def solve_for(self, var=None):
         self._solve()
-
 
     def _solve(self):
         """
@@ -543,7 +519,6 @@ class LineConstraint(Constraint):
         _update(py, y)
 
 
-
 class PositionConstraint(Constraint):
     """
     Ensure that point is always in origin position.
@@ -555,12 +530,11 @@ class PositionConstraint(Constraint):
 
     def __init__(self, origin, point):
         super(PositionConstraint, self).__init__(origin[0], origin[1],
-                point[0], point[1])
+                                                 point[0], point[1])
 
         self._origin = origin
         self._point = point
 
-        
     def solve_for(self, var=None):
         """
         Ensure that point's coordinates are the same as coordinates of the
@@ -569,7 +543,6 @@ class PositionConstraint(Constraint):
         x, y = self._origin[0].value, self._origin[1].value
         _update(self._point[0], x)
         _update(self._point[1], y)
-
 
 
 class LineAlignConstraint(Constraint):
@@ -607,7 +580,6 @@ class LineAlignConstraint(Constraint):
         self._align = align
         self._delta = delta
 
-        
     def solve_for(self, var=None):
         sx, sy = self._line[0]
         ex, ey = self._line[1]
@@ -619,6 +591,5 @@ class LineAlignConstraint(Constraint):
 
         _update(px, x)
         _update(py, y)
-
 
 # vim:sw=4:et:ai
