@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from os import getenv
 
 import unittest
@@ -6,6 +7,7 @@ from gaphas.canvas import Canvas
 from gaphas.examples import Box
 
 from gaphas.item import NW, NE, SE, SW
+from six.moves import range
 
 class ElementTestCase(unittest.TestCase):
 

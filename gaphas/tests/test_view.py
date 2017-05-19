@@ -2,6 +2,8 @@
 Test cases for the View class.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 from gi.repository import Gtk
 import math
@@ -161,8 +163,8 @@ class ViewTestCase(unittest.TestCase):
         canvas.add(box)
 
         # By default no complex updating/calculations are done:
-        assert not box._matrix_i2v.has_key(view)
-        assert not box._matrix_v2i.has_key(view)
+        assert view not in box._matrix_i2v
+        assert view not in box._matrix_v2i
 
         # GTK view does register for updates though
 
@@ -170,28 +172,28 @@ class ViewTestCase(unittest.TestCase):
         assert len(canvas._registered_views) == 1
         
         # No entry, since GtkView is not realized and has no window
-        assert not box._matrix_i2v.has_key(view)
-        assert not box._matrix_v2i.has_key(view)
+        assert view not in box._matrix_i2v
+        assert view not in box._matrix_v2i
 
         window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
         # Now everything is realized and updated
-        assert box._matrix_i2v.has_key(view)
-        assert box._matrix_v2i.has_key(view)
+        assert view in box._matrix_i2v
+        assert view in box._matrix_v2i
 
         view.canvas = None
         assert len(canvas._registered_views) == 0
 
-        assert not box._matrix_i2v.has_key(view)
-        assert not box._matrix_v2i.has_key(view)
+        assert view not in box._matrix_i2v
+        assert view not in box._matrix_v2i
 
         view.canvas = canvas
         assert len(canvas._registered_views) == 1
 
-        assert box._matrix_i2v.has_key(view)
-        assert box._matrix_v2i.has_key(view)
+        assert view in box._matrix_i2v
+        assert view in box._matrix_v2i
 
 
     def test_view_registration_2(self):
@@ -220,8 +222,8 @@ class ViewTestCase(unittest.TestCase):
 
         assert len(canvas._registered_views) == 0
 
-        assert not box._matrix_i2v.has_key(view)
-        assert not box._matrix_v2i.has_key(view)
+        assert view not in box._matrix_i2v
+        assert view not in box._matrix_v2i
         
 
     def test_scroll_adjustments(self):
@@ -229,7 +231,7 @@ class ViewTestCase(unittest.TestCase):
         view = GtkView(Canvas())
         sc.add(view)
 
-        print sc.get_hadjustment(), view.hadjustment
+        print(sc.get_hadjustment(), view.hadjustment)
         assert sc.get_hadjustment() is view.hadjustment
         assert sc.get_vadjustment() is view.vadjustment
 

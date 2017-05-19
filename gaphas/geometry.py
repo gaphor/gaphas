@@ -8,6 +8,7 @@ A point is represented as a tuple `(x, y)`.
 
 """
 
+from __future__ import absolute_import
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -157,7 +158,7 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError, "Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+            raise TypeError("Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
         x1, y1 = x + width, y + height
         if self:
             ox1, oy1 = self.x + self.width, self.y + self.height
@@ -197,7 +198,7 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError, "Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+            raise TypeError("Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
         x1, y1 = x + width, y + height
 
         if self:
@@ -247,7 +248,7 @@ class Rectangle(object):
                 x, y = obj
                 x1, y1 = obj
             except ValueError:
-                raise TypeError, "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
+                raise TypeError("Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj))
         return x >= self.x and x1 <= self.x1 and \
                y >= self.y and y1 <= self.y1
 

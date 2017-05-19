@@ -1,10 +1,13 @@
 
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 from gi.repository import Gtk
 from gaphas.guide import *
 from gaphas.canvas import Canvas
 from gaphas.view import GtkView
 from gaphas.item import Element, Line
+from six.moves import range
 
 
 class GuideTestCase(unittest.TestCase):
@@ -112,13 +115,13 @@ class GuideTestCase(unittest.TestCase):
 
         # Moved back to guided lines:
         for d in range(0, 3):
-            print 'move to', d
+            print('move to', d)
             guider.move((d, d))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
         for d in range(3, 5):
-            print 'move to', d
+            print('move to', d)
             guider.move((d, d))
             self.assertEquals(5, e3.matrix[4])
             self.assertEquals(5, e3.matrix[5])
@@ -154,13 +157,13 @@ class GuideTestCase(unittest.TestCase):
 
         # Moved back to guided lines:
         for y in range(4, 6):
-            print 'move to', y
+            print('move to', y)
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
         for y in range(6, 9):
-            print 'move to', y
+            print('move to', y)
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(5, e3.matrix[5])

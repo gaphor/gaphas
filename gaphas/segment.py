@@ -2,6 +2,7 @@
 Allow for easily adding segments to lines.
 """
 
+from __future__ import absolute_import
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic
 from gaphas.geometry import distance_point_point_fast, distance_line_point
@@ -9,6 +10,7 @@ from gaphas.item import Line
 from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
 from gaphas.aspect import ConnectionSink
 from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
+from six.moves import zip
 
 
 @generic

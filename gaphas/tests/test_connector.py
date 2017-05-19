@@ -1,4 +1,5 @@
 
+from __future__ import absolute_import
 import unittest
 from gaphas.connector import Position, Handle
 from gaphas.solver import Variable

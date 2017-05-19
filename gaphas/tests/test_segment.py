@@ -2,6 +2,8 @@
 Generic gaphas item tests.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 
 from gaphas.item import Item, Line
@@ -27,9 +29,9 @@ class SegmentTestCase(unittest.TestCase):
         item = Item()
         try:
             s = Segment(item, self.view)
-            print item, 'segment aspect:', s
-        except TypeError, e:
-            print 'TypeError', e
+            print(item, 'segment aspect:', s)
+        except TypeError as e:
+            print('TypeError', e)
         else:
             assert False, 'Should not be reached'
 
@@ -363,7 +365,7 @@ class LineMergeTestCase(TestCaseBase):
         assert len(self.line.handles()) == 4
         assert len(self.line.ports()) == 3
  
-        print self.line.handles()
+        print(self.line.handles())
         handles, ports = segment.merge_segment(0, count=3)
         self.assertEquals(2, len(handles))
         self.assertEquals(3, len(ports))

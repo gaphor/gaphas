@@ -31,6 +31,8 @@ Tools can handle events in different ways
 - tool can handle the event (obviously)
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 
 from gi.repository import Gtk, Gdk, cairo
@@ -164,7 +166,7 @@ class ToolChain(Tool):
 
     def grab(self, tool):
         if not self._grabbed_tool:
-            if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
+            if DEBUG_TOOL_CHAIN: print('Grab tool', tool)
             # Send grab event
             event = Event(type=Tool.GRAB)
             tool.handle(event)
@@ -172,7 +174,7 @@ class ToolChain(Tool):
 
     def ungrab(self, tool):
         if self._grabbed_tool is tool:
-            if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
+            if DEBUG_TOOL_CHAIN: print('UNgrab tool', self._grabbed_tool)
             # Send ungrab event
             event = Event(type=Tool.UNGRAB)
             tool.handle(event)
@@ -206,7 +208,7 @@ class ToolChain(Tool):
                     self.ungrab(self._grabbed_tool)
         else:
             for tool in self._tools:
-                if DEBUG_TOOL_CHAIN: print 'tool', tool
+                if DEBUG_TOOL_CHAIN: print('tool', tool)
                 rt = tool.handle(event)
                 if rt:
                     if event.type == Gdk.EventType.BUTTON_PRESS:

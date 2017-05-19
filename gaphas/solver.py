@@ -33,11 +33,12 @@ method) changing appropriate variables to make the constraint valid again.
 
 from __future__ import division
 
+from __future__ import absolute_import
 __version__ = "$Revision$"
 # $HeadURL$
 
 from operator import isCallable
-from state import observed, reversible_pair, reversible_property
+from .state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?
@@ -424,7 +425,7 @@ class Solver(object):
                     c.mark_dirty(variable)
                     self._marked_cons.append(c)
                     if self._marked_cons.count(c) > 100:
-                        raise JuggleError, 'Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons))
+                        raise JuggleError('Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons)))
 
 
     @observed

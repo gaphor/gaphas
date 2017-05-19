@@ -3,14 +3,15 @@ Simple example items.
 These items are used in various tests.
 """
 
+from __future__ import absolute_import
 __version__ = "$Revision$"
 # $HeadURL$
 
 from gaphas.item import Element, Item, NW, NE,SW, SE
 from gaphas.connector import Handle, PointPort, LinePort, Position
 from gaphas.solver import solvable, WEAK
-import tool
-from util import text_align, text_multiline, path_ellipse
+from . import tool
+from .util import text_align, text_multiline, path_ellipse
 
 class Box(Element):
     """ A Box has 4 handles (for a start):

@@ -21,6 +21,7 @@ GTK+ and PyGObject3_ are required.
 .. _PyGObject3: http://live.gnome.org/PyGObject
 """
 
+from __future__ import absolute_import
 VERSION = '0.8.0'
 
 from ez_setup import use_setuptools

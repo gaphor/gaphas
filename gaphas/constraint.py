@@ -29,9 +29,11 @@ appropriate value.
 """
 
 from __future__ import division
+from __future__ import absolute_import
+from __future__ import print_function
 import operator
 import math
-from solver import Projection
+from .solver import Projection
 
 
 __version__ = "$Revision$"
@@ -285,11 +287,11 @@ class EquationConstraint(Constraint):
     """
     
     def __init__(self, f, **args):
-        super(EquationConstraint, self).__init__(*args.values())
+        super(EquationConstraint, self).__init__(*list(args.values()))
         self._f = f
         self._args = {}
         # see important note on order of operations in __setattr__ below.
-        for arg in f.func_code.co_varnames[0:f.func_code.co_argcount]:
+        for arg in f.__code__.co_varnames[0:f.__code__.co_argcount]:
             self._args[arg] = None
         self._set(**args)
 
@@ -298,9 +300,9 @@ class EquationConstraint(Constraint):
         argstring = ', '.join(['%s=%s' % (arg, str(value)) for (arg, value) in
                              self._args.items()])
         if argstring:
-            return 'EquationConstraint(%s, %s)' % (self._f.func_code.co_name, argstring)
+            return 'EquationConstraint(%s, %s)' % (self._f.__code__.co_name, argstring)
         else:
-            return 'EquationConstraint(%s)' % self._f.func_code.co_name
+            return 'EquationConstraint(%s)' % self._f.__code__.co_name
 
 
     def __getattr__(self, name):
@@ -319,13 +321,13 @@ class EquationConstraint(Constraint):
         # be added to self.__dict__.  This is a good thing as it throws
         # an exception if you try to assign to an arg which is inappropriate
         # for the function in the solver.
-        if self.__dict__.has_key('_args'):
+        if '_args' in self.__dict__:
             if name in self._args:
                 self._args[name] = value
             elif name in self.__dict__:
                 self.__dict__[name] = value
             else:
-                raise KeyError, name
+                raise KeyError(name)
         else:
             object.__setattr__(self, name, value)
 
@@ -386,14 +388,14 @@ class EquationConstraint(Constraint):
             else:
                 close_flag = False
             if n > ITERLIMIT:
-                print "Failed to converge; exceeded iteration limit"
+                print("Failed to converge; exceeded iteration limit")
                 break
             slope = (fx1 - fx0) / (x1 - x0)
             if slope == 0:
                 if close_flag:  # we're close but have zero slope, finish
                     break
                 else:
-                    print 'Zero slope and not close enough to solution'
+                    print('Zero slope and not close enough to solution')
                     break
             x2 = x0 - fx0 / slope           # New 'x1'
             fx0 = fx1

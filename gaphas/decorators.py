@@ -2,6 +2,8 @@
 Custom decorators.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import threading
 from gi.repository import GObject
 from gi.repository.GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
@@ -118,7 +120,7 @@ class async(object):
                 return func(*args, **kwargs)
             elif not self.single:
                 def async_wrapper(*x):
-                    if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                    if DEBUG_ASYNC: print('async:', func, args, kwargs)
                     func(*args, **kwargs)
                 source(async_wrapper).attach()
             else:
@@ -127,9 +129,9 @@ class async(object):
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError, e:
+                except AttributeError as e:
                     def async_wrapper(*x):
-                        if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                        if DEBUG_ASYNC: print('async:', func, args, kwargs)
                         try:
                             func(*args, **kwargs)
                         finally:

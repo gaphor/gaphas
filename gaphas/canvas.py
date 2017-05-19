@@ -27,6 +27,7 @@ To get connecting items (i.e. all lines connected to a class)::
 
 """
 
+from __future__ import absolute_import
 from collections import namedtuple
 import logging
 
@@ -35,7 +36,9 @@ from gaphas import tree
 from gaphas import solver
 from gaphas import table
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
-from state import observed, reversible_method, reversible_pair
+from .state import observed, reversible_method, reversible_pair
+from six.moves import map
+from six.moves import range
 
 
 #
@@ -77,7 +80,7 @@ class Context(object):
         self.__dict__.update(**kwargs)
 
     def __setattr__(self, key, value):
-        raise AttributeError, 'context is not writable'
+        raise AttributeError('context is not writable')
 
 
 class Canvas(object):
@@ -88,7 +91,7 @@ class Canvas(object):
     def __init__(self):
         self._tree = tree.Tree()
         self._solver = solver.Solver()
-        self._connections = table.Table(Connection, range(4))
+        self._connections = table.Table(Connection, list(range(4)))
         self._dirty_items = set()
         self._dirty_matrix_items = set()
         self._dirty_index = False
@@ -417,7 +420,7 @@ class Canvas(object):
         # checks:
         cinfo = self.get_connection(handle)
         if not cinfo:
-            raise ValueError, 'No data available for item "%s" and handle "%s"' % (item, handle)
+            raise ValueError('No data available for item "%s" and handle "%s"' % (item, handle))
 
         if cinfo.constraint:
             self._solver.remove_constraint(cinfo.constraint)
@@ -450,8 +453,8 @@ class Canvas(object):
         >>> c.get_connection(ii.handles()[0])    # doctest: +ELLIPSIS
         """
         try:
-            return self._connections.query(handle=handle).next()
-        except StopIteration, ex:
+            return next(self._connections.query(handle=handle))
+        except StopIteration as ex:
             return None
 
 
@@ -696,7 +699,7 @@ class Canvas(object):
 
             self._post_update_items(dirty_items, cr)
 
-        except Exception, e:
+        except Exception as e:
             logging.error('Error while updating canvas', exc_info=e)
 
         assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
@@ -1000,9 +1003,9 @@ class CanvasProjection(object):
         self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
         return self._px, self._py
 
-    pos = property(lambda self: map(VariableProjection,
+    pos = property(lambda self: list(map(VariableProjection,
                                     self._point, self._get_value(),
-                                    (self._on_change_x, self._on_change_y)))
+                                    (self._on_change_x, self._on_change_y))))
 
     def __getitem__(self, key):
         # Note: we can not use bound methods as callbacks, since that will

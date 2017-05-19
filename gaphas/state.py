@@ -18,9 +18,12 @@ For this to work the revert_handler has to be added to the observers set::
 
 """
 
+from __future__ import absolute_import
 import types, inspect
 import threading
 from decorator import decorator
+import six
+from six.moves import zip
 
 # This string is added to each docstring in order to denote is's observed
 #OBSERVED_DOCSTRING = \
@@ -225,8 +228,8 @@ def revert_handler(event):
         return
 
     kw = dict(kwargs)
-    kw.update(dict(zip(spec[0], args)))
-    for arg, binding in bind.iteritems():
+    kw.update(dict(list(zip(spec[0], args))))
+    for arg, binding in six.iteritems(bind):
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])
     if spec[1]: argnames.append(revspec[1])
@@ -258,7 +261,7 @@ def getfunction(func):
     Return the function associated with a class method.
     """
     if isinstance(func, types.UnboundMethodType):
-        return func.im_func
+        return func.__func__
     return func
 
 

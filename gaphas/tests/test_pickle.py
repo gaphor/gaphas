@@ -1,4 +1,6 @@
 
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 import pickle
 from gaphas.canvas import Canvas
@@ -13,11 +15,11 @@ import gaphas.picklers
 class MyPickler(pickle.Pickler):
 
     def save(self, obj):
-        print 'saving obj', obj, type(obj)
+        print('saving obj', obj, type(obj))
         try:
             return pickle.Pickler.save(self, obj)
-        except pickle.PicklingError, e:
-            print 'Error while pickling', obj, self.dispatch.get(type(obj))
+        except pickle.PicklingError as e:
+            print('Error while pickling', obj, self.dispatch.get(type(obj)))
             raise e
 
 

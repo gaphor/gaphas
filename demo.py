@@ -14,6 +14,8 @@ It sports a small canvas and some trivial operations:
 
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -200,11 +202,11 @@ def create_window(canvas, title, zoom=1.0):
     def on_toggled(button):
         global undo_list
         if button.get_active():
-            print 'start recording'
+            print('start recording')
             del undo_list[:]
             state.subscribers.add(undo_handler)
         else:
-            print 'stop recording'
+            print('stop recording')
             state.subscribers.remove(undo_handler)
 
     b.connect('toggled', on_toggled)
@@ -216,13 +218,13 @@ def create_window(canvas, title, zoom=1.0):
         global undo_list
         apply_me = list(undo_list)
         del undo_list[:]
-        print 'Actions on the undo stack:', len(apply_me)
+        print('Actions on the undo stack:', len(apply_me))
         apply_me.reverse()
         saveapply = state.saveapply
         for event in apply_me:
-            print 'Undo: invoking', event
+            print('Undo: invoking', event)
             saveapply(*event)
-            print 'New undo stack size:', len(undo_list)
+            print('New undo stack size:', len(undo_list))
             # Visualize each event:
             #while Gtk.events_pending():
             #    Gtk.main_iteration()
@@ -301,7 +303,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
         try:
-            import cPickle as pickle
+            import six.moves.cPickle as pickle
             pickle.dump(view.canvas, f)
         finally:
             f.close()
@@ -315,7 +317,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import cPickle as pickle
+            import six.moves.cPickle as pickle
             canvas = pickle.load(f)
             canvas.update_now()
         finally:
@@ -331,7 +333,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import cPickle as pickle
+            import six.moves.cPickle as pickle
             canvas = pickle.load(f)
         finally:
             f.close()
@@ -368,7 +370,7 @@ def create_window(canvas, title, zoom=1.0):
     w.connect('destroy', Gtk.main_quit)
 
     def handle_changed(view, item, what):
-        print what, 'changed: ', item
+        print(what, 'changed: ', item)
 
     view.connect('focus-changed', handle_changed, 'focus')
     view.connect('hover-changed', handle_changed, 'hover')
@@ -381,13 +383,13 @@ def create_canvas(c=None):
     b=MyBox()
     b.min_width = 20
     b.min_height = 30
-    print 'box', b
+    print('box', b)
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
     b.width = b.height = 40
     c.add(b)
 
     bb=Box()
-    print 'box', bb
+    print('box', bb)
     bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
     c.add(bb, parent=b)
 
@@ -404,7 +406,7 @@ def create_canvas(c=None):
 
     # AJM: extra boxes:
     bb = Box()
-    print 'rotated box', bb
+    print('rotated box', bb)
     bb.matrix.rotate(math.pi/1.567)
     c.add(bb, parent=b)
 #    for i in xrange(10):
@@ -460,7 +462,7 @@ def main():
     state.observers.add(state.revert_handler)
 
     def print_handler(event):
-        print 'event:', event
+        print('event:', event)
 
     c=Canvas()
 
@@ -482,7 +484,7 @@ def main():
 if __name__ == '__main__':
     import sys
     if '-p' in sys.argv:
-        print 'Profiling...'
+        print('Profiling...')
         import hotshot, hotshot.stats
         prof = hotshot.Profile('demo-gaphas.prof')
         prof.runcall(main)

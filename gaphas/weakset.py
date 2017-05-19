@@ -6,6 +6,7 @@ this file is licensed under the Python Software Foundation License, version 2.
 
 """
 
+from __future__ import absolute_import
 from _weakref import ref
 
 __all__ = ['WeakSet']

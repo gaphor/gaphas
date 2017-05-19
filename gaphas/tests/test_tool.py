@@ -2,6 +2,7 @@
 Test all the tools provided by gaphas.
 """
 
+from __future__ import absolute_import
 import unittest
 
 from gaphas.tool import ConnectHandleTool

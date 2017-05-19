@@ -8,11 +8,12 @@ Small utility class wrapping cairo.Matrix. The `Matrix` class
 adds state preservation capabilities.
 """
 
+from __future__ import absolute_import
 __version__ = "$Revision$"
 # $HeadURL$
 
 import cairo
-from state import observed, reversible_method
+from .state import observed, reversible_method
 
 
 class Matrix(object):

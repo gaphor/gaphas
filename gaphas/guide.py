@@ -2,11 +2,14 @@
 Module implements guides when moving items and handles around.
 """
 
+from __future__ import absolute_import
 from simplegeneric import generic
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
 from gaphas.connector import Handle
 from gaphas.item import Item, Element, Line, SE
+from six.moves import map
+from functools import reduce
 
 
 class ItemGuide(object):
@@ -105,7 +108,7 @@ class GuideMixin(object):
         for x in item_vedges:
             items.append(view.get_items_in_rectangle((x - margin, 0, margin*2, height)))
         try:
-            guides = map(Guide, reduce(set.union, map(set, items)) - excluded_items)
+            guides = list(map(Guide, reduce(set.union, list(map(set, items))) - excluded_items))
         except TypeError:
             guides = []
 
@@ -126,7 +129,7 @@ class GuideMixin(object):
         for y in item_hedges:
             items.append(view.get_items_in_rectangle((0, y - margin, width, margin*2)))
         try:
-            guides = map(Guide, reduce(set.union, map(set, items)) - excluded_items)
+            guides = list(map(Guide, reduce(set.union, list(map(set, items))) - excluded_items))
         except TypeError:
             guides = []
 
@@ -156,7 +159,7 @@ class GuideMixin(object):
     def get_view_dimensions(self):
         try:
             allocation = self.view.get_allocation()
-        except AttributeError, e:
+        except AttributeError as e:
             return 0, 0
         return allocation.width, allocation.height
 

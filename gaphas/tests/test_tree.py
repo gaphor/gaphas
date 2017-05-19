@@ -1,4 +1,5 @@
 
+from __future__ import absolute_import
 import unittest
 from gaphas.tree import Tree
 
@@ -123,7 +124,7 @@ class TreeTestCase(unittest.TestCase):
         except IndexError:
             pass # okay
         else:
-            raise AssertionError, 'Index should be out of range, not %s' % tree.get_next_sibling(n3)
+            raise AssertionError('Index should be out of range, not %s' % tree.get_next_sibling(n3))
 
         assert tree.get_previous_sibling(n3) is n2
         assert tree.get_previous_sibling(n2) is n1
@@ -132,7 +133,7 @@ class TreeTestCase(unittest.TestCase):
         except IndexError:
             pass # okay
         else:
-            raise AssertionError, 'Index should be out of range, not %s' % tree.get_previous_sibling(n1)
+            raise AssertionError('Index should be out of range, not %s' % tree.get_previous_sibling(n1))
 
     def test_reparent(self):
         tree = Tree()

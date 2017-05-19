@@ -9,6 +9,7 @@ The simplegeneric module is dispatching opnly based on the first argument.
 For Gaphas that's enough.
 """
 
+from __future__ import absolute_import
 from gi.repository import Gdk
 from simplegeneric import generic
 from gaphas.item import Item, Element
@@ -144,7 +145,7 @@ class ElementHandleSelection(ItemHandleSelection):
             self.view.get_window().set_cursor(self.CURSORS[index])
 
     def unselect(self):
-        from view import DEFAULT_CURSOR
+        from .view import DEFAULT_CURSOR
         cursor = Gdk.Cursor.new(DEFAULT_CURSOR)
         self.view.get_window().set_cursor(cursor)
 

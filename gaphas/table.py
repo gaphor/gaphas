@@ -3,6 +3,9 @@ Table is a storage class that can be used to store information, like one
 would in a database table, with indexes on the desired "columns."
 """
 
+from __future__ import absolute_import
+from six.moves import zip
+from functools import reduce
 class Table(object):
     """
     A Table structure with indexing. Optimized for lookups.
@@ -50,7 +53,7 @@ class Table(object):
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
         if len(values) != len(self._type._fields):
-            raise ValueError, "Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._type._fields))
+            raise ValueError("Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._type._fields)))
         # Add value to index entries
         index = self._index
         data = self._type._make(values)
@@ -103,10 +106,10 @@ class Table(object):
         """
         fields = self._type._fields
         if _row and kv:
-            raise ValueError, "Should either provide a row or a query statement, not both"
+            raise ValueError("Should either provide a row or a query statement, not both")
         if _row:
             assert len(_row) == len(fields)
-            kv = dict(zip(self._indexes, _row))
+            kv = dict(list(zip(self._indexes, _row)))
 
         rows = list(self.query(**kv))
 
@@ -169,7 +172,7 @@ class Table(object):
             rows = (index[n][v] for n, v in items)
             try:
                 r = iter(reduce(set.intersection, rows))
-            except TypeError, ex:
+            except TypeError as ex:
                 pass
         return r
 

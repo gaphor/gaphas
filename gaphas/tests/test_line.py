@@ -1,4 +1,5 @@
 
+from __future__ import absolute_import
 import unittest
 from gaphas.item import Line
 from gaphas.canvas import Canvas

@@ -2,20 +2,25 @@
 Basic items.
 """
 
+from __future__ import absolute_import
 from math import atan2
 from weakref import WeakKeyDictionary
+from six.moves import map
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 try:
     # python 3.0 (better be prepared)
     from weakref import WeakSet
 except ImportError:
-    from weakset import WeakSet
+    from .weakset import WeakSet
 
-from matrix import Matrix
-from geometry import distance_line_point, distance_rectangle_point
-from connector import Handle, LinePort
-from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
-from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
-from state import observed, reversible_method, reversible_pair, reversible_property
+from .matrix import Matrix
+from .geometry import distance_line_point, distance_rectangle_point
+from .connector import Handle, LinePort
+from .solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
+from .constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
+from .state import observed, reversible_method, reversible_pair, reversible_property
 
 class Item(object):
     """
@@ -163,7 +168,7 @@ class Item(object):
         updated = False
         handles = self._handles
         if handles:
-            x, y = map(float, handles[0].pos)
+            x, y = list(map(float, handles[0].pos))
             if x:
                 self.matrix.translate(x, 0)
                 updated = True
@@ -300,7 +305,7 @@ class Item(object):
 [ NW,
   NE,
   SE,
-  SW ] = xrange(4)
+  SW ] = range(4)
 
 class Element(Item):
     """
@@ -445,7 +450,7 @@ class Element(Item):
         updated = False
         handles = self._handles
         handles = (handles[NW], handles[SE])
-        x, y = map(float, handles[0].pos)
+        x, y = list(map(float, handles[0].pos))
         if x:
             self.matrix.translate(x, 0)
             updated = True
@@ -468,7 +473,7 @@ class Element(Item):
         """
         h = self._handles
         pnw, pse = h[NW].pos, h[SE].pos
-        return distance_rectangle_point(map(float, (pnw.x, pnw.y, pse.x, pse.y)), pos)
+        return distance_rectangle_point(list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), pos)
 
 
 class Line(Item):
@@ -567,7 +572,7 @@ class Line(Item):
         False
         """
         if orthogonal and len(self.handles()) < 3:
-            raise ValueError, "Can't set orthogonal line with less than 3 handles"
+            raise ValueError("Can't set orthogonal line with less than 3 handles")
         self._update_orthogonal_constraints(orthogonal)
 
     orthogonal = reversible_property(lambda s: bool(s._orthogonal_constraints), _set_orthogonal)
@@ -686,12 +691,12 @@ class Line(Item):
         (0.7071067811865476, (4.5, 4.5), 0)
         """
         h = self._handles
-        hpos = map(getattr, h, ['pos'] * len(h))
+        hpos = list(map(getattr, h, ['pos'] * len(h)))
 
         # create a list of (distance, point_on_line) tuples:
-        distances = map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
-        distances, pols = zip(*distances)
-        return reduce(min, zip(distances, pols, range(len(distances))))
+        distances = list(map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1)))
+        distances, pols = list(zip(*distances))
+        return reduce(min, list(zip(distances, pols, list(range(len(distances))))))
 
     def point(self, pos):
         """

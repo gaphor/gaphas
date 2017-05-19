@@ -3,6 +3,9 @@ Simple class containing the tree structure for the canvas items.
 
 """
 
+from __future__ import absolute_import
+from six.moves import map
+from six.moves import range
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -181,7 +184,7 @@ class Tree(object):
         """
         nodes = self.nodes
         lnodes = len(nodes)
-        map(setattr, nodes, [index_key] * lnodes, xrange(lnodes))
+        list(map(setattr, nodes, [index_key] * lnodes, range(lnodes)))
 
     def sort(self, nodes, index_key, reverse=False):
         """

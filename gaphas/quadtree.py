@@ -18,11 +18,16 @@ common features:
 (From Wikipedia, the free encyclopedia)
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+import six
+from six.moves import map
+from six.moves import zip
 __version__ = "$Revision$"
 # $HeadURL$
 
 import operator
-from geometry import rectangle_contains, rectangle_intersects, rectangle_clip
+from .geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
 
 class Quadtree(object):
@@ -130,14 +135,14 @@ class Quadtree(object):
         >>> qtree.bounds
         (0, 0, 0, 0)
         """
-        x_y_w_h = zip(*map(operator.getitem, self._ids.itervalues(), [0] * len(self._ids)))
+        x_y_w_h = list(zip(*list(map(operator.getitem, six.itervalues(self._ids), [0] * len(self._ids)))))
         if not x_y_w_h:
             return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
         y0 = min(x_y_w_h[1])
         add = operator.add
-        x1 = max(map(add, x_y_w_h[0], x_y_w_h[2]))
-        y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
+        x1 = max(list(map(add, x_y_w_h[0], x_y_w_h[2])))
+        y1 = max(list(map(add, x_y_w_h[1], x_y_w_h[3])))
         return (x0, y0, x1 - x0, y1 - y0)
 
     soft_bounds = property(get_soft_bounds)
@@ -199,7 +204,7 @@ class Quadtree(object):
         # Clean bucket and items:
         self._bucket.clear()
 
-        for item, (bounds, data, _) in dict(self._ids).iteritems():
+        for item, (bounds, data, _) in six.iteritems(dict(self._ids)):
             clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
             if clipped_bounds:
                 self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
@@ -300,7 +305,7 @@ class QuadtreeBucket(object):
                              QuadtreeBucket((x, cy, rw, rh), self.capacity),
                              QuadtreeBucket((cx, cy, rw, rh), self.capacity)]
             # Add items to subnodes
-            items = self.items.items()
+            items = list(self.items.items())
             self.items.clear()
             for i, b in items:
                 self.find_bucket(b).add(i, b)
@@ -361,7 +366,7 @@ class QuadtreeBucket(object):
         Returns an iterator.
         """
         if rectangle_intersects(rect, self.bounds):
-            for item, bounds in self.items.iteritems():
+            for item, bounds in six.iteritems(self.items):
                 if method(bounds, rect):
                     yield item
             for bucket in self._buckets:
@@ -378,10 +383,10 @@ class QuadtreeBucket(object):
 
 
     def dump(self, indent=''):
-       print indent, self, self.bounds
+       print(indent, self, self.bounds)
        indent += '   '
-       for item, bounds in sorted(self.items.iteritems()):
-           print indent, item, bounds
+       for item, bounds in sorted(six.iteritems(self.items)):
+           print(indent, item, bounds)
        for bucket in self._buckets:
            bucket.dump(indent)
 

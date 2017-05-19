@@ -2,15 +2,17 @@
 This module contains everything to display a Canvas on a screen.
 """
 
+from __future__ import absolute_import
 from gi.repository import GObject, Gtk, Gdk
 from cairo import Matrix
-from canvas import Context
-from geometry import Rectangle, distance_point_point_fast
-from quadtree import Quadtree
-from tool import DefaultTool
-from painter import DefaultPainter, BoundingBoxPainter
-from decorators import async, PRIORITY_HIGH_IDLE
-from decorators import nonrecursive
+from .canvas import Context
+from .geometry import Rectangle, distance_point_point_fast
+from .quadtree import Quadtree
+from .tool import DefaultTool
+from .painter import DefaultPainter, BoundingBoxPainter
+from .decorators import async, PRIORITY_HIGH_IDLE
+from .decorators import nonrecursive
+from six.moves import map
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -350,7 +352,7 @@ class View(object):
         rectangle @rect.
         """
         items = self._qtree.find_inside(rect)
-        map(self.select_item, items)
+        list(map(self.select_item, items))
 
 
     def zoom(self, factor):
@@ -549,7 +551,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif pspec.name == 'vadjustment':
             self._set_scroll_adjustments(self._hadjustment, value)
         else:
-            raise AttributeError, 'Unknown property %s' % pspec.name
+            raise AttributeError('Unknown property %s' % pspec.name)
 
     def do_get_property(self, pspec):
         if pspec.name == 'hscroll-policy':
@@ -561,7 +563,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif pspec.name == 'vadjustment':
             return self._vadjustment
         else:
-            raise AttributeError, 'Unknown property %s' % pspec.name
+            raise AttributeError('Unknown property %s' % pspec.name)
 
     def emit(self, *args, **kwargs):
         """
@@ -691,7 +693,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         TODO: Should we also create a (sorted) list of items that need redrawal?
         """
         get_bounds = self._qtree.get_bounds
-        items = filter(None, items)
+        items = [_f for _f in items if _f]
         try:
             # create a copy, otherwise we'll change the original rectangle
             bounds = Rectangle(*get_bounds(items[0]))

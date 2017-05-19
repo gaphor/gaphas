@@ -19,13 +19,14 @@ used in Gaphas instead of the multiplier (``*``). In both the ``Canvas`` and
 is used.
 """
 
+from __future__ import absolute_import
 __version__ = "$Revision$"
 # $HeadURL$
 
 
-from canvas import Canvas
-from connector import Handle
-from item import Item, Line, Element
-from view import View, GtkView
+from .canvas import Canvas
+from .connector import Handle
+from .item import Item, Line, Element
+from .view import View, GtkView
 
 # vi:sw=4:et:ai
