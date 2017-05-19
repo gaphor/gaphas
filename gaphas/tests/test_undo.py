@@ -1,7 +1,12 @@
-
 from __future__ import absolute_import
+
 import unittest
+
 from gaphas import state
+from gaphas.aspect import Connector, ConnectionSink
+from gaphas.canvas import Canvas
+from gaphas.examples import Box
+from gaphas.item import Line
 
 state.observers.clear()
 state.subscribers.clear()
@@ -9,8 +14,10 @@ state.subscribers.clear()
 undo_list = []
 redo_list = []
 
+
 def undo_handler(event):
     undo_list.append(event)
+
 
 def undo():
     apply_me = list(undo_list)
@@ -22,14 +29,7 @@ def undo():
     del undo_list[:]
 
 
-from gaphas.canvas import Canvas
-from gaphas.examples import Box
-from gaphas.item import Line
-from gaphas.aspect import Connector, ConnectionSink
-
-
 class UndoTestCase(unittest.TestCase):
-
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
@@ -37,7 +37,7 @@ class UndoTestCase(unittest.TestCase):
     def shutDown(self):
         state.observers.remove(state.revert_handler)
         state.subscribers.remove(undo_handler)
-    
+
     def testUndoOnDeletedElement(self):
         b1 = Box()
 
@@ -50,7 +50,7 @@ class UndoTestCase(unittest.TestCase):
 
         canvas.add(b2)
         self.assertEquals(4, len(canvas.solver.constraints))
-        
+
         canvas.add(line)
 
         sink = ConnectionSink(b1, b1.ports()[0])
@@ -63,7 +63,7 @@ class UndoTestCase(unittest.TestCase):
 
         self.assertEquals(6, len(canvas.solver.constraints))
         self.assertEquals(2, len(list(canvas.get_connections(item=line))))
-        
+
         del undo_list[:]
 
         # Here disconnect is not invoked!
@@ -92,9 +92,10 @@ class UndoTestCase(unittest.TestCase):
         cinfo = canvas.get_connection(line.handles()[-1])
         self.assertEquals(b2, cinfo.connected)
 
-#        self.assertEquals(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
+
+# self.assertEquals(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
 #        self.assertTrue(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
-        
+
 if __name__ == '__main__':
     unittest.main()
 # vim:sw=4:et:ai

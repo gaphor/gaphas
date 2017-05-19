@@ -1,12 +1,14 @@
-
 from __future__ import absolute_import
 from __future__ import print_function
+
 import unittest
-from gaphas.freehand import FreeHandCairoContext
+
 import cairo
 
-class PseudoFile(object):
+from gaphas.freehand import FreeHandCairoContext
 
+
+class PseudoFile(object):
     def __init__(self):
         self.data = ''
 
@@ -16,7 +18,6 @@ class PseudoFile(object):
 
 
 class FreeHandCairoContextTest(unittest.TestCase):
-
     def setUp(self):
         pass
 
@@ -43,7 +44,7 @@ class FreeHandCairoContextTest(unittest.TestCase):
 
 
 DRAWING_LINES_OUTPUT = """<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100pt" height="100pt" viewBox="0 0 100 100" version="1.1">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100pt" height="100pt"viewBox="0 0 100 100" version="1.1">
 <g id="surface0">
 <path style="fill:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 20 20 C 23.324219 50.054688 17.195312 33.457031 20.722656 80.585938 C 38.78125 83.566406 20.984375 77.625 80.652344 80.652344 C 83.65625 70.992188 77.578125 60.988281 80.507812 20.019531 "/>
 </g>

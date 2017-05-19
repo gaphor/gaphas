@@ -1,12 +1,14 @@
-
 from __future__ import absolute_import
+
 import unittest
-from gaphas.quadtree import Quadtree
+
 import six
 from six.moves import range
 
-class QuadtreeTestCase(unittest.TestCase):
+from gaphas.quadtree import Quadtree
 
+
+class QuadtreeTestCase(unittest.TestCase):
     def test_lookups(self):
         qtree = Quadtree((0, 0, 100, 100))
         for i in range(100, 10):
@@ -15,8 +17,8 @@ class QuadtreeTestCase(unittest.TestCase):
 
         for i in range(100, 10):
             for j in range(100, 10):
-                assert qtree.find_intersect((i+1, j+1, 1, 1)) == ['%dx%d' % (i, j)], \
-                        qtree.find_intersect((i+1, j+1, 1, 1))
+                assert qtree.find_intersect((i + 1, j + 1, 1, 1)) == ['%dx%d' % (i, j)], \
+                    qtree.find_intersect((i + 1, j + 1, 1, 1))
 
     def test_with_rectangles(self):
         from gaphas.geometry import Rectangle
@@ -29,9 +31,8 @@ class QuadtreeTestCase(unittest.TestCase):
 
         for i in range(100, 10):
             for j in range(100, 10):
-                assert qtree.find_intersect((i+1, j+1, 1, 1)) == ['%dx%d' % (i, j)], \
-                        qtree.find_intersect((i+1, j+1, 1, 1))
-
+                assert qtree.find_intersect((i + 1, j + 1, 1, 1)) == ['%dx%d' % (i, j)], \
+                    qtree.find_intersect((i + 1, j + 1, 1, 1))
 
     def test_moving_items(self):
         qtree = Quadtree((0, 0, 100, 100), capacity=10)
@@ -61,20 +62,19 @@ class QuadtreeTestCase(unittest.TestCase):
         qtree.add('0x0', (20, 20, 10, 10))
         assert len(qtree._bucket.items) == 0
         assert len(qtree._bucket._buckets[0]._buckets[0].items) == 3, \
-                qtree._bucket._buckets[0]._buckets[0].items
+            qtree._bucket._buckets[0]._buckets[0].items
         assert len(qtree._bucket._buckets[0].items) == 10, \
-                qtree._bucket._buckets[0].items
+            qtree._bucket._buckets[0].items
 
         # Now move item '0x0' to the second quadrant (70, 20)
         qtree.add('0x0', (70, 20, 10, 10))
         assert len(qtree._bucket.items) == 0
         assert len(qtree._bucket._buckets[0]._buckets[0].items) == 3, \
-                qtree._bucket._buckets[0]._buckets[0].items
+            qtree._bucket._buckets[0]._buckets[0].items
         assert len(qtree._bucket._buckets[0].items) == 9, \
-                qtree._bucket._buckets[0].items
+            qtree._bucket._buckets[0].items
         assert len(qtree._bucket._buckets[1].items) == 10, \
-                qtree._bucket._buckets[1].items
-
+            qtree._bucket._buckets[1].items
 
     def test_get_data(self):
         """
@@ -83,11 +83,11 @@ class QuadtreeTestCase(unittest.TestCase):
         qtree = Quadtree((0, 0, 100, 100))
         for i in range(0, 100, 10):
             for j in range(0, 100, 10):
-                qtree.add("%dx%d" % (i, j), (i, j, 10, 10), i+j)
+                qtree.add("%dx%d" % (i, j), (i, j, 10, 10), i + j)
 
         for i in range(0, 100, 10):
             for j in range(0, 100, 10):
-                assert i+j == qtree.get_data("%dx%d" % (i, j))
+                assert i + j == qtree.get_data("%dx%d" % (i, j))
 
     def test_clipped_bounds(self):
         qtree = Quadtree((0, 0, 100, 100), capacity=10)

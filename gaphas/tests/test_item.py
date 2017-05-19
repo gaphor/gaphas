@@ -3,18 +3,21 @@ Generic gaphas item tests.
 """
 
 from __future__ import absolute_import
+
 import unittest
 
-from gaphas.item import Item
-from gaphas.constraint import LineAlignConstraint, LineConstraint, \
+from gaphas.constraint import LineConstraint, \
     EqualsConstraint, LessThanConstraint
+from gaphas.item import Item
 from gaphas.solver import Variable
+
 
 class ItemConstraintTestCase(unittest.TestCase):
     """
     Item constraint creation tests. The test check functionality of
     `Item.constraint` method, not constraints themselves.
     """
+
     def test_line_constraint(self):
         """
         Test line creation constraint.
@@ -29,7 +32,6 @@ class ItemConstraintTestCase(unittest.TestCase):
         self.assertTrue(isinstance(c, LineConstraint))
         self.assertEquals((1, 2), c._point)
         self.assertEquals(((3, 4), (5, 6)), c._line)
-
 
     def test_horizontal_constraint(self):
         """
@@ -47,7 +49,6 @@ class ItemConstraintTestCase(unittest.TestCase):
         self.assertEquals(2, c.a)
         self.assertEquals(4, c.b)
 
-
     def test_vertical_constraint(self):
         """
         Test vertical constraint creation.
@@ -64,7 +65,6 @@ class ItemConstraintTestCase(unittest.TestCase):
         self.assertEquals(1, c.a)
         self.assertEquals(3, c.b)
 
-
     def test_left_of_constraint(self):
         """
         Test "less than" constraint (horizontal) creation.
@@ -79,7 +79,6 @@ class ItemConstraintTestCase(unittest.TestCase):
         self.assertTrue(isinstance(c, LessThanConstraint))
         self.assertEquals(1, c.smaller)
         self.assertEquals(3, c.bigger)
-
 
     def test_above_constraint(self):
         """

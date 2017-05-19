@@ -3,12 +3,14 @@ Generic gaphas item tests.
 """
 
 from __future__ import absolute_import
+
 import unittest
 
-from gaphas.item import Item
 from gaphas.aspect import *
 from gaphas.canvas import Canvas
+from gaphas.item import Item
 from gaphas.view import View
+
 
 class AspectTestCase(unittest.TestCase):
     """
@@ -18,7 +20,6 @@ class AspectTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
         self.view = View(self.canvas)
-
 
     def test_selection_select(self):
         """
@@ -36,7 +37,6 @@ class AspectTestCase(unittest.TestCase):
         assert item not in view.selected_items
         assert None is view.focused_item
 
-
     def test_selection_move(self):
         """
         Test the Selection role methods
@@ -49,6 +49,5 @@ class AspectTestCase(unittest.TestCase):
         inmotion.start_move((0, 0))
         inmotion.move((12, 26))
         self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
-
 
 # vim:sw=4:et:ai

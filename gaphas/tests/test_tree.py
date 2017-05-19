@@ -1,11 +1,11 @@
-
 from __future__ import absolute_import
+
 import unittest
+
 from gaphas.tree import Tree
 
 
 class TreeTestCase(unittest.TestCase):
-
     def test_add(self):
         """
         Test creating node trees.
@@ -68,13 +68,12 @@ class TreeTestCase(unittest.TestCase):
         tree.add(n3, index=1)
         assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
         assert tree.nodes == [n1, n3, n2], tree.nodes
-        
+
         tree.add(n4, parent=n3)
         tree.add(n5, parent=n3, index=0)
         assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
         assert tree.nodes == [n1, n3, n5, n4, n2], tree.nodes
         assert tree.get_children(n3) == [n5, n4], tree.get_children(n3)
-
 
     def test_remove(self):
         """
@@ -96,7 +95,7 @@ class TreeTestCase(unittest.TestCase):
         assert tree._nodes == [n1, n3, n4, n5, n2]
 
         all_ch = list(tree.get_all_children(n1))
-        assert all_ch == [ n3, n4, n5 ], all_ch
+        assert all_ch == [n3, n4, n5], all_ch
 
         tree.remove(n4)
         assert tree._nodes == [n1, n3, n2]
@@ -112,17 +111,17 @@ class TreeTestCase(unittest.TestCase):
         n1 = 'n1'
         n2 = 'n2'
         n3 = 'n3'
-        
+
         tree.add(n1)
         tree.add(n2)
         tree.add(n3)
-        
+
         assert tree.get_next_sibling(n1) is n2
         assert tree.get_next_sibling(n2) is n3
         try:
             tree.get_next_sibling(n3)
         except IndexError:
-            pass # okay
+            pass  # okay
         else:
             raise AssertionError('Index should be out of range, not %s' % tree.get_next_sibling(n3))
 
@@ -131,7 +130,7 @@ class TreeTestCase(unittest.TestCase):
         try:
             tree.get_previous_sibling(n1)
         except IndexError:
-            pass # okay
+            pass  # okay
         else:
             raise AssertionError('Index should be out of range, not %s' % tree.get_previous_sibling(n1))
 
@@ -159,6 +158,5 @@ class TreeTestCase(unittest.TestCase):
 
         tree.reparent(n4, parent=None, index=0)
         assert tree.nodes == [n4, n5, n1, n2, n3], tree.nodes
-
 
 # vi:sw=4:et:ai

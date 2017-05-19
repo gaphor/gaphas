@@ -1,17 +1,18 @@
-
 from __future__ import absolute_import
 from __future__ import print_function
+
 import unittest
+
 from gi.repository import Gtk
-from gaphas.guide import *
-from gaphas.canvas import Canvas
-from gaphas.view import GtkView
-from gaphas.item import Element, Line
 from six.moves import range
+
+from gaphas.canvas import Canvas
+from gaphas.guide import *
+from gaphas.item import Element, Line
+from gaphas.view import GtkView
 
 
 class GuideTestCase(unittest.TestCase):
-
     def setUp(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)
@@ -88,7 +89,6 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(0.0, guides[0])
         self.assertEquals(20.0, guides[1])
 
-
     def test_guide_item_in_motion(self):
         e1 = Element()
         e2 = Element()
@@ -129,7 +129,6 @@ class GuideTestCase(unittest.TestCase):
         guider.move((20, 20))
         self.assertEquals(20, e3.matrix[4])
         self.assertEquals(20, e3.matrix[5])
-
 
     def test_guide_item_in_motion_2(self):
         e1 = Element()
@@ -172,6 +171,5 @@ class GuideTestCase(unittest.TestCase):
         guider.move((20, 23))
         self.assertEquals(17, e3.matrix[4])
         self.assertEquals(20, e3.matrix[5])
-
 
 # vim:sw=4:et:ai

@@ -4,18 +4,19 @@ Test cases for the View class.
 
 from __future__ import absolute_import
 from __future__ import print_function
-import unittest
-from gi.repository import Gtk
+
 import math
-from gaphas.view import View, GtkView
-from gaphas.canvas import Canvas, Context
-from gaphas.item import Line
+import unittest
+
+from gi.repository import Gtk
+
+from gaphas.canvas import Canvas
 from gaphas.examples import Box
-from gaphas.tool import HoverTool
+from gaphas.item import Line
+from gaphas.view import View, GtkView
 
 
 class ViewTestCase(unittest.TestCase):
-
     def test_bounding_box_calculations(self):
         """
         A view created before and after the canvas is populated should contain
@@ -30,13 +31,13 @@ class ViewTestCase(unittest.TestCase):
         window1.show_all()
 
         box = Box()
-        box.matrix = (1.0, 0.0, 0.0, 1, 10,10)
+        box.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
         canvas.add(box)
 
         line = Line()
         line.fyzzyness = 1
         line.handles()[1].pos = (30, 30)
-        #line.split_segment(0, 3)
+        # line.split_segment(0, 3)
         line.matrix.translate(30, 60)
         canvas.add(line)
 
@@ -49,11 +50,15 @@ class ViewTestCase(unittest.TestCase):
         while Gtk.events_pending():
             Gtk.main_iteration()
 
-        try: 
+        try:
             assert view2.get_item_bounding_box(box)
             assert view1.get_item_bounding_box(box)
-            assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
-            assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
+            assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (
+                view1.get_item_bounding_box(box), view2.get_item_bounding_box(box)
+            )
+            assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (
+                view1.get_item_bounding_box(line), view2.get_item_bounding_box(line)
+            )
         finally:
             window1.destroy()
             window2.destroy()
@@ -98,7 +103,7 @@ class ViewTestCase(unittest.TestCase):
         box.min_width = 20
         box.min_height = 30
         box.matrix.translate(20, 20)
-        box.matrix.rotate(math.pi/1.5)
+        box.matrix.rotate(math.pi / 1.5)
         canvas.add(box)
 
         i, h = view.get_handle_at_point((20, 20))
@@ -116,7 +121,7 @@ class ViewTestCase(unittest.TestCase):
         box.min_width = 20
         box.min_height = 30
         box.matrix.translate(20, 20)
-        box.matrix.rotate(math.pi/2)
+        box.matrix.rotate(math.pi / 2)
         canvas.add(box)
 
         p = canvas.get_matrix_i2c(box).transform_point(0, 20)
@@ -155,10 +160,10 @@ class ViewTestCase(unittest.TestCase):
         canvas = Canvas()
 
         # Simple views do not register on the canvas
-        
+
         view = View(canvas)
         assert len(canvas._registered_views) == 0
-        
+
         box = Box()
         canvas.add(box)
 
@@ -170,7 +175,7 @@ class ViewTestCase(unittest.TestCase):
 
         view = GtkView(canvas)
         assert len(canvas._registered_views) == 1
-        
+
         # No entry, since GtkView is not realized and has no window
         assert view not in box._matrix_i2v
         assert view not in box._matrix_v2i
@@ -194,7 +199,6 @@ class ViewTestCase(unittest.TestCase):
 
         assert view in box._matrix_i2v
         assert view in box._matrix_v2i
-
 
     def test_view_registration_2(self):
         """
@@ -224,7 +228,6 @@ class ViewTestCase(unittest.TestCase):
 
         assert view not in box._matrix_i2v
         assert view not in box._matrix_v2i
-        
 
     def test_scroll_adjustments(self):
         sc = Gtk.ScrolledWindow()

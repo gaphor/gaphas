@@ -22,14 +22,14 @@ GTK+ and PyGObject3_ are required.
 """
 
 from __future__ import absolute_import
-VERSION = '0.8.0'
+
+from setuptools import setup, find_packages
 
 from ez_setup import use_setuptools
 
-use_setuptools()
+VERSION = '0.8.0'
 
-from setuptools import setup, find_packages
-from distutils.cmd import Command
+use_setuptools()
 
 setup(
     name='gaphas',
@@ -38,12 +38,12 @@ setup(
     long_description=__doc__,
 
     classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: X11 Applications :: GTK',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-    'Programming Language :: Python',
-    'Topic :: Software Development :: Libraries :: Python Modules',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: X11 Applications :: GTK',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 
     keywords='',
@@ -53,32 +53,31 @@ setup(
 
     url='http://github.com/amolenaar/gaphas',
 
-    #download_url='http://cheeseshop.python.org/',
+    # download_url='http://cheeseshop.python.org/',
 
     license='GNU Library General Public License (LGPL, see COPYING)',
 
     packages=find_packages(exclude=['ez_setup']),
 
-    setup_requires = [
-     'nose >= 0.10.4',
-     'setuptools-git >= 0.3.4'
+    setup_requires=[
+        'nose >= 0.10.4',
+        'setuptools-git >= 0.3.4'
     ],
 
     install_requires=[
-     'decorator >= 3.0.0',
-     'simplegeneric >= 0.6',
-     #'pygobject >= 3.10.0'
+        'decorator >= 3.0.0',
+        'simplegeneric >= 0.6',
+        # 'pygobject >= 3.10.0'
     ],
 
     zip_safe=False,
 
     package_data={
-    # -*- package_data: -*-
+        # -*- package_data: -*-
     },
 
-    entry_points = {
+    entry_points={
     },
 
-    test_suite = 'nose.collector',
-    )
-      
+    test_suite='nose.collector',
+)
