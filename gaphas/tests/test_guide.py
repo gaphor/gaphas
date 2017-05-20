@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2010 Arjan Molenaar <gaphor@gmail.com>
+# Copyright (C) 2010-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -16,20 +17,26 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import
+from __future__ import print_function
+
 import unittest
-import gtk
-from gaphas.guide import *
+
+from gi.repository import Gtk
+from six.moves import range
+
 from gaphas.canvas import Canvas
-from gaphas.view import GtkView
+from gaphas.guide import *
 from gaphas.item import Element, Line
+from gaphas.view import GtkView
 
 
 class GuideTestCase(unittest.TestCase):
-
     def setUp(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)
-        self.window = gtk.Window()
+        self.window = Gtk.Window()
         self.window.add(self.view)
         self.window.show_all()
 
@@ -102,7 +109,6 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(0.0, guides[0])
         self.assertEquals(20.0, guides[1])
 
-
     def test_guide_item_in_motion(self):
         e1 = Element()
         e2 = Element()
@@ -129,13 +135,13 @@ class GuideTestCase(unittest.TestCase):
 
         # Moved back to guided lines:
         for d in range(0, 3):
-            print 'move to', d
+            print('move to', d)
             guider.move((d, d))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
         for d in range(3, 5):
-            print 'move to', d
+            print('move to', d)
             guider.move((d, d))
             self.assertEquals(5, e3.matrix[4])
             self.assertEquals(5, e3.matrix[5])
@@ -143,7 +149,6 @@ class GuideTestCase(unittest.TestCase):
         guider.move((20, 20))
         self.assertEquals(20, e3.matrix[4])
         self.assertEquals(20, e3.matrix[5])
-
 
     def test_guide_item_in_motion_2(self):
         e1 = Element()
@@ -171,13 +176,13 @@ class GuideTestCase(unittest.TestCase):
 
         # Moved back to guided lines:
         for y in range(4, 6):
-            print 'move to', y
+            print('move to', y)
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
         for y in range(6, 9):
-            print 'move to', y
+            print('move to', y)
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(5, e3.matrix[5])
@@ -186,6 +191,5 @@ class GuideTestCase(unittest.TestCase):
         guider.move((20, 23))
         self.assertEquals(17, e3.matrix[4])
         self.assertEquals(20, e3.matrix[5])
-
 
 # vim:sw=4:et:ai

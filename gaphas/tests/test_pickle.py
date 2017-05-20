@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2008-2009 Arjan Molenaar <gaphor@gmail.com>
+# Copyright (C) 2008-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -16,25 +17,30 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
-import unittest
+
+from __future__ import absolute_import
+from __future__ import print_function
+
 import pickle
+import unittest
+
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
-from gaphas.item import Item, Element, Line
+from gaphas.item import Element, Line
 from gaphas.view import View, GtkView
+
 
 # Ensure extra pickle reducers/reconstructors are loaded:
 import gaphas.picklers
 
 
 class MyPickler(pickle.Pickler):
-
     def save(self, obj):
-        print 'saving obj', obj, type(obj)
+        print('saving obj', obj, type(obj))
         try:
             return pickle.Pickler.save(self, obj)
-        except pickle.PicklingError, e:
-            print 'Error while pickling', obj, self.dispatch.get(type(obj))
+        except pickle.PicklingError as e:
+            print('Error while pickling', obj, self.dispatch.get(type(obj)))
             raise e
 
 
@@ -43,8 +49,10 @@ class my_disconnect(object):
     Disconnect object should be located at top-level, so the pickle code
     can find it.
     """
+
     def __call__(self):
         pass
+
 
 def create_canvas():
     canvas = Canvas()
@@ -54,7 +62,6 @@ def create_canvas():
     box.matrix.rotate(50)
     box2 = Box()
     canvas.add(box2, parent=box)
-
 
     line = Line()
     line.handles()[0].visible = False
@@ -70,7 +77,6 @@ def create_canvas():
 
 
 class PickleTestCase(unittest.TestCase):
-
     def test_pickle_element(self):
         item = Element()
 
@@ -80,7 +86,6 @@ class PickleTestCase(unittest.TestCase):
         assert i2
         assert len(i2.handles()) == 4
 
-
     def test_pickle_line(self):
         item = Line()
 
@@ -89,7 +94,6 @@ class PickleTestCase(unittest.TestCase):
 
         assert i2
         assert len(i2.handles()) == 2
-
 
     def test_pickle(self):
         canvas = create_canvas()
@@ -101,7 +105,6 @@ class PickleTestCase(unittest.TestCase):
         assert type(canvas._tree.nodes[1]) is Box
         assert type(canvas._tree.nodes[2]) is Line
 
-
     def test_pickle_connect(self):
         """
         Persist a connection.
@@ -111,7 +114,6 @@ class PickleTestCase(unittest.TestCase):
         canvas.add(box)
         box2 = Box()
         canvas.add(box2, parent=box)
-
 
         line = Line()
         line.handles()[0].visible = False
@@ -140,7 +142,6 @@ class PickleTestCase(unittest.TestCase):
         assert callable(h.disconnect)
         assert h.disconnect() is None, h.disconnect()
 
-
     def test_pickle_with_view(self):
         canvas = create_canvas()
 
@@ -158,7 +159,6 @@ class PickleTestCase(unittest.TestCase):
         surface.flush()
         surface.finish()
 
-
     def test_pickle_with_gtk_view(self):
         canvas = create_canvas()
 
@@ -166,8 +166,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        import gtk
-        win = gtk.Window()
+        from gi.repository import Gtk
+        win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
 
@@ -185,13 +185,13 @@ class PickleTestCase(unittest.TestCase):
 
         view = GtkView(canvas=canvas)
 
-#        from gaphas.tool import ConnectHandleTool
-#        handle_tool = ConnectHandleTool()
-#        handle_tool.connect(view, line, line.handles()[0], (40, 0))
-#        assert line.handles()[0].connected_to is box, line.handles()[0].connected_to
-#        assert line.handles()[0].connection_data
-#        assert line.handles()[0].disconnect
-#        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
+        #        from gaphas.tool import ConnectHandleTool
+        #        handle_tool = ConnectHandleTool()
+        #        handle_tool.connect(view, line, line.handles()[0], (40, 0))
+        #        assert line.handles()[0].connected_to is box, line.handles()[0].connected_to
+        #        assert line.handles()[0].connection_data
+        #        assert line.handles()[0].disconnect
+        #        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
 
         import StringIO
         f = StringIO.StringIO()
@@ -201,8 +201,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        import gtk
-        win = gtk.Window()
+        from gi.repository import Gtk
+        win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
         view.show()
@@ -219,8 +219,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        import gtk
-        win = gtk.Window()
+        from gi.repository import Gtk
+        win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
 
@@ -228,6 +228,7 @@ class PickleTestCase(unittest.TestCase):
         win.show()
 
         view.update()
+
 
 if __name__ == '__main__':
     unittest.main()

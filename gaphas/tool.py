@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2006-2014 Arjan Molenaar <gaphor@gmail.com>
-#                         jlstevens <jlstevens@ed.ac.uk>
-#                         wrobell <wrobell@pld-linux.org>
+# Copyright (C) 2006-2017 Adrian Boguszewski <adrbogus1@student.pg.gda.pl>
+#                         Arjan Molenaar <gaphor@gmail.com>
+#                         Artur Wroblewski <wrobell@pld-linux.org>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -18,6 +19,7 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 Tools provide interactive behavior to a `View` by handling specific events
 sent by view.
@@ -51,21 +53,15 @@ Tools can handle events in different ways
 - tool can handle the event (obviously)
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
+from __future__ import absolute_import
+from __future__ import print_function
 
-import sys
+from gi.repository import Gtk, Gdk
 
-import cairo
-import gtk
-from gaphas.canvas import Context
-from gaphas.geometry import Rectangle
-from gaphas.geometry import distance_point_point_fast, distance_line_point
-from gaphas.item import Line
 from gaphas.aspect import Finder, Selection, InMotion, \
-        HandleFinder, HandleSelection, HandleInMotion, \
-        Connector
-
+    HandleFinder, HandleSelection, HandleInMotion, \
+    Connector
+from gaphas.canvas import Context
 
 DEBUG_TOOL_CHAIN = False
 
@@ -74,7 +70,7 @@ Event = Context
 
 class Tool(object):
     """
-    Base class for a tool. This class
+    Base class for a tool. This class 
     A word on click events:
 
     Mouse (pointer) button click. A button press is normally followed by
@@ -102,21 +98,21 @@ class Tool(object):
 
     # Map GDK events to tool methods
     EVENT_HANDLERS = {
-        gtk.gdk.BUTTON_PRESS: 'on_button_press',
-        gtk.gdk.BUTTON_RELEASE: 'on_button_release',
-        gtk.gdk._2BUTTON_PRESS: 'on_double_click',
-        gtk.gdk._3BUTTON_PRESS: 'on_triple_click',
-        gtk.gdk.MOTION_NOTIFY: 'on_motion_notify',
-        gtk.gdk.KEY_PRESS: 'on_key_press',
-        gtk.gdk.KEY_RELEASE: 'on_key_release',
-        gtk.gdk.SCROLL: 'on_scroll',
+        Gdk.EventType.BUTTON_PRESS: 'on_button_press',
+        Gdk.EventType.BUTTON_RELEASE: 'on_button_release',
+        Gdk.EventType._2BUTTON_PRESS: 'on_double_click',
+        Gdk.EventType._3BUTTON_PRESS: 'on_triple_click',
+        Gdk.EventType.MOTION_NOTIFY: 'on_motion_notify',
+        Gdk.EventType.KEY_PRESS: 'on_key_press',
+        Gdk.EventType.KEY_RELEASE: 'on_key_release',
+        Gdk.EventType.SCROLL: 'on_scroll',
         # Custom events:
         GRAB: 'on_grab',
         UNGRAB: 'on_ungrab',
     }
 
     # Those events force the tool to release the grabbed tool.
-    FORCE_UNGRAB_EVENTS = (gtk.gdk._2BUTTON_PRESS, gtk.gdk._3BUTTON_PRESS)
+    FORCE_UNGRAB_EVENTS = (Gdk.EventType._2BUTTON_PRESS, Gdk.EventType._3BUTTON_PRESS)
 
     def __init__(self, view=None):
         self.view = view
@@ -124,27 +120,23 @@ class Tool(object):
     def set_view(self, view):
         self.view = view
 
-
     def _dispatch(self, event):
         """
         Deal with the event. The event is dispatched to a specific handler
         for the event type.
         """
         handler = self.EVENT_HANDLERS.get(event.type)
-        #print event.type, handler
         if handler:
             try:
                 h = getattr(self, handler)
             except AttributeError:
-                pass # No handler
+                pass  # No handler
             else:
                 return bool(h(event))
         return False
 
-
     def handle(self, event):
         return self._dispatch(event)
-
 
     def draw(self, context):
         """
@@ -157,7 +149,6 @@ class Tool(object):
         - cairo: the Cairo drawing context
         """
         pass
-
 
 
 class ToolChain(Tool):
@@ -189,7 +180,8 @@ class ToolChain(Tool):
 
     def grab(self, tool):
         if not self._grabbed_tool:
-            if DEBUG_TOOL_CHAIN: print 'Grab tool', tool
+            if DEBUG_TOOL_CHAIN:
+                print('Grab tool', tool)
             # Send grab event
             event = Event(type=Tool.GRAB)
             tool.handle(event)
@@ -197,7 +189,8 @@ class ToolChain(Tool):
 
     def ungrab(self, tool):
         if self._grabbed_tool is tool:
-            if DEBUG_TOOL_CHAIN: print 'UNgrab tool', self._grabbed_tool
+            if DEBUG_TOOL_CHAIN:
+                print('UNgrab tool', self._grabbed_tool)
             # Send ungrab event
             event = Event(type=Tool.UNGRAB)
             tool.handle(event)
@@ -217,7 +210,7 @@ class ToolChain(Tool):
         or grabbed.
 
         If a tool is returning True on a button press event, the motion and
-        button release events are also passed to this
+        button release events are also passed to this 
         """
         handler = self.EVENT_HANDLERS.get(event.type)
 
@@ -227,18 +220,18 @@ class ToolChain(Tool):
             try:
                 return self._grabbed_tool.handle(event)
             finally:
-                if event.type == gtk.gdk.BUTTON_RELEASE:
+                if event.type == Gdk.EventType.BUTTON_RELEASE:
                     self.ungrab(self._grabbed_tool)
         else:
             for tool in self._tools:
-                if DEBUG_TOOL_CHAIN: print 'tool', tool
+                if DEBUG_TOOL_CHAIN:
+                    print('tool', tool)
                 rt = tool.handle(event)
                 if rt:
-                    if event.type == gtk.gdk.BUTTON_PRESS:
+                    if event.type == Gdk.EventType.BUTTON_PRESS:
                         self.view.grab_focus()
                         self.grab(tool)
                     return rt
-
 
     def draw(self, context):
         if self._grabbed_tool:
@@ -271,7 +264,6 @@ class ItemTool(Tool):
         self._buttons = buttons
         self._movable_items = set()
 
-
     def get_item(self):
         return self.view.hovered_item
 
@@ -289,24 +281,23 @@ class ItemTool(Tool):
             if not set(get_ancestors(item)).intersection(selected_items):
                 yield InMotion(item, view)
 
-
     def on_button_press(self, event):
-        ### TODO: make keys configurable
+        # TODO: make keys configurable
         view = self.view
         item = self.get_item()
 
-        if event.button not in self._buttons:
+        if event.get_button()[1] not in self._buttons:
             return False
 
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
-        if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
+        if not (event.get_state()[1] & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
                 or item in view.selected_items):
             del view.selected_items
 
         if item:
             if view.hovered_item in view.selected_items and \
-                    event.state & gtk.gdk.CONTROL_MASK:
+                            event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
                 selection = Selection(item, view)
                 selection.unselect()
             else:
@@ -316,7 +307,7 @@ class ItemTool(Tool):
             return True
 
     def on_button_release(self, event):
-        if event.button not in self._buttons:
+        if event.get_button()[1] not in self._buttons:
             return False
         for inmotion in self._movable_items:
             inmotion.stop_move()
@@ -328,7 +319,7 @@ class ItemTool(Tool):
         Normally do nothing.
         If a button is pressed move the items around.
         """
-        if event.state & gtk.gdk.BUTTON_PRESS_MASK:
+        if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
 
             if not self._movable_items:
                 self._movable_items = set(self.movable_items())
@@ -367,7 +358,6 @@ class HandleTool(Tool):
         selection = HandleSelection(item, handle, self.view)
         selection.select()
 
-
     def ungrab_handle(self):
         """
         Reset grabbed_handle and grabbed_item.
@@ -379,7 +369,6 @@ class HandleTool(Tool):
         if handle:
             selection = HandleSelection(item, handle, self.view)
             selection.unselect()
-
 
     def on_button_press(self, event):
         """
@@ -394,11 +383,11 @@ class HandleTool(Tool):
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
-### TODO: duplicate from ItemTool
-            if not (event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK)
+            # TODO: duplicate from ItemTool
+            if not (event.get_state()[1] & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
                     or view.hovered_item in view.selected_items):
                 del view.selected_items
-###/
+            #
             view.hovered_item = item
             view.focused_item = item
 
@@ -432,7 +421,7 @@ class HandleTool(Tool):
         hovered-item.
         """
         view = self.view
-        if self.grabbed_handle and event.state & gtk.gdk.BUTTON_PRESS_MASK:
+        if self.grabbed_handle and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
             canvas = view.canvas
             item = self.grabbed_item
             handle = self.grabbed_handle
@@ -447,7 +436,6 @@ class HandleTool(Tool):
 
 
 class RubberbandTool(Tool):
-
     def __init__(self, view=None):
         super(RubberbandTool, self).__init__(view)
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
@@ -461,11 +449,11 @@ class RubberbandTool(Tool):
         self.queue_draw(self.view)
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
         self.view.select_in_rectangle((min(x0, x1), min(y0, y1),
-                 abs(x1 - x0), abs(y1 - y0)))
+                                       abs(x1 - x0), abs(y1 - y0)))
         return True
 
     def on_motion_notify(self, event):
-        if event.state & gtk.gdk.BUTTON_PRESS_MASK:
+        if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
             view = self.view
             self.queue_draw(view)
             self.x1, self.y1 = event.x, event.y
@@ -480,12 +468,14 @@ class RubberbandTool(Tool):
         cr = context.cairo
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
         cr.set_line_width(1.0)
-        cr.set_source_rgba(.5, .5, .7, .6)
+        cr.set_source_rgba(.5, .5, .7, .5)
         cr.rectangle(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
         cr.fill()
 
-PAN_MASK = gtk.gdk.SHIFT_MASK | gtk.gdk.MOD1_MASK | gtk.gdk.CONTROL_MASK
+
+PAN_MASK = Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.MOD1_MASK | Gdk.ModifierType.CONTROL_MASK
 PAN_VALUE = 0
+
 
 class PanTool(Tool):
     """
@@ -500,9 +490,9 @@ class PanTool(Tool):
         self.speed = 10
 
     def on_button_press(self, event):
-        if not event.state & PAN_MASK == PAN_VALUE:
+        if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
             return False
-        if event.button == 2:
+        if event.get_button()[1] == 2:
             self.x0, self.y0 = event.x, event.y
             return True
 
@@ -511,12 +501,12 @@ class PanTool(Tool):
         return True
 
     def on_motion_notify(self, event):
-        if event.state & gtk.gdk.BUTTON2_MASK:
+        if event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
             view = self.view
             self.x1, self.y1 = event.x, event.y
             dx = self.x1 - self.x0
             dy = self.y1 - self.y0
-            view._matrix.translate(dx/view._matrix[0], dy/view._matrix[3])
+            view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
             # Make sure everything's updated
             view.request_update((), view._canvas.get_all_items())
             self.x0 = self.x1
@@ -525,25 +515,25 @@ class PanTool(Tool):
 
     def on_scroll(self, event):
         # Ensure no modifiers
-        if not event.state & PAN_MASK == PAN_VALUE:
+        if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
             return False
         view = self.view
-        direction = event.direction
-        gdk = gtk.gdk
-        if direction == gdk.SCROLL_LEFT:
-            view._matrix.translate(self.speed/view._matrix[0], 0)
-        elif direction == gdk.SCROLL_RIGHT:
-            view._matrix.translate(-self.speed/view._matrix[0], 0)
-        elif direction == gdk.SCROLL_UP:
-            view._matrix.translate(0, self.speed/view._matrix[3])
-        elif direction == gdk.SCROLL_DOWN:
-            view._matrix.translate(0, -self.speed/view._matrix[3])
+        direction = event.scroll.direction
+        if direction == Gdk.ScrollDirection.LEFT:
+            view._matrix.translate(self.speed / view._matrix[0], 0)
+        elif direction == Gdk.ScrollDirection.RIGHT:
+            view._matrix.translate(-self.speed / view._matrix[0], 0)
+        elif direction == Gdk.ScrollDirection.UP:
+            view._matrix.translate(0, self.speed / view._matrix[3])
+        elif direction == Gdk.ScrollDirection.DOWN:
+            view._matrix.translate(0, -self.speed / view._matrix[3])
         view.request_update((), view._canvas.get_all_items())
         return True
 
 
-ZOOM_MASK  = gtk.gdk.CONTROL_MASK | gtk.gdk.SHIFT_MASK | gtk.gdk.MOD1_MASK
-ZOOM_VALUE = gtk.gdk.CONTROL_MASK
+ZOOM_MASK = Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.MOD1_MASK
+ZOOM_VALUE = Gdk.ModifierType.CONTROL_MASK
+
 
 class ZoomTool(Tool):
     """
@@ -559,8 +549,8 @@ class ZoomTool(Tool):
         self.lastdiff = 0;
 
     def on_button_press(self, event):
-        if event.button == 2 \
-                and event.state & ZOOM_MASK == ZOOM_VALUE:
+        if event.get_button()[1] == 2 \
+                and event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE:
             self.x0 = event.x
             self.y0 = event.y
             self.lastdiff = 0
@@ -571,8 +561,8 @@ class ZoomTool(Tool):
         return True
 
     def on_motion_notify(self, event):
-        if event.state & ZOOM_MASK == ZOOM_VALUE \
-                and event.state & gtk.gdk.BUTTON2_MASK:
+        if event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE \
+                and event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
             view = self.view
             dy = event.y - self.y0
 
@@ -583,7 +573,7 @@ class ZoomTool(Tool):
 
             if abs(dy - self.lastdiff) > 20:
                 if dy - self.lastdiff < 0:
-                    factor = 1./0.9
+                    factor = 1. / 0.9
                 else:
                     factor = 0.9
 
@@ -595,18 +585,18 @@ class ZoomTool(Tool):
                 # Make sure everything's updated
                 view.request_update((), view._canvas.get_all_items())
 
-                self.lastdiff = dy;
+                self.lastdiff = dy
             return True
 
     def on_scroll(self, event):
-        if event.state & gtk.gdk.CONTROL_MASK:
+        if event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
             view = self.view
             sx = view._matrix[0]
             sy = view._matrix[3]
-            ox = (view._matrix[4] - event.x) / sx
-            oy = (view._matrix[5] - event.y) / sy
+            ox = (view._matrix[4] - event.scroll.x) / sx
+            oy = (view._matrix[5] - event.scroll.y) / sy
             factor = 0.9
-            if event.direction == gtk.gdk.SCROLL_UP:
+            if event.scroll.direction == Gdk.ScrollDirection.UP:
                 factor = 1. / factor
             view._matrix.translate(-ox, -oy)
             view._matrix.scale(factor, factor)
@@ -617,7 +607,6 @@ class ZoomTool(Tool):
 
 
 class PlacementTool(Tool):
-
     def __init__(self, view, factory, handle_tool, handle_index):
         super(PlacementTool, self).__init__(view)
         self._factory = factory
@@ -627,11 +616,9 @@ class PlacementTool(Tool):
         self._new_item = None
         self.grabbed_handle = None
 
-    #handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
     handle_index = property(lambda s: s._handle_index,
                             doc="Index of handle to be used by handle_tool")
     new_item = property(lambda s: s._new_item, doc="The newly created item")
-
 
     def on_button_press(self, event):
         view = self.view
@@ -650,14 +637,12 @@ class PlacementTool(Tool):
             self.grabbed_handle = h
         return True
 
-
     def _create_item(self, pos, **kw):
         view = self.view
         item = self._factory(**kw)
         x, y = view.get_matrix_v2i(item).transform_point(*pos)
         item.matrix.translate(x, y)
         return item
-
 
     def on_button_release(self, event):
         if self.grabbed_handle:
@@ -683,46 +668,38 @@ class TextEditTool(Tool):
     def __init__(self, view=None):
         super(TextEditTool, self).__init__(view)
 
-
     def on_double_click(self, event):
         """
         Create a popup window with some editable text.
         """
-        window = gtk.Window()
+        window = Gtk.Window()
         window.set_property('decorated', False)
-        window.set_resize_mode(gtk.RESIZE_IMMEDIATE)
-        #window.set_modal(True)
-        window.set_parent_window(self.view.window)
-        buffer = gtk.TextBuffer()
-        text_view = gtk.TextView()
+        window.set_resize_mode(Gtk.ResizeMode.IMMEDIATE)
+        window.set_parent_window(self.view.get_window())
+        buffer = Gtk.TextBuffer()
+        text_view = Gtk.TextView()
         text_view.set_buffer(buffer)
         text_view.show()
         window.add(text_view)
-        window.size_allocate(gtk.gdk.Rectangle(int(event.x), int(event.y), 50, 50))
-        #window.move(int(event.x), int(event.y))
+        allocate = Gdk.Rectangle()
+        allocate.x = int(event.x)
+        allocate.y = int(event.y)
+        allocate.width = 50
+        allocate.height = 50
+        window.size_allocate(allocate)
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)
-        #text_view.set_size_request(50, 50)
-        window.show()
-        #text_view.grab_focus()
-        #window.set_uposition(event.x, event.y)
-        #window.focus
+        window.show_all()
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
-        #if event.keyval == gtk.keysyms.Return:
-            #print 'Enter!'
-            #widget.get_toplevel().destroy()
-        if event.keyval == gtk.keysyms.Escape:
-            #print 'Escape!'
+        if event.keyval == Gdk.KEY_Escape:
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
-        #print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
         widget.destroy()
-
 
 
 class ConnectHandleTool(HandleTool):
@@ -745,7 +722,6 @@ class ConnectHandleTool(HandleTool):
             return self.motion_handle.glue(vpos)
         else:
             return HandleInMotion(item, handle, self.view).glue(vpos)
-
 
     def connect(self, item, handle, vpos):
         """
@@ -774,7 +750,6 @@ class ConnectHandleTool(HandleTool):
             if cinfo:
                 connector.disconnect()
 
-
     def on_button_release(self, event):
         view = self.view
         item = self.grabbed_item
@@ -798,6 +773,5 @@ def DefaultTool(view=None):
         append(ItemTool()). \
         append(TextEditTool()). \
         append(RubberbandTool())
-
 
 # vim: sw=4:et:ai

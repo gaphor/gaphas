@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2007-2014 Arjan Molenaar <gaphor@gmail.com>
-#                         jlstevens <jlstevens@ed.ac.uk>
+# Copyright (C) 2007-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 Some Gaphor specific updates to the canvas. This is done by setting the
 correct properties on gaphas' modules.
@@ -27,11 +28,14 @@ Small utility class wrapping cairo.Matrix. The `Matrix` class
 adds state preservation capabilities.
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
+from __future__ import absolute_import
 
 import cairo
-from state import observed, reversible_method
+
+from gaphas.state import observed, reversible_method
+
+__version__ = "$Revision$"
+# $HeadURL$
 
 
 class Matrix(object):
@@ -73,11 +77,11 @@ class Matrix(object):
 
     reversible_method(invert, invert)
     reversible_method(rotate, rotate,
-                      { 'radians': lambda radians: -radians })
+                      {'radians': lambda radians: -radians})
     reversible_method(scale, scale,
-                      { 'sx': lambda sx: 1/sx, 'sy': lambda sy: 1/sy })
+                      {'sx': lambda sx: 1 / sx, 'sy': lambda sy: 1 / sy})
     reversible_method(translate, translate,
-                      { 'tx': lambda tx: -tx, 'ty': lambda ty: -ty })
+                      {'tx': lambda tx: -tx, 'ty': lambda ty: -ty})
 
     def transform_distance(self, dx, dy):
         self._matrix.transform_distance(dx, dy)

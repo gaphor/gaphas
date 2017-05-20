@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2006-2014 Arjan Molenaar <gaphor@gmail.com>
-#                         jlstevens <jlstevens@ed.ac.uk>
+# Copyright (C) 2006-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 Gaphas
 ======
@@ -38,13 +39,15 @@ used in Gaphas instead of the multiplier (``*``). In both the ``Canvas`` and
 is used.
 """
 
+from __future__ import absolute_import
+
+from gaphas.canvas import Canvas
+from gaphas.connector import Handle
+from gaphas.item import Item, Line, Element
+from gaphas.view import View, GtkView
+
 __version__ = "$Revision$"
 # $HeadURL$
 
-
-from canvas import Canvas
-from connector import Handle
-from item import Item, Line, Element
-from view import View, GtkView
 
 # vi:sw=4:et:ai

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2006-2011 Arjan Molenaar <gaphor@gmail.com>
+# Copyright (C) 2006-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -16,6 +17,10 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+<<<<<<< HEAD
+=======
+
+>>>>>>> gtk3_py3
 """\
 Gaphas is a MVC canvas that uses Cairo_ for rendering. One of the nicer things
 of this widget is that the user (model) is not bothered with bounding box
@@ -33,20 +38,21 @@ Some more features:
 - User interaction is handled by Tools. Tools can be chained.
 - Versatile undo/redo system
 
-GTK+ and PyGTK_ are required.
+GTK+ and PyGObject3_ are required.
 
 .. _Cairo: http://cairographics.org/
-.. _PyGTK: http://www.pygtk.org/
+.. _PyGObject3: http://live.gnome.org/PyGObject
 """
 
-VERSION = '0.7.2'
+from __future__ import absolute_import
+
+from setuptools import setup, find_packages
 
 from ez_setup import use_setuptools
 
-use_setuptools()
+VERSION = '0.8.0'
 
-from setuptools import setup, find_packages
-from distutils.cmd import Command
+use_setuptools()
 
 setup(
     name='gaphas',
@@ -55,48 +61,47 @@ setup(
     long_description=__doc__,
 
     classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: X11 Applications :: GTK',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-    'Programming Language :: Python',
-    'Topic :: Software Development :: Libraries :: Python Modules',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: X11 Applications :: GTK',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 
     keywords='',
 
     author="Arjan J. Molenaar",
-    author_email='arjanmol@users.sourceforge.net',
+    author_email='gaphor@gmail.com',
 
-    url='http://gaphor.sourceforge.net',
+    url='http://github.com/amolenaar/gaphas',
 
-    #download_url='http://cheeseshop.python.org/',
+    # download_url='http://cheeseshop.python.org/',
 
     license='GNU Library General Public License (LGPL, see COPYING)',
 
     packages=find_packages(exclude=['ez_setup']),
 
-    setup_requires = [
-     'nose >= 0.10.4',
-     'setuptools-git >= 0.3.4'
+    setup_requires=[
+        'nose >= 0.10.4',
+        'setuptools-git >= 0.3.4'
     ],
 
     install_requires=[
-     'decorator >= 3.0.0',
-     'simplegeneric >= 0.6',
-#    'PyGTK >= 2.8.0',
-#    'cairo >= 1.8.2'
+        'decorator >= 3.0.0',
+        'simplegeneric >= 0.6',
+        'six >= 1.0'
+        # 'pygobject >= 3.10.0'
     ],
 
     zip_safe=False,
 
     package_data={
-    # -*- package_data: -*-
+        # -*- package_data: -*-
     },
 
-    entry_points = {
+    entry_points={
     },
 
-    test_suite = 'nose.collector',
-    )
-      
+    test_suite='nose.collector',
+)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2007 wrobell <wrobell@pld-linux.org>
+# Copyright (C) 2007 Artur Wroblewski <wrobell@pld-linux.org>
 #
 # This file is part of Gaphas.
 #

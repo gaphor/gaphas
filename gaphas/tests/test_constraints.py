@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2008-2009 Arjan Molenaar <gaphor@gmail.com>
+# Copyright (C) 2008-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -16,10 +17,14 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import
+
 import unittest
 
-from gaphas.solver import Variable
 from gaphas.constraint import PositionConstraint, LineAlignConstraint
+from gaphas.solver import Variable
+
 
 class PositionTestCase(unittest.TestCase):
     def test_pos_constraint(self):
@@ -48,11 +53,11 @@ class PositionTestCase(unittest.TestCase):
         self.assertEquals(14, y2)
 
 
-
 class LineAlignConstraintTestCase(unittest.TestCase):
     """
     Line align constraint test case.
     """
+
     def test_delta(self):
         """Test line align delta
         """
@@ -64,11 +69,10 @@ class LineAlignConstraintTestCase(unittest.TestCase):
         self.assertAlmostEqual(12.77, point[1].value, 2)
 
         line[1][0].value = 40
-        line[1][1].value =  30
+        line[1][1].value = 30
         lc.solve_for()
         self.assertAlmostEqual(24.00, point[0].value, 2)
         self.assertAlmostEqual(18.00, point[1].value, 2)
-
 
     def test_delta_below_zero(self):
         """Test line align with delta below zero
@@ -81,7 +85,7 @@ class LineAlignConstraintTestCase(unittest.TestCase):
         self.assertAlmostEqual(7.23, point[1].value, 2)
 
         line[1][0].value = 40
-        line[1][1].value =  30
+        line[1][1].value = 30
         lc.solve_for()
         self.assertAlmostEqual(16.0, point[0].value, 2)
         self.assertAlmostEqual(12.00, point[1].value, 2)

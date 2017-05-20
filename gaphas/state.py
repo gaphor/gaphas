@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2007-2014 Arjan Molenaar <gaphor@gmail.com>
-#                         jlstevens <jlstevens@ed.ac.uk>
-#                         wrobell <wrobell@pld-linux.org>
+# Copyright (C) 2007-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Artur Wroblewski <wrobell@pld-linux.org>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 This module is the central point where Gaphas' classes report their state
 changes.
@@ -38,12 +39,18 @@ For this to work the revert_handler has to be added to the observers set::
 
 """
 
-import types, inspect
+from __future__ import absolute_import
+
+import inspect
 import threading
+import types
+
+import six
 from decorator import decorator
+from six.moves import zip
 
 # This string is added to each docstring in order to denote is's observed
-#OBSERVED_DOCSTRING = \
+# OBSERVED_DOCSTRING = \
 #        '\n\n        This method is @observed. See gaphas.state for extra info.\n'
 
 # Tell @observed to dispatch invokation messages by default
@@ -52,18 +59,18 @@ from decorator import decorator
 DISPATCH_BY_DEFAULT = True
 
 # Add/remove methods from this subscribers list.
-# Subscribers should have signature method(event) where event is a
+# Subscribers should have signature method(event) where event is a 
 # Event has the form: (func, keywords)
 # Since most events originate from methods, it's save to call
 # saveapply(func, keywords) for those functions
 subscribers = set()
-
 
 # Subscribe to low-level change events:
 observers = set()
 
 # Perform locking (should be per thread?).
 mutex = threading.Lock()
+
 
 def observed(func):
     """
@@ -77,6 +84,7 @@ def observed(func):
     Also note that the events are dispatched *before* the function is invoked.
     This is an important feature, esp. for the reverter code.
     """
+
     def wrapper(func, *args, **kwargs):
         o = func.__observer__
         acquired = mutex.acquire(False)
@@ -87,6 +95,7 @@ def observed(func):
         finally:
             if acquired:
                 mutex.release()
+
     dec = decorator(wrapper)(func)
 
     func.__observer__ = dec
@@ -115,7 +124,8 @@ def dispatch(event, queue):
     >>> observers.remove(handler)
     >>> callme()
     """
-    for s in queue: s(event)
+    for s in queue:
+        s(event)
 
 
 _reverse = dict()
@@ -153,10 +163,10 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
     """
     Replacement for the property descriptor. In addition to creating a
-    property instance, the property is registered as reversible and
+    property instance, the property is registered as reversible and 
     reverse events can be send out when changes occur.
 
-    Caveat: we can't handle both fset and fdel in the proper way. Therefore
+    Cave eat: we can't handle both fset and fdel in the proper way. Therefore
     fdel should somehow invoke fset. (persinally, I hardly use fdel)
 
     See revert_handler() for doctesting.
@@ -172,8 +182,8 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
         argself, argvalue = argnames
         func = getfunction(fset)
-        b = { argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
-                    {'fget': fget}) }
+        b = {argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself},
+                            {'fget': fget})}
         b.update(bind)
         _reverse[func] = (func, spec, b)
 
@@ -188,7 +198,7 @@ def revert_handler(event):
     First thing to do is to actually enable the revert_handler:
 
     >>> observers.add(revert_handler)
-
+    
     First let's define our simple list:
 
     >>> class SList(object):
@@ -245,17 +255,20 @@ def revert_handler(event):
         return
 
     kw = dict(kwargs)
-    kw.update(dict(zip(spec[0], args)))
-    for arg, binding in bind.iteritems():
+    kw.update(dict(list(zip(spec[0], args))))
+    for arg, binding in six.iteritems(bind):
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])
-    if spec[1]: argnames.append(revspec[1])
-    if spec[2]: argnames.append(revspec[2])
+    if spec[1]:
+        argnames.append(revspec[1])
+    if spec[2]:
+        argnames.append(revspec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
 
     dispatch((reverse, kwargs), queue=subscribers)
+
 
 def saveapply(func, kw):
     """
@@ -265,8 +278,10 @@ def saveapply(func, kw):
     """
     spec = inspect.getargspec(func)
     argnames = list(spec[0])
-    if spec[1]: argnames.append(spec[1])
-    if spec[2]: argnames.append(spec[2])
+    if spec[1]:
+        argnames.append(spec[1])
+    if spec[2]:
+        argnames.append(spec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
@@ -278,8 +293,7 @@ def getfunction(func):
     Return the function associated with a class method.
     """
     if isinstance(func, types.UnboundMethodType):
-        return func.im_func
+        return func.__func__
     return func
-
 
 # vim:sw=4:et:ai

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2007-2014 Arjan Molenaar <gaphor@gmail.com>
-#                         jlstevens <jlstevens@ed.ac.uk>
+# Copyright (C) 2007-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Dan Yeaw <dan@yeaw.me>
 #
 # This file is part of Gaphas.
 #
@@ -17,12 +17,15 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import
+
 import unittest
+
 from gaphas.tree import Tree
 
 
 class TreeTestCase(unittest.TestCase):
-
     def test_add(self):
         """
         Test creating node trees.
@@ -92,7 +95,6 @@ class TreeTestCase(unittest.TestCase):
         assert tree.nodes == [n1, n3, n5, n4, n2], tree.nodes
         assert tree.get_children(n3) == [n5, n4], tree.get_children(n3)
 
-
     def test_remove(self):
         """
         Test removal of nodes.
@@ -113,7 +115,7 @@ class TreeTestCase(unittest.TestCase):
         assert tree._nodes == [n1, n3, n4, n5, n2]
 
         all_ch = list(tree.get_all_children(n1))
-        assert all_ch == [ n3, n4, n5 ], all_ch
+        assert all_ch == [n3, n4, n5], all_ch
 
         tree.remove(n4)
         assert tree._nodes == [n1, n3, n2]
@@ -139,18 +141,18 @@ class TreeTestCase(unittest.TestCase):
         try:
             tree.get_next_sibling(n3)
         except IndexError:
-            pass # okay
+            pass  # okay
         else:
-            raise AssertionError, 'Index should be out of range, not %s' % tree.get_next_sibling(n3)
+            raise AssertionError('Index should be out of range, not %s' % tree.get_next_sibling(n3))
 
         assert tree.get_previous_sibling(n3) is n2
         assert tree.get_previous_sibling(n2) is n1
         try:
             tree.get_previous_sibling(n1)
         except IndexError:
-            pass # okay
+            pass  # okay
         else:
-            raise AssertionError, 'Index should be out of range, not %s' % tree.get_previous_sibling(n1)
+            raise AssertionError('Index should be out of range, not %s' % tree.get_previous_sibling(n1))
 
     def test_reparent(self):
         tree = Tree()
@@ -176,6 +178,5 @@ class TreeTestCase(unittest.TestCase):
 
         tree.reparent(n4, parent=None, index=0)
         assert tree.nodes == [n4, n5, n1, n2, n3], tree.nodes
-
 
 # vi:sw=4:et:ai
