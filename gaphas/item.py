@@ -1,3 +1,24 @@
+#!/usr/bin/env python
+
+# Copyright (C) 2006-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Artur Wroblewski <wrobell@pld-linux.org>
+#                         Dan Yeaw <dan@yeaw.me>
+#
+# This file is part of Gaphas.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
+# more details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 Basic items.
 """
@@ -16,14 +37,14 @@ try:
     # python 3.0 (better be prepared)
     from weakref import WeakSet
 except ImportError:
-    from .weakset import WeakSet
+    from gaphas.weakset import WeakSet
 
-from .matrix import Matrix
-from .geometry import distance_line_point, distance_rectangle_point
-from .connector import Handle, LinePort
-from .solver import solvable, WEAK, VERY_STRONG, REQUIRED
-from .constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
-from .state import observed, reversible_method, reversible_pair, reversible_property
+from gaphas.matrix import Matrix
+from gaphas.geometry import distance_line_point, distance_rectangle_point
+from gaphas.connector import Handle, LinePort
+from gaphas.solver import solvable, WEAK, VERY_STRONG, REQUIRED
+from gaphas.constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
+from gaphas.state import observed, reversible_method, reversible_pair, reversible_property
 
 
 class Item(object):

@@ -1,3 +1,25 @@
+#!/usr/bin/env python
+
+# Copyright (C) 2006-2017 Adrian Boguszewski <adrbogus1@student.pg.gda.pl>
+#                         Arjan Molenaar <gaphor@gmail.com>
+#                         Artur Wroblewski <wrobell@pld-linux.org>
+#                         Dan Yeaw <dan@yeaw.me>
+#
+# This file is part of Gaphas.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
+# more details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 This module contains everything to display a Canvas on a screen.
 """
@@ -8,13 +30,13 @@ from cairo import Matrix
 from gi.repository import GObject, Gtk, Gdk
 from six.moves import map
 
-from .canvas import Context
-from .decorators import async, PRIORITY_HIGH_IDLE
-from .decorators import nonrecursive
-from .geometry import Rectangle, distance_point_point_fast
-from .painter import DefaultPainter, BoundingBoxPainter
-from .quadtree import Quadtree
-from .tool import DefaultTool
+from gaphas.canvas import Context
+from gaphas.decorators import async, PRIORITY_HIGH_IDLE
+from gaphas.decorators import nonrecursive
+from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.painter import DefaultPainter, BoundingBoxPainter
+from gaphas.quadtree import Quadtree
+from gaphas.tool import DefaultTool
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False

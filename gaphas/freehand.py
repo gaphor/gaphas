@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Cairo context using Steve Hanov's freehand drawing code.
 
