@@ -27,8 +27,11 @@ This module contains everything to display a Canvas on a screen.
 from __future__ import absolute_import
 
 from cairo import Matrix
-from gi.repository import GObject, Gtk, Gdk
 from six.moves import map
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import GObject, Gtk, Gdk
 
 from gaphas.canvas import Context
 from gaphas.decorators import async, PRIORITY_HIGH_IDLE
