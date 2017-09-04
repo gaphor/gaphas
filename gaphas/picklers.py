@@ -24,7 +24,7 @@ Some extra picklers needed to gracefully dump and load a canvas.
 
 from __future__ import absolute_import
 
-import new
+import types
 
 import cairo
 import six.moves.copyreg
@@ -32,14 +32,14 @@ import six.moves.copyreg
 
 def construct_instancemethod(funcname, self, clazz):
     func = getattr(clazz, funcname)
-    return new.instancemethod(func, self, clazz)
+    return types.instancemethod(func, self, clazz)
 
 
 def reduce_instancemethod(im):
     return construct_instancemethod, (im.__func__.__name__, im.__self__, im.__self__.__class__)
 
 
-six.moves.copyreg.pickle(new.instancemethod, reduce_instancemethod, construct_instancemethod)
+six.moves.copyreg.pickle(types.instancemethod, reduce_instancemethod, construct_instancemethod)
 
 # Allow cairo.Matrix to be pickled:
 
