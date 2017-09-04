@@ -571,7 +571,7 @@ class Solver(object):
         """
         # Use a copy of the original set, so constraints may be
         # deleted in the meantime.
-        variables = set(variables)
+        variables = frozenset(variables)
         for c in set(self._constraints):
             if variables.issubset(set(c.variables())):
                 yield c
