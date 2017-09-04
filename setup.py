@@ -17,11 +17,7 @@
 #
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
-<<<<<<< HEAD
-=======
-
->>>>>>> gtk3_py3
-"""\
+"""
 Gaphas is a MVC canvas that uses Cairo_ for rendering. One of the nicer things
 of this widget is that the user (model) is not bothered with bounding box
 calculations: this is all done through Cairo.
