@@ -193,8 +193,8 @@ class PickleTestCase(unittest.TestCase):
         #        assert line.handles()[0].disconnect
         #        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
 
-        import StringIO
-        f = StringIO.StringIO()
+        import io
+        f = io.StringIO()
         pickler = MyPickler(f)
         pickler.dump(canvas)
         pickled = f.getvalue()
