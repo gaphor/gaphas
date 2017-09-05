@@ -167,7 +167,7 @@ class PickleTestCase(unittest.TestCase):
         c2 = pickle.loads(pickled)
 
         from gi.repository import Gtk
-        win = Gtk.Window()
+        win = toga.Window()
         view = GtkView(canvas=c2)
         win.add(view)
 
@@ -202,7 +202,7 @@ class PickleTestCase(unittest.TestCase):
         c2 = pickle.loads(pickled)
 
         from gi.repository import Gtk
-        win = Gtk.Window()
+        win = toga.Window()
         view = GtkView(canvas=c2)
         win.add(view)
         view.show()
@@ -220,7 +220,7 @@ class PickleTestCase(unittest.TestCase):
         c2 = pickle.loads(pickled)
 
         from gi.repository import Gtk
-        win = Gtk.Window()
+        win = toga.Window()
         view = GtkView(canvas=c2)
         win.add(view)
 

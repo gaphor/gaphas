@@ -46,6 +46,7 @@ else:
 
 import math
 from gi.repository import Gtk
+import toga
 import cairo
 from gaphas import Canvas, GtkView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
@@ -142,23 +143,24 @@ def create_window(canvas, title, zoom=1.0):
         append(FocusedItemPainter()). \
         append(ToolPainter())
     view.bounding_box_painter = FreeHandPainter(BoundingBoxPainter())
-    w = Gtk.Window()
-    w.set_title(title)
-    h = Gtk.HBox()
+    w = toga.Window(title)
+    h = toga.Box(flex_direction='row')
     w.add(h)
 
-    # VBox contains buttons that can be used to manipulate the canvas:
-    v = Gtk.VBox()
-    v.set_property('border-width', 3)
-    v.set_property('spacing', 2)
-    f = Gtk.Frame()
-    f.set_property('border-width', 1)
-    f.add(v)
-    h.pack_start(f, False, True, 0)
+    # Box contains buttons that can be used to manipulate the canvas:
+    v = toga.Box()
+    v.style.set(flex_direction='column', padding_top=10, border_width=3, spacing=2)
 
-    v.add(Gtk.Label(label='Item placement:'))
+    # TODO Gtk.Frame not supported
+    # f = Gtk.Frame()
+    # f.set_property('border-width', 1)
+    # f.add(v)
 
-    b = Gtk.Button('Add box')
+    h.pack_start(v, False, True, 0)
+
+    v.add(toga.Label('Item placement:'))
+
+    b = toga.Button('Add box')
 
     def on_clicked(button, view):
         # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
@@ -167,7 +169,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, view)
     v.add(b)
 
-    b = Gtk.Button('Add line')
+    b = toga.Button('Add line')
 
     def on_clicked(button):
         view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
@@ -175,9 +177,9 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='Zooming:'))
+    v.add(toga.Label('Zooming:'))
 
-    b = Gtk.Button('Zoom in')
+    b = toga.Button('Zoom in')
 
     def on_clicked(button):
         view.zoom(1.2)
@@ -185,7 +187,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Zoom out')
+    b = toga.Button('Zoom out')
 
     def on_clicked(button):
         view.zoom(1 / 1.2)
@@ -193,9 +195,9 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='Misc:'))
+    v.add(toga.Label('Misc:'))
 
-    b = Gtk.Button('Split line')
+    b = toga.Button('Split line')
 
     def on_clicked(button):
         if isinstance(view.focused_item, Line):
@@ -206,7 +208,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Delete focused')
+    b = toga.Button('Delete focused')
 
     def on_clicked(button):
         if view.focused_item:
@@ -216,7 +218,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='State:'))
+    v.add(toga.Label('State:'))
     b = Gtk.ToggleButton('Record')
 
     def on_toggled(button):
@@ -232,7 +234,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('toggled', on_toggled)
     v.add(b)
 
-    b = Gtk.Button('Play back')
+    b = toga.Button('Play back')
 
     def on_clicked(self):
         global undo_list
@@ -252,9 +254,9 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='Export:'))
+    v.add(toga.Label('Export:'))
 
-    b = Gtk.Button('Write demo.png')
+    b = toga.Button('Write demo.png')
 
     def on_clicked(button):
         svgview = View(view.canvas)
@@ -282,7 +284,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Write demo.svg')
+    b = toga.Button('Write demo.svg')
 
     def on_clicked(button):
         svgview = View(view.canvas)
@@ -308,7 +310,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Dump QTree')
+    b = toga.Button('Dump QTree')
 
     def on_clicked(button, li):
         view._qtree.dump()
@@ -316,7 +318,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, [0])
     v.add(b)
 
-    b = Gtk.Button('Pickle (save)')
+    b = toga.Button('Pickle (save)')
 
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
@@ -329,7 +331,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, [0])
     v.add(b)
 
-    b = Gtk.Button('Unpickle (load)')
+    b = toga.Button('Unpickle (load)')
 
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
@@ -344,7 +346,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, [0])
     v.add(b)
 
-    b = Gtk.Button('Unpickle (in place)')
+    b = toga.Button('Unpickle (in place)')
 
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
@@ -360,7 +362,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, [0])
     v.add(b)
 
-    b = Gtk.Button('Reattach (in place)')
+    b = toga.Button('Reattach (in place)')
 
     def on_clicked(button, li):
         view.canvas = None

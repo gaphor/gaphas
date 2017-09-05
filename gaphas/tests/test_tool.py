@@ -27,6 +27,8 @@ from __future__ import absolute_import
 
 import unittest
 
+import toga
+
 from gaphas.canvas import Canvas
 from gaphas.canvas import Context
 from gaphas.constraint import LineConstraint
@@ -69,7 +71,7 @@ def simple_canvas(self):
     self.view = GtkView()
     self.view.canvas = self.canvas
     from gi.repository import Gtk
-    win = Gtk.Window()
+    win = toga.Window()
     win.add(self.view)
     self.view.show()
     self.view.update()

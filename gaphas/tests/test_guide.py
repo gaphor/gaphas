@@ -24,6 +24,7 @@ from __future__ import print_function
 import unittest
 
 from gi.repository import Gtk
+import toga
 from six.moves import range
 
 from gaphas.canvas import Canvas
@@ -36,7 +37,7 @@ class GuideTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)
-        self.window = Gtk.Window()
+        self.window = toga.Window()
         self.window.add(self.view)
         self.window.show_all()
 

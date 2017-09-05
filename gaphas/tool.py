@@ -57,6 +57,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from gi.repository import Gtk, Gdk
+import toga
 
 from gaphas.aspect import Finder, Selection, InMotion, \
     HandleFinder, HandleSelection, HandleInMotion, \
@@ -672,7 +673,7 @@ class TextEditTool(Tool):
         """
         Create a popup window with some editable text.
         """
-        window = Gtk.Window()
+        window = toga.Window()
         window.set_property('decorated', False)
         window.set_resize_mode(Gtk.ResizeMode.IMMEDIATE)
         window.set_parent_window(self.view.get_window())
