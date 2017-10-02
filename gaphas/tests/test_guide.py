@@ -36,13 +36,14 @@ from gaphas.view import GtkView
 class GuideTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
-        self.view = GtkView(self.canvas)
         self.window = toga.Window()
-        self.window.add(self.view)
-        self.window.show_all()
+        self.view = GtkView(self.canvas)
+        self.window.show()
 
     def tearDown(self):
-        self.window.destroy()
+        # TODO window destroy
+        # self.window.destroy()
+        pass
 
     def test_find_closest(self):
         """

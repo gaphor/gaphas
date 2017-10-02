@@ -46,7 +46,7 @@ def simple_canvas(self):
     case. Two boxes and a line are added to the canvas as well.
     """
     self.canvas = Canvas()
-
+    win = toga.Window()
     self.box1 = Box()
     self.canvas.add(self.box1)
     self.box1.matrix.translate(100, 50)
@@ -70,9 +70,6 @@ def simple_canvas(self):
     self.canvas.update_now()
     self.view = GtkView()
     self.view.canvas = self.canvas
-    from gi.repository import Gtk
-    win = toga.Window()
-    win.add(self.view)
     self.view.show()
     self.view.update()
     win.show()

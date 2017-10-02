@@ -23,6 +23,7 @@ from __future__ import print_function
 
 import pickle
 import unittest
+import toga
 
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
@@ -166,14 +167,10 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        from gi.repository import Gtk
         win = toga.Window()
         view = GtkView(canvas=c2)
-        win.add(view)
-
         view.show()
         win.show()
-
         view.update()
 
     def test_pickle_with_gtk_view_with_connection(self):
@@ -201,10 +198,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        from gi.repository import Gtk
         win = toga.Window()
         view = GtkView(canvas=c2)
-        win.add(view)
         view.show()
         win.show()
 
@@ -219,10 +214,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        from gi.repository import Gtk
         win = toga.Window()
         view = GtkView(canvas=c2)
-        win.add(view)
 
         view.show()
         win.show()

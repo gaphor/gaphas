@@ -47,9 +47,8 @@ class ViewTestCase(unittest.TestCase):
 
         window1 = toga.Window()
         view1 = GtkView(canvas=canvas)
-        window1.add(view1)
         view1.realize()
-        window1.show_all()
+        window1.show()
 
         box = Box()
         box.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
@@ -64,8 +63,7 @@ class ViewTestCase(unittest.TestCase):
 
         window2 = toga.Window()
         view2 = GtkView(canvas=canvas)
-        window2.add(view2)
-        window2.show_all()
+        window2.show()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
         while Gtk.events_pending():
@@ -89,10 +87,9 @@ class ViewTestCase(unittest.TestCase):
         Hover tool only reacts on motion-notify events
         """
         canvas = Canvas()
-        view = GtkView(canvas)
         window = toga.Window()
-        window.add(view)
-        window.show_all()
+        view = GtkView(canvas)
+        window.show()
 
         box = Box()
         canvas.add(box)
@@ -115,10 +112,9 @@ class ViewTestCase(unittest.TestCase):
 
     def test_get_handle_at_point(self):
         canvas = Canvas()
-        view = GtkView(canvas)
         window = toga.Window()
-        window.add(view)
-        window.show_all()
+        view = GtkView(canvas)
+        window.show()
 
         box = Box()
         box.min_width = 20
@@ -133,10 +129,9 @@ class ViewTestCase(unittest.TestCase):
 
     def test_get_handle_at_point_at_pi_div_2(self):
         canvas = Canvas()
-        view = GtkView(canvas)
         window = toga.Window()
-        window.add(view)
-        window.show_all()
+        view = GtkView(canvas)
+        window.show()
 
         box = Box()
         box.min_width = 20
@@ -153,10 +148,9 @@ class ViewTestCase(unittest.TestCase):
 
     def test_item_removal(self):
         canvas = Canvas()
-        view = GtkView(canvas)
         window = toga.Window()
-        window.add(view)
-        window.show_all()
+        view = GtkView(canvas)
+        window.show()
 
         box = Box()
         canvas.add(box)
@@ -202,8 +196,7 @@ class ViewTestCase(unittest.TestCase):
         assert view not in box._matrix_v2i
 
         window = toga.Window()
-        window.add(view)
-        window.show_all()
+        window.show()
 
         # Now everything is realized and updated
         assert view in box._matrix_i2v
@@ -226,10 +219,9 @@ class ViewTestCase(unittest.TestCase):
         Test view registration and destroy when view is destroyed.
         """
         canvas = Canvas()
-        view = GtkView(canvas)
         window = toga.Window()
-        window.add(view)
-        window.show_all()
+        view = GtkView(canvas)
+        window.show()
 
         box = Box()
         canvas.add(box)

@@ -673,26 +673,18 @@ class TextEditTool(Tool):
         """
         Create a popup window with some editable text.
         """
-        window = toga.Window()
-        window.set_property('decorated', False)
-        window.set_resize_mode(Gtk.ResizeMode.IMMEDIATE)
-        window.set_parent_window(self.view.get_window())
-        buffer = Gtk.TextBuffer()
-        text_view = Gtk.TextView()
-        text_view.set_buffer(buffer)
-        text_view.show()
-        window.add(text_view)
-        allocate = Gdk.Rectangle()
-        allocate.x = int(event.x)
-        allocate.y = int(event.y)
-        allocate.width = 50
-        allocate.height = 50
-        window.size_allocate(allocate)
+        window = toga.Window(size=(50,50))
+        # TODO how to support set_decorated is False
+        # window.set_property('decorated', False)
+        # TODO how to support set_parent_window?
+        # window.set_parent_window(self.view.get_window())
+        text_view = toga.TextInput()
+        buffer = text_view.value()
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)
-        window.show_all()
+        window.show()
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
