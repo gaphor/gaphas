@@ -3,11 +3,13 @@ Gaphor's Canvas
 
 This module contains a new canvas implementation for Gaphor.
 
-Homepage: http://github.com/amolenaar/gaphas
+You can find the sources and issue tracker at GitLab:
 
-Issue tracker: http://gaphor.lighthouseapp.com
+http://gitlab.com/MBSE/gaphas/
 
-Mailing list: gaphor-dev@googlegroups.com
+For documentation refer to our project website:
+
+http://mbse.gitlab.io/gaphas/
 
 
 The basic idea is:
