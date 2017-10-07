@@ -602,7 +602,6 @@ class Canvas(object):
         """
         return bool(self._dirty_items)
 
-    @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
         """
         Update the canvas, if called from within a gtk-mainloop, the

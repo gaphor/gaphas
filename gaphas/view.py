@@ -610,7 +610,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         super(GtkView, self).zoom(factor)
         self.queue_draw_refresh()
 
-    @async(single=True)
     def update_adjustments(self, allocation=None):
         if not allocation:
             allocation = self.get_allocation()
@@ -721,7 +720,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self.update()
 
-    @async(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
         """
         Update view status according to the items updated by the canvas.
