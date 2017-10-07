@@ -34,13 +34,9 @@ Some more features:
 - User interaction is handled by Tools. Tools can be chained.
 - Versatile undo/redo system
 
-GTK+ and PyGObject3_ are required.
-
 .. _Cairo: http://cairographics.org/
-.. _PyGObject3: http://live.gnome.org/PyGObject
+.. _Toga: https://pybee.org/project/projects/libraries/toga/
 """
-
-from __future__ import absolute_import
 
 from setuptools import setup, find_packages
 
@@ -61,18 +57,16 @@ setup(
         'Environment :: X11 Applications :: GTK',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3 :: Only',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 
     keywords='',
 
-    author="Arjan J. Molenaar",
-    author_email='gaphor@gmail.com',
+    author="Dan Yeaw",
+    author_email='dan@yeaw.me',
 
-    url='http://github.com/amolenaar/gaphas',
-
-    # download_url='http://cheeseshop.python.org/',
+    url='https://gitlab.com/MBSE/gaphas',
 
     license='GNU Library General Public License (LGPL, see COPYING)',
 
@@ -87,7 +81,7 @@ setup(
         'decorator >= 3.0.0',
         'simplegeneric >= 0.6',
         'six >= 1.0'
-        # 'pygobject >= 3.10.0'
+        'toga >= 0.2.15'
     ],
 
     zip_safe=False,
