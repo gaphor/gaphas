@@ -25,7 +25,6 @@ Module implements guides when moving items and handles around.
 from functools import reduce
 
 from simplegeneric import generic
-from six.moves import map
 
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused

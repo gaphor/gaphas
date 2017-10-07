@@ -23,7 +23,7 @@ Some extra picklers needed to gracefully dump and load a canvas.
 """
 
 import types
-import cairo
+import cairocffi as cairo
 import copyreg
 
 

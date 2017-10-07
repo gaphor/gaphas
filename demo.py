@@ -34,9 +34,6 @@ It sports a small canvas and some trivial operations:
 
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 try:
     import gi
 except ImportError:
@@ -47,7 +44,7 @@ else:
 import math
 from gi.repository import Gtk
 import toga
-import cairo
+import cairocffi as cairo
 from gaphas import Canvas, GtkView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line
@@ -323,7 +320,6 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
         try:
-            import six.moves.cPickle as pickle
             pickle.dump(view.canvas, f)
         finally:
             f.close()
@@ -336,7 +332,6 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import six.moves.cPickle as pickle
             canvas = pickle.load(f)
             canvas.update_now()
         finally:
@@ -351,7 +346,6 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import six.moves.cPickle as pickle
             canvas = pickle.load(f)
         finally:
             f.close()

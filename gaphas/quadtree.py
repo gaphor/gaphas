@@ -40,10 +40,6 @@ common features:
 """
 
 import operator
-import six
-from six.moves import map
-from six.moves import zip
-
 from gaphas.geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
 __version__ = "$Revision$"
@@ -152,7 +148,7 @@ class Quadtree(object):
         >>> qtree.bounds
         (0, 0, 0, 0)
         """
-        x_y_w_h = list(zip(*list(map(operator.getitem, six.itervalues(self._ids), [0] * len(self._ids)))))
+        x_y_w_h = list(zip(*list(map(operator.getitem, self._ids.items(), [0] * len(self._ids)))))
         if not x_y_w_h:
             return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
@@ -217,7 +213,7 @@ class Quadtree(object):
         # Clean bucket and items:
         self._bucket.clear()
 
-        for item, (bounds, data, _) in six.iteritems(dict(self._ids)):
+        for item, (bounds, data, _) in dict(self._ids).items():
             clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
             if clipped_bounds:
                 self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
@@ -366,7 +362,7 @@ class QuadtreeBucket(object):
         Returns an iterator.
         """
         if rectangle_intersects(rect, self.bounds):
-            for item, bounds in six.iteritems(self.items):
+            for item, bounds in self.items.items():
                 if method(bounds, rect):
                     yield item
             for bucket in self._buckets:
@@ -383,7 +379,7 @@ class QuadtreeBucket(object):
     def dump(self, indent=''):
         print(indent, self, self.bounds)
         indent += '   '
-        for item, bounds in sorted(six.iteritems(self.items)):
+        for item, bounds in sorted(self.items.items()):
             print(indent, item, bounds)
         for bucket in self._buckets:
             bucket.dump(indent)

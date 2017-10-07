@@ -22,8 +22,6 @@
 import unittest
 from os import getenv
 
-from six.moves import range
-
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import NW, NE, SE, SW

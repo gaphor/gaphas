@@ -42,10 +42,7 @@ For this to work the revert_handler has to be added to the observers set::
 import inspect
 import threading
 import types
-
-import six
 from decorator import decorator
-from six.moves import zip
 
 # This string is added to each docstring in order to denote is's observed
 # OBSERVED_DOCSTRING = \
@@ -154,6 +151,7 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     # We need the function, since that's what's in the events
     func1 = getfunction(func1)
     func2 = getfunction(func2)
+    # TODO getargspec is deprecated
     _reverse[func1] = (func2, inspect.getargspec(func2), bind2)
     _reverse[func2] = (func1, inspect.getargspec(func1), bind1)
 
@@ -254,7 +252,7 @@ def revert_handler(event):
 
     kw = dict(kwargs)
     kw.update(dict(list(zip(spec[0], args))))
-    for arg, binding in six.iteritems(bind):
+    for arg, binding in bind.items():
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])
     if spec[1]:

@@ -19,10 +19,6 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-
-import six
-from six.moves import range
-
 from gaphas.quadtree import Quadtree
 
 
@@ -70,7 +66,7 @@ class QuadtreeTestCase(unittest.TestCase):
         assert len(qtree._bucket.items) == 0, qtree._bucket.items
         for i in range(4):
             assert len(qtree._bucket._buckets[i].items) == 9
-            for item, bounds in six.iteritems(qtree._bucket._buckets[i].items):
+            for item, bounds in qtree._bucket._buckets[i].items():
                 assert qtree._bucket.find_bucket(bounds) is qtree._bucket._buckets[i]
             for j in range(4):
                 assert len(qtree._bucket._buckets[i]._buckets[j].items) == 4

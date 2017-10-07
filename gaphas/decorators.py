@@ -26,10 +26,6 @@ Custom decorators.
 
 import threading
 
-from gi.repository import GObject
-from gi.repository.GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
-        PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
-
 DEBUG_ASYNC = False
 
 

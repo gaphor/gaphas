@@ -80,7 +80,6 @@ setup(
     install_requires=[
         'decorator >= 3.0.0',
         'simplegeneric >= 0.6',
-        'six >= 1.0'
         'toga >= 0.2.15'
     ],
 

@@ -26,8 +26,6 @@ would in a database table, with indexes on the desired "columns."
 
 from functools import reduce
 
-from six.moves import zip
-
 
 class Table(object):
     """

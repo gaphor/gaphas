@@ -22,7 +22,6 @@ import unittest
 
 from gi.repository import Gtk
 import toga
-from six.moves import range
 
 from gaphas.canvas import Canvas
 from gaphas.guide import *

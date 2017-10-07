@@ -25,7 +25,7 @@ Helper functions and classes for Cairo (drawing engine used by the canvas).
 """
 
 from math import pi
-import cairo
+import cairocffi as cairo
 
 __version__ = "$Revision$"
 # $HeadURL$

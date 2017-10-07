@@ -25,11 +25,6 @@ This module contains everything to display a Canvas on a screen.
 """
 
 from cairo import Matrix
-from six.moves import map
-
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import GObject, Gtk, Gdk
 
 from gaphas.canvas import Context
 from gaphas.decorators import async, PRIORITY_HIGH_IDLE
@@ -42,9 +37,6 @@ from gaphas.tool import DefaultTool
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
 DEBUG_DRAW_QUADTREE = False
-
-# The default cursor (use in case of a cursor reset)
-DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
 class View(object):

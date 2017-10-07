@@ -24,7 +24,6 @@ Allow for easily adding segments to lines.
 
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic
-from six.moves import zip
 
 from gaphas.aspect import ConnectionSink
 from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused

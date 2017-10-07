@@ -26,9 +26,6 @@ Simple class containing the tree structure for the canvas items.
 
 from operator import attrgetter
 
-from six.moves import map
-from six.moves import range
-
 __version__ = "$Revision$"
 # $HeadURL$
 

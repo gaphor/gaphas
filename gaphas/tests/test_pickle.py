@@ -149,7 +149,7 @@ class PickleTestCase(unittest.TestCase):
 
         view = View(canvas=c2)
 
-        import cairo
+        import cairocffi as cairo
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         cr = cairo.Context(surface)
         view.update_bounding_box(cr)

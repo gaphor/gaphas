@@ -28,10 +28,8 @@ order to inherit from this class you should inherit from Class.default.
 The simplegeneric module is dispatching opnly based on the first argument.
 For Gaphas that's enough.
 """
-from gi.repository import Gdk
 
 from simplegeneric import generic
-
 from gaphas.item import Element
 
 
@@ -149,25 +147,6 @@ class ItemHandleSelection(object):
 
 
 HandleSelection = generic(ItemHandleSelection)
-
-
-@HandleSelection.when_type(Element)
-class ElementHandleSelection(ItemHandleSelection):
-    CURSORS = (
-        Gdk.Cursor(Gdk.CursorType.TOP_LEFT_CORNER),
-        Gdk.Cursor(Gdk.CursorType.TOP_RIGHT_CORNER),
-        Gdk.Cursor(Gdk.CursorType.BOTTOM_RIGHT_CORNER),
-        Gdk.Cursor(Gdk.CursorType.BOTTOM_LEFT_CORNER))
-
-    def select(self):
-        index = self.item.handles().index(self.handle)
-        if index < 4:
-            self.view.window.set_cursor(self.CURSORS[index])
-
-    def unselect(self):
-        from view import DEFAULT_CURSOR
-        cursor = Gdk.Cursor(DEFAULT_CURSOR)
-        self.view.window.set_cursor(cursor)
 
 
 class ItemHandleInMotion(object):
