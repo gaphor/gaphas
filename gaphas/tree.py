@@ -24,8 +24,6 @@ Simple class containing the tree structure for the canvas items.
 
 """
 
-from __future__ import absolute_import
-
 from operator import attrgetter
 
 from six.moves import map

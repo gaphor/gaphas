@@ -24,8 +24,6 @@
 Helper functions and classes for Cairo (drawing engine used by the canvas).
 """
 
-from __future__ import absolute_import
-
 from math import pi
 import cairo
 

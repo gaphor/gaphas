@@ -29,8 +29,6 @@ A point is represented as a tuple `(x, y)`.
 
 """
 
-from __future__ import absolute_import
-
 from math import sqrt
 
 __version__ = "$Revision$"

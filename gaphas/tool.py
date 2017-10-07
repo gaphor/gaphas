@@ -53,9 +53,6 @@ Tools can handle events in different ways
 - tool can handle the event (obviously)
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 from gi.repository import Gtk, Gdk
 import toga
 

@@ -22,8 +22,6 @@
 Allow for easily adding segments to lines.
 """
 
-from __future__ import absolute_import
-
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic
 from six.moves import zip

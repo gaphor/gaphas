@@ -28,8 +28,6 @@ Small utility class wrapping cairo.Matrix. The `Matrix` class
 adds state preservation capabilities.
 """
 
-from __future__ import absolute_import
-
 import cairo
 
 from gaphas.state import observed, reversible_method

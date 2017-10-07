@@ -39,8 +39,6 @@ For this to work the revert_handler has to be added to the observers set::
 
 """
 
-from __future__ import absolute_import
-
 import inspect
 import threading
 import types

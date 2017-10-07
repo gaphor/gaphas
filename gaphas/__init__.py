@@ -38,9 +38,6 @@ used in Gaphas instead of the multiplier (``*``). In both the ``Canvas`` and
 ``View`` class a workaround is provided in case an older version of py-cairo
 is used.
 """
-
-from __future__ import absolute_import
-
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle
 from gaphas.item import Item, Line, Element

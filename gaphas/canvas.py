@@ -48,9 +48,6 @@ To get connecting items (i.e. all lines connected to a class)::
     lines = (c.item for c in canvas.get_connections(connected=item))
 
 """
-
-from __future__ import absolute_import
-
 import logging
 from collections import namedtuple
 

@@ -22,8 +22,6 @@
 Generic gaphas item tests.
 """
 
-from __future__ import absolute_import
-
 import unittest
 
 from gaphas.aspect import *

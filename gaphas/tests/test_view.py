@@ -22,9 +22,6 @@
 Test cases for the View class.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import math
 import unittest
 

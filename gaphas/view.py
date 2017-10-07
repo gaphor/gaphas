@@ -24,8 +24,6 @@
 This module contains everything to display a Canvas on a screen.
 """
 
-from __future__ import absolute_import
-
 from cairo import Matrix
 from six.moves import map
 

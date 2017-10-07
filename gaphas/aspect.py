@@ -28,7 +28,6 @@ order to inherit from this class you should inherit from Class.default.
 The simplegeneric module is dispatching opnly based on the first argument.
 For Gaphas that's enough.
 """
-
 from gi.repository import Gdk
 
 from simplegeneric import generic

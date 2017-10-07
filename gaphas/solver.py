@@ -52,9 +52,6 @@ constraint is being asked to solve itself (`constraint.Constraint.solve_for()`
 method) changing appropriate variables to make the constraint valid again.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
 from gaphas.state import observed, reversible_pair, reversible_property
 
 __version__ = "$Revision$"

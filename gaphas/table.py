@@ -24,8 +24,6 @@ Table is a storage class that can be used to store information, like one
 would in a database table, with indexes on the desired "columns."
 """
 
-from __future__ import absolute_import
-
 from functools import reduce
 
 from six.moves import zip

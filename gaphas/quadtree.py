@@ -39,11 +39,7 @@ common features:
 (From Wikipedia, the free encyclopedia)
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import operator
-
 import six
 from six.moves import map
 from six.moves import zip

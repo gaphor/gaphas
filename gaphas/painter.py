@@ -29,8 +29,6 @@ Each painter takes care of a layer in the canvas (such as grid, items
 and handles).
 """
 
-from __future__ import absolute_import
-
 from cairo import ANTIALIAS_NONE, LINE_JOIN_ROUND
 
 from gaphas.aspect import PaintFocused

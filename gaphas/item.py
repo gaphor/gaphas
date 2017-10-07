@@ -23,8 +23,6 @@
 Basic items.
 """
 
-from __future__ import absolute_import
-
 from functools import reduce
 from math import atan2
 from weakref import WeakKeyDictionary

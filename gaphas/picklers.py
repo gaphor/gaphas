@@ -22,10 +22,7 @@
 Some extra picklers needed to gracefully dump and load a canvas.
 """
 
-from __future__ import absolute_import
-
 import types
-
 import cairo
 import copyreg
 

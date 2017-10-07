@@ -23,8 +23,6 @@
 Basic connectors such as Ports and Handles.
 """
 
-from __future__ import absolute_import
-
 __version__ = "$Revision: 2341 $"
 # $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
 

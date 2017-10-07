@@ -22,8 +22,6 @@
 Module implements guides when moving items and handles around.
 """
 
-from __future__ import absolute_import
-
 from functools import reduce
 
 from simplegeneric import generic

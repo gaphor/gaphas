@@ -24,8 +24,6 @@ Simple example items.
 These items are used in various tests.
 """
 
-from __future__ import absolute_import
-
 __version__ = "$Revision$"
 # $HeadURL$
 
