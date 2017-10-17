@@ -25,7 +25,7 @@ import toga
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Element, Line
-from gaphas.view import View, GtkView
+from gaphas.view import View, TogaView
 
 
 # Ensure extra pickle reducers/reconstructors are loaded:
@@ -149,7 +149,7 @@ class PickleTestCase(unittest.TestCase):
 
         view = View(canvas=c2)
 
-        import cairocffi as cairo
+        import cairo
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         cr = cairo.Context(surface)
         view.update_bounding_box(cr)
@@ -165,7 +165,7 @@ class PickleTestCase(unittest.TestCase):
         c2 = pickle.loads(pickled)
 
         win = toga.Window()
-        view = GtkView(canvas=c2)
+        view = TogaView(canvas=c2)
         view.show()
         win.show()
         view.update()
@@ -177,7 +177,7 @@ class PickleTestCase(unittest.TestCase):
         line = canvas._tree.nodes[2]
         assert isinstance(line, Line)
 
-        view = GtkView(canvas=canvas)
+        view = TogaView(canvas=canvas)
 
         #        from gaphas.tool import ConnectHandleTool
         #        handle_tool = ConnectHandleTool()
@@ -196,7 +196,7 @@ class PickleTestCase(unittest.TestCase):
         c2 = pickle.loads(pickled)
 
         win = toga.Window()
-        view = GtkView(canvas=c2)
+        view = TogaView(canvas=c2)
         view.show()
         win.show()
 
@@ -212,7 +212,7 @@ class PickleTestCase(unittest.TestCase):
         c2 = pickle.loads(pickled)
 
         win = toga.Window()
-        view = GtkView(canvas=c2)
+        view = TogaView(canvas=c2)
 
         view.show()
         win.show()

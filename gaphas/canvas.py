@@ -51,12 +51,12 @@ To get connecting items (i.e. all lines connected to a class)::
 import logging
 from collections import namedtuple
 
-from cairocffi import Matrix
+from cairo import Matrix
 
 from gaphas import solver
 from gaphas import table
 from gaphas import tree
-from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
+from gaphas.decorators import nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
 #
@@ -845,7 +845,7 @@ class Canvas(object):
             except AttributeError:
                 pass
         else:
-            import cairocffi as cairo
+            import cairo
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
             return cairo.Context(surface)
 

@@ -26,14 +26,14 @@ import toga
 from gaphas.canvas import Canvas
 from gaphas.guide import *
 from gaphas.item import Element, Line
-from gaphas.view import GtkView
+from gaphas.view import TogaView
 
 
 class GuideTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
         self.window = toga.Window()
-        self.view = GtkView(self.canvas)
+        self.view = TogaView(self.canvas)
         self.window.show()
 
     def tearDown(self):

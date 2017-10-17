@@ -41,7 +41,7 @@ is used.
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle
 from gaphas.item import Item, Line, Element
-from gaphas.view import View, GtkView
+from gaphas.view import View, TogaView
 
 __version__ = "$Revision$"
 # $HeadURL$

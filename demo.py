@@ -44,8 +44,8 @@ else:
 import math
 from gi.repository import Gtk
 import toga
-import cairocffi as cairo
-from gaphas import Canvas, GtkView, View
+import cairo
+from gaphas import Canvas, TogaView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line
 from gaphas.tool import PlacementTool, HandleTool
@@ -133,7 +133,7 @@ class UnderlineText(Text):
 
 
 def create_window(canvas, title, zoom=1.0):
-    view = GtkView()
+    view = TogaView()
     view.painter = PainterChain(). \
         append(FreeHandPainter(ItemPainter())). \
         append(HandlePainter()). \

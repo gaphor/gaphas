@@ -33,7 +33,7 @@ from gaphas.constraint import LineConstraint
 from gaphas.examples import Box
 from gaphas.item import Line
 from gaphas.tool import ConnectHandleTool
-from gaphas.view import GtkView
+from gaphas.view import TogaView
 
 Event = Context
 
@@ -66,7 +66,7 @@ def simple_canvas(self):
     self.canvas.add(self.line)
 
     self.canvas.update_now()
-    self.view = GtkView()
+    self.view = TogaView()
     self.view.canvas = self.canvas
     self.view.show()
     self.view.update()

@@ -20,7 +20,7 @@
 
 import unittest
 
-import cairocffi as cairo
+import cairo
 
 from gaphas.freehand import FreeHandCairoContext
 

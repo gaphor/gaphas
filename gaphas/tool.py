@@ -53,12 +53,11 @@ Tools can handle events in different ways
 - tool can handle the event (obviously)
 """
 
-from gi.repository import Gtk, Gdk
 import toga
 
-from gaphas.aspect import Finder, Selection, InMotion, \
-    HandleFinder, HandleSelection, HandleInMotion, \
-    Connector
+from gaphas.aspect import (Finder, Selection, InMotion,
+    HandleFinder, HandleSelection, HandleInMotion,
+    Connector)
 from gaphas.canvas import Context
 
 DEBUG_TOOL_CHAIN = False
@@ -94,23 +93,15 @@ class Tool(object):
     GRAB = -100
     UNGRAB = -101
 
-    # Map GDK events to tool methods
+    # Map events to tool methods
     EVENT_HANDLERS = {
-        Gdk.EventType.BUTTON_PRESS: 'on_button_press',
-        Gdk.EventType.BUTTON_RELEASE: 'on_button_release',
-        Gdk.EventType._2BUTTON_PRESS: 'on_double_click',
-        Gdk.EventType._3BUTTON_PRESS: 'on_triple_click',
-        Gdk.EventType.MOTION_NOTIFY: 'on_motion_notify',
-        Gdk.EventType.KEY_PRESS: 'on_key_press',
-        Gdk.EventType.KEY_RELEASE: 'on_key_release',
-        Gdk.EventType.SCROLL: 'on_scroll',
         # Custom events:
         GRAB: 'on_grab',
         UNGRAB: 'on_ungrab',
     }
 
     # Those events force the tool to release the grabbed tool.
-    FORCE_UNGRAB_EVENTS = (Gdk.EventType._2BUTTON_PRESS, Gdk.EventType._3BUTTON_PRESS)
+    # FORCE_UNGRAB_EVENTS = (Gdk.EventType._2BUTTON_PRESS, Gdk.EventType._3BUTTON_PRESS)
 
     def __init__(self, view=None):
         self.view = view
@@ -202,34 +193,34 @@ class ToolChain(Tool):
         if event.type in self.FORCE_UNGRAB_EVENTS:
             self.ungrab(self._grabbed_tool)
 
-    def handle(self, event):
-        """
-        Handle the event by calling each tool until the event is handled
-        or grabbed.
-
-        If a tool is returning True on a button press event, the motion and
-        button release events are also passed to this 
-        """
-        handler = self.EVENT_HANDLERS.get(event.type)
-
-        self.validate_grabbed_tool(event)
-
-        if self._grabbed_tool and handler:
-            try:
-                return self._grabbed_tool.handle(event)
-            finally:
-                if event.type == Gdk.EventType.BUTTON_RELEASE:
-                    self.ungrab(self._grabbed_tool)
-        else:
-            for tool in self._tools:
-                if DEBUG_TOOL_CHAIN:
-                    print('tool', tool)
-                rt = tool.handle(event)
-                if rt:
-                    if event.type == Gdk.EventType.BUTTON_PRESS:
-                        self.view.grab_focus()
-                        self.grab(tool)
-                    return rt
+    # def handle(self, event):
+    #     """
+    #     Handle the event by calling each tool until the event is handled
+    #     or grabbed.
+    #
+    #     If a tool is returning True on a button press event, the motion and
+    #     button release events are also passed to this
+    #     """
+    #     handler = self.EVENT_HANDLERS.get(event.type)
+    #
+    #     self.validate_grabbed_tool(event)
+    #
+    #     if self._grabbed_tool and handler:
+    #         try:
+    #             return self._grabbed_tool.handle(event)
+    #         finally:
+    #             if event.type == Gdk.EventType.BUTTON_RELEASE:
+    #                 self.ungrab(self._grabbed_tool)
+    #     else:
+    #         for tool in self._tools:
+    #             if DEBUG_TOOL_CHAIN:
+    #                 print('tool', tool)
+    #             rt = tool.handle(event)
+    #             if rt:
+    #                 if event.type == Gdk.EventType.BUTTON_PRESS:
+    #                     self.view.grab_focus()
+    #                     self.grab(tool)
+    #                 return rt
 
     def draw(self, context):
         if self._grabbed_tool:
@@ -289,20 +280,20 @@ class ItemTool(Tool):
 
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
-        if not (event.get_state()[1] & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-                or item in view.selected_items):
-            del view.selected_items
-
-        if item:
-            if view.hovered_item in view.selected_items and \
-                            event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
-                selection = Selection(item, view)
-                selection.unselect()
-            else:
-                selection = Selection(item, view)
-                selection.select()
-                self._movable_items.clear()
-            return True
+        # if not (event.get_state()[1] & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
+        #         or item in view.selected_items):
+        #     del view.selected_items
+        #
+        # if item:
+        #     if view.hovered_item in view.selected_items and \
+        #                     event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
+        #         selection = Selection(item, view)
+        #         selection.unselect()
+        #     else:
+        #         selection = Selection(item, view)
+        #         selection.select()
+        #         self._movable_items.clear()
+        #     return True
 
     def on_button_release(self, event):
         if event.get_button()[1] not in self._buttons:
@@ -312,22 +303,22 @@ class ItemTool(Tool):
         self._movable_items.clear()
         return True
 
-    def on_motion_notify(self, event):
-        """
-        Normally do nothing.
-        If a button is pressed move the items around.
-        """
-        if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
-
-            if not self._movable_items:
-                self._movable_items = set(self.movable_items())
-                for inmotion in self._movable_items:
-                    inmotion.start_move((event.x, event.y))
-
-            for inmotion in self._movable_items:
-                inmotion.move((event.x, event.y))
-
-            return True
+    # def on_motion_notify(self, event):
+    #     """
+    #     Normally do nothing.
+    #     If a button is pressed move the items around.
+    #     """
+    #     if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
+    #
+    #         if not self._movable_items:
+    #             self._movable_items = set(self.movable_items())
+    #             for inmotion in self._movable_items:
+    #                 inmotion.start_move((event.x, event.y))
+    #
+    #         for inmotion in self._movable_items:
+    #             inmotion.move((event.x, event.y))
+    #
+    #         return True
 
 
 class HandleTool(Tool):
@@ -378,22 +369,22 @@ class HandleTool(Tool):
 
         item, handle = HandleFinder(view.hovered_item, view).get_handle_at_point((event.x, event.y))
 
-        if handle:
-            # Deselect all items unless CTRL or SHIFT is pressed
-            # or the item is already selected.
-            # TODO: duplicate from ItemTool
-            if not (event.get_state()[1] & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-                    or view.hovered_item in view.selected_items):
-                del view.selected_items
-            #
-            view.hovered_item = item
-            view.focused_item = item
-
-            self.motion_handle = None
-
-            self.grab_handle(item, handle)
-
-            return True
+        # if handle:
+        #     # Deselect all items unless CTRL or SHIFT is pressed
+        #     # or the item is already selected.
+        #     # TODO: duplicate from ItemTool
+        #     if not (event.get_state()[1] & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
+        #             or view.hovered_item in view.selected_items):
+        #         del view.selected_items
+        #     #
+        #     view.hovered_item = item
+        #     view.focused_item = item
+        #
+        #     self.motion_handle = None
+        #
+        #     self.grab_handle(item, handle)
+        #
+        #     return True
 
     def on_button_release(self, event):
         """
@@ -419,18 +410,18 @@ class HandleTool(Tool):
         hovered-item.
         """
         view = self.view
-        if self.grabbed_handle and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
-            canvas = view.canvas
-            item = self.grabbed_item
-            handle = self.grabbed_handle
-            pos = event.x, event.y
-
-            if not self.motion_handle:
-                self.motion_handle = HandleInMotion(item, handle, self.view)
-                self.motion_handle.start_move(pos)
-            self.motion_handle.move(pos)
-
-            return True
+        # if self.grabbed_handle and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
+        #     canvas = view.canvas
+        #     item = self.grabbed_item
+        #     handle = self.grabbed_handle
+        #     pos = event.x, event.y
+        #
+        #     if not self.motion_handle:
+        #         self.motion_handle = HandleInMotion(item, handle, self.view)
+        #         self.motion_handle.start_move(pos)
+        #     self.motion_handle.move(pos)
+        #
+        #     return True
 
 
 class RubberbandTool(Tool):
@@ -450,13 +441,13 @@ class RubberbandTool(Tool):
                                        abs(x1 - x0), abs(y1 - y0)))
         return True
 
-    def on_motion_notify(self, event):
-        if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
-            view = self.view
-            self.queue_draw(view)
-            self.x1, self.y1 = event.x, event.y
-            self.queue_draw(view)
-            return True
+    # def on_motion_notify(self, event):
+    #     if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
+    #         view = self.view
+    #         self.queue_draw(view)
+    #         self.x1, self.y1 = event.x, event.y
+    #         self.queue_draw(view)
+    #         return True
 
     def queue_draw(self, view):
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
@@ -470,9 +461,9 @@ class RubberbandTool(Tool):
         cr.rectangle(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
         cr.fill()
 
-
-PAN_MASK = Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.MOD1_MASK | Gdk.ModifierType.CONTROL_MASK
-PAN_VALUE = 0
+#
+# PAN_MASK = Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.MOD1_MASK | Gdk.ModifierType.CONTROL_MASK
+# PAN_VALUE = 0
 
 
 class PanTool(Tool):
@@ -487,50 +478,50 @@ class PanTool(Tool):
         self.x0, self.y0 = 0, 0
         self.speed = 10
 
-    def on_button_press(self, event):
-        if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
-            return False
-        if event.get_button()[1] == 2:
-            self.x0, self.y0 = event.x, event.y
-            return True
+    # def on_button_press(self, event):
+    #     if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
+    #         return False
+    #     if event.get_button()[1] == 2:
+    #         self.x0, self.y0 = event.x, event.y
+    #         return True
 
     def on_button_release(self, event):
         self.x0, self.y0 = event.x, event.y
         return True
 
-    def on_motion_notify(self, event):
-        if event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
-            view = self.view
-            self.x1, self.y1 = event.x, event.y
-            dx = self.x1 - self.x0
-            dy = self.y1 - self.y0
-            view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
-            # Make sure everything's updated
-            view.request_update((), view._canvas.get_all_items())
-            self.x0 = self.x1
-            self.y0 = self.y1
-            return True
+    # def on_motion_notify(self, event):
+    #     if event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
+    #         view = self.view
+    #         self.x1, self.y1 = event.x, event.y
+    #         dx = self.x1 - self.x0
+    #         dy = self.y1 - self.y0
+    #         view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
+    #         # Make sure everything's updated
+    #         view.request_update((), view._canvas.get_all_items())
+    #         self.x0 = self.x1
+    #         self.y0 = self.y1
+    #         return True
 
-    def on_scroll(self, event):
-        # Ensure no modifiers
-        if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
-            return False
-        view = self.view
-        direction = event.scroll.direction
-        if direction == Gdk.ScrollDirection.LEFT:
-            view._matrix.translate(self.speed / view._matrix[0], 0)
-        elif direction == Gdk.ScrollDirection.RIGHT:
-            view._matrix.translate(-self.speed / view._matrix[0], 0)
-        elif direction == Gdk.ScrollDirection.UP:
-            view._matrix.translate(0, self.speed / view._matrix[3])
-        elif direction == Gdk.ScrollDirection.DOWN:
-            view._matrix.translate(0, -self.speed / view._matrix[3])
-        view.request_update((), view._canvas.get_all_items())
-        return True
-
-
-ZOOM_MASK = Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.MOD1_MASK
-ZOOM_VALUE = Gdk.ModifierType.CONTROL_MASK
+#     def on_scroll(self, event):
+#         # Ensure no modifiers
+#         if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
+#             return False
+#         view = self.view
+#         direction = event.scroll.direction
+#         if direction == Gdk.ScrollDirection.LEFT:
+#             view._matrix.translate(self.speed / view._matrix[0], 0)
+#         elif direction == Gdk.ScrollDirection.RIGHT:
+#             view._matrix.translate(-self.speed / view._matrix[0], 0)
+#         elif direction == Gdk.ScrollDirection.UP:
+#             view._matrix.translate(0, self.speed / view._matrix[3])
+#         elif direction == Gdk.ScrollDirection.DOWN:
+#             view._matrix.translate(0, -self.speed / view._matrix[3])
+#         view.request_update((), view._canvas.get_all_items())
+#         return True
+#
+#
+# ZOOM_MASK = Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.MOD1_MASK
+# ZOOM_VALUE = Gdk.ModifierType.CONTROL_MASK
 
 
 class ZoomTool(Tool):
@@ -546,62 +537,62 @@ class ZoomTool(Tool):
         self.x0, self.y0 = 0, 0
         self.lastdiff = 0;
 
-    def on_button_press(self, event):
-        if event.get_button()[1] == 2 \
-                and event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE:
-            self.x0 = event.x
-            self.y0 = event.y
-            self.lastdiff = 0
-            return True
+    # def on_button_press(self, event):
+    #     if event.get_button()[1] == 2 \
+    #             and event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE:
+    #         self.x0 = event.x
+    #         self.y0 = event.y
+    #         self.lastdiff = 0
+    #         return True
 
     def on_button_release(self, event):
         self.lastdiff = 0
         return True
 
-    def on_motion_notify(self, event):
-        if event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE \
-                and event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
-            view = self.view
-            dy = event.y - self.y0
+    # def on_motion_notify(self, event):
+    #     if event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE \
+    #             and event.get_state()[1] & Gdk.EventMask.BUTTON2_MOTION_MASK:
+    #         view = self.view
+    #         dy = event.y - self.y0
+    #
+    #         sx = view._matrix[0]
+    #         sy = view._matrix[3]
+    #         ox = (view._matrix[4] - self.x0) / sx
+    #         oy = (view._matrix[5] - self.y0) / sy
+    #
+    #         if abs(dy - self.lastdiff) > 20:
+    #             if dy - self.lastdiff < 0:
+    #                 factor = 1. / 0.9
+    #             else:
+    #                 factor = 0.9
+    #
+    #             m = view.matrix
+    #             m.translate(-ox, -oy)
+    #             m.scale(factor, factor)
+    #             m.translate(+ox, +oy)
+    #
+    #             # Make sure everything's updated
+    #             view.request_update((), view._canvas.get_all_items())
+    #
+    #             self.lastdiff = dy
+    #         return True
 
-            sx = view._matrix[0]
-            sy = view._matrix[3]
-            ox = (view._matrix[4] - self.x0) / sx
-            oy = (view._matrix[5] - self.y0) / sy
-
-            if abs(dy - self.lastdiff) > 20:
-                if dy - self.lastdiff < 0:
-                    factor = 1. / 0.9
-                else:
-                    factor = 0.9
-
-                m = view.matrix
-                m.translate(-ox, -oy)
-                m.scale(factor, factor)
-                m.translate(+ox, +oy)
-
-                # Make sure everything's updated
-                view.request_update((), view._canvas.get_all_items())
-
-                self.lastdiff = dy
-            return True
-
-    def on_scroll(self, event):
-        if event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
-            view = self.view
-            sx = view._matrix[0]
-            sy = view._matrix[3]
-            ox = (view._matrix[4] - event.scroll.x) / sx
-            oy = (view._matrix[5] - event.scroll.y) / sy
-            factor = 0.9
-            if event.scroll.direction == Gdk.ScrollDirection.UP:
-                factor = 1. / factor
-            view._matrix.translate(-ox, -oy)
-            view._matrix.scale(factor, factor)
-            view._matrix.translate(+ox, +oy)
-            # Make sure everything's updated
-            view.request_update((), view._canvas.get_all_items())
-            return True
+    # def on_scroll(self, event):
+    #     if event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
+    #         view = self.view
+    #         sx = view._matrix[0]
+    #         sy = view._matrix[3]
+    #         ox = (view._matrix[4] - event.scroll.x) / sx
+    #         oy = (view._matrix[5] - event.scroll.y) / sy
+    #         factor = 0.9
+    #         if event.scroll.direction == Gdk.ScrollDirection.UP:
+    #             factor = 1. / factor
+    #         view._matrix.translate(-ox, -oy)
+    #         view._matrix.scale(factor, factor)
+    #         view._matrix.translate(+ox, +oy)
+    #         # Make sure everything's updated
+    #         view.request_update((), view._canvas.get_all_items())
+    #         return True
 
 
 class PlacementTool(Tool):
@@ -684,9 +675,9 @@ class TextEditTool(Tool):
         window.show()
         return True
 
-    def _on_key_press_event(self, widget, event, buffer):
-        if event.keyval == Gdk.KEY_Escape:
-            widget.get_toplevel().destroy()
+    # def _on_key_press_event(self, widget, event, buffer):
+    #     if event.keyval == Gdk.KEY_Escape:
+    #         widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
         widget.destroy()

@@ -25,13 +25,12 @@ Test cases for the View class.
 import math
 import unittest
 
-from gi.repository import Gtk
 import toga
 
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Line
-from gaphas.view import View, GtkView
+from gaphas.view import View, TogaView
 
 
 class ViewTestCase(unittest.TestCase):
@@ -43,7 +42,7 @@ class ViewTestCase(unittest.TestCase):
         canvas = Canvas()
 
         window1 = toga.Window()
-        view1 = GtkView(canvas=canvas)
+        view1 = TogaView(canvas=canvas)
         view1.realize()
         window1.show()
 
@@ -59,12 +58,12 @@ class ViewTestCase(unittest.TestCase):
         canvas.add(line)
 
         window2 = toga.Window()
-        view2 = GtkView(canvas=canvas)
+        view2 = TogaView(canvas=canvas)
         window2.show()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
-        while Gtk.events_pending():
-            Gtk.main_iteration()
+        # while Gtk.events_pending():
+        #     Gtk.main_iteration()
 
         try:
             assert view2.get_item_bounding_box(box)
@@ -85,7 +84,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
         window = toga.Window()
-        view = GtkView(canvas)
+        view = TogaView(canvas)
         window.show()
 
         box = Box()
@@ -96,8 +95,8 @@ class ViewTestCase(unittest.TestCase):
         box.height = 50
 
         # Process pending (expose) events, which cause the canvas to be drawn.
-        while Gtk.events_pending():
-            Gtk.main_iteration()
+        # while Gtk.events_pending():
+        #     Gtk.main_iteration()
 
         assert len(view._qtree._ids) == 1
         assert not view._qtree._bucket.bounds == (0, 0, 0, 0), view._qtree._bucket.bounds
@@ -110,7 +109,7 @@ class ViewTestCase(unittest.TestCase):
     def test_get_handle_at_point(self):
         canvas = Canvas()
         window = toga.Window()
-        view = GtkView(canvas)
+        view = TogaView(canvas)
         window.show()
 
         box = Box()
@@ -127,7 +126,7 @@ class ViewTestCase(unittest.TestCase):
     def test_get_handle_at_point_at_pi_div_2(self):
         canvas = Canvas()
         window = toga.Window()
-        view = GtkView(canvas)
+        view = TogaView(canvas)
         window.show()
 
         box = Box()
@@ -146,7 +145,7 @@ class ViewTestCase(unittest.TestCase):
     def test_item_removal(self):
         canvas = Canvas()
         window = toga.Window()
-        view = GtkView(canvas)
+        view = TogaView(canvas)
         window.show()
 
         box = Box()
@@ -155,8 +154,8 @@ class ViewTestCase(unittest.TestCase):
         assert not canvas.require_update()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
-        while Gtk.events_pending():
-            Gtk.main_iteration()
+        # while Gtk.events_pending():
+        #     Gtk.main_iteration()
 
         assert len(canvas.get_all_items()) == len(view._qtree)
 
@@ -185,7 +184,7 @@ class ViewTestCase(unittest.TestCase):
 
         # GTK view does register for updates though
 
-        view = GtkView(canvas)
+        view = TogaView(canvas)
         assert len(canvas._registered_views) == 1
 
         # No entry, since GtkView is not realized and has no window
@@ -217,7 +216,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
         window = toga.Window()
-        view = GtkView(canvas)
+        view = TogaView(canvas)
         window.show()
 
         box = Box()
@@ -240,8 +239,8 @@ class ViewTestCase(unittest.TestCase):
         assert view not in box._matrix_v2i
 
     def test_scroll_adjustments(self):
-        sc = Gtk.ScrolledWindow()
-        view = GtkView(Canvas())
+        sc = toga.ScrollContainer()
+        view = TogaView(Canvas())
         sc.add(view)
 
         print(sc.get_hadjustment(), view.hadjustment)

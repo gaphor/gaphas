@@ -27,7 +27,6 @@ This module contains everything to display a Canvas on a screen.
 from cairo import Matrix
 
 from gaphas.canvas import Context
-from gaphas.decorators import async, PRIORITY_HIGH_IDLE
 from gaphas.decorators import nonrecursive
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.painter import DefaultPainter, BoundingBoxPainter
@@ -445,10 +444,11 @@ class View(object):
                 pass
 
 
-class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
-    # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
+class TogaView(View):
+    #
+    # class TogaView(Gtk.DrawingArea, Gtk.Scrollable, View):
     """
-    GTK+ widget for rendering a canvas.Canvas to a screen.
+    Toga widget for rendering a canvas.Canvas to a screen.
     The view uses Tools from `tool.py` to handle events and Painters
     from `painter.py` to draw. Both are configurable.
 
@@ -459,52 +459,50 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     """
 
     # Just defined a name to make GTK register this class.
-    __gtype_name__ = 'GaphasView'
+    #__gtype_name__ = 'GaphasView'
 
     # Signals: emited after the change takes effect.
-    __gsignals__ = {
-        'dropzone-changed': (GObject.SignalFlags.RUN_LAST, None,
-                             (GObject.TYPE_PYOBJECT,)),
-        'hover-changed': (GObject.SignalFlags.RUN_LAST, None,
-                          (GObject.TYPE_PYOBJECT,)),
-        'focus-changed': (GObject.SignalFlags.RUN_LAST, None,
-                          (GObject.TYPE_PYOBJECT,)),
-        'selection-changed': (GObject.SignalFlags.RUN_LAST, None,
-                              (GObject.TYPE_PYOBJECT,)),
-        'tool-changed': (GObject.SignalFlags.RUN_LAST, None,
-                         ()),
-        'painter-changed': (GObject.SignalFlags.RUN_LAST, None,
-                            ())
-    }
+    # __gsignals__ = {
+    #     'dropzone-changed': (GObject.SignalFlags.RUN_LAST, None,
+    #                          (GObject.TYPE_PYOBJECT,)),
+    #     'hover-changed': (GObject.SignalFlags.RUN_LAST, None,
+    #                       (GObject.TYPE_PYOBJECT,)),
+    #     'focus-changed': (GObject.SignalFlags.RUN_LAST, None,
+    #                       (GObject.TYPE_PYOBJECT,)),
+    #     'selection-changed': (GObject.SignalFlags.RUN_LAST, None,
+    #                           (GObject.TYPE_PYOBJECT,)),
+    #     'tool-changed': (GObject.SignalFlags.RUN_LAST, None,
+    #                      ()),
+    #     'painter-changed': (GObject.SignalFlags.RUN_LAST, None,
+    #                         ())
+    # }
 
-    __gproperties__ = {
-        "hscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
-                           "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
-                           GObject.PARAM_READWRITE),
-        "hadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
-                        GObject.PARAM_READWRITE),
-        "vscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
-                           "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
-                           GObject.PARAM_READWRITE),
-        "vadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
-                        GObject.PARAM_READWRITE),
-    }
+    # __gproperties__ = {
+    #     "hscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+    #                        "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
+    #                        GObject.PARAM_READWRITE),
+    #     "hadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
+    #                     GObject.PARAM_READWRITE),
+    #     "vscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+    #                        "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
+    #                        GObject.PARAM_READWRITE),
+    #     "vadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
+    #                     GObject.PARAM_READWRITE),
+    # }
 
     def __init__(self, canvas=None, hadjustment=None, vadjustment=None):
-        GObject.GObject.__init__(self)
-
         self._dirty_items = set()
         self._dirty_matrix_items = set()
 
         View.__init__(self, canvas)
 
         self.set_can_focus(True)
-        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
-                        | Gdk.EventMask.BUTTON_RELEASE_MASK
-                        | Gdk.EventMask.POINTER_MOTION_MASK
-                        | Gdk.EventMask.KEY_PRESS_MASK
-                        | Gdk.EventMask.KEY_RELEASE_MASK
-                        | Gdk.EventMask.SCROLL_MASK)
+        # self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
+        #                 | Gdk.EventMask.BUTTON_RELEASE_MASK
+        #                 | Gdk.EventMask.POINTER_MOTION_MASK
+        #                 | Gdk.EventMask.KEY_PRESS_MASK
+        #                 | Gdk.EventMask.KEY_RELEASE_MASK
+        #                 | Gdk.EventMask.SCROLL_MASK)
 
         self._hscroll_policy = None
         self._vscroll_policy = None
@@ -518,37 +516,38 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._set_tool(DefaultTool())
 
         # Set background to white.
-        self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
+        # self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
 
-    def do_set_property(self, pspec, value):
-        if pspec.name == 'hscroll-policy':
-            self._hscroll_policy = value
-        elif pspec.name == 'vscroll-policy':
-            self._vscroll_policy = value
-        elif pspec.name == 'hadjustment':
-            self._set_scroll_adjustments(value, self._vadjustment)
-        elif pspec.name == 'vadjustment':
-            self._set_scroll_adjustments(self._hadjustment, value)
-        else:
-            raise AttributeError('Unknown property %s' % pspec.name)
-
-    def do_get_property(self, pspec):
-        if pspec.name == 'hscroll-policy':
-            return self._hscroll_policy
-        elif pspec.name == 'vscroll-policy':
-            return self._vscroll_policy
-        elif pspec.name == 'hadjustment':
-            return self._hadjustment
-        elif pspec.name == 'vadjustment':
-            return self._vadjustment
-        else:
-            raise AttributeError('Unknown property %s' % pspec.name)
+    # def do_set_property(self, pspec, value):
+    #     if pspec.name == 'hscroll-policy':
+    #         self._hscroll_policy = value
+    #     elif pspec.name == 'vscroll-policy':
+    #         self._vscroll_policy = value
+    #     elif pspec.name == 'hadjustment':
+    #         self._set_scroll_adjustments(value, self._vadjustment)
+    #     elif pspec.name == 'vadjustment':
+    #         self._set_scroll_adjustments(self._hadjustment, value)
+    #     else:
+    #         raise AttributeError('Unknown property %s' % pspec.name)
+    #
+    # def do_get_property(self, pspec):
+    #     if pspec.name == 'hscroll-policy':
+    #         return self._hscroll_policy
+    #     elif pspec.name == 'vscroll-policy':
+    #         return self._vscroll_policy
+    #     elif pspec.name == 'hadjustment':
+    #         return self._hadjustment
+    #     elif pspec.name == 'vadjustment':
+    #         return self._vadjustment
+    #     else:
+    #         raise AttributeError('Unknown property %s' % pspec.name)
 
     def emit(self, *args, **kwargs):
         """
         Delegate signal emissions to the DrawingArea (=GTK+)
         """
-        Gtk.DrawingArea.emit(self, *args, **kwargs)
+        # Gtk.DrawingArea.emit(self, *args, **kwargs)
+        pass
 
     def _set_canvas(self, canvas):
         """
@@ -561,7 +560,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._clear_matrices()
             self._canvas.unregister_view(self)
 
-        super(GtkView, self)._set_canvas(canvas)
+        super(TogaView, self)._set_canvas(canvas)
 
         if self._canvas:
             self._canvas.register_view(self)
@@ -592,8 +591,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._vadjustment.disconnect(self._vadjustment_handler_id)
             self._vadjustment_handler_id = None
 
-        self._hadjustment = hadjustment or Gtk.Adjustment()
-        self._vadjustment = vadjustment or Gtk.Adjustment()
+        self._hadjustment = hadjustment # or Gtk.Adjustment()
+        self._vadjustment = vadjustment # or Gtk.Adjustment()
 
         self._hadjustment_handler_id = \
             self._hadjustment.connect('value-changed',
@@ -607,12 +606,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         Zoom in/out by factor ``factor``.
         """
-        super(GtkView, self).zoom(factor)
+        super(TogaView, self).zoom(factor)
         self.queue_draw_refresh()
 
     def update_adjustments(self, allocation=None):
         if not allocation:
-            allocation = self.get_allocation()
+            # allocation = self.get_allocation()
+            pass
 
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
@@ -679,18 +679,18 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Wrap draw_area to convert all values to ints.
         """
         try:
-            super(GtkView, self).queue_draw_area(int(x), int(y), int(w + 1), int(h + 1))
+            super(TogaView, self).queue_draw_area(int(x), int(y), int(w + 1), int(h + 1))
         except OverflowError:
             # Okay, now the zoom factor is very large or something
             a = self.get_allocation()
-            super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+            super(TogaView, self).queue_draw_area(0, 0, a.width, a.height)
 
     def queue_draw_refresh(self):
         """
         Redraw the entire view.
         """
         a = self.get_allocation()
-        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+        super(TogaView, self).queue_draw_area(0, 0, a.width, a.height)
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
@@ -724,8 +724,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         Update view status according to the items updated by the canvas.
         """
-        if not self.get_window():
-            return
+
+        # if not self.get_window():
+        #     return
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
@@ -761,22 +762,21 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
 
-    @async(single=False)
-    def update_bounding_box(self, items):
-        """
-        Update bounding box is not necessary.
-        """
-        cr = self.get_window().cairo_create()
-
-        cr.save()
-        cr.rectangle(0, 0, 0, 0)
-        cr.clip()
-        try:
-            super(GtkView, self).update_bounding_box(cr, items)
-        finally:
-            cr.restore()
-        self.queue_draw_item(*items)
-        self.update_adjustments()
+    # def update_bounding_box(self, items):
+    #     """
+    #     Update bounding box is not necessary.
+    #     """
+    #     cr = self.get_window().cairo_create()
+    #
+    #     cr.save()
+    #     cr.rectangle(0, 0, 0, 0)
+    #     cr.clip()
+    #     try:
+    #         super(TogaView, self).update_bounding_box(cr, items)
+    #     finally:
+    #         cr.restore()
+    #     self.queue_draw_item(*items)
+    #     self.update_adjustments()
 
     @nonrecursive
     def do_configure_event(self, event):
@@ -790,7 +790,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         The ::realize signal is emitted when widget is associated with a ``GdkWindow``.
         """
-        Gtk.DrawingArea.do_realize(self)
+        # Gtk.DrawingArea.do_realize(self)
 
         # Ensure updates are propagated
         self._canvas.register_view(self)
@@ -813,7 +813,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._canvas.unregister_view(self)
 
-        Gtk.DrawingArea.do_unrealize(self)
+        # Gtk.DrawingArea.do_unrealize(self)
 
     def do_draw(self, cr):
         """
@@ -821,9 +821,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         if not self._canvas:
             return
-
-        _, allocation = Gdk.cairo_get_clip_rectangle(cr)
-        x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
+        # TODO Cairo is clip_extents(), need to round and convert from x1,y1,x2,y2
+        # _, allocation = Gdk.cairo_get_clip_rectangle(cr)
+        # x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
+        x = 0
+        y = 0
+        w = 50
+        h = 50
         area = Rectangle(x, y, width=w, height=h)
         self._painter.paint(Context(cairo=cr,
                                     items=self.get_items_in_rectangle(area),

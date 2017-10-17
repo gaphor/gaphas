@@ -21,7 +21,7 @@
 
 import unittest
 
-import cairocffi as cairo
+import cairo
 
 from gaphas.canvas import Canvas, ConnectionError
 from gaphas.examples import Box
