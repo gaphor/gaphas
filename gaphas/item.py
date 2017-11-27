@@ -38,7 +38,7 @@ from gaphas.state import observed, reversible_method, reversible_pair, reversibl
 
 class Item(object):
     """
-    Base class (or interface) for items on a canvas.Canvas.
+    Base class (or interface) for items on a canvas.ItemContainer.
 
     Attributes:
 
@@ -67,7 +67,7 @@ class Item(object):
         self._constraints = []
         self._ports = []
 
-        # used by gaphas.canvas.Canvas to hold conversion matrices
+        # used by gaphas.canvas.ItemContainer to hold conversion matrices
         self._matrix_i2c = None
         self._matrix_c2i = None
 
@@ -79,8 +79,8 @@ class Item(object):
     @observed
     def _set_canvas(self, canvas):
         """
-        Set the canvas. Should only be called from Canvas.add and
-        Canvas.remove().
+        Set the canvas. Should only be called from ItemContainer.add and
+        ItemContainer.remove().
         """
         assert not canvas or not self._canvas or self._canvas is canvas
         if self._canvas:
@@ -90,7 +90,7 @@ class Item(object):
             self.setup_canvas()
 
     canvas = reversible_property(lambda s: s._canvas, _set_canvas,
-                                 doc="Canvas owning this item")
+                                 doc="ItemContainer owning this item")
 
     constraints = property(lambda s: s._constraints,
                            doc="Item constraints")

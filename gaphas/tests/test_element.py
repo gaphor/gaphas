@@ -22,7 +22,7 @@
 import unittest
 from os import getenv
 
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.examples import Box
 from gaphas.item import NW, NE, SE, SW
 
@@ -32,7 +32,7 @@ class ElementTestCase(unittest.TestCase):
         """
         Test if initial size holds when added to a canvas.
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         box = Box(150, 153)
 
         assert box.width == 150, box.width
@@ -51,7 +51,7 @@ class ElementTestCase(unittest.TestCase):
         """
         Test resizing of element by dragging it SE handle.
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         box = Box()
         handles = box.handles()
 
@@ -89,7 +89,7 @@ class ElementTestCase(unittest.TestCase):
         """
         Test resizing of element by dragging it SE handle.
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         box = Box()
         handles = box.handles()
 

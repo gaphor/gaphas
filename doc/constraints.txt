@@ -20,13 +20,13 @@ item. The rules can be satisfied (constraints can be solved) using
 `constraint solver <http://en.wikipedia.org/wiki/Constraint_satisfaction_problem>`_.
 
 Gaphas implements its own constraint solver (`gaphas.solver` module).
-Items can be constrained using APIs defined in `Canvas` and `Item` classes.
+Items can be constrained using APIs defined in `ItemContainer` and `Item` classes.
 
 Constraints API
 ---------------
-The `Canvas` class constraints API supports adding a constraint to
+The `ItemContainer` class constraints API supports adding a constraint to
 constraint solver.  Instance of a constraint has to be created and then
-added using `Canvas.add_constraint` method. For example, it allows to
+added using `ItemContainer.add_constraint` method. For example, it allows to
 declare that two variables should be equal.
 
 The `Item` class constraint API is more abstract, it allows to constraint
@@ -36,13 +36,13 @@ positions, i.e.
 - position should be always on a line
 
 If this API does not provide some constraint declaration, then one can
-fallback to `Canvas` class constraint API.
+fallback to `ItemContainer` class constraint API.
 
 Examples
 --------
 Item API
 ^^^^^^^^
-Canvas API
+ItemContainer API
 ^^^^^^^^^^
 
 Further Reading

@@ -27,7 +27,7 @@ import unittest
 
 import toga
 
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.examples import Box
 from gaphas.item import Line
 from gaphas.view import View, TogaView
@@ -39,10 +39,10 @@ class ViewTestCase(unittest.TestCase):
         A view created before and after the canvas is populated should contain
         the same data.
         """
-        canvas = Canvas()
+         = ItemContainer()
 
         window1 = toga.Window()
-        view1 = TogaView(canvas=canvas)
+        view1 = TogaView(item_container=canvas)
         view1.realize()
         window1.show()
 
@@ -58,7 +58,7 @@ class ViewTestCase(unittest.TestCase):
         canvas.add(line)
 
         window2 = toga.Window()
-        view2 = TogaView(canvas=canvas)
+        view2 = TogaView(item_container=canvas)
         window2.show()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
@@ -82,7 +82,7 @@ class ViewTestCase(unittest.TestCase):
         """
         Hover tool only reacts on motion-notify events
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         window = toga.Window()
         view = TogaView(canvas)
         window.show()
@@ -107,7 +107,7 @@ class ViewTestCase(unittest.TestCase):
         window.destroy()
 
     def test_get_handle_at_point(self):
-        canvas = Canvas()
+        canvas = ItemContainer()
         window = toga.Window()
         view = TogaView(canvas)
         window.show()
@@ -124,7 +124,7 @@ class ViewTestCase(unittest.TestCase):
         assert h is box.handles()[0]
 
     def test_get_handle_at_point_at_pi_div_2(self):
-        canvas = Canvas()
+        canvas = ItemContainer()
         window = toga.Window()
         view = TogaView(canvas)
         window.show()
@@ -143,7 +143,7 @@ class ViewTestCase(unittest.TestCase):
         assert h is box.handles()[0]
 
     def test_item_removal(self):
-        canvas = Canvas()
+        canvas = ItemContainer()
         window = toga.Window()
         view = TogaView(canvas)
         window.show()
@@ -168,7 +168,7 @@ class ViewTestCase(unittest.TestCase):
         window.destroy()
 
     def test_view_registration(self):
-        canvas = Canvas()
+        canvas = ItemContainer()
 
         # Simple views do not register on the canvas
 
@@ -214,7 +214,7 @@ class ViewTestCase(unittest.TestCase):
         """
         Test view registration and destroy when view is destroyed.
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         window = toga.Window()
         view = TogaView(canvas)
         window.show()
@@ -240,7 +240,7 @@ class ViewTestCase(unittest.TestCase):
 
     def test_scroll_adjustments(self):
         sc = toga.ScrollContainer()
-        view = TogaView(Canvas())
+        view = TogaView(ItemContainer())
         sc.add(view)
 
         print(sc.get_hadjustment(), view.hadjustment)

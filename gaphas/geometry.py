@@ -41,7 +41,7 @@ class Rectangle(object):
     substituted (intersection) and points and rectangles can be tested to
     be in the rectangle.
 
-    >>> r1= Rectangle(1,1,5,5)
+    >>> r1 = Rectangle(1,1,5,5)
     >>> r2 = Rectangle(3,3,6,7)
 
     Test if two rectangles intersect:

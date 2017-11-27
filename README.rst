@@ -1,4 +1,4 @@
-Gaphor's Canvas
+Gaphor's ItemContainer
 ===============
 
 This module contains a new canvas implementation for Gaphor.
@@ -12,15 +12,15 @@ Mailing list: gaphor-dev@googlegroups.com
 
 The basic idea is:
 
-- Items (canvas items) can be added to a Canvas.
-- The canvas maintains the tree structure (parent-child relationships between
+- Items can be added to an Item Container.
+- The Item Container maintains the tree structure (parent-child relationships between
   items).
 - A constraint solver is used to maintain item constraints and inter-item
   constraints.
 - The item (and user) should not be bothered with things like bounding-box
   calculations.
 - Very modular: e.g. handle support could be swapped in and swapped out.
-- Rendering using Cairo.
+- Rendering using Toga.
 
  Gaphas is released under the terms of the GNU Library General Public License
  (LGPL). See the COPYING file for details.
@@ -31,20 +31,20 @@ The basic idea is:
 How it Works
 ============
 
-The Canvas class (from canvas.py) acts as a container for Item's (from item.py).
+The ItemContainer class (from itemcontainer.py) acts as a container for Item's (from item.py).
 The item's parent/child relationships are maintained here (not in the Item!).
 
 An Item can have a set of Handle's (from connector.py) which can be used to
 manipulate the item (although this is not necessary). Each item has it's own
 coordinate system (a (0, 0) point). Item.matrix is the transformation
-relative to the parent item of the Item, as defined in the Canvas.
+relative to the parent item of the Item, as defined in the ItemContainer.
 Handles can connect to Ports. A Port is a location (line or point) where a
 handle is allowed to connect on another item. The process of connecting
 depends on the case at hand, but most often involves the creation of some
 sort of constraint between the Handle and the item it's connecting to (see
 doc/ports.txt).
 
-The Canvas also contains a constraint Solver (from solver.py) that can be used
+The ItemContainer also contains a constraint Solver (from solver.py) that can be used
 to solve mathematical dependencies between items (such as Handles that should
 be aligned). The constraint solver is also a handy tool to keep constraint
 in the item true (e.g. make sure a box maintains it's rectangular shape).
@@ -57,16 +57,16 @@ such as a printer or PDF document.
 
 Updating item state
 -------------------
-If an items needs updating, it sets out an update request on the Canvas
-(Canvas.request_update()). The canvas performs an update by calling:
+If an items needs updating, it sets out an update request on the ItemContainer
+(ItemContainer.request_update()). The canvas performs an update by calling:
 
 1. Item.pre_update(context) for each item marked for update
-2. Updating Canvas-to-Item matrices, for fast transformation of coordinates
+2. Updating ItemContainer-to-Item matrices, for fast transformation of coordinates
    from the canvas' to the items' coordinate system.
    The c2i matrix is stored on the Item as Item._matrix_c2i.
 3. Solve constraints.
 4. Normalize items by setting the coordinates of the first handle to (0, 0).
-5. Updating Canvas-to-Item matrices for items that have been changed by
+5. Updating ItemContainer-to-Item matrices for items that have been changed by
    normalization, just to be on the save side.
 6. Item.post_update(context) for each item marked for update, including items
    that have been marked during constraint solving.
@@ -100,7 +100,7 @@ When two items are connected to each other and constraints are created, a
 problem shows up: variables live in separate coordinate systems. To overcome
 this problem a Projection (from solver.py) has been defined. With a Projection
 instance, a variable can be "projected" on another coordinate system. In this
-case, where two items are connecting to each other, the Canvas' coordinate
+case, where two items are connecting to each other, the ItemContainer' coordinate
 system is used.
 
 
@@ -108,7 +108,7 @@ Drawing
 -------
 Drawing is done by the View. All items marked for redraw (e.i. the items
 that had been updated) will be drawn in the order in which they reside in the
-Canvas (first root item, then it's children; second root item, etc.)
+ItemContainer (first root item, then it's children; second root item, etc.)
 
 The view context passed to the Items draw() method has the following properties:
 

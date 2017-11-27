@@ -334,7 +334,7 @@ class Variable(object):
 class Projection(object):
     """
     Projections are used to convert values from one space to another,
-    e.g. from Canvas to Item space or visa versa.
+    e.g. from ItemContainer to Item space or visa versa.
 
     In order to be a Projection the ``value`` and ``strength`` properties
     should be implemented and a method named ``variable()`` should be present.

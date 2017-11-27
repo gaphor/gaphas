@@ -45,7 +45,7 @@ import math
 from gi.repository import Gtk
 import toga
 import cairo
-from gaphas import Canvas, TogaView, View
+from gaphas import ItemContainer, TogaView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line
 from gaphas.tool import PlacementTool, HandleTool
@@ -387,9 +387,9 @@ def create_window(canvas, title, zoom=1.0):
     view.connect('selection-changed', handle_changed, 'selection')
 
 
-def create_canvas(c=None):
+def create_item_container(c=None):
     if not c:
-        c = Canvas()
+        c = ItemContainer()
     b = MyBox()
     b.min_width = 20
     b.min_height = 30
@@ -474,11 +474,11 @@ def main():
     def print_handler(event):
         print('event:', event)
 
-    c = Canvas()
+    c = ItemContainer()
 
     create_window(c, 'View created before')
 
-    create_canvas(c)
+    create_item_container(c)
 
     # state.subscribers.add(print_handler)
 

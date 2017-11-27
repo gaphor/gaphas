@@ -21,12 +21,13 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-This module contains everything to display a Canvas on a screen.
+This module contains everything to display a ItemContainer on a screen.
 """
 
 from cairo import Matrix
+import toga
 
-from gaphas.canvas import Context
+from gaphas.itemcontainer import Context
 from gaphas.decorators import nonrecursive
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.painter import DefaultPainter, BoundingBoxPainter
@@ -40,10 +41,10 @@ DEBUG_DRAW_QUADTREE = False
 
 class View(object):
     """
-    View class for gaphas.Canvas objects. 
+    View class for gaphas.ItemContainer objects.
     """
 
-    def __init__(self, canvas=None):
+    def __init__(self, item_container=None):
         self._matrix = Matrix()
         self._painter = DefaultPainter(self)
         self._bounding_box_painter = BoundingBoxPainter(self)
@@ -60,13 +61,13 @@ class View(object):
         self._bounds = Rectangle(0, 0, 0, 0)
 
         self._canvas = None
-        if canvas:
-            self._set_canvas(canvas)
+        if item_container:
+            self._set_item_container(item_container)
 
     matrix = property(lambda s: s._matrix,
-                      doc="Canvas to view transformation matrix")
+                      doc="ItemContainer to view transformation matrix")
 
-    def _set_canvas(self, canvas):
+    def _set_item_container(self, canvas):
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
@@ -80,7 +81,7 @@ class View(object):
 
         self._canvas = canvas
 
-    canvas = property(lambda s: s._canvas, _set_canvas)
+    canvas = property(lambda s: s._canvas, _set_item_container)
 
     def emit(self, *args, **kwargs):
         """
@@ -444,11 +445,11 @@ class View(object):
                 pass
 
 
-class TogaView(View):
+class TogaView(toga.Canvas, Gtk.Scrollable, View):
     #
     # class TogaView(Gtk.DrawingArea, Gtk.Scrollable, View):
     """
-    Toga widget for rendering a canvas.Canvas to a screen.
+    Toga widget for rendering a canvas.ItemContainer to a screen.
     The view uses Tools from `tool.py` to handle events and Painters
     from `painter.py` to draw. Both are configurable.
 
@@ -490,11 +491,11 @@ class TogaView(View):
     #                     GObject.PARAM_READWRITE),
     # }
 
-    def __init__(self, canvas=None, hadjustment=None, vadjustment=None):
+    def __init__(self, item_container=None, hadjustment=None, vadjustment=None):
         self._dirty_items = set()
         self._dirty_matrix_items = set()
 
-        View.__init__(self, canvas)
+        View.__init__(self, item_container)
 
         self.set_can_focus(True)
         # self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
@@ -547,9 +548,10 @@ class TogaView(View):
         Delegate signal emissions to the DrawingArea (=GTK+)
         """
         # Gtk.DrawingArea.emit(self, *args, **kwargs)
+        # TODO can we remove all emit methods?
         pass
 
-    def _set_canvas(self, canvas):
+    def _set_item_container(self, canvas):
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
@@ -560,14 +562,14 @@ class TogaView(View):
             self._clear_matrices()
             self._canvas.unregister_view(self)
 
-        super(TogaView, self)._set_canvas(canvas)
+        super(TogaView, self)._set_item_container(canvas)
 
         if self._canvas:
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
         self.queue_draw_refresh()
 
-    canvas = property(lambda s: s._canvas, _set_canvas)
+    canvas = property(lambda s: s._canvas, _set_item_container)
 
     def _set_tool(self, tool):
         """
@@ -658,9 +660,9 @@ class TogaView(View):
         Like ``DrawingArea.queue_draw_area``, but use the bounds of the
         item as update areas. Of course with a pythonic flavor: update
         any number of items at once.
-
-        TODO: Should we also create a (sorted) list of items that need redrawal?
         """
+        # TODO: Should we also create a (sorted) list of items that need redrawal?
+
         get_bounds = self._qtree.get_bounds
         items = [_f for _f in items if _f]
         try:
@@ -762,21 +764,21 @@ class TogaView(View):
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
 
-    # def update_bounding_box(self, items):
-    #     """
-    #     Update bounding box is not necessary.
-    #     """
-    #     cr = self.get_window().cairo_create()
-    #
-    #     cr.save()
-    #     cr.rectangle(0, 0, 0, 0)
-    #     cr.clip()
-    #     try:
-    #         super(TogaView, self).update_bounding_box(cr, items)
-    #     finally:
-    #         cr.restore()
-    #     self.queue_draw_item(*items)
-    #     self.update_adjustments()
+    def update_bounding_box(self, items):
+        """
+        Update bounding box is not necessary.
+        """
+        cr = self.get_window().cairo_create()
+
+        cr.save()
+        cr.rectangle(0, 0, 0, 0)
+        cr.clip()
+        try:
+            super(TogaView, self).update_bounding_box(cr, items)
+        finally:
+            cr.restore()
+        self.queue_draw_item(*items)
+        self.update_adjustments()
 
     @nonrecursive
     def do_configure_event(self, event):
@@ -790,7 +792,7 @@ class TogaView(View):
         """
         The ::realize signal is emitted when widget is associated with a ``GdkWindow``.
         """
-        # Gtk.DrawingArea.do_realize(self)
+        Gtk.DrawingArea.do_realize(self)
 
         # Ensure updates are propagated
         self._canvas.register_view(self)
@@ -813,7 +815,7 @@ class TogaView(View):
 
         self._canvas.unregister_view(self)
 
-        # Gtk.DrawingArea.do_unrealize(self)
+        Gtk.DrawingArea.do_unrealize(self)
 
     def do_draw(self, cr):
         """

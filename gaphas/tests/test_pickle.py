@@ -22,7 +22,7 @@ import pickle
 import unittest
 import toga
 
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.examples import Box
 from gaphas.item import Element, Line
 from gaphas.view import View, TogaView
@@ -52,14 +52,14 @@ class my_disconnect(object):
         pass
 
 
-def create_canvas():
-    canvas = Canvas()
+def create_item_container():
+    item_container = ItemContainer()
     box = Box()
-    canvas.add(box)
+    item_container.add(box)
     box.matrix.translate(100, 50)
     box.matrix.rotate(50)
     box2 = Box()
-    canvas.add(box2, parent=box)
+    item_container.add(box2, parent=box)
 
     line = Line()
     line.handles()[0].visible = False
@@ -67,11 +67,11 @@ def create_canvas():
     line.handles()[0].disconnect = my_disconnect()
     line.handles()[0].connection_data = 1
 
-    canvas.add(line)
+    item_container.add(line)
 
-    canvas.update()
+    item_container.update()
 
-    return canvas
+    return item_container
 
 
 class PickleTestCase(unittest.TestCase):
@@ -94,24 +94,24 @@ class PickleTestCase(unittest.TestCase):
         assert len(i2.handles()) == 2
 
     def test_pickle(self):
-        canvas = create_canvas()
+        item_container = create_item_container()
 
-        pickled = pickle.dumps(canvas)
+        pickled = pickle.dumps(item_container)
         c2 = pickle.loads(pickled)
 
-        assert type(canvas._tree.nodes[0]) is Box
-        assert type(canvas._tree.nodes[1]) is Box
-        assert type(canvas._tree.nodes[2]) is Line
+        assert type(item_container._tree.nodes[0]) is Box
+        assert type(item_container._tree.nodes[1]) is Box
+        assert type(item_container._tree.nodes[2]) is Line
 
     def test_pickle_connect(self):
         """
         Persist a connection.
         """
-        canvas = Canvas()
+        item_container = ItemContainer()
         box = Box()
-        canvas.add(box)
+        item_container.add(box)
         box2 = Box()
-        canvas.add(box2, parent=box)
+        item_container.add(box2, parent=box)
 
         line = Line()
         line.handles()[0].visible = False
@@ -119,14 +119,14 @@ class PickleTestCase(unittest.TestCase):
         line.handles()[0].disconnect = my_disconnect()
         line.handles()[0].connection_data = 1
 
-        canvas.add(line)
+        item_container.add(line)
 
-        pickled = pickle.dumps(canvas)
+        pickled = pickle.dumps(item_container)
         c2 = pickle.loads(pickled)
 
-        assert type(canvas._tree.nodes[0]) is Box
-        assert type(canvas._tree.nodes[1]) is Box
-        assert type(canvas._tree.nodes[2]) is Line
+        assert type(item_container._tree.nodes[0]) is Box
+        assert type(item_container._tree.nodes[1]) is Box
+        assert type(item_container._tree.nodes[2]) is Line
         assert c2.solver
 
         line2 = c2._tree.nodes[2]
@@ -141,13 +141,13 @@ class PickleTestCase(unittest.TestCase):
         assert h.disconnect() is None, h.disconnect()
 
     def test_pickle_with_view(self):
-        canvas = create_canvas()
+        item_container = create_item_container()
 
-        pickled = pickle.dumps(canvas)
+        pickled = pickle.dumps(item_container)
 
         c2 = pickle.loads(pickled)
 
-        view = View(canvas=c2)
+        view = View(item_container=c2)
 
         import cairo
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
@@ -155,29 +155,29 @@ class PickleTestCase(unittest.TestCase):
         view.update_bounding_box(cr)
         cr.show_page()
         surface.flush()
-        surface.finish()
+        self.finish = surface.finish()
 
     def test_pickle_with_gtk_view(self):
-        canvas = create_canvas()
+        item_container = create_item_container()
 
-        pickled = pickle.dumps(canvas)
+        pickled = pickle.dumps(item_container)
 
         c2 = pickle.loads(pickled)
 
         win = toga.Window()
-        view = TogaView(canvas=c2)
+        view = TogaView(item_container=c2)
         view.show()
         win.show()
         view.update()
 
     def test_pickle_with_gtk_view_with_connection(self):
-        canvas = create_canvas()
-        box = canvas._tree.nodes[0]
+        item_container = create_item_container()
+        box = item_container._tree.nodes[0]
         assert isinstance(box, Box)
-        line = canvas._tree.nodes[2]
+        line = item_container._tree.nodes[2]
         assert isinstance(line, Line)
 
-        view = TogaView(canvas=canvas)
+        view = TogaView(item_container=item_container)
 
         #        from gaphas.tool import ConnectHandleTool
         #        handle_tool = ConnectHandleTool()
@@ -190,13 +190,13 @@ class PickleTestCase(unittest.TestCase):
         import io
         f = io.BytesIO()
         pickler = MyPickler(f)
-        pickler.dump(canvas)
+        pickler.dump(item_container)
         pickled = f.getvalue()
 
         c2 = pickle.loads(pickled)
 
         win = toga.Window()
-        view = TogaView(canvas=c2)
+        view = TogaView(item_container=c2)
         view.show()
         win.show()
 
@@ -205,14 +205,14 @@ class PickleTestCase(unittest.TestCase):
     def test_pickle_demo(self):
         import demo
 
-        canvas = demo.create_canvas()
+        item_container = demo.create_item_container()
 
-        pickled = pickle.dumps(canvas)
+        pickled = pickle.dumps(item_container)
 
         c2 = pickle.loads(pickled)
 
         win = toga.Window()
-        view = TogaView(canvas=c2)
+        view = TogaView(item_container=c2)
 
         view.show()
         win.show()

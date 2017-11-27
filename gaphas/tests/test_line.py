@@ -21,7 +21,7 @@
 import unittest
 
 from gaphas import state
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.item import Line
 from gaphas.segment import Segment
 
@@ -71,7 +71,7 @@ class LineTestCase(TestCaseBase):
     def test_orthogonal_horizontal_undo(self):
         """Test orthogonal line constraints bug (#107)
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         line = Line()
         canvas.add(line)
         assert not line.horizontal
@@ -103,7 +103,7 @@ class LineTestCase(TestCaseBase):
     def test_orthogonal_line_undo(self):
         """Test orthogonal line undo
         """
-        canvas = Canvas()
+        canvas = ItemContainer()
         line = Line()
         canvas.add(line)
 

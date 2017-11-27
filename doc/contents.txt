@@ -3,20 +3,22 @@ Gaphas Documentation
 
 Gaphas is Gaphor's diagram drawing widget.
 
-Gaphas has been built with some extensibility in mind. It can be used for many drawing purposes, including vector drawing applications, diagram drawing tools and we even have a geographical map demo in our repository.
+Gaphas has been built with some extensibility in mind. It can be used for many
+drawing purposes, including vector drawing applications, diagram drawing tools
+and we even have a geographical map demo in our repository.
 
 The basic idea is:
 
-- Items (canvas items) can be added to a Canvas.
-- A Canvas can be visualized by one or more Views.
-- The canvas maintains the tree structure (parent-child relationships between
+- Items can be added to an Item Container.
+- An Item Container can be visualized by one or more Views.
+- The item container maintains the tree structure (parent-child relationships between
   items).
 - A constraint solver is used to maintain item constraints and inter-item
   constraints.
 - The item (and user) should not be bothered with things like bounding-box
   calculations.
 - Very modular: e.g. handle support could be swapped in and swapped out.
-- Rendering using Cairo_. This implies the diagrams can be exported in a number of formats, including PNG and SVG.
+- Rendering using Toga_.
 
 Gaphas is released under the terms of the GNU Library General Public License
 (LGPL).
@@ -46,4 +48,4 @@ Table of Contents
 * :ref:`modindex`
 * :ref:`search`
 
-.. _Cairo: http://cairographics.org
+.. _Toga: https://pybee.org/project/projects/libraries/toga

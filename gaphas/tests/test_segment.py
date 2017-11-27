@@ -25,7 +25,7 @@ Generic gaphas item tests.
 import unittest
 
 from gaphas import state
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.item import Item
 from gaphas.segment import *
 from gaphas.tests.test_tool import simple_canvas
@@ -38,7 +38,7 @@ class SegmentTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.canvas = Canvas()
+        self.canvas = ItemContainer()
         self.view = View(self.canvas)
 
     def test_segment_fails_for_item(self):
@@ -486,7 +486,7 @@ class LineMergeTestCase(TestCaseBase):
 
 class SegmentHandlesTest(unittest.TestCase):
     def setUp(self):
-        self.canvas = Canvas()
+        self.canvas = ItemContainer()
         self.line = Line()
         self.canvas.add(self.line)
         self.view = View(self.canvas)

@@ -20,14 +20,14 @@ The observer simply dispatches the function called (as ``<function ..>``, not as
     >>> state.observers.clear()
     >>> state.subscribers.clear()
 
-Let's start with creating a Canvas instance and some items:
+Let's start with creating a ItemContainer instance and some items:
 
-    >>> from gaphas.canvas import Canvas
+    >>> from gaphas.canvas import ItemContainer
     >>> from gaphas.item import Item
-    >>> canvas = Canvas()
+    >>> canvas = ItemContainer()
     >>> item1, item2 = Item(), Item()
 
-For this demonstration let's use the Canvas class (which contains an add/remove
+For this demonstration let's use the ItemContainer class (which contains an add/remove
 method pair).
 
 It works (see how the add method automatically schedules the item for update):
@@ -36,9 +36,9 @@ It works (see how the add method automatically schedules the item for update):
     ...     print 'event handled', event
     >>> state.observers.add(handler)
     >>> canvas.add(item1)                              # doctest: +ELLIPSIS
-    event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
+    event handled (<function add at ...>, (<gaphas.canvas.ItemContainer object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
     >>> canvas.add(item2, parent=item1)                # doctest: +ELLIPSIS
-    event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
+    event handled (<function add at ...>, (<gaphas.canvas.ItemContainer object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
     >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
@@ -46,14 +46,14 @@ Note that the handler is invoked before the actual call is made. This is
 important if you want to store the (old) state for an undo mechanism.
 
 Remember that this observer is just a simple method call notifier and knows
-nothing about the internals of the ``Canvas`` class (in this case the
+nothing about the internals of the ``ItemContainer`` class (in this case the
 ``remove()`` method recursively calls ``remove()`` for each of it's children).
 Therefore some careful crafting of methods may be necessary in order to get the
 right effect (items should be removed in the right order, child first):
 
     >>> canvas.remove(item1)                           # doctest: +ELLIPSIS
-    event handled (<function _remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
-    event handled (<function _remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
+    event handled (<function _remove at ...>, (<gaphas.canvas.ItemContainer object at 0x...>, <gaphas.item.Item object at 0x...>), {})
+    event handled (<function _remove at ...>, (<gaphas.canvas.ItemContainer object at 0x...>, <gaphas.item.Item object at 0x...>), {})
     >>> canvas.get_all_items()
     []
 
@@ -127,7 +127,7 @@ Handlers for the reverse events should be registered on the subscribers list:
 After that, signals can be received of undoable (reverse-)events:
 
     >>> canvas.add(Item())                              # doctest: +ELLIPSIS
-    event handler (<function _remove at ...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.Canvas object at 0x...>})
+    event handler (<function _remove at ...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.ItemContainer object at 0x...>})
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
 
@@ -139,7 +139,7 @@ The inverse operation is easiest performed by the function ``saveapply()``. Of
 course an inverse operation is emitting a change event too:
 
     >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
-    event handler (<function add at 0x...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.Canvas object at 0x...>, 'parent': None, 'index': 0})
+    event handler (<function add at 0x...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.ItemContainer object at 0x...>, 'parent': None, 'index': 0})
     >>> canvas.get_all_items()
     []
 
@@ -165,11 +165,11 @@ What is Observed
 ----------------
 
 As far as Gaphas is concerned, only properties and methods related to the
-model (e.g. ``Canvas``, ``Item``) emit state changes. Some extra effort has
+model (e.g. ``ItemContainer``, ``Item``) emit state changes. Some extra effort has
 been taken to monitor the ``Matrix`` class (which is from Cairo).
 
-canvas.py:
-  ``Canvas``: ``add()`` and ``remove()``
+itemcontainer.py:
+  ``ItemContainer``: ``add()`` and ``remove()``
 
 connector.py:
   ``Position``: ``x`` and ``y`` properties

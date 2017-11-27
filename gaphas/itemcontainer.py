@@ -21,7 +21,7 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-A Canvas owns a set of Items and acts as a container for both the items
+A ItemContainer owns a set of Items and acts as a container for both the items
 and a constraint solver.
 
 Connections
@@ -101,7 +101,7 @@ class Context(object):
         raise AttributeError('context is not writable')
 
 
-class Canvas(object):
+class ItemContainer(object):
     """
     Container class for items.
     """
@@ -123,7 +123,7 @@ class Canvas(object):
         """
         Add an item to the canvas.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> c.add(i)
@@ -138,7 +138,7 @@ class Canvas(object):
 
         self.update_matrix(item, parent)
 
-        item._set_canvas(self)
+        item._set_item_container(self)
 
         self.request_update(item)
 
@@ -148,7 +148,7 @@ class Canvas(object):
         Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order.
         """
-        item._set_canvas(None)
+        item._set_item_container(None)
         self._tree.remove(item)
         self._update_views(removed_items=(item,))
         self._dirty_items.discard(item)
@@ -158,7 +158,7 @@ class Canvas(object):
         """
         Remove item from the canvas.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> c.add(i)
@@ -193,7 +193,7 @@ class Canvas(object):
         """
         Get a list of all items.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> c.get_all_items()
         []
         >>> from gaphas import item
@@ -208,7 +208,7 @@ class Canvas(object):
         """
         Return the root items of the canvas.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> c.get_all_items()
         []
         >>> from gaphas import item
@@ -225,7 +225,7 @@ class Canvas(object):
         """
         See `tree.Tree.get_parent()`.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> c.add(i)
@@ -241,7 +241,7 @@ class Canvas(object):
         """
         See `tree.Tree.get_ancestors()`.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> c.add(i)
@@ -262,7 +262,7 @@ class Canvas(object):
         """
         See `tree.Tree.get_children()`.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> c.add(i)
@@ -283,7 +283,7 @@ class Canvas(object):
         """
         See `tree.Tree.get_all_children()`.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> c.add(i)
@@ -382,7 +382,7 @@ class Canvas(object):
         constraint to the connection. ``item`` and ``handle`` are
         the keys to the to-be-updated connection.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Line()
         >>> c.add(i)
@@ -440,7 +440,7 @@ class Canvas(object):
         """
         Get connection information for specified handle.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas.item import Line
         >>> line = Line()
         >>> from gaphas import item
@@ -468,7 +468,7 @@ class Canvas(object):
         are connected). If ``item`` is connected to itself it will also appear
         in the list.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Line()
         >>> c.add(i)
@@ -501,7 +501,7 @@ class Canvas(object):
         Sort a list of items in the order in which they are traversed in
         the canvas (Depth first).
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i1 = item.Line()
         >>> c.add(i1)
@@ -520,7 +520,7 @@ class Canvas(object):
 
     def get_matrix_i2c(self, item, calculate=False):
         """
-        Get the Item to Canvas matrix for ``item``.
+        Get the Item to ItemContainer matrix for ``item``.
 
         item:
             The item who's item-to-canvas transformation matrix should be
@@ -536,7 +536,7 @@ class Canvas(object):
 
     def get_matrix_c2i(self, item, calculate=False):
         """
-        Get the Canvas to Item matrix for ``item``.
+        Get the ItemContainer to Item matrix for ``item``.
         See `get_matrix_i2c()`.
         """
         if item._matrix_c2i is None or calculate:
@@ -557,7 +557,7 @@ class Canvas(object):
         """
         Set an update request for the item. 
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> from gaphas import item
         >>> i = item.Item()
         >>> ii = item.Item()
@@ -588,7 +588,7 @@ class Canvas(object):
         """
         Returns ``True`` or ``False`` depending on if an update is needed.
 
-        >>> c=Canvas()
+        >>> c=ItemContainer()
         >>> c.require_update()
         False
         >>> from gaphas import item
@@ -770,7 +770,7 @@ class Canvas(object):
         For example having an item
 
         >>> from gaphas.item import Element
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> e = Element()
         >>> c.add(e)
         >>> e.min_width = e.min_height = 0
@@ -836,7 +836,7 @@ class Canvas(object):
         canvas. By lack of registered views, a PNG image surface is created
         that is used to create a context.
 
-        >>> c = Canvas()
+        >>> c = ItemContainer()
         >>> c.update_now()
         """
         for view in self._registered_views:
@@ -934,7 +934,7 @@ class CanvasProjection(object):
     Although this is a projection, it behaves like a tuple with two Variables
     (Projections).
 
-    >>> canvas = Canvas()
+    >>> canvas = ItemContainer()
     >>> from gaphas.item import Element
     >>> a = Element()
     >>> canvas.add(a)
@@ -998,9 +998,9 @@ class CanvasProjection(object):
 
 # Additional tests in @observed methods
 __test__ = {
-    'Canvas.add': Canvas.add,
-    'Canvas.remove': Canvas.remove,
-    'Canvas.request_update': Canvas.request_update,
+    'ItemContainer.add': ItemContainer.add,
+    'ItemContainer.remove': ItemContainer.remove,
+    'ItemContainer.request_update': ItemContainer.request_update,
 }
 
 

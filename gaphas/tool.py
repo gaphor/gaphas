@@ -58,7 +58,7 @@ import toga
 from gaphas.aspect import (Finder, Selection, InMotion,
     HandleFinder, HandleSelection, HandleInMotion,
     Connector)
-from gaphas.canvas import Context
+from gaphas.itemcontainer import Context
 
 DEBUG_TOOL_CHAIN = False
 

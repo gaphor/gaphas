@@ -23,7 +23,7 @@ import unittest
 from gi.repository import Gtk
 import toga
 
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.guide import *
 from gaphas.item import Element, Line
 from gaphas.view import TogaView
@@ -31,7 +31,7 @@ from gaphas.view import TogaView
 
 class GuideTestCase(unittest.TestCase):
     def setUp(self):
-        self.canvas = Canvas()
+        self.canvas = ItemContainer()
         self.window = toga.Window()
         self.view = TogaView(self.canvas)
         self.window.show()
@@ -67,7 +67,7 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(10.0, guides[2])
 
     def test_line_guide(self):
-        c = Canvas()
+        c = ItemContainer()
         l = Line()
         c.add(l)
         l.handles().append(l._create_handle((20, 20)))
@@ -87,7 +87,7 @@ class GuideTestCase(unittest.TestCase):
         self.assertEquals(20.0, guides[1])
 
     def test_line_guide_horizontal(self):
-        c = Canvas()
+        c = ItemContainer()
         l = Line()
         c.add(l)
         l.handles().append(l._create_handle((20, 20)))

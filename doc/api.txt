@@ -9,7 +9,7 @@ The API can be separated into three parts. First of all there's the model
 
 Some more generic stuff is also described here.
 
-Canvas and items
+ItemContainer and items
 ----------------
 
 .. toctree::

@@ -11,7 +11,7 @@ TODO: Explain aspects
 
 .. autoclass:: Finder
 
-Find elements on a canvas
+Find elements in a Item Container
 
 .. autoclass:: Selection
 

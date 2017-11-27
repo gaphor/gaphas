@@ -4,7 +4,7 @@ Gaphas vs jHotDraw
 
 Gaphas || jHotDraw
 Item    | Figure
-Canvas  | Drawing
+ItemContainer  | Drawing
 Tool    | Tool
 Painter | Painter
 View    | DrawingView
@@ -16,7 +16,7 @@ manupilation, zooming, selection) is handled without the need to select
 specific tools.
 
 Items (Figures in jHotDraw) keep track of their own child items. In Gaphas, the
-Canvas object maintains the hierarchical order of items. Advantage is that
+ItemContainer object maintains the hierarchical order of items. Advantage is that
 addition of items is never unnoticed. Also iterating the nodes in the tree
 structure is a bit faster.
 

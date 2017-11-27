@@ -32,7 +32,7 @@ and handles).
 from cairo import ANTIALIAS_NONE, LINE_JOIN_ROUND
 
 from gaphas.aspect import PaintFocused
-from gaphas.canvas import Context
+from gaphas.itemcontainer import Context
 from gaphas.geometry import Rectangle
 
 __version__ = "$Revision$"
@@ -169,9 +169,9 @@ class ItemPainter(Painter):
         cairo.restore()
 
 
-class CairoBoundingBoxContext(object):
+class BoundingBoxContext(object):
     """
-    Delegate all calls to the wrapped CairoBoundingBoxContext, intercept
+    Delegate all calls to the wrapped BoundingBoxContext, intercept
     ``stroke()``, ``fill()`` and a few others so the bounding box of the
     item involved can be calculated.
     """
@@ -272,10 +272,10 @@ class BoundingBoxPainter(ItemPainter):
 
     draw_all = True
 
-    def _draw_item(self, item, cairo, area=None):
-        cairo = CairoBoundingBoxContext(cairo)
-        super(BoundingBoxPainter, self)._draw_item(item, cairo)
-        bounds = cairo.get_bounds()
+    def _draw_item(self, item, toga_canvas, area=None):
+        toga_canvas = BoundingBoxContext(toga_canvas)
+        super(BoundingBoxPainter, self)._draw_item(item, toga_canvas)
+        bounds = toga_canvas.get_bounds()
 
         # Update bounding box with handles.
         view = self.view
@@ -287,12 +287,12 @@ class BoundingBoxPainter(ItemPainter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def _draw_items(self, items, cairo, area=None):
+    def _draw_items(self, items, toga_canvas, area=None):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, cairo)
+            self._draw_item(item, toga_canvas)
 
     def paint(self, context):
         self._draw_items(context.items, context.cairo)

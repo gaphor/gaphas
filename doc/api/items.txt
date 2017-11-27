@@ -2,7 +2,7 @@
 Items
 #################
 
-Items are put on a Canvas.
+Items are put on a ItemContainer.
 
 :mod: `gaphor.item`
 ---------------------

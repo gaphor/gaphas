@@ -23,7 +23,7 @@ import unittest
 
 import cairo
 
-from gaphas.canvas import Canvas, ConnectionError
+from gaphas.itemcontainer import ItemContainer, ConnectionError
 from gaphas.examples import Box
 from gaphas.item import Line
 
@@ -31,7 +31,7 @@ from gaphas.item import Line
 class MatricesTestCase(unittest.TestCase):
     def test_update_matrices(self):
         """Test updating of matrices"""
-        c = Canvas()
+        c = ItemContainer()
         i = Box()
         ii = Box()
         c.add(i)
@@ -46,7 +46,7 @@ class MatricesTestCase(unittest.TestCase):
         self.assertEquals(ii._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 8))
 
     def test_reparent(self):
-        c = Canvas()
+        c = ItemContainer()
         b1 = Box()
         b2 = Box()
         c.add(b1)
@@ -61,12 +61,12 @@ def count(i):
     return len(list(i))
 
 
-class CanvasTestCase(unittest.TestCase):
+class ItemContainerTestCase(unittest.TestCase):
     def test_connect_item(self):
         b1 = Box()
         b2 = Box()
         l = Line()
-        c = Canvas()
+        c = ItemContainer()
         c.add(b1)
         c.add(b2)
         c.add(l)
@@ -90,7 +90,7 @@ class CanvasTestCase(unittest.TestCase):
         b1 = Box()
         b2 = Box()
         l = Line()
-        c = Canvas()
+        c = ItemContainer()
         c.add(b1)
         c.add(b2)
         c.add(l)
@@ -111,7 +111,7 @@ class CanvasTestCase(unittest.TestCase):
         b1 = Box()
         b2 = Box()
         l = Line()
-        c = Canvas()
+        c = ItemContainer()
         c.add(b1)
         c.add(b2)
         c.add(l)
@@ -133,7 +133,7 @@ class CanvasTestCase(unittest.TestCase):
         b1 = Box()
         b2 = Box()
         l = Line()
-        c = Canvas()
+        c = ItemContainer()
         c.add(b1)
         c.add(b2)
         c.add(l)
@@ -155,7 +155,7 @@ class CanvasTestCase(unittest.TestCase):
         b1 = Box()
         b2 = Box()
         l = Line()
-        c = Canvas()
+        c = ItemContainer()
         c.add(b1)
         c.add(b2)
         c.add(l)
@@ -190,7 +190,7 @@ class ConstraintProjectionTestCase(unittest.TestCase):
         box.height = 20
         h_nw, h_ne, h_se, h_sw = box.handles()
 
-        canvas = Canvas()
+        canvas = ItemContainer()
         canvas.add(line)
         canvas.add(box)
 
@@ -224,7 +224,7 @@ class ConstraintProjectionTestCase(unittest.TestCase):
 class CanvasConstraintTestCase(unittest.TestCase):
     def test_remove_connected_item(self):
         """Test adding canvas constraint"""
-        canvas = Canvas()
+        canvas = ItemContainer()
 
         from gaphas.aspect import Connector, ConnectionSink
 
@@ -264,7 +264,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 
 #    def test_adding_constraint(self):
 #        """Test adding canvas constraint"""
-#        canvas = Canvas()
+#        canvas = ItemContainer()
 #
 #        l1 = Line()
 #        canvas.add(l1)
@@ -293,7 +293,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 #
 #    def test_adding_constraint_ex(self):
 #        """Test adding canvas constraint for non-existing item"""
-#        canvas = Canvas()
+#        canvas = ItemContainer()
 #        l1 = Line()
 #        h1, h2 = l1.handles()
 #        h = Handle()
@@ -304,7 +304,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 #
 #    def test_removing_constraint(self):
 #        """Test removing canvas constraint"""
-#        canvas = Canvas()
+#        canvas = ItemContainer()
 #        cons = canvas._canvas_constraints
 #
 #        l1 = Line()
@@ -347,7 +347,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 #
 #    def test_fetching_constraints(self):
 #        """Test fetching canvas constraints"""
-#        canvas = Canvas()
+#        canvas = ItemContainer()
 #        cons = canvas._canvas_constraints
 #
 #        l1 = Line()

@@ -1,15 +1,15 @@
 ######
-Canvas
+ItemContainer
 ######
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.canvas`
+:mod: `gaphas.itemcontainer`
 ---------------------
 
-.. module:: gaphas.canvas
+.. module:: gaphas.itemcontainer
 
-.. autoclass:: Canvas
+.. autoclass:: ItemContainer
    :members:
    :undoc-members:
 

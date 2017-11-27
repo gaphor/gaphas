@@ -25,7 +25,7 @@ Generic gaphas item tests.
 import unittest
 
 from gaphas.aspect import *
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.item import Item
 from gaphas.view import View
 
@@ -36,7 +36,7 @@ class AspectTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.canvas = Canvas()
+        self.canvas = ItemContainer()
         self.view = View(self.canvas)
 
     def test_selection_select(self):

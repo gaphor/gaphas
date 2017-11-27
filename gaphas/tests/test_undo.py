@@ -22,7 +22,7 @@ import unittest
 
 from gaphas import state
 from gaphas.aspect import Connector, ConnectionSink
-from gaphas.canvas import Canvas
+from gaphas.itemcontainer import ItemContainer
 from gaphas.examples import Box
 from gaphas.item import Line
 
@@ -62,7 +62,7 @@ class UndoTestCase(unittest.TestCase):
         b2 = Box()
         line = Line()
 
-        canvas = Canvas()
+        canvas = ItemContainer()
         canvas.add(b1)
         self.assertEquals(2, len(canvas.solver.constraints))
 

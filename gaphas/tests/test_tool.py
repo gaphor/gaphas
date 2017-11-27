@@ -27,8 +27,8 @@ import unittest
 
 import toga
 
-from gaphas.canvas import Canvas
-from gaphas.canvas import Context
+from gaphas.itemcontainer import ItemContainer
+from gaphas.itemcontainer import Context
 from gaphas.constraint import LineConstraint
 from gaphas.examples import Box
 from gaphas.item import Line
@@ -43,7 +43,7 @@ def simple_canvas(self):
     This decorator adds view, canvas and handle connection tool to a test
     case. Two boxes and a line are added to the canvas as well.
     """
-    self.canvas = Canvas()
+    self.canvas = ItemContainer()
     win = toga.Window()
     self.box1 = Box()
     self.canvas.add(self.box1)

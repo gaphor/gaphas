@@ -108,11 +108,11 @@ Again, rotate does not result in an exact match, but it's close enough.
     >>> undo_list
     []
 
-canvas.py: Canvas
+itemcontainer.py: ItemContainer
 -----------------
 
-    >>> from gaphas import Canvas, Item
-    >>> canvas = Canvas()
+    >>> from gaphas import ItemContainer, Item
+    >>> canvas = ItemContainer()
     >>> canvas.get_all_items()
     []
     >>> item = Item()
@@ -199,7 +199,7 @@ children):
 
 As well as the reparent() method:
 
-    >>> canvas = Canvas()
+    >>> canvas = ItemContainer()
     >>> class NameItem(Item):
     ...     def __init__(self, name):
     ...         super(NameItem, self).__init__()
@@ -269,8 +269,8 @@ And now undo the whole lot at once:
 item.py: Item
 -------------
 
-The basic Item properties are canvas and matrix. Canvas has been tested before,
-while testing the Canvas class.
+The basic Item properties are canvas and matrix. ItemContainer has been tested before,
+while testing the ItemContainer class.
 
 The Matrix has been tested in section matrix.py: Matrix.
 
@@ -291,7 +291,7 @@ An element has ``min_height`` and ``min_width`` properties.
     >>> e.min_height, e.min_width
     (Variable(0, 100), Variable(0, 100))
     
-    >>> canvas = Canvas()
+    >>> canvas = ItemContainer()
     >>> canvas.add(e)
     >>> undo()
     >>> e.canvas
@@ -352,7 +352,7 @@ The opposite operation is performed with the merge_segment() method:
 
 Also creation and removal of connected lines is recorded and can be undone:
 
-    >>> canvas = Canvas()
+    >>> canvas = ItemContainer()
     >>> def real_connect(hitem, handle, item):
     ...     def real_disconnect():
     ...         pass
@@ -389,7 +389,7 @@ Undoing the remove() action should put everything back in place again:
     >>> undo()
 
     >>> l.canvas                                        # doctest: +ELLIPSIS
-    <gaphas.canvas.Canvas object at 0x...>
+    <gaphas.canvas.ItemContainer object at 0x...>
     >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
     >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS

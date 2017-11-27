@@ -11,7 +11,7 @@ One-oh-one:
 :doc:`api/canvas`
    The main canvas class (container for Items)
 :doc:`api/items`
-   Objects placed on a Canvas. Items can draw themselves, but not act on user events
+   Objects placed on a ItemContainer. Items can draw themselves, but not act on user events
 :doc:`api/solver`
    A constraint solver. Nice to have when you want to connect items together in a generic way.
 :doc:`api/view`

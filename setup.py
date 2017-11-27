@@ -28,7 +28,7 @@ Some more features:
   rotated).
 - Items on the canvas can be connected to each other. Connections are
   maintained by a linear constraint solver.
-- Multiple views on one Canvas.
+- Multiple views on one ItemContainer.
 - What is drawn is determined by Painters. Multiple painters can be used and
   painters can be chained.
 - User interaction is handled by Tools. Tools can be chained.
