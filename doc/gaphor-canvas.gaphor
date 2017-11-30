@@ -1550,7 +1550,7 @@
 </Class>
 <Class id="DCE:FCCCD530-B332-11DA-87F6-00306EB655C9">
 <name>
-<val><![CDATA[Canvas]]></val>
+<val><![CDATA[ItemContainer]]></val>
 </name>
 <ownedAttribute>
 <reflist>

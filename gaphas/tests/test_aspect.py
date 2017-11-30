@@ -36,8 +36,8 @@ class AspectTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.canvas = ItemContainer()
-        self.view = View(self.canvas)
+        self.item_container = ItemContainer()
+        self.view = View(self.item_container)
 
     def test_selection_select(self):
         """
@@ -45,7 +45,7 @@ class AspectTestCase(unittest.TestCase):
         """
         view = self.view
         item = Item()
-        self.canvas.add(item)
+        self.item_container.add(item)
         selection = Selection(item, view)
         assert item not in view.selected_items
         selection.select()
@@ -61,7 +61,7 @@ class AspectTestCase(unittest.TestCase):
         """
         view = self.view
         item = Item()
-        self.canvas.add(item)
+        self.item_container.add(item)
         inmotion = InMotion(item, view)
         self.assertEquals((1, 0, 0, 1, 0, 0), tuple(item.matrix))
         inmotion.start_move((0, 0))

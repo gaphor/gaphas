@@ -19,7 +19,7 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-Some extra picklers needed to gracefully dump and load a canvas.
+Some extra picklers needed to gracefully dump and load a item_container.
 """
 
 import types

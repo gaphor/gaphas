@@ -39,10 +39,10 @@ Some of implemented tools are
     for rubber band selection of multiple items
 
 `PanTool`
-    for easily moving the canvas around
+    for easily moving the item_container around
 
 `PlacementTool`
-    for placing items on the canvas
+    for placing items on the item_container
 
 The tools are chained with `ToolChain` class (it is a tool as well), which
 allows to combine functionality provided by different tools.
@@ -130,7 +130,7 @@ class Tool(object):
     def draw(self, context):
         """
         Some tools (such as Rubberband selection) may need to draw something
-        on the canvas. This can be done through the draw() method. This is
+        on the item_container. This can be done through the draw() method. This is
         called after all items are drawn.
         The context contains the following fields:
 
@@ -263,7 +263,7 @@ class ItemTool(Tool):
         Returns InMotion aspects for the items.
         """
         view = self.view
-        get_ancestors = view.canvas.get_ancestors
+        get_ancestors = view.item_container.get_ancestors
         selected_items = set(view.selected_items)
         for item in selected_items:
             # Do not move subitems of selected items
@@ -411,7 +411,7 @@ class HandleTool(Tool):
         """
         view = self.view
         # if self.grabbed_handle and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
-        #     canvas = view.canvas
+        #     item_container = view.item_container
         #     item = self.grabbed_item
         #     handle = self.grabbed_handle
         #     pos = event.x, event.y
@@ -469,7 +469,7 @@ class RubberbandTool(Tool):
 class PanTool(Tool):
     """
     Captures drag events with the middle mouse button and uses them to
-    translate the canvas within the view. Trumps the ZoomTool, so should be
+    translate the item_container within the view. Trumps the ZoomTool, so should be
     placed later in the ToolChain.
     """
 
@@ -497,7 +497,7 @@ class PanTool(Tool):
     #         dy = self.y1 - self.y0
     #         view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
     #         # Make sure everything's updated
-    #         view.request_update((), view._canvas.get_all_items())
+    #         view.request_update((), view._item_container.get_all_items())
     #         self.x0 = self.x1
     #         self.y0 = self.y1
     #         return True
@@ -516,7 +516,7 @@ class PanTool(Tool):
 #             view._matrix.translate(0, self.speed / view._matrix[3])
 #         elif direction == Gdk.ScrollDirection.DOWN:
 #             view._matrix.translate(0, -self.speed / view._matrix[3])
-#         view.request_update((), view._canvas.get_all_items())
+#         view.request_update((), view._item_container.get_all_items())
 #         return True
 #
 #
@@ -572,7 +572,7 @@ class ZoomTool(Tool):
     #             m.translate(+ox, +oy)
     #
     #             # Make sure everything's updated
-    #             view.request_update((), view._canvas.get_all_items())
+    #             view.request_update((), view._item_container.get_all_items())
     #
     #             self.lastdiff = dy
     #         return True
@@ -591,7 +591,7 @@ class ZoomTool(Tool):
     #         view._matrix.scale(factor, factor)
     #         view._matrix.translate(+ox, +oy)
     #         # Make sure everything's updated
-    #         view.request_update((), view._canvas.get_all_items())
+    #         view.request_update((), view._item_container.get_all_items())
     #         return True
 
 
@@ -611,11 +611,11 @@ class PlacementTool(Tool):
 
     def on_button_press(self, event):
         view = self.view
-        canvas = view.canvas
+        item_container = view.item_container
         new_item = self._create_item((event.x, event.y))
         # Enforce matrix update, as a good matrix is required for the handle
         # positioning:
-        canvas.get_matrix_i2c(new_item, calculate=True)
+        item_container.get_matrix_i2c(new_item, calculate=True)
 
         self._new_item = new_item
         view.focused_item = new_item
@@ -727,7 +727,7 @@ class ConnectHandleTool(HandleTool):
         if sink:
             connector.connect(sink)
         else:
-            cinfo = item.canvas.get_connection(handle)
+            cinfo = item.item_container.get_connection(handle)
             if cinfo:
                 connector.disconnect()
 

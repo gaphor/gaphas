@@ -31,7 +31,7 @@ Getting Connection Information
 ==============================
 To get connected item to a handle::
 
-    c = canvas.get_connection(handle)
+    c = item_container.get_connection(handle)
     if c is not None:
         print c.connected
         print c.port
@@ -40,12 +40,12 @@ To get connected item to a handle::
 
 To get all connected items (i.e. items on both sides of a line)::
 
-    classes = (i.connected for i in canvas.get_connections(item=line))
+    classes = (i.connected for i in item_container.get_connections(item=line))
 
 
 To get connecting items (i.e. all lines connected to a class)::
 
-    lines = (c.item for c in canvas.get_connections(connected=item))
+    lines = (c.item for c in item_container.get_connections(connected=item))
 
 """
 import logging
@@ -82,7 +82,7 @@ class ConnectionError(Exception):
 
 class Context(object):
     """
-    Context used for updating and drawing items in a drawing canvas.
+    Context used for updating and drawing items in a drawing item_container.
 
     >>> c=Context(one=1,two='two')
     >>> c.one
@@ -121,7 +121,7 @@ class ItemContainer(object):
     @observed
     def add(self, item, parent=None, index=None):
         """
-        Add an item to the canvas.
+        Add an item to the item_container.
 
         >>> c = ItemContainer()
         >>> from gaphas import item
@@ -129,7 +129,7 @@ class ItemContainer(object):
         >>> c.add(i)
         >>> len(c._tree.nodes)
         1
-        >>> i._canvas is c
+        >>> i._item_container is c
         True
         """
         assert item not in self._tree.nodes, 'Adding already added node %s' % item
@@ -156,7 +156,7 @@ class ItemContainer(object):
 
     def remove(self, item):
         """
-        Remove item from the canvas.
+        Remove item from the item_container.
 
         >>> c = ItemContainer()
         >>> from gaphas import item
@@ -165,7 +165,7 @@ class ItemContainer(object):
         >>> c.remove(i)
         >>> c._tree.nodes
         []
-        >>> i._canvas
+        >>> i._item_container
         """
         for child in reversed(self.get_children(item)):
             self.remove(child)
@@ -206,7 +206,7 @@ class ItemContainer(object):
 
     def get_root_items(self):
         """
-        Return the root items of the canvas.
+        Return the root items of the item_container.
 
         >>> c = ItemContainer()
         >>> c.get_all_items()
@@ -340,7 +340,7 @@ class ItemContainer(object):
         Disconnect the connections of an item. If handle is not None, only the
         connection for that handle is disconnected.
         """
-        # disconnect on canvas level
+        # disconnect on item_container level
         for cinfo in list(self._connections.query(item=item, handle=handle)):
             self._disconnect_item(*cinfo)
 
@@ -499,7 +499,7 @@ class ItemContainer(object):
     def sort(self, items, reverse=False):
         """
         Sort a list of items in the order in which they are traversed in
-        the canvas (Depth first).
+        the item_container (Depth first).
 
         >>> c = ItemContainer()
         >>> from gaphas import item
@@ -510,20 +510,20 @@ class ItemContainer(object):
         >>> i3 = item.Line()
         >>> c.add (i3)
         >>> c.update() # ensure items are indexed
-        >>> i1._canvas_index
+        >>> i1._item_container_index
         0
         >>> s = c.sort([i2, i3, i1])
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return self._tree.sort(items, index_key='_canvas_index', reverse=reverse)
+        return self._tree.sort(items, index_key='_item_container_index', reverse=reverse)
 
     def get_matrix_i2c(self, item, calculate=False):
         """
         Get the Item to ItemContainer matrix for ``item``.
 
         item:
-            The item who's item-to-canvas transformation matrix should be
+            The item who's item-to-item_container transformation matrix should be
             found
         calculate:
             True will allow this function to actually calculate it,
@@ -604,7 +604,7 @@ class ItemContainer(object):
 
     def update(self):
         """
-        Update the canvas, if called from within a gtk-mainloop, the
+        Update the item_container, if called from within a gtk-mainloop, the
         update job is scheduled as idle job.
         """
         self.update_now()
@@ -691,7 +691,7 @@ class ItemContainer(object):
             self._post_update_items(dirty_items, cr)
 
         except Exception as e:
-            logging.error('Error while updating canvas', exc_info=e)
+            logging.error('Error while updating item_container', exc_info=e)
 
         assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
             'dirty: %s; matrix: %s' % (self._dirty_items, self._dirty_matrix_items)
@@ -752,7 +752,7 @@ class ItemContainer(object):
         # request solving of external constraints associated with dirty items
         request_resolve = self._solver.request_resolve
         for item in items:
-            for p in item._canvas_projections:
+            for p in item._item_container_projections:
                 request_resolve(p[0], projections_only=True)
                 request_resolve(p[1], projections_only=True)
 
@@ -800,22 +800,22 @@ class ItemContainer(object):
 
     def update_index(self):
         """
-        Provide each item in the canvas with an index attribute. This makes
+        Provide each item in the item_container with an index attribute. This makes
         for fast searching of items.
         """
-        self._tree.index_nodes('_canvas_index')
+        self._tree.index_nodes('_item_container_index')
 
     def register_view(self, view):
         """
-        Register a view on this canvas. This method is called when setting
-        a canvas on a view and should not be called directly from user code.
+        Register a view on this item_container. This method is called when setting
+        a item_container on a view and should not be called directly from user code.
         """
         self._registered_views.add(view)
 
     def unregister_view(self, view):
         """
-        Unregister a view on this canvas. This method is called when setting
-        a canvas on a view and should not be called directly from user code.
+        Unregister a view on this item_container. This method is called when setting
+        a item_container on a view and should not be called directly from user code.
         """
         self._registered_views.discard(view)
 
@@ -833,7 +833,7 @@ class ItemContainer(object):
         This is a not-so-clean way to solve issues like calculating the
         bounding box for a piece of text (for that you'll need a CairoContext).
         The Cairo context is created by a View registered as view on this
-        canvas. By lack of registered views, a PNG image surface is created
+        item_container. By lack of registered views, a PNG image surface is created
         that is used to create a context.
 
         >>> c = ItemContainer()
@@ -851,7 +851,7 @@ class ItemContainer(object):
 
     def __getstate__(self):
         """
-        Persist canvas. Dirty item sets and views are not saved.
+        Persist item_container. Dirty item sets and views are not saved.
         """
         d = dict(self.__dict__)
         for n in ('_dirty_items', '_dirty_matrix_items', '_dirty_index', '_registered_views'):
@@ -876,7 +876,7 @@ class ItemContainer(object):
 
     def project(self, item, *points):
         """
-        Project item's points into canvas coordinate system.
+        Project item's points into item_container coordinate system.
 
         If there is only one point returned than projected point is
         returned. If there are more than one points, then tuple of
@@ -884,13 +884,13 @@ class ItemContainer(object):
         """
 
         def reg(cp):
-            item._canvas_projections.add(cp)
+            item._item_container_projections.add(cp)
             return cp
 
         if len(points) == 1:
-            return reg(CanvasProjection(points[0], item))
+            return reg(ItemContainerProjection(points[0], item))
         elif len(points) > 1:
-            return tuple(reg(CanvasProjection(p, item)) for p in points)
+            return tuple(reg(ItemContainerProjection(p, item)) for p in points)
         else:
             raise AttributeError('There should be at least one point specified')
 
@@ -928,22 +928,22 @@ class VariableProjection(solver.Projection):
         return self._var
 
 
-class CanvasProjection(object):
+class ItemContainerProjection(object):
     """
     Project a point as Canvas coordinates.
     Although this is a projection, it behaves like a tuple with two Variables
     (Projections).
 
-    >>> canvas = ItemContainer()
+    >>> item_container = ItemContainer()
     >>> from gaphas.item import Element
     >>> a = Element()
-    >>> canvas.add(a)
+    >>> item_container.add(a)
     >>> a.matrix.translate(30, 2)
-    >>> canvas.request_matrix_update(a)
-    >>> canvas.update_now()
-    >>> canvas.get_matrix_i2c(a)
+    >>> item_container.request_matrix_update(a)
+    >>> item_container.update_now()
+    >>> item_container.get_matrix_i2c(a)
     cairo.Matrix(1, 0, 0, 1, 30, 2)
-    >>> p = CanvasProjection(a.handles()[2].pos, a)
+    >>> p = ItemContainerProjection(a.handles()[2].pos, a)
     >>> a.handles()[2].pos
     <Position object on (10, 10)>
     >>> p[0].value
@@ -964,14 +964,14 @@ class CanvasProjection(object):
     def _on_change_x(self, value):
         item = self._item
         self._px = value
-        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(item).transform_point(value, self._py)
-        item.canvas.request_update(item, matrix=False)
+        self._point.x.value, self._point.y.value = item.item_container.get_matrix_c2i(item).transform_point(value, self._py)
+        item.item_container.request_update(item, matrix=False)
 
     def _on_change_y(self, value):
         item = self._item
         self._py = value
-        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(item).transform_point(self._px, value)
-        item.canvas.request_update(item, matrix=False)
+        self._point.x.value, self._point.y.value = item.item_container.get_matrix_c2i(item).transform_point(self._px, value)
+        item.item_container.request_update(item, matrix=False)
 
     def _get_value(self):
         """
@@ -980,7 +980,7 @@ class CanvasProjection(object):
         """
         item = self._item
         x, y = self._point.x, self._point.y
-        self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
+        self._px, self._py = item.item_container.get_matrix_i2c(item).transform_point(x, y)
         return self._px, self._py
 
     pos = property(lambda self: list(map(VariableProjection,

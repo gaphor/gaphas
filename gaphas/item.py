@@ -38,80 +38,80 @@ from gaphas.state import observed, reversible_method, reversible_pair, reversibl
 
 class Item(object):
     """
-    Base class (or interface) for items on a canvas.ItemContainer.
+    Base class (or interface) for items on a itemcontainer.ItemContainer.
 
     Attributes:
 
     - matrix: item's transformation matrix
-    - canvas: canvas, which owns an item
+    - item_container: container which owns an item
     - constraints: list of item constraints, automatically registered
-      when the item is added to a canvas; may be extended in subclasses
+      when the item is added to a item_container; may be extended in subclasses
 
     Private:
 
-    - _canvas:      canvas, which owns an item
+    - _item_container:      container which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
-    - _matrix_i2c:  item to canvas coordinates matrix
-    - _matrix_c2i:  canvas to item coordinates matrix
+    - _matrix_i2c:  item to item_container coordinates matrix
+    - _matrix_c2i:  item_container to item coordinates matrix
     - _matrix_i2v:  item to view coordinates matrices
     - _matrix_v2i:  view to item coordinates matrices
     - _sort_key:  used to sort items
-    - _canvas_projections:  used to sort items
+    - _item_container_projections:  used to sort items
     """
 
     def __init__(self):
-        self._canvas = None
+        self._item_container = None
         self._matrix = Matrix()
         self._handles = []
         self._constraints = []
         self._ports = []
 
-        # used by gaphas.canvas.ItemContainer to hold conversion matrices
+        # used by gaphas.item_container.ItemContainer to hold conversion matrices
         self._matrix_i2c = None
         self._matrix_c2i = None
 
-        # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
+        # used by gaphas.view.TogaView to hold item 2 view matrices (view=key)
         self._matrix_i2v = WeakKeyDictionary()
         self._matrix_v2i = WeakKeyDictionary()
-        self._canvas_projections = WeakSet()
+        self._item_container_projections = WeakSet()
 
     @observed
-    def _set_canvas(self, canvas):
+    def _set_item_container(self, itemcontainer):
         """
-        Set the canvas. Should only be called from ItemContainer.add and
+        Set the item container. Should only be called from ItemContainer.add and
         ItemContainer.remove().
         """
-        assert not canvas or not self._canvas or self._canvas is canvas
-        if self._canvas:
-            self.teardown_canvas()
-        self._canvas = canvas
-        if canvas:
-            self.setup_canvas()
+        assert not item_container or not self._item_container or self._item_container is item_container
+        if self._item_container:
+            self.teardown_item_container()
+        self._item_container = item_container
+        if item_container:
+            self.setup_item_container()
 
-    canvas = reversible_property(lambda s: s._canvas, _set_canvas,
+    item_container = reversible_property(lambda s: s._item_container, _set_item_container,
                                  doc="ItemContainer owning this item")
 
     constraints = property(lambda s: s._constraints,
                            doc="Item constraints")
 
-    def setup_canvas(self):
+    def setup_item_container(self):
         """
-        Called when the canvas is set for the item.
+        Called when the container is set for the item.
         This method can be used to create constraints.
         """
-        add = self.canvas.solver.add_constraint
+        add = self.item_container.solver.add_constraint
         for c in self._constraints:
             add(c)
 
-    def teardown_canvas(self):
+    def teardown_item_container(self):
         """
-        Called when the canvas is unset for the item.
+        Called when the item_container is unset for the item.
         This method can be used to dispose constraints.
         """
-        self.canvas.disconnect_item(self)
+        self.item_container.disconnect_item(self)
 
-        remove = self.canvas.solver.remove_constraint
+        remove = self.item_container.solver.remove_constraint
         for c in self._constraints:
             remove(c)
 
@@ -127,8 +127,8 @@ class Item(object):
     matrix = reversible_property(lambda s: s._matrix, _set_matrix)
 
     def request_update(self, update=True, matrix=True):
-        if self._canvas:
-            self._canvas.request_update(self, update=update, matrix=matrix)
+        if self._item_container:
+            self._item_container.request_update(self, update=update, matrix=matrix)
 
     def pre_update(self, context):
         """
@@ -137,7 +137,7 @@ class Item(object):
         - change matrix
         - move handles
 
-        Gaphas does not guarantee that any canvas invariant is valid at
+        Gaphas does not guarantee that any item container invariant is valid at
         this point (i.e. constraints are not solved, first handle is not in
         position (0, 0), etc).
         """
@@ -153,7 +153,7 @@ class Item(object):
         Changing matrix or moving handles programmatically is really not
         advised to be performed here.
 
-        All canvas invariants are true.
+        All item_container invariants are true.
         """
         pass
 
@@ -171,7 +171,7 @@ class Item(object):
 
         Returns ``True`` if some updates have been done, ``False`` otherwise.
 
-        See ``canvas._normalize()`` for tests.
+        See ``itemcontainer._normalize()`` for tests.
         """
         updated = False
         handles = self._handles
@@ -191,7 +191,7 @@ class Item(object):
 
     def draw(self, context):
         """
-        Render the item to a canvas view.
+        Render the item to a item container view.
         Context contains the following attributes:
 
         - cairo: the Cairo Context use this one to draw
@@ -288,7 +288,7 @@ class Item(object):
                 del d[n]
             except KeyError:
                 pass
-        d['_canvas_projections'] = tuple(self._canvas_projections)
+        d['_item_container_projections'] = tuple(self._item_container_projections)
         return d
 
     def __setstate__(self, state):
@@ -300,7 +300,7 @@ class Item(object):
         for n in ('_matrix_i2v', '_matrix_v2i'):
             setattr(self, n, WeakKeyDictionary())
         self.__dict__.update(state)
-        self._canvas_projections = WeakSet(state['_canvas_projections'])
+        self._item_container_projections = WeakSet(state['_item_container_projections'])
 
 
 [NW,
@@ -358,8 +358,8 @@ class Element(Item):
         # TODO: constraints that calculate width and height based on handle pos
         # self.constraints.append(EqualsConstraint(p1[1], p2[1], delta))
 
-    def setup_canvas(self):
-        super(Element, self).setup_canvas()
+    def setup_item_container(self):
+        super(Element, self).setup_item_container()
 
         # Trigger solver to honour width/height by SE handle pos
         self._handles[SE].pos.x.dirty()
@@ -424,8 +424,8 @@ class Element(Item):
     #        raise ValueError, 'Minimal width cannot be less than 0'
     #
     # self._c_min_w.delta = min_width
-    # if self.canvas:
-    # self.canvas.solver.request_resolve_constraint(self._c_min_w)
+    # if self.item_container:
+    # self.item_container.solver.request_resolve_constraint(self._c_min_w)
 
     # min_width = reversible_property(lambda s: s._c_min_w.delta, _set_min_width)
 
@@ -438,8 +438,8 @@ class Element(Item):
     #            raise ValueError, 'Minimal height cannot be less than 0'
     #
     #        self._c_min_h.delta = min_height
-    #        if self.canvas:
-    #            self.canvas.solver.request_resolve_constraint(self._c_min_h)
+    #        if self.item_container:
+    #            self.item_container.solver.request_resolve_constraint(self._c_min_h)
     #
     #    min_height = reversible_property(lambda s: s._c_min_h.delta, _set_min_height)
 
@@ -525,12 +525,12 @@ class Line(Item):
         The actual constraints attribute (``_orthogonal_constraints``) is
         observed, so the undo system will update the contents properly
         """
-        if not self.canvas:
+        if not self.item_container:
             self._orthogonal_constraints = orthogonal and [None] or []
             return
 
         for c in self._orthogonal_constraints:
-            self.canvas.solver.remove_constraint(c)
+            self.itemcontainer.solver.remove_constraint(c)
         del self._orthogonal_constraints[:]
 
         if not orthogonal:
@@ -540,7 +540,7 @@ class Line(Item):
         # if len(h) < 3:
         #    self.split_segment(0)
         eq = EqualsConstraint  # lambda a, b: a - b
-        add = self.canvas.solver.add_constraint
+        add = self.item_container.solver.add_constraint
         cons = []
         rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
@@ -550,8 +550,8 @@ class Line(Item):
                 cons.append(add(eq(a=p0.x, b=p1.x)))
             else:
                 cons.append(add(eq(a=p0.y, b=p1.y)))
-            self.canvas.solver.request_resolve(p1.x)
-            self.canvas.solver.request_resolve(p1.y)
+            self.item_container.solver.request_resolve(p1.x)
+            self.item_container.solver.request_resolve(p1.y)
         self._set_orthogonal_constraints(cons)
         self.request_update()
 
@@ -598,20 +598,20 @@ class Line(Item):
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
-    def setup_canvas(self):
+    def setup_item_container(self):
         """
         Setup constraints. In this case orthogonal.
         """
-        super(Line, self).setup_canvas()
+        super(Line, self).setup_item_container()
         self._update_orthogonal_constraints(self.orthogonal)
 
-    def teardown_canvas(self):
+    def teardown_item_container(self):
         """
-        Remove constraints created in setup_canvas().
+        Remove constraints created in setup_item_container().
         """
-        super(Line, self).teardown_canvas()
+        super(Line, self).teardown_item_container()
         for c in self._orthogonal_constraints:
-            self.canvas.solver.remove_constraint(c)
+            self.item_container.solver.remove_constraint(c)
 
     @observed
     def _reversible_insert_handle(self, index, handle):

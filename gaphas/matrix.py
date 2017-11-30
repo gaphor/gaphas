@@ -19,7 +19,7 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-Some Gaphor specific updates to the canvas. This is done by setting the
+Some Gaphor specific updates to the item_container. This is done by setting the
 correct properties on gaphas' modules.
 
 Matrix

@@ -28,7 +28,7 @@ from gaphas import state
 from gaphas.itemcontainer import ItemContainer
 from gaphas.item import Item
 from gaphas.segment import *
-from gaphas.tests.test_tool import simple_canvas
+from gaphas.tests.test_tool import simple_item_container
 from gaphas.view import View
 
 
@@ -38,8 +38,8 @@ class SegmentTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.canvas = ItemContainer()
-        self.view = View(self.canvas)
+        self.item_container = ItemContainer()
+        self.view = View(self.item_container)
 
     def test_segment_fails_for_item(self):
         """
@@ -59,7 +59,7 @@ class SegmentTestCase(unittest.TestCase):
         """
         view = self.view
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         segment = Segment(line, self.view)
         self.assertEquals(2, len(line.handles()))
         segment.split((5, 5))
@@ -92,7 +92,7 @@ class TestCaseBase(unittest.TestCase):
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
-        simple_canvas(self)
+        simple_item_container(self)
 
     def tearDown(self):
         state.observers.remove(state.revert_handler)
@@ -210,17 +210,17 @@ class LineSplitTestCase(TestCaseBase):
 
         # connect line2 to self.line
         line2 = Line()
-        self.canvas.add(line2)
+        self.item_container.add(line2)
         head = line2.handles()[0]
         self.tool.connect(line2, head, (25, 25))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         self.assertEquals(self.line, cinfo.connected)
 
         Segment(self.line, self.view).split_segment(0)
         assert len(self.line.handles()) == 3
         h1, h2, h3 = self.line.handles()
 
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         # connection shall be reconstrained between 1st and 2nd handle
         self.assertEquals(h1.pos, cinfo.constraint._line[0]._point)
         self.assertEquals(h2.pos, cinfo.constraint._line[1]._point)
@@ -333,7 +333,7 @@ class LineMergeTestCase(TestCaseBase):
 
         # connect line2 to self.line
         line2 = Line()
-        self.canvas.add(line2)
+        self.item_container.add(line2)
         head = line2.handles()[0]
 
         # conn = Connector(line2, head)
@@ -343,7 +343,7 @@ class LineMergeTestCase(TestCaseBase):
         # conn.connect(sink)
 
         self.tool.connect(line2, head, (25, 25))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         self.assertEquals(self.line, cinfo.connected)
 
         segment = Segment(self.line, self.view)
@@ -356,7 +356,7 @@ class LineMergeTestCase(TestCaseBase):
 
         h1, h2 = self.line.handles()
         # connection shall be reconstrained between 1st and 2nd handle
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         self.assertEquals(cinfo.constraint._line[0]._point, h1.pos)
         self.assertEquals(cinfo.constraint._line[1]._point, h2.pos)
         self.assertFalse(c1 == cinfo.constraint)
@@ -415,7 +415,7 @@ class LineMergeTestCase(TestCaseBase):
     def test_orthogonal_line_merge(self):
         """Test orthogonal line merging
         """
-        self.assertEquals(4, len(self.canvas.solver._constraints))
+        self.assertEquals(4, len(self.item_container.solver._constraints))
 
         self.line.handles()[-1].pos = 100, 100
 
@@ -425,14 +425,14 @@ class LineMergeTestCase(TestCaseBase):
         segment.split_segment(0)
         self.line.orthogonal = True
 
-        self.assertEquals(4 + 3, len(self.canvas.solver._constraints))
+        self.assertEquals(4 + 3, len(self.item_container.solver._constraints))
         self.assertEquals(4, len(self.line.handles()))
         self.assertEquals(3, len(self.line.ports()))
 
         # test the merging
         segment.merge_segment(0)
 
-        self.assertEquals(4 + 2, len(self.canvas.solver._constraints))
+        self.assertEquals(4 + 2, len(self.item_container.solver._constraints))
         self.assertEquals(3, len(self.line.handles()))
         self.assertEquals(2, len(self.line.ports()))
 
@@ -440,35 +440,35 @@ class LineMergeTestCase(TestCaseBase):
         """Test parameter error exceptions
         """
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # no segment -1
         self.assertRaises(ValueError, segment.merge_segment, -1)
 
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # no segment no 2
         self.assertRaises(ValueError, segment.merge_segment, 2)
 
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # can't merge one or less segments :)
         self.assertRaises(ValueError, segment.merge_segment, 0, 1)
 
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         self.assertEquals(2, len(line.handles()))
         segment = Segment(line, self.view)
         # can't merge line with one segment
         self.assertRaises(ValueError, segment.merge_segment, 0)
 
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # 2 segments: no 0 and 1. cannot merge as there are no segments
@@ -476,7 +476,7 @@ class LineMergeTestCase(TestCaseBase):
         self.assertRaises(ValueError, segment.merge_segment, 1)
 
         line = Line()
-        self.canvas.add(line)
+        self.item_container.add(line)
         segment = Segment(line, self.view)
         segment.split_segment(0)
         # 2 segments: no 0 and 1. cannot merge 3 segments as there are no 3
@@ -486,10 +486,10 @@ class LineMergeTestCase(TestCaseBase):
 
 class SegmentHandlesTest(unittest.TestCase):
     def setUp(self):
-        self.canvas = ItemContainer()
+        self.item_container = ItemContainer()
         self.line = Line()
-        self.canvas.add(self.line)
-        self.view = View(self.canvas)
+        self.item_container.add(self.line)
+        self.view = View(self.item_container)
 
     def testHandleFinder(self):
         finder = HandleFinder(self.line, self.view)

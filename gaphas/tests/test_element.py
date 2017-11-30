@@ -30,9 +30,9 @@ from gaphas.item import NW, NE, SE, SW
 class ElementTestCase(unittest.TestCase):
     def test_creation_with_size(self):
         """
-        Test if initial size holds when added to a canvas.
+        Test if initial size holds when added to a item_container.
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         box = Box(150, 153)
 
         assert box.width == 150, box.width
@@ -40,7 +40,7 @@ class ElementTestCase(unittest.TestCase):
         assert box.handles()[SE].pos.x == 150, box.handles()[SE].pos.x
         assert box.handles()[SE].pos.y == 153, box.handles()[SE].pos.y
 
-        canvas.add(box)
+        item_container.add(box)
 
         assert box.width == 150, box.width
         assert box.height == 153, box.height
@@ -51,11 +51,11 @@ class ElementTestCase(unittest.TestCase):
         """
         Test resizing of element by dragging it SE handle.
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         box = Box()
         handles = box.handles()
 
-        canvas.add(box)
+        item_container.add(box)
 
         h_nw, h_ne, h_se, h_sw = handles
         assert h_nw is handles[NW]
@@ -77,7 +77,7 @@ class ElementTestCase(unittest.TestCase):
             h_se.pos.x += 100  # h.se.{x,y} = 10, now
             h_se.pos.y += 100
             box.request_update()
-            canvas.update()
+            item_container.update()
 
         self.assertEquals(110 * count, h_se.pos.x)  # h_se changed above, should remain the same
         self.assertEquals(110 * count, float(h_se.pos.y))
@@ -89,11 +89,11 @@ class ElementTestCase(unittest.TestCase):
         """
         Test resizing of element by dragging it SE handle.
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         box = Box()
         handles = box.handles()
 
-        canvas.add(box)
+        item_container.add(box)
 
         h_nw, h_ne, h_se, h_sw = handles
         assert h_nw is handles[NW]
@@ -106,7 +106,7 @@ class ElementTestCase(unittest.TestCase):
         assert h_se.pos.x == h_se.pos.y == -10
 
         box.request_update()
-        canvas.update()
+        item_container.update()
 
         self.assertEquals(10, h_se.pos.x)  # h_se changed above, should be 10
         self.assertEquals(10, h_se.pos.y)

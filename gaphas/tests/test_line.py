@@ -71,58 +71,58 @@ class LineTestCase(TestCaseBase):
     def test_orthogonal_horizontal_undo(self):
         """Test orthogonal line constraints bug (#107)
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         line = Line()
-        canvas.add(line)
+        item_container.add(line)
         assert not line.horizontal
-        assert len(canvas.solver._constraints) == 0
+        assert len(item_container.solver._constraints) == 0
 
         segment = Segment(line, None)
         segment.split_segment(0)
 
         line.orthogonal = True
 
-        self.assertEquals(2, len(canvas.solver._constraints))
-        after_ortho = set(canvas.solver._constraints)
+        self.assertEquals(2, len(item_container.solver._constraints))
+        after_ortho = set(item_container.solver._constraints)
 
         del undo_list[:]
         line.horizontal = True
 
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEquals(2, len(item_container.solver._constraints))
 
         undo()
 
         self.assertFalse(line.horizontal)
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEquals(2, len(item_container.solver._constraints))
 
         line.horizontal = True
 
         self.assertTrue(line.horizontal)
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEquals(2, len(item_container.solver._constraints))
 
     def test_orthogonal_line_undo(self):
         """Test orthogonal line undo
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         line = Line()
-        canvas.add(line)
+        item_container.add(line)
 
         segment = Segment(line, None)
         segment.split_segment(0)
 
         # start with no orthogonal constraints
-        assert len(canvas.solver._constraints) == 0
+        assert len(item_container.solver._constraints) == 0
 
         line.orthogonal = True
 
         # check orthogonal constraints
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEquals(2, len(item_container.solver._constraints))
         self.assertEquals(3, len(line.handles()))
 
         undo()
 
         self.assertFalse(line.orthogonal)
-        self.assertEquals(0, len(canvas.solver._constraints))
+        self.assertEquals(0, len(item_container.solver._constraints))
         self.assertEquals(2, len(line.handles()))
 
 # vim:sw=4:et

@@ -149,7 +149,7 @@ class GuideMixin(object):
         except TypeError:
             guides = []
 
-        # Translate edges to canvas or view coordinates
+        # Translate edges to item_container or view coordinates
         hedges = set()
         for g in guides:
             for y in g.horizontal():
@@ -165,7 +165,7 @@ class GuideMixin(object):
         item = self.item
         view = self.view
 
-        excluded_items = set(view.canvas.get_all_children(item))
+        excluded_items = set(view.item_container.get_all_children(item))
         excluded_items.add(item)
         excluded_items.update(view.selected_items)
         return excluded_items

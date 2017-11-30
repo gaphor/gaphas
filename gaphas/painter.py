@@ -21,11 +21,11 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-The painter module provides different painters for parts of the canvas.
+The painter module provides different painters for parts of the item_container.
 
 Painters can be swapped in and out.
 
-Each painter takes care of a layer in the canvas (such as grid, items
+Each painter takes care of a layer in the item_container (such as grid, items
 and handles).
 """
 
@@ -120,7 +120,7 @@ class ItemPainter(Painter):
         view = self.view
         cairo.save()
         try:
-            cairo.transform(view.canvas.get_matrix_i2c(item))
+            cairo.transform(view.item_container.get_matrix_i2c(item))
             item.draw(DrawContext(painter=self,
                                   cairo=cairo,
                                   _area=area,
@@ -267,15 +267,15 @@ class BoundingBoxContext(object):
 class BoundingBoxPainter(ItemPainter):
     """
     This specific case of an ItemPainter is used to calculate the bounding
-    boxes (in canvas coordinates) for the items.
+    boxes (in item_container coordinates) for the items.
     """
 
     draw_all = True
 
-    def _draw_item(self, item, toga_canvas, area=None):
-        toga_canvas = BoundingBoxContext(toga_canvas)
-        super(BoundingBoxPainter, self)._draw_item(item, toga_canvas)
-        bounds = toga_canvas.get_bounds()
+    def _draw_item(self, item, toga_item_container, area=None):
+        toga_item_container = BoundingBoxContext(toga_item_container)
+        super(BoundingBoxPainter, self)._draw_item(item, toga_item_container)
+        bounds = toga_item_container.get_bounds()
 
         # Update bounding box with handles.
         view = self.view
@@ -287,12 +287,12 @@ class BoundingBoxPainter(ItemPainter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def _draw_items(self, items, toga_canvas, area=None):
+    def _draw_items(self, items, toga_item_container, area=None):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, toga_canvas)
+            self._draw_item(item, toga_item_container)
 
     def paint(self, context):
         self._draw_items(context.items, context.cairo)
@@ -317,7 +317,7 @@ class HandlePainter(Painter):
         cairo.set_line_width(1)
         cairo.set_antialias(ANTIALIAS_NONE)
 
-        get_connection = view.canvas.get_connection
+        get_connection = view.item_container.get_connection
         for h in item.handles():
             if not h.visible:
                 continue
@@ -352,10 +352,10 @@ class HandlePainter(Painter):
 
     def paint(self, context):
         view = self.view
-        canvas = view.canvas
+        item_container = view.item_container
         cairo = context.cairo
         # Order matters here:
-        for item in canvas.sort(view.selected_items):
+        for item in item_container.sort(view.selected_items):
             self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
         item = view.hovered_item

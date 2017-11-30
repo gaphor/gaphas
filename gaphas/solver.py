@@ -58,7 +58,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 # epsilon for float comparison
-# is simple abs(x - y) > EPSILON enough for canvas needs?
+# is simple abs(x - y) > EPSILON enough for item_container needs?
 EPSILON = 1e-6
 
 # Variable Strengths:

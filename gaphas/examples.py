@@ -142,7 +142,7 @@ class PortoBox(Box):
 
 class Text(Item):
     """
-    Simple item showing some text on the canvas.
+    Simple item showing some text on the item_container.
     """
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
@@ -221,8 +221,8 @@ class Circle(Item):
 
     radius = property(_get_radius, _set_radius)
 
-    def setup_canvas(self):
-        super(Circle, self).setup_canvas()
+    def setup_item_container(self):
+        super(Circle, self).setup_item_container()
         h1, h2 = self._handles
         h1.movable = False
 

@@ -60,28 +60,28 @@ class View(object):
         self._qtree = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)
 
-        self._canvas = None
+        self._item_container = None
         if item_container:
             self._set_item_container(item_container)
 
     matrix = property(lambda s: s._matrix,
                       doc="ItemContainer to view transformation matrix")
 
-    def _set_item_container(self, canvas):
+    def _set_item_container(self, item_container):
         """
-        Use view.canvas = my_canvas to set the canvas to be rendered
+        Use view.item_container = my_item_container to set the item_container to be rendered
         in the view.
         """
-        if self._canvas:
+        if self._item_container:
             self._qtree.clear()
             self._selected_items.clear()
             self._focused_item = None
             self._hovered_item = None
             self._dropzone_item = None
 
-        self._canvas = canvas
+        self._item_container = item_container
 
-    canvas = property(lambda s: s._canvas, _set_item_container)
+    item_container = property(lambda s: s._item_container, _set_item_container)
 
     def emit(self, *args, **kwargs):
         """
@@ -114,7 +114,7 @@ class View(object):
             self.emit('selection-changed', self._selected_items)
 
     def select_all(self):
-        for item in self.canvas.get_all_items():
+        for item in self.item_container.get_all_items():
             self.select_item(item)
 
     def unselect_all(self):
@@ -220,7 +220,7 @@ class View(object):
          - selected: if False returns first non-selected item
         """
         items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
-        for item in self._canvas.sort(items, reverse=True):
+        for item in self._item_container.sort(items, reverse=True):
             if not selected and item in self.selected_items:
                 continue  # skip selected items
 
@@ -329,13 +329,13 @@ class View(object):
     def get_items_in_rectangle(self, rect, intersect=True, reverse=False):
         """
         Return the items in the rectangle 'rect'.
-        Items are automatically sorted in canvas' processing order.
+        Items are automatically sorted in item_container' processing order.
         """
         if intersect:
             items = self._qtree.find_intersect(rect)
         else:
             items = self._qtree.find_inside(rect)
-        return self._canvas.sort(items, reverse=reverse)
+        return self._item_container.sort(items, reverse=reverse)
 
     def select_in_rectangle(self, rect):
         """
@@ -353,8 +353,8 @@ class View(object):
         self._matrix.scale(factor, factor)
 
         # Make sure everything's updated
-        # map(self.update_matrix, self._canvas.get_all_items())
-        self.request_update((), self._canvas.get_all_items())
+        # map(self.update_matrix, self._item_container.get_all_items())
+        self.request_update((), self._item_container.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
         """
@@ -380,12 +380,12 @@ class View(object):
 
     def update_bounding_box(self, cr, items=None):
         """
-        Update the bounding boxes of the canvas items for this view, in 
-        canvas coordinates.
+        Update the bounding boxes of the item_container items for this view, in 
+        item_container coordinates.
         """
         painter = self._bounding_box_painter
         if items is None:
-            items = self.canvas.get_all_items()
+            items = self.item_container.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
         painter.paint(Context(cairo=cr,
@@ -397,7 +397,7 @@ class View(object):
 
     def paint(self, cr):
         self._painter.paint(Context(cairo=cr,
-                                    items=self.canvas.get_all_items(),
+                                    items=self.item_container.get_all_items(),
                                     area=None))
 
     def get_matrix_i2v(self, item):
@@ -420,7 +420,7 @@ class View(object):
         """
         Update item matrices related to view.
         """
-        matrix_i2c = self.canvas.get_matrix_i2c(item)
+        matrix_i2c = self.item_container.get_matrix_i2c(item)
         try:
             i2v = matrix_i2c.multiply(self._matrix)
         except AttributeError:
@@ -437,7 +437,7 @@ class View(object):
         """
         Clear registered data in Item's _matrix{i2c|v2i} attributes.
         """
-        for item in self.canvas.get_all_items():
+        for item in self.item_container.get_all_items():
             try:
                 del item._matrix_i2v[self]
                 del item._matrix_v2i[self]
@@ -449,14 +449,14 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
     #
     # class TogaView(Gtk.DrawingArea, Gtk.Scrollable, View):
     """
-    Toga widget for rendering a canvas.ItemContainer to a screen.
+    Toga widget for rendering a item_container.ItemContainer to a screen.
     The view uses Tools from `tool.py` to handle events and Painters
     from `painter.py` to draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.
 
-    This view registers itself on the canvas, so it will receive update events.
+    This view registers itself on the item_container, so it will receive update events.
     """
 
     # Just defined a name to make GTK register this class.
@@ -551,25 +551,25 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
         # TODO can we remove all emit methods?
         pass
 
-    def _set_item_container(self, canvas):
+    def _set_item_container(self, item_container):
         """
-        Use view.canvas = my_canvas to set the canvas to be rendered
+        Use view.item_container = my_item_container to set the item_container to be rendered
         in the view.
-        This extends the behaviour of View.canvas.
+        This extends the behaviour of View.item_container.
         The view is also registered.
         """
-        if self._canvas:
+        if self._item_container:
             self._clear_matrices()
-            self._canvas.unregister_view(self)
+            self._item_container.unregister_view(self)
 
-        super(TogaView, self)._set_item_container(canvas)
+        super(TogaView, self)._set_item_container(item_container)
 
-        if self._canvas:
-            self._canvas.register_view(self)
-            self.request_update(self._canvas.get_all_items())
+        if self._item_container:
+            self._item_container.register_view(self)
+            self.request_update(self._item_container.get_all_items())
         self.queue_draw_refresh()
 
-    canvas = property(lambda s: s._canvas, _set_item_container)
+    item_container = property(lambda s: s._item_container, _set_item_container)
 
     def _set_tool(self, tool):
         """
@@ -619,7 +619,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
 
-        # canvas limits (in view coordinates)
+        # item_container limits (in view coordinates)
         c = Rectangle(*self._qtree.soft_bounds)
 
         # view limits
@@ -724,7 +724,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
 
     def update(self):
         """
-        Update view status according to the items updated by the canvas.
+        Update view status according to the items updated by the item_container.
         """
 
         # if not self.get_window():
@@ -795,16 +795,16 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
         Gtk.DrawingArea.do_realize(self)
 
         # Ensure updates are propagated
-        self._canvas.register_view(self)
+        self._item_container.register_view(self)
 
-        if self._canvas:
-            self.request_update(self._canvas.get_all_items())
+        if self._item_container:
+            self.request_update(self._item_container.get_all_items())
 
     def do_unrealize(self):
         """
         The ::unrealize signal is emitted when the ``GdkWindow`` associated with widget is destroyed.
         """
-        if self.canvas:
+        if self.item_container:
             # Although Item._matrix_{i2v|v2i} keys are automatically removed
             # (weak refs), better do it explicitly to be sure.
             self._clear_matrices()
@@ -813,15 +813,15 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
         self._dirty_items.clear()
         self._dirty_matrix_items.clear()
 
-        self._canvas.unregister_view(self)
+        self._item_container.unregister_view(self)
 
         Gtk.DrawingArea.do_unrealize(self)
 
     def do_draw(self, cr):
         """
-        Render canvas to the screen.
+        Render item_container to the screen.
         """
-        if not self._canvas:
+        if not self._item_container:
             return
         # TODO Cairo is clip_extents(), need to round and convert from x1,y1,x2,y2
         # _, allocation = Gdk.cairo_get_clip_rectangle(cr)
@@ -888,7 +888,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
         self._matrix *= m
 
         # Force recalculation of the bounding boxes:
-        self.request_update((), self._canvas.get_all_items())
+        self.request_update((), self._item_container.get_all_items())
 
         self.queue_draw_refresh()
 
