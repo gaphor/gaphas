@@ -4,7 +4,7 @@ Items
 
 Items are put on a ItemContainer.
 
-:mod: `gaphor.item`
+:mod: `dabbler.item`
 ---------------------
 
 .. module:: gaphas.item

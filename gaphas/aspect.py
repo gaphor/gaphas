@@ -35,7 +35,7 @@ from gaphas.item import Element
 
 class ItemFinder(object):
     """
-    Find an item on the canvas.
+    Find an item in the item container.
     """
 
     def __init__(self, view):
@@ -104,7 +104,7 @@ class ItemInMotion(object):
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
-        item.canvas.request_matrix_update(item)
+        item.item_container.request_matrix_update(item)
 
     def stop_move(self):
         pass
@@ -164,11 +164,11 @@ class ItemHandleInMotion(object):
 
     def start_move(self, pos):
         self.last_x, self.last_y = pos
-        canvas = self.item.canvas
+        item_container = self.item.item_container
 
-        cinfo = canvas.get_connection(self.handle)
+        cinfo = item_container.get_connection(self.handle)
         if cinfo:
-            canvas.solver.remove_constraint(cinfo.constraint)
+            item_container.solver.remove_constraint(cinfo.constraint)
 
     def move(self, pos):
         item = self.item
@@ -243,7 +243,7 @@ class ItemConnector(object):
         """
         handle = self.handle
         item = self.item
-        matrix = item.canvas.get_matrix_i2i(item, sink.item)
+        matrix = item.item_container.get_matrix_i2i(item, sink.item)
         pos = matrix.transform_point(*handle.pos)
         gluepos, dist = sink.port.glue(pos)
         matrix.invert()
@@ -257,7 +257,7 @@ class ItemConnector(object):
         is reattached to another element.
         """
 
-        cinfo = self.item.canvas.get_connection(self.handle)
+        cinfo = self.item.item_container.get_connection(self.handle)
 
         # Already connected? disconnect first.
         if cinfo:
@@ -281,20 +281,20 @@ class ItemConnector(object):
          callback
             Function to be called on disconnection.
         """
-        canvas = self.item.canvas
+        item_container = self.item.item_container
         handle = self.handle
         item = self.item
 
-        constraint = sink.port.constraint(canvas, item, handle, sink.item)
+        constraint = sink.port.constraint(item_container, item, handle, sink.item)
 
-        canvas.connect_item(item, handle, sink.item, sink.port,
+        item_container.connect_item(item, handle, sink.item, sink.port,
                             constraint, callback=callback)
 
     def disconnect(self):
         """
         Disconnect the handle from the attached element.
         """
-        self.item.canvas.disconnect_item(self.item, self.handle)
+        self.item.item_container.disconnect_item(self.item, self.handle)
 
 
 Connector = generic(ItemConnector)
@@ -311,7 +311,7 @@ class ItemConnectionSink(object):
 
     def find_port(self, pos):
         """
-        Glue to the closest item on the canvas.
+        Glue to the closest item in the item container.
         If the item can connect, it returns a port.
         """
         port = None

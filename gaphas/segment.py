@@ -161,27 +161,27 @@ class LineSegment(object):
         def find_port(line, handle, item):
             # port = None
             # max_dist = sys.maxint
-            canvas = item.canvas
+            item_container = item.item_container
 
-            ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
+            ix, iy = item_container.get_matrix_i2i(line, item).transform_point(*handle.pos)
 
             # find the port using item's coordinates
             sink = ConnectionSink(item, None)
             return sink.find_port((ix, iy))
 
-        if not connected.canvas:
-            # No canvas, no constraints
+        if not connected.item_container:
+            # No item container, no constraints
             return
 
-        canvas = connected.canvas
-        for cinfo in list(canvas.get_connections(connected=connected)):
+        item_container = connected.item_container
+        for cinfo in list(item_container.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
 
-            constraint = port.constraint(canvas, item, handle, connected)
+            constraint = port.constraint(item_container, item, handle, connected)
 
-            cinfo = canvas.get_connection(handle)
-            canvas.reconnect_item(item, handle, constraint=constraint)
+            cinfo = item_container.get_connection(handle)
+            item_container.reconnect_item(item, handle, constraint=constraint)
 
 
 @HandleFinder.when_type(Line)
@@ -238,7 +238,7 @@ class SegmentHandleSelection(ItemHandleSelection):
         d, p = distance_line_point(before.pos, after.pos, handle.pos)
 
         if d < 2:
-            assert len(self.view.canvas.solver._marked_cons) == 0
+            assert len(self.view.item_container.solver._marked_cons) == 0
             Segment(item, self.view).merge_segment(segment)
 
         if handle:

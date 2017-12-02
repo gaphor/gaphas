@@ -24,7 +24,7 @@ Basic connectors such as Ports and Handles.
 """
 
 __version__ = "$Revision: 2341 $"
-# $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
+# $HeadURL: https://svn.devjavu.com/dabbler/gaphas/trunk/gaphas/item.py $
 
 from gaphas.solver import solvable, NORMAL
 from gaphas.state import observed, reversible_property
@@ -108,7 +108,7 @@ class Handle(object):
     refer to the item. A ``disconnect`` handler should be provided that handles
     all disconnect behaviour (e.g. clean up constraints and ``connected_to``).
 
-      Note for those of you that use the Pickle module to persist a canvas:
+      Note for those of you that use the Pickle module to persist an item container:
       The property ``disconnect`` should contain a callable object (with
       __call__() method), so the pickle handler can also pickle that. Pickle is
       not capable of pickling ``instancemethod`` or ``function`` objects.
@@ -201,7 +201,7 @@ class Port(object):
         """
         raise NotImplemented('Glue method not implemented')
 
-    def constraint(self, canvas, item, handle, glue_item):
+    def constraint(self, item_container, item, handle, glue_item):
         """
         Create connection constraint between item's handle and glue item.
         """
@@ -233,13 +233,13 @@ class LinePort(Port):
         d, pl = distance_line_point(self.start, self.end, pos)
         return pl, d
 
-    def constraint(self, canvas, item, handle, glue_item):
+    def constraint(self, item_container, item, handle, glue_item):
         """
         Create connection line constraint between item's handle and the
         port.
         """
-        line = canvas.project(glue_item, self.start, self.end)
-        point = canvas.project(item, handle.pos)
+        line = item_container.project(glue_item, self.start, self.end)
+        point = item_container.project(item, handle.pos)
         return LineConstraint(line, point)
 
 
@@ -264,13 +264,13 @@ class PointPort(Port):
         d = distance_point_point(self.point, pos)
         return self.point, d
 
-    def constraint(self, canvas, item, handle, glue_item):
+    def constraint(self, item_container, item, handle, glue_item):
         """
         Return connection position constraint between item's handle and the
         port.
         """
-        origin = canvas.project(glue_item, self.point)
-        point = canvas.project(item, handle.pos)
+        origin = item_container.project(glue_item, self.point)
+        point = item_container.project(item, handle.pos)
         c = PositionConstraint(origin, point)
         return c  # PositionConstraint(origin, point)
 

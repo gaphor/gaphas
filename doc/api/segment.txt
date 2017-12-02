@@ -4,7 +4,7 @@ Line segmentation
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.segment`
+:mod: `dabbler.segment`
 ----------------------
 
 .. module:: gaphas.segment

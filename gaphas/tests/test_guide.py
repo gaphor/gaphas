@@ -31,9 +31,9 @@ from gaphas.view import TogaView
 
 class GuideTestCase(unittest.TestCase):
     def setUp(self):
-        self.canvas = ItemContainer()
+        self.item_container = ItemContainer()
         self.window = toga.Window()
-        self.view = TogaView(self.canvas)
+        self.view = TogaView(self.item_container)
         self.window.show()
 
     def tearDown(self):
@@ -112,10 +112,10 @@ class GuideTestCase(unittest.TestCase):
         e2 = Element()
         e3 = Element()
 
-        canvas = self.canvas
-        canvas.add(e1)
-        canvas.add(e2)
-        canvas.add(e3)
+        item_container = self.item_container
+        item_container.add(e1)
+        item_container.add(e2)
+        item_container.add(e3)
 
         self.assertEquals(0, e1.matrix[4])
         self.assertEquals(0, e1.matrix[5])
@@ -153,10 +153,10 @@ class GuideTestCase(unittest.TestCase):
         e2 = Element()
         e3 = Element()
 
-        canvas = self.canvas
-        canvas.add(e1)
-        canvas.add(e2)
-        canvas.add(e3)
+        item_container = self.item_container
+        item_container.add(e1)
+        item_container.add(e2)
+        item_container.add(e3)
 
         self.assertEquals(0, e1.matrix[4])
         self.assertEquals(0, e1.matrix[5])

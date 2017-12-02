@@ -4,7 +4,7 @@ Aspects
 
 TODO: Explain aspects
 
-:mod: `gaphor.aspect`
+:mod: `dabbler.aspect`
 ---------------------
 
 .. module:: gaphas.aspect

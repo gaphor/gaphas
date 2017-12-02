@@ -62,14 +62,14 @@ class UndoTestCase(unittest.TestCase):
         b2 = Box()
         line = Line()
 
-        canvas = ItemContainer()
-        canvas.add(b1)
-        self.assertEquals(2, len(canvas.solver.constraints))
+        item_container = ItemContainer()
+        item_container.add(b1)
+        self.assertEquals(2, len(item_container.solver.constraints))
 
-        canvas.add(b2)
-        self.assertEquals(4, len(canvas.solver.constraints))
+        item_container.add(b2)
+        self.assertEquals(4, len(item_container.solver.constraints))
 
-        canvas.add(line)
+        item_container.add(line)
 
         sink = ConnectionSink(b1, b1.ports()[0])
         connector = Connector(line, line.handles()[0])
@@ -79,40 +79,40 @@ class UndoTestCase(unittest.TestCase):
         connector = Connector(line, line.handles()[-1])
         connector.connect(sink)
 
-        self.assertEquals(6, len(canvas.solver.constraints))
-        self.assertEquals(2, len(list(canvas.get_connections(item=line))))
+        self.assertEquals(6, len(item_container.solver.constraints))
+        self.assertEquals(2, len(list(item_container.get_connections(item=line))))
 
         del undo_list[:]
 
         # Here disconnect is not invoked!
-        canvas.remove(b2)
+        item_container.remove(b2)
 
-        self.assertEquals(3, len(canvas.solver.constraints))
-        self.assertEquals(1, len(list(canvas.get_connections(item=line))))
+        self.assertEquals(3, len(item_container.solver.constraints))
+        self.assertEquals(1, len(list(item_container.get_connections(item=line))))
 
-        cinfo = canvas.get_connection(line.handles()[0])
+        cinfo = item_container.get_connection(line.handles()[0])
         self.assertEquals(b1, cinfo.connected)
 
-        cinfo = canvas.get_connection(line.handles()[-1])
+        cinfo = item_container.get_connection(line.handles()[-1])
         self.assertEquals(None, cinfo)
 
-        self.assertEquals([], list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
-        self.assertEquals([], list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
+        self.assertEquals([], list(item_container.solver.constraints_with_variable(line.handles()[-1].pos.x)))
+        self.assertEquals([], list(item_container.solver.constraints_with_variable(line.handles()[-1].pos.y)))
 
         undo()
 
-        self.assertEquals(6, len(canvas.solver.constraints))
-        self.assertEquals(2, len(list(canvas.get_connections(item=line))))
+        self.assertEquals(6, len(item_container.solver.constraints))
+        self.assertEquals(2, len(list(item_container.get_connections(item=line))))
 
-        cinfo = canvas.get_connection(line.handles()[0])
+        cinfo = item_container.get_connection(line.handles()[0])
         self.assertEquals(b1, cinfo.connected)
 
-        cinfo = canvas.get_connection(line.handles()[-1])
+        cinfo = item_container.get_connection(line.handles()[-1])
         self.assertEquals(b2, cinfo.connected)
 
 
-# self.assertEquals(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
-#        self.assertTrue(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
+# self.assertEquals(list(item_container.solver.constraints_with_variable(line.handles()[-1].pos.x)))
+#        self.assertTrue(list(item_container.solver.constraints_with_variable(line.handles()[-1].pos.y)))
 
 if __name__ == '__main__':
     unittest.main()

@@ -190,31 +190,31 @@ class ConstraintProjectionTestCase(unittest.TestCase):
         box.height = 20
         h_nw, h_ne, h_se, h_sw = box.handles()
 
-        canvas = ItemContainer()
-        canvas.add(line)
-        canvas.add(box)
+        item_container = ItemContainer()
+        item_container.add(line)
+        item_container.add(box)
 
         # move line's second handle on box side
         h2.x, h2.y = 5, -20
 
 
 #        bc = BalanceConstraint(band=(h_sw.x, h_se.x), v=h2.x, balance=0.25)
-#        canvas.projector(bc, x={h_sw.x: box, h_se.x: box, h2.x: line})
-#        canvas._solver.add_constraint(bc)
+#        item_container.projector(bc, x={h_sw.x: box, h_se.x: box, h2.x: line})
+#        item_container._solver.add_constraint(bc)
 #
 #        eq = EqualsConstraint(a=h_se.y, b=h2.y)
-#        canvas.projector(eq, y={h_se.y: box, h2.y: line})
-#        canvas._solver.add_constraint(eq)
+#        item_container.projector(eq, y={h_se.y: box, h2.y: line})
+#        item_container._solver.add_constraint(eq)
 #
 #        box.request_update()
 #        line.request_update()
 #
-#        canvas.update()
+#        item_container.update()
 #
 #        box.width = 60
 #        box.height = 30
 #
-#        canvas.update()
+#        item_container.update()
 #
 #        # expect h2.x to be moved due to balance constraint
 #        self.assertEquals(10, h2.x)
@@ -223,113 +223,113 @@ class ConstraintProjectionTestCase(unittest.TestCase):
 
 class CanvasConstraintTestCase(unittest.TestCase):
     def test_remove_connected_item(self):
-        """Test adding canvas constraint"""
-        canvas = ItemContainer()
+        """Test adding item container constraint"""
+        item_container = ItemContainer()
 
         from gaphas.aspect import Connector, ConnectionSink
 
         l1 = Line()
-        canvas.add(l1)
+        item_container.add(l1)
 
         b1 = Box()
-        canvas.add(b1)
+        item_container.add(b1)
 
-        number_cons1 = len(canvas.solver.constraints)
+        number_cons1 = len(item_container.solver.constraints)
 
         b2 = Box()
-        canvas.add(b2)
+        item_container.add(b2)
 
-        number_cons2 = len(canvas.solver.constraints)
+        number_cons2 = len(item_container.solver.constraints)
 
         conn = Connector(l1, l1.handles()[0])
         sink = ConnectionSink(b1, b1.ports()[0])
 
         conn.connect(sink)
 
-        assert canvas.get_connection(l1.handles()[0])
+        assert item_container.get_connection(l1.handles()[0])
 
         conn = Connector(l1, l1.handles()[1])
         sink = ConnectionSink(b2, b2.ports()[0])
 
         conn.connect(sink)
 
-        assert canvas.get_connection(l1.handles()[1])
+        assert item_container.get_connection(l1.handles()[1])
 
-        self.assertEquals(number_cons2 + 2, len(canvas.solver.constraints))
+        self.assertEquals(number_cons2 + 2, len(item_container.solver.constraints))
 
-        canvas.remove(b1)
+        item_container.remove(b1)
 
         # Expecting a class + line connected at one end only
-        self.assertEquals(number_cons1 + 1, len(canvas.solver.constraints))
+        self.assertEquals(number_cons1 + 1, len(item_container.solver.constraints))
 
 #    def test_adding_constraint(self):
-#        """Test adding canvas constraint"""
-#        canvas = ItemContainer()
+#        """Test adding item container constraint"""
+#        item_container = ItemContainer()
 #
 #        l1 = Line()
-#        canvas.add(l1)
+#        item_container.add(l1)
 #
 #        h1, h2 = l1.handles()
 #        h = Handle()
 #
 #        eq1 = EqualsConstraint(h1.x, h.x)
-#        canvas.add_canvas_constraint(l1, h1, eq1)
+#        item_container.add_item_container_constraint(l1, h1, eq1)
 #        self.assertTrue(l1 in cons)
 #        self.assertTrue(h1 in cons[l1])
 #        self.assertTrue(eq1 in cons[l1][h1])
 #
 #        l2 = Line()
-#        canvas.add(l2)
+#        item_container.add(l2)
 #
 #        h1, h2 = l2.handles()
 #        h = Handle()
 #
 #        eq2 = EqualsConstraint(h1.x, h.x)
-#        canvas.add_canvas_constraint(l2, h1, eq2)
+#        item_container.add_item_container_constraint(l2, h1, eq2)
 #        self.assertTrue(l2 in cons)
 #        self.assertTrue(h1 in cons[l2])
 #        self.assertTrue(eq2 in cons[l2][h1])
 #
 #
 #    def test_adding_constraint_ex(self):
-#        """Test adding canvas constraint for non-existing item"""
-#        canvas = ItemContainer()
+#        """Test adding item_container constraint for non-existing item"""
+#        item_container = ItemContainer()
 #        l1 = Line()
 #        h1, h2 = l1.handles()
 #        h = Handle()
 #
 #        eq = EqualsConstraint(h1.x, h.x)
-#        self.assertRaises(ValueError, canvas.add_canvas_constraint, l1, h1, eq)
+#        self.assertRaises(ValueError, item_container.add_item_container_constraint, l1, h1, eq)
 #
 #
 #    def test_removing_constraint(self):
-#        """Test removing canvas constraint"""
-#        canvas = ItemContainer()
-#        cons = canvas._canvas_constraints
+#        """Test removing item_container constraint"""
+#        item_container = ItemContainer()
+#        cons = item_container._item_container_constraints
 #
 #        l1 = Line()
-#        canvas.add(l1)
+#        item_container.add(l1)
 #
 #        h1, h2 = l1.handles()
 #        h = Handle()
 #
 #        eq1 = EqualsConstraint(h1.x, h.x)
-#        canvas.add_canvas_constraint(l1, h1, eq1)
+#        item_container.add_item_container_constraint(l1, h1, eq1)
 #
 #        # test preconditions
 #        assert l1 in cons
 #        assert h1 in cons[l1]
 #        assert eq1 in cons[l1][h1]
 #
-#        canvas.remove_canvas_constraint(l1, h1, eq1)
+#        item_container.remove_item_container_constraint(l1, h1, eq1)
 #        self.assertTrue(l1 in cons)
 #        self.assertTrue(h1 in cons[l1])
 #        self.assertFalse(eq1 in cons[l1][h1])
 #
 #        eq1 = EqualsConstraint(h1.x, h.x)
 #        eq2 = EqualsConstraint(h1.y, h.y)
-#        canvas.add_canvas_constraint(l1, h1, eq1)
-#        canvas.add_canvas_constraint(l1, h1, eq2)
+#        item_container.add_item_container_constraint(l1, h1, eq1)
+#        item_container.add_item_container_constraint(l1, h1, eq2)
 #
 #        # test preconditions
 #        assert l1 in cons
@@ -337,7 +337,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 #        assert eq1 in cons[l1][h1]
 #        assert eq2 in cons[l1][h1]
 #
-#        canvas.remove_canvas_constraint(l1, h1)
+#        item_container.remove_item_container_constraint(l1, h1)
 #
 #        self.assertTrue(l1 in cons)
 #        self.assertTrue(h1 in cons[l1])
@@ -346,20 +346,20 @@ class CanvasConstraintTestCase(unittest.TestCase):
 #
 #
 #    def test_fetching_constraints(self):
-#        """Test fetching canvas constraints"""
-#        canvas = ItemContainer()
-#        cons = canvas._canvas_constraints
+#        """Test fetching item_container constraints"""
+#        item_container = ItemContainer()
+#        cons = item_container._item_container_constraints
 #
 #        l1 = Line()
-#        canvas.add(l1)
+#        item_container.add(l1)
 #
 #        h1, h2 = l1.handles()
 #        h = Handle()
 #
 #        eq1 = EqualsConstraint(h1.x, h.x)
 #        eq2 = EqualsConstraint(h1.y, h.y)
-#        canvas.add_canvas_constraint(l1, h1, eq1)
-#        canvas.add_canvas_constraint(l1, h1, eq2)
+#        item_container.add_item_container_constraint(l1, h1, eq1)
+#        item_container.add_item_container_constraint(l1, h1, eq2)
 #
 #        # test preconditions
 #        assert l1 in cons
@@ -367,7 +367,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
 #        assert eq1 in cons[l1][h1]
 #        assert eq2 in cons[l1][h1]
 #
-#        self.assertTrue(eq1 in canvas.canvas_constraints(l1))
-#        self.assertTrue(eq2 in canvas.canvas_constraints(l1))
+#        self.assertTrue(eq1 in item_container.item_container_constraints(l1))
+#        self.assertTrue(eq2 in item_container.item_container_constraints(l1))
 
 # vim:sw=4:et:ai

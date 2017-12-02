@@ -21,11 +21,11 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-The painter module provides different painters for parts of the canvas.
+The painter module provides different painters for parts of the item container.
 
 Painters can be swapped in and out.
 
-Each painter takes care of a layer in the canvas (such as grid, items
+Each painter takes care of a layer in the item container (such as grid, items
 and handles).
 """
 
@@ -120,7 +120,7 @@ class ItemPainter(Painter):
         view = self.view
         cairo.save()
         try:
-            cairo.transform(view.canvas.get_matrix_i2c(item))
+            cairo.transform(view.item_container.get_matrix_i2c(item))
             item.draw(DrawContext(painter=self,
                                   cairo=cairo,
                                   _area=area,
@@ -267,7 +267,7 @@ class BoundingBoxContext(object):
 class BoundingBoxPainter(ItemPainter):
     """
     This specific case of an ItemPainter is used to calculate the bounding
-    boxes (in canvas coordinates) for the items.
+    boxes (in item container coordinates) for the items.
     """
 
     draw_all = True
@@ -317,7 +317,7 @@ class HandlePainter(Painter):
         cairo.set_line_width(1)
         cairo.set_antialias(ANTIALIAS_NONE)
 
-        get_connection = view.canvas.get_connection
+        get_connection = view.item_container.get_connection
         for h in item.handles():
             if not h.visible:
                 continue
@@ -352,10 +352,10 @@ class HandlePainter(Painter):
 
     def paint(self, context):
         view = self.view
-        canvas = view.canvas
+        item_container = view.item_container
         cairo = context.cairo
         # Order matters here:
-        for item in canvas.sort(view.selected_items):
+        for item in item_container.sort(view.selected_items):
             self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
         item = view.hovered_item

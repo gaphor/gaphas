@@ -22,7 +22,7 @@
 """
 A simple demo app.
 
-It sports a small canvas and some trivial operations:
+It sports a small item container and some trivial operations:
 
  - Add a line/box
  - Zoom in/out
@@ -73,12 +73,12 @@ def undo_handler(event):
 
 def factory(view, cls):
     """
-    Simple canvas item factory.
+    Simple item container item factory.
     """
 
     def wrapper():
         item = cls()
-        view.canvas.add(item)
+        view.item_container.add(item)
         return item
 
     return wrapper
@@ -132,7 +132,7 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
-def create_window(canvas, title, zoom=1.0):
+def create_window(item_container, title, zoom=1.0):
     view = TogaView()
     view.painter = PainterChain(). \
         append(FreeHandPainter(ItemPainter())). \
@@ -144,7 +144,7 @@ def create_window(canvas, title, zoom=1.0):
     h = toga.Box(flex_direction='row')
     w.add(h)
 
-    # Box contains buttons that can be used to manipulate the canvas:
+    # Box contains buttons that can be used to manipulate the item container:
     v = toga.Box()
     v.style.set(flex_direction='column', padding_top=10, border_width=3, spacing=2)
 
@@ -209,8 +209,8 @@ def create_window(canvas, title, zoom=1.0):
 
     def on_clicked(button):
         if view.focused_item:
-            canvas.remove(view.focused_item)
-            # print 'items:', canvas.get_all_items()
+            item_container.remove(view.focused_item)
+            # print 'items:', item_container.get_all_items()
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -256,7 +256,7 @@ def create_window(canvas, title, zoom=1.0):
     b = toga.Button('Write demo.png')
 
     def on_clicked(button):
-        svgview = View(view.canvas)
+        svgview = View(view.item_container)
         svgview.painter = ItemPainter()
 
         # Update bounding boxes with a temporaly CairoContext
@@ -284,7 +284,7 @@ def create_window(canvas, title, zoom=1.0):
     b = toga.Button('Write demo.svg')
 
     def on_clicked(button):
-        svgview = View(view.canvas)
+        svgview = View(view.item_container)
         svgview.painter = ItemPainter()
 
         # Update bounding boxes with a temporaly CairoContext
@@ -320,7 +320,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
         try:
-            pickle.dump(view.canvas, f)
+            pickle.dump(view.item_container, f)
         finally:
             f.close()
 
@@ -332,11 +332,11 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            canvas = pickle.load(f)
-            canvas.update_now()
+            item_container = pickle.load(f)
+            item_container.update_now()
         finally:
             f.close()
-        create_window(canvas, 'Unpickled diagram')
+        create_window(item_container, 'Unpickled diagram')
 
     b.connect('clicked', on_clicked, [0])
     v.add(b)
@@ -346,12 +346,12 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            canvas = pickle.load(f)
+            item_container = pickle.load(f)
         finally:
             f.close()
-        # [i.request_update() for i in canvas.get_all_items()]
-        canvas.update_now()
-        view.canvas = canvas
+        # [i.request_update() for i in item_container.get_all_items()]
+        item_container.update_now()
+        view.item_container = item_container
 
     b.connect('clicked', on_clicked, [0])
     v.add(b)
@@ -359,15 +359,15 @@ def create_window(canvas, title, zoom=1.0):
     b = toga.Button('Reattach (in place)')
 
     def on_clicked(button, li):
-        view.canvas = None
-        view.canvas = canvas
+        view.item_container = None
+        view.item_container = item_container
 
     b.connect('clicked', on_clicked, [0])
     v.add(b)
 
     # Add the actual View:
 
-    view.canvas = canvas
+    view.item_container = item_container
     view.zoom(zoom)
     view.set_size_request(150, 120)
     s = Gtk.ScrolledWindow()

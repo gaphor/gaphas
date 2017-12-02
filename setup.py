@@ -18,15 +18,15 @@
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 """
-Gaphas is a MVC canvas that uses Cairo_ for rendering. One of the nicer things
+Gaphas is a MVC item container that uses Toga for rendering. One of the nicer things
 of this widget is that the user (model) is not bothered with bounding box
-calculations: this is all done through Cairo.
+calculations: this is all done through Toga.
 
 Some more features:
 
 - Each item has it's own separate coordinate space (easy when items are
   rotated).
-- Items on the canvas can be connected to each other. Connections are
+- Items on the item container can be connected to each other. Connections are
   maintained by a linear constraint solver.
 - Multiple views on one ItemContainer.
 - What is drawn is determined by Painters. Multiple painters can be used and

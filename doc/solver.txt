@@ -27,7 +27,7 @@ Projections
 
 There's one special thing about Variables: since each item has it's own coordinate system ((0, 0) point, handy when the item is rendered), it's pretty hard to make sure (for example) a line can connect to a box and ''stays'' connected, even when the box is dragged around. How can such a constraint be maintained? This is where Projections come into play. A Projection can be used to project a variable on another space (read: coordinate system).
 
-The default projection (to canvas coordinates) is located in `gaphas.canvas` and is known as `CanvasProjection`.
+The default projection (to canvas coordinates) is located in `gaphas.itemcontainer` and is known as `CanvasProjection`.
 
 When a constraint contains projections, it is most likely that this constraint connects two items together. At least the constraint is not entirely bound to the item's coordinate space. This knowledge is used when an item is moved. A move operation typically only requires a change in coordinates, relative to the item's parent item (this is why having a (0,0) point per item is so handy). This means that constraints local to the item not not need to be resolved. Constraints with links outside the item's space should be solved though. Projections play an important role in determining which constraints should be resolved.
 

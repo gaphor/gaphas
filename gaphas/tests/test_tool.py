@@ -38,22 +38,22 @@ from gaphas.view import TogaView
 Event = Context
 
 
-def simple_canvas(self):
+def simple_item_container(self):
     """
-    This decorator adds view, canvas and handle connection tool to a test
-    case. Two boxes and a line are added to the canvas as well.
+    This decorator adds view, item container and handle connection tool to a test
+    case. Two boxes and a line are added to the item container as well.
     """
-    self.canvas = ItemContainer()
+    self.item_container = ItemContainer()
     win = toga.Window()
     self.box1 = Box()
-    self.canvas.add(self.box1)
+    self.item_container.add(self.box1)
     self.box1.matrix.translate(100, 50)
     self.box1.width = 40
     self.box1.height = 40
     self.box1.request_update()
 
     self.box2 = Box()
-    self.canvas.add(self.box2)
+    self.item_container.add(self.box2)
     self.box2.matrix.translate(100, 150)
     self.box2.width = 50
     self.box2.height = 50
@@ -63,11 +63,11 @@ def simple_canvas(self):
     self.head = self.line.handles()[0]
     self.tail = self.line.handles()[-1]
     self.tail.pos = 100, 100
-    self.canvas.add(self.line)
+    self.item_container.add(self.line)
 
-    self.canvas.update_now()
+    self.item_container.update_now()
     self.view = TogaView()
-    self.view.canvas = self.canvas
+    self.view.item_container = self.item_container
     self.view.show()
     self.view.update()
     win.show()
@@ -81,7 +81,7 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        simple_canvas(self)
+        simple_item_container(self)
 
     def test_item_and_port_glue(self):
         """Test glue operation to an item and its ports"""
@@ -171,19 +171,19 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
 
 class ConnectHandleToolConnectTestCase(unittest.TestCase):
     def setUp(self):
-        simple_canvas(self)
+        simple_item_container(self)
 
     def _get_line(self):
         line = Line()
         head = line.handles()[0]
-        self.canvas.add(line)
+        self.item_container.add(line)
         return line, head
 
     def test_connect(self):
         """Test connection to an item"""
         line, head = self._get_line()
         self.tool.connect(line, head, (120, 50))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         self.assertTrue(cinfo is not None)
         self.assertEquals(self.box1, cinfo.connected)
         self.assertTrue(cinfo.port is self.box1.ports()[0],
@@ -194,7 +194,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
 
         line, head = self._get_line()
         self.tool.connect(line, head, (90, 50))
-        cinfo2 = self.canvas.get_connection(head)
+        cinfo2 = self.item_container.get_connection(head)
         self.assertTrue(cinfo is not cinfo2, cinfo2)
         self.assertTrue(cinfo2 is None, cinfo2)
 
@@ -202,7 +202,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         """Test reconnection to another item"""
         line, head = self._get_line()
         self.tool.connect(line, head, (120, 50))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         assert cinfo is not None
         item = cinfo.connected
         port = cinfo.port
@@ -215,7 +215,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         # connect to box2, handle's connected item and connection data
         # should differ
         self.tool.connect(line, head, (120, 150))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         assert cinfo is not None
         self.assertEqual(self.box2, cinfo.connected)
         self.assertEqual(self.box2.ports()[0], cinfo.port)
@@ -228,7 +228,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         """Test reconnection to same item"""
         line, head = self._get_line()
         self.tool.connect(line, head, (120, 50))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         assert cinfo is not None
         item = cinfo.connected
         port = cinfo.port
@@ -240,7 +240,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         # connect to box1 again, handle's connected item and port should be
         # the same but connection constraint will differ
         connected = self.tool.connect(line, head, (120, 50))
-        cinfo = self.canvas.get_connection(head)
+        cinfo = self.item_container.get_connection(head)
         assert cinfo is not None
         self.assertEqual(self.box1, cinfo.connected)
         self.assertEqual(self.box1.ports()[0], cinfo.port)

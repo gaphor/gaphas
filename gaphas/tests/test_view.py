@@ -36,32 +36,32 @@ from gaphas.view import View, TogaView
 class ViewTestCase(unittest.TestCase):
     def test_bounding_box_calculations(self):
         """
-        A view created before and after the canvas is populated should contain
+        A view created before and after the item container is populated should contain
         the same data.
         """
          = ItemContainer()
 
         window1 = toga.Window()
-        view1 = TogaView(item_container=canvas)
+        view1 = TogaView(item_container=item_container)
         view1.realize()
         window1.show()
 
         box = Box()
         box.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
-        canvas.add(box)
+        item_container.add(box)
 
         line = Line()
         line.fyzzyness = 1
         line.handles()[1].pos = (30, 30)
         # line.split_segment(0, 3)
         line.matrix.translate(30, 60)
-        canvas.add(line)
+        item_container.add(line)
 
         window2 = toga.Window()
-        view2 = TogaView(item_container=canvas)
+        view2 = TogaView(item_container=item_container)
         window2.show()
 
-        # Process pending (expose) events, which cause the canvas to be drawn.
+        # Process pending (expose) events, which cause the item container to be drawn.
         # while Gtk.events_pending():
         #     Gtk.main_iteration()
 
@@ -82,19 +82,19 @@ class ViewTestCase(unittest.TestCase):
         """
         Hover tool only reacts on motion-notify events
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         window = toga.Window()
-        view = TogaView(canvas)
+        view = TogaView(item_container)
         window.show()
 
         box = Box()
-        canvas.add(box)
+        item_container.add(box)
         # No gtk main loop, so updates occur instantly
-        assert not canvas.require_update()
+        assert not item_container.require_update()
         box.width = 50
         box.height = 50
 
-        # Process pending (expose) events, which cause the canvas to be drawn.
+        # Process pending (expose) events, which cause the item container to be drawn.
         # while Gtk.events_pending():
         #     Gtk.main_iteration()
 
@@ -107,9 +107,9 @@ class ViewTestCase(unittest.TestCase):
         window.destroy()
 
     def test_get_handle_at_point(self):
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         window = toga.Window()
-        view = TogaView(canvas)
+        view = TogaView(item_container)
         window.show()
 
         box = Box()
@@ -117,16 +117,16 @@ class ViewTestCase(unittest.TestCase):
         box.min_height = 30
         box.matrix.translate(20, 20)
         box.matrix.rotate(math.pi / 1.5)
-        canvas.add(box)
+        item_container.add(box)
 
         i, h = view.get_handle_at_point((20, 20))
         assert i is box
         assert h is box.handles()[0]
 
     def test_get_handle_at_point_at_pi_div_2(self):
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         window = toga.Window()
-        view = TogaView(canvas)
+        view = TogaView(item_container)
         window.show()
 
         box = Box()
@@ -134,49 +134,49 @@ class ViewTestCase(unittest.TestCase):
         box.min_height = 30
         box.matrix.translate(20, 20)
         box.matrix.rotate(math.pi / 2)
-        canvas.add(box)
+        item_container.add(box)
 
-        p = canvas.get_matrix_i2c(box).transform_point(0, 20)
-        p = canvas.get_matrix_c2i(box).transform_point(20, 20)
+        p = item_container.get_matrix_i2c(box).transform_point(0, 20)
+        p = item_container.get_matrix_c2i(box).transform_point(20, 20)
         i, h = view.get_handle_at_point((20, 20))
         assert i is box
         assert h is box.handles()[0]
 
     def test_item_removal(self):
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         window = toga.Window()
-        view = TogaView(canvas)
+        view = TogaView(item_container)
         window.show()
 
         box = Box()
-        canvas.add(box)
+        item_container.add(box)
         # No gtk main loop, so updates occur instantly
-        assert not canvas.require_update()
+        assert not item_container.require_update()
 
-        # Process pending (expose) events, which cause the canvas to be drawn.
+        # Process pending (expose) events, which cause the item container to be drawn.
         # while Gtk.events_pending():
         #     Gtk.main_iteration()
 
-        assert len(canvas.get_all_items()) == len(view._qtree)
+        assert len(item_container.get_all_items()) == len(view._qtree)
 
         view.focused_item = box
-        canvas.remove(box)
+        item_container.remove(box)
 
-        assert len(canvas.get_all_items()) == 0
+        assert len(item_container.get_all_items()) == 0
         assert len(view._qtree) == 0
 
         window.destroy()
 
     def test_view_registration(self):
-        canvas = ItemContainer()
+        item_container = ItemContainer()
 
-        # Simple views do not register on the canvas
+        # Simple views do not register on the item_container
 
-        view = View(canvas)
-        assert len(canvas._registered_views) == 0
+        view = View(item_container)
+        assert len(item_container._registered_views) == 0
 
         box = Box()
-        canvas.add(box)
+        item_container.add(box)
 
         # By default no complex updating/calculations are done:
         assert view not in box._matrix_i2v
@@ -184,8 +184,8 @@ class ViewTestCase(unittest.TestCase):
 
         # GTK view does register for updates though
 
-        view = TogaView(canvas)
-        assert len(canvas._registered_views) == 1
+        view = TogaView(item_container)
+        assert len(item_container._registered_views) == 1
 
         # No entry, since GtkView is not realized and has no window
         assert view not in box._matrix_i2v
@@ -198,14 +198,14 @@ class ViewTestCase(unittest.TestCase):
         assert view in box._matrix_i2v
         assert view in box._matrix_v2i
 
-        view.canvas = None
-        assert len(canvas._registered_views) == 0
+        view.item_container = None
+        assert len(item_container._registered_views) == 0
 
         assert view not in box._matrix_i2v
         assert view not in box._matrix_v2i
 
-        view.canvas = canvas
-        assert len(canvas._registered_views) == 1
+        view.item_container = item_container
+        assert len(item_container._registered_views) == 1
 
         assert view in box._matrix_i2v
         assert view in box._matrix_v2i
@@ -214,13 +214,13 @@ class ViewTestCase(unittest.TestCase):
         """
         Test view registration and destroy when view is destroyed.
         """
-        canvas = ItemContainer()
+        item_container = ItemContainer()
         window = toga.Window()
-        view = TogaView(canvas)
+        view = TogaView(item_container)
         window.show()
 
         box = Box()
-        canvas.add(box)
+        item_container.add(box)
 
         assert hasattr(box, '_matrix_i2v')
         assert hasattr(box, '_matrix_v2i')
@@ -228,12 +228,12 @@ class ViewTestCase(unittest.TestCase):
         assert box._matrix_i2v[view]
         assert box._matrix_v2i[view]
 
-        assert len(canvas._registered_views) == 1
-        assert view in canvas._registered_views
+        assert len(item_container._registered_views) == 1
+        assert view in item_container._registered_views
 
         window.destroy()
 
-        assert len(canvas._registered_views) == 0
+        assert len(item_container._registered_views) == 0
 
         assert view not in box._matrix_i2v
         assert view not in box._matrix_v2i

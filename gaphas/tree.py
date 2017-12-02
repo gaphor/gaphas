@@ -20,7 +20,7 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-Simple class containing the tree structure for the canvas items.
+Simple class containing the tree structure for the item container items.
 
 """
 
