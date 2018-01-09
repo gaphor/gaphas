@@ -46,7 +46,7 @@
 ------
 - allow to define connectable parts of item's (ports feature)
 - implemented default connection tool (thanks to ports feature)
-- line segment tool implemented (code taken from dabbler)
+- line segment tool implemented (code taken from gaphor)
 - implemented Item.constraint method to simplify item's constraint
   creation
 - The canvas (-view) is no longer tied to the (0, 0) position. Scrolling can

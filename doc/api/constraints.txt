@@ -4,7 +4,7 @@ Constraints
 
 The default constraint classes provided by Gaphas
 
-:mod: `dabbler.constraint`
+:mod: `gaphor.constraint`
 ---------------------
 
 .. module:: gaphas.constraint

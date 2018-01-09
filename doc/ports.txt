@@ -6,7 +6,7 @@ connection system more flexible.
 
 Port Types
 ----------
-There are two types of ports implemented in Dabbler (see `gaphas.connector`
+There are two types of ports implemented in Gaphor (see `gaphas.connector`
 module).
 
 First one is point port, as is often use in
@@ -72,9 +72,9 @@ perform connections between items.
 
 Examples
 --------
-Examples of ports can be found in Gaphas and Dabbler source code
+Examples of ports can be found in Gaphas and Gaphor source code
 
 - `gaphas.item.Line` and `gaphas.item.Element` classes
 - `gaphas.examples.PortoBox` class has an example of movable port
-- Dabbler interface and lifeline items have own specific ports
+- Gaphor interface and lifeline items have own specific ports
 

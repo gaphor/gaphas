@@ -4,7 +4,7 @@ Various utility functions
 
 This part describes the API of Gaphas.
 
-:mod: `dabbler.util`
+:mod: `gaphor.util`
 ---------------------
 
 .. module:: gaphas.util

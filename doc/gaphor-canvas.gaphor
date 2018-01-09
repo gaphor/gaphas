@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dabbler xmlns="http://dabbler.sourceforge.net/model" version="3.0" dabbler-version="0.15.0.b5">
+<gaphor xmlns="http://gaphor.sourceforge.net/model" version="3.0" gaphor-version="0.15.0.b5">
 <Package id="DCE:F4284EF0-B332-11DA-87F3-00306EB655C9">
 <name>
 <val><![CDATA[Gaphas]]></val>
@@ -6403,4 +6403,4 @@ the "how."]]></val>
 <ref refid="e27ce89a-0a41-11df-bdaf-00224128e79d"/>
 </specific>
 </Generalization>
-</dabbler>
+</gaphor>

@@ -2,7 +2,7 @@
 Decorators
 ##########
 
-:mod: `dabbler.decorators`
+:mod: `gaphor.decorators`
 ---------------------
 
 .. module:: gaphas.decorators

@@ -1,9 +1,9 @@
-Dabbler's Item Container
+Gaphor's Item Container
 ===============
 
-This module contains a new item container implementation for Dabbler.
+This module contains a new item container implementation for Gaphor.
 
-Homepage: http://github.com/danyeaw/gaphas
+Homepage: http://github.com/gaphas/gaphas
 
 The basic idea is:
 

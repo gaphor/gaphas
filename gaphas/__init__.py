@@ -22,9 +22,9 @@
 Gaphas
 ======
 
-Dabbler's ItemContainer.
+Gaphor's ItemContainer.
 
-This module contains the application independant parts of Dabbler's ItemContainer.
+This module contains the application independant parts of Gaphor's ItemContainer.
 It can and may be used by others under the terms of the GNU LGPL licence.
 
 Notes

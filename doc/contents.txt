@@ -1,7 +1,7 @@
 Gaphas Documentation
 ====================
 
-Gaphas is Dabbler's diagram drawing widget.
+Gaphas is Gaphor's diagram drawing widget.
 
 Gaphas has been built with some extensibility in mind. It can be used for many
 drawing purposes, including vector drawing applications, diagram drawing tools

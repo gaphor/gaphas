@@ -4,7 +4,7 @@ Table structure
 
 This part describes the API of Gaphas.
 
-:mod: `dabbler.table`
+:mod: `gaphor.table`
 ---------------------
 
 .. module:: gaphas.table

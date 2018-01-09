@@ -4,7 +4,7 @@ GTK+ View
 
 This part describes the API of Gaphas.
 
-:mod: `dabbler.view`
+:mod: `gaphor.view`
 ---------------------
 
 .. module:: gaphas.view
