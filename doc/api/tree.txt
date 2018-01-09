@@ -4,7 +4,7 @@ Tree structure
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.tree`
+:mod: `dabbler.tree`
 ---------------------
 
 .. module:: gaphas.tree

@@ -5,7 +5,7 @@ API reference
 This part describes the API of Gaphas.
 
 The API can be separated into three parts. First of all there's the model
-(canvas and items). Then there's the view (view) and controllers (tools).
+(item container and items). Then there's the view (view) and controllers (tools).
 
 Some more generic stuff is also described here.
 
@@ -15,7 +15,7 @@ ItemContainer and items
 .. toctree::
    :maxdepth: 2
 
-   api/canvas
+   api/itemcontainer
    api/items
    api/connectors
    api/solver  
@@ -26,7 +26,7 @@ ItemContainer and items
 View and tools
 --------------
 
-Everything related to displaying the canvas and interacting with it.
+Everything related to displaying the item container and interacting with it.
 
 .. toctree::
    :maxdepth: 2
@@ -35,7 +35,7 @@ Everything related to displaying the canvas and interacting with it.
    api/gtkview
    api/painters
 
-Interacting with the canvas is done through tools. Tools tell _what_ has to be done (like moving). To make an element move aspects are defined. Aspects tell _how_ the behaviour has to be performed.
+Interacting with the item container is done through tools. Tools tell _what_ has to be done (like moving). To make an element move aspects are defined. Aspects tell _how_ the behaviour has to be performed.
 
 .. toctree::
    :maxdepth: 2

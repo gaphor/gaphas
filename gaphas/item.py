@@ -43,17 +43,17 @@ class Item(object):
     Attributes:
 
     - matrix: item's transformation matrix
-    - item_container: container which owns an item
+    - item_container: item container, which owns an item
     - constraints: list of item constraints, automatically registered
-      when the item is added to a item_container; may be extended in subclasses
+      when the item is added to an item container; may be extended in subclasses
 
     Private:
 
-    - _item_container:      container which owns an item
+    - _item_container:      item container, which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
-    - _matrix_i2c:  item to item_container coordinates matrix
-    - _matrix_c2i:  item_container to item coordinates matrix
+    - _matrix_i2c:  item to item container coordinates matrix
+    - _matrix_c2i:  item container to item coordinates matrix
     - _matrix_i2v:  item to view coordinates matrices
     - _matrix_v2i:  view to item coordinates matrices
     - _sort_key:  used to sort items
@@ -67,17 +67,17 @@ class Item(object):
         self._constraints = []
         self._ports = []
 
-        # used by gaphas.item_container.ItemContainer to hold conversion matrices
+        # used by gaphas.itemcontainer.ItemContainer to hold conversion matrices
         self._matrix_i2c = None
         self._matrix_c2i = None
 
-        # used by gaphas.view.TogaView to hold item 2 view matrices (view=key)
+        # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
         self._matrix_i2v = WeakKeyDictionary()
         self._matrix_v2i = WeakKeyDictionary()
         self._item_container_projections = WeakSet()
 
     @observed
-    def _set_item_container(self, itemcontainer):
+    def _set_item_container(self, item_container):
         """
         Set the item container. Should only be called from ItemContainer.add and
         ItemContainer.remove().
@@ -97,7 +97,7 @@ class Item(object):
 
     def setup_item_container(self):
         """
-        Called when the container is set for the item.
+        Called when the item container is set for the item.
         This method can be used to create constraints.
         """
         add = self.item_container.solver.add_constraint
@@ -106,7 +106,7 @@ class Item(object):
 
     def teardown_item_container(self):
         """
-        Called when the item_container is unset for the item.
+        Called when the item container is unset for the item.
         This method can be used to dispose constraints.
         """
         self.item_container.disconnect_item(self)
@@ -153,7 +153,7 @@ class Item(object):
         Changing matrix or moving handles programmatically is really not
         advised to be performed here.
 
-        All item_container invariants are true.
+        All item container invariants are true.
         """
         pass
 
@@ -171,7 +171,7 @@ class Item(object):
 
         Returns ``True`` if some updates have been done, ``False`` otherwise.
 
-        See ``itemcontainer._normalize()`` for tests.
+        See ``item_container._normalize()`` for tests.
         """
         updated = False
         handles = self._handles
@@ -191,7 +191,7 @@ class Item(object):
 
     def draw(self, context):
         """
-        Render the item to a item container view.
+        Render the item to a item_container view.
         Context contains the following attributes:
 
         - cairo: the Cairo Context use this one to draw
@@ -530,7 +530,7 @@ class Line(Item):
             return
 
         for c in self._orthogonal_constraints:
-            self.itemcontainer.solver.remove_constraint(c)
+            self.item_container.solver.remove_constraint(c)
         del self._orthogonal_constraints[:]
 
         if not orthogonal:

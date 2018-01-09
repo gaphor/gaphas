@@ -56,7 +56,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 
-# is simple abs(x - y) > EPSILON enough for item_container needs?
+# is simple abs(x - y) > EPSILON enough for item container needs?
 EPSILON = 1e-6
 
 

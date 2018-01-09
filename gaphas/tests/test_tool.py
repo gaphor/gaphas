@@ -40,8 +40,8 @@ Event = Context
 
 def simple_item_container(self):
     """
-    This decorator adds view, item_container and handle connection tool to a test
-    case. Two boxes and a line are added to the item_container as well.
+    This decorator adds view, item container and handle connection tool to a test
+    case. Two boxes and a line are added to the item container as well.
     """
     self.item_container = ItemContainer()
     win = toga.Window()

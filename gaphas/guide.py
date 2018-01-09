@@ -149,7 +149,7 @@ class GuideMixin(object):
         except TypeError:
             guides = []
 
-        # Translate edges to item_container or view coordinates
+        # Translate edges to an item container or view coordinates
         hedges = set()
         for g in guides:
             for y in g.horizontal():

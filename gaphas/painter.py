@@ -21,11 +21,11 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-The painter module provides different painters for parts of the item_container.
+The painter module provides different painters for parts of the item container.
 
 Painters can be swapped in and out.
 
-Each painter takes care of a layer in the item_container (such as grid, items
+Each painter takes care of a layer in the item container (such as grid, items
 and handles).
 """
 
@@ -267,15 +267,15 @@ class BoundingBoxContext(object):
 class BoundingBoxPainter(ItemPainter):
     """
     This specific case of an ItemPainter is used to calculate the bounding
-    boxes (in item_container coordinates) for the items.
+    boxes (in item container coordinates) for the items.
     """
 
     draw_all = True
 
-    def _draw_item(self, item, toga_item_container, area=None):
-        toga_item_container = BoundingBoxContext(toga_item_container)
-        super(BoundingBoxPainter, self)._draw_item(item, toga_item_container)
-        bounds = toga_item_container.get_bounds()
+    def _draw_item(self, item, toga_canvas, area=None):
+        toga_canvas = BoundingBoxContext(toga_canvas)
+        super(BoundingBoxPainter, self)._draw_item(item, toga_canvas)
+        bounds = toga_canvas.get_bounds()
 
         # Update bounding box with handles.
         view = self.view
@@ -287,12 +287,12 @@ class BoundingBoxPainter(ItemPainter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def _draw_items(self, items, toga_item_container, area=None):
+    def _draw_items(self, items, toga_canvas, area=None):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, toga_item_container)
+            self._draw_item(item, toga_canvas)
 
     def paint(self, context):
         self._draw_items(context.items, context.cairo)

@@ -1,14 +1,9 @@
-Gaphor's ItemContainer
+Dabbler's Item Container
 ===============
 
-This module contains a new canvas implementation for Gaphor.
+This module contains a new item container implementation for Dabbler.
 
-Homepage: http://github.com/amolenaar/gaphas
-
-Issue tracker: http://gaphor.lighthouseapp.com
-
-Mailing list: gaphor-dev@googlegroups.com
-
+Homepage: http://github.com/danyeaw/gaphas
 
 The basic idea is:
 
@@ -49,7 +44,7 @@ to solve mathematical dependencies between items (such as Handles that should
 be aligned). The constraint solver is also a handy tool to keep constraint
 in the item true (e.g. make sure a box maintains it's rectangular shape).
 
-View (from view.py) is used to visualize a canvas. On a View, a Tool
+View (from view.py) is used to visualize an item container. On a View, a Tool
 (from tool.py) can be applied, which will handle user input (button presses,
 key presses, etc.). Painters (from painter.py) are used to do the actual
 drawing. This way it should be easy do draw to other media than the screen,
@@ -58,11 +53,11 @@ such as a printer or PDF document.
 Updating item state
 -------------------
 If an items needs updating, it sets out an update request on the ItemContainer
-(ItemContainer.request_update()). The canvas performs an update by calling:
+(ItemContainer.request_update()). The item container performs an update by calling:
 
 1. Item.pre_update(context) for each item marked for update
 2. Updating ItemContainer-to-Item matrices, for fast transformation of coordinates
-   from the canvas' to the items' coordinate system.
+   from the item_container' to the items' coordinate system.
    The c2i matrix is stored on the Item as Item._matrix_c2i.
 3. Solve constraints.
 4. Normalize items by setting the coordinates of the first handle to (0, 0).
@@ -79,7 +74,7 @@ The context contains:
 :cairo: a CairoContext, this can be used to calculate the dimensions of text
         for example
 
-NOTE: updating is done from the canvas, items should not update sub-items.
+NOTE: updating is done from the item container, items should not update sub-items.
 
 After an update, the Item should be ready to be drawn.
 
@@ -134,7 +129,7 @@ been defined: one for handles, one for items, etc.
 
 Tools
 -----
-Behaviour is added to the canvas(-view) by tools.
+Behaviour is added to the item container(-view) by tools.
 
 Tools can be chained together in order to provide more complex behaviour.
 
@@ -173,7 +168,7 @@ RubberbandTool
 
 Interaction
 -----------
-Interaction with the canvas view (visual component) is handled by tools.
+Interaction with the item container view (visual component) is handled by tools.
 Although the default tools do a fair amount of work, in most cases you'll
 see that especially the way items connect with each other is not the way
 you want it. That's okay. HandleTool provides some hooks (connect, disconnect
@@ -181,10 +176,10 @@ and glue) to implement custom connection behaviour (in fact, the default
 implementation doesn't do any connecting at all!).
 
 One of the problems you'll face is what to do when an item is removed from the
-canvas and there are other items (lines) connected to. This problem can be
+item container and there are other items (lines) connected to. This problem can be
 overcome by providing a disconnect handler to the handle instance ones it is
 connected. A callable object (e.g. function) can be assigned to the handle. It
-is called at the moment the item it's connected to is removed from the canvas.
+is called at the moment the item it's connected to is removed from the item container.
 
 
 Undo

@@ -2,7 +2,7 @@ Interacting with diagrams
 =========================
 
 Tools are used to handle user actions, like moving a mouse pointer over the
-screen and clicking on items in the canvas.
+screen and clicking on items in the item container.
 
 Tools are registered on the ``View``. They have some internal state (e.g. when and
 where a mouse button was pressed). Therefore tools can not be reused by
@@ -60,7 +60,7 @@ Gaphas contains a set of default tools. Each tool is ment to deal with a special
 :RubberBandTool:
   If no handle or item is selected a rubberband selection is started.
 :PanTool and ZoomTool:
-  Handy tools for moving the canvas around and zooming in and out. Convenience functionality, basically.
+  Handy tools for moving the item container around and zooming in and out. Convenience functionality, basically.
 :TextEditTool:
   An experimental tool for editing onscreen text.
 

@@ -30,7 +30,7 @@ from gaphas.item import NW, NE, SE, SW
 class ElementTestCase(unittest.TestCase):
     def test_creation_with_size(self):
         """
-        Test if initial size holds when added to a item_container.
+        Test if initial size holds when added to an item container.
         """
         item_container = ItemContainer()
         box = Box(150, 153)

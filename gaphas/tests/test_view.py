@@ -36,7 +36,7 @@ from gaphas.view import View, TogaView
 class ViewTestCase(unittest.TestCase):
     def test_bounding_box_calculations(self):
         """
-        A view created before and after the item_container is populated should contain
+        A view created before and after the item container is populated should contain
         the same data.
         """
          = ItemContainer()
@@ -61,7 +61,7 @@ class ViewTestCase(unittest.TestCase):
         view2 = TogaView(item_container=item_container)
         window2.show()
 
-        # Process pending (expose) events, which cause the item_container to be drawn.
+        # Process pending (expose) events, which cause the item container to be drawn.
         # while Gtk.events_pending():
         #     Gtk.main_iteration()
 
@@ -94,7 +94,7 @@ class ViewTestCase(unittest.TestCase):
         box.width = 50
         box.height = 50
 
-        # Process pending (expose) events, which cause the item_container to be drawn.
+        # Process pending (expose) events, which cause the item container to be drawn.
         # while Gtk.events_pending():
         #     Gtk.main_iteration()
 
@@ -153,7 +153,7 @@ class ViewTestCase(unittest.TestCase):
         # No gtk main loop, so updates occur instantly
         assert not item_container.require_update()
 
-        # Process pending (expose) events, which cause the item_container to be drawn.
+        # Process pending (expose) events, which cause the item container to be drawn.
         # while Gtk.events_pending():
         #     Gtk.main_iteration()
 

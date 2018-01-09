@@ -35,7 +35,7 @@ from gaphas.item import Element
 
 class ItemFinder(object):
     """
-    Find an item on the item_container.
+    Find an item in the item container.
     """
 
     def __init__(self, view):
@@ -311,7 +311,7 @@ class ItemConnectionSink(object):
 
     def find_port(self, pos):
         """
-        Glue to the closest item on the item_container.
+        Glue to the closest item in the item container.
         If the item can connect, it returns a port.
         """
         port = None

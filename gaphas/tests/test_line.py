@@ -103,9 +103,9 @@ class LineTestCase(TestCaseBase):
     def test_orthogonal_line_undo(self):
         """Test orthogonal line undo
         """
-        item_container = ItemContainer()
+        item container = ItemContainer()
         line = Line()
-        item_container.add(line)
+        item container.add(line)
 
         segment = Segment(line, None)
         segment.split_segment(0)

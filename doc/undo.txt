@@ -112,38 +112,38 @@ itemcontainer.py: ItemContainer
 -----------------
 
     >>> from gaphas import ItemContainer, Item
-    >>> canvas = ItemContainer()
-    >>> canvas.get_all_items()
+    >>> item_container = ItemContainer()
+    >>> item_container.get_all_items()
     []
     >>> item = Item()
-    >>> canvas.add(item)
+    >>> item_container.add(item)
 
 The ``request_update()`` method is observed:
 
     >>> len(undo_list)
     1
-    >>> canvas.request_update(item)
+    >>> item_container.request_update(item)
     >>> len(undo_list)
     2
 
-On the canvas only ``add()`` and ``remove()`` are monitored:
+For the item container only ``add()`` and ``remove()`` are monitored:
 
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
-    >>> item.canvas is canvas
+    >>> item.item_container is item_container
     True
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> item_container.get_all_items()
     []
-    >>> item.canvas is None
+    >>> item.item_container is None
     True
-    >>> canvas.add(item)
+    >>> item_container.add(item)
     >>> del undo_list[:]
-    >>> canvas.remove(item)
-    >>> canvas.get_all_items()
+    >>> item_container.remove(item)
+    >>> item_container.get_all_items()
     []
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
     >>> undo_list
     []
@@ -154,52 +154,52 @@ TODO!
 
 
     >>> child = Item()
-    >>> canvas.add(child, parent=item)
-    >>> child.canvas is canvas
+    >>> item_container.add(child, parent=item)
+    >>> child.item_container is item_container
     True
-    >>> canvas.get_parent(child) is item
+    >>> item_container.get_parent(child) is item
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
     >>> undo()
-    >>> child.canvas is None
+    >>> child.item_container is None
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
-    >>> child in canvas.get_all_items()
+    >>> child in item_container.get_all_items()
     False
 
 Now redo the previous undo action:
 
     >>> undo_list[:] = redo_list[:]
     >>> undo()
-    >>> child.canvas is canvas
+    >>> child.item_container is item_container
     True
-    >>> canvas.get_parent(child) is item
+    >>> item_container.get_parent(child) is item
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
 Remove also works when items are removed recursively (an item and it's
 children):
 
     >>> child = Item()
-    >>> canvas.add(child, parent=item)
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.add(child, parent=item)
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
     >>> del undo_list[:]
-    >>> canvas.remove(item)
-    >>> canvas.get_all_items()
+    >>> item_container.remove(item)
+    >>> item_container.get_all_items()
     []
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> item_container.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
-    >>> canvas.get_children(item)			# doctest: +ELLIPSIS
+    >>> item_container.get_children(item)			# doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
 
 As well as the reparent() method:
 
-    >>> canvas = ItemContainer()
+    >>> item_container = ItemContainer()
     >>> class NameItem(Item):
     ...     def __init__(self, name):
     ...         super(NameItem, self).__init__()
@@ -207,30 +207,30 @@ As well as the reparent() method:
     ...     def __repr__(self):
     ...         return '<%s>' % self.name
     >>> ni1 = NameItem('a')
-    >>> canvas.add(ni1)
+    >>> item_container.add(ni1)
     >>> ni2 = NameItem('b')
-    >>> canvas.add(ni2)
+    >>> item_container.add(ni2)
     >>> ni3 = NameItem('c')
-    >>> canvas.add(ni3, parent=ni1)
+    >>> item_container.add(ni3, parent=ni1)
     >>> ni4 = NameItem('d')
-    >>> canvas.add(ni4, parent=ni3)
-    >>> canvas.get_all_items()
+    >>> item_container.add(ni4, parent=ni3)
+    >>> item_container.get_all_items()
     [<a>, <c>, <d>, <b>]
     >>> del undo_list[:]
-    >>> canvas.reparent(ni3, parent=ni2)
-    >>> canvas.get_all_items()
+    >>> item_container.reparent(ni3, parent=ni2)
+    >>> item_container.get_all_items()
     [<a>, <b>, <c>, <d>]
     >>> len(undo_list)
     1
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> item_container.get_all_items()
     [<a>, <c>, <d>, <b>]
 
 Redo should work too:
 
     >>> undo_list[:] = redo_list[:]
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> item_container.get_all_items()
     [<a>, <b>, <c>, <d>]
 
 
@@ -269,7 +269,7 @@ And now undo the whole lot at once:
 item.py: Item
 -------------
 
-The basic Item properties are canvas and matrix. ItemContainer has been tested before,
+The basic Item properties are item container and matrix. ItemContainer has been tested before,
 while testing the ItemContainer class.
 
 The Matrix has been tested in section matrix.py: Matrix.
@@ -291,10 +291,10 @@ An element has ``min_height`` and ``min_width`` properties.
     >>> e.min_height, e.min_width
     (Variable(0, 100), Variable(0, 100))
     
-    >>> canvas = ItemContainer()
-    >>> canvas.add(e)
+    >>> item_container = ItemContainer()
+    >>> item_container.add(e)
     >>> undo()
-    >>> e.canvas
+    >>> e.item_container
 
 item.py: Line
 -------------
@@ -352,47 +352,47 @@ The opposite operation is performed with the merge_segment() method:
 
 Also creation and removal of connected lines is recorded and can be undone:
 
-    >>> canvas = ItemContainer()
+    >>> item_container = ItemContainer()
     >>> def real_connect(hitem, handle, item):
     ...     def real_disconnect():
     ...         pass
-    ...     canvas.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
+    ...     item_container.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
     >>> b0 = Item()
-    >>> canvas.add(b0)
+    >>> item_container.add(b0)
     >>> b1 = Item()
-    >>> canvas.add(b1)
+    >>> item_container.add(b1)
     >>> l = Line()
-    >>> canvas.add(l)
+    >>> item_container.add(l)
     >>> real_connect(l, l.handles()[0], b0)
     >>> real_connect(l, l.handles()[1], b1)
-    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    >>> item_container.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
-    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    >>> item_container.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
 
 Clear already collected undo data:
 
     >>> del undo_list[:]
 
-Now remove the line from the canvas:
+Now remove the line from the item container:
 
-    >>> canvas.remove(l)
+    >>> item_container.remove(l)
 
 The handles are disconnected:
 
-    >>> l.canvas
-    >>> canvas.get_connection(l.handles()[0])
-    >>> canvas.get_connection(l.handles()[1])
+    >>> l.item_container
+    >>> item_container.get_connection(l.handles()[0])
+    >>> item_container.get_connection(l.handles()[1])
 
 Undoing the remove() action should put everything back in place again:
 
     >>> undo()
 
-    >>> l.canvas                                        # doctest: +ELLIPSIS
-    <gaphas.canvas.ItemContainer object at 0x...>
-    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    >>> l.item_container                                        # doctest: +ELLIPSIS
+    <gaphas.itemcontainer.ItemContainer object at 0x...>
+    >>> item_container.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
-    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    >>> item_container.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
 
 

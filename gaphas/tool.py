@@ -39,10 +39,10 @@ Some of implemented tools are
     for rubber band selection of multiple items
 
 `PanTool`
-    for easily moving the item_container around
+    for easily moving the item container around
 
 `PlacementTool`
-    for placing items on the item_container
+    for placing items on the item container
 
 The tools are chained with `ToolChain` class (it is a tool as well), which
 allows to combine functionality provided by different tools.
@@ -130,7 +130,7 @@ class Tool(object):
     def draw(self, context):
         """
         Some tools (such as Rubberband selection) may need to draw something
-        on the item_container. This can be done through the draw() method. This is
+        on the item container. This can be done through the draw() method. This is
         called after all items are drawn.
         The context contains the following fields:
 
@@ -469,7 +469,7 @@ class RubberbandTool(Tool):
 class PanTool(Tool):
     """
     Captures drag events with the middle mouse button and uses them to
-    translate the item_container within the view. Trumps the ZoomTool, so should be
+    translate the item container within the view. Trumps the ZoomTool, so should be
     placed later in the ToolChain.
     """
 

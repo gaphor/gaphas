@@ -223,7 +223,7 @@ class ConstraintProjectionTestCase(unittest.TestCase):
 
 class CanvasConstraintTestCase(unittest.TestCase):
     def test_remove_connected_item(self):
-        """Test adding item_container constraint"""
+        """Test adding item container constraint"""
         item_container = ItemContainer()
 
         from gaphas.aspect import Connector, ConnectionSink
@@ -263,7 +263,7 @@ class CanvasConstraintTestCase(unittest.TestCase):
         self.assertEquals(number_cons1 + 1, len(item_container.solver.constraints))
 
 #    def test_adding_constraint(self):
-#        """Test adding item_container constraint"""
+#        """Test adding item container constraint"""
 #        item_container = ItemContainer()
 #
 #        l1 = Line()

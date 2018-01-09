@@ -69,7 +69,7 @@ class View(object):
 
     def _set_item_container(self, item_container):
         """
-        Use view.item_container = my_item_container to set the item_container to be rendered
+        Use view.item_container = my_item_container to set the item container to be rendered
         in the view.
         """
         if self._item_container:
@@ -329,7 +329,7 @@ class View(object):
     def get_items_in_rectangle(self, rect, intersect=True, reverse=False):
         """
         Return the items in the rectangle 'rect'.
-        Items are automatically sorted in item_container' processing order.
+        Items are automatically sorted in item container processing order.
         """
         if intersect:
             items = self._qtree.find_intersect(rect)
@@ -380,8 +380,8 @@ class View(object):
 
     def update_bounding_box(self, cr, items=None):
         """
-        Update the bounding boxes of the item_container items for this view, in 
-        item_container coordinates.
+        Update the bounding boxes of the item container items for this view, in
+        item container coordinates.
         """
         painter = self._bounding_box_painter
         if items is None:
@@ -449,14 +449,14 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
     #
     # class TogaView(Gtk.DrawingArea, Gtk.Scrollable, View):
     """
-    Toga widget for rendering a item_container.ItemContainer to a screen.
+    Toga widget for rendering a itemcontainer.ItemContainer to a screen.
     The view uses Tools from `tool.py` to handle events and Painters
     from `painter.py` to draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.
 
-    This view registers itself on the item_container, so it will receive update events.
+    This view registers itself on the item container, so it will receive update events.
     """
 
     # Just defined a name to make GTK register this class.
@@ -553,7 +553,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
 
     def _set_item_container(self, item_container):
         """
-        Use view.item_container = my_item_container to set the item_container to be rendered
+        Use view.item_container = my_item_container to set the item container to be rendered
         in the view.
         This extends the behaviour of View.item_container.
         The view is also registered.
@@ -619,7 +619,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
 
-        # item_container limits (in view coordinates)
+        # item container limits (in view coordinates)
         c = Rectangle(*self._qtree.soft_bounds)
 
         # view limits
@@ -724,7 +724,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
 
     def update(self):
         """
-        Update view status according to the items updated by the item_container.
+        Update view status according to the items updated by the item container.
         """
 
         # if not self.get_window():
@@ -819,7 +819,7 @@ class TogaView(toga.Canvas, Gtk.Scrollable, View):
 
     def do_draw(self, cr):
         """
-        Render item_container to the screen.
+        Render item container to the screen.
         """
         if not self._item_container:
             return

@@ -82,7 +82,7 @@ class ConnectionError(Exception):
 
 class Context(object):
     """
-    Context used for updating and drawing items in a drawing item_container.
+    Context used for updating and drawing items in an item container.
 
     >>> c=Context(one=1,two='two')
     >>> c.one
@@ -121,7 +121,7 @@ class ItemContainer(object):
     @observed
     def add(self, item, parent=None, index=None):
         """
-        Add an item to the item_container.
+        Add an item to the item container.
 
         >>> c = ItemContainer()
         >>> from gaphas import item
@@ -156,7 +156,7 @@ class ItemContainer(object):
 
     def remove(self, item):
         """
-        Remove item from the item_container.
+        Remove item from the item container.
 
         >>> c = ItemContainer()
         >>> from gaphas import item
@@ -206,7 +206,7 @@ class ItemContainer(object):
 
     def get_root_items(self):
         """
-        Return the root items of the item_container.
+        Return the root items of the item container.
 
         >>> c = ItemContainer()
         >>> c.get_all_items()
@@ -340,7 +340,7 @@ class ItemContainer(object):
         Disconnect the connections of an item. If handle is not None, only the
         connection for that handle is disconnected.
         """
-        # disconnect on item_container level
+        # disconnect on item container level
         for cinfo in list(self._connections.query(item=item, handle=handle)):
             self._disconnect_item(*cinfo)
 
@@ -499,7 +499,7 @@ class ItemContainer(object):
     def sort(self, items, reverse=False):
         """
         Sort a list of items in the order in which they are traversed in
-        the item_container (Depth first).
+        the item container (Depth first).
 
         >>> c = ItemContainer()
         >>> from gaphas import item
@@ -523,7 +523,7 @@ class ItemContainer(object):
         Get the Item to ItemContainer matrix for ``item``.
 
         item:
-            The item who's item-to-item_container transformation matrix should be
+            The item who's item-to-item container transformation matrix should be
             found
         calculate:
             True will allow this function to actually calculate it,
@@ -604,7 +604,7 @@ class ItemContainer(object):
 
     def update(self):
         """
-        Update the item_container, if called from within a gtk-mainloop, the
+        Update the item container, if called from within a gtk-mainloop, the
         update job is scheduled as idle job.
         """
         self.update_now()
@@ -800,22 +800,22 @@ class ItemContainer(object):
 
     def update_index(self):
         """
-        Provide each item in the item_container with an index attribute. This makes
+        Provide each item in the item container with an index attribute. This makes
         for fast searching of items.
         """
         self._tree.index_nodes('_item_container_index')
 
     def register_view(self, view):
         """
-        Register a view on this item_container. This method is called when setting
-        a item_container on a view and should not be called directly from user code.
+        Register a view on this item container. This method is called when setting
+        an item container on a view and should not be called directly from user code.
         """
         self._registered_views.add(view)
 
     def unregister_view(self, view):
         """
-        Unregister a view on this item_container. This method is called when setting
-        a item_container on a view and should not be called directly from user code.
+        Unregister a view on this item container. This method is called when setting
+        an item container on a view and should not be called directly from user code.
         """
         self._registered_views.discard(view)
 
@@ -833,7 +833,7 @@ class ItemContainer(object):
         This is a not-so-clean way to solve issues like calculating the
         bounding box for a piece of text (for that you'll need a CairoContext).
         The Cairo context is created by a View registered as view on this
-        item_container. By lack of registered views, a PNG image surface is created
+        item container. By lack of registered views, a PNG image surface is created
         that is used to create a context.
 
         >>> c = ItemContainer()
@@ -851,7 +851,7 @@ class ItemContainer(object):
 
     def __getstate__(self):
         """
-        Persist item_container. Dirty item sets and views are not saved.
+        Persist item container. Dirty item sets and views are not saved.
         """
         d = dict(self.__dict__)
         for n in ('_dirty_items', '_dirty_matrix_items', '_dirty_index', '_registered_views'):
@@ -876,7 +876,7 @@ class ItemContainer(object):
 
     def project(self, item, *points):
         """
-        Project item's points into item_container coordinate system.
+        Project item's points into item container coordinate system.
 
         If there is only one point returned than projected point is
         returned. If there are more than one points, then tuple of
@@ -888,9 +888,9 @@ class ItemContainer(object):
             return cp
 
         if len(points) == 1:
-            return reg(ItemContainerProjection(points[0], item))
+            return reg(CanvasProjection(points[0], item))
         elif len(points) > 1:
-            return tuple(reg(ItemContainerProjection(p, item)) for p in points)
+            return tuple(reg(CanvasProjection(p, item)) for p in points)
         else:
             raise AttributeError('There should be at least one point specified')
 
@@ -928,7 +928,7 @@ class VariableProjection(solver.Projection):
         return self._var
 
 
-class ItemContainerProjection(object):
+class CanvasProjection(object):
     """
     Project a point as Canvas coordinates.
     Although this is a projection, it behaves like a tuple with two Variables
@@ -943,7 +943,7 @@ class ItemContainerProjection(object):
     >>> item_container.update_now()
     >>> item_container.get_matrix_i2c(a)
     cairo.Matrix(1, 0, 0, 1, 30, 2)
-    >>> p = ItemContainerProjection(a.handles()[2].pos, a)
+    >>> p = CanvasProjection(a.handles()[2].pos, a)
     >>> a.handles()[2].pos
     <Position object on (10, 10)>
     >>> p[0].value

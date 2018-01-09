@@ -4,7 +4,7 @@ Tools
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.tool`
+:mod: `dabbler.tool`
 ---------------------
 
 .. module:: gaphas.tool

@@ -142,7 +142,7 @@ class PortoBox(Box):
 
 class Text(Item):
     """
-    Simple item showing some text on the item_container.
+    Simple item showing some text in the item container.
     """
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):

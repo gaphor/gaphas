@@ -108,7 +108,7 @@ class Handle(object):
     refer to the item. A ``disconnect`` handler should be provided that handles
     all disconnect behaviour (e.g. clean up constraints and ``connected_to``).
 
-      Note for those of you that use the Pickle module to persist a item_container:
+      Note for those of you that use the Pickle module to persist an item container:
       The property ``disconnect`` should contain a callable object (with
       __call__() method), so the pickle handler can also pickle that. Pickle is
       not capable of pickling ``instancemethod`` or ``function`` objects.

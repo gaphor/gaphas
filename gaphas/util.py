@@ -21,7 +21,7 @@
 # along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 """
-Helper functions and classes for Cairo (drawing engine used by the item_container).
+Helper functions and classes for Toga (drawing engine used by the item container).
 """
 
 from math import pi

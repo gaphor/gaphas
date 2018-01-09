@@ -170,7 +170,7 @@ class LineSegment(object):
             return sink.find_port((ix, iy))
 
         if not connected.item_container:
-            # No item_container, no constraints
+            # No item container, no constraints
             return
 
         item_container = connected.item_container
