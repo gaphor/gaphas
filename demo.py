@@ -34,17 +34,8 @@ It sports a small canvas and some trivial operations:
 
 """
 
-try:
-    import gi
-except ImportError:
-    pass
-else:
-    gi.require_version('Gtk', '3.0')
-
 import math
-from gi.repository import Gtk
 import toga
-import cairo
 from gaphas import ItemContainer, TogaView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
 from gaphas.item import Line
@@ -73,12 +64,12 @@ def undo_handler(event):
 
 def factory(view, cls):
     """
-    Simple canvas item factory.
+    Simple item container item factory.
     """
 
     def wrapper():
         item = cls()
-        view.canvas.add(item)
+        view.item_container.add(item)
         return item
 
     return wrapper
@@ -96,20 +87,24 @@ class MyLine(Line):
     def __init__(self):
         super(MyLine, self).__init__()
         self.fuzziness = 2
+        self.canvas = toga.Canvas(on_draw=self.draw_line)
 
-    def draw_head(self, context):
-        cr = context.cairo
-        cr.move_to(0, 0)
-        cr.line_to(10, 10)
-        cr.stroke()
-        # Start point for the line to the next handle
-        cr.move_to(0, 0)
+    def draw_head(self):
+        with self.canvas.stroke():
+            self.canvas.move_to(0, 0)
+            self.canvas.line_to(10, 10)
+            # Start point for the line to the next handle
+            self.canvas.move_to(0, 0)
 
-    def draw_tail(self, context):
-        cr = context.cairo
-        cr.line_to(0, 0)
-        cr.line_to(10, 10)
-        cr.stroke()
+    def draw_tail(self):
+        with self.canvas.stroke():
+            self.canvas.line_to(0, 0)
+            self.canvas.line_to(10, 10)
+
+    def draw_line(self, canvas, context):
+        self.canvas.set_context(context)
+        self.draw_head()
+        self.draw_tail()
 
 
 class MyText(Text):
