@@ -3,11 +3,13 @@ Gaphor's Canvas
 
 This module contains a new canvas implementation for Gaphor.
 
-Homepage: http://github.com/amolenaar/gaphas
+You can find the sources and issue tracker at GitLab:
 
-Issue tracker: http://gaphor.lighthouseapp.com
+http://gitlab.com/MBSE/gaphas/
 
-Mailing list: gaphor-dev@googlegroups.com
+For documentation refer to our project website:
+
+http://mbse.gitlab.io/gaphas/
 
 
 The basic idea is:
@@ -52,8 +54,8 @@ in the item true (e.g. make sure a box maintains it's rectangular shape).
 View (from view.py) is used to visualize a canvas. On a View, a Tool
 (from tool.py) can be applied, which will handle user input (button presses,
 key presses, etc.). Painters (from painter.py) are used to do the actual
-drawing. This way it should be easy do draw to other media than the screen,
-such as a printer or PDF document.
+drawing. Keep the painters modular could allow you to draw to other media than
+the screen, such as a printer or PDF document.
 
 Updating item state
 -------------------
@@ -61,13 +63,13 @@ If an items needs updating, it sets out an update request on the Canvas
 (Canvas.request_update()). The canvas performs an update by calling:
 
 1. Item.pre_update(context) for each item marked for update
-2. Updating Canvas-to-Item matrices, for fast transformation of coordinates
+2. Updating Canvas-to-Item (c2i) matrices, for fast transformation of coordinates
    from the canvas' to the items' coordinate system.
    The c2i matrix is stored on the Item as Item._matrix_c2i.
 3. Solve constraints.
 4. Normalize items by setting the coordinates of the first handle to (0, 0).
 5. Updating Canvas-to-Item matrices for items that have been changed by
-   normalization, just to be on the save side.
+   normalization.
 6. Item.post_update(context) for each item marked for update, including items
    that have been marked during constraint solving.
 
@@ -81,16 +83,15 @@ The context contains:
 
 NOTE: updating is done from the canvas, items should not update sub-items.
 
-After an update, the Item should be ready to be drawn.
+After an update, the item should be ready to be drawn.
 
 Constraint solving
 ------------------
-A word about the constraint solver seems in place. It is one of the big
-features of this library after all. The Solver is able to solve constraints.
-Constraints can be applied to items (Variables owned by the item actually).
-Element items, for example, uses constraints to maintain their recangular
-shape. Constraints can be created *between* items (for example a line that
-connects to a box).
+A word about the constraint solver since it is one of the big features of this
+library. The Solver is able to solve constraints. Constraints can be applied to
+items (variables owned by the item actually). For example, element items use
+constraints to maintain their recangular shape. Constraints can be created
+*between* items (for example a line that connects to a box).
 
 Constraints that apply to one item are pretty straight forward, as all variables
 live in the same coordinate system (of the item). The variables (in most cases
@@ -98,19 +99,19 @@ a Handle's x and y coordinate) can simply be put in a constraint.
 
 When two items are connected to each other and constraints are created, a
 problem shows up: variables live in separate coordinate systems. To overcome
-this problem a Projection (from solver.py) has been defined. With a Projection
+this problem a projection (from solver.py) has been defined. With a projection
 instance, a variable can be "projected" on another coordinate system. In this
-case, where two items are connecting to each other, the Canvas' coordinate
+case, where two items are connecting to each other, the canvas' coordinate
 system is used.
 
 
 Drawing
 -------
-Drawing is done by the View. All items marked for redraw (e.i. the items
+Drawing is done by the View. All items marked for redraw (i.e. the items
 that had been updated) will be drawn in the order in which they reside in the
-Canvas (first root item, then it's children; second root item, etc.)
+canvas (first root item, then it's children; second root item, etc.)
 
-The view context passed to the Items draw() method has the following properties:
+The view context passed to the item's draw() method has the following properties:
 
 :view:     the view we're drawing to
 :cairo:    the CairoContext to draw to
@@ -124,7 +125,7 @@ The view context passed to the Items draw() method has the following properties:
 :draw_all: True if everything drawable on the item should be drawn (e.g. when
            calculating the bounding boxes).
 
-The View automatically calculates the bounding box for the item, based on the
+The view automatically calculates the bounding box for the item, based on the
 items drawn in the draw(context) function (this is only done when really
 necessary, e.g. after an update of the item). The bounding box is in viewport
 coordinates.
@@ -190,7 +191,7 @@ is called at the moment the item it's connected to is removed from the canvas.
 Undo
 ====
 
-Gaphas has a simple build-in system for registering changes in it's classes and
+Gaphas has a simple built-in system for registering changes in its classes and
 notifying the application. This code resides in state.py.
 
 There is also a "reverter" framework in place. This "framework" is notified
@@ -202,8 +203,6 @@ See state.txt and undo.txt for details and usage examples.
 
 Guidelines
 ==========
-
-Documentation should be in UK English.
 
 Following the `Python coding guidelines`_ indentation should be 4 spaces
 (no tabs), function and method names should be ``lowercase_with_underscore()``.

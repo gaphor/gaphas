@@ -6,17 +6,22 @@ this file is licensed under the Python Software Foundation License, version 2.
 
 """
 
+from __future__ import absolute_import
+
 from _weakref import ref
 
 __all__ = ['WeakSet']
 
+
 class WeakSet:
     def __init__(self, data=None):
         self.data = set()
+
         def _remove(item, selfref=ref(self)):
             self = selfref()
             if self is not None:
                 self.data.discard(item)
+
         self._remove = _remove
         if data is not None:
             self.update(data)
@@ -32,15 +37,15 @@ class WeakSet:
 
     def __contains__(self, item):
         """
-        >>> class C(object): pass
-        >>> a = C()
-        >>> b = C()
-        >>> ws = WeakSet((a, b))
-        >>> a in ws
-        True
-        >>> a = C()
-        >>> a in ws
-        False
+            >>> class C(object): pass
+            >>> a = C()
+            >>> b = C()
+            >>> ws = WeakSet((a, b))
+            >>> a in ws
+            True
+            >>> a = C()
+            >>> a in ws
+            False
         """
         return ref(item) in self.data
 
@@ -101,6 +106,7 @@ class WeakSet:
         else:
             for element in other:
                 self.add(element)
+
     def __ior__(self, other):
         self.update(other)
         return self
@@ -116,6 +122,7 @@ class WeakSet:
 
     def difference(self, other):
         return self._apply(other, self.data.difference)
+
     __sub__ = difference
 
     def difference_update(self, other):
@@ -133,16 +140,19 @@ class WeakSet:
 
     def intersection(self, other):
         return self._apply(other, self.data.intersection)
+
     __and__ = intersection
 
     def intersection_update(self, other):
         self.data.intersection_update(ref(item) for item in other)
+
     def __iand__(self, other):
         self.data.intersection_update(ref(item) for item in other)
         return self
 
     def issubset(self, other):
         return self.data.issubset(ref(item) for item in other)
+
     __lt__ = issubset
 
     def __le__(self, other):
@@ -150,6 +160,7 @@ class WeakSet:
 
     def issuperset(self, other):
         return self.data.issuperset(ref(item) for item in other)
+
     __gt__ = issuperset
 
     def __ge__(self, other):

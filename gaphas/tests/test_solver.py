@@ -1,14 +1,37 @@
+#!/usr/bin/env python
+
+# Copyright (C) 2007-2017 Arjan Molenaar <gaphor@gmail.com>
+#                         Artur Wroblewski <wrobell@pld-linux.org>
+#                         Dan Yeaw <dan@yeaw.me>
+#
+# This file is part of Gaphas.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Library General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option) any
+# later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
+# more details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 """
 Unit tests for Gaphas' solver.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+
 import unittest
 from timeit import Timer
 
-from gaphas.solver import Solver, Variable
 from gaphas.constraint import EquationConstraint, EqualsConstraint, \
     LessThanConstraint
-
+from gaphas.solver import Solver, Variable
 
 SETUP = """
 from gaphas.solver import Solver, Variable
@@ -23,10 +46,12 @@ solver.add_constraint(c_eq)
 REPEAT = 30
 NUMBER = 1000
 
+
 class WeakestVariableTestCase(unittest.TestCase):
     """
     Test weakest variable calculation.
     """
+
     def test_weakest_list(self):
         """Test weakest list"""
         solver = Solver()
@@ -41,7 +66,6 @@ class WeakestVariableTestCase(unittest.TestCase):
         self.assertTrue(b in c_eq._weakest)
         self.assertTrue(c in c_eq._weakest)
 
-
     def test_weakest_list_order(self):
         """Test weakest list order"""
         solver = Solver()
@@ -55,7 +79,7 @@ class WeakestVariableTestCase(unittest.TestCase):
         weakest = [el for el in c_eq._weakest]
         a.value = 4
 
-        self.assertEqual(c_eq._weakest, weakest) # does not change if non-weak variable changed
+        self.assertEqual(c_eq._weakest, weakest)  # does not change if non-weak variable changed
 
         b.value = 5
         self.assertEqual(c_eq.weakest(), c)
@@ -71,7 +95,6 @@ class WeakestVariableTestCase(unittest.TestCase):
         b.value = 6
         self.assertEqual(c_eq.weakest(), c)
 
-
     def test_strength_change(self):
         """Test strength change"""
         solver = Solver()
@@ -86,11 +109,11 @@ class WeakestVariableTestCase(unittest.TestCase):
         self.assertEqual(c_eq._weakest, [b])
 
 
-
 class SizeTestCase(unittest.TestCase):
     """
     Test size related constraints, i.e. minimal size.
     """
+
     def test_min_size(self):
         """Test minimal size constraint"""
         solver = Solver()
@@ -136,11 +159,11 @@ class SizeTestCase(unittest.TestCase):
         self.assertEquals(10, v3)
 
 
-
 class SolverSpeedTestCase(unittest.TestCase):
     """
     Solver speed tests.
     """
+
     def _test_speed_run_weakest(self):
         """
         Speed test for weakest variable.
@@ -152,7 +175,7 @@ c_eq.weakest()""").repeat(repeat=REPEAT, number=NUMBER)
 
         # Print the average of the best 10 runs:
         results.sort()
-        print '[Avg: %gms]' % ((sum(results[:10]) / 10) * 1000)
+        print('[Avg: %gms]' % ((sum(results[:10]) / 10) * 1000))
 
 
 if __name__ == '__main__':
