@@ -1,9 +1,8 @@
 Gaphor's Item Container
 ===============
 
-This module contains a new item container implementation for Gaphor.
-
 Homepage: http://github.com/gaphas/gaphas
+
 
 The basic idea is:
 
@@ -47,8 +46,8 @@ in the item true (e.g. make sure a box maintains it's rectangular shape).
 View (from view.py) is used to visualize an item container. On a View, a Tool
 (from tool.py) can be applied, which will handle user input (button presses,
 key presses, etc.). Painters (from painter.py) are used to do the actual
-drawing. This way it should be easy do draw to other media than the screen,
-such as a printer or PDF document.
+drawing. Keep the painters modular could allow you to draw to other media than
+the screen, such as a printer or PDF document.
 
 Updating item state
 -------------------
@@ -76,16 +75,15 @@ The context contains:
 
 NOTE: updating is done from the item container, items should not update sub-items.
 
-After an update, the Item should be ready to be drawn.
+After an update, the item should be ready to be drawn.
 
 Constraint solving
 ------------------
-A word about the constraint solver seems in place. It is one of the big
-features of this library after all. The Solver is able to solve constraints.
-Constraints can be applied to items (Variables owned by the item actually).
-Element items, for example, uses constraints to maintain their recangular
-shape. Constraints can be created *between* items (for example a line that
-connects to a box).
+A word about the constraint solver since it is one of the big features of this
+library. The Solver is able to solve constraints. Constraints can be applied to
+items (variables owned by the item actually). For example, element items use
+constraints to maintain their recangular shape. Constraints can be created
+*between* items (for example a line that connects to a box).
 
 Constraints that apply to one item are pretty straight forward, as all variables
 live in the same coordinate system (of the item). The variables (in most cases
@@ -93,7 +91,7 @@ a Handle's x and y coordinate) can simply be put in a constraint.
 
 When two items are connected to each other and constraints are created, a
 problem shows up: variables live in separate coordinate systems. To overcome
-this problem a Projection (from solver.py) has been defined. With a Projection
+this problem a projection (from solver.py) has been defined. With a projection
 instance, a variable can be "projected" on another coordinate system. In this
 case, where two items are connecting to each other, the ItemContainer' coordinate
 system is used.
@@ -101,11 +99,12 @@ system is used.
 
 Drawing
 -------
-Drawing is done by the View. All items marked for redraw (e.i. the items
+Drawing is done by the View. All items marked for redraw (i.e. the items
 that had been updated) will be drawn in the order in which they reside in the
 ItemContainer (first root item, then it's children; second root item, etc.)
 
-The view context passed to the Items draw() method has the following properties:
+
+The view context passed to the item's draw() method has the following properties:
 
 :view:     the view we're drawing to
 :cairo:    the CairoContext to draw to
@@ -119,7 +118,7 @@ The view context passed to the Items draw() method has the following properties:
 :draw_all: True if everything drawable on the item should be drawn (e.g. when
            calculating the bounding boxes).
 
-The View automatically calculates the bounding box for the item, based on the
+The view automatically calculates the bounding box for the item, based on the
 items drawn in the draw(context) function (this is only done when really
 necessary, e.g. after an update of the item). The bounding box is in viewport
 coordinates.
@@ -185,7 +184,7 @@ is called at the moment the item it's connected to is removed from the item cont
 Undo
 ====
 
-Gaphas has a simple build-in system for registering changes in it's classes and
+Gaphas has a simple built-in system for registering changes in its classes and
 notifying the application. This code resides in state.py.
 
 There is also a "reverter" framework in place. This "framework" is notified
@@ -197,8 +196,6 @@ See state.txt and undo.txt for details and usage examples.
 
 Guidelines
 ==========
-
-Documentation should be in UK English.
 
 Following the `Python coding guidelines`_ indentation should be 4 spaces
 (no tabs), function and method names should be ``lowercase_with_underscore()``.

@@ -316,6 +316,7 @@ class View(object):
                 if d >= max_dist:
                     continue
 
+                max_dist = d
                 item = i
                 port = p
 
