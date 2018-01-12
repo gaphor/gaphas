@@ -1,23 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2009-2017 Arjan Molenaar <gaphor@gmail.com>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
 """
 Defines aspects for Items. Aspects form intermediate items between tools
 and items.
@@ -29,11 +9,9 @@ The simplegeneric module is dispatching opnly based on the first argument.
 For Gaphas that's enough.
 """
 
-from gi.repository import Gdk
-
+import gtk.gdk
 from simplegeneric import generic
-
-from gaphas.item import Element
+from gaphas.item import Item, Element
 
 
 class ItemFinder(object):
@@ -155,10 +133,10 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-        Gdk.Cursor(Gdk.CursorType.TOP_LEFT_CORNER),
-        Gdk.Cursor(Gdk.CursorType.TOP_RIGHT_CORNER),
-        Gdk.Cursor(Gdk.CursorType.BOTTOM_RIGHT_CORNER),
-        Gdk.Cursor(Gdk.CursorType.BOTTOM_LEFT_CORNER))
+            gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
+            gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
+            gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
+            gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER) )
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -167,8 +145,9 @@ class ElementHandleSelection(ItemHandleSelection):
 
     def unselect(self):
         from view import DEFAULT_CURSOR
-        cursor = Gdk.Cursor(DEFAULT_CURSOR)
+        cursor = gtk.gdk.Cursor(DEFAULT_CURSOR)
         self.view.window.set_cursor(cursor)
+
 
 
 class ItemHandleInMotion(object):
@@ -228,7 +207,7 @@ class ItemHandleInMotion(object):
             return None
 
         connectable, port, glue_pos = \
-            view.get_port_at_point(pos, distance=distance, exclude=(item,))
+                view.get_port_at_point(pos, distance=distance, exclude=(item,))
 
         # check if item and found item can be connected on closest port
         if port is not None:
@@ -250,7 +229,8 @@ HandleInMotion = generic(ItemHandleInMotion)
 
 
 class ItemConnector(object):
-    GLUE_DISTANCE = 10  # Glue distance in view points
+
+    GLUE_DISTANCE = 10 # Glue distance in view points
 
     def __init__(self, item, handle):
         self.item = item
@@ -292,6 +272,7 @@ class ItemConnector(object):
 
         self.connect_handle(sink)
 
+
     def connect_handle(self, sink, callback=None):
         """
         Create constraint between handle of a line and port of connectable
@@ -310,7 +291,8 @@ class ItemConnector(object):
         constraint = sink.port.constraint(canvas, item, handle, sink.item)
 
         canvas.connect_item(item, handle, sink.item, sink.port,
-                            constraint, callback=callback)
+            constraint, callback=callback)
+
 
     def disconnect(self):
         """
@@ -351,9 +333,9 @@ class ItemConnectionSink(object):
 ConnectionSink = generic(ItemConnectionSink)
 
 
-#
-# Painter aspects
-#
+##
+## Painter aspects
+##
 
 class ItemPaintFocused(object):
     """
