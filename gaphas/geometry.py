@@ -17,8 +17,8 @@ from math import sqrt
 class Rectangle(object):
     """
     Python Rectangle implementation. Rectangles can be added (union),
-    substituted (intersection) and points and rectangles can be tested to
-    be in the rectangle.
+    substituted (intersection) and points and rectangles can be tested
+    to be in the rectangle.
 
     >>> r1= Rectangle(1,1,5,5)
     >>> r2 = Rectangle(3,3,6,7)
@@ -266,8 +266,9 @@ def distance_point_point(point1, point2=(0., 0.)):
 
 def distance_point_point_fast(point1, point2=(0., 0.)):
     """
-    Return the distance from point ``point1`` to ``point2``. This version is
-    faster than ``distance_point_point()``, but less precise.
+    Return the distance from point ``point1`` to ``point2``. This
+    version is faster than ``distance_point_point()``, but less
+    precise.
 
     >>> distance_point_point_fast((0,0), (1,1))
     2
@@ -279,8 +280,8 @@ def distance_point_point_fast(point1, point2=(0., 0.)):
 
 def distance_rectangle_point(rect, point):
     """
-    Return the distance (fast) from a rectangle ``(x, y, width, height)`` to a
-    ``point``.
+    Return the distance (fast) from a rectangle ``(x, y, width,height)``
+    to a ``point``.
 
     >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
     2
@@ -308,9 +309,10 @@ def distance_rectangle_point(rect, point):
 
 def point_on_rectangle(rect, point, border=False):
     """
-    Return the point on which ``point`` can be projecten on the rectangle.
-    ``border = True`` will make sure the point is bound to the border of
-    the reactangle. Otherwise, if the point is in the rectangle, it's okay.
+    Return the point on which ``point`` can be projecten on the
+    rectangle.  ``border = True`` will make sure the point is bound to
+    the border of the reactangle. Otherwise, if the point is in the
+    rectangle, it's okay.
 
     >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
     (10, 0)
@@ -374,8 +376,8 @@ def point_on_rectangle(rect, point, border=False):
 
 def distance_line_point(line_start, line_end, point):
     """
-    Calculate the distance of a ``point`` from a line. The line is marked
-    by begin and end point ``line_start`` and ``line_end``.
+    Calculate the distance of a ``point`` from a line. The line is
+    marked by begin and end point ``line_start`` and ``line_end``.
 
     A tuple is returned containing the distance and point on the line.
 
@@ -423,8 +425,8 @@ def distance_line_point(line_start, line_end, point):
 def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     """
     Find the point where the lines (segments) defined by
-    ``(line1_start, line1_end)`` and ``(line2_start, line2_end)`` intersect.
-    If no intersecion occurs, ``None`` is returned.
+    ``(line1_start, line1_end)`` and ``(line2_start, line2_end)``
+    intersect.  If no intersecion occurs, ``None`` is returned.
 
     >>> intersect_line_line((3, 0), (8, 10), (0, 0), (10, 10))
     (6, 6)
@@ -572,8 +574,8 @@ def rectangle_intersects(recta, rectb):
 
 def rectangle_clip(recta, rectb):
     """
-    Return the clipped rectangle of ``recta`` and ``rectb``. If they do not
-    intersect, ``None`` is returned.
+    Return the clipped rectangle of ``recta`` and ``rectb``. If they
+    do not intersect, ``None`` is returned.
 
     >>> rectangle_clip((0, 0, 20, 20), (10, 10, 20, 20))
     (10, 10, 10, 10)

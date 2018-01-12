@@ -2,13 +2,13 @@
 Quadtree
 ========
 
-A quadtree is a tree data structure in which each internal node has up to four
-children. Quadtrees are most often used to partition a two dimensional space by
-recursively subdividing it into four quadrants or regions. The regions may be
-square or rectangular, or may have arbitrary shapes. This data structure was
-named a quadtree by Raphael Finkel and J.L. Bentley in 1974. A similar
-partitioning is also known as a Q-tree. All forms of Quadtrees share some
-common features:
+A quadtree is a tree data structure in which each internal node has up
+to four children. Quadtrees are most often used to partition a two
+dimensional space by recursively subdividing it into four quadrants or
+regions. The regions may be square or rectangular, or may have
+arbitrary shapes. This data structure was named a quadtree by Raphael
+Finkel and J.L. Bentley in 1974. A similar partitioning is also known
+as a Q-tree. All forms of Quadtrees share some common features:
 
 * They decompose space into adaptable cells.
 * Each cell (or bucket) has a maximum capacity.
@@ -112,8 +112,8 @@ class Quadtree(object):
 
     def get_soft_bounds(self):
         """
-        Calculate the size of all items in the tree. This size may be beyond
-        the limits of the tree itself.
+        Calculate the size of all items in the tree. This size may be
+        beyond the limits of the tree itself.
 
         Returns a tuple (x, y, width, height).
 
@@ -146,8 +146,8 @@ class Quadtree(object):
     def add(self, item, bounds, data=None):
         """
         Add an item to the tree.
-        If an item already exists, its bounds are updated and the item is
-        moved to the right bucket.
+        If an item already exists, its bounds are updated and the item
+        is moved to the right bucket.
         Data can be used to add some extra info to the item
         """
         # Clip item bounds to fit in top-level bucket
@@ -222,9 +222,9 @@ class Quadtree(object):
 
     def get_clipped_bounds(self, item):
         """
-        Return the bounding box for the given item. The bounding box is clipped
-        on the boundries of the tree (provided on construction or with
-        resize()).
+        Return the bounding box for the given item. The bounding box
+        is clipped on the boundries of the tree (provided on
+        construction or with resize()).
         """
         return self._ids[item][2]
 
@@ -332,8 +332,8 @@ class QuadtreeBucket(object):
         """
         Find the bucket that holds a bounding box.
 
-        This method should be used to find a bucket that fits, before add()
-        or remove() is called.
+        This method should be used to find a bucket that fits, before
+        add() or remove() is called.
         """
         if self._buckets:
             sx, sy, sw, sh = self.bounds

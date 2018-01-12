@@ -149,9 +149,9 @@ class ItemPainter(Painter):
 
 class CairoBoundingBoxContext(object):
     """
-    Delegate all calls to the wrapped CairoBoundingBoxContext, intercept
-    ``stroke()``, ``fill()`` and a few others so the bounding box of the
-    item involved can be calculated.
+    Delegate all calls to the wrapped CairoBoundingBoxContext,
+    intercept ``stroke()``, ``fill()`` and a few others so the
+    bounding box of the item involved can be calculated.
     """
 
     def __init__(self, cairo):
@@ -176,8 +176,9 @@ class CairoBoundingBoxContext(object):
 
     def _extents(self, extents_func, line_width=False):
         """
-        Calculate the bounding box for a given drawing operation.
-        if ``line_width`` is True, the current line-width is taken into account.
+        Calculate the bounding box for a given drawing operation.  if
+        ``line_width`` is True, the current line-width is taken into
+        account.
         """
         cr = self._cairo
         cr.save()
@@ -244,8 +245,8 @@ class CairoBoundingBoxContext(object):
 
 class BoundingBoxPainter(ItemPainter):
     """
-    This specific case of an ItemPainter is used to calculate the bounding
-    boxes (in canvas coordinates) for the items.
+    This specific case of an ItemPainter is used to calculate the
+    bounding boxes (in canvas coordinates) for the items.
     """
 
     draw_all = True
@@ -360,8 +361,8 @@ class ToolPainter(Painter):
 
 class FocusedItemPainter(Painter):
     """
-    This painter allows for drawing on top off all other layers for the
-    focused item.
+    This painter allows for drawing on top off all other layers for
+    the focused item.
     """
 
     def paint(self, context):

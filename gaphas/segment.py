@@ -91,8 +91,8 @@ class LineSegment(object):
         """
         Merge two (or more) item segments.
 
-        Tuple of two lists is returned, list of deleted handles and list of
-        deleted ports.
+        Tuple of two lists is returned, list of deleted handles and
+        list of deleted ports.
 
         :Parameters:
          segment
@@ -194,8 +194,8 @@ class SegmentHandleFinder(ItemHandleFinder):
 @HandleSelection.when_type(Line)
 class SegmentHandleSelection(ItemHandleSelection):
     """
-    In addition to the default behaviour, merge segments if the handle is
-    released.
+    In addition to the default behaviour, merge segments if the handle
+    is released.
     """
 
     def unselect(self):
@@ -231,12 +231,12 @@ class SegmentHandleSelection(ItemHandleSelection):
 @PaintFocused.when_type(Line)
 class LineSegmentPainter(ItemPaintFocused):
     """
-    This painter draws pseudo-handles on gaphas.item.Line objects. Each
-    line can be split by dragging those points, which will result in
-    a new handle.
+    This painter draws pseudo-handles on gaphas.item.Line
+    objects. Each line can be split by dragging those points, which
+    will result in a new handle.
 
-    ConnectHandleTool take care of performing the user
-    interaction required for this feature.
+    ConnectHandleTool take care of performing the user interaction
+    required for this feature.
     """
 
     def paint(self, context):

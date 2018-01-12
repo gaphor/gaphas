@@ -1,9 +1,9 @@
 """
 Backport of the Python 3.0 weakref.WeakSet() class.
 
-Note that, since it's shamelessly copied from the Python 3.0 distribution,
-this file is licensed under the Python Software Foundation License, version 2.
-
+Note that, since it's shamelessly copied from the Python 3.0
+distribution, this file is licensed under the Python Software
+Foundation License, version 2.
 """
 
 from _weakref import ref

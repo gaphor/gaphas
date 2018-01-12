@@ -1,6 +1,6 @@
 """
-Table is a storage class that can be used to store information, like one
-would in a database table, with indexes on the desired "columns."
+Table is a storage class that can be used to store information, like
+one would in a database table, with indexes on the desired "columns."
 """
 
 class Table(object):
@@ -41,8 +41,8 @@ class Table(object):
         >>> s.insert('a', 'b', 'c')
         >>> s.insert(1, 2, 3)
 
-        The number of values should match the number of columns defined at
-        construction time.
+        The number of values should match the number of columns
+        defined at construction time.
 
         >>> s.insert('x', 'z')                          # doctest: +ELLIPSIS
         Traceback (most recent call last):
@@ -64,8 +64,8 @@ class Table(object):
 
     def delete(self, *_row, **kv):
         """
-        Remove value from the table. Either a complete set may be given or
-        just one entry in "column=value" style.
+        Remove value from the table. Either a complete set may be
+        given or just one entry in "column=value" style.
 
         >>> from collections import namedtuple
         >>> C = namedtuple('C', "foo bar baz")

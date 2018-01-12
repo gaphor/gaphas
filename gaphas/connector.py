@@ -82,14 +82,16 @@ class Handle(object):
     """
     Handles are used to support modifications of Items.
 
-    If the handle is connected to an item, the ``connected_to`` property should
-    refer to the item. A ``disconnect`` handler should be provided that handles
-    all disconnect behaviour (e.g. clean up constraints and ``connected_to``).
+    If the handle is connected to an item, the ``connected_to``
+    property should refer to the item. A ``disconnect`` handler should
+    be provided that handles all disconnect behaviour (e.g. clean up
+    constraints and ``connected_to``).
 
-      Note for those of you that use the Pickle module to persist a canvas:
-      The property ``disconnect`` should contain a callable object (with
-      __call__() method), so the pickle handler can also pickle that. Pickle is
-      not capable of pickling ``instancemethod`` or ``function`` objects.
+    Note for those of you that use the Pickle module to persist a
+    canvas: The property ``disconnect`` should contain a callable
+    object (with __call__() method), so the pickle handler can also
+    pickle that. Pickle is not capable of pickling ``instancemethod``
+    or ``function`` objects.
     """
 
     def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
@@ -222,8 +224,8 @@ class LinePort(Port):
 
     def constraint(self, canvas, item, handle, glue_item):
         """
-        Create connection line constraint between item's handle and the
-        port.
+        Create connection line constraint between item's handle and
+        the port.
         """
         line = canvas.project(glue_item, self.start, self.end)
         point = canvas.project(item, handle.pos)
@@ -255,8 +257,8 @@ class PointPort(Port):
 
     def constraint(self, canvas, item, handle, glue_item):
         """
-        Return connection position constraint between item's handle and the
-        port.
+        Return connection position constraint between item's handle
+        and the port.
         """
         origin = canvas.project(glue_item, self.point)
         point = canvas.project(item, handle.pos)
