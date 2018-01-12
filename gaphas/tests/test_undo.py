@@ -1,32 +1,6 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2010-2017 Arjan Molenaar <gaphor@gmail.com>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
-from __future__ import absolute_import
 
 import unittest
-
 from gaphas import state
-from gaphas.aspect import Connector, ConnectionSink
-from gaphas.canvas import Canvas
-from gaphas.examples import Box
-from gaphas.item import Line
 
 state.observers.clear()
 state.subscribers.clear()
@@ -34,10 +8,8 @@ state.subscribers.clear()
 undo_list = []
 redo_list = []
 
-
 def undo_handler(event):
     undo_list.append(event)
-
 
 def undo():
     apply_me = list(undo_list)
@@ -49,7 +21,14 @@ def undo():
     del undo_list[:]
 
 
+from gaphas.canvas import Canvas
+from gaphas.examples import Box
+from gaphas.item import Line
+from gaphas.aspect import Connector, ConnectionSink
+
+
 class UndoTestCase(unittest.TestCase):
+
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
@@ -112,8 +91,7 @@ class UndoTestCase(unittest.TestCase):
         cinfo = canvas.get_connection(line.handles()[-1])
         self.assertEquals(b2, cinfo.connected)
 
-
-# self.assertEquals(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
+#        self.assertEquals(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
 #        self.assertTrue(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
 
 if __name__ == '__main__':

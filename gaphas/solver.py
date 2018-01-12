@@ -1,24 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2006-2017 Arjan Molenaar <gaphor@gmail.com>
-#                         Artur Wroblewski <wrobell@pld-linux.org>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
 """
 Constraint solver allows to define constraint between two or more different
 variables and keep this constraint always true when one or more of the
@@ -52,13 +31,13 @@ constraint is being asked to solve itself (`constraint.Constraint.solve_for()`
 method) changing appropriate variables to make the constraint valid again.
 """
 
-from __future__ import absolute_import
 from __future__ import division
-
-from gaphas.state import observed, reversible_pair, reversible_property
 
 __version__ = "$Revision$"
 # $HeadURL$
+
+from operator import isCallable
+from state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?
@@ -76,9 +55,9 @@ REQUIRED = 100
 class Variable(object):
     """
     Representation of a variable in the constraint solver.
-    Each Variable has a @value and a @strength. In a constraint the
+    Each Variable has a @value and a @strength. Ina constraint the
     weakest variables are changed.
-    
+
     You can even do some calculating with it. The Variable always represents
     a float variable.
     """
@@ -90,9 +69,6 @@ class Variable(object):
         # These variables are set by the Solver:
         self._solver = None
         self._constraints = set()
-
-    def __hash__(self):
-        return hash((self._value, self._strength))
 
     @observed
     def _set_strength(self, strength):
@@ -106,7 +82,7 @@ class Variable(object):
         """
         Mark the variable dirty in both the constraint solver and attached
         constraints.
-        
+
         Variables are marked dirty also during constraints solving to
         solve all dependent constraints, i.e. two equals constraints
         between 3 variables.
@@ -121,7 +97,7 @@ class Variable(object):
     def set_value(self, value):
         oldval = self._value
         if abs(oldval - value) > EPSILON:
-            # print id(self), oldval, value
+            #print id(self), oldval, value
             self._value = float(value)
             self.dirty()
 
@@ -129,7 +105,6 @@ class Variable(object):
 
     def __str__(self):
         return 'Variable(%g, %d)' % (self._value, self._strength)
-
     __repr__ = __str__
 
     def __float__(self):
@@ -386,7 +361,6 @@ class Projection(object):
 
     def __str__(self):
         return '%s(%s)' % (self.__class__.__name__, self.variable())
-
     __repr__ = __str__
 
 
@@ -403,6 +377,7 @@ class Solver(object):
         self._solving = False
 
     constraints = property(lambda s: s._constraints)
+
 
     def request_resolve(self, variable, projections_only=False):
         """
@@ -449,8 +424,8 @@ class Solver(object):
                     c.mark_dirty(variable)
                     self._marked_cons.append(c)
                     if self._marked_cons.count(c) > 100:
-                        raise JuggleError('Variable juggling detected, constraint %s resolved %d times out of %d' % (
-                            c, self._marked_cons.count(c), len(self._marked_cons)))
+                        raise JuggleError, 'Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons))
+
 
     @observed
     def add_constraint(self, constraint):
@@ -485,7 +460,7 @@ class Solver(object):
                 constraint._solver_has_projections = True
             v._constraints.add(constraint)
             v._solver = self
-        # print 'added constraint', constraint
+        #print 'added constraint', constraint
         return constraint
 
     @observed
@@ -520,11 +495,13 @@ class Solver(object):
 
     reversible_pair(add_constraint, remove_constraint)
 
+
     def request_resolve_constraint(self, c):
         """
         Request resolving a constraint.
         """
         self._marked_cons.append(c)
+
 
     def constraints_with_variable(self, *variables):
         """
@@ -590,11 +567,12 @@ class Solver(object):
                     else:
                         found = False
                     if not found:
-                        break  # quit for loop, variable not in constraint
+                        break # quit for loop, variable not in constraint
                 else:
                     # All iteration have completed succesfully,
                     # so all variables are in the constraint
                     yield c
+
 
     def solve(self):
         """
@@ -661,9 +639,9 @@ class solvable(object):
     >>> a._v_x
     Variable(12, 20)
     >>> a.x = 3
-    >>> a.x 
+    >>> a.x
     Variable(3, 20)
-    >>> a.y 
+    >>> a.y
     Variable(0, 30)
     """
 
@@ -702,7 +680,7 @@ class JuggleError(AssertionError):
 __test__ = {
     'Solver.add_constraint': Solver.add_constraint,
     'Solver.remove_constraint': Solver.remove_constraint,
-}
+    }
 
 
 # vim:sw=4:et:ai

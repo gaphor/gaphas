@@ -1,24 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2006-2017 Arjan Molenaar <gaphor@gmail.com>
-#                         Artur Wroblewski <wrobell@pld-linux.org>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
 """
 Geometry functions.
 
@@ -29,12 +8,10 @@ A point is represented as a tuple `(x, y)`.
 
 """
 
-from __future__ import absolute_import
-
-from math import sqrt
-
 __version__ = "$Revision$"
 # $HeadURL$
+
+from math import sqrt
 
 
 class Rectangle(object):
@@ -84,8 +61,7 @@ class Rectangle(object):
         """
         """
         width = x1 - self.x
-        if width < 0:
-            width = 0
+        if width < 0: width = 0
         self.width = width
 
     x1 = property(lambda s: s.x + s.width, _set_x1)
@@ -94,8 +70,7 @@ class Rectangle(object):
         """
         """
         height = y1 - self.y
-        if height < 0:
-            height = 0
+        if height < 0: height = 0
         self.height = height
 
     y1 = property(lambda s: s.y + s.height, _set_y1)
@@ -147,10 +122,10 @@ class Rectangle(object):
 
     def __eq__(self, other):
         return (type(self) is type(other)) \
-               and self.x == other.x \
-               and self.y == other.y \
-               and self.width == other.width \
-               and self.height == self.height
+                and self.x == other.x \
+                and self.y == other.y \
+                and self.width == other.width \
+                and self.height == self.height
 
     def __add__(self, obj):
         """
@@ -182,7 +157,7 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError("Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
+            raise TypeError, "Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
         x1, y1 = x + width, y + height
         if self:
             ox1, oy1 = self.x + self.width, self.y + self.height
@@ -222,7 +197,7 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError("Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
+            raise TypeError, "Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
         x1, y1 = x + width, y + height
 
         if self:
@@ -272,10 +247,9 @@ class Rectangle(object):
                 x, y = obj
                 x1, y1 = obj
             except ValueError:
-                raise TypeError(
-                    "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
-                )
-        return x >= self.x and x1 <= self.x1 and y >= self.y and y1 <= self.y1
+                raise TypeError, "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
+        return x >= self.x and x1 <= self.x1 and \
+               y >= self.y and y1 <= self.y1
 
 
 def distance_point_point(point1, point2=(0., 0.)):
@@ -287,7 +261,7 @@ def distance_point_point(point1, point2=(0., 0.)):
     """
     dx = point1[0] - point2[0]
     dy = point1[1] - point2[1]
-    return sqrt(dx * dx + dy * dy)
+    return sqrt(dx*dx + dy*dy)
 
 
 def distance_point_point_fast(point1, point2=(0., 0.)):
@@ -337,7 +311,7 @@ def point_on_rectangle(rect, point, border=False):
     Return the point on which ``point`` can be projecten on the rectangle.
     ``border = True`` will make sure the point is bound to the border of
     the reactangle. Otherwise, if the point is in the rectangle, it's okay.
-    
+
     >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
     (10, 0)
     >>> point_on_rectangle((0, 0, 10, 10), (5, 12))
@@ -384,7 +358,7 @@ def point_on_rectangle(rect, point, border=False):
     if x_inside and y_inside:
         # Find point on side closest to the point
         if min(abs(rx - px), abs(rx + rw - px)) > \
-                min(abs(ry - py), abs(ry + rh - py)):
+           min(abs(ry - py), abs(ry + rh - py)):
             if py < ry + rh / 2.:
                 py = ry
             else:
@@ -401,7 +375,7 @@ def point_on_rectangle(rect, point, border=False):
 def distance_line_point(line_start, line_end, point):
     """
     Calculate the distance of a ``point`` from a line. The line is marked
-    by begin and end point ``line_start`` and ``line_end``. 
+    by begin and end point ``line_start`` and ``line_end``.
 
     A tuple is returned containing the distance and point on the line.
 
@@ -442,9 +416,8 @@ def distance_line_point(line_start, line_end, point):
         # Projection is on the line. multiply the line_end with the projlen
         # factor to obtain the point on the line.
         proj = line_end[0] * projlen, line_end[1] * projlen
-        return distance_point_point((proj[0] - point[0], proj[1] - point[1])), (
-            line_start[0] + proj[0], line_start[1] + proj[1]
-        )
+        return distance_point_point((proj[0] - point[0], proj[1] - point[1])),\
+               (line_start[0] + proj[0], line_start[1] + proj[1])
 
 
 def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
@@ -514,9 +487,9 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     x3, y3 = line2_start
     x4, y4 = line2_end
 
-    # long a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
-    # long r1, r2, r3, r4;         /* 'Sign' values */
-    # long denom, offset, num;     /* Intermediate values */
+    #long a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
+    #long r1, r2, r3, r4;         /* 'Sign' values */
+    #long denom, offset, num;     /* Intermediate values */
 
     # Compute a1, b1, c1, where line joining points 1 and 2
     # is "a1 x  +  b1 y  +  c1  =  0".
@@ -534,7 +507,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # same side of line 1, the line segments do not intersect.
 
     if r3 and r4 and (r3 * r4) >= 0:
-        return None  # ( DONT_INTERSECT )
+        return None # ( DONT_INTERSECT )
 
     # Compute a2, b2, c2
 
@@ -551,14 +524,14 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # on same side of second line segment, the line segments do
     # not intersect.
 
-    if r1 and r2 and (r1 * r2) >= 0:  # SAME_SIGNS( r1, r2 ))
-        return None  # ( DONT_INTERSECT )
+    if r1 and r2 and (r1 * r2) >= 0: #SAME_SIGNS( r1, r2 ))
+        return None # ( DONT_INTERSECT )
 
-    # Line segments intersect: compute intersection point. 
+    # Line segments intersect: compute intersection point.
 
     denom = a1 * b2 - a2 * b1
     if not denom:
-        return None  # ( COLLINEAR )
+        return None # ( COLLINEAR )
     offset = abs(denom) / 2
 
     # The denom/2 is to get rounding instead of truncating.  It
@@ -566,10 +539,10 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # sign of the numerator.
 
     num = b1 * c2 - b2 * c1
-    x = ((num < 0) and (num - offset) or (num + offset)) / denom
+    x = ( (num < 0) and (num - offset) or (num + offset) ) / denom
 
     num = a2 * c1 - a1 * c2
-    y = ((num < 0) and (num - offset) or (num + offset)) / denom
+    y = ( (num < 0) and (num - offset) or (num + offset) ) / denom
 
     return x, y
 
@@ -609,10 +582,11 @@ def rectangle_clip(recta, rectb):
     bx, by, bw, bh = rectb
     x = max(ax, bx)
     y = max(ay, by)
-    w = min(ax + aw, bx + bw) - x
-    h = min(ay + ah, by + bh) - y
+    w = min(ax +aw, bx + bw) - x
+    h = min(ay +ah, by + bh) - y
     if w < 0 or h < 0:
         return None
     return (x, y, w, h)
+
 
 # vim:sw=4:et:ai

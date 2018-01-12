@@ -1,37 +1,15 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2006-2017 Adrian Boguszewski <adrbogus1@student.pg.gda.pl>
-#                         Arjan Molenaar <gaphor@gmail.com>
-#                         Artur Wroblewski <wrobell@pld-linux.org>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
 """
 Custom decorators.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
+__version__ = "$Revision$"
+# $HeadURL$
 
 import threading
-
-from gi.repository import GObject
-from gi.repository.GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
+import gobject
+from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
+
 
 DEBUG_ASYNC = False
 
@@ -56,28 +34,28 @@ class async(object):
     'Hi'
 
     Simple method:
-    
+
     >>> class A(object):
-    ...     @async(single=False, priority=GObject.PRIORITY_HIGH)
+    ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
     ...     def a(self):
-    ...         print 'idle-a', GObject.main_depth()
-    
+    ...         print 'idle-a', gobject.main_depth()
+
     Methods can also set single mode to True (the method is only scheduled one).
 
     >>> class B(object):
     ...     @async(single=True)
     ...     def b(self):
-    ...         print 'idle-b', GObject.main_depth()
+    ...         print 'idle-b', gobject.main_depth()
 
     Also a timeout property can be provided:
 
     >>> class C(object):
     ...     @async(timeout=50)
     ...     def c1(self):
-    ...         print 'idle-c1', GObject.main_depth()
+    ...         print 'idle-c1', gobject.main_depth()
     ...     @async(single=True, timeout=60)
     ...     def c2(self):
-    ...         print 'idle-c2', GObject.main_depth()
+    ...         print 'idle-c2', gobject.main_depth()
 
     This is a helper function used to test classes A and B from within the GTK+
     main loop:
@@ -98,11 +76,11 @@ class async(object):
     ...     a.a()
     ...     b.b()
     ...     print 'after'
-    ...     GObject.timeout_add(100, Gtk.main_quit)
-    >>> GObject.timeout_add(1, delayed) > 0 # timeout id may vary
+    ...     gobject.timeout_add(100, gtk.main_quit)
+    >>> gobject.timeout_add(1, delayed) > 0 # timeout id may vary
     True
-    >>> from gi.repository import Gtk
-    >>> Gtk.main()
+    >>> import gtk
+    >>> gtk.main()
     before
     after
     idle-a 1
@@ -117,7 +95,7 @@ class async(object):
     executed once.
     """
 
-    def __init__(self, single=False, timeout=0, priority=PRIORITY_DEFAULT):
+    def __init__(self, single=False, timeout=0, priority=gobject.PRIORITY_DEFAULT):
         self.single = single
         self.timeout = timeout
         self.priority = priority
@@ -125,9 +103,9 @@ class async(object):
     def source(self, func):
         timeout = self.timeout
         if timeout > 0:
-            s = GObject.Timeout(timeout)
+            s = gobject.Timeout(timeout)
         else:
-            s = GObject.Idle()
+            s = gobject.Idle()
         s.set_callback(func)
         s.priority = self.priority
         return s
@@ -139,12 +117,11 @@ class async(object):
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
-            if GObject.main_depth() == 0:
+            if gobject.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
-                def async_wrapper(*x):
-                    if DEBUG_ASYNC:
-                        print('async:', func, args, kwargs)
+                def async_wrapper():
+                    if DEBUG_ASYNC: print 'async:', func, args, kwargs
                     func(*args, **kwargs)
                 source(async_wrapper).attach()
             else:
@@ -153,10 +130,9 @@ class async(object):
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError as e:
-                    def async_wrapper(*x):
-                        if DEBUG_ASYNC:
-                            print('async:', func, args, kwargs)
+                except AttributeError, e:
+                    def async_wrapper():
+                        if DEBUG_ASYNC: print 'async:', func, args, kwargs
                         try:
                             func(*args, **kwargs)
                         finally:
@@ -182,7 +158,6 @@ def nonrecursive(func):
     1
     """
     m = threading.Lock()
-
     def wrapper(*args, **kwargs):
         """
         Decorate function with a mutex that prohibits recursice execution.

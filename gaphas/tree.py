@@ -1,44 +1,18 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2006-2017 Arjan Molenaar <gaphor@gmail.com>
-#                         Artur Wroblewski <wrobell@pld-linux.org>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
 """
 Simple class containing the tree structure for the canvas items.
 
 """
 
-from __future__ import absolute_import
-
-from operator import attrgetter
-
-from six.moves import map
-from six.moves import range
-
 __version__ = "$Revision$"
 # $HeadURL$
+
+from operator import attrgetter
 
 
 class Tree(object):
     """
     A Tree structure. Nodes are stores in a depth-first order.
-    
+
     ``None`` is the root node.
 
     @invariant: len(self._children) == len(self._nodes) + 1
@@ -50,10 +24,10 @@ class Tree(object):
         self._nodes = []
 
         # Per entry a list of children is maintained.
-        self._children = {None: []}
+        self._children = { None: [] }
 
         # For easy and fast lookups, also maintain a child -> parent mapping
-        self._parents = {}
+        self._parents = { }
 
     nodes = property(lambda s: list(s._nodes))
 
@@ -207,12 +181,12 @@ class Tree(object):
         """
         nodes = self.nodes
         lnodes = len(nodes)
-        list(map(setattr, nodes, [index_key] * lnodes, range(lnodes)))
+        map(setattr, nodes, [index_key] * lnodes, xrange(lnodes))
 
     def sort(self, nodes, index_key, reverse=False):
         """
         Sort a set (or list) of nodes.
-        
+
         >>> class A(object):
         ...     def __init__(self, n):
         ...         self.n = n
@@ -246,7 +220,7 @@ class Tree(object):
             atnode = siblings[index]
         except (TypeError, IndexError):
             index = len(siblings)
-            # self._add_to_nodes(node, parent)
+            #self._add_to_nodes(node, parent)
             if parent:
                 try:
                     next_uncle = self.get_next_sibling(parent)
@@ -261,6 +235,7 @@ class Tree(object):
                 nodes.append(node)
         else:
             nodes.insert(nodes.index(atnode), node)
+
 
     def _add(self, node, parent=None, index=None):
         """
@@ -282,6 +257,7 @@ class Tree(object):
         if parent:
             self._parents[node] = parent
 
+
     def add(self, node, parent=None, index=None):
         """
         Add node to the tree. parent is the parent node, which may
@@ -291,6 +267,7 @@ class Tree(object):
         """
         self._add(node, parent, index)
         self._children[node] = []
+
 
     def _remove(self, node):
         # Remove from parent item
@@ -346,7 +323,7 @@ class Tree(object):
         ['n1', 'n3', 'n2']
 
         If a node contains children, those are also moved:
-        
+
         >>> tree.add('n4')
         >>> tree.nodes
         ['n1', 'n3', 'n2', 'n4']
@@ -373,5 +350,6 @@ class Tree(object):
         # reorganize children in nodes list
         for c in self._children[node]:
             self._reparent_nodes(c, node)
+
 
 # vi: sw=4:et:ai

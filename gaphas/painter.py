@@ -1,25 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2006-2017 Antony N. Pavlov <antony@niisi.msk.ru>
-#                         Arjan Molenaar <gaphor@gmail.com>
-#                         Artur Wroblewski <wrobell@pld-linux.org>
-#                         Dan Yeaw <dan@yeaw.me>
-#
-# This file is part of Gaphas.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Library General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option) any
-# later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-# more details.
-#
-# You should have received a copy of the GNU Library General Public License
-# along with this library; if not, see <http://www.gnu.org/licenses/>.
-
 """
 The painter module provides different painters for parts of the canvas.
 
@@ -29,23 +7,22 @@ Each painter takes care of a layer in the canvas (such as grid, items
 and handles).
 """
 
-from __future__ import absolute_import
-
-from cairo import ANTIALIAS_NONE, LINE_JOIN_ROUND
-
-from gaphas.aspect import PaintFocused
-from gaphas.canvas import Context
-from gaphas.geometry import Rectangle
-
 __version__ = "$Revision$"
 # $HeadURL$
+
+from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
+
+from gaphas.canvas import Context
+from gaphas.geometry import Rectangle
+from gaphas.item import Line
+from gaphas.aspect import PaintFocused
+
 
 DEBUG_DRAW_BOUNDING_BOX = False
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
 TOLERANCE = 0.8
-
 
 class Painter(object):
     """
@@ -116,13 +93,16 @@ class DrawContext(Context):
 
 
 class ItemPainter(Painter):
+
     draw_all = False
 
     def _draw_item(self, item, cairo, area=None):
         view = self.view
         cairo.save()
         try:
+            cairo.set_matrix(view.matrix)
             cairo.transform(view.canvas.get_matrix_i2c(item))
+
             item.draw(DrawContext(painter=self,
                                   cairo=cairo,
                                   _area=area,
@@ -150,7 +130,7 @@ class ItemPainter(Painter):
         try:
             b = view.get_item_bounding_box(item)
         except KeyError:
-            pass  # No bounding box right now..
+            pass # No bounding box right now..
         else:
             cairo.save()
             cairo.identity_matrix()
@@ -164,11 +144,7 @@ class ItemPainter(Painter):
         cairo = context.cairo
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-
-        cairo.save()
-        cairo.transform(self.view.matrix)
         self._draw_items(context.items, cairo, context.area)
-        cairo.restore()
 
 
 class CairoBoundingBoxContext(object):
@@ -180,7 +156,7 @@ class CairoBoundingBoxContext(object):
 
     def __init__(self, cairo):
         self._cairo = cairo
-        self._bounds = None  # a Rectangle object
+        self._bounds = None # a Rectangle object
 
     def __getattr__(self, key):
         return getattr(self._cairo, key)
@@ -211,9 +187,9 @@ class CairoBoundingBoxContext(object):
         cr.restore()
         if b and line_width:
             # Do this after the restore(), so we can get the proper width.
-            lw = cr.get_line_width() / 2
+            lw = cr.get_line_width()/2
             d = cr.user_to_device_distance(lw, lw)
-            b.expand(d[0] + d[1])
+            b.expand(d[0]+d[1])
         self._update_bounds(b)
         return b
 
@@ -259,8 +235,8 @@ class CairoBoundingBoxContext(object):
         if not b:
             x, y = cr.get_current_point()
             e = cr.text_extents(utf8)
-            x0, y0 = cr.user_to_device(x + e[0], y + e[1])
-            x1, y1 = cr.user_to_device(x + e[0] + e[2], y + e[1] + e[3])
+            x0, y0 = cr.user_to_device(x+e[0], y+e[1])
+            x1, y1 = cr.user_to_device(x+e[0]+e[2], y+e[1]+e[3])
             b = Rectangle(x0, y0, x1=x1, y1=y1)
             self._update_bounds(b)
         cr.show_text(utf8)
@@ -289,6 +265,7 @@ class BoundingBoxPainter(ItemPainter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
+
     def _draw_items(self, items, cairo, area=None):
         """
         Draw the items.
@@ -308,7 +285,7 @@ class HandlePainter(Painter):
     def _draw_handles(self, item, cairo, opacity=None, inner=False):
         """
         Draw handles for an item.
-        The handles are drawn in non-antialiased mode for clearity.
+        The handles are drawn in non-antialiased mode for clarity.
         """
         view = self.view
         cairo.save()
@@ -317,7 +294,6 @@ class HandlePainter(Painter):
             opacity = (item is view.focused_item) and .7 or .4
 
         cairo.set_line_width(1)
-        cairo.set_antialias(ANTIALIAS_NONE)
 
         get_connection = view.canvas.get_connection
         for h in item.handles():
@@ -334,8 +310,8 @@ class HandlePainter(Painter):
             else:
                 r, g, b = 0, 0, 1
 
-            # cairo.identity_matrix()
-            cairo.save()
+            cairo.identity_matrix()
+            cairo.set_antialias(ANTIALIAS_NONE)
             cairo.translate(*i2v.transform_point(*h.pos))
             cairo.rectangle(-4, -4, 8, 8)
             if inner:
@@ -347,9 +323,8 @@ class HandlePainter(Painter):
                 cairo.line_to(2, 3)
                 cairo.move_to(2, -2)
                 cairo.line_to(-2, 3)
-            cairo.set_source_rgba(r / 4., g / 4., b / 4., opacity * 1.3)
+            cairo.set_source_rgba(r/4., g/4., b/4., opacity*1.3)
             cairo.stroke()
-            cairo.restore()
         cairo.restore()
 
     def paint(self, context):
@@ -379,9 +354,9 @@ class ToolPainter(Painter):
         cairo = context.cairo
         if view.tool:
             cairo.save()
+            cairo.identity_matrix()
             view.tool.draw(context)
             cairo.restore()
-
 
 class FocusedItemPainter(Painter):
     """
@@ -405,5 +380,6 @@ def DefaultPainter(view=None):
         append(HandlePainter()). \
         append(FocusedItemPainter()). \
         append(ToolPainter())
+
 
 # vim: sw=4:et:ai
