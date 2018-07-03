@@ -8,8 +8,15 @@ function. In order to inherit from this class you should inherit from
 Class.default.  The simplegeneric module is dispatching opnly based on
 the first argument.  For Gaphas that's enough.
 """
+from __future__ import absolute_import
 
-import gtk.gdk
+from builtins import object
+
+import gi
+
+gi.require_version("Gdk", "3.0")
+from gi.repository import Gdk
+
 from simplegeneric import generic
 from gaphas.item import Item, Element
 
@@ -133,10 +140,11 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-            gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
-            gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
-            gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
-            gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER) )
+        Gdk.CursorType.TOP_LEFT_CORNER,
+        Gdk.CursorType.TOP_RIGHT_CORNER,
+        Gdk.CursorType.BOTTOM_RIGHT_CORNER,
+        Gdk.CursorType.BOTTOM_LEFT_CORNER,
+    )
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -144,10 +152,10 @@ class ElementHandleSelection(ItemHandleSelection):
             self.view.window.set_cursor(self.CURSORS[index])
 
     def unselect(self):
-        from view import DEFAULT_CURSOR
-        cursor = gtk.gdk.Cursor(DEFAULT_CURSOR)
-        self.view.window.set_cursor(cursor)
+        from .view import DEFAULT_CURSOR
 
+        cursor = Gdk.Cursor(DEFAULT_CURSOR)
+        self.view.window.set_cursor(cursor)
 
 
 class ItemHandleInMotion(object):
@@ -206,8 +214,9 @@ class ItemHandleInMotion(object):
         if not handle.connectable:
             return None
 
-        connectable, port, glue_pos = \
-                view.get_port_at_point(pos, distance=distance, exclude=(item,))
+        connectable, port, glue_pos = view.get_port_at_point(
+            pos, distance=distance, exclude=(item,)
+        )
 
         # check if item and found item can be connected on closest port
         if port is not None:
@@ -229,8 +238,7 @@ HandleInMotion = generic(ItemHandleInMotion)
 
 
 class ItemConnector(object):
-
-    GLUE_DISTANCE = 10 # Glue distance in view points
+    GLUE_DISTANCE = 10  # Glue distance in view points
 
     def __init__(self, item, handle):
         self.item = item
@@ -272,7 +280,6 @@ class ItemConnector(object):
 
         self.connect_handle(sink)
 
-
     def connect_handle(self, sink, callback=None):
         """
         Create constraint between handle of a line and port of
@@ -290,9 +297,9 @@ class ItemConnector(object):
 
         constraint = sink.port.constraint(canvas, item, handle, sink.item)
 
-        canvas.connect_item(item, handle, sink.item, sink.port,
-            constraint, callback=callback)
-
+        canvas.connect_item(
+            item, handle, sink.item, sink.port, constraint, callback=callback
+        )
 
     def disconnect(self):
         """
@@ -337,6 +344,7 @@ ConnectionSink = generic(ItemConnectionSink)
 ## Painter aspects
 ##
 
+
 class ItemPaintFocused(object):
     """
     Paints on top of all items, just for the focused item and only
@@ -352,6 +360,3 @@ class ItemPaintFocused(object):
 
 
 PaintFocused = generic(ItemPaintFocused)
-
-
-# vim:sw=4:et:ai

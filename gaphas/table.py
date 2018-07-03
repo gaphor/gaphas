@@ -2,6 +2,11 @@
 Table is a storage class that can be used to store information, like
 one would in a database table, with indexes on the desired "columns."
 """
+from builtins import str
+from builtins import zip
+from builtins import object
+from functools import reduce
+
 
 class Table(object):
     """
@@ -27,9 +32,7 @@ class Table(object):
             index[n] = dict()
         self._index = index
 
-
     columns = property(lambda s: s._type)
-
 
     def insert(self, *values):
         """
@@ -50,7 +53,10 @@ class Table(object):
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
         if len(values) != len(self._type._fields):
-            raise ValueError, "Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._type._fields))
+            raise ValueError(
+                "Number of arguments doesn't match the number of columns (%d != %d)"
+                % (len(values), len(self._type._fields))
+            )
         # Add value to index entries
         index = self._index
         data = self._type._make(values)
@@ -60,7 +66,6 @@ class Table(object):
                 index[n][v].add(data)
             else:
                 index[n][v] = set([data])
-
 
     def delete(self, *_row, **kv):
         """
@@ -103,10 +108,12 @@ class Table(object):
         """
         fields = self._type._fields
         if _row and kv:
-            raise ValueError, "Should either provide a row or a query statement, not both"
+            raise ValueError(
+                "Should either provide a row or a query statement, not both"
+            )
         if _row:
             assert len(_row) == len(fields)
-            kv = dict(zip(self._indexes, _row))
+            kv = dict(list(zip(self._indexes, _row)))
 
         rows = list(self.query(**kv))
 
@@ -118,7 +125,6 @@ class Table(object):
                     index[n][v].remove(row)
                     if len(index[n][v]) == 0:
                         del index[n][v]
-
 
     def query(self, **kv):
         """
@@ -164,12 +170,12 @@ class Table(object):
             raise AttributeError("Columns %s are not indexed" % str(tuple(bad)))
 
         r = iter([])
-        items = tuple((n, v) for n, v in kv.items() if v is not None)
+        items = tuple((n, v) for n, v in list(kv.items()) if v is not None)
         if all(v in index[n] for n, v in items):
             rows = (index[n][v] for n, v in items)
             try:
                 r = iter(reduce(set.intersection, rows))
-            except TypeError, ex:
+            except TypeError as ex:
                 pass
         return r
 

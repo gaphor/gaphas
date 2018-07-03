@@ -1,7 +1,11 @@
 """
 Allow for easily adding segments to lines.
 """
+from __future__ import division
 
+from builtins import zip
+from past.utils import old_div
+from builtins import object
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic
 from gaphas.geometry import distance_point_point_fast, distance_line_point
@@ -13,14 +17,12 @@ from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocuse
 
 @generic
 class Segment(object):
-
     def __init__(self, item, view):
         raise TypeError
 
 
 @Segment.when_type(Line)
 class LineSegment(object):
-
     def __init__(self, item, view):
         self.item = item
         self.view = view
@@ -30,9 +32,9 @@ class LineSegment(object):
         handles = item.handles()
         x, y = self.view.get_matrix_v2i(item).transform_point(*pos)
         for h1, h2 in zip(handles, handles[1:]):
-            xp = (h1.pos.x + h2.pos.x) / 2
-            yp = (h1.pos.y + h2.pos.y) / 2
-            if distance_point_point_fast((x,y), (xp, yp)) <= 4:
+            xp = old_div((h1.pos.x + h2.pos.x), 2)
+            yp = old_div((h1.pos.y + h2.pos.y), 2)
+            if distance_point_point_fast((x, y), (xp, yp)) <= 4:
                 segment = handles.index(h1)
                 handles, ports = self.split_segment(segment)
                 return handles and handles[0]
@@ -54,16 +56,18 @@ class LineSegment(object):
         """
         item = self.item
         if segment < 0 or segment >= len(item.ports()):
-            raise ValueError('Incorrect segment')
+            raise ValueError("Incorrect segment")
         if count < 2:
-            raise ValueError('Incorrect count of segments')
+            raise ValueError("Incorrect count of segments")
 
         def do_split(segment, count):
             handles = item.handles()
             p0 = handles[segment].pos
             p1 = handles[segment + 1].pos
             dx, dy = p1.x - p0.x, p1.y - p0.y
-            new_h = item._create_handle((p0.x + dx / count, p0.y + dy / count))
+            new_h = item._create_handle(
+                (p0.x + old_div(dx, count), p0.y + old_div(dy, count))
+            )
             item._reversible_insert_handle(segment + 1, new_h)
 
             p0 = item._create_port(p0, new_h.pos)
@@ -82,10 +86,9 @@ class LineSegment(object):
 
         self._recreate_constraints()
 
-        handles = item.handles()[segment + 1:segment + count]
-        ports = item.ports()[segment:segment + count - 1]
+        handles = item.handles()[segment + 1 : segment + count]
+        ports = item.ports()[segment : segment + count - 1]
         return handles, ports
-
 
     def merge_segment(self, segment, count=2):
         """
@@ -102,15 +105,15 @@ class LineSegment(object):
         """
         item = self.item
         if len(item.ports()) < 2:
-            raise ValueError('Cannot merge item with one segment')
+            raise ValueError("Cannot merge item with one segment")
         if segment < 0 or segment >= len(item.ports()):
-            raise ValueError('Incorrect segment')
+            raise ValueError("Incorrect segment")
         if count < 2 or segment + count > len(item.ports()):
-            raise ValueError('Incorrect count of segments')
+            raise ValueError("Incorrect count of segments")
 
         # remove handle and ports which share position with handle
-        deleted_handles = item.handles()[segment + 1:segment + count]
-        deleted_ports = item.ports()[segment:segment + count]
+        deleted_handles = item.handles()[segment + 1 : segment + count]
+        deleted_ports = item.ports()[segment : segment + count]
         for h in deleted_handles:
             item._reversible_remove_handle(h)
         for p in deleted_ports:
@@ -130,7 +133,6 @@ class LineSegment(object):
 
         return deleted_handles, deleted_ports
 
-
     def _recreate_constraints(self):
         """
         Create connection constraints between connecting lines and an item.
@@ -140,9 +142,10 @@ class LineSegment(object):
             Connected item.
         """
         connected = self.item
+
         def find_port(line, handle, item):
-            #port = None
-            #max_dist = sys.maxint
+            # port = None
+            # max_dist = sys.maxint
             canvas = item.canvas
 
             ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
@@ -212,7 +215,7 @@ class SegmentHandleSelection(ItemHandleSelection):
 
         # cannot merge starting from last segment
         if segment == len(item.ports()) - 1:
-            segment =- 1
+            segment = -1
         assert segment >= 0 and segment < len(item.ports()) - 1
 
         before = handles[handle_index - 1]
@@ -225,7 +228,6 @@ class SegmentHandleSelection(ItemHandleSelection):
 
         if handle:
             item.request_update()
-
 
 
 @PaintFocused.when_type(Line)
@@ -247,8 +249,8 @@ class LineSegmentPainter(ItemPaintFocused):
             h = item.handles()
             for h1, h2 in zip(h[:-1], h[1:]):
                 p1, p2 = h1.pos, h2.pos
-                cx = (p1.x + p2.x) / 2
-                cy = (p1.y + p2.y) / 2
+                cx = old_div((p1.x + p2.x), 2)
+                cy = old_div((p1.y + p2.y), 2)
                 cr.save()
                 cr.identity_matrix()
                 m = Matrix(*view.get_matrix_i2v(item))
@@ -262,7 +264,3 @@ class LineSegmentPainter(ItemPaintFocused):
                 cr.set_line_width(1)
                 cr.stroke()
                 cr.restore()
-
-
-
-# vim:sw=4:et:ai

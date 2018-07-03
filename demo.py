@@ -13,19 +13,25 @@ It sports a small canvas and some trivial operations:
  - Exports to SVG and PNG
 
 """
+from __future__ import print_function
 
 __version__ = "$Revision$"
 # $HeadURL$
 
 try:
-    import pygtk
+    import pyGtk
 except ImportError:
     pass
 else:
-    pygtk.require('2.0') 
+    pyGtk.require("2.0")
 
 import math
-import gtk
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import cairo
 from gaphas import Canvas, GtkView, View
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
@@ -33,19 +39,28 @@ from gaphas.item import Line, NW, SE
 from gaphas.tool import PlacementTool, HandleTool
 from gaphas.segment import Segment
 import gaphas.guide
-from gaphas.painter import PainterChain, ItemPainter, HandlePainter, FocusedItemPainter, ToolPainter, BoundingBoxPainter
+from gaphas.painter import (
+    PainterChain,
+    ItemPainter,
+    HandlePainter,
+    FocusedItemPainter,
+    ToolPainter,
+    BoundingBoxPainter,
+)
 from gaphas import state
 from gaphas.util import text_extents, text_underline
 from gaphas.freehand import FreeHandPainter
 
 from gaphas import painter
-#painter.DEBUG_DRAW_BOUNDING_BOX = True
+
+# painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Ensure data gets picked well:
 import gaphas.picklers
 
 # Global undo list
 undo_list = []
+
 
 def undo_handler(event):
     global undo_list
@@ -56,10 +71,12 @@ def factory(view, cls):
     """
     Simple canvas item factory.
     """
+
     def wrapper():
         item = cls()
         view.canvas.add(item)
         return item
+
     return wrapper
 
 
@@ -67,9 +84,11 @@ class MyBox(Box):
     """Box with an example connection protocol.
     """
 
+
 class MyLine(Line):
     """Line with experimental connection protocol.
     """
+
     def __init__(self):
         super(MyLine, self).__init__()
         self.fuzziness = 2
@@ -89,13 +108,11 @@ class MyLine(Line):
         cr.stroke()
 
 
-
-
 class MyText(Text):
     """
     Text with experimental connection protocol.
     """
-    
+
     def draw(self, context):
         Text.draw(self, context)
         cr = context.cairo
@@ -106,74 +123,75 @@ class MyText(Text):
 
 
 class UnderlineText(Text):
-
     def draw(self, context):
         cr = context.cairo
         text_underline(cr, 0, 0, "Some text(y)")
- 
+
 
 def create_window(canvas, title, zoom=1.0):
     view = GtkView()
-    view.painter = PainterChain(). \
-        append(FreeHandPainter(ItemPainter())). \
-        append(HandlePainter()). \
-        append(FocusedItemPainter()). \
-        append(ToolPainter())
+    view.painter = (
+        PainterChain()
+        .append(FreeHandPainter(ItemPainter()))
+        .append(HandlePainter())
+        .append(FocusedItemPainter())
+        .append(ToolPainter())
+    )
     view.bounding_box_painter = FreeHandPainter(BoundingBoxPainter())
-    w = gtk.Window()
+    w = Gtk.Window()
     w.set_title(title)
-    h = gtk.HBox()
+    h = Gtk.HBox()
     w.add(h)
 
     # VBox contains buttons that can be used to manipulate the canvas:
-    v = gtk.VBox()
-    v.set_property('border-width', 3)
-    v.set_property('spacing', 2)
-    f = gtk.Frame()
-    f.set_property('border-width', 1)
+    v = Gtk.VBox()
+    v.set_property("border-width", 3)
+    v.set_property("spacing", 2)
+    f = Gtk.Frame()
+    f.set_property("border-width", 1)
     f.add(v)
     h.pack_start(f, expand=False)
 
-    v.add(gtk.Label('Item placement:'))
-    
-    b = gtk.Button('Add box')
+    v.add(Gtk.Label("Item placement:"))
+
+    b = Gtk.Button("Add box")
 
     def on_clicked(button, view):
-        #view.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.CROSSHAIR))
+        # view.window.set_cursor(Gdk.Cursor(Gdk.CROSSHAIR))
         view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(), 2))
 
-    b.connect('clicked', on_clicked, view)
+    b.connect("clicked", on_clicked, view)
     v.add(b)
 
-    b = gtk.Button('Add line')
+    b = Gtk.Button("Add line")
 
     def on_clicked(button):
         view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    v.add(gtk.Label('Zooming:'))
-   
-    b = gtk.Button('Zoom in')
+    v.add(Gtk.Label("Zooming:"))
+
+    b = Gtk.Button("Zoom in")
 
     def on_clicked(button):
         view.zoom(1.2)
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    b = gtk.Button('Zoom out')
+    b = Gtk.Button("Zoom out")
 
     def on_clicked(button):
-        view.zoom(1/1.2)
+        view.zoom(1 / 1.2)
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    v.add(gtk.Label('Misc:'))
+    v.add(Gtk.Label("Misc:"))
 
-    b = gtk.Button('Split line')
+    b = Gtk.Button("Split line")
 
     def on_clicked(button):
         if isinstance(view.focused_item, Line):
@@ -181,58 +199,58 @@ def create_window(canvas, title, zoom=1.0):
             segment.split_segment(0)
             view.queue_draw_item(view.focused_item)
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    b = gtk.Button('Delete focused')
+    b = Gtk.Button("Delete focused")
 
     def on_clicked(button):
         if view.focused_item:
             canvas.remove(view.focused_item)
-            #print 'items:', canvas.get_all_items()
+            # print 'items:', canvas.get_all_items()
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    v.add(gtk.Label('State:'))
-    b = gtk.ToggleButton('Record')
+    v.add(Gtk.Label("State:"))
+    b = Gtk.ToggleButton("Record")
 
     def on_toggled(button):
         global undo_list
         if button.get_active():
-            print 'start recording'
+            print("start recording")
             del undo_list[:]
             state.subscribers.add(undo_handler)
         else:
-            print 'stop recording'
+            print("stop recording")
             state.subscribers.remove(undo_handler)
 
-    b.connect('toggled', on_toggled)
+    b.connect("toggled", on_toggled)
     v.add(b)
 
-    b = gtk.Button('Play back')
-    
+    b = Gtk.Button("Play back")
+
     def on_clicked(self):
         global undo_list
         apply_me = list(undo_list)
         del undo_list[:]
-        print 'Actions on the undo stack:', len(apply_me)
+        print("Actions on the undo stack:", len(apply_me))
         apply_me.reverse()
         saveapply = state.saveapply
         for event in apply_me:
-            print 'Undo: invoking', event
+            print("Undo: invoking", event)
             saveapply(*event)
-            print 'New undo stack size:', len(undo_list)
+            print("New undo stack size:", len(undo_list))
             # Visualize each event:
-            #while gtk.events_pending():
-            #    gtk.main_iteration()
+            # while Gtk.events_pending():
+            #    Gtk.main_iteration()
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    v.add(gtk.Label('Export:'))
+    v.add(Gtk.Label("Export:"))
 
-    b = gtk.Button('Write demo.png')
+    b = Gtk.Button("Write demo.png")
 
     def on_clicked(button):
         svgview = View(view.canvas)
@@ -245,7 +263,7 @@ def create_window(canvas, title, zoom=1.0):
         svgview.update_bounding_box(tmpcr)
         tmpcr.show_page()
         tmpsurface.flush()
-       
+
         w, h = svgview.bounding_box.width, svgview.bounding_box.height
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
         cr = cairo.Context(surface)
@@ -255,12 +273,12 @@ def create_window(canvas, title, zoom=1.0):
 
         cr.restore()
         cr.show_page()
-        surface.write_to_png('demo.png')
+        surface.write_to_png("demo.png")
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    b = gtk.Button('Write demo.svg')
+    b = Gtk.Button("Write demo.svg")
 
     def on_clicked(button):
         svgview = View(view.canvas)
@@ -273,9 +291,9 @@ def create_window(canvas, title, zoom=1.0):
         svgview.update_bounding_box(tmpcr)
         tmpcr.show_page()
         tmpsurface.flush()
-       
+
         w, h = svgview.bounding_box.width, svgview.bounding_box.height
-        surface = cairo.SVGSurface('demo.svg', w, h)
+        surface = cairo.SVGSurface("demo.svg", w, h)
         cr = cairo.Context(surface)
         svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
         svgview.paint(cr)
@@ -283,111 +301,108 @@ def create_window(canvas, title, zoom=1.0):
         surface.flush()
         surface.finish()
 
-    b.connect('clicked', on_clicked)
+    b.connect("clicked", on_clicked)
     v.add(b)
 
-    
-    b = gtk.Button('Dump QTree')
+    b = Gtk.Button("Dump QTree")
 
     def on_clicked(button, li):
         view._qtree.dump()
 
-    b.connect('clicked', on_clicked, [0])
+    b.connect("clicked", on_clicked, [0])
     v.add(b)
 
-
-    b = gtk.Button('Pickle (save)')
+    b = Gtk.Button("Pickle (save)")
 
     def on_clicked(button, li):
-        f = open('demo.pickled', 'w')
+        f = open("demo.pickled", "w")
         try:
             import cPickle as pickle
+
             pickle.dump(view.canvas, f)
         finally:
             f.close()
 
-    b.connect('clicked', on_clicked, [0])
+    b.connect("clicked", on_clicked, [0])
     v.add(b)
 
-
-    b = gtk.Button('Unpickle (load)')
+    b = Gtk.Button("Unpickle (load)")
 
     def on_clicked(button, li):
-        f = open('demo.pickled', 'r')
+        f = open("demo.pickled", "r")
         try:
             import cPickle as pickle
+
             canvas = pickle.load(f)
             canvas.update_now()
         finally:
             f.close()
-        create_window(canvas, 'Unpickled diagram')
+        create_window(canvas, "Unpickled diagram")
 
-    b.connect('clicked', on_clicked, [0])
+    b.connect("clicked", on_clicked, [0])
     v.add(b)
 
-
-    b = gtk.Button('Unpickle (in place)')
+    b = Gtk.Button("Unpickle (in place)")
 
     def on_clicked(button, li):
-        f = open('demo.pickled', 'r')
+        f = open("demo.pickled", "r")
         try:
             import cPickle as pickle
+
             canvas = pickle.load(f)
         finally:
             f.close()
-        #[i.request_update() for i in canvas.get_all_items()]
+        # [i.request_update() for i in canvas.get_all_items()]
         canvas.update_now()
         view.canvas = canvas
 
-    b.connect('clicked', on_clicked, [0])
+    b.connect("clicked", on_clicked, [0])
     v.add(b)
 
-
-    b = gtk.Button('Reattach (in place)')
+    b = Gtk.Button("Reattach (in place)")
 
     def on_clicked(button, li):
         view.canvas = None
         view.canvas = canvas
 
-    b.connect('clicked', on_clicked, [0])
+    b.connect("clicked", on_clicked, [0])
     v.add(b)
-
 
     # Add the actual View:
 
     view.canvas = canvas
     view.zoom(zoom)
     view.set_size_request(150, 120)
-    s = gtk.ScrolledWindow()
+    s = Gtk.ScrolledWindow()
     s.add(view)
     h.add(s)
 
     w.show_all()
-    
-    w.connect('destroy', gtk.main_quit)
+
+    w.connect("destroy", Gtk.main_quit)
 
     def handle_changed(view, item, what):
-        print what, 'changed: ', item
+        print(what, "changed: ", item)
 
-    view.connect('focus-changed', handle_changed, 'focus')
-    view.connect('hover-changed', handle_changed, 'hover')
-    view.connect('selection-changed', handle_changed, 'selection')
+    view.connect("focus-changed", handle_changed, "focus")
+    view.connect("hover-changed", handle_changed, "hover")
+    view.connect("selection-changed", handle_changed, "selection")
 
-    
+
 def create_canvas(c=None):
     if not c:
         c = Canvas()
-    b=MyBox()
+    b = MyBox()
     b.min_width = 20
     b.min_height = 30
-    print 'box', b
-    b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
+    print("box", b)
+    b.matrix = (1.0, 0.0, 0.0, 1, 20, 20)
     b.width = b.height = 40
     c.add(b)
 
-    bb=Box()
-    print 'box', bb
-    bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
+    bb = Box()
+    print("box", bb)
+    bb.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
     c.add(bb, parent=b)
 
     fl = FatLine()
@@ -403,14 +418,14 @@ def create_canvas(c=None):
 
     # AJM: extra boxes:
     bb = Box()
-    print 'rotated box', bb
-    bb.matrix.rotate(math.pi/1.567)
+    print("rotated box", bb)
+    bb.matrix.rotate(math.pi / 1.567)
     c.add(bb, parent=b)
-#    for i in xrange(10):
-#        bb=Box()
-#        print 'box', bb
-#        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
-#        c.add(bb, parent=b)
+    #    for i in xrange(10):
+    #        bb=Box()
+    #        print 'box', bb
+    #        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
+    #        c.add(bb, parent=b)
 
     b = PortoBox(60, 60)
     b.min_width = 40
@@ -419,11 +434,11 @@ def create_canvas(c=None):
     c.add(b)
 
     t = UnderlineText()
-    t.matrix.translate(70,30)
+    t.matrix.translate(70, 30)
     c.add(t)
 
-    t = MyText('Single line')
-    t.matrix.translate(70,70)
+    t = MyText("Single line")
+    t.matrix.translate(70, 70)
     c.add(t)
 
     l = MyLine()
@@ -437,14 +452,17 @@ def create_canvas(c=None):
     off_y = 0
     for align_x in (-1, 0, 1):
         for align_y in (-1, 0, 1):
-            t=MyText('Aligned text %d/%d' % (align_x, align_y),
-                     align_x=align_x, align_y=align_y)
+            t = MyText(
+                "Aligned text %d/%d" % (align_x, align_y),
+                align_x=align_x,
+                align_y=align_y,
+            )
             t.matrix.translate(120, 200 + off_y)
             off_y += 30
             c.add(t)
 
-    t=MyText('Multiple\nlines', multiline = True)
-    t.matrix.translate(70,100)
+    t = MyText("Multiple\nlines", multiline=True)
+    t.matrix.translate(70, 100)
     c.add(t)
 
     return c
@@ -459,36 +477,38 @@ def main():
     state.observers.add(state.revert_handler)
 
     def print_handler(event):
-        print 'event:', event
+        print("event:", event)
 
-    c=Canvas()
+    c = Canvas()
 
-    create_window(c, 'View created before')
+    create_window(c, "View created before")
 
     create_canvas(c)
 
-    #state.subscribers.add(print_handler)
+    # state.subscribers.add(print_handler)
 
     ##
     ## Start the main application
     ##
 
-    create_window(c, 'View created after')
+    create_window(c, "View created after")
 
-    gtk.main()
+    Gtk.main()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
-    if '-p' in sys.argv:
-        print 'Profiling...'
+
+    if "-p" in sys.argv:
+        print("Profiling...")
         import hotshot, hotshot.stats
-        prof = hotshot.Profile('demo-gaphas.prof')
+
+        prof = hotshot.Profile("demo-gaphas.prof")
         prof.runcall(main)
         prof.close()
-        stats = hotshot.stats.load('demo-gaphas.prof')
+        stats = hotshot.stats.load("demo-gaphas.prof")
         stats.strip_dirs()
-        stats.sort_stats('time', 'calls')
+        stats.sort_stats("time", "calls")
         stats.print_stats(20)
     else:
         main()
