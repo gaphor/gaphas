@@ -28,7 +28,6 @@ from ez_setup import use_setuptools
 use_setuptools()
 
 from setuptools import setup, find_packages
-from distutils.cmd import Command
 
 setup(
     name="gaphas",
@@ -54,9 +53,10 @@ setup(
     install_requires=[
         "decorator >= 3.0.0",
         "simplegeneric >= 0.6",
-        #    'PyGTK >= 2.8.0',
-        #    'cairo >= 1.8.2'
+        "pycairo",
+        "pygobject"
     ],
+    python_requires="2.7, >=3.5",
     zip_safe=False,
     package_data={
         # -*- package_data: -*-

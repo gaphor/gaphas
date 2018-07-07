@@ -70,7 +70,7 @@ class asyncio(object):
     the GTK+ main loop:
 
     >>> def delayed():
-    ...     print 'before'
+    ...     print("before")
     ...     a = A()
     ...     b = B()
     ...     c = C()
@@ -84,7 +84,7 @@ class asyncio(object):
     ...     b.b()
     ...     a.a()
     ...     b.b()
-    ...     print 'after'
+    ...     print("after")
     ...     GObject.timeout_add(100, Gtk.main_quit)
     >>> GObject.timeout_add(1, delayed) > 0 # timeout id may vary
     True
@@ -166,7 +166,7 @@ def nonrecursive(func):
     >>> class A(object):
     ...     @nonrecursive
     ...     def a(self, x=1):
-    ...         print x
+    ...         print(x)
     ...         self.a(x+1)
     >>> A().a()
     1

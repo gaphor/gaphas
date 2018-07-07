@@ -1,24 +1,23 @@
 """
 Test cases for the View class.
 """
-from __future__ import print_function
 from __future__ import division
+from __future__ import print_function
 
-from past.utils import old_div
 import unittest
 
 import gi
+from past.utils import old_div
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk
 
 import math
 
 from gaphas.view import View, GtkView
-from gaphas.canvas import Canvas, Context
+from gaphas.canvas import Canvas
 from gaphas.item import Line
 from gaphas.examples import Box
-from gaphas.tool import HoverTool
 
 
 class ViewTestCase(unittest.TestCase):
@@ -254,18 +253,16 @@ class ViewTestCase(unittest.TestCase):
         view.connect("set-scroll-adjustments", handler)
         sc.add(view)
 
-        # TODO failing test
-        # assert view.handled
+        assert view.handled
 
     def test_scroll_adjustments(self):
         sc = Gtk.ScrolledWindow()
         view = GtkView(Canvas())
         sc.add(view)
 
-        print(sc.get_hadjustment(), view.hadjustment)
-        # TODO failing test
-        # assert sc.get_hadjustment() is view.hadjustment
-        # assert sc.get_vadjustment() is view.vadjustment
+        # print(sc.get_hadjustment(), view.hadjustment)
+        assert sc.get_hadjustment() is view.hadjustment
+        assert sc.get_vadjustment() is view.vadjustment
 
 
 if __name__ == "__main__":

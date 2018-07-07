@@ -31,6 +31,7 @@ class SegmentTestCase(unittest.TestCase):
             print(item, "segment aspect:", s)
         except TypeError as e:
             print("TypeError", e)
+            assert False
         else:
             assert False, "Should not be reached"
 

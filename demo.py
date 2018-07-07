@@ -207,7 +207,6 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button):
         if view.focused_item:
             canvas.remove(view.focused_item)
-            # print 'items:', canvas.get_all_items()
 
     b.connect("clicked", on_clicked)
     v.add(b)
@@ -395,13 +394,11 @@ def create_canvas(c=None):
     b = MyBox()
     b.min_width = 20
     b.min_height = 30
-    print("box", b)
     b.matrix = (1.0, 0.0, 0.0, 1, 20, 20)
     b.width = b.height = 40
     c.add(b)
 
     bb = Box()
-    print("box", bb)
     bb.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
     c.add(bb, parent=b)
 
@@ -418,12 +415,11 @@ def create_canvas(c=None):
 
     # AJM: extra boxes:
     bb = Box()
-    print("rotated box", bb)
     bb.matrix.rotate(math.pi / 1.567)
     c.add(bb, parent=b)
     #    for i in xrange(10):
     #        bb=Box()
-    #        print 'box', bb
+    #        print("box", bb)
     #        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
     #        c.add(bb, parent=b)
 

@@ -105,7 +105,6 @@ class Variable(object):
     def set_value(self, value):
         oldval = self._value
         if abs(oldval - value) > EPSILON:
-            # print id(self), oldval, value
             self._value = float(value)
             self.dirty()
 
@@ -472,7 +471,6 @@ class Solver(object):
                 constraint._solver_has_projections = True
             v._constraints.add(constraint)
             v._solver = self
-        # print 'added constraint', constraint
         return constraint
 
     @observed

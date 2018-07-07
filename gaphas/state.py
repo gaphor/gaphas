@@ -86,7 +86,7 @@ def dispatch(event, queue):
     Event handlers should have signature: handler(event).
 
     >>> def handler(event):
-    ...     print 'event handled', event
+    ...     print("event handled", event)
     >>> observers.add(handler)
     >>> @observed
     ... def callme():
@@ -209,7 +209,7 @@ def revert_handler(event):
     >>> reversible_pair(SList.add, SList.remove, \
         bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
     >>> def handler(event):
-    ...     print 'handle', event
+    ...     print("handle", event)
     >>> subscribers.add(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
     handle (<function remove at 0x...)

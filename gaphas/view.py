@@ -876,16 +876,3 @@ class GtkView(Gtk.DrawingArea, View):
         self.request_update((), self._canvas.get_all_items())
 
         self.queue_draw_refresh()
-
-
-# Set a signal to set adjustments. This way a ScrolledWindow can set its own
-# Adjustment objects on the View. Otherwise a warning is shown:
-#
-#   GtkWarning: Gtk_scrolled_window_add(): cannot add non scrollable widget
-#   use Gtk_scrolled_window_add_with_viewport() instead
-
-# TODO why is this failing?
-# GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
-
-
-# vim: sw=4:et:ai
