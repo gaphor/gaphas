@@ -15,19 +15,16 @@ Some more features:
 - User interaction is handled by Tools. Tools can be chained.
 - Versatile undo/redo system
 
-GTK+ and PyGTK_ are required.
+GTK+ and PyGObject_ are required.
 
 .. _Cairo: http://cairographics.org/
-.. _PyGTK: http://www.pyGtk.org/
+.. _PyGObject: https://pygobject.readthedocs.io/
 """
+from setuptools import setup
+
 
 VERSION = "0.7.2"
 
-from ez_setup import use_setuptools
-
-use_setuptools()
-
-from setuptools import setup, find_packages
 
 setup(
     name="gaphas",
@@ -40,15 +37,20 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords="",
     author="Arjan J. Molenaar",
     author_email="arjanmol@users.sourceforge.net",
     url="http://gaphor.sourceforge.net",
-    # download_url='http://cheeseshop.python.org/',
     license="GNU Library General Public License (LGPL, see COPYING)",
-    packages=find_packages(exclude=["ez_setup"]),
+    packages=[],
     setup_requires=["nose >= 0.10.4", "setuptools-git >= 0.3.4"],
     install_requires=[
         "decorator >= 3.0.0",
@@ -56,11 +58,6 @@ setup(
         "pycairo",
         "pygobject"
     ],
-    python_requires="2.7, >=3.5",
-    zip_safe=False,
-    package_data={
-        # -*- package_data: -*-
-    },
-    entry_points={},
+    python_requires=">=2.7",
     test_suite="nose.collector",
 )
