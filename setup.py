@@ -15,70 +15,49 @@ Some more features:
 - User interaction is handled by Tools. Tools can be chained.
 - Versatile undo/redo system
 
-GTK+ and PyGTK_ are required.
+GTK+ and PyGObject_ are required.
 
 .. _Cairo: http://cairographics.org/
-.. _PyGTK: http://www.pygtk.org/
+.. _PyGObject: https://pygobject.readthedocs.io/
 """
+from setuptools import setup
 
-VERSION = '0.7.2'
 
-from ez_setup import use_setuptools
+VERSION = "0.7.2"
 
-use_setuptools()
-
-from setuptools import setup, find_packages
-from distutils.cmd import Command
 
 setup(
-    name='gaphas',
+    name="gaphas",
     version=VERSION,
-    description='Gaphas is a GTK+ based diagramming widget',
+    description="Gaphas is a GTK+ based diagramming widget",
     long_description=__doc__,
-
     classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: X11 Applications :: GTK',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-    'Programming Language :: Python',
-    'Topic :: Software Development :: Libraries :: Python Modules',
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: X11 Applications :: GTK",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-
-    keywords='',
-
+    keywords="",
     author="Arjan J. Molenaar",
-    author_email='arjanmol@users.sourceforge.net',
-
-    url='http://gaphor.sourceforge.net',
-
-    #download_url='http://cheeseshop.python.org/',
-
-    license='GNU Library General Public License (LGPL, see COPYING)',
-
-    packages=find_packages(exclude=['ez_setup']),
-
-    setup_requires = [
-     'nose >= 0.10.4',
-     'setuptools-git >= 0.3.4'
-    ],
-
+    author_email="arjanmol@users.sourceforge.net",
+    url="http://gaphor.sourceforge.net",
+    license="GNU Library General Public License (LGPL, see COPYING)",
+    packages=[],
+    setup_requires=["nose >= 0.10.4", "setuptools-git >= 0.3.4"],
     install_requires=[
-     'decorator >= 3.0.0',
-     'simplegeneric >= 0.6',
-#    'PyGTK >= 2.8.0',
-#    'cairo >= 1.8.2'
+        "decorator >= 3.0.0",
+        "simplegeneric >= 0.6",
+        "pycairo",
+        "pygobject"
     ],
-
-    zip_safe=False,
-
-    package_data={
-    # -*- package_data: -*-
-    },
-
-    entry_points = {
-    },
-
-    test_suite = 'nose.collector',
-    )
-      
+    python_requires=">=2.7",
+    test_suite="nose.collector",
+)

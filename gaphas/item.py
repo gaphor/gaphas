@@ -1,24 +1,37 @@
 """
 Basic items.
 """
+from __future__ import absolute_import
+from builtins import zip
+from builtins import map
+from builtins import range
+from builtins import object
+from functools import reduce
 
 __version__ = "$Revision$"
 # $HeadURL$
 
 from math import atan2
 from weakref import WeakKeyDictionary
+
 try:
     # python 3.0 (better be prepared)
     from weakref import WeakSet
 except ImportError:
-    from weakset import WeakSet
+    from .weakset import WeakSet
 
-from matrix import Matrix
-from geometry import distance_line_point, distance_rectangle_point
-from connector import Handle, LinePort
-from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
-from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
-from state import observed, reversible_method, reversible_pair, reversible_property
+from .matrix import Matrix
+from .geometry import distance_line_point, distance_rectangle_point
+from .connector import Handle, LinePort
+from .solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
+from .constraint import (
+    EqualsConstraint,
+    LessThanConstraint,
+    LineConstraint,
+    LineAlignConstraint,
+)
+from .state import observed, reversible_method, reversible_pair, reversible_property
+
 
 class Item(object):
     """
@@ -73,11 +86,11 @@ class Item(object):
         if canvas:
             self.setup_canvas()
 
-    canvas = reversible_property(lambda s: s._canvas, _set_canvas,
-                doc="Canvas owning this item")
+    canvas = reversible_property(
+        lambda s: s._canvas, _set_canvas, doc="Canvas owning this item"
+    )
 
-    constraints = property(lambda s: s._constraints,
-                doc="Item constraints")
+    constraints = property(lambda s: s._constraints, doc="Item constraints")
 
     def setup_canvas(self):
         """
@@ -87,7 +100,6 @@ class Item(object):
         add = self.canvas.solver.add_constraint
         for c in self._constraints:
             add(c)
-
 
     def teardown_canvas(self):
         """
@@ -100,7 +112,6 @@ class Item(object):
         for c in self._constraints:
             remove(c)
 
-
     @observed
     def _set_matrix(self, matrix):
         """
@@ -112,11 +123,9 @@ class Item(object):
 
     matrix = reversible_property(lambda s: s._matrix, _set_matrix)
 
-
     def request_update(self, update=True, matrix=True):
         if self._canvas:
             self._canvas.request_update(self, update=update, matrix=matrix)
-
 
     def pre_update(self, context):
         """
@@ -131,7 +140,6 @@ class Item(object):
         """
         pass
 
-
     def post_update(self, context):
         """
         Method called after item update.
@@ -145,7 +153,6 @@ class Item(object):
         All canvas invariants are true.
         """
         pass
-
 
     def normalize(self):
         """
@@ -168,7 +175,7 @@ class Item(object):
         updated = False
         handles = self._handles
         if handles:
-            x, y = map(float, handles[0].pos)
+            x, y = list(map(float, handles[0].pos))
             if x:
                 self.matrix.translate(x, 0)
                 updated = True
@@ -180,7 +187,6 @@ class Item(object):
                 for h in handles:
                     h.pos.y -= y
         return updated
-
 
     def draw(self, context):
         """
@@ -196,20 +202,17 @@ class Item(object):
         """
         pass
 
-
     def handles(self):
         """
         Return a list of handles owned by the item.
         """
         return self._handles
 
-
     def ports(self):
         """
         Return list of ports.
         """
         return self._ports
-
 
     def point(self, pos):
         """
@@ -218,15 +221,16 @@ class Item(object):
         """
         pass
 
-
-    def constraint(self,
-            horizontal=None,
-            vertical=None,
-            left_of=None,
-            above=None,
-            line=None,
-            delta=0.0,
-            align=None):
+    def constraint(
+        self,
+        horizontal=None,
+        vertical=None,
+        left_of=None,
+        above=None,
+        line=None,
+        delta=0.0,
+        align=None,
+    ):
         """
         Utility (factory) method to create item's internal constraint
         between two positions or between a position and a line.
@@ -252,7 +256,7 @@ class Item(object):
          line=(p, l)
             Keep position ``p`` on line ``l``.
         """
-        cc = None # created constraint
+        cc = None  # created constraint
         if horizontal:
             p1, p2 = horizontal
             cc = EqualsConstraint(p1[1], p2[1], delta)
@@ -272,42 +276,38 @@ class Item(object):
             else:
                 cc = LineAlignConstraint(line=l, point=pos, align=align, delta=delta)
         else:
-            raise ValueError('Constraint incorrectly specified')
+            raise ValueError("Constraint incorrectly specified")
         assert cc is not None
         self._constraints.append(cc)
         return cc
-
 
     def __getstate__(self):
         """
         Persist all, but calculated values (``_matrix_?2?``).
         """
         d = dict(self.__dict__)
-        for n in ('_matrix_i2c', '_matrix_c2i', '_matrix_i2v', '_matrix_v2i'):
+        for n in ("_matrix_i2c", "_matrix_c2i", "_matrix_i2v", "_matrix_v2i"):
             try:
                 del d[n]
             except KeyError:
                 pass
-        d['_canvas_projections'] = tuple(self._canvas_projections)
+        d["_canvas_projections"] = tuple(self._canvas_projections)
         return d
-
 
     def __setstate__(self, state):
         """
         Set state. No ``__init__()`` is called.
         """
-        for n in ('_matrix_i2c', '_matrix_c2i'):
+        for n in ("_matrix_i2c", "_matrix_c2i"):
             setattr(self, n, None)
-        for n in ('_matrix_i2v', '_matrix_v2i'):
+        for n in ("_matrix_i2v", "_matrix_v2i"):
             setattr(self, n, WeakKeyDictionary())
         self.__dict__.update(state)
-        self._canvas_projections = WeakSet(state['_canvas_projections'])
+        self._canvas_projections = WeakSet(state["_canvas_projections"])
 
 
-[ NW,
-  NE,
-  SE,
-  SW ] = xrange(4)
+[NW, NE, SE, SW] = range(4)
+
 
 class Element(Item):
     """
@@ -318,12 +318,12 @@ class Element(Item):
      SW +---+ SE
     """
 
-    min_width = solvable(strength=REQUIRED, varname='_min_width')
-    min_height = solvable(strength=REQUIRED, varname='_min_height')
+    min_width = solvable(strength=REQUIRED, varname="_min_width")
+    min_height = solvable(strength=REQUIRED, varname="_min_height")
 
     def __init__(self, width=10, height=10):
         super(Element, self).__init__()
-        self._handles = [ h(strength=VERY_STRONG) for h in [Handle]*4 ]
+        self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
 
         handles = self._handles
         h_nw = handles[NW]
@@ -342,7 +342,7 @@ class Element(Item):
             LinePort(h_nw.pos, h_ne.pos),
             LinePort(h_ne.pos, h_se.pos),
             LinePort(h_se.pos, h_sw.pos),
-            LinePort(h_sw.pos, h_nw.pos)
+            LinePort(h_sw.pos, h_nw.pos),
         ]
 
         # initialize min_x variables
@@ -356,8 +356,7 @@ class Element(Item):
         self.height = height
 
         # TODO: constraints that calculate width and height based on handle pos
-        #self.constraints.append(EqualsConstraint(p1[1], p2[1], delta))
-
+        # self.constraints.append(EqualsConstraint(p1[1], p2[1], delta))
 
     def setup_canvas(self):
         super(Element, self).setup_canvas()
@@ -379,7 +378,6 @@ class Element(Item):
         """
         h = self._handles
         h[SE].pos.x = h[NW].pos.x + width
-
 
     def _get_width(self):
         """
@@ -417,7 +415,6 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
-
     def normalize(self):
         """
         Normalize only NW and SE handles
@@ -425,7 +422,7 @@ class Element(Item):
         updated = False
         handles = self._handles
         handles = (handles[NW], handles[SE])
-        x, y = map(float, handles[0].pos)
+        x, y = list(map(float, handles[0].pos))
         if x:
             self.matrix.translate(x, 0)
             updated = True
@@ -448,7 +445,9 @@ class Element(Item):
         """
         h = self._handles
         pnw, pse = h[NW].pos, h[SE].pos
-        return distance_rectangle_point(map(float, (pnw.x, pnw.y, pse.x, pse.y)), pos)
+        return distance_rectangle_point(
+            list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), pos
+        )
 
 
 class Line(Item):
@@ -503,7 +502,7 @@ class Line(Item):
         observed, so the undo system will update the contents properly
         """
         if not self.canvas:
-            self._orthogonal_constraints = orthogonal and [ None ] or []
+            self._orthogonal_constraints = orthogonal and [None] or []
             return
 
         for c in self._orthogonal_constraints:
@@ -514,16 +513,16 @@ class Line(Item):
             return
 
         h = self._handles
-        #if len(h) < 3:
+        # if len(h) < 3:
         #    self.split_segment(0)
-        eq = EqualsConstraint #lambda a, b: a - b
+        eq = EqualsConstraint  # lambda a, b: a - b
         add = self.canvas.solver.add_constraint
         cons = []
         rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
             p0 = h0.pos
             p1 = h1.pos
-            if pos % 2 == rest: # odd
+            if pos % 2 == rest:  # odd
                 cons.append(add(eq(a=p0.x, b=p1.x)))
             else:
                 cons.append(add(eq(a=p0.y, b=p1.y)))
@@ -540,7 +539,9 @@ class Line(Item):
         """
         self._orthogonal_constraints = orthogonal_constraints
 
-    reversible_property(lambda s: s._orthogonal_constraints, _set_orthogonal_constraints)
+    reversible_property(
+        lambda s: s._orthogonal_constraints, _set_orthogonal_constraints
+    )
 
     @observed
     def _set_orthogonal(self, orthogonal):
@@ -550,17 +551,22 @@ class Line(Item):
         False
         """
         if orthogonal and len(self.handles()) < 3:
-            raise ValueError, "Can't set orthogonal line with less than 3 handles"
+            raise ValueError("Can't set orthogonal line with less than 3 handles")
         self._update_orthogonal_constraints(orthogonal)
 
-    orthogonal = reversible_property(lambda s: bool(s._orthogonal_constraints), _set_orthogonal)
+    orthogonal = reversible_property(
+        lambda s: bool(s._orthogonal_constraints), _set_orthogonal
+    )
 
     @observed
     def _inner_set_horizontal(self, horizontal):
         self._horizontal = horizontal
 
-    reversible_method(_inner_set_horizontal, _inner_set_horizontal,
-                      {'horizontal': lambda horizontal: not horizontal })
+    reversible_method(
+        _inner_set_horizontal,
+        _inner_set_horizontal,
+        {"horizontal": lambda horizontal: not horizontal},
+    )
 
     def _set_horizontal(self, horizontal):
         """
@@ -599,8 +605,11 @@ class Line(Item):
     def _reversible_remove_handle(self, handle):
         self._handles.remove(handle)
 
-    reversible_pair(_reversible_insert_handle, _reversible_remove_handle, \
-            bind1={'index': lambda self, handle: self._handles.index(handle)})
+    reversible_pair(
+        _reversible_insert_handle,
+        _reversible_remove_handle,
+        bind1={"index": lambda self, handle: self._handles.index(handle)},
+    )
 
     @observed
     def _reversible_insert_port(self, index, port):
@@ -610,29 +619,28 @@ class Line(Item):
     def _reversible_remove_port(self, port):
         self._ports.remove(port)
 
-    reversible_pair(_reversible_insert_port, _reversible_remove_port, \
-            bind1={'index': lambda self, port: self._ports.index(port)})
-
+    reversible_pair(
+        _reversible_insert_port,
+        _reversible_remove_port,
+        bind1={"index": lambda self, port: self._ports.index(port)},
+    )
 
     def _create_handle(self, pos, strength=WEAK):
         return Handle(pos, strength=strength)
 
-
     def _create_port(self, p1, p2):
         return LinePort(p1, p2)
-
 
     def _update_ports(self):
         """
         Update line ports. This destroys all previously created ports
         and should only be used when initializing the line.
         """
-        assert len(self._handles) >= 2, 'Not enough segments'
+        assert len(self._handles) >= 2, "Not enough segments"
         self._ports = []
         handles = self._handles
         for h1, h2 in zip(handles[:-1], handles[1:]):
             self._ports.append(self._create_port(h1.pos, h2.pos))
-
 
     def opposite(self, handle):
         """
@@ -644,7 +652,7 @@ class Line(Item):
         elif handle is handles[-1]:
             return handles[0]
         else:
-            raise KeyError('Handle is not an end handle')
+            raise KeyError("Handle is not an end handle")
 
     def post_update(self, context):
         """
@@ -669,12 +677,14 @@ class Line(Item):
         (0.7071067811865476, (4.5, 4.5), 0)
         """
         h = self._handles
-        hpos = map(getattr, h, ['pos'] * len(h))
+        hpos = list(map(getattr, h, ["pos"] * len(h)))
 
         # create a list of (distance, point_on_line) tuples:
-        distances = map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
-        distances, pols = zip(*distances)
-        return reduce(min, zip(distances, pols, range(len(distances))))
+        distances = list(
+            map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
+        )
+        distances, pols = list(zip(*distances))
+        return reduce(min, list(zip(distances, pols, list(range(len(distances))))))
 
     def point(self, pos):
         """
@@ -703,12 +713,12 @@ class Line(Item):
         """
         context.cairo.line_to(0, 0)
 
-
     def draw(self, context):
         """
         Draw the line itself.
         See Item.draw(context).
         """
+
         def draw_line_end(pos, angle, draw):
             cr = context.cairo
             cr.save()
@@ -736,10 +746,7 @@ class Line(Item):
         ### cr.stroke()
 
 
-
-__test__ = {
-    'Line._set_orthogonal': Line._set_orthogonal,
-    }
+__test__ = {"Line._set_orthogonal": Line._set_orthogonal}
 
 
 # vim: sw=4:et:ai

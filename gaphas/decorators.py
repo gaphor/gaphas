@@ -1,20 +1,27 @@
 """
 Custom decorators.
 """
+from __future__ import print_function
+
+from builtins import object
 
 __version__ = "$Revision$"
 # $HeadURL$
 
 import threading
-import gobject
-from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
-        PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
+
+# from GObject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
+#         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 
 
 DEBUG_ASYNC = False
 
 
-class async(object):
+class asyncio(object):
     """
     Instead of calling the function, schedule an idle handler at a
     given priority. This requires the async'ed method to be called
@@ -25,45 +32,45 @@ class async(object):
         the current implementation of async single mode only works for
         methods, not functions.
 
-    Calling the async function from outside the gtk main loop will
+    Calling the asyncio function from outside the Gtk main loop will
     yield immediate execution:
 
-    async just works on functions (as long as ``single=False``):
+    asyncio just works on functions (as long as ``single=False``):
 
-    >>> a = async()(lambda: 'Hi')
+    >>> a = asyncio()(lambda: 'Hi')
     >>> a()
     'Hi'
 
     Simple method:
 
     >>> class A(object):
-    ...     @async(single=False, priority=gobject.PRIORITY_HIGH)
+    ...     @asyncio(single=False, priority=GObject.PRIORITY_HIGH)
     ...     def a(self):
-    ...         print 'idle-a', gobject.main_depth()
+    ...         print 'idle-a', GObject.main_depth()
 
     Methods can also set single mode to True (the method is only
     scheduled one).
 
     >>> class B(object):
-    ...     @async(single=True)
+    ...     @asyncio(single=True)
     ...     def b(self):
-    ...         print 'idle-b', gobject.main_depth()
+    ...         print 'idle-b', GObject.main_depth()
 
     Also a timeout property can be provided:
 
     >>> class C(object):
-    ...     @async(timeout=50)
+    ...     @asyncio(timeout=50)
     ...     def c1(self):
-    ...         print 'idle-c1', gobject.main_depth()
-    ...     @async(single=True, timeout=60)
+    ...         print 'idle-c1', GObject.main_depth()
+    ...     @asyncio(single=True, timeout=60)
     ...     def c2(self):
-    ...         print 'idle-c2', gobject.main_depth()
+    ...         print 'idle-c2', GObject.main_depth()
 
     This is a helper function used to test classes A and B from within
     the GTK+ main loop:
 
     >>> def delayed():
-    ...     print 'before'
+    ...     print("before")
     ...     a = A()
     ...     b = B()
     ...     c = C()
@@ -77,12 +84,13 @@ class async(object):
     ...     b.b()
     ...     a.a()
     ...     b.b()
-    ...     print 'after'
-    ...     gobject.timeout_add(100, gtk.main_quit)
-    >>> gobject.timeout_add(1, delayed) > 0 # timeout id may vary
+    ...     print("after")
+    ...     GObject.timeout_add(100, Gtk.main_quit)
+    >>> GObject.timeout_add(1, delayed) > 0 # timeout id may vary
     True
-    >>> import gtk
-    >>> gtk.main()
+    >>> import gi
+    >>> from gi.repository import Gtk
+    >>> Gtk.main()
     before
     after
     idle-a 1
@@ -97,7 +105,7 @@ class async(object):
     it's only executed once.
     """
 
-    def __init__(self, single=False, timeout=0, priority=gobject.PRIORITY_DEFAULT):
+    def __init__(self, single=False, timeout=0, priority=GObject.PRIORITY_DEFAULT):
         self.single = single
         self.timeout = timeout
         self.priority = priority
@@ -105,26 +113,29 @@ class async(object):
     def source(self, func):
         timeout = self.timeout
         if timeout > 0:
-            s = gobject.Timeout(timeout)
+            s = GObject.Timeout(timeout)
         else:
-            s = gobject.Idle()
+            s = GObject.Idle()
         s.set_callback(func)
         s.priority = self.priority
         return s
 
     def __call__(self, func):
-        async_id = '_async_id_%s' % func.__name__
+        async_id = "_async_id_%s" % func.__name__
         source = self.source
 
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
-            if gobject.main_depth() == 0:
+            if GObject.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
+
                 def async_wrapper():
-                    if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                    if DEBUG_ASYNC:
+                        print("async:", func, args, kwargs)
                     func(*args, **kwargs)
+
                 source(async_wrapper).attach()
             else:
                 # Idle handlers should be registered per instance
@@ -132,9 +143,11 @@ class async(object):
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError, e:
+                except AttributeError as e:
+
                     def async_wrapper():
-                        if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                        if DEBUG_ASYNC:
+                            print("async:", func, args, kwargs)
                         try:
                             func(*args, **kwargs)
                         finally:
@@ -142,6 +155,7 @@ class async(object):
                         return False
 
                     setattr(holder, async_id, source(async_wrapper).attach())
+
         return wrapper
 
 
@@ -152,7 +166,7 @@ def nonrecursive(func):
     >>> class A(object):
     ...     @nonrecursive
     ...     def a(self, x=1):
-    ...         print x
+    ...         print(x)
     ...         self.a(x+1)
     >>> A().a()
     1
@@ -160,6 +174,7 @@ def nonrecursive(func):
     1
     """
     m = threading.Lock()
+
     def wrapper(*args, **kwargs):
         """
         Decorate function with a mutex that prohibits recursive execution.
@@ -169,6 +184,7 @@ def nonrecursive(func):
                 return func(*args, **kwargs)
             finally:
                 m.release()
+
     return wrapper
 
 
@@ -203,7 +219,5 @@ class recursive(object):
                     return func(*args, **kwargs)
                 finally:
                     func._recursion_level -= 1
+
         return wrapper
-
-
-# vim:sw=4:et:ai

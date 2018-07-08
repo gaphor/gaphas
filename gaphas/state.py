@@ -19,12 +19,13 @@ set::
 
 """
 
+from builtins import zip
 import types, inspect
 import threading
 from decorator import decorator
 
 # This string is added to each docstring in order to denote is's observed
-#OBSERVED_DOCSTRING = \
+# OBSERVED_DOCSTRING = \
 #        '\n\n        This method is @observed. See gaphas.state for extra info.\n'
 
 # Tell @observed to dispatch invokation messages by default
@@ -46,6 +47,7 @@ observers = set()
 # Perform locking (should be per thread?).
 mutex = threading.Lock()
 
+
 def observed(func):
     """
     Simple observer, dispatches events to functions registered in the
@@ -60,6 +62,7 @@ def observed(func):
     invoked.  This is an important feature, esp. for the reverter
     code.
     """
+
     def wrapper(func, *args, **kwargs):
         o = func.__observer__
         acquired = mutex.acquire(False)
@@ -70,6 +73,7 @@ def observed(func):
         finally:
             if acquired:
                 mutex.release()
+
     dec = decorator(wrapper)(func)
 
     func.__observer__ = dec
@@ -82,7 +86,7 @@ def dispatch(event, queue):
     Event handlers should have signature: handler(event).
 
     >>> def handler(event):
-    ...     print 'event handled', event
+    ...     print("event handled", event)
     >>> observers.add(handler)
     >>> @observed
     ... def callme():
@@ -98,7 +102,8 @@ def dispatch(event, queue):
     >>> observers.remove(handler)
     >>> callme()
     """
-    for s in queue: s(event)
+    for s in queue:
+        s(event)
 
 
 _reverse = dict()
@@ -156,8 +161,11 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
         argself, argvalue = argnames
         func = getfunction(fset)
-        b = { argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
-                    {'fget': fget}) }
+        b = {
+            argvalue: eval(
+                "lambda %(self)s: fget(%(self)s)" % {"self": argself}, {"fget": fget}
+            )
+        }
         b.update(bind)
         _reverse[func] = (func, spec, b)
 
@@ -201,7 +209,7 @@ def revert_handler(event):
     >>> reversible_pair(SList.add, SList.remove, \
         bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
     >>> def handler(event):
-    ...     print 'handle', event
+    ...     print("handle", event)
     >>> subscribers.add(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
     handle (<function remove at 0x...)
@@ -229,17 +237,20 @@ def revert_handler(event):
         return
 
     kw = dict(kwargs)
-    kw.update(dict(zip(spec[0], args)))
-    for arg, binding in bind.iteritems():
+    kw.update(dict(list(zip(spec[0], args))))
+    for arg, binding in bind.items():
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])
-    if spec[1]: argnames.append(revspec[1])
-    if spec[2]: argnames.append(revspec[2])
+    if spec[1]:
+        argnames.append(revspec[1])
+    if spec[2]:
+        argnames.append(revspec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
 
     dispatch((reverse, kwargs), queue=subscribers)
+
 
 def saveapply(func, kw):
     """
@@ -249,8 +260,10 @@ def saveapply(func, kw):
     """
     spec = inspect.getargspec(func)
     argnames = list(spec[0])
-    if spec[1]: argnames.append(spec[1])
-    if spec[2]: argnames.append(spec[2])
+    if spec[1]:
+        argnames.append(spec[1])
+    if spec[2]:
+        argnames.append(spec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
@@ -261,9 +274,6 @@ def getfunction(func):
     """
     Return the function associated with a class method.
     """
-    if isinstance(func, types.UnboundMethodType):
-        return func.im_func
+    if isinstance(func, types.MethodType):
+        return func.__func__
     return func
-
-
-# vim:sw=4:et:ai
