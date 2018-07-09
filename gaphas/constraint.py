@@ -288,7 +288,7 @@ class EquationConstraint(Constraint):
     """
 
     def __init__(self, f, **args):
-        super(EquationConstraint, self).__init__(*args.values())
+        super(EquationConstraint, self).__init__(*list(args.values()))
         self._f = f
         self._args = {}
         # see important note on order of operations in __setattr__ below.
@@ -299,7 +299,7 @@ class EquationConstraint(Constraint):
 
     def __repr__(self):
         argstring = ', '.join(['%s=%s' % (arg, str(value)) for (arg, value) in
-                             self._args.items()])
+                             list(self._args.items())])
         if argstring:
             return 'EquationConstraint(%s, %s)' % (self._f.func_code.co_name, argstring)
         else:
@@ -348,7 +348,7 @@ class EquationConstraint(Constraint):
         constraint.
         """
         args = {}
-        for nm, v in self._args.items():
+        for nm, v in list(self._args.items()):
             args[nm] = v.value
             if v is var: arg = nm
         v = self._solve_for(arg, args)

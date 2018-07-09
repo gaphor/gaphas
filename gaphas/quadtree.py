@@ -130,7 +130,7 @@ class Quadtree(object):
         >>> qtree.bounds
         (0, 0, 0, 0)
         """
-        x_y_w_h = zip(*map(operator.getitem, self._ids.itervalues(), [0] * len(self._ids)))
+        x_y_w_h = zip(*map(operator.getitem, iter(self._ids.values()), [0] * len(self._ids)))
         if not x_y_w_h:
             return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
@@ -199,7 +199,7 @@ class Quadtree(object):
         # Clean bucket and items:
         self._bucket.clear()
 
-        for item, (bounds, data, _) in dict(self._ids).iteritems():
+        for item, (bounds, data, _) in dict(self._ids).items():
             clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
             if clipped_bounds:
                 self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
@@ -300,7 +300,7 @@ class QuadtreeBucket(object):
                              QuadtreeBucket((x, cy, rw, rh), self.capacity),
                              QuadtreeBucket((cx, cy, rw, rh), self.capacity)]
             # Add items to subnodes
-            items = self.items.items()
+            items = list(self.items.items())
             self.items.clear()
             for i, b in items:
                 self.find_bucket(b).add(i, b)
@@ -361,7 +361,7 @@ class QuadtreeBucket(object):
         Returns an iterator.
         """
         if rectangle_intersects(rect, self.bounds):
-            for item, bounds in self.items.iteritems():
+            for item, bounds in self.items.items():
                 if method(bounds, rect):
                     yield item
             for bucket in self._buckets:
@@ -380,7 +380,7 @@ class QuadtreeBucket(object):
     def dump(self, indent=''):
        print indent, self, self.bounds
        indent += '   '
-       for item, bounds in sorted(self.items.iteritems()):
+       for item, bounds in sorted(self.items.items()):
            print indent, item, bounds
        for bucket in self._buckets:
            bucket.dump(indent)
