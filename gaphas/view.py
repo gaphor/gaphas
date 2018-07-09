@@ -5,6 +5,8 @@ This module contains everything to display a Canvas on a screen.
 __version__ = "$Revision$"
 # $HeadURL$
 
+import pygtk
+pygtk.require('2.0')
 import gobject
 import gtk
 from cairo import Matrix
