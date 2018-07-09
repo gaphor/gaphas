@@ -132,7 +132,7 @@ class async(object):
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError, e:
+                except AttributeError as e:
                     def async_wrapper():
                         if DEBUG_ASYNC: print 'async:', func, args, kwargs
                         try:

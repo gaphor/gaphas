@@ -169,7 +169,7 @@ class Table(object):
             rows = (index[n][v] for n, v in items)
             try:
                 r = iter(reduce(set.intersection, rows))
-            except TypeError, ex:
+            except TypeError as ex:
                 pass
         return r
 

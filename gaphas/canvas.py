@@ -455,7 +455,7 @@ class Canvas(object):
         """
         try:
             return self._connections.query(handle=handle).next()
-        except StopIteration, ex:
+        except StopIteration as ex:
             return None
 
 
@@ -702,7 +702,7 @@ class Canvas(object):
 
             self._post_update_items(dirty_items, cr)
 
-        except Exception, e:
+        except Exception as e:
             logging.error('Error while updating canvas', exc_info=e)
 
         assert len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0, \
