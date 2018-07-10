@@ -130,14 +130,14 @@ class Quadtree(object):
         >>> qtree.bounds
         (0, 0, 0, 0)
         """
-        x_y_w_h = zip(*map(operator.getitem, iter(self._ids.values()), [0] * len(self._ids)))
+        x_y_w_h = zip(*list(map(operator.getitem, iter(self._ids.values()), [0] * len(self._ids))))
         if not x_y_w_h:
             return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
         y0 = min(x_y_w_h[1])
         add = operator.add
-        x1 = max(map(add, x_y_w_h[0], x_y_w_h[2]))
-        y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
+        x1 = max(list(map(add, x_y_w_h[0], x_y_w_h[2])))
+        y1 = max(list(map(add, x_y_w_h[1], x_y_w_h[3])))
         return (x0, y0, x1 - x0, y1 - y0)
 
     soft_bounds = property(get_soft_bounds)

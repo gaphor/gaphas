@@ -357,7 +357,7 @@ class View(object):
         rectangle @rect.
         """
         items = self._qtree.find_inside(rect)
-        map(self.select_item, items)
+        list(map(self.select_item, items))
 
 
     def zoom(self, factor):

@@ -168,7 +168,7 @@ class Item(object):
         updated = False
         handles = self._handles
         if handles:
-            x, y = map(float, handles[0].pos)
+            x, y = list(map(float, handles[0].pos))
             if x:
                 self.matrix.translate(x, 0)
                 updated = True
@@ -425,7 +425,7 @@ class Element(Item):
         updated = False
         handles = self._handles
         handles = (handles[NW], handles[SE])
-        x, y = map(float, handles[0].pos)
+        x, y = list(map(float, handles[0].pos))
         if x:
             self.matrix.translate(x, 0)
             updated = True
@@ -448,7 +448,7 @@ class Element(Item):
         """
         h = self._handles
         pnw, pse = h[NW].pos, h[SE].pos
-        return distance_rectangle_point(map(float, (pnw.x, pnw.y, pse.x, pse.y)), pos)
+        return distance_rectangle_point(list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), pos)
 
 
 class Line(Item):
@@ -669,10 +669,10 @@ class Line(Item):
         (0.7071067811865476, (4.5, 4.5), 0)
         """
         h = self._handles
-        hpos = map(getattr, h, ['pos'] * len(h))
+        hpos = list(map(getattr, h, ['pos'] * len(h)))
 
         # create a list of (distance, point_on_line) tuples:
-        distances = map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
+        distances = list(map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1)))
         distances, pols = zip(*distances)
         return reduce(min, zip(distances, pols, range(len(distances))))
 
