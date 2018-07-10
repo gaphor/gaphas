@@ -21,6 +21,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from builtins import zip
+from builtins import map
 from builtins import object
 from past.utils import old_div
 __version__ = "$Revision$"
@@ -135,7 +137,7 @@ class Quadtree(object):
         >>> qtree.bounds
         (0, 0, 0, 0)
         """
-        x_y_w_h = list(zip(*list(map(operator.getitem, iter(self._ids.values()), [0] * len(self._ids)))))
+        x_y_w_h = list(zip(*list(map(operator.getitem, iter(list(self._ids.values())), [0] * len(self._ids)))))
         if not x_y_w_h:
             return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
@@ -204,7 +206,7 @@ class Quadtree(object):
         # Clean bucket and items:
         self._bucket.clear()
 
-        for item, (bounds, data, _) in dict(self._ids).items():
+        for item, (bounds, data, _) in list(dict(self._ids).items()):
             clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
             if clipped_bounds:
                 self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
@@ -366,7 +368,7 @@ class QuadtreeBucket(object):
         Returns an iterator.
         """
         if rectangle_intersects(rect, self.bounds):
-            for item, bounds in self.items.items():
+            for item, bounds in list(self.items.items()):
                 if method(bounds, rect):
                     yield item
             for bucket in self._buckets:

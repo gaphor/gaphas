@@ -3,6 +3,8 @@ Basic items.
 """
 from __future__ import absolute_import
 
+from builtins import zip
+from builtins import map
 from builtins import object
 from builtins import range
 __version__ = "$Revision$"
@@ -311,7 +313,7 @@ class Item(object):
 [ NW,
   NE,
   SE,
-  SW ] = range(4)
+  SW ] = list(range(4))
 
 class Element(Item):
     """

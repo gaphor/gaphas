@@ -3,6 +3,7 @@ Module implements guides when moving items and handles around.
 """
 from __future__ import division
 
+from builtins import map
 from builtins import object
 from past.utils import old_div
 from simplegeneric import generic
