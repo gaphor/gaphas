@@ -292,7 +292,7 @@ class EquationConstraint(Constraint):
         self._f = f
         self._args = {}
         # see important note on order of operations in __setattr__ below.
-        for arg in f.func_code.co_varnames[0:f.func_code.co_argcount]:
+        for arg in f.__code__.co_varnames[0:f.__code__.co_argcount]:
             self._args[arg] = None
         self._set(**args)
 
@@ -301,9 +301,9 @@ class EquationConstraint(Constraint):
         argstring = ', '.join(['%s=%s' % (arg, str(value)) for (arg, value) in
                              list(self._args.items())])
         if argstring:
-            return 'EquationConstraint(%s, %s)' % (self._f.func_code.co_name, argstring)
+            return 'EquationConstraint(%s, %s)' % (self._f.__code__.co_name, argstring)
         else:
-            return 'EquationConstraint(%s)' % self._f.func_code.co_name
+            return 'EquationConstraint(%s)' % self._f.__code__.co_name
 
 
     def __getattr__(self, name):
