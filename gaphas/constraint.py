@@ -329,7 +329,7 @@ class EquationConstraint(Constraint):
             elif name in self.__dict__:
                 self.__dict__[name] = value
             else:
-                raise KeyError, name
+                raise KeyError(name)
         else:
             object.__setattr__(self, name, value)
 

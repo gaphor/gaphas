@@ -82,7 +82,7 @@ class Context(object):
         self.__dict__.update(**kwargs)
 
     def __setattr__(self, key, value):
-        raise AttributeError, 'context is not writable'
+        raise AttributeError('context is not writable')
 
 
 class Canvas(object):
@@ -423,7 +423,7 @@ class Canvas(object):
         # checks:
         cinfo = self.get_connection(handle)
         if not cinfo:
-            raise ValueError, 'No data available for item "%s" and handle "%s"' % (item, handle)
+            raise ValueError('No data available for item "%s" and handle "%s"' % (item, handle))
 
         if cinfo.constraint:
             self._solver.remove_constraint(cinfo.constraint)
