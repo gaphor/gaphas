@@ -110,7 +110,7 @@ class Rectangle(object):
         """
         return (self.x, self.y, self.width, self.height)[index]
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         >>> r=Rectangle(1,2,3,4)
         >>> if r: 'yes'
