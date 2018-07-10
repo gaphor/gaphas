@@ -262,7 +262,7 @@ def getfunction(func):
     Return the function associated with a class method.
     """
     if isinstance(func, types.UnboundMethodType):
-        return func.im_func
+        return func.__func__
     return func
 
 
