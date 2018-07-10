@@ -19,6 +19,7 @@ as a Q-tree. All forms of Quadtrees share some common features:
 """
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 from past.utils import old_div
 __version__ = "$Revision$"
@@ -381,10 +382,10 @@ class QuadtreeBucket(object):
 
 
     def dump(self, indent=''):
-       print indent, self, self.bounds
+       print(indent, self, self.bounds)
        indent += '   '
        for item, bounds in sorted(self.items.items()):
-           print indent, item, bounds
+           print(indent, item, bounds)
        for bucket in self._buckets:
            bucket.dump(indent)
 
