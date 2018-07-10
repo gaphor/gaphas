@@ -674,8 +674,8 @@ class Line(Item):
 
         # create a list of (distance, point_on_line) tuples:
         distances = list(map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1)))
-        distances, pols = zip(*distances)
-        return reduce(min, zip(distances, pols, range(len(distances))))
+        distances, pols = list(zip(*distances))
+        return reduce(min, list(zip(distances, pols, range(len(distances)))))
 
     def point(self, pos):
         """

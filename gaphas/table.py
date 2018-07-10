@@ -107,7 +107,7 @@ class Table(object):
             raise ValueError, "Should either provide a row or a query statement, not both"
         if _row:
             assert len(_row) == len(fields)
-            kv = dict(zip(self._indexes, _row))
+            kv = dict(list(zip(self._indexes, _row)))
 
         rows = list(self.query(**kv))
 

@@ -229,7 +229,7 @@ def revert_handler(event):
         return
 
     kw = dict(kwargs)
-    kw.update(dict(zip(spec[0], args)))
+    kw.update(dict(list(zip(spec[0], args))))
     for arg, binding in bind.items():
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])

@@ -130,7 +130,7 @@ class Quadtree(object):
         >>> qtree.bounds
         (0, 0, 0, 0)
         """
-        x_y_w_h = zip(*list(map(operator.getitem, iter(self._ids.values()), [0] * len(self._ids))))
+        x_y_w_h = list(zip(*list(map(operator.getitem, iter(self._ids.values()), [0] * len(self._ids)))))
         if not x_y_w_h:
             return 0, 0, 0, 0
         x0 = min(x_y_w_h[0])
