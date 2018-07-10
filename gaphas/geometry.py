@@ -121,7 +121,7 @@ class Rectangle(object):
         return self.width > 0 and self.height > 0
 
     def __eq__(self, other):
-        return (type(self) is type(other)) \
+        return (isinstance(self, type(other))) \
                 and self.x == other.x \
                 and self.y == other.y \
                 and self.width == other.width \

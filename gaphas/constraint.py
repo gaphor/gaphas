@@ -376,7 +376,7 @@ class EquationConstraint(Constraint):
             return self._f(**args)
         fx0 = f(x0)
         n = 0
-        while 1:                    # Newton's method loop here
+        while True:                    # Newton's method loop here
             fx1 = f(x1)
             if fx1 == 0 or x1 == x0:  # managed to nail it exactly
                 break
