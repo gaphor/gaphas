@@ -3,6 +3,7 @@ Basic items.
 """
 from __future__ import absolute_import
 
+from builtins import range
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -309,7 +310,7 @@ class Item(object):
 [ NW,
   NE,
   SE,
-  SW ] = xrange(4)
+  SW ] = range(4)
 
 class Element(Item):
     """
@@ -676,7 +677,7 @@ class Line(Item):
         # create a list of (distance, point_on_line) tuples:
         distances = list(map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1)))
         distances, pols = list(zip(*distances))
-        return reduce(min, list(zip(distances, pols, range(len(distances)))))
+        return reduce(min, list(zip(distances, pols, list(range(len(distances))))))
 
     def point(self, pos):
         """

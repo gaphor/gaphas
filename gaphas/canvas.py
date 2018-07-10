@@ -28,6 +28,7 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 from __future__ import absolute_import
 
+from builtins import range
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -92,7 +93,7 @@ class Canvas(object):
     def __init__(self):
         self._tree = tree.Tree()
         self._solver = solver.Solver()
-        self._connections = table.Table(Connection, range(4))
+        self._connections = table.Table(Connection, list(range(4)))
         self._dirty_items = set()
         self._dirty_matrix_items = set()
         self._dirty_index = False
