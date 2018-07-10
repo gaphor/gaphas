@@ -7,6 +7,7 @@ from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
 from gaphas.connector import Handle
 from gaphas.item import Item, Element, Line, SE
+from functools import reduce
 
 
 class ItemGuide(object):

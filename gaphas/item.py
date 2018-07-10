@@ -7,6 +7,7 @@ __version__ = "$Revision$"
 
 from math import atan2
 from weakref import WeakKeyDictionary
+from functools import reduce
 try:
     # python 3.0 (better be prepared)
     from weakref import WeakSet
