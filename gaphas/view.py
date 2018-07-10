@@ -662,7 +662,7 @@ class GtkView(gtk.DrawingArea, View):
         redrawal?
         """
         get_bounds = self._qtree.get_bounds
-        items = filter(None, items)
+        items = [_f for _f in items if _f]
         try:
             # create a copy, otherwise we'll change the original rectangle
             bounds = Rectangle(*get_bounds(items[0]))
