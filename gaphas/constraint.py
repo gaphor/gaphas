@@ -322,7 +322,7 @@ class EquationConstraint(Constraint):
         # be added to self.__dict__.  This is a good thing as it throws
         # an exception if you try to assign to an arg which is inappropriate
         # for the function in the solver.
-        if self.__dict__.has_key('_args'):
+        if '_args' in self.__dict__:
             if name in self._args:
                 self._args[name] = value
             elif name in self.__dict__:
