@@ -6,11 +6,12 @@ distribution, this file is licensed under the Python Software
 Foundation License, version 2.
 """
 
+from builtins import object
 from _weakref import ref
 
 __all__ = ['WeakSet']
 
-class WeakSet:
+class WeakSet(object):
     def __init__(self, data=None):
         self.data = set()
         def _remove(item, selfref=ref(self)):
