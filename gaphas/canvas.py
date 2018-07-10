@@ -454,7 +454,7 @@ class Canvas(object):
         >>> c.get_connection(ii.handles()[0])    # doctest: +ELLIPSIS
         """
         try:
-            return self._connections.query(handle=handle).next()
+            return next(self._connections.query(handle=handle))
         except StopIteration as ex:
             return None
 
