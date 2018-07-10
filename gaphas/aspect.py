@@ -10,6 +10,7 @@ the first argument.  For Gaphas that's enough.
 """
 from __future__ import absolute_import
 
+from builtins import object
 import gtk.gdk
 from simplegeneric import generic
 from gaphas.item import Item, Element

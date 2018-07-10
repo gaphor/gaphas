@@ -2,6 +2,7 @@
 Simple class containing the tree structure for the canvas items.
 """
 
+from builtins import object
 from builtins import range
 __version__ = "$Revision$"
 # $HeadURL$

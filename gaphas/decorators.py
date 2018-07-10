@@ -3,6 +3,7 @@ Custom decorators.
 """
 from __future__ import print_function
 
+from builtins import object
 __version__ = "$Revision$"
 # $HeadURL$
 

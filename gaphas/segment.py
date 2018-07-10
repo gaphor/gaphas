@@ -3,6 +3,7 @@ Allow for easily adding segments to lines.
 """
 from __future__ import division
 
+from builtins import object
 from past.utils import old_div
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic

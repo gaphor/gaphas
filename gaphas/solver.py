@@ -37,6 +37,7 @@ variables to make the constraint valid again.
 from __future__ import division
 from __future__ import absolute_import
 
+from builtins import object
 __version__ = "$Revision$"
 # $HeadURL$
 

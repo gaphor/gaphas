@@ -12,6 +12,7 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 """
 from __future__ import absolute_import
 
+from builtins import object
 from math import sqrt
 from random import Random
 from .painter import Context

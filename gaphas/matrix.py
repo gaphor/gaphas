@@ -10,6 +10,7 @@ state preservation capabilities.
 from __future__ import absolute_import
 from __future__ import division
 
+from builtins import object
 from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
