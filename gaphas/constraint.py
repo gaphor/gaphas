@@ -29,9 +29,10 @@ a variable with appropriate value.
 """
 
 from __future__ import division
+from __future__ import absolute_import
 import operator
 import math
-from solver import Projection
+from .solver import Projection
 
 
 __version__ = "$Revision$"

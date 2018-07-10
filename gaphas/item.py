@@ -1,6 +1,7 @@
 """
 Basic items.
 """
+from __future__ import absolute_import
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -12,14 +13,14 @@ try:
     # python 3.0 (better be prepared)
     from weakref import WeakSet
 except ImportError:
-    from weakset import WeakSet
+    from .weakset import WeakSet
 
-from matrix import Matrix
-from geometry import distance_line_point, distance_rectangle_point
-from connector import Handle, LinePort
-from solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
-from constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
-from state import observed, reversible_method, reversible_pair, reversible_property
+from .matrix import Matrix
+from .geometry import distance_line_point, distance_rectangle_point
+from .connector import Handle, LinePort
+from .solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
+from .constraint import EqualsConstraint, LessThanConstraint, LineConstraint, LineAlignConstraint
+from .state import observed, reversible_method, reversible_pair, reversible_property
 
 class Item(object):
     """

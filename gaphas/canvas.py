@@ -26,6 +26,7 @@ To get connecting items (i.e. all lines connected to a class)::
     lines = (c.item for c in canvas.get_connections(connected=item))
 
 """
+from __future__ import absolute_import
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -38,7 +39,7 @@ from gaphas import tree
 from gaphas import solver
 from gaphas import table
 from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
-from state import observed, reversible_method, reversible_pair
+from .state import observed, reversible_method, reversible_pair
 
 
 #

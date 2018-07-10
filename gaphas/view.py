@@ -1,6 +1,7 @@
 """
 This module contains everything to display a Canvas on a screen.
 """
+from __future__ import absolute_import
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -10,13 +11,13 @@ pygtk.require('2.0')
 import gobject
 import gtk
 from cairo import Matrix
-from canvas import Context
-from geometry import Rectangle, distance_point_point_fast
-from quadtree import Quadtree
-from tool import DefaultTool
-from painter import DefaultPainter, BoundingBoxPainter
-from decorators import async, PRIORITY_HIGH_IDLE
-from decorators import nonrecursive
+from .canvas import Context
+from .geometry import Rectangle, distance_point_point_fast
+from .quadtree import Quadtree
+from .tool import DefaultTool
+from .painter import DefaultPainter, BoundingBoxPainter
+from .decorators import async, PRIORITY_HIGH_IDLE
+from .decorators import nonrecursive
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False

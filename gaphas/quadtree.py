@@ -17,12 +17,13 @@ as a Q-tree. All forms of Quadtrees share some common features:
 
 (From Wikipedia, the free encyclopedia)
 """
+from __future__ import absolute_import
 
 __version__ = "$Revision$"
 # $HeadURL$
 
 import operator
-from geometry import rectangle_contains, rectangle_intersects, rectangle_clip
+from .geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
 
 class Quadtree(object):

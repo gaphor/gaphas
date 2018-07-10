@@ -35,12 +35,13 @@ variables to make the constraint valid again.
 """
 
 from __future__ import division
+from __future__ import absolute_import
 
 __version__ = "$Revision$"
 # $HeadURL$
 
 from operator import isCallable
-from state import observed, reversible_pair, reversible_property
+from .state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?
