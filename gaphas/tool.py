@@ -30,7 +30,9 @@ Tools can handle events in different ways
 - event can be ignored
 - tool can handle the event (obviously)
 """
+from __future__ import division
 
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -497,7 +499,7 @@ class PanTool(Tool):
             self.x1, self.y1 = event.x, event.y
             dx = self.x1 - self.x0
             dy = self.y1 - self.y0
-            view._matrix.translate(dx/view._matrix[0], dy/view._matrix[3])
+            view._matrix.translate(old_div(dx,view._matrix[0]), old_div(dy,view._matrix[3]))
             # Make sure everything's updated
             view.request_update((), view._canvas.get_all_items())
             self.x0 = self.x1
@@ -512,13 +514,13 @@ class PanTool(Tool):
         direction = event.direction
         gdk = gtk.gdk
         if direction == gdk.SCROLL_LEFT:
-            view._matrix.translate(self.speed/view._matrix[0], 0)
+            view._matrix.translate(old_div(self.speed,view._matrix[0]), 0)
         elif direction == gdk.SCROLL_RIGHT:
-            view._matrix.translate(-self.speed/view._matrix[0], 0)
+            view._matrix.translate(old_div(-self.speed,view._matrix[0]), 0)
         elif direction == gdk.SCROLL_UP:
-            view._matrix.translate(0, self.speed/view._matrix[3])
+            view._matrix.translate(0, old_div(self.speed,view._matrix[3]))
         elif direction == gdk.SCROLL_DOWN:
-            view._matrix.translate(0, -self.speed/view._matrix[3])
+            view._matrix.translate(0, old_div(-self.speed,view._matrix[3]))
         view.request_update((), view._canvas.get_all_items())
         return True
 
@@ -559,12 +561,12 @@ class ZoomTool(Tool):
 
             sx = view._matrix[0]
             sy = view._matrix[3]
-            ox = (view._matrix[4] - self.x0) / sx
-            oy = (view._matrix[5] - self.y0) / sy
+            ox = old_div((view._matrix[4] - self.x0), sx)
+            oy = old_div((view._matrix[5] - self.y0), sy)
 
             if abs(dy - self.lastdiff) > 20:
                 if dy - self.lastdiff < 0:
-                    factor = 1./0.9
+                    factor = old_div(1.,0.9)
                 else:
                     factor = 0.9
 
@@ -584,11 +586,11 @@ class ZoomTool(Tool):
             view = self.view
             sx = view._matrix[0]
             sy = view._matrix[3]
-            ox = (view._matrix[4] - event.x) / sx
-            oy = (view._matrix[5] - event.y) / sy
+            ox = old_div((view._matrix[4] - event.x), sx)
+            oy = old_div((view._matrix[5] - event.y), sy)
             factor = 0.9
             if event.direction == gtk.gdk.SCROLL_UP:
-                factor = 1. / factor
+                factor = old_div(1., factor)
             view._matrix.translate(-ox, -oy)
             view._matrix.scale(factor, factor)
             view._matrix.translate(+ox, +oy)

@@ -2,7 +2,9 @@
 This module contains everything to display a Canvas on a screen.
 """
 from __future__ import absolute_import
+from __future__ import division
 
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -644,9 +646,9 @@ class GtkView(gtk.DrawingArea, View):
 
         # set increments
         hadjustment.page_increment = aw
-        hadjustment.step_increment = aw / 10
+        hadjustment.step_increment = old_div(aw, 10)
         vadjustment.page_increment = ah
-        vadjustment.step_increment = ah / 10
+        vadjustment.step_increment = old_div(ah, 10)
 
         # set position
         if v.x != hadjustment.value or v.y != vadjustment.value:

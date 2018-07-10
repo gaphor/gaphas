@@ -1,7 +1,9 @@
 """
 Module implements guides when moving items and handles around.
 """
+from __future__ import division
 
+from past.utils import old_div
 from simplegeneric import generic
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
@@ -39,11 +41,11 @@ class ElementGuide(ItemGuide):
 
     def horizontal(self):
         y = self.item.height
-        return (0, y/2, y)
+        return (0, old_div(y,2), y)
 
     def vertical(self):
         x = self.item.width
-        return (0, x/2, x)
+        return (0, old_div(x,2), x)
 
 
 @Guide.when_type(Line)

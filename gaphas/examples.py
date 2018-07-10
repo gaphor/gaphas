@@ -3,7 +3,9 @@ Simple example items.
 These items are used in various tests.
 """
 from __future__ import absolute_import
+from __future__ import division
 
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -68,7 +70,7 @@ class PortoBox(Box):
 
         # handle for movable port
         self._hm = Handle(strength=WEAK)
-        self._hm.pos = width, height / 2.0
+        self._hm.pos = width, old_div(height, 2.0)
         self._handles.append(self._hm)
 
         # movable port
@@ -80,7 +82,7 @@ class PortoBox(Box):
         self.constraint(above=(self._hm.pos, se.pos))
 
         # static point port
-        self._sport = PointPort(Position((width / 2.0, height)))
+        self._sport = PointPort(Position((old_div(width, 2.0), height)))
         l = sw.pos, se.pos
         self.constraint(line=(self._sport.point, l))
         self._ports.append(self._sport)

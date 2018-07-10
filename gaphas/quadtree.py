@@ -18,7 +18,9 @@ as a Q-tree. All forms of Quadtrees share some common features:
 (From Wikipedia, the free encyclopedia)
 """
 from __future__ import absolute_import
+from __future__ import division
 
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -294,7 +296,7 @@ class QuadtreeBucket(object):
         # create new subnodes if threshold is reached
         if not self._buckets and len(self.items) >= self.capacity:
             x, y, w, h = self.bounds
-            rw, rh = w / 2., h / 2.
+            rw, rh = old_div(w, 2.), old_div(h, 2.)
             cx, cy = x + rw, y + rh
             self._buckets = [QuadtreeBucket((x, y, rw, rh), self.capacity),
                              QuadtreeBucket((cx, y, rw, rh), self.capacity),
@@ -338,7 +340,7 @@ class QuadtreeBucket(object):
         """
         if self._buckets:
             sx, sy, sw, sh = self.bounds
-            cx, cy = sx + sw / 2., sy + sh / 2.
+            cx, cy = sx + old_div(sw, 2.), sy + old_div(sh, 2.)
             x, y, w, h = bounds
             index = 0
             if x >= cx:
