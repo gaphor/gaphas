@@ -83,7 +83,7 @@ def dispatch(event, queue):
     Event handlers should have signature: handler(event).
 
     >>> def handler(event):
-    ...     print 'event handled', event
+    ...     print("event handled", event)
     >>> observers.add(handler)
     >>> @observed
     ... def callme():
@@ -262,7 +262,7 @@ def getfunction(func):
     """
     Return the function associated with a class method.
     """
-    if isinstance(func, types.UnboundMethodType):
+    if isinstance(func, types.MethodType):
         return func.__func__
     return func
 
