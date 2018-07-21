@@ -7,7 +7,7 @@ Decorators
 
 .. module:: gaphas.decorators
 
-.. autoclass:: async
+.. autoclass:: AsyncIO
 
 .. autofunction:: nonrecursive
 

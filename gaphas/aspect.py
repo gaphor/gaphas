@@ -11,7 +11,12 @@ the first argument.  For Gaphas that's enough.
 from __future__ import absolute_import
 
 from builtins import object
-import Gtk.gdk
+
+import gi
+
+gi.require_version("Gdk", "3.0")
+from gi.repository import Gdk
+
 from simplegeneric import generic
 from gaphas.item import Item, Element
 

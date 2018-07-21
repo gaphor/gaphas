@@ -86,14 +86,14 @@ class Tool(object):
 
     # Map GDK events to tool methods
     EVENT_HANDLERS = {
-        Gdk.EventType.BUTTON_PRESS: 'on_button_press',
-        Gdk.BUTTON_RELEASE: 'on_button_release',
-        Gdk._2BUTTON_PRESS: 'on_double_click',
-        Gdk._3BUTTON_PRESS: 'on_triple_click',
-        Gdk.MOTION_NOTIFY: 'on_motion_notify',
-        Gdk.KEY_PRESS: 'on_key_press',
-        Gdk.KEY_RELEASE: 'on_key_release',
-        Gdk.SCROLL: 'on_scroll',
+        Gdk.EventType.BUTTON_PRESS: "on_button_press",
+        Gdk.EventType.BUTTON_RELEASE: "on_button_release",
+        Gdk.EventType._2BUTTON_PRESS: "on_double_click",
+        Gdk.EventType._3BUTTON_PRESS: "on_triple_click",
+        Gdk.EventType.MOTION_NOTIFY: "on_motion_notify",
+        Gdk.EventType.KEY_PRESS: "on_key_press",
+        Gdk.EventType.KEY_RELEASE: "on_key_release",
+        Gdk.EventType.SCROLL: "on_scroll",
         # Custom events:
         GRAB: 'on_grab',
         UNGRAB: 'on_ungrab',

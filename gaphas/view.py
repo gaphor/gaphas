@@ -20,7 +20,7 @@ from .geometry import Rectangle, distance_point_point_fast
 from .quadtree import Quadtree
 from .tool import DefaultTool
 from .painter import DefaultPainter, BoundingBoxPainter
-from .decorators import async, PRIORITY_HIGH_IDLE
+from .decorators import AsyncIO
 from .decorators import nonrecursive
 
 # Handy debug flag for drawing bounding boxes around the items.
@@ -615,7 +615,7 @@ class GtkView(Gtk.DrawingArea, View):
         self.queue_draw_refresh()
 
 
-    @async(single=True)
+    @AsyncIO(single=True)
     def update_adjustments(self, allocation=None):
         if not allocation:
             allocation = self.allocation
@@ -730,7 +730,7 @@ class GtkView(Gtk.DrawingArea, View):
         self.update()
 
 
-    @async(single=True, priority=PRIORITY_HIGH_IDLE)
+    @AsyncIO(single=True)
     def update(self):
         """
         Update view status according to the items updated by the canvas.
@@ -772,7 +772,7 @@ class GtkView(Gtk.DrawingArea, View):
             self._dirty_matrix_items.clear()
 
 
-    @async(single=False)
+    @AsyncIO(single=False)
     def update_bounding_box(self, items):
         """
         Update bounding box is not necessary.
