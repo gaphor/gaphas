@@ -7,12 +7,16 @@ Matrix
 Small utility class wrapping cairo.Matrix. The `Matrix` class adds
 state preservation capabilities.
 """
+from __future__ import absolute_import
+from __future__ import division
 
+from builtins import object
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
 import cairo
-from state import observed, reversible_method
+from .state import observed, reversible_method
 
 
 class Matrix(object):
@@ -56,7 +60,7 @@ class Matrix(object):
     reversible_method(rotate, rotate,
                       { 'radians': lambda radians: -radians })
     reversible_method(scale, scale,
-                      { 'sx': lambda sx: 1/sx, 'sy': lambda sy: 1/sy })
+                      { 'sx': lambda sx: old_div(1,sx), 'sy': lambda sy: old_div(1,sy) })
     reversible_method(translate, translate,
                       { 'tx': lambda tx: -tx, 'ty': lambda ty: -ty })
 

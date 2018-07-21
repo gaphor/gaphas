@@ -8,7 +8,9 @@ function. In order to inherit from this class you should inherit from
 Class.default.  The simplegeneric module is dispatching opnly based on
 the first argument.  For Gaphas that's enough.
 """
+from __future__ import absolute_import
 
+from builtins import object
 import gtk.gdk
 from simplegeneric import generic
 from gaphas.item import Item, Element
@@ -144,7 +146,7 @@ class ElementHandleSelection(ItemHandleSelection):
             self.view.window.set_cursor(self.CURSORS[index])
 
     def unselect(self):
-        from view import DEFAULT_CURSOR
+        from .view import DEFAULT_CURSOR
         cursor = gtk.gdk.Cursor(DEFAULT_CURSOR)
         self.view.window.set_cursor(cursor)
 

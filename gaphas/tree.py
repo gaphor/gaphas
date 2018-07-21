@@ -2,6 +2,9 @@
 Simple class containing the tree structure for the canvas items.
 """
 
+from builtins import map
+from builtins import object
+from builtins import range
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -180,7 +183,7 @@ class Tree(object):
         """
         nodes = self.nodes
         lnodes = len(nodes)
-        map(setattr, nodes, [index_key] * lnodes, xrange(lnodes))
+        list(map(setattr, nodes, [index_key] * lnodes, list(range(lnodes))))
 
     def sort(self, nodes, index_key, reverse=False):
         """

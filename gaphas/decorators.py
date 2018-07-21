@@ -1,7 +1,9 @@
 """
 Custom decorators.
 """
+from __future__ import print_function
 
+from builtins import object
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -123,7 +125,7 @@ class async(object):
                 return func(*args, **kwargs)
             elif not self.single:
                 def async_wrapper():
-                    if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                    if DEBUG_ASYNC: print('async:', func, args, kwargs)
                     func(*args, **kwargs)
                 source(async_wrapper).attach()
             else:
@@ -132,9 +134,9 @@ class async(object):
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError, e:
+                except AttributeError as e:
                     def async_wrapper():
-                        if DEBUG_ASYNC: print 'async:', func, args, kwargs
+                        if DEBUG_ASYNC: print('async:', func, args, kwargs)
                         try:
                             func(*args, **kwargs)
                         finally:

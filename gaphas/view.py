@@ -1,20 +1,27 @@
 """
 This module contains everything to display a Canvas on a screen.
 """
+from __future__ import absolute_import
+from __future__ import division
 
+from builtins import map
+from builtins import object
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
+import pygtk
+pygtk.require('2.0')
 import gobject
 import gtk
 from cairo import Matrix
-from canvas import Context
-from geometry import Rectangle, distance_point_point_fast
-from quadtree import Quadtree
-from tool import DefaultTool
-from painter import DefaultPainter, BoundingBoxPainter
-from decorators import async, PRIORITY_HIGH_IDLE
-from decorators import nonrecursive
+from .canvas import Context
+from .geometry import Rectangle, distance_point_point_fast
+from .quadtree import Quadtree
+from .tool import DefaultTool
+from .painter import DefaultPainter, BoundingBoxPainter
+from .decorators import async, PRIORITY_HIGH_IDLE
+from .decorators import nonrecursive
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -355,7 +362,7 @@ class View(object):
         rectangle @rect.
         """
         items = self._qtree.find_inside(rect)
-        map(self.select_item, items)
+        list(map(self.select_item, items))
 
 
     def zoom(self, factor):
@@ -641,9 +648,9 @@ class GtkView(gtk.DrawingArea, View):
 
         # set increments
         hadjustment.page_increment = aw
-        hadjustment.step_increment = aw / 10
+        hadjustment.step_increment = old_div(aw, 10)
         vadjustment.page_increment = ah
-        vadjustment.step_increment = ah / 10
+        vadjustment.step_increment = old_div(ah, 10)
 
         # set position
         if v.x != hadjustment.value or v.y != vadjustment.value:
@@ -660,7 +667,7 @@ class GtkView(gtk.DrawingArea, View):
         redrawal?
         """
         get_bounds = self._qtree.get_bounds
-        items = filter(None, items)
+        items = [_f for _f in items if _f]
         try:
             # create a copy, otherwise we'll change the original rectangle
             bounds = Rectangle(*get_bounds(items[0]))

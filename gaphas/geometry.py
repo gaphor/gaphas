@@ -7,7 +7,10 @@ intersections).
 A point is represented as a tuple `(x, y)`.
 
 """
+from __future__ import division
 
+from builtins import object
+from past.utils import old_div
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -110,7 +113,7 @@ class Rectangle(object):
         """
         return (self.x, self.y, self.width, self.height)[index]
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         >>> r=Rectangle(1,2,3,4)
         >>> if r: 'yes'
@@ -121,7 +124,7 @@ class Rectangle(object):
         return self.width > 0 and self.height > 0
 
     def __eq__(self, other):
-        return (type(self) is type(other)) \
+        return (isinstance(self, type(other))) \
                 and self.x == other.x \
                 and self.y == other.y \
                 and self.width == other.width \
@@ -157,7 +160,7 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError, "Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+            raise TypeError("Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
         x1, y1 = x + width, y + height
         if self:
             ox1, oy1 = self.x + self.width, self.y + self.height
@@ -197,7 +200,7 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError, "Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj)
+            raise TypeError("Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
         x1, y1 = x + width, y + height
 
         if self:
@@ -247,7 +250,7 @@ class Rectangle(object):
                 x, y = obj
                 x1, y1 = obj
             except ValueError:
-                raise TypeError, "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj)
+                raise TypeError("Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj))
         return x >= self.x and x1 <= self.x1 and \
                y >= self.y and y1 <= self.y1
 
@@ -361,12 +364,12 @@ def point_on_rectangle(rect, point, border=False):
         # Find point on side closest to the point
         if min(abs(rx - px), abs(rx + rw - px)) > \
            min(abs(ry - py), abs(ry + rh - py)):
-            if py < ry + rh / 2.:
+            if py < ry + old_div(rh, 2.):
                 py = ry
             else:
                 py = ry + rh
         else:
-            if px < rx + rw / 2.:
+            if px < rx + old_div(rw, 2.):
                 px = rx
             else:
                 px = rx + rw
@@ -406,7 +409,7 @@ def distance_line_point(line_start, line_end, point):
     if line_len_sqr < 0.0001:
         return distance_point_point(point), line_start
 
-    projlen = (line_end[0] * point[0] + line_end[1] * point[1]) / line_len_sqr
+    projlen = old_div((line_end[0] * point[0] + line_end[1] * point[1]), line_len_sqr)
 
     if projlen < 0.0:
         # Closest point is the start of the line.
@@ -534,17 +537,17 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     denom = a1 * b2 - a2 * b1
     if not denom:
         return None # ( COLLINEAR )
-    offset = abs(denom) / 2
+    offset = old_div(abs(denom), 2)
 
     # The denom/2 is to get rounding instead of truncating.  It
     # is added or subtracted to the numerator, depending upon the
     # sign of the numerator.
 
     num = b1 * c2 - b2 * c1
-    x = ( (num < 0) and (num - offset) or (num + offset) ) / denom
+    x = old_div(( (num < 0) and (num - offset) or (num + offset) ), denom)
 
     num = a2 * c1 - a1 * c2
-    y = ( (num < 0) and (num - offset) or (num + offset) ) / denom
+    y = old_div(( (num < 0) and (num - offset) or (num + offset) ), denom)
 
     return x, y
 

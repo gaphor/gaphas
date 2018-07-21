@@ -2,7 +2,9 @@
 Some extra picklers needed to gracefully dump and load a canvas.
 """
 
-import copy_reg
+from future import standard_library
+standard_library.install_aliases()
+import copyreg
 
 
 # Allow instancemethod to be pickled:
@@ -14,9 +16,9 @@ def construct_instancemethod(funcname, self, clazz):
     return new.instancemethod(func, self, clazz)
 
 def reduce_instancemethod(im):
-    return construct_instancemethod, (im.im_func.__name__, im.im_self, im.im_class)
+    return construct_instancemethod, (im.__func__.__name__, im.__self__, im.__self__.__class__)
 
-copy_reg.pickle(new.instancemethod, reduce_instancemethod, construct_instancemethod)
+copyreg.pickle(new.instancemethod, reduce_instancemethod, construct_instancemethod)
 
 
 # Allow cairo.Matrix to be pickled:
@@ -29,7 +31,7 @@ def construct_cairo_matrix(*args):
 def reduce_cairo_matrix(m):
     return construct_cairo_matrix, tuple(m)
 
-copy_reg.pickle(cairo.Matrix, reduce_cairo_matrix, construct_cairo_matrix)
+copyreg.pickle(cairo.Matrix, reduce_cairo_matrix, construct_cairo_matrix)
 
 
 # vim:sw=4:et:ai

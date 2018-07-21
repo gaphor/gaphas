@@ -10,10 +10,12 @@ Cairo context using Steve Hanov's freehand drawing code.
 See: http://stevehanov.ca/blog/index.php?id=33 and
      http://stevehanov.ca/blog/index.php?id=93
 """
+from __future__ import absolute_import
 
+from builtins import object
 from math import sqrt
 from random import Random
-from painter import Context
+from .painter import Context
 
 
 class FreeHandCairoContext(object):

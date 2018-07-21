@@ -2,6 +2,7 @@
 Basic connectors such as Ports and Handles.
 """
 
+from builtins import object
 __version__ = "$Revision: 2341 $"
 # $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
 
