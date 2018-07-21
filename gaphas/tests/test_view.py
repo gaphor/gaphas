@@ -240,8 +240,6 @@ class ViewTestCase(unittest.TestCase):
         sc = Gtk.ScrolledWindow()
         view = GtkView(Canvas())
         sc.add(view)
-
-        print sc.get_hadjustment(), view.hadjustment
         assert sc.get_hadjustment() is view.hadjustment
         assert sc.get_vadjustment() is view.vadjustment
 
