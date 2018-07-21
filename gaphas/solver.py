@@ -38,10 +38,10 @@ from __future__ import division
 from __future__ import absolute_import
 
 from builtins import object
+
 __version__ = "$Revision$"
 # $HeadURL$
 
-from operator import isCallable
 from .state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison

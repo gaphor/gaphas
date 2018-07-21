@@ -4,19 +4,24 @@ Custom decorators.
 from __future__ import print_function
 
 from builtins import object
+
 __version__ = "$Revision$"
 # $HeadURL$
 
 import threading
-from gi.repository import GObject
-from gobject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
-        PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
+
+# from GObject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
+#         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 
 
 DEBUG_ASYNC = False
 
 
-class async(object):
+class AsyncIO(object):
     """
     Instead of calling the function, schedule an idle handler at a
     given priority. This requires the async'ed method to be called
@@ -32,14 +37,14 @@ class async(object):
 
     async just works on functions (as long as ``single=False``):
 
-    >>> a = async()(lambda: 'Hi')
+    >>> a = AsyncIO()(lambda: 'Hi')
     >>> a()
     'Hi'
 
     Simple method:
 
     >>> class A(object):
-    ...     @async(single=False, priority=GObject.PRIORITY_HIGH)
+    ...     @AsyncIO(single=False, priority=GObject.PRIORITY_HIGH)
     ...     def a(self):
     ...         print 'idle-a', GObject.main_depth()
 
@@ -47,17 +52,17 @@ class async(object):
     scheduled one).
 
     >>> class B(object):
-    ...     @async(single=True)
+    ...     @AsyncIO(single=True)
     ...     def b(self):
     ...         print 'idle-b', GObject.main_depth()
 
     Also a timeout property can be provided:
 
     >>> class C(object):
-    ...     @async(timeout=50)
+    ...     @AsyncIO(timeout=50)
     ...     def c1(self):
     ...         print 'idle-c1', GObject.main_depth()
-    ...     @async(single=True, timeout=60)
+    ...     @AsyncIO(single=True, timeout=60)
     ...     def c2(self):
     ...         print 'idle-c2', GObject.main_depth()
 
@@ -65,7 +70,7 @@ class async(object):
     the GTK+ main loop:
 
     >>> def delayed():
-    ...     print 'before'
+    ...     print("before")
     ...     a = A()
     ...     b = B()
     ...     c = C()
@@ -79,7 +84,7 @@ class async(object):
     ...     b.b()
     ...     a.a()
     ...     b.b()
-    ...     print 'after'
+    ...     print("after")
     ...     GObject.timeout_add(100, Gtk.main_quit)
     >>> GObject.timeout_add(1, delayed) > 0 # timeout id may vary
     True

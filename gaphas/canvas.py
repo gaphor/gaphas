@@ -42,7 +42,7 @@ from cairo import Matrix
 from gaphas import tree
 from gaphas import solver
 from gaphas import table
-from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
+from gaphas.decorators import nonrecursive, AsyncIO, PRIORITY_HIGH_IDLE
 from .state import observed, reversible_method, reversible_pair
 
 
@@ -616,7 +616,7 @@ class Canvas(object):
         return bool(self._dirty_items)
 
 
-    @async(single=True, priority=PRIORITY_HIGH_IDLE)
+    @AsyncIO(single=True, priority=PRIORITY_HIGH_IDLE)
     def update(self):
         """
         Update the canvas, if called from within a gtk-mainloop, the
