@@ -135,10 +135,11 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-            Gdk.Cursor.new(Gdk.TOP_LEFT_CORNER),
-            Gdk.Cursor.new(Gdk.TOP_RIGHT_CORNER),
-            Gdk.Cursor.new(Gdk.BOTTOM_RIGHT_CORNER),
-            Gdk.Cursor.new(Gdk.BOTTOM_LEFT_CORNER) )
+        Gdk.CursorType.TOP_LEFT_CORNER,
+        Gdk.CursorType.TOP_RIGHT_CORNER,
+        Gdk.CursorType.BOTTOM_RIGHT_CORNER,
+        Gdk.CursorType.BOTTOM_LEFT_CORNER,
+    )
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -147,7 +148,8 @@ class ElementHandleSelection(ItemHandleSelection):
 
     def unselect(self):
         from .view import DEFAULT_CURSOR
-        cursor = Gdk.Cursor.new(DEFAULT_CURSOR)
+
+        cursor = Gdk.Cursor(DEFAULT_CURSOR)
         self.view.window.set_cursor(cursor)
 
 
