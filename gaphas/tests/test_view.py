@@ -3,7 +3,7 @@ Test cases for the View class.
 """
 
 import unittest
-import gtk
+from gi.repository import Gtk
 import math
 from gaphas.view import View, GtkView
 from gaphas.canvas import Canvas, Context
@@ -21,7 +21,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
 
-        window1 = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window1 = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         view1 = GtkView(canvas=canvas)
         window1.add(view1)
         view1.realize()
@@ -38,14 +38,14 @@ class ViewTestCase(unittest.TestCase):
         line.matrix.translate(30, 60)
         canvas.add(line)
 
-        window2 = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window2 = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         view2 = GtkView(canvas=canvas)
         window2.add(view2)
         window2.show_all()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
         try:
             assert view2.get_item_bounding_box(box)
@@ -62,7 +62,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
         view = GtkView(canvas)
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -74,8 +74,8 @@ class ViewTestCase(unittest.TestCase):
         box.height = 50
 
         # Process pending (expose) events, which cause the canvas to be drawn.
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
         assert len(view._qtree._ids) == 1
         assert not view._qtree._bucket.bounds == (0, 0, 0, 0), view._qtree._bucket.bounds
@@ -88,7 +88,7 @@ class ViewTestCase(unittest.TestCase):
     def test_get_handle_at_point(self):
         canvas = Canvas()
         view = GtkView(canvas)
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -106,7 +106,7 @@ class ViewTestCase(unittest.TestCase):
     def test_get_handle_at_point_at_pi_div_2(self):
         canvas = Canvas()
         view = GtkView(canvas)
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -126,7 +126,7 @@ class ViewTestCase(unittest.TestCase):
     def test_item_removal(self):
         canvas = Canvas()
         view = GtkView(canvas)
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -136,8 +136,8 @@ class ViewTestCase(unittest.TestCase):
         assert not canvas.require_update()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
         assert len(canvas.get_all_items()) == len(view._qtree)
 
@@ -173,7 +173,7 @@ class ViewTestCase(unittest.TestCase):
         assert not box._matrix_i2v.has_key(view)
         assert not box._matrix_v2i.has_key(view)
 
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -200,7 +200,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
         view = GtkView(canvas)
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -228,7 +228,7 @@ class ViewTestCase(unittest.TestCase):
         def handler(self, hadj, vadj):
             self.handled = True
 
-        sc = gtk.ScrolledWindow()
+        sc = Gtk.ScrolledWindow()
         view = GtkView(Canvas())
         view.connect('set-scroll-adjustments', handler)
         sc.add(view)
@@ -237,7 +237,7 @@ class ViewTestCase(unittest.TestCase):
 
 
     def test_scroll_adjustments(self):
-        sc = gtk.ScrolledWindow()
+        sc = Gtk.ScrolledWindow()
         view = GtkView(Canvas())
         sc.add(view)
 

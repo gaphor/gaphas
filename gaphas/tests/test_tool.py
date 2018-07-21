@@ -49,8 +49,8 @@ def simple_canvas(self):
     self.canvas.update_now()
     self.view = GtkView()
     self.view.canvas = self.canvas
-    import gtk
-    win = gtk.Window()
+    from gi.repository import Gtk
+    win = Gtk.Window()
     win.add(self.view)
     self.view.show()
     self.view.update()

@@ -1,6 +1,6 @@
 
 import unittest
-import gtk
+from gi.repository import Gtk
 from gaphas.guide import *
 from gaphas.canvas import Canvas
 from gaphas.view import GtkView
@@ -12,7 +12,7 @@ class GuideTestCase(unittest.TestCase):
     def setUp(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)
-        self.window = gtk.Window()
+        self.window = Gtk.Window()
         self.window.add(self.view)
         self.window.show_all()
 

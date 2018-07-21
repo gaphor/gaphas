@@ -11,7 +11,7 @@ the first argument.  For Gaphas that's enough.
 from __future__ import absolute_import
 
 from builtins import object
-import gtk.gdk
+import Gtk.gdk
 from simplegeneric import generic
 from gaphas.item import Item, Element
 
@@ -135,10 +135,10 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-            gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
-            gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
-            gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
-            gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER) )
+            Gdk.Cursor.new(Gdk.TOP_LEFT_CORNER),
+            Gdk.Cursor.new(Gdk.TOP_RIGHT_CORNER),
+            Gdk.Cursor.new(Gdk.BOTTOM_RIGHT_CORNER),
+            Gdk.Cursor.new(Gdk.BOTTOM_LEFT_CORNER) )
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -147,7 +147,7 @@ class ElementHandleSelection(ItemHandleSelection):
 
     def unselect(self):
         from .view import DEFAULT_CURSOR
-        cursor = gtk.gdk.Cursor(DEFAULT_CURSOR)
+        cursor = Gdk.Cursor.new(DEFAULT_CURSOR)
         self.view.window.set_cursor(cursor)
 
 
