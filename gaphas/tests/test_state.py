@@ -1,3 +1,4 @@
+from builtins import object
 import unittest
 
 from gaphas.state import reversible_pair, observed, _reverse

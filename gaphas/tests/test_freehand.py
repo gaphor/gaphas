@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from builtins import object
 import unittest
 from gaphas.freehand import FreeHandCairoContext
 import cairo

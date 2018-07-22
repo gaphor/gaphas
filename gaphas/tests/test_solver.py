@@ -2,7 +2,9 @@
 Unit tests for Gaphas' solver.
 """
 from __future__ import print_function
+from __future__ import division
 
+from past.utils import old_div
 import unittest
 from timeit import Timer
 
@@ -153,7 +155,7 @@ c_eq.weakest()""").repeat(repeat=REPEAT, number=NUMBER)
 
         # Print the average of the best 10 runs:
         results.sort()
-        print('[Avg: %gms]' % ((sum(results[:10]) / 10) * 1000))
+        print('[Avg: %gms]' % ((old_div(sum(results[:10]), 10)) * 1000))
 
 
 if __name__ == '__main__':

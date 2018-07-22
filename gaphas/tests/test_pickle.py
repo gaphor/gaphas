@@ -1,5 +1,8 @@
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import unittest
 import pickle
 from gaphas.canvas import Canvas
@@ -177,8 +180,8 @@ class PickleTestCase(unittest.TestCase):
 #        assert line.handles()[0].disconnect
 #        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
 
-        import StringIO
-        f = StringIO.StringIO()
+        import io
+        f = io.StringIO()
         pickler = MyPickler(f)
         pickler.dump(canvas)
         pickled = f.getvalue()
