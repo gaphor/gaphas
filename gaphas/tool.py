@@ -100,7 +100,7 @@ class Tool(object):
     }
 
     # Those events force the tool to release the grabbed tool.
-    FORCE_UNGRAB_EVENTS = (Gdk._2BUTTON_PRESS, Gdk._3BUTTON_PRESS)
+    FORCE_UNGRAB_EVENTS = (Gdk.EventType._2BUTTON_PRESS, Gdk.EventType._3BUTTON_PRESS)
 
     def __init__(self, view=None):
         self.view = view
@@ -285,13 +285,17 @@ class ItemTool(Tool):
 
         # Deselect all items unless CTRL or SHIFT is pressed
         # or the item is already selected.
-        if not (event.get_state() & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-                or item in view.selected_items):
+        if not (
+            event.state & (Gdk.CONTROL_MASK | Gdk.SHIFT_MASK)
+            or item in view.selected_items
+        ):
             del view.selected_items
 
         if item:
-            if view.hovered_item in view.selected_items and \
-                    event.get_state() & Gdk.ModifierType.CONTROL_MASK:
+            if (
+                view.hovered_item in view.selected_items
+                and event.state & Gdk.CONTROL_MASK
+            ):
                 selection = Selection(item, view)
                 selection.unselect()
             else:
@@ -313,7 +317,7 @@ class ItemTool(Tool):
         Normally do nothing.
         If a button is pressed move the items around.
         """
-        if event.get_state() & Gdk.EventMask.BUTTON_PRESS_MASK:
+        if event.state & Gdk.BUTTON_PRESS_MASK:
 
             if not self._movable_items:
                 self._movable_items = set(self.movable_items())
@@ -379,11 +383,13 @@ class HandleTool(Tool):
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
-### TODO: duplicate from ItemTool
-            if not (event.get_state() & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-                    or view.hovered_item in view.selected_items):
+            ### TODO: duplicate from ItemTool
+            if not (
+                event.state & (Gdk.CONTROL_MASK | Gdk.SHIFT_MASK)
+                or view.hovered_item in view.selected_items
+            ):
                 del view.selected_items
-###/
+            ###/
             view.hovered_item = item
             view.focused_item = item
 
@@ -417,7 +423,7 @@ class HandleTool(Tool):
         the hovered-item.
         """
         view = self.view
-        if self.grabbed_handle and event.get_state() & Gdk.EventMask.BUTTON_PRESS_MASK:
+        if self.grabbed_handle and event.state & Gdk.BUTTON_PRESS_MASK:
             canvas = view.canvas
             item = self.grabbed_item
             handle = self.grabbed_handle
@@ -514,15 +520,14 @@ class PanTool(Tool):
             return False
         view = self.view
         direction = event.direction
-        gdk = Gtk.gdk
-        if direction == Gdk.ScrollDirection.LEFT:
-            view._matrix.translate(old_div(self.speed,view._matrix[0]), 0)
-        elif direction == Gdk.ScrollDirection.RIGHT:
-            view._matrix.translate(old_div(-self.speed,view._matrix[0]), 0)
-        elif direction == Gdk.ScrollDirection.UP:
-            view._matrix.translate(0, old_div(self.speed,view._matrix[3]))
-        elif direction == Gdk.ScrollDirection.DOWN:
-            view._matrix.translate(0, old_div(-self.speed,view._matrix[3]))
+        if direction == Gdk.SCROLL_LEFT:
+            view._matrix.translate(old_div(self.speed, view._matrix[0]), 0)
+        elif direction == Gdk.SCROLL_RIGHT:
+            view._matrix.translate(old_div(-self.speed, view._matrix[0]), 0)
+        elif direction == Gdk.SCROLL_UP:
+            view._matrix.translate(0, old_div(self.speed, view._matrix[3]))
+        elif direction == Gdk.SCROLL_DOWN:
+            view._matrix.translate(0, old_div(-self.speed, view._matrix[3]))
         view.request_update((), view._canvas.get_all_items())
         return True
 
@@ -556,8 +561,7 @@ class ZoomTool(Tool):
         return True
 
     def on_motion_notify(self, event):
-        if event.get_state() & ZOOM_MASK == ZOOM_VALUE \
-                and event.get_state() & Gdk.ModifierType.BUTTON2_MASK:
+        if event.state & ZOOM_MASK == ZOOM_VALUE and event.state & Gdk.BUTTON2_MASK:
             view = self.view
             dy = event.y - self.y0
 
@@ -580,18 +584,18 @@ class ZoomTool(Tool):
                 # Make sure everything's updated
                 view.request_update((), view._canvas.get_all_items())
 
-                self.lastdiff = dy;
+                self.lastdiff = dy
             return True
 
     def on_scroll(self, event):
-        if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
+        if event.state & Gdk.CONTROL_MASK:
             view = self.view
             sx = view._matrix[0]
             sy = view._matrix[3]
             ox = old_div((view._matrix[4] - event.x), sx)
             oy = old_div((view._matrix[5] - event.y), sy)
             factor = 0.9
-            if event.direction == Gdk.ScrollDirection.UP:
+            if event.direction == Gdk.SCROLL_UP:
                 factor = old_div(1., factor)
             view._matrix.translate(-ox, -oy)
             view._matrix.scale(factor, factor)
@@ -683,7 +687,7 @@ class TextEditTool(Tool):
         text_view.set_buffer(buffer)
         text_view.show()
         window.add(text_view)
-        window.size_allocate((int(event.x), int(event.y), 50, 50))
+        window.size_allocate(Gdk.Window(int(event.x), int(event.y), 50, 50))
         #window.move(int(event.x), int(event.y))
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
