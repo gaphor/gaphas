@@ -225,16 +225,24 @@ class ViewTestCase(unittest.TestCase):
         assert view not in box._matrix_v2i
 
     def test_scroll_adjustments_signal(self):
-        def handler(self, hadj, vadj):
-            self.handled = True
-
         sc = Gtk.ScrolledWindow()
         view = GtkView(Canvas())
-        view.connect('set-scroll-adjustments', handler)
         sc.add(view)
 
-        assert view.handled
-
+        assert view.hadjustment
+        assert view.vadjustment
+        assert view.hadjustment.get_value() == 0.0
+        assert view.hadjustment.get_lower() == 0.0
+        assert view.hadjustment.get_upper() == 1.0
+        assert view.hadjustment.get_step_increment() == 0.0
+        assert view.hadjustment.get_page_increment() == 1.0
+        assert view.hadjustment.get_page_size() == 1.0
+        assert view.vadjustment.get_value() == 0.0
+        assert view.vadjustment.get_lower() == 0.0
+        assert view.vadjustment.get_upper() == 1.0
+        assert view.vadjustment.get_step_increment() == 0.0
+        assert view.vadjustment.get_page_increment() == 1.0
+        assert view.vadjustment.get_page_size() == 1.0
 
     def test_scroll_adjustments(self):
         sc = Gtk.ScrolledWindow()

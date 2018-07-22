@@ -475,7 +475,7 @@ class View(object):
 
 
 
-class GtkView(Gtk.DrawingArea, View):
+class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
     """
     GTK+ widget for rendering a canvas.Canvas to a screen.  The view
@@ -494,8 +494,6 @@ class GtkView(Gtk.DrawingArea, View):
 
     # Signals: emited after the change takes effect.
     __gsignals__ = {
-        'set-scroll-adjustments': (GObject.SignalFlags.RUN_LAST, None,
-                      (Gtk.Adjustment, Gtk.Adjustment)),
         'dropzone-changed': (GObject.SignalFlags.RUN_LAST, None,
                       (GObject.TYPE_PYOBJECT,)),
         'hover-changed': (GObject.SignalFlags.RUN_LAST, None,
@@ -510,9 +508,21 @@ class GtkView(Gtk.DrawingArea, View):
                       ())
     }
 
+    __gproperties__ = {
+        "hscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+                           "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
+                           GObject.PARAM_READWRITE),
+        "hadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
+                        GObject.PARAM_READWRITE),
+        "vscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+                           "vscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
+                           GObject.PARAM_READWRITE),
+        "vadjustment": (Gtk.Adjustment, "vadjustment", "vadjustment",
+                        GObject.PARAM_READWRITE),
+    }
 
-    def __init__(self, canvas=None, hadjustment=None, vadjustment=None):
-        GObject.GObject.__init__(self)
+    def __init__(self, canvas=None):
+        Gtk.DrawingArea.__init__(self)
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
@@ -534,13 +544,34 @@ class GtkView(Gtk.DrawingArea, View):
         self._hadjustment_handler_id = None
         self._vadjustment_handler_id = None
 
-        self.emit('set-scroll-adjustments', hadjustment, vadjustment)
-
         self._set_tool(DefaultTool())
 
         # Set background to white.
         self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
 
+    def do_set_property(self, prop, value):
+        if prop.name == 'hadjustment':
+            if value is not None:
+                hadj = value
+                if self._hadjustment_handler_id:
+                    self._hadjustment.disconnect(self._hadjustment_handler_id)
+                    self._hadjustment_handler_id = None
+                self._hadjustment = hadj
+                self._hadjustment_handler_id = self._hadjustment.connect(
+                    "value-changed", self.on_adjustment_changed
+                )
+                self.update_adjustments()
+        elif prop.name == 'vadjustment':
+            if value is not None:
+                vadj = value
+                if self._hadjustment_handler_id:
+                    self._hadjustment.disconnect(self._hadjustment_handler_id)
+                    self._hadjustment_handler_id = None
+                self._vadjustment = vadj
+                self._vadjustment_handler_id = self._vadjustment.connect(
+                    "value-changed", self.on_adjustment_changed
+                )
+                self.update_adjustments()
 
     def emit(self, *args, **kwargs):
         """
@@ -576,37 +607,13 @@ class GtkView(Gtk.DrawingArea, View):
         """
         self._tool = tool
         tool.set_view(self)
-        self.emit('tool-changed')
-
+        self.emit("tool-changed")
 
     tool = property(lambda s: s._tool, _set_tool)
 
-
     hadjustment = property(lambda s: s._hadjustment)
 
-
     vadjustment = property(lambda s: s._vadjustment)
-
-
-    def do_set_scroll_adjustments(self, hadjustment, vadjustment):
-        if self._hadjustment_handler_id:
-            self._hadjustment.disconnect(self._hadjustment_handler_id)
-            self._hadjustment_handler_id = None
-        if self._vadjustment_handler_id:
-            self._vadjustment.disconnect(self._vadjustment_handler_id)
-            self._vadjustment_handler_id = None
-
-        self._hadjustment = hadjustment or Gtk.Adjustment()
-        self._vadjustment = vadjustment or Gtk.Adjustment()
-
-        self._hadjustment_handler_id = \
-                        self._hadjustment.connect('value-changed',
-                                                  self.on_adjustment_changed)
-        self._vadjustment_handler_id = \
-                        self._vadjustment.connect('value-changed',
-                                                  self.on_adjustment_changed)
-        self.update_adjustments()
-
 
     def zoom(self, factor):
         """
@@ -620,6 +627,8 @@ class GtkView(Gtk.DrawingArea, View):
     def update_adjustments(self, allocation=None):
         if not allocation:
             allocation = self.get_allocation()
+
+        aw, ah = allocation.width, allocation.height
 
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
@@ -636,27 +645,31 @@ class GtkView(Gtk.DrawingArea, View):
         else:
             u = c + v
 
-        # set lower limits
-        hadjustment.lower, vadjustment.lower = u.x, u.y
+        if hadjustment is None:
+            self._hadjustment = Gtk.Adjustment.new(
+                value=v.x, lower=u.x, upper=u.x1, step_increment=old_div(aw, 10),
+                page_increment=aw, page_size=aw
+            )
+        else:
+            self._hadjustment.set_value(v.x)
+            self._hadjustment.set_lower(u.x)
+            self._hadjustment.set_upper(u.x1)
+            self._hadjustment.set_step_increment(old_div(aw, 10))
+            self._hadjustment.set_page_increment(aw)
+            self._hadjustment.set_page_size(aw)
 
-        # set upper limits
-        hadjustment.upper, vadjustment.upper = u.x1, u.y1
-
-        # set page size
-        aw, ah = allocation.width, allocation.height
-        hadjustment.page_size = aw
-        vadjustment.page_size = ah
-
-        # set increments
-        hadjustment.page_increment = aw
-        hadjustment.step_increment = old_div(aw, 10)
-        vadjustment.page_increment = ah
-        vadjustment.step_increment = old_div(ah, 10)
-
-        # set position
-        if v.x != hadjustment.get_value() or v.y != vadjustment.get_value():
-            hadjustment.set_value(v.x)
-            vadjustment.set_value(v.x, v.y)
+        if vadjustment is None:
+            self._vadjustment = Gtk.Adjustment.new(
+                value=v.y, lower=u.y, upper=u.y1, step_increment=old_div(ah, 10),
+                page_increment=ah, page_size=ah
+            )
+        else:
+            self._vadjustment.set_value(v.y)
+            self._vadjustment.set_lower(u.y)
+            self._vadjustment.set_upper(u.y1)
+            self._vadjustment.set_step_increment(old_div(ah, 10))
+            self._vadjustment.set_page_increment(ah)
+            self._vadjustment.set_page_size(ah)
 
     def queue_draw_item(self, *items):
         """
@@ -900,15 +913,5 @@ class GtkView(Gtk.DrawingArea, View):
         self.request_update((), self._canvas.get_all_items())
 
         self.queue_draw_refresh()
-
-
-# Set a signal to set adjustments. This way a ScrolledWindow can set its own
-# Adjustment objects on the View. Otherwise a warning is shown:
-#
-#   GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget
-#   use gtk_scrolled_window_add_with_viewport() instead
-
-# GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
-
 
 # vim: sw=4:et:ai
