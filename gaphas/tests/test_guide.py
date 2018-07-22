@@ -112,13 +112,13 @@ class GuideTestCase(unittest.TestCase):
 
         # Moved back to guided lines:
         for d in range(0, 3):
-            print 'move to', d
+            print('move to', d)
             guider.move((d, d))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
         for d in range(3, 5):
-            print 'move to', d
+            print('move to', d)
             guider.move((d, d))
             self.assertEquals(5, e3.matrix[4])
             self.assertEquals(5, e3.matrix[5])
@@ -154,13 +154,13 @@ class GuideTestCase(unittest.TestCase):
 
         # Moved back to guided lines:
         for y in range(4, 6):
-            print 'move to', y
+            print('move to', y)
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(0, e3.matrix[5])
 
         for y in range(6, 9):
-            print 'move to', y
+            print('move to', y)
             guider.move((3, y))
             self.assertEquals(0, e3.matrix[4])
             self.assertEquals(5, e3.matrix[5])

@@ -9,7 +9,7 @@ class PseudoFile(object):
         self.data = ''
 
     def write(self, data):
-        print data
+        print(data)
         self.data = self.data + data
 
 
