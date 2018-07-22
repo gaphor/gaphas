@@ -12,8 +12,7 @@ __version__ = "$Revision$"
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import GObject
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject, Gdk
 from cairo import Matrix
 from .canvas import Context
 from .geometry import Rectangle, distance_point_point_fast

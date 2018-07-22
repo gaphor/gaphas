@@ -41,7 +41,12 @@ __version__ = "$Revision$"
 import sys
 
 import cairo
-from gi.repository import Gtk
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
+
 from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.geometry import distance_point_point_fast, distance_line_point
