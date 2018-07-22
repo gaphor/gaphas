@@ -1,6 +1,7 @@
 """
 Unit tests for Gaphas' solver.
 """
+from __future__ import print_function
 
 import unittest
 from timeit import Timer
