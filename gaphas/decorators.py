@@ -12,7 +12,7 @@ import threading
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, GObject, GLib
 
 # from GObject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
 #         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
@@ -126,7 +126,7 @@ class AsyncIO(object):
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
             # execute directly if we're not in the main loop.
-            if GObject.main_depth() == 0:
+            if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
                 def async_wrapper():
