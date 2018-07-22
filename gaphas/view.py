@@ -619,7 +619,7 @@ class GtkView(Gtk.DrawingArea, View):
     @AsyncIO(single=True)
     def update_adjustments(self, allocation=None):
         if not allocation:
-            allocation = self.allocation
+            allocation = self.get_allocation()
 
         hadjustment = self._hadjustment
         vadjustment = self._vadjustment
@@ -654,9 +654,9 @@ class GtkView(Gtk.DrawingArea, View):
         vadjustment.step_increment = old_div(ah, 10)
 
         # set position
-        if v.x != hadjustment.value or v.y != vadjustment.value:
-            hadjustment.value, vadjustment.value = v.x, v.y
-
+        if v.x != hadjustment.get_value() or v.y != vadjustment.get_value():
+            hadjustment.set_value(v.x)
+            vadjustment.set_value(v.x, v.y)
 
     def queue_draw_item(self, *items):
         """
@@ -697,7 +697,7 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Redraw the entire view.
         """
-        a = self.allocation
+        a = self.get_allocation()
         super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
