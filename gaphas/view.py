@@ -520,13 +520,15 @@ class GtkView(Gtk.DrawingArea, View):
 
         View.__init__(self, canvas)
 
-        self.set_flags(Gtk.CAN_FOCUS)
-        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK
-                        | Gdk.EventMask.BUTTON_RELEASE_MASK
-                        | Gdk.EventMask.POINTER_MOTION_MASK
-                        | Gdk.EventMask.KEY_PRESS_MASK
-                        | Gdk.EventMask.KEY_RELEASE_MASK
-                        | Gdk.EventMask.SCROLL_MASK)
+        self.set_can_focus(True)
+        self.add_events(
+            Gdk.EventMask.BUTTON_PRESS_MASK
+            | Gdk.EventMask.BUTTON_RELEASE_MASK
+            | Gdk.EventMask.POINTER_MOTION_MASK
+            | Gdk.EventMask.KEY_PRESS_MASK
+            | Gdk.EventMask.KEY_RELEASE_MASK
+            | Gdk.EventMask.SCROLL_MASK
+        )
 
         self._hadjustment = None
         self._vadjustment = None
@@ -735,7 +737,8 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Update view status according to the items updated by the canvas.
         """
-        if not self.window: return
+        if not self.get_window():
+            return
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
@@ -777,7 +780,7 @@ class GtkView(Gtk.DrawingArea, View):
         """
         Update bounding box is not necessary.
         """
-        cr = self.window.cairo_create()
+        cr = self.get_window().cairo_create()
 
         cr.save()
         cr.rectangle(0, 0, 0, 0)
@@ -906,7 +909,7 @@ class GtkView(Gtk.DrawingArea, View):
 #   GtkWarning: gtk_scrolled_window_add(): cannot add non scrollable widget
 #   use gtk_scrolled_window_add_with_viewport() instead
 
-GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
+# GtkView.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 
 
 # vim: sw=4:et:ai
