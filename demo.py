@@ -380,13 +380,11 @@ def create_canvas(c=None):
     b=MyBox()
     b.min_width = 20
     b.min_height = 30
-    print('box', b)
     b.matrix=(1.0, 0.0, 0.0, 1, 20,20)
     b.width = b.height = 40
     c.add(b)
 
     bb=Box()
-    print('box', bb)
     bb.matrix=(1.0, 0.0, 0.0, 1, 10,10)
     c.add(bb, parent=b)
 
@@ -403,7 +401,6 @@ def create_canvas(c=None):
 
     # AJM: extra boxes:
     bb = Box()
-    print('rotated box', bb)
     bb.matrix.rotate(math.pi/1.567)
     c.add(bb, parent=b)
 #    for i in xrange(10):

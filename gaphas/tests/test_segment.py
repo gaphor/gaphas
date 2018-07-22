@@ -28,9 +28,8 @@ class SegmentTestCase(unittest.TestCase):
         item = Item()
         try:
             s = Segment(item, self.view)
-            print(item, 'segment aspect:', s)
         except TypeError as e:
-            print('TypeError', e)
+            pass
         else:
             assert False, 'Should not be reached'
 
@@ -364,7 +363,6 @@ class LineMergeTestCase(TestCaseBase):
         assert len(self.line.handles()) == 4
         assert len(self.line.ports()) == 3
 
-        print(self.line.handles())
         handles, ports = segment.merge_segment(0, count=3)
         self.assertEqual(2, len(handles))
         self.assertEqual(3, len(ports))
