@@ -20,8 +20,8 @@ class MatricesTestCase(unittest.TestCase):
 
         updated = c.update_matrices([i])
 
-        self.assertEquals(i._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 0))
-        self.assertEquals(ii._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 8))
+        self.assertEqual(i._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 0))
+        self.assertEqual(ii._matrix_i2c, cairo.Matrix(1, 0, 0, 1, 5, 8))
 
     def test_reparent(self):
         c = Canvas()
@@ -151,7 +151,7 @@ class CanvasTestCase(unittest.TestCase):
 
         assert count(c.get_connections(handle=l.handles()[0])) == 0
 
-        self.assertEquals(2, len(c.solver.constraints))
+        self.assertEqual(2, len(c.solver.constraints))
 
 
 class ConstraintProjectionTestCase(unittest.TestCase):
@@ -196,8 +196,8 @@ class ConstraintProjectionTestCase(unittest.TestCase):
 ###        canvas.update()
 ###
 ###        # expect h2.x to be moved due to balance constraint
-###        self.assertEquals(10, h2.x)
-###        self.assertEquals(-10, h2.y)
+###        self.assertEqual(10, h2.x)
+###        self.assertEqual(-10, h2.y)
 
 
 class CanvasConstraintTestCase(unittest.TestCase):
@@ -237,12 +237,12 @@ class CanvasConstraintTestCase(unittest.TestCase):
         assert canvas.get_connection(l1.handles()[1])
 
 
-        self.assertEquals(number_cons2 + 2, len(canvas.solver.constraints))
+        self.assertEqual(number_cons2 + 2, len(canvas.solver.constraints))
 
         canvas.remove(b1)
 
         # Expecting a class + line connected at one end only
-        self.assertEquals(number_cons1 + 1, len(canvas.solver.constraints))
+        self.assertEqual(number_cons1 + 1, len(canvas.solver.constraints))
 
 ###    def test_adding_constraint(self):
 ###        """Test adding canvas constraint"""

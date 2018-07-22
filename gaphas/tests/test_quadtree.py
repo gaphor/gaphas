@@ -90,7 +90,7 @@ class QuadtreeTestCase(unittest.TestCase):
     def test_clipped_bounds(self):
         qtree = Quadtree((0, 0, 100, 100), capacity=10)
         qtree.add(1, (-100, -100, 120, 120))
-        self.assertEquals((0, 0, 20, 20), qtree.get_clipped_bounds(1))
+        self.assertEqual((0, 0, 20, 20), qtree.get_clipped_bounds(1))
 
 
 if __name__ == '__main__':

@@ -44,10 +44,10 @@ class AspectTestCase(unittest.TestCase):
         item = Item()
         self.canvas.add(item)
         inmotion = InMotion(item, view)
-        self.assertEquals((1, 0, 0, 1, 0, 0), tuple(item.matrix))
+        self.assertEqual((1, 0, 0, 1, 0, 0), tuple(item.matrix))
         inmotion.start_move((0, 0))
         inmotion.move((12, 26))
-        self.assertEquals((1, 0, 0, 1, 12, 26), tuple(item.matrix))
+        self.assertEqual((1, 0, 0, 1, 12, 26), tuple(item.matrix))
 
 
 # vim:sw=4:et:ai

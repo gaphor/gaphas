@@ -76,23 +76,23 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
 
         # glue to port nw-ne
         sink = self.tool.glue(self.line, self.head, (120, 50))
-        self.assertEquals(sink.item, self.box1)
-        self.assertEquals(ports[0], sink.port)
+        self.assertEqual(sink.item, self.box1)
+        self.assertEqual(ports[0], sink.port)
 
         # glue to port ne-se
         sink = self.tool.glue(self.line, self.head, (140, 70))
-        self.assertEquals(sink.item, self.box1)
-        self.assertEquals(ports[1], sink.port)
+        self.assertEqual(sink.item, self.box1)
+        self.assertEqual(ports[1], sink.port)
 
         # glue to port se-sw
         sink = self.tool.glue(self.line, self.head, (120, 90))
-        self.assertEquals(sink.item, self.box1)
-        self.assertEquals(ports[2], sink.port)
+        self.assertEqual(sink.item, self.box1)
+        self.assertEqual(ports[2], sink.port)
 
         # glue to port sw-nw
         sink = self.tool.glue(self.line, self.head, (100, 70))
-        self.assertEquals(sink.item, self.box1)
-        self.assertEquals(ports[3], sink.port)
+        self.assertEqual(sink.item, self.box1)
+        self.assertEqual(ports[3], sink.port)
 
 
     def test_failed_glue(self):
@@ -123,7 +123,7 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
 #        tool = Tool(self.view)
 #        item, port = tool.glue(self.line, self.head, (120, 50))
 #        assert item and port
-#        self.assertEquals(1, tool._calls)
+#        self.assertEqual(1, tool._calls)
 
 
 #    def test_glue_cannot_glue(self):
@@ -154,7 +154,7 @@ class ConnectHandleToolGlueTestCase(unittest.TestCase):
         # at 300, 50 there should be no item
         sink = tool.glue(self.line, self.head, (300, 50))
         assert sink is None
-        self.assertEquals(0, tool._calls)
+        self.assertEqual(0, tool._calls)
 
 
 
@@ -177,7 +177,7 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
         self.tool.connect(line, head, (120, 50))
         cinfo = self.canvas.get_connection(head)
         self.assertTrue(cinfo is not None)
-        self.assertEquals(self.box1, cinfo.connected)
+        self.assertEqual(self.box1, cinfo.connected)
         self.assertTrue(cinfo.port is self.box1.ports()[0],
             'port %s' % cinfo.port)
         self.assertTrue(isinstance(cinfo.constraint, LineConstraint))
@@ -249,19 +249,19 @@ class ConnectHandleToolConnectTestCase(unittest.TestCase):
 
         head.pos = 110, 50
         port = self.tool.find_port(line, head, self.box1)
-        self.assertEquals(p1, port)
+        self.assertEqual(p1, port)
 
         head.pos = 140, 60
         port = self.tool.find_port(line, head, self.box1)
-        self.assertEquals(p2, port)
+        self.assertEqual(p2, port)
 
         head.pos = 110, 95
         port = self.tool.find_port(line, head, self.box1)
-        self.assertEquals(p3, port)
+        self.assertEqual(p3, port)
 
         head.pos = 100, 55
         port = self.tool.find_port(line, head, self.box1)
-        self.assertEquals(p4, port)
+        self.assertEqual(p4, port)
 
 
 # vim: sw=4:et:ai

@@ -30,21 +30,21 @@ class GuideTestCase(unittest.TestCase):
 
         guider = GuidedItemInMotion(Element(), self.view)
         d, closest = guider.find_closest(set1, set2)
-        self.assertEquals(2.0, d)
-        self.assertEquals([2.0], closest)
+        self.assertEqual(2.0, d)
+        self.assertEqual([2.0], closest)
 
     def test_element_guide(self):
         e1 = Element()
-        self.assertEquals(10, e1.width)
-        self.assertEquals(10, e1.height)
+        self.assertEqual(10, e1.width)
+        self.assertEqual(10, e1.height)
         guides = Guide(e1).horizontal()
-        self.assertEquals(0.0, guides[0])
-        self.assertEquals(5.0, guides[1])
-        self.assertEquals(10.0, guides[2])
+        self.assertEqual(0.0, guides[0])
+        self.assertEqual(5.0, guides[1])
+        self.assertEqual(10.0, guides[2])
         guides = Guide(e1).vertical()
-        self.assertEquals(0.0, guides[0])
-        self.assertEquals(5.0, guides[1])
-        self.assertEquals(10.0, guides[2])
+        self.assertEqual(0.0, guides[0])
+        self.assertEqual(5.0, guides[1])
+        self.assertEqual(10.0, guides[2])
 
     def test_line_guide(self):
         c = Canvas()
@@ -57,14 +57,14 @@ class GuideTestCase(unittest.TestCase):
         c.update_now()
 
         guides = list(Guide(l).horizontal())
-        self.assertEquals(2, len(guides))
-        self.assertEquals(10.0, guides[0])
-        self.assertEquals(40.0, guides[1])
+        self.assertEqual(2, len(guides))
+        self.assertEqual(10.0, guides[0])
+        self.assertEqual(40.0, guides[1])
 
         guides = list(Guide(l).vertical())
-        self.assertEquals(2, len(guides))
-        self.assertEquals(00.0, guides[0])
-        self.assertEquals(20.0, guides[1])
+        self.assertEqual(2, len(guides))
+        self.assertEqual(00.0, guides[0])
+        self.assertEqual(20.0, guides[1])
 
     def test_line_guide_horizontal(self):
         c = Canvas()
@@ -78,14 +78,14 @@ class GuideTestCase(unittest.TestCase):
         c.update_now()
 
         guides = list(Guide(l).horizontal())
-        self.assertEquals(2, len(guides))
-        self.assertEquals(0.0, guides[0])
-        self.assertEquals(20.0, guides[1])
+        self.assertEqual(2, len(guides))
+        self.assertEqual(0.0, guides[0])
+        self.assertEqual(20.0, guides[1])
 
         guides = list(Guide(l).horizontal())
-        self.assertEquals(2, len(guides))
-        self.assertEquals(0.0, guides[0])
-        self.assertEquals(20.0, guides[1])
+        self.assertEqual(2, len(guides))
+        self.assertEqual(0.0, guides[0])
+        self.assertEqual(20.0, guides[1])
 
 
     def test_guide_item_in_motion(self):
@@ -98,36 +98,36 @@ class GuideTestCase(unittest.TestCase):
         canvas.add(e2)
         canvas.add(e3)
 
-        self.assertEquals(0, e1.matrix[4])
-        self.assertEquals(0, e1.matrix[5])
+        self.assertEqual(0, e1.matrix[4])
+        self.assertEqual(0, e1.matrix[5])
 
         e2.matrix.translate(40, 40)
         e2.request_update()
-        self.assertEquals(40, e2.matrix[4])
-        self.assertEquals(40, e2.matrix[5])
+        self.assertEqual(40, e2.matrix[4])
+        self.assertEqual(40, e2.matrix[5])
 
         guider = GuidedItemInMotion(e3, self.view)
 
         guider.start_move((0, 0))
-        self.assertEquals(0, e3.matrix[4])
-        self.assertEquals(0, e3.matrix[5])
+        self.assertEqual(0, e3.matrix[4])
+        self.assertEqual(0, e3.matrix[5])
 
         # Moved back to guided lines:
         for d in range(0, 3):
             print('move to', d)
             guider.move((d, d))
-            self.assertEquals(0, e3.matrix[4])
-            self.assertEquals(0, e3.matrix[5])
+            self.assertEqual(0, e3.matrix[4])
+            self.assertEqual(0, e3.matrix[5])
 
         for d in range(3, 5):
             print('move to', d)
             guider.move((d, d))
-            self.assertEquals(5, e3.matrix[4])
-            self.assertEquals(5, e3.matrix[5])
+            self.assertEqual(5, e3.matrix[4])
+            self.assertEqual(5, e3.matrix[5])
 
         guider.move((20, 20))
-        self.assertEquals(20, e3.matrix[4])
-        self.assertEquals(20, e3.matrix[5])
+        self.assertEqual(20, e3.matrix[4])
+        self.assertEqual(20, e3.matrix[5])
 
 
     def test_guide_item_in_motion_2(self):
@@ -140,37 +140,37 @@ class GuideTestCase(unittest.TestCase):
         canvas.add(e2)
         canvas.add(e3)
 
-        self.assertEquals(0, e1.matrix[4])
-        self.assertEquals(0, e1.matrix[5])
+        self.assertEqual(0, e1.matrix[4])
+        self.assertEqual(0, e1.matrix[5])
 
         e2.matrix.translate(40, 40)
         e2.request_update()
-        self.assertEquals(40, e2.matrix[4])
-        self.assertEquals(40, e2.matrix[5])
+        self.assertEqual(40, e2.matrix[4])
+        self.assertEqual(40, e2.matrix[5])
 
         guider = GuidedItemInMotion(e3, self.view)
 
         guider.start_move((3, 3))
-        self.assertEquals(0, e3.matrix[4])
-        self.assertEquals(0, e3.matrix[5])
+        self.assertEqual(0, e3.matrix[4])
+        self.assertEqual(0, e3.matrix[5])
 
         # Moved back to guided lines:
         for y in range(4, 6):
             print('move to', y)
             guider.move((3, y))
-            self.assertEquals(0, e3.matrix[4])
-            self.assertEquals(0, e3.matrix[5])
+            self.assertEqual(0, e3.matrix[4])
+            self.assertEqual(0, e3.matrix[5])
 
         for y in range(6, 9):
             print('move to', y)
             guider.move((3, y))
-            self.assertEquals(0, e3.matrix[4])
-            self.assertEquals(5, e3.matrix[5])
+            self.assertEqual(0, e3.matrix[4])
+            self.assertEqual(5, e3.matrix[5])
 
         # Take into account initial cursor offset of (3, 3)
         guider.move((20, 23))
-        self.assertEquals(17, e3.matrix[4])
-        self.assertEquals(20, e3.matrix[5])
+        self.assertEqual(17, e3.matrix[4])
+        self.assertEqual(20, e3.matrix[5])
 
 
 # vim:sw=4:et:ai
