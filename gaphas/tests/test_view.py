@@ -23,7 +23,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
 
-        window1 = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window1 = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         view1 = GtkView(canvas=canvas)
         window1.add(view1)
         view1.realize()
@@ -40,7 +40,7 @@ class ViewTestCase(unittest.TestCase):
         line.matrix.translate(30, 60)
         canvas.add(line)
 
-        window2 = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window2 = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         view2 = GtkView(canvas=canvas)
         window2.add(view2)
         window2.show_all()
@@ -64,7 +64,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
         view = GtkView(canvas)
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -90,7 +90,7 @@ class ViewTestCase(unittest.TestCase):
     def test_get_handle_at_point(self):
         canvas = Canvas()
         view = GtkView(canvas)
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -108,7 +108,7 @@ class ViewTestCase(unittest.TestCase):
     def test_get_handle_at_point_at_pi_div_2(self):
         canvas = Canvas()
         view = GtkView(canvas)
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -128,7 +128,7 @@ class ViewTestCase(unittest.TestCase):
     def test_item_removal(self):
         canvas = Canvas()
         view = GtkView(canvas)
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -175,7 +175,7 @@ class ViewTestCase(unittest.TestCase):
         assert view not in box._matrix_i2v
         assert view not in box._matrix_v2i
 
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
@@ -201,7 +201,7 @@ class ViewTestCase(unittest.TestCase):
         """
         canvas = Canvas()
         view = GtkView(canvas)
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         window.add(view)
         window.show_all()
 
