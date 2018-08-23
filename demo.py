@@ -301,7 +301,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
         try:
-            import cPickle as pickle
+            import pickle
             pickle.dump(view.canvas, f)
         finally:
             f.close()
@@ -315,7 +315,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import cPickle as pickle
+            import pickle
             canvas = pickle.load(f)
             canvas.update_now()
         finally:
@@ -331,7 +331,7 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
         try:
-            import cPickle as pickle
+            import pickle
             canvas = pickle.load(f)
         finally:
             f.close()
