@@ -134,9 +134,9 @@ def create_window(canvas, title, zoom=1.0):
     f.add(v)
     h.pack_start(f, False, True, 0)
 
-    v.add(Gtk.Label(label='Item placement:'))
+    v.add(Gtk.Label.new('Item placement:'))
     
-    b = Gtk.Button('Add box')
+    b = Gtk.Button.new_with_label('Add box')
 
     def on_clicked(button, view):
         #view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
@@ -145,7 +145,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked, view)
     v.add(b)
 
-    b = Gtk.Button('Add line')
+    b = Gtk.Button.new_with_label('Add line')
 
     def on_clicked(button):
         view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
@@ -153,9 +153,9 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='Zooming:'))
+    v.add(Gtk.Label.new('Zooming:'))
    
-    b = Gtk.Button('Zoom in')
+    b = Gtk.Button.new_with_label('Zoom in')
 
     def on_clicked(button):
         view.zoom(1.2)
@@ -163,7 +163,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Zoom out')
+    b = Gtk.Button.new_with_label('Zoom out')
 
     def on_clicked(button):
         view.zoom(1/1.2)
@@ -171,9 +171,9 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='Misc:'))
+    v.add(Gtk.Label.new('Misc:'))
 
-    b = Gtk.Button('Split line')
+    b = Gtk.Button.new_with_label('Split line')
 
     def on_clicked(button):
         if isinstance(view.focused_item, Line):
@@ -184,7 +184,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Delete focused')
+    b = Gtk.Button.new_with_label('Delete focused')
 
     def on_clicked(button):
         if view.focused_item:
@@ -194,8 +194,8 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='State:'))
-    b = Gtk.ToggleButton('Record')
+    v.add(Gtk.Label.new('State:'))
+    b = Gtk.ToggleButton.new_with_label('Record')
 
     def on_toggled(button):
         global undo_list
@@ -210,7 +210,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('toggled', on_toggled)
     v.add(b)
 
-    b = Gtk.Button('Play back')
+    b = Gtk.Button.new_with_label('Play back')
     
     def on_clicked(self):
         global undo_list
@@ -230,9 +230,9 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    v.add(Gtk.Label(label='Export:'))
+    v.add(Gtk.Label.new('Export:'))
 
-    b = Gtk.Button('Write demo.png')
+    b = Gtk.Button.new_with_label('Write demo.png')
 
     def on_clicked(button):
         svgview = View(view.canvas)
@@ -260,7 +260,7 @@ def create_window(canvas, title, zoom=1.0):
     b.connect('clicked', on_clicked)
     v.add(b)
 
-    b = Gtk.Button('Write demo.svg')
+    b = Gtk.Button.new_with_label('Write demo.svg')
 
     def on_clicked(button):
         svgview = View(view.canvas)
@@ -287,7 +287,7 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
     
-    b = Gtk.Button('Dump QTree')
+    b = Gtk.Button.new_with_label('Dump QTree')
 
     def on_clicked(button, li):
         view._qtree.dump()
@@ -296,7 +296,7 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
 
-    b = Gtk.Button('Pickle (save)')
+    b = Gtk.Button.new_with_label('Pickle (save)')
 
     def on_clicked(button, li):
         f = open('demo.pickled', 'w')
@@ -310,7 +310,7 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
 
-    b = Gtk.Button('Unpickle (load)')
+    b = Gtk.Button.new_with_label('Unpickle (load)')
 
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
@@ -326,7 +326,7 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
 
-    b = Gtk.Button('Unpickle (in place)')
+    b = Gtk.Button.new_with_label('Unpickle (in place)')
 
     def on_clicked(button, li):
         f = open('demo.pickled', 'r')
@@ -343,7 +343,7 @@ def create_window(canvas, title, zoom=1.0):
     v.add(b)
 
 
-    b = Gtk.Button('Reattach (in place)')
+    b = Gtk.Button.new_with_label('Reattach (in place)')
 
     def on_clicked(button, li):
         view.canvas = None
@@ -358,7 +358,7 @@ def create_window(canvas, title, zoom=1.0):
     view.canvas = canvas
     view.zoom(zoom)
     view.set_size_request(150, 120)
-    s = Gtk.ScrolledWindow()
+    s = Gtk.ScrolledWindow.new()
     s.add(view)
     h.add(s)
 
