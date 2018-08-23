@@ -299,7 +299,7 @@ def create_window(canvas, title, zoom=1.0):
     b = Gtk.Button.new_with_label('Pickle (save)')
 
     def on_clicked(button, li):
-        f = open('demo.pickled', 'w')
+        f = open('demo.pickled', 'wb')
         try:
             import pickle
             pickle.dump(view.canvas, f)
@@ -313,7 +313,7 @@ def create_window(canvas, title, zoom=1.0):
     b = Gtk.Button.new_with_label('Unpickle (load)')
 
     def on_clicked(button, li):
-        f = open('demo.pickled', 'r')
+        f = open('demo.pickled', 'rb')
         try:
             import pickle
             canvas = pickle.load(f)
@@ -329,7 +329,7 @@ def create_window(canvas, title, zoom=1.0):
     b = Gtk.Button.new_with_label('Unpickle (in place)')
 
     def on_clicked(button, li):
-        f = open('demo.pickled', 'r')
+        f = open('demo.pickled', 'rb')
         try:
             import pickle
             canvas = pickle.load(f)
