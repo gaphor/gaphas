@@ -546,9 +546,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._set_tool(DefaultTool())
 
-        # Set background to white.
-        self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FFF'))
-
     def do_set_property(self, prop, value):
         if prop.name == 'hadjustment':
             if value is not None:
