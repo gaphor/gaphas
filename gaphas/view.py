@@ -514,7 +514,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                            GObject.PARAM_READWRITE),
         "hadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
                         GObject.PARAM_READWRITE),
-        "vscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
+        "vscroll-policy": (Gtk.ScrollablePolicy, "vscroll-policy",
                            "vscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
                            GObject.PARAM_READWRITE),
         "vadjustment": (Gtk.Adjustment, "vadjustment", "vadjustment",
@@ -543,32 +543,44 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._vadjustment = None
         self._hadjustment_handler_id = None
         self._vadjustment_handler_id = None
+        self._hscroll_policy = None
+        self._vscroll_policy = None
 
         self._set_tool(DefaultTool())
+
+    def do_get_property(self, prop):
+        if prop.name == 'hadjustemnet':
+            return self._hadjustment
+        elif prop.name == 'vadjustment':
+            return self._vadjustment
+        elif prop.name == 'hscroll-policy':
+            return self._hscroll_policy
+        elif prop.name == 'vscroll-policy':
+            return self._vscroll_policy
+        else:
+            raise AttributeError("Unknown property %s" % prop.name)
 
     def do_set_property(self, prop, value):
         if prop.name == 'hadjustment':
             if value is not None:
-                hadj = value
-                if self._hadjustment_handler_id:
-                    self._hadjustment.disconnect(self._hadjustment_handler_id)
-                    self._hadjustment_handler_id = None
-                self._hadjustment = hadj
+                self._hadjustment = value
                 self._hadjustment_handler_id = self._hadjustment.connect(
                     "value-changed", self.on_adjustment_changed
                 )
                 self.update_adjustments()
         elif prop.name == 'vadjustment':
             if value is not None:
-                vadj = value
-                if self._hadjustment_handler_id:
-                    self._hadjustment.disconnect(self._hadjustment_handler_id)
-                    self._hadjustment_handler_id = None
-                self._vadjustment = vadj
+                self._vadjustment = value
                 self._vadjustment_handler_id = self._vadjustment.connect(
                     "value-changed", self.on_adjustment_changed
                 )
                 self.update_adjustments()
+        elif prop.name == 'hscroll-policy':
+            self._hscroll_policy = value
+        elif prop.name == 'vscroll-policy':
+            self._vscroll_policy = value
+        else:
+            raise AttributeError("Unknown property %s" % prop.name)
 
     def emit(self, *args, **kwargs):
         """
