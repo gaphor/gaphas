@@ -905,17 +905,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Change the transformation matrix of the view to reflect the
         value of the x/y adjustment (scrollbar).
         """
-        if adj.value == 0.0: return
+        value = adj.get_value()
+        if value == 0.0:
+            return
 
-        # Can not use self._matrix.translate( - adj.value , 0) here, since
+        # Can not use self._matrix.translate(-value , 0) here, since
         # the translate method effectively does a m * self._matrix, which
         # will result in the translation being multiplied by the orig. matrix
 
         m = Matrix()
         if adj is self._hadjustment:
-            m.translate( - adj.value, 0)
+            m.translate(-adj.value, 0)
         elif adj is self._vadjustment:
-            m.translate(0, - adj.value)
+            m.translate(0, -value)
         self._matrix *= m
 
         # Force recalculation of the bounding boxes:
