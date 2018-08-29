@@ -129,8 +129,9 @@ class AsyncIO(object):
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
-                def async_wrapper():
-                    if DEBUG_ASYNC: print('async:', func, args, kwargs)
+                def async_wrapper(*aargs):
+                    if DEBUG_ASYNC:
+                        print('async:', func, args, kwargs)
                     func(*args, **kwargs)
                 source(async_wrapper).attach()
             else:
@@ -140,8 +141,9 @@ class AsyncIO(object):
                     if getattr(holder, async_id):
                         return
                 except AttributeError as e:
-                    def async_wrapper():
-                        if DEBUG_ASYNC: print('async:', func, args, kwargs)
+                    def async_wrapper(*aargs):
+                        if DEBUG_ASYNC:
+                            print('async:', func, args, kwargs)
                         try:
                             func(*args, **kwargs)
                         finally:
