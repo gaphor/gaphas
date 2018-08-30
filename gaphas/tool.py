@@ -684,7 +684,7 @@ class TextEditTool(Tool):
         """
         window = Gtk.Window()
         window.set_property('decorated', False)
-        window.set_resize_mode(Gtk.RESIZE_IMMEDIATE)
+        window.set_resize_mode(Gtk.ResizeMode.IMMEDIATE)
         #window.set_modal(True)
         window.set_parent_window(self.view.window)
         buffer = Gtk.TextBuffer()
