@@ -130,8 +130,8 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     # We need the function, since that's what's in the events
     func1 = getfunction(func1)
     func2 = getfunction(func2)
-    _reverse[func1] = (func2, inspect.getfullargspec(func2), bind2)
-    _reverse[func2] = (func1, inspect.getfullargspec(func1), bind1)
+    _reverse[func1] = (func2, inspect.getargspec(func2), bind2)
+    _reverse[func2] = (func1, inspect.getargspec(func1), bind1)
 
 
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
@@ -224,7 +224,7 @@ def revert_handler(event):
     """
     global _reverse
     func, args, kwargs = event
-    spec = inspect.getfullargspec(func)
+    spec = inspect.getargspec(func)
     reverse, revspec, bind = _reverse.get(func, (None, None, {}))
     if not reverse:
         return
@@ -248,7 +248,7 @@ def saveapply(func, kw):
     The function names should be known at meta-level, since arguments
     are applied as func(\*\*kwargs).
     """
-    spec = inspect.getfullargspec(func)
+    spec = inspect.getargspec(func)
     argnames = list(spec[0])
     if spec[1]: argnames.append(spec[1])
     if spec[2]: argnames.append(spec[2])
