@@ -692,7 +692,9 @@ class TextEditTool(Tool):
         text_view.set_buffer(buffer)
         text_view.show()
         window.add(text_view)
-        window.size_allocate(Gdk.Window(int(event.x), int(event.y), 50, 50))
+        rect = Gdk.Rectangle()
+        rect.x, rect.y, rect.width, rect.height = int(event.x), int(event.y), 50, 50
+        window.size_allocate(rect)
         # window.move(int(event.x), int(event.y))
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
