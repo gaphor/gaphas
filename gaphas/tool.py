@@ -521,7 +521,7 @@ class PanTool(Tool):
 
     def on_scroll(self, event):
         # Ensure no modifiers
-        if not event.state & PAN_MASK == PAN_VALUE:
+        if not event.get_state()[0] & PAN_MASK == PAN_VALUE:
             return False
         view = self.view
         direction = event.direction
@@ -593,7 +593,7 @@ class ZoomTool(Tool):
             return True
 
     def on_scroll(self, event):
-        if event.state & Gdk.ModifierType.CONTROL_MASK:
+        if event.get_state()[0] & Gdk.ModifierType.CONTROL_MASK:
             view = self.view
             sx = view._matrix[0]
             sy = view._matrix[3]
