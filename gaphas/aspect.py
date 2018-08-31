@@ -140,22 +140,24 @@ HandleSelection = generic(ItemHandleSelection)
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = (
-        Gdk.CursorType.TOP_LEFT_CORNER,
-        Gdk.CursorType.TOP_RIGHT_CORNER,
-        Gdk.CursorType.BOTTOM_RIGHT_CORNER,
-        Gdk.CursorType.BOTTOM_LEFT_CORNER,
+        'nw-resize',
+        'ne-resize',
+        'se-resize',
+        'sw-resize',
     )
 
     def select(self):
         index = self.item.handles().index(self.handle)
         if index < 4:
-            self.view.window.set_cursor(self.CURSORS[index])
+            display = self.view.get_display()
+            cursor = Gdk.Cursor.new_from_name(display, self.CURSORS[index])
+            self.view.get_window().set_cursor(cursor)
 
     def unselect(self):
         from .view import DEFAULT_CURSOR
 
         cursor = Gdk.Cursor(DEFAULT_CURSOR)
-        self.view.window.set_cursor(cursor)
+        self.view.get_window().set_cursor(cursor)
 
 
 

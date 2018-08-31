@@ -685,24 +685,24 @@ class TextEditTool(Tool):
         window = Gtk.Window()
         window.set_property('decorated', False)
         window.set_resize_mode(Gtk.ResizeMode.IMMEDIATE)
-        #window.set_modal(True)
-        window.set_parent_window(self.view.window)
+        # window.set_modal(True)
+        window.set_parent_window(self.view.get_window())
         buffer = Gtk.TextBuffer()
         text_view = Gtk.TextView()
         text_view.set_buffer(buffer)
         text_view.show()
         window.add(text_view)
         window.size_allocate(Gdk.Window(int(event.x), int(event.y), 50, 50))
-        #window.move(int(event.x), int(event.y))
+        # window.move(int(event.x), int(event.y))
         cursor_pos = self.view.get_toplevel().get_screen().get_display().get_pointer()
         window.move(cursor_pos[1], cursor_pos[2])
         window.connect('focus-out-event', self._on_focus_out_event, buffer)
         text_view.connect('key-press-event', self._on_key_press_event, buffer)
-        #text_view.set_size_request(50, 50)
+        # text_view.set_size_request(50, 50)
         window.show()
-        #text_view.grab_focus()
-        #window.set_uposition(event.x, event.y)
-        #window.focus
+        # text_view.grab_focus()
+        # window.set_uposition(event.x, event.y)
+        # window.focus
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
