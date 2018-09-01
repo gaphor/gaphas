@@ -385,12 +385,12 @@ class QuadtreeBucket(object):
 
 
     def dump(self, indent=''):
-       print(indent, self, self.bounds)
-       indent += '   '
-       for item, bounds in sorted(self.items.items()):
-           print(indent, item, bounds)
-       for bucket in self._buckets:
-           bucket.dump(indent)
+        print(indent, self, self.bounds)
+        indent += '   '
+        for item, bounds in sorted(self.items.items(), key=lambda items: items[1]):
+            print(indent, item, bounds)
+        for bucket in self._buckets:
+            bucket.dump(indent)
 
 
 # vim:sw=4:et:ai
