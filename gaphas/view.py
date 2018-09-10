@@ -527,6 +527,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
+        self.connect('size-allocate', self.on_size_allocate)
+        self.connect('draw', self.draw)
 
         View.__init__(self, canvas)
 
@@ -647,7 +649,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         c = Rectangle(*self._qtree.soft_bounds)
 
         # view limits
-        v = Rectangle(0, 0, allocation.width, allocation.height)
+        v = Rectangle(0, 0, aw, ah)
 
         # union of these limits gives scrollbar limits
         if v in c:
@@ -821,9 +823,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Allocate the widget size ``(x, y, width, height)``.
         """
         Gtk.DrawingArea.do_size_allocate(self, allocation)
+        self.set_allocation(allocation)
         self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
 
+    def on_size_allocate(self, widget, allocation):
+        pass
 
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
@@ -848,18 +853,22 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
-    def do_expose_event(self, event):
+    def draw(self, drawingarea, ctx):
         """
         Render canvas to the screen.
         """
         if not self._canvas:
             return
 
-        area = event.area
-        x, y, w, h = area.x, area.y, area.width, area.height
-        cr = self.window.cairo_create()
+        cr = self.get_window().cairo_create()
 
-        # Draw no more than nessesary.
+        allocation = self.get_allocation()
+        x = allocation.x
+        y = allocation.y
+        w = allocation.width
+        h = allocation.height
+
+        # Draw no more than necessary.
         cr.rectangle(x, y, w, h)
         cr.clip()
 
