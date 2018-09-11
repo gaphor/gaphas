@@ -925,7 +925,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         m = Matrix()
         if adj is self._hadjustment:
-            m.translate(-adj.value, 0)
+            m.translate(-value, 0)
         elif adj is self._vadjustment:
             m.translate(0, -value)
         self._matrix *= m
