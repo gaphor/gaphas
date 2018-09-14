@@ -359,6 +359,7 @@ def create_window(canvas, title, zoom=1.0):
     view.zoom(zoom)
     view.set_size_request(150, 120)
     s = Gtk.ScrolledWindow.new()
+    s.set_hexpand(True)
     s.add(view)
     h.add(s)
 

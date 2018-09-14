@@ -528,7 +528,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._dirty_items = set()
         self._dirty_matrix_items = set()
         self.connect('size-allocate', self.on_size_allocate)
-        self.connect('draw', self.draw)
+        self.connect('draw', self.on_draw)
 
         View.__init__(self, canvas)
 
@@ -853,7 +853,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
-    def draw(self, drawingarea, ctx):
+    def on_draw(self, widget, ctx):
         """
         Render canvas to the screen.
         """
