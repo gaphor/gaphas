@@ -122,6 +122,7 @@ def create_window(canvas, title, zoom=1.0):
     view.bounding_box_painter = FreeHandPainter(BoundingBoxPainter())
     w = Gtk.Window()
     w.set_title(title)
+    w.set_default_size(400, 120)
     h = Gtk.HBox()
     w.add(h)
 
