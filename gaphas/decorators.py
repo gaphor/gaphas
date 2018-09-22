@@ -46,7 +46,7 @@ class AsyncIO(object):
     >>> class A(object):
     ...     @AsyncIO(single=False, priority=GObject.PRIORITY_HIGH)
     ...     def a(self):
-    ...         print 'idle-a', GObject.main_depth()
+    ...         print('idle-a', GObject.main_depth())
 
     Methods can also set single mode to True (the method is only
     scheduled one).
@@ -54,17 +54,17 @@ class AsyncIO(object):
     >>> class B(object):
     ...     @AsyncIO(single=True)
     ...     def b(self):
-    ...         print 'idle-b', GObject.main_depth()
+    ...         print('idle-b', GObject.main_depth())
 
     Also a timeout property can be provided:
 
     >>> class C(object):
     ...     @AsyncIO(timeout=50)
     ...     def c1(self):
-    ...         print 'idle-c1', GObject.main_depth()
+    ...         print('idle-c1', GObject.main_depth())
     ...     @AsyncIO(single=True, timeout=60)
     ...     def c2(self):
-    ...         print 'idle-c2', GObject.main_depth()
+    ...         print('idle-c2', GObject.main_depth())
 
     This is a helper function used to test classes A and B from within
     the GTK+ main loop:
@@ -161,7 +161,7 @@ def nonrecursive(func):
     >>> class A(object):
     ...     @nonrecursive
     ...     def a(self, x=1):
-    ...         print x
+    ...         print(x)
     ...         self.a(x+1)
     >>> A().a()
     1

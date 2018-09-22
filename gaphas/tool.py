@@ -120,7 +120,6 @@ class Tool(object):
         handler for the event type.
         """
         handler = self.EVENT_HANDLERS.get(event.type)
-        #print event.type, handler
         if handler:
             try:
                 h = getattr(self, handler)
@@ -708,15 +707,12 @@ class TextEditTool(Tool):
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
-        #if event.keyval == Gdk.KEY_Return:
-            #print 'Enter!'
-            #widget.get_toplevel().destroy()
+        # if event.keyval == Gdk.KEY_Return:
+        #     widget.get_toplevel().destroy()
         if event.keyval == Gdk.KEY_Escape:
-            #print 'Escape!'
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
-        #print 'focus out!', buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
         widget.destroy()
 
 

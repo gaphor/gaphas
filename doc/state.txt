@@ -33,7 +33,7 @@ method pair).
 It works (see how the add method automatically schedules the item for update):
 
     >>> def handler(event):
-    ...     print 'event handled', event
+    ...     print('event handled', event)
     >>> state.observers.add(handler)
     >>> canvas.add(item1)                              # doctest: +ELLIPSIS
     event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
@@ -121,7 +121,7 @@ Handlers for the reverse events should be registered on the subscribers list:
     >>> events = []
     >>> def handler(event):
     ...     events.append(event)
-    ...     print 'event handler', event
+    ...     print('event handler', event)
     >>> state.subscribers.add(handler)
 
 After that, signals can be received of undoable (reverse-)events:

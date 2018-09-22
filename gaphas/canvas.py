@@ -936,7 +936,7 @@ class VariableProjection(solver.Projection):
     It's a simple Variable-like class, following the Projection protocol:
 
     >>> def notify_me(val):
-    ...     print 'new value', val
+    ...     print('new value', val)
     >>> p = VariableProjection('var placeholder', 3.0, callback=notify_me)
     >>> p.value
     3.0

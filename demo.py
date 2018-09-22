@@ -190,7 +190,6 @@ def create_window(canvas, title, zoom=1.0):
     def on_clicked(button):
         if view.focused_item:
             canvas.remove(view.focused_item)
-            #print 'items:', canvas.get_all_items()
 
     b.connect('clicked', on_clicked)
     v.add(b)
@@ -405,11 +404,11 @@ def create_canvas(c=None):
     bb = Box()
     bb.matrix.rotate(math.pi/1.567)
     c.add(bb, parent=b)
-#    for i in xrange(10):
-#        bb=Box()
-#        print 'box', bb
-#        bb.matrix.rotate(math.pi/4.0 * i / 10.0)
-#        c.add(bb, parent=b)
+    # for i in xrange(10):
+    #     bb = Box()
+    #     print('box', bb)
+    #     bb.matrix.rotate(math.pi/4.0 * i / 10.0)
+    #     c.add(bb, parent=b)
 
     b = PortoBox(60, 60)
     b.min_width = 40

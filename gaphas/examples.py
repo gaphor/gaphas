@@ -138,7 +138,6 @@ class Text(Item):
         self.align_y = align_y
 
     def draw(self, context):
-        #print 'Text.draw', self
         cr = context.cairo
         if self.multiline:
             text_multiline(cr, 0, 0, self.text)
