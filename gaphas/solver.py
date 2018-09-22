@@ -398,7 +398,7 @@ class Solver(object):
 
         Example:
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s = Solver()
         >>> c_eq = EquationConstraint(lambda a,b: a+b, a=a, b=b)
@@ -444,7 +444,7 @@ class Solver(object):
 
         Example:
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
         >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
@@ -475,7 +475,7 @@ class Solver(object):
         """
         Remove a constraint from the solver
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
         >>> c = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
@@ -516,7 +516,7 @@ class Solver(object):
         The variable in question should be exposed by the constraints
         `constraint.Constraint.variables()` method.
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b, c = Variable(), Variable(2.0), Variable(4.0)
         >>> eq_a_b = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
@@ -585,7 +585,7 @@ class Solver(object):
         """
         Example:
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s = Solver()
         >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
