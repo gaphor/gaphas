@@ -10,7 +10,7 @@ if __name__ == '__main__':
         cProfile.run('main()', 'demo-gaphas.prof')
         p = pstats.Stats('demo-gaphas.prof')
         p.strip_dirs().sort_stats('time').print_stats(40)
-    except ImportError, ex:
+    except ImportError as ex:
         import hotshot, hotshot.stats
         import gc
         prof = hotshot.Profile('demo-gaphas.prof')
