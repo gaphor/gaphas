@@ -22,12 +22,12 @@ class ItemConstraintTestCase(unittest.TestCase):
         pos = Variable(1), Variable(2)
         line = (Variable(3), Variable(4)), (Variable(5), Variable(6))
         item.constraint(line=(pos, line))
-        self.assertEquals(1, len(item._constraints))
+        self.assertEqual(1, len(item._constraints))
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, LineConstraint))
-        self.assertEquals((1, 2), c._point)
-        self.assertEquals(((3, 4), (5, 6)), c._line)
+        self.assertEqual((1, 2), c._point)
+        self.assertEqual(((3, 4), (5, 6)), c._line)
 
 
     def test_horizontal_constraint(self):
@@ -38,13 +38,13 @@ class ItemConstraintTestCase(unittest.TestCase):
         p1 = Variable(1), Variable(2)
         p2 = Variable(3), Variable(4)
         item.constraint(horizontal=(p1, p2))
-        self.assertEquals(1, len(item._constraints))
+        self.assertEqual(1, len(item._constraints))
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, EqualsConstraint))
         # expect constraint on y-axis
-        self.assertEquals(2, c.a)
-        self.assertEquals(4, c.b)
+        self.assertEqual(2, c.a)
+        self.assertEqual(4, c.b)
 
 
     def test_vertical_constraint(self):
@@ -55,13 +55,13 @@ class ItemConstraintTestCase(unittest.TestCase):
         p1 = Variable(1), Variable(2)
         p2 = Variable(3), Variable(4)
         item.constraint(vertical=(p1, p2))
-        self.assertEquals(1, len(item._constraints))
+        self.assertEqual(1, len(item._constraints))
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, EqualsConstraint))
         # expect constraint on x-axis
-        self.assertEquals(1, c.a)
-        self.assertEquals(3, c.b)
+        self.assertEqual(1, c.a)
+        self.assertEqual(3, c.b)
 
 
     def test_left_of_constraint(self):
@@ -72,12 +72,12 @@ class ItemConstraintTestCase(unittest.TestCase):
         p1 = Variable(1), Variable(2)
         p2 = Variable(3), Variable(4)
         item.constraint(left_of=(p1, p2))
-        self.assertEquals(1, len(item._constraints))
+        self.assertEqual(1, len(item._constraints))
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, LessThanConstraint))
-        self.assertEquals(1, c.smaller)
-        self.assertEquals(3, c.bigger)
+        self.assertEqual(1, c.smaller)
+        self.assertEqual(3, c.bigger)
 
 
     def test_above_constraint(self):
@@ -88,9 +88,9 @@ class ItemConstraintTestCase(unittest.TestCase):
         p1 = Variable(1), Variable(2)
         p2 = Variable(3), Variable(4)
         item.constraint(above=(p1, p2))
-        self.assertEquals(1, len(item._constraints))
+        self.assertEqual(1, len(item._constraints))
 
         c = item._constraints[0]
         self.assertTrue(isinstance(c, LessThanConstraint))
-        self.assertEquals(2, c.smaller)
-        self.assertEquals(4, c.bigger)
+        self.assertEqual(2, c.smaller)
+        self.assertEqual(4, c.bigger)

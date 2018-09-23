@@ -38,10 +38,10 @@ from __future__ import division
 from __future__ import absolute_import
 
 from builtins import object
+
 __version__ = "$Revision$"
 # $HeadURL$
 
-from operator import isCallable
 from .state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
@@ -75,6 +75,9 @@ class Variable(object):
         self._solver = None
         self._constraints = set()
 
+    def __hash__(self):
+        return hash((self._value, self._strength))
+
     @observed
     def _set_strength(self, strength):
         self._strength = strength
@@ -102,7 +105,6 @@ class Variable(object):
     def set_value(self, value):
         oldval = self._value
         if abs(oldval - value) > EPSILON:
-            #print id(self), oldval, value
             self._value = float(value)
             self.dirty()
 
@@ -396,7 +398,7 @@ class Solver(object):
 
         Example:
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s = Solver()
         >>> c_eq = EquationConstraint(lambda a,b: a+b, a=a, b=b)
@@ -442,7 +444,7 @@ class Solver(object):
 
         Example:
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
         >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
@@ -466,7 +468,6 @@ class Solver(object):
                 constraint._solver_has_projections = True
             v._constraints.add(constraint)
             v._solver = self
-        #print 'added constraint', constraint
         return constraint
 
     @observed
@@ -474,7 +475,7 @@ class Solver(object):
         """
         Remove a constraint from the solver
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
         >>> c = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
@@ -484,7 +485,7 @@ class Solver(object):
         >>> s._marked_cons
         []
         >>> s._constraints
-        set([])
+        set()
 
         Removing a constraint twice has no effect:
 
@@ -515,7 +516,7 @@ class Solver(object):
         The variable in question should be exposed by the constraints
         `constraint.Constraint.variables()` method.
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
         >>> a, b, c = Variable(), Variable(2.0), Variable(4.0)
         >>> eq_a_b = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
@@ -584,7 +585,7 @@ class Solver(object):
         """
         Example:
 
-        >>> from constraint import EquationConstraint
+        >>> from gaphas.constraint import EquationConstraint
         >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
         >>> s = Solver()
         >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))

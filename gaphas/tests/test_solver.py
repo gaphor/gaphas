@@ -1,7 +1,10 @@
 """
 Unit tests for Gaphas' solver.
 """
+from __future__ import print_function
+from __future__ import division
 
+from past.utils import old_div
 import unittest
 from timeit import Timer
 
@@ -104,36 +107,36 @@ class SizeTestCase(unittest.TestCase):
 
         # check everyting is ok on start
         solver.solve()
-        self.assertEquals(0, v1)
-        self.assertEquals(10, v2)
-        self.assertEquals(10, v3)
+        self.assertEqual(0, v1)
+        self.assertEqual(10, v2)
+        self.assertEqual(10, v3)
 
         # change v1 to 2, after solve it should be 0 again due to LT
         # constraint
         v1.value = 2
         solver.solve()
 
-        self.assertEquals(0, v1)
-        self.assertEquals(10, v2)
-        self.assertEquals(10, v3)
+        self.assertEqual(0, v1)
+        self.assertEqual(10, v2)
+        self.assertEqual(10, v3)
 
         # change v3 to 20, after solve v2 will follow thanks to EQ
         # constraint
         v3.value = 20
         solver.solve()
 
-        self.assertEquals(0, v1)
-        self.assertEquals(20, v2)
-        self.assertEquals(20, v3)
+        self.assertEqual(0, v1)
+        self.assertEqual(20, v2)
+        self.assertEqual(20, v3)
 
         # change v3 to 0, after solve it shoul be 10 due to LT.delta = 10,
         # v2 should also be 10 due to EQ constraint
         v3.value = 0
         solver.solve()
 
-        self.assertEquals(0, v1)
-        self.assertEquals(10, v2)
-        self.assertEquals(10, v3)
+        self.assertEqual(0, v1)
+        self.assertEqual(10, v2)
+        self.assertEqual(10, v3)
 
 
 
@@ -152,7 +155,7 @@ c_eq.weakest()""").repeat(repeat=REPEAT, number=NUMBER)
 
         # Print the average of the best 10 runs:
         results.sort()
-        print '[Avg: %gms]' % ((sum(results[:10]) / 10) * 1000)
+        print('[Avg: %gms]' % ((old_div(sum(results[:10]), 10)) * 1000))
 
 
 if __name__ == '__main__':

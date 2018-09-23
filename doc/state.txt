@@ -33,12 +33,12 @@ method pair).
 It works (see how the add method automatically schedules the item for update):
 
     >>> def handler(event):
-    ...     print 'event handled', event
+    ...     print('event handled', event)
     >>> state.observers.add(handler)
     >>> canvas.add(item1)                              # doctest: +ELLIPSIS
-    event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
     >>> canvas.add(item2, parent=item1)                # doctest: +ELLIPSIS
-    event handled (<function add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
     >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
@@ -52,8 +52,8 @@ Therefore some careful crafting of methods may be necessary in order to get the
 right effect (items should be removed in the right order, child first):
 
     >>> canvas.remove(item1)                           # doctest: +ELLIPSIS
-    event handled (<function _remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
-    event handled (<function _remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
+    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
+    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
     >>> canvas.get_all_items()
     []
 
@@ -63,7 +63,7 @@ gaphas/connector.py's Handle class:
     >>> from gaphas.solver import Variable
     >>> var = Variable()
     >>> var.value = 10                                  # doctest: +ELLIPSIS
-    event handled (<function set_value at 0x...>, (Variable(0, 20), 10), {})
+    event handled (<function Variable.set_value at 0x...>, (Variable(0, 20), 10), {})
 
 (this is simply done by observing the setter method).
 
@@ -72,7 +72,7 @@ is present now):
 
     >>> state.observers.remove(handler)
     >>> state.observers                                 # doctest: +ELLIPSIS
-    set([])
+    set()
 
 What should you know:
 
@@ -121,13 +121,13 @@ Handlers for the reverse events should be registered on the subscribers list:
     >>> events = []
     >>> def handler(event):
     ...     events.append(event)
-    ...     print 'event handler', event
+    ...     print('event handler', event)
     >>> state.subscribers.add(handler)
 
 After that, signals can be received of undoable (reverse-)events:
 
     >>> canvas.add(Item())                              # doctest: +ELLIPSIS
-    event handler (<function _remove at ...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.Canvas object at 0x...>})
+    event handler (<function Canvas._remove at ...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <gaphas.item.Item object at 0x...>})
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
 
@@ -139,7 +139,7 @@ The inverse operation is easiest performed by the function ``saveapply()``. Of
 course an inverse operation is emitting a change event too:
 
     >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
-    event handler (<function add at 0x...>, {'item': <gaphas.item.Item object at 0x...>, 'self': <gaphas.canvas.Canvas object at 0x...>, 'parent': None, 'index': 0})
+    event handler (<function Canvas.add at 0x...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <gaphas.item.Item object at 0x...>, 'parent': None, 'index': 0})
     >>> canvas.get_all_items()
     []
 
@@ -154,7 +154,7 @@ registers the property as being reversible.
 
     >>> var = Variable()
     >>> var.value = 10                                  # doctest: +ELLIPSIS
-    event handler (<function set_value at 0x...>, {'self': Variable(0, 20), 'value': 0.0})
+    event handler (<function Variable.set_value at 0x...>, {'self': Variable(0, 20), 'value': 0.0})
     
 Handlers can be simply removed:
 

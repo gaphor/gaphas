@@ -1,4 +1,6 @@
+from __future__ import print_function
 
+from builtins import object
 import unittest
 from gaphas.freehand import FreeHandCairoContext
 import cairo
@@ -9,7 +11,6 @@ class PseudoFile(object):
         self.data = ''
 
     def write(self, data):
-        print data
         self.data = self.data + data
 
 

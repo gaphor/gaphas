@@ -1,4 +1,8 @@
+from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import unittest
 import pickle
 from gaphas.canvas import Canvas
@@ -13,11 +17,11 @@ import gaphas.picklers
 class MyPickler(pickle.Pickler):
 
     def save(self, obj):
-        print 'saving obj', obj, type(obj)
+        print('saving obj', obj, type(obj))
         try:
             return pickle.Pickler.save(self, obj)
-        except pickle.PicklingError, e:
-            print 'Error while pickling', obj, self.dispatch.get(type(obj))
+        except pickle.PicklingError as e:
+            print('Error while pickling', obj, self.dispatch.get(type(obj)))
             raise e
 
 
@@ -149,8 +153,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        import gtk
-        win = gtk.Window()
+        from gi.repository import Gtk
+        win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
 
@@ -176,16 +180,17 @@ class PickleTestCase(unittest.TestCase):
 #        assert line.handles()[0].disconnect
 #        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
 
-        import StringIO
-        f = StringIO.StringIO()
+        import io
+
+        f = io.BytesIO()
         pickler = MyPickler(f)
         pickler.dump(canvas)
         pickled = f.getvalue()
 
         c2 = pickle.loads(pickled)
 
-        import gtk
-        win = gtk.Window()
+        from gi.repository import Gtk
+        win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
         view.show()
@@ -202,8 +207,8 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        import gtk
-        win = gtk.Window()
+        from gi.repository import Gtk
+        win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
 

@@ -42,7 +42,7 @@ from cairo import Matrix
 from gaphas import tree
 from gaphas import solver
 from gaphas import table
-from gaphas.decorators import nonrecursive, async, PRIORITY_HIGH_IDLE
+from gaphas.decorators import nonrecursive, AsyncIO
 from .state import observed, reversible_method, reversible_pair
 
 
@@ -616,7 +616,7 @@ class Canvas(object):
         return bool(self._dirty_items)
 
 
-    @async(single=True, priority=PRIORITY_HIGH_IDLE)
+    @AsyncIO(single=True)
     def update(self):
         """
         Update the canvas, if called from within a gtk-mainloop, the
@@ -802,13 +802,13 @@ class Canvas(object):
         and moving its first handle a bit
 
         >>> e.handles()[0].pos.x += 1
-        >>> map(float, e.handles()[0].pos)
+        >>> list(map(float, e.handles()[0].pos))
         [1.0, 0.0]
 
         After normalization
 
         >>> c._normalize([e])          # doctest: +ELLIPSIS
-        set([<gaphas.item.Element object at ...>])
+        {<gaphas.item.Element object at 0x...>}
         >>> e.handles()
         [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
         """
@@ -936,7 +936,7 @@ class VariableProjection(solver.Projection):
     It's a simple Variable-like class, following the Projection protocol:
 
     >>> def notify_me(val):
-    ...     print 'new value', val
+    ...     print('new value', val)
     >>> p = VariableProjection('var placeholder', 3.0, callback=notify_me)
     >>> p.value
     3.0

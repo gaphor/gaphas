@@ -83,7 +83,7 @@ def dispatch(event, queue):
     Event handlers should have signature: handler(event).
 
     >>> def handler(event):
-    ...     print 'event handled', event
+    ...     print("event handled", event)
     >>> observers.add(handler)
     >>> @observed
     ... def callme():
@@ -95,7 +95,7 @@ def dispatch(event, queue):
     ...     def callme(self):
     ...         pass
     >>> Callme().callme() # doctest: +ELLIPSIS
-    event handled (<function callme at 0x...), {})
+    event handled (<function Callme.callme at 0x...), {})
     >>> observers.remove(handler)
     >>> callme()
     """
@@ -202,10 +202,10 @@ def revert_handler(event):
     >>> reversible_pair(SList.add, SList.remove, \
         bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
     >>> def handler(event):
-    ...     print 'handle', event
+    ...     print('handle', event)
     >>> subscribers.add(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
-    handle (<function remove at 0x...)
+    handle (<function SList.remove at 0x...)
 
     Same goes for properties (more or less):
 
@@ -218,7 +218,7 @@ def revert_handler(event):
     >>> pt.a
     0
     >>> pt.a = 10 # doctest: +ELLIPSIS
-    handle (<function _set_a at 0x...>, {'self': <gaphas.state.PropTest object at 0x...>, 'value': 0})
+    handle (<function PropTest._set_a at 0x...>, {'self': <gaphas.state.PropTest object at 0x...>, 'value': 0})
 
     >>> subscribers.remove(handler)
     """
@@ -262,7 +262,7 @@ def getfunction(func):
     """
     Return the function associated with a class method.
     """
-    if isinstance(func, types.UnboundMethodType):
+    if isinstance(func, types.MethodType):
         return func.__func__
     return func
 

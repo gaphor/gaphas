@@ -7,13 +7,13 @@ class PositionTestCase(unittest.TestCase):
 
     def test_position(self):
         pos = Position((0, 0))
-        self.assertEquals(0, pos.x)
-        self.assertEquals(0, pos.y)
+        self.assertEqual(0, pos.x)
+        self.assertEqual(0, pos.y)
 
     def test_position(self):
         pos = Position((1, 2))
-        self.assertEquals(1, pos.x)
-        self.assertEquals(2, pos.y)
+        self.assertEqual(1, pos.x)
+        self.assertEqual(2, pos.y)
 
     def test_set_xy(self):
         pos = Position((1,2))
@@ -31,7 +31,7 @@ class HandleTestCase(unittest.TestCase):
 
     def test_handle_x_y(self):
         h = Handle()
-        self.assertEquals(0.0, h.x)
-        self.assertEquals(0.0, h.y)
+        self.assertEqual(0.0, h.x)
+        self.assertEqual(0.0, h.y)
 
 # vim: sw=4:et:ai

@@ -307,7 +307,7 @@ class GuidePainter(ItemPaintFocused):
 
         cr = context.cairo
         view = self.view
-        allocation = view.allocation
+        allocation = view.get_allocation()
         w, h = allocation.width, allocation.height
 
         cr.save()

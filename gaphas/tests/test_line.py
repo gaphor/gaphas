@@ -46,7 +46,7 @@ class LineTestCase(TestCaseBase):
         """Test initial ports amount
         """
         line = Line()
-        self.assertEquals(1, len(line.ports()))
+        self.assertEqual(1, len(line.ports()))
 
 
     def test_orthogonal_horizontal_undo(self):
@@ -63,23 +63,23 @@ class LineTestCase(TestCaseBase):
 
         line.orthogonal = True
 
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEqual(2, len(canvas.solver._constraints))
         after_ortho = set(canvas.solver._constraints)
 
         del undo_list[:]
         line.horizontal = True
 
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEqual(2, len(canvas.solver._constraints))
 
         undo()
 
         self.assertFalse(line.horizontal)
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEqual(2, len(canvas.solver._constraints))
 
         line.horizontal = True
 
         self.assertTrue(line.horizontal)
-        self.assertEquals(2, len(canvas.solver._constraints))
+        self.assertEqual(2, len(canvas.solver._constraints))
 
 
     def test_orthogonal_line_undo(self):
@@ -98,14 +98,14 @@ class LineTestCase(TestCaseBase):
         line.orthogonal = True
 
         # check orthogonal constraints
-        self.assertEquals(2, len(canvas.solver._constraints))
-        self.assertEquals(3, len(line.handles()))
+        self.assertEqual(2, len(canvas.solver._constraints))
+        self.assertEqual(3, len(line.handles()))
 
         undo()
 
         self.assertFalse(line.orthogonal)
-        self.assertEquals(0, len(canvas.solver._constraints))
-        self.assertEquals(2, len(line.handles()))
+        self.assertEqual(0, len(canvas.solver._constraints))
+        self.assertEqual(2, len(line.handles()))
 
 
 # vim:sw=4:et

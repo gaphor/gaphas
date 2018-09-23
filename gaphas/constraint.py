@@ -28,14 +28,14 @@ class and implement `Constraint.solve_for(Variable)` method to update
 a variable with appropriate value.
 """
 
-from __future__ import division
 from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
-import operator
 import math
-from .solver import Projection
+
+from gaphas.solver import Projection
 
 
 __version__ = "$Revision$"
@@ -153,7 +153,7 @@ class EqualsConstraint(Constraint):
         a + delta = b
 
     for example
-    >>> from solver import Variable
+    >>> from gaphas.solver import Variable
     >>> a, b = Variable(1.0), Variable(2.0)
     >>> eq = EqualsConstraint(a, b)
     >>> eq.solve_for(a)
@@ -189,7 +189,7 @@ class CenterConstraint(Constraint):
     When solved, the constraint ensures 'center' is located in the
     middle of 'a' and 'b'.
 
-    >>> from solver import Variable
+    >>> from gaphas.solver import Variable
     >>> a, b, center = Variable(1.0), Variable(3.0), Variable()
     >>> eq = CenterConstraint(a, b, center)
     >>> eq.solve_for(a)
@@ -227,7 +227,7 @@ class LessThanConstraint(Constraint):
     that has not been moved lately). Instead the other variable is
     solved.
 
-    >>> from solver import Variable
+    >>> from gaphas.solver import Variable
     >>> a, b = Variable(3.0), Variable(2.0)
     >>> lt = LessThanConstraint(smaller=a, bigger=b)
     >>> lt.solve_for(a)
@@ -277,7 +277,7 @@ class EquationConstraint(Constraint):
     object Calling EquationConstraint.solve_for will solve the
     equation for variable ``arg``, so that the outcome is 0.
 
-    >>> from solver import Variable
+    >>> from gaphas.solver import Variable
     >>> a, b, c = Variable(), Variable(4), Variable(5)
     >>> cons = EquationConstraint(lambda a, b, c: a + b - c, a=a, b=b, c=c)
     >>> cons.solve_for(a)
@@ -418,7 +418,7 @@ class BalanceConstraint(Constraint):
 
     Consider
 
-    >>> from solver import Variable, WEAK
+    >>> from gaphas.solver import Variable, WEAK
     >>> a, b, c = Variable(2.0), Variable(3.0), Variable(2.3, WEAK)
     >>> bc = BalanceConstraint(band=(a,b), v=c)
     >>> c.value = 2.4

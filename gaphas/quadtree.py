@@ -50,11 +50,11 @@ class Quadtree(object):
        <....QuadtreeBucket object at 0x...> (0, 0, 50.0, 50.0)
          0 (0, 0, 10, 10)
          1 (4, 10, 10, 10)
-         10 (40, 10, 10, 10)
          2 (8, 20, 10, 10)
          3 (12, 30, 10, 10)
          4 (16, 40, 10, 10)
          9 (36, 0, 10, 10)
+         10 (40, 10, 10, 10)
        <....QuadtreeBucket object at 0x...> (50.0, 0, 50.0, 50.0)
          13 (52, 40, 10, 10)
          18 (72, 0, 10, 10)
@@ -385,12 +385,12 @@ class QuadtreeBucket(object):
 
 
     def dump(self, indent=''):
-       print(indent, self, self.bounds)
-       indent += '   '
-       for item, bounds in sorted(self.items.items()):
-           print(indent, item, bounds)
-       for bucket in self._buckets:
-           bucket.dump(indent)
+        print(indent, self, self.bounds)
+        indent += '   '
+        for item, bounds in sorted(self.items.items(), key=lambda items: items[1]):
+            print(indent, item, bounds)
+        for bucket in self._buckets:
+            bucket.dump(indent)
 
 
 # vim:sw=4:et:ai
