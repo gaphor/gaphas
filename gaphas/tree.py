@@ -126,7 +126,7 @@ class Tree(object):
         >>> tree.get_children('n1')
         ['n2']
         >>> tree.get_all_children('n1') # doctest: +ELLIPSIS
-        <generator object get_all_children at 0x...>
+        <generator object Tree.get_all_children at 0x...>
         >>> list(tree.get_all_children('n1'))
         ['n2', 'n3']
         """
@@ -147,7 +147,7 @@ class Tree(object):
         >>> tree.get_parent('n3')
         'n2'
         >>> tree.get_ancestors('n3') # doctest: +ELLIPSIS
-        <generator object get_ancestors at 0x...>
+        <generator object Tree.get_ancestors at 0x...>
         >>> list(tree.get_ancestors('n3'))
         ['n2', 'n1']
         >>> list(tree.get_ancestors('n1'))

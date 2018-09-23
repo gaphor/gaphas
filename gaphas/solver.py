@@ -485,7 +485,7 @@ class Solver(object):
         >>> s._marked_cons
         []
         >>> s._constraints
-        set([])
+        set()
 
         Removing a constraint twice has no effect:
 

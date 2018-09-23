@@ -77,7 +77,7 @@ class Table(object):
         >>> s.insert('a', 'b', 'c')
         >>> s.insert(1, 2, 3)
         >>> s.insert('a', 'v', 'd')
-        >>> list(s.query(foo='a'))
+        >>> list(sorted(s.query(foo='a')))
         [C(foo='a', bar='b', baz='c'), C(foo='a', bar='v', baz='d')]
         >>> s.delete('a', 'b', 'c')
         >>> list(s.query(foo='a'))
@@ -86,7 +86,7 @@ class Table(object):
         Query style:
 
         >>> s.insert('a', 'b', 'c')
-        >>> list(s.query(foo='a'))
+        >>> list(sorted(s.query(foo='a')))
         [C(foo='a', bar='b', baz='c'), C(foo='a', bar='v', baz='d')]
         >>> s.delete(foo='a')
         >>> list(s.query(foo='a'))
@@ -134,7 +134,7 @@ class Table(object):
         >>> s.insert('a', 'b', 'c')
         >>> s.insert(1, 2, 3)
         >>> s.insert('a', 'v', 'd')
-        >>> list(s.query(foo='a'))
+        >>> list(sorted(s.query(foo='a')))
         [C(foo='a', bar='b', baz='c'), C(foo='a', bar='v', baz='d')]
         >>> list(s.query(foo='a', bar='v'))
         [C(foo='a', bar='v', baz='d')]

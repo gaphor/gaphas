@@ -95,7 +95,7 @@ def dispatch(event, queue):
     ...     def callme(self):
     ...         pass
     >>> Callme().callme() # doctest: +ELLIPSIS
-    event handled (<function callme at 0x...), {})
+    event handled (<function Callme.callme at 0x...), {})
     >>> observers.remove(handler)
     >>> callme()
     """
@@ -205,7 +205,7 @@ def revert_handler(event):
     ...     print('handle', event)
     >>> subscribers.add(handler)
     >>> sl.add(20) # doctest: +ELLIPSIS
-    handle (<function remove at 0x...)
+    handle (<function SList.remove at 0x...)
 
     Same goes for properties (more or less):
 
@@ -218,7 +218,7 @@ def revert_handler(event):
     >>> pt.a
     0
     >>> pt.a = 10 # doctest: +ELLIPSIS
-    handle (<function _set_a at 0x...>, {'self': <gaphas.state.PropTest object at 0x...>, 'value': 0})
+    handle (<function PropTest._set_a at 0x...>, {'self': <gaphas.state.PropTest object at 0x...>, 'value': 0})
 
     >>> subscribers.remove(handler)
     """
