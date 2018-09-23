@@ -56,7 +56,7 @@ setup(
     install_requires=[
         'decorator >= 3.0.0',
         'simplegeneric >= 0.6',
-        'PyGObject >= 3.27.0',
+        'PyGObject >= 3.26.1',
         'pycairo >= 1.11.0'
     ],
     zip_safe=False,
