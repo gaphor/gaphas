@@ -160,7 +160,7 @@ class GuideMixin(object):
 
     def get_view_dimensions(self):
         try:
-            allocation = self.view.allocation
+            allocation = self.view.get_allocation()
         except AttributeError as e:
             return 0, 0
         return allocation.width, allocation.height
