@@ -104,7 +104,7 @@ class AsyncIO(object):
     it's only executed once.
     """
 
-    def __init__(self, single=False, timeout=0, priority=GObject.PRIORITY_DEFAULT):
+    def __init__(self, single=False, timeout=0, priority=GLib.PRIORITY_DEFAULT):
         self.single = single
         self.timeout = timeout
         self.priority = priority

@@ -512,14 +512,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     __gproperties__ = {
         "hscroll-policy": (Gtk.ScrollablePolicy, "hscroll-policy",
                            "hscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
-                           GObject.PARAM_READWRITE),
+                           GObject.ParamFlags.READWRITE),
         "hadjustment": (Gtk.Adjustment, "hadjustment", "hadjustment",
-                        GObject.PARAM_READWRITE),
+                        GObject.ParamFlags.READWRITE),
         "vscroll-policy": (Gtk.ScrollablePolicy, "vscroll-policy",
                            "vscroll-policy", Gtk.ScrollablePolicy.MINIMUM,
-                           GObject.PARAM_READWRITE),
+                           GObject.ParamFlags.READWRITE),
         "vadjustment": (Gtk.Adjustment, "vadjustment", "vadjustment",
-                        GObject.PARAM_READWRITE),
+                        GObject.ParamFlags.READWRITE),
     }
 
     def __init__(self, canvas=None):
