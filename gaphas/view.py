@@ -241,7 +241,7 @@ class View(object):
             v2i = self.get_matrix_v2i(item)
             ix, iy = v2i.transform_point(*pos)
             item_distance = item.point((ix, iy))
-            if item_distance and item_distance < 0.5:
+            if item_distance < 0.5:
                 return item
         return None
 
