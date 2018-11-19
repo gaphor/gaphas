@@ -7,7 +7,7 @@ functions (or bound methods) registered in the 'observers' set.  Use
 `observers.add()` and `observers.remove()` to add/remove handlers.
 
 This module also contains a second layer: a state inverser. Instead of
-emiting the invoked method, it emits a signal (callable, \*\*kwargs)
+emiting the invoked method, it emits a signal (callable, \\*\\*kwargs)
 that can be applied to revert the state of the object to the point
 before the method invokation.
 
@@ -15,7 +15,6 @@ For this to work the revert_handler has to be added to the observers
 set::
 
     gaphas.state.observers.add(gaphas.state.revert_handler)
-
 
 """
 
@@ -112,7 +111,7 @@ def reversible_function(func, reverse, bind={}):
     """
     global _reverse
     func = getfunction(func)
-    _reverse[func] = (reverse, inspect.getargspec(reverse), bind)
+    _reverse[func] = (reverse, inspect.getfullargspec(reverse), bind)
 
 
 reversible_method = reversible_function
@@ -130,8 +129,8 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     # We need the function, since that's what's in the events
     func1 = getfunction(func1)
     func2 = getfunction(func2)
-    _reverse[func1] = (func2, inspect.getargspec(func2), bind2)
-    _reverse[func2] = (func1, inspect.getargspec(func1), bind1)
+    _reverse[func1] = (func2, inspect.getfullargspec(func2), bind2)
+    _reverse[func2] = (func1, inspect.getfullargspec(func1), bind1)
 
 
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
@@ -151,7 +150,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
     # TODO! handle fdel
     if fset:
-        spec = inspect.getargspec(fset)
+        spec = inspect.getfullargspec(fset)
         argnames = spec[0]
         assert len(argnames) == 2
 
@@ -224,7 +223,7 @@ def revert_handler(event):
     """
     global _reverse
     func, args, kwargs = event
-    spec = inspect.getargspec(func)
+    spec = inspect.getfullargspec(func)
     reverse, revspec, bind = _reverse.get(func, (None, None, {}))
     if not reverse:
         return
@@ -246,9 +245,9 @@ def saveapply(func, kw):
     """
     Do apply a set of keywords to a method or function.
     The function names should be known at meta-level, since arguments
-    are applied as func(\*\*kwargs).
+    are applied as func(\\*\\*kwargs).
     """
-    spec = inspect.getargspec(func)
+    spec = inspect.getfullargspec(func)
     argnames = list(spec[0])
     if spec[1]: argnames.append(spec[1])
     if spec[2]: argnames.append(spec[2])
