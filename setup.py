@@ -49,7 +49,7 @@ setup(
     license='GNU Library General Public License (LGPL, see COPYING)',
     packages=find_packages(exclude=['ez_setup']),
     setup_requires=[
-        'nose >= 0.10.4',
+        'pytest-runner',
         'setuptools-git >= 0.3.4'
     ],
 
@@ -65,5 +65,7 @@ setup(
     },
     entry_points={
     },
-    test_suite='nose.collector',
+    tests_require = [
+        'pytest'
+    ],
 )
