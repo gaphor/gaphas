@@ -76,7 +76,7 @@ class Variable(object):
         self._constraints = set()
 
     def __hash__(self):
-        return hash((self._value, self._strength))
+        return hash(id(self))
 
     @observed
     def _set_strength(self, strength):
