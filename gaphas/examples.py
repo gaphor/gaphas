@@ -217,6 +217,14 @@ class Circle(Item):
         h1.movable = False
 
 
+    def point(self, pos):
+        h1, _ = self._handles
+        p1 = h1.pos
+        x, y = pos
+        dist = ((x - p1.x) ** 2 + (y - p1.y) ** 2) ** 0.5
+        return dist - self.radius
+
+
     def draw(self, context):
         cr = context.cairo
         path_ellipse(cr, 0, 0, 2 * self.radius, 2 * self.radius)
