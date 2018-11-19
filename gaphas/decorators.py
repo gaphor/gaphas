@@ -12,9 +12,9 @@ import threading
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GObject, GLib
+from gi.repository import Gtk, GLib
 
-# from GObject import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
+# from GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
 #         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 
 
@@ -44,9 +44,9 @@ class AsyncIO(object):
     Simple method:
 
     >>> class A(object):
-    ...     @AsyncIO(single=False, priority=GObject.PRIORITY_HIGH)
+    ...     @AsyncIO(single=False, priority=GLib.PRIORITY_HIGH)
     ...     def a(self):
-    ...         print('idle-a', GObject.main_depth())
+    ...         print('idle-a', GLib.main_depth())
 
     Methods can also set single mode to True (the method is only
     scheduled one).
@@ -54,17 +54,17 @@ class AsyncIO(object):
     >>> class B(object):
     ...     @AsyncIO(single=True)
     ...     def b(self):
-    ...         print('idle-b', GObject.main_depth())
+    ...         print('idle-b', GLib.main_depth())
 
     Also a timeout property can be provided:
 
     >>> class C(object):
     ...     @AsyncIO(timeout=50)
     ...     def c1(self):
-    ...         print('idle-c1', GObject.main_depth())
+    ...         print('idle-c1', GLib.main_depth())
     ...     @AsyncIO(single=True, timeout=60)
     ...     def c2(self):
-    ...         print('idle-c2', GObject.main_depth())
+    ...         print('idle-c2', GLib.main_depth())
 
     This is a helper function used to test classes A and B from within
     the GTK+ main loop:
@@ -85,8 +85,8 @@ class AsyncIO(object):
     ...     a.a()
     ...     b.b()
     ...     print("after")
-    ...     GObject.timeout_add(100, Gtk.main_quit)
-    >>> GObject.timeout_add(1, delayed) > 0 # timeout id may vary
+    ...     GLib.timeout_add(100, Gtk.main_quit)
+    >>> GLib.timeout_add(1, delayed) > 0 # timeout id may vary
     True
     >>> from gi.repository import Gtk
     >>> Gtk.main()
@@ -112,9 +112,9 @@ class AsyncIO(object):
     def source(self, func):
         timeout = self.timeout
         if timeout > 0:
-            s = GObject.Timeout(timeout)
+            s = GLib.Timeout(timeout)
         else:
-            s = GObject.Idle()
+            s = GLib.Idle()
         s.set_callback(func)
         s.priority = self.priority
         return s
