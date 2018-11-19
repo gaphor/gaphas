@@ -714,7 +714,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             super(GtkView, self).queue_draw_area(int(x), int(y), int(w+1), int(h+1))
         except OverflowError:
             # Okay, now the zoom factor is very large or something
-            a = self.allocation
+            a = self.get_allocation()
             super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
 
