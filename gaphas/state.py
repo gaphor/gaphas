@@ -19,9 +19,16 @@ set::
 """
 
 from builtins import zip
-import types, inspect
-import threading
+from types import MethodType
+from threading import Lock
 from decorator import decorator
+
+try:
+    # Python 3:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    # Python 2:
+    from inspect import getargspec
 
 # This string is added to each docstring in order to denote is's observed
 #OBSERVED_DOCSTRING = \
@@ -39,12 +46,11 @@ DISPATCH_BY_DEFAULT = True
 # saveapply(func, keywords) for those functions
 subscribers = set()
 
-
 # Subscribe to low-level change events:
 observers = set()
 
 # Perform locking (should be per thread?).
-mutex = threading.Lock()
+mutex = Lock()
 
 def observed(func):
     """
@@ -111,7 +117,7 @@ def reversible_function(func, reverse, bind={}):
     """
     global _reverse
     func = getfunction(func)
-    _reverse[func] = (reverse, inspect.getfullargspec(reverse), bind)
+    _reverse[func] = (reverse, getargspec(reverse), bind)
 
 
 reversible_method = reversible_function
@@ -129,8 +135,8 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     # We need the function, since that's what's in the events
     func1 = getfunction(func1)
     func2 = getfunction(func2)
-    _reverse[func1] = (func2, inspect.getfullargspec(func2), bind2)
-    _reverse[func2] = (func1, inspect.getfullargspec(func1), bind1)
+    _reverse[func1] = (func2, getargspec(func2), bind2)
+    _reverse[func2] = (func1, getargspec(func1), bind1)
 
 
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
@@ -150,7 +156,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
     # TODO! handle fdel
     if fset:
-        spec = inspect.getfullargspec(fset)
+        spec = getargspec(fset)
         argnames = spec[0]
         assert len(argnames) == 2
 
@@ -223,7 +229,7 @@ def revert_handler(event):
     """
     global _reverse
     func, args, kwargs = event
-    spec = inspect.getfullargspec(func)
+    spec = getargspec(func)
     reverse, revspec, bind = _reverse.get(func, (None, None, {}))
     if not reverse:
         return
@@ -247,7 +253,7 @@ def saveapply(func, kw):
     The function names should be known at meta-level, since arguments
     are applied as func(\\*\\*kwargs).
     """
-    spec = inspect.getfullargspec(func)
+    spec = getargspec(func)
     argnames = list(spec[0])
     if spec[1]: argnames.append(spec[1])
     if spec[2]: argnames.append(spec[2])
@@ -261,7 +267,7 @@ def getfunction(func):
     """
     Return the function associated with a class method.
     """
-    if isinstance(func, types.MethodType):
+    if isinstance(func, MethodType):
         return func.__func__
     return func
 
