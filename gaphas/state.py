@@ -31,7 +31,7 @@ if six.PY2:
     from inspect import getargspec
 
 # This string is added to each docstring in order to denote is's observed
-#OBSERVED_DOCSTRING = \
+# OBSERVED_DOCSTRING = \
 #        '\n\n        This method is @observed. See gaphas.state for extra info.\n'
 
 # Tell @observed to dispatch invokation messages by default
@@ -52,6 +52,7 @@ observers = set()
 # Perform locking (should be per thread?).
 mutex = Lock()
 
+
 def observed(func):
     """
     Simple observer, dispatches events to functions registered in the
@@ -66,6 +67,7 @@ def observed(func):
     invoked.  This is an important feature, esp. for the reverter
     code.
     """
+
     def wrapper(func, *args, **kwargs):
         o = func.__observer__
         acquired = mutex.acquire(False)
@@ -76,6 +78,7 @@ def observed(func):
         finally:
             if acquired:
                 mutex.release()
+
     dec = decorator(wrapper)(func)
 
     func.__observer__ = dec
@@ -104,7 +107,8 @@ def dispatch(event, queue):
     >>> observers.remove(handler)
     >>> callme()
     """
-    for s in queue: s(event)
+    for s in queue:
+        s(event)
 
 
 _reverse = dict()
@@ -162,8 +166,11 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
         argself, argvalue = argnames
         func = getfunction(fset)
-        b = { argvalue: eval("lambda %(self)s: fget(%(self)s)" % {'self': argself },
-                    {'fget': fget}) }
+        b = {
+            argvalue: eval(
+                "lambda %(self)s: fget(%(self)s)" % {"self": argself}, {"fget": fget}
+            )
+        }
         b.update(bind)
         _reverse[func] = (func, spec, b)
 
@@ -239,13 +246,16 @@ def revert_handler(event):
     for arg, binding in list(bind.items()):
         kw[arg] = saveapply(binding, kw)
     argnames = list(revspec[0])
-    if spec[1]: argnames.append(revspec[1])
-    if spec[2]: argnames.append(revspec[2])
+    if spec[1]:
+        argnames.append(revspec[1])
+    if spec[2]:
+        argnames.append(revspec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
 
     dispatch((reverse, kwargs), queue=subscribers)
+
 
 def saveapply(func, kw):
     """
@@ -255,8 +265,10 @@ def saveapply(func, kw):
     """
     spec = getargspec(func)
     argnames = list(spec[0])
-    if spec[1]: argnames.append(spec[1])
-    if spec[2]: argnames.append(spec[2])
+    if spec[1]:
+        argnames.append(spec[1])
+    if spec[2]:
+        argnames.append(spec[2])
     kwargs = {}
     for arg in argnames:
         kwargs[arg] = kw.get(arg)

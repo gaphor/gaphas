@@ -1,4 +1,3 @@
-
 import unittest
 from gaphas.item import Line
 from gaphas.canvas import Canvas
@@ -9,8 +8,10 @@ from gaphas.segment import Segment
 undo_list = []
 redo_list = []
 
+
 def undo_handler(event):
     undo_list.append(event)
+
 
 def undo():
     apply_me = list(undo_list)
@@ -22,11 +23,11 @@ def undo():
     del undo_list[:]
 
 
-
 class TestCaseBase(unittest.TestCase):
     """
     Abstract test case class with undo support.
     """
+
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
@@ -34,7 +35,6 @@ class TestCaseBase(unittest.TestCase):
     def tearDown(self):
         state.observers.remove(state.revert_handler)
         state.subscribers.remove(undo_handler)
-
 
 
 class LineTestCase(TestCaseBase):
@@ -47,7 +47,6 @@ class LineTestCase(TestCaseBase):
         """
         line = Line()
         self.assertEqual(1, len(line.ports()))
-
 
     def test_orthogonal_horizontal_undo(self):
         """Test orthogonal line constraints bug (#107)
@@ -80,7 +79,6 @@ class LineTestCase(TestCaseBase):
 
         self.assertTrue(line.horizontal)
         self.assertEqual(2, len(canvas.solver._constraints))
-
 
     def test_orthogonal_line_undo(self):
         """Test orthogonal line undo

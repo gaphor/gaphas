@@ -5,6 +5,7 @@ Simple class containing the tree structure for the canvas items.
 from builtins import map
 from builtins import object
 from builtins import range
+
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -26,10 +27,10 @@ class Tree(object):
         self._nodes = []
 
         # Per entry a list of children is maintained.
-        self._children = { None: [] }
+        self._children = {None: []}
 
         # For easy and fast lookups, also maintain a child -> parent mapping
-        self._parents = { }
+        self._parents = {}
 
     nodes = property(lambda s: list(s._nodes))
 
@@ -112,7 +113,7 @@ class Tree(object):
         siblings = self._children[parent]
         index = siblings.index(node) - 1
         if index < 0:
-            raise IndexError('list index out of range')
+            raise IndexError("list index out of range")
         return siblings[index]
 
     def get_all_children(self, node):
@@ -209,7 +210,7 @@ class Tree(object):
         if index_key:
             return sorted(nodes, key=attrgetter(index_key), reverse=reverse)
         else:
-            raise NotImplemented('index_key should be provided.')
+            raise NotImplemented("index_key should be provided.")
 
     def _add_to_nodes(self, node, parent, index=None):
         """
@@ -222,7 +223,7 @@ class Tree(object):
             atnode = siblings[index]
         except (TypeError, IndexError):
             index = len(siblings)
-            #self._add_to_nodes(node, parent)
+            # self._add_to_nodes(node, parent)
             if parent:
                 try:
                     next_uncle = self.get_next_sibling(parent)
@@ -237,7 +238,6 @@ class Tree(object):
                 nodes.append(node)
         else:
             nodes.insert(nodes.index(atnode), node)
-
 
     def _add(self, node, parent=None, index=None):
         """
@@ -259,7 +259,6 @@ class Tree(object):
         if parent:
             self._parents[node] = parent
 
-
     def add(self, node, parent=None, index=None):
         """
         Add node to the tree. parent is the parent node, which may be
@@ -269,7 +268,6 @@ class Tree(object):
         """
         self._add(node, parent, index)
         self._children[node] = []
-
 
     def _remove(self, node):
         # Remove from parent item

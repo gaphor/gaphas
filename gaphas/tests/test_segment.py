@@ -31,7 +31,7 @@ class SegmentTestCase(unittest.TestCase):
         except TypeError as e:
             pass
         else:
-            assert False, 'Should not be reached'
+            assert False, "Should not be reached"
 
     def test_segment(self):
         """
@@ -70,6 +70,7 @@ class TestCaseBase(unittest.TestCase):
     """
     Abstract test case class with undo support.
     """
+
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
@@ -80,12 +81,11 @@ class TestCaseBase(unittest.TestCase):
         state.subscribers.remove(undo_handler)
 
 
-
-
 class LineSplitTestCase(TestCaseBase):
     """
     Tests for line splitting.
     """
+
     def test_split_single(self):
         """Test single line splitting
         """
@@ -120,7 +120,6 @@ class LineSplitTestCase(TestCaseBase):
         self.assertEqual(h2.pos, p1.end)
         self.assertEqual(h2.pos, p2.start)
         self.assertEqual(h3.pos, p2.end)
-
 
     def test_split_multiple(self):
         """Test multiple line splitting
@@ -166,7 +165,6 @@ class LineSplitTestCase(TestCaseBase):
         self.assertEqual(h4.pos, p4.start)
         self.assertEqual(h5.pos, p4.end)
 
-
     def test_ports_after_split(self):
         """Test ports removal after split
         """
@@ -187,7 +185,6 @@ class LineSplitTestCase(TestCaseBase):
         segment.split_segment(0)
         self.assertFalse(old_ports[0] in self.line.ports())
         self.assertEqual(old_ports[1], self.line.ports()[2])
-
 
     def test_constraints_after_split(self):
         """Test if constraints are recreated after line split
@@ -210,7 +207,6 @@ class LineSplitTestCase(TestCaseBase):
         self.assertEqual(h1.pos, cinfo.constraint._line[0]._point)
         self.assertEqual(h2.pos, cinfo.constraint._line[1]._point)
 
-
     def test_split_undo(self):
         """Test line splitting undo
         """
@@ -230,7 +226,6 @@ class LineSplitTestCase(TestCaseBase):
         undo()
         self.assertEqual(2, len(self.line.handles()))
         self.assertEqual(1, len(self.line.ports()))
-
 
     def test_orthogonal_line_split(self):
         """Test orthogonal line splitting
@@ -255,7 +250,6 @@ class LineSplitTestCase(TestCaseBase):
         self.assertEqual(4, len(self.line.handles()))
         self.assertEqual(3, len(self.line.ports()))
 
-
     def test_params_errors(self):
         """Test parameter error exceptions
         """
@@ -273,7 +267,6 @@ class LineSplitTestCase(TestCaseBase):
         # can't split into one or less segment :)
         segment = Segment(line, self.view)
         self.assertRaises(ValueError, segment.split_segment, 0, 1)
-
 
 
 class LineMergeTestCase(TestCaseBase):
@@ -316,7 +309,6 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEqual((0, 0), port.start.pos)
         self.assertEqual((20, 0), port.end.pos)
 
-
     def test_constraints_after_merge(self):
         """Test if constraints are recreated after line merge
         """
@@ -326,11 +318,11 @@ class LineMergeTestCase(TestCaseBase):
         self.canvas.add(line2)
         head = line2.handles()[0]
 
-        #conn = Connector(line2, head)
-        #sink = conn.glue((25, 25))
-        #assert sink is not None
+        # conn = Connector(line2, head)
+        # sink = conn.glue((25, 25))
+        # assert sink is not None
 
-        #conn.connect(sink)
+        # conn.connect(sink)
 
         self.tool.connect(line2, head, (25, 25))
         cinfo = self.canvas.get_connection(head)
@@ -350,7 +342,6 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEqual(cinfo.constraint._line[0]._point, h1.pos)
         self.assertEqual(cinfo.constraint._line[1]._point, h2.pos)
         self.assertFalse(c1 == cinfo.constraint)
-
 
     def test_merge_multiple(self):
         """Test multiple line merge
@@ -377,7 +368,6 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEqual((0, 0), port.start.pos)
         self.assertEqual((20, 16), port.end.pos)
 
-
     def test_merge_undo(self):
         """Test line merging undo
         """
@@ -403,7 +393,6 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEqual(3, len(self.line.handles()))
         self.assertEqual(2, len(self.line.ports()))
 
-
     def test_orthogonal_line_merge(self):
         """Test orthogonal line merging
         """
@@ -427,7 +416,6 @@ class LineMergeTestCase(TestCaseBase):
         self.assertEqual(4 + 2, len(self.canvas.solver._constraints))
         self.assertEqual(3, len(self.line.handles()))
         self.assertEqual(2, len(self.line.ports()))
-
 
     def test_params_errors(self):
         """Test parameter error exceptions
@@ -478,13 +466,11 @@ class LineMergeTestCase(TestCaseBase):
 
 
 class SegmentHandlesTest(unittest.TestCase):
-
     def setUp(self):
         self.canvas = Canvas()
         self.line = Line()
         self.canvas.add(self.line)
         self.view = View(self.canvas)
-
 
     def testHandleFinder(self):
         finder = HandleFinder(self.line, self.view)

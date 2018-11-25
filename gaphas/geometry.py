@@ -11,6 +11,7 @@ from __future__ import division
 
 from builtins import object
 from past.utils import old_div
+
 __version__ = "$Revision$"
 # $HeadURL$
 
@@ -64,7 +65,8 @@ class Rectangle(object):
         """
         """
         width = x1 - self.x
-        if width < 0: width = 0
+        if width < 0:
+            width = 0
         self.width = width
 
     x1 = property(lambda s: s.x + s.width, _set_x1)
@@ -73,7 +75,8 @@ class Rectangle(object):
         """
         """
         height = y1 - self.y
-        if height < 0: height = 0
+        if height < 0:
+            height = 0
         self.height = height
 
     y1 = property(lambda s: s.y + s.height, _set_y1)
@@ -96,8 +99,14 @@ class Rectangle(object):
         Rectangle(5, 7, 20, 25)
         """
         if self:
-            return '%s(%g, %g, %g, %g)' % (self.__class__.__name__, self.x, self.y, self.width, self.height)
-        return '%s()' % self.__class__.__name__
+            return "%s(%g, %g, %g, %g)" % (
+                self.__class__.__name__,
+                self.x,
+                self.y,
+                self.width,
+                self.height,
+            )
+        return "%s()" % self.__class__.__name__
 
     def __iter__(self):
         """
@@ -124,11 +133,13 @@ class Rectangle(object):
         return self.width > 0 and self.height > 0
 
     def __eq__(self, other):
-        return (isinstance(self, type(other))) \
-                and self.x == other.x \
-                and self.y == other.y \
-                and self.width == other.width \
-                and self.height == self.height
+        return (
+            (isinstance(self, type(other)))
+            and self.x == other.x
+            and self.y == other.y
+            and self.width == other.width
+            and self.height == self.height
+        )
 
     def __add__(self, obj):
         """
@@ -160,7 +171,10 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError("Can only add Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
+            raise TypeError(
+                "Can only add Rectangle or tuple (x, y, width, height), not %s."
+                % repr(obj)
+            )
         x1, y1 = x + width, y + height
         if self:
             ox1, oy1 = self.x + self.width, self.y + self.height
@@ -200,7 +214,10 @@ class Rectangle(object):
         try:
             x, y, width, height = obj
         except ValueError:
-            raise TypeError("Can only substract Rectangle or tuple (x, y, width, height), not %s." % repr(obj))
+            raise TypeError(
+                "Can only substract Rectangle or tuple (x, y, width, height), not %s."
+                % repr(obj)
+            )
         x1, y1 = x + width, y + height
 
         if self:
@@ -250,12 +267,14 @@ class Rectangle(object):
                 x, y = obj
                 x1, y1 = obj
             except ValueError:
-                raise TypeError("Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s." % repr(obj))
-        return x >= self.x and x1 <= self.x1 and \
-               y >= self.y and y1 <= self.y1
+                raise TypeError(
+                    "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s."
+                    % repr(obj)
+                )
+        return x >= self.x and x1 <= self.x1 and y >= self.y and y1 <= self.y1
 
 
-def distance_point_point(point1, point2=(0., 0.)):
+def distance_point_point(point1, point2=(0.0, 0.0)):
     """
     Return the distance from point ``point1`` to ``point2``.
 
@@ -264,10 +283,10 @@ def distance_point_point(point1, point2=(0., 0.)):
     """
     dx = point1[0] - point2[0]
     dy = point1[1] - point2[1]
-    return sqrt(dx*dx + dy*dy)
+    return sqrt(dx * dx + dy * dy)
 
 
-def distance_point_point_fast(point1, point2=(0., 0.)):
+def distance_point_point_fast(point1, point2=(0.0, 0.0)):
     """
     Return the distance from point ``point1`` to ``point2``. This
     version is faster than ``distance_point_point()``, but less
@@ -362,14 +381,13 @@ def point_on_rectangle(rect, point, border=False):
 
     if x_inside and y_inside:
         # Find point on side closest to the point
-        if min(abs(rx - px), abs(rx + rw - px)) > \
-           min(abs(ry - py), abs(ry + rh - py)):
-            if py < ry + old_div(rh, 2.):
+        if min(abs(rx - px), abs(rx + rw - px)) > min(abs(ry - py), abs(ry + rh - py)):
+            if py < ry + old_div(rh, 2.0):
                 py = ry
             else:
                 py = ry + rh
         else:
-            if px < rx + old_div(rw, 2.):
+            if px < rx + old_div(rw, 2.0):
                 px = rx
             else:
                 px = rx + rw
@@ -421,8 +439,10 @@ def distance_line_point(line_start, line_end, point):
         # Projection is on the line. multiply the line_end with the projlen
         # factor to obtain the point on the line.
         proj = line_end[0] * projlen, line_end[1] * projlen
-        return distance_point_point((proj[0] - point[0], proj[1] - point[1])),\
-               (line_start[0] + proj[0], line_start[1] + proj[1])
+        return (
+            distance_point_point((proj[0] - point[0], proj[1] - point[1])),
+            (line_start[0] + proj[0], line_start[1] + proj[1]),
+        )
 
 
 def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
@@ -492,9 +512,9 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     x3, y3 = line2_start
     x4, y4 = line2_end
 
-    #long a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
-    #long r1, r2, r3, r4;         /* 'Sign' values */
-    #long denom, offset, num;     /* Intermediate values */
+    # long a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
+    # long r1, r2, r3, r4;         /* 'Sign' values */
+    # long denom, offset, num;     /* Intermediate values */
 
     # Compute a1, b1, c1, where line joining points 1 and 2
     # is "a1 x  +  b1 y  +  c1  =  0".
@@ -512,7 +532,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # same side of line 1, the line segments do not intersect.
 
     if r3 and r4 and (r3 * r4) >= 0:
-        return None # ( DONT_INTERSECT )
+        return None  # ( DONT_INTERSECT )
 
     # Compute a2, b2, c2
 
@@ -529,14 +549,14 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # on same side of second line segment, the line segments do
     # not intersect.
 
-    if r1 and r2 and (r1 * r2) >= 0: #SAME_SIGNS( r1, r2 ))
-        return None # ( DONT_INTERSECT )
+    if r1 and r2 and (r1 * r2) >= 0:  # SAME_SIGNS( r1, r2 ))
+        return None  # ( DONT_INTERSECT )
 
     # Line segments intersect: compute intersection point.
 
     denom = a1 * b2 - a2 * b1
     if not denom:
-        return None # ( COLLINEAR )
+        return None  # ( COLLINEAR )
     offset = old_div(abs(denom), 2)
 
     # The denom/2 is to get rounding instead of truncating.  It
@@ -544,10 +564,10 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     # sign of the numerator.
 
     num = b1 * c2 - b2 * c1
-    x = old_div(( (num < 0) and (num - offset) or (num + offset) ), denom)
+    x = old_div(((num < 0) and (num - offset) or (num + offset)), denom)
 
     num = a2 * c1 - a1 * c2
-    y = old_div(( (num < 0) and (num - offset) or (num + offset) ), denom)
+    y = old_div(((num < 0) and (num - offset) or (num + offset)), denom)
 
     return x, y
 
@@ -587,8 +607,8 @@ def rectangle_clip(recta, rectb):
     bx, by, bw, bh = rectb
     x = max(ax, bx)
     y = max(ay, by)
-    w = min(ax +aw, bx + bw) - x
-    h = min(ay +ah, by + bh) - y
+    w = min(ax + aw, bx + bw) - x
+    h = min(ay + ah, by + bh) - y
     if w < 0 or h < 0:
         return None
     return (x, y, w, h)

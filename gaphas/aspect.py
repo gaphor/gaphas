@@ -139,12 +139,7 @@ HandleSelection = generic(ItemHandleSelection)
 
 @HandleSelection.when_type(Element)
 class ElementHandleSelection(ItemHandleSelection):
-    CURSORS = (
-        'nw-resize',
-        'ne-resize',
-        'se-resize',
-        'sw-resize',
-    )
+    CURSORS = ("nw-resize", "ne-resize", "se-resize", "sw-resize")
 
     def select(self):
         index = self.item.handles().index(self.handle)
@@ -158,7 +153,6 @@ class ElementHandleSelection(ItemHandleSelection):
 
         cursor = Gdk.Cursor(DEFAULT_CURSOR)
         self.view.get_window().set_cursor(cursor)
-
 
 
 class ItemHandleInMotion(object):
@@ -217,8 +211,9 @@ class ItemHandleInMotion(object):
         if not handle.connectable:
             return None
 
-        connectable, port, glue_pos = \
-                view.get_port_at_point(pos, distance=distance, exclude=(item,))
+        connectable, port, glue_pos = view.get_port_at_point(
+            pos, distance=distance, exclude=(item,)
+        )
 
         # check if item and found item can be connected on closest port
         if port is not None:
@@ -241,7 +236,7 @@ HandleInMotion = generic(ItemHandleInMotion)
 
 class ItemConnector(object):
 
-    GLUE_DISTANCE = 10 # Glue distance in view points
+    GLUE_DISTANCE = 10  # Glue distance in view points
 
     def __init__(self, item, handle):
         self.item = item
@@ -283,7 +278,6 @@ class ItemConnector(object):
 
         self.connect_handle(sink)
 
-
     def connect_handle(self, sink, callback=None):
         """
         Create constraint between handle of a line and port of
@@ -301,9 +295,9 @@ class ItemConnector(object):
 
         constraint = sink.port.constraint(canvas, item, handle, sink.item)
 
-        canvas.connect_item(item, handle, sink.item, sink.port,
-            constraint, callback=callback)
-
+        canvas.connect_item(
+            item, handle, sink.item, sink.port, constraint, callback=callback
+        )
 
     def disconnect(self):
         """
@@ -347,6 +341,7 @@ ConnectionSink = generic(ItemConnectionSink)
 ##
 ## Painter aspects
 ##
+
 
 class ItemPaintFocused(object):
     """

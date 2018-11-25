@@ -15,7 +15,6 @@ from gaphas.tool import HoverTool
 
 
 class ViewTestCase(unittest.TestCase):
-
     def test_bounding_box_calculations(self):
         """
         A view created before and after the canvas is populated should contain
@@ -30,13 +29,13 @@ class ViewTestCase(unittest.TestCase):
         window1.show_all()
 
         box = Box()
-        box.matrix = (1.0, 0.0, 0.0, 1, 10,10)
+        box.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
         canvas.add(box)
 
         line = Line()
         line.fyzzyness = 1
         line.handles()[1].pos = (30, 30)
-        #line.split_segment(0, 3)
+        # line.split_segment(0, 3)
         line.matrix.translate(30, 60)
         canvas.add(line)
 
@@ -52,8 +51,18 @@ class ViewTestCase(unittest.TestCase):
         try:
             assert view2.get_item_bounding_box(box)
             assert view1.get_item_bounding_box(box)
-            assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(box), '%s != %s' % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
-            assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(line), '%s != %s' % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
+            assert view1.get_item_bounding_box(box) == view2.get_item_bounding_box(
+                box
+            ), (
+                "%s != %s"
+                % (view1.get_item_bounding_box(box), view2.get_item_bounding_box(box))
+            )
+            assert view1.get_item_bounding_box(line) == view2.get_item_bounding_box(
+                line
+            ), (
+                "%s != %s"
+                % (view1.get_item_bounding_box(line), view2.get_item_bounding_box(line))
+            )
         finally:
             window1.destroy()
             window2.destroy()
@@ -80,7 +89,12 @@ class ViewTestCase(unittest.TestCase):
             Gtk.main_iteration()
 
         assert len(view._qtree._ids) == 1
-        assert not view._qtree._bucket.bounds == (0, 0, 0, 0), view._qtree._bucket.bounds
+        assert not view._qtree._bucket.bounds == (
+            0,
+            0,
+            0,
+            0,
+        ), view._qtree._bucket.bounds
 
         assert view.get_item_at_point((10, 10)) is box
         assert view.get_item_at_point((60, 10)) is None
@@ -98,7 +112,7 @@ class ViewTestCase(unittest.TestCase):
         box.min_width = 20
         box.min_height = 30
         box.matrix.translate(20, 20)
-        box.matrix.rotate(old_div(math.pi,1.5))
+        box.matrix.rotate(old_div(math.pi, 1.5))
         canvas.add(box)
 
         i, h = view.get_handle_at_point((20, 20))
@@ -116,7 +130,7 @@ class ViewTestCase(unittest.TestCase):
         box.min_width = 20
         box.min_height = 30
         box.matrix.translate(20, 20)
-        box.matrix.rotate(old_div(math.pi,2))
+        box.matrix.rotate(old_div(math.pi, 2))
         canvas.add(box)
 
         p = canvas.get_matrix_i2c(box).transform_point(0, 20)
@@ -208,8 +222,8 @@ class ViewTestCase(unittest.TestCase):
         box = Box()
         canvas.add(box)
 
-        assert hasattr(box, '_matrix_i2v')
-        assert hasattr(box, '_matrix_v2i')
+        assert hasattr(box, "_matrix_i2v")
+        assert hasattr(box, "_matrix_v2i")
 
         assert box._matrix_i2v[view]
         assert box._matrix_v2i[view]
@@ -252,7 +266,7 @@ class ViewTestCase(unittest.TestCase):
         assert sc.get_vadjustment() is view.vadjustment
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 
 # vim:sw=4:et:ai
