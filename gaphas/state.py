@@ -19,15 +19,15 @@ set::
 """
 
 from builtins import zip
-from types import MethodType
 from threading import Lock
+from types import MethodType
+
+import six
 from decorator import decorator
 
-try:
-    # Python 3:
+if six.PY3:
     from inspect import getfullargspec as getargspec
-except ImportError:
-    # Python 2:
+if six.PY2:
     from inspect import getargspec
 
 # This string is added to each docstring in order to denote is's observed
@@ -268,7 +268,10 @@ def getfunction(func):
     Return the function associated with a class method.
     """
     if isinstance(func, MethodType):
-        return func.__func__
+        if six.PY2:
+            return func.__func__
+        if six.PY3:
+            return func
     return func
 
 

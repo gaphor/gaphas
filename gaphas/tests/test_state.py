@@ -1,7 +1,10 @@
-from builtins import object
 import unittest
+from builtins import object
+
+import six
 
 from gaphas.state import reversible_pair, observed, _reverse
+
 
 class SList(object):
     def __init__(self):
@@ -21,5 +24,9 @@ class StateTestCase(unittest.TestCase):
         reversible_pair(SList.add, SList.remove, \
             bind1={'before': lambda self, node: self.l[self.l.index(node)+1] })
 
-        self.assertTrue(SList.add in _reverse)
-        self.assertTrue(SList.remove in _reverse)
+        if six.PY2:
+            self.assertTrue(SList.add.__func__ in _reverse)
+            self.assertTrue(SList.remove.__func__ in _reverse)
+        if six.PY3:
+            self.assertTrue(SList.add in _reverse)
+            self.assertTrue(SList.remove in _reverse)

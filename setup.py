@@ -50,7 +50,9 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     setup_requires=[
         'pytest-runner',
-        'setuptools-git >= 0.3.4'
+        'setuptools-git >= 0.3.4',
+        'future',
+        'six'
     ],
 
     install_requires=[
