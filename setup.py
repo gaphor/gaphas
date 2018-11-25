@@ -52,7 +52,8 @@ setup(
         'pytest-runner',
         'setuptools-git >= 0.3.4',
         'future',
-        'six'
+        'six',
+        "pre-commit >= 0.12.0"
     ],
 
     install_requires=[
