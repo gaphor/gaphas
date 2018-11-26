@@ -9,8 +9,7 @@ import unittest
 from timeit import Timer
 
 from gaphas.solver import Solver, Variable
-from gaphas.constraint import EquationConstraint, EqualsConstraint, \
-    LessThanConstraint
+from gaphas.constraint import EquationConstraint, EqualsConstraint, LessThanConstraint
 
 
 SETUP = """
@@ -26,10 +25,12 @@ solver.add_constraint(c_eq)
 REPEAT = 30
 NUMBER = 1000
 
+
 class WeakestVariableTestCase(unittest.TestCase):
     """
     Test weakest variable calculation.
     """
+
     def test_weakest_list(self):
         """Test weakest list"""
         solver = Solver()
@@ -44,7 +45,6 @@ class WeakestVariableTestCase(unittest.TestCase):
         self.assertTrue(b in c_eq._weakest)
         self.assertTrue(c in c_eq._weakest)
 
-
     def test_weakest_list_order(self):
         """Test weakest list order"""
         solver = Solver()
@@ -58,7 +58,9 @@ class WeakestVariableTestCase(unittest.TestCase):
         weakest = [el for el in c_eq._weakest]
         a.value = 4
 
-        self.assertEqual(c_eq._weakest, weakest) # does not change if non-weak variable changed
+        self.assertEqual(
+            c_eq._weakest, weakest
+        )  # does not change if non-weak variable changed
 
         b.value = 5
         self.assertEqual(c_eq.weakest(), c)
@@ -74,7 +76,6 @@ class WeakestVariableTestCase(unittest.TestCase):
         b.value = 6
         self.assertEqual(c_eq.weakest(), c)
 
-
     def test_strength_change(self):
         """Test strength change"""
         solver = Solver()
@@ -89,11 +90,11 @@ class WeakestVariableTestCase(unittest.TestCase):
         self.assertEqual(c_eq._weakest, [b])
 
 
-
 class SizeTestCase(unittest.TestCase):
     """
     Test size related constraints, i.e. minimal size.
     """
+
     def test_min_size(self):
         """Test minimal size constraint"""
         solver = Solver()
@@ -139,26 +140,29 @@ class SizeTestCase(unittest.TestCase):
         self.assertEqual(10, v3)
 
 
-
 class SolverSpeedTestCase(unittest.TestCase):
     """
     Solver speed tests.
     """
+
     def _test_speed_run_weakest(self):
         """
         Speed test for weakest variable.
         """
 
-        results = Timer(setup=SETUP, stmt="""
+        results = Timer(
+            setup=SETUP,
+            stmt="""
 v1.value = 5.0
-c_eq.weakest()""").repeat(repeat=REPEAT, number=NUMBER)
+c_eq.weakest()""",
+        ).repeat(repeat=REPEAT, number=NUMBER)
 
         # Print the average of the best 10 runs:
         results.sort()
-        print('[Avg: %gms]' % ((old_div(sum(results[:10]), 10)) * 1000))
+        print("[Avg: %gms]" % ((old_div(sum(results[:10]), 10)) * 1000))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 
 # vim:sw=4:et:ai

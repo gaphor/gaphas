@@ -3,6 +3,7 @@ Basic connectors such as Ports and Handles.
 """
 
 from builtins import object
+
 __version__ = "$Revision: 2341 $"
 # $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
 
@@ -29,8 +30,8 @@ class Position(object):
     (Variable(3, 20), Variable(5, 20))
     """
 
-    x = solvable(varname='_v_x')
-    y = solvable(varname='_v_y')
+    x = solvable(varname="_v_x")
+    y = solvable(varname="_v_y")
 
     def __init__(self, pos, strength=NORMAL):
         self.x, self.y = pos
@@ -63,7 +64,12 @@ class Position(object):
         self._v_y = vy
 
     def __str__(self):
-        return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self.x), float(self.y))
+        return "<%s object on (%g, %g)>" % (
+            self.__class__.__name__,
+            float(self.x),
+            float(self.y),
+        )
+
     __repr__ = __str__
 
     def __getitem__(self, index):
@@ -101,7 +107,6 @@ class Handle(object):
         self._movable = movable
         self._visible = True
 
-
     def _set_pos(self, pos):
         """
         Shortcut for ``handle.pos.pos = pos``
@@ -123,7 +128,8 @@ class Handle(object):
         """
         self._pos.x = x
 
-    def _get_x(self): return self._pos.x
+    def _get_x(self):
+        return self._pos.x
 
     x = property(deprecated(_get_x), deprecated(_set_x))
 
@@ -133,10 +139,10 @@ class Handle(object):
         """
         self._pos.y = y
 
-    def _get_y(self): return self._pos.y
+    def _get_y(self):
+        return self._pos.y
 
     y = property(deprecated(_get_y), deprecated(_set_y))
-
 
     @observed
     def _set_connectable(self, connectable):
@@ -144,13 +150,11 @@ class Handle(object):
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
-
     @observed
     def _set_movable(self, movable):
         self._movable = movable
 
     movable = reversible_property(lambda s: s._movable, _set_movable)
-
 
     @observed
     def _set_visible(self, visible):
@@ -158,9 +162,13 @@ class Handle(object):
 
     visible = reversible_property(lambda s: s._visible, _set_visible)
 
-
     def __str__(self):
-        return '<%s object on (%g, %g)>' % (self.__class__.__name__, float(self._pos.x), float(self._pos.y))
+        return "<%s object on (%g, %g)>" % (
+            self.__class__.__name__,
+            float(self._pos.x),
+            float(self._pos.y),
+        )
+
     __repr__ = __str__
 
 
@@ -174,26 +182,23 @@ class Port(object):
 
         self._connectable = True
 
-
     @observed
     def _set_connectable(self, connectable):
         self._connectable = connectable
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
-
     def glue(self, pos):
         """
         Get glue point on the port and distance to the port.
         """
-        raise NotImplemented('Glue method not implemented')
-
+        raise NotImplemented("Glue method not implemented")
 
     def constraint(self, canvas, item, handle, glue_item):
         """
         Create connection constraint between item's handle and glue item.
         """
-        raise NotImplemented('Constraint method not implemented')
+        raise NotImplemented("Constraint method not implemented")
 
 
 class LinePort(Port):
@@ -206,7 +211,6 @@ class LinePort(Port):
 
         self.start = start
         self.end = end
-
 
     def glue(self, pos):
         """
@@ -221,7 +225,6 @@ class LinePort(Port):
         """
         d, pl = distance_line_point(self.start, self.end, pos)
         return pl, d
-
 
     def constraint(self, canvas, item, handle, glue_item):
         """
@@ -242,7 +245,6 @@ class PointPort(Port):
         super(PointPort, self).__init__()
         self.point = point
 
-
     def glue(self, pos):
         """
         Get glue point on the port and distance to the port.
@@ -255,7 +257,6 @@ class PointPort(Port):
         d = distance_point_point(self.point, pos)
         return self.point, d
 
-
     def constraint(self, canvas, item, handle, glue_item):
         """
         Return connection position constraint between item's handle
@@ -264,7 +265,7 @@ class PointPort(Port):
         origin = canvas.project(glue_item, self.point)
         point = canvas.project(item, handle.pos)
         c = PositionConstraint(origin, point)
-        return c #PositionConstraint(origin, point)
+        return c  # PositionConstraint(origin, point)
 
 
 # vim: sw=4:et:ai

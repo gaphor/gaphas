@@ -6,14 +6,16 @@ from __future__ import absolute_import
 from __future__ import division
 
 from past.utils import old_div
+
 __version__ = "$Revision$"
 # $HeadURL$
 
-from gaphas.item import Element, Item, NW, NE,SW, SE
+from gaphas.item import Element, Item, NW, NE, SW, SE
 from gaphas.connector import Handle, PointPort, LinePort, Position
 from gaphas.solver import solvable, WEAK
 from . import tool
 from .util import text_align, text_multiline, path_ellipse
+
 
 class Box(Element):
     """ A Box has 4 handles (for a start):
@@ -29,11 +31,11 @@ class Box(Element):
         nw = self._handles[NW].pos
         c.rectangle(nw.x, nw.y, self.width, self.height)
         if context.hovered:
-            c.set_source_rgba(.8,.8,1, .8)
+            c.set_source_rgba(0.8, 0.8, 1, 0.8)
         else:
-            c.set_source_rgba(1,1,1, .8)
+            c.set_source_rgba(1, 1, 1, 0.8)
         c.fill_preserve()
-        c.set_source_rgb(0,0,0.8)
+        c.set_source_rgb(0, 0, 0.8)
         c.stroke()
 
 
@@ -56,6 +58,7 @@ class PortoBox(Box):
          SW +--------+ SE
                 x
     """
+
     def __init__(self, width=10, height=10):
         super(PortoBox, self).__init__(width, height)
 
@@ -91,24 +94,23 @@ class PortoBox(Box):
         self._lport = LinePort(nw.pos, se.pos)
         self._ports.append(self._lport)
 
-
     def draw(self, context):
         super(PortoBox, self).draw(context)
         c = context.cairo
 
         if context.hovered:
-            c.set_source_rgba(.0, .8, 0, .8)
+            c.set_source_rgba(0.0, 0.8, 0, 0.8)
         else:
-            c.set_source_rgba(.9, .0, .0, .8)
+            c.set_source_rgba(0.9, 0.0, 0.0, 0.8)
 
         # draw movable port
         x, y = self._hm.pos
-        c.rectangle(x - 20 , y - 5, 20, 10)
-        c.rectangle(x - 1 , y - 1, 2, 2)
+        c.rectangle(x - 20, y - 5, 20, 10)
+        c.rectangle(x - 1, y - 1, 2, 2)
 
         # draw static port
         x, y = self._sport.point
-        c.rectangle(x - 2 , y - 2, 4, 4)
+        c.rectangle(x - 2, y - 2, 4, 4)
 
         c.fill_preserve()
 
@@ -118,10 +120,8 @@ class PortoBox(Box):
         c.move_to(x1, y1)
         c.line_to(x2, y2)
 
-        c.set_source_rgb(0,0,0.8)
+        c.set_source_rgb(0, 0, 0.8)
         c.stroke()
-
-
 
 
 class Text(Item):
@@ -131,7 +131,7 @@ class Text(Item):
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
         super(Text, self).__init__()
-        self.text = text is None and 'Hello' or text
+        self.text = text is None and "Hello" or text
         self.plain = plain
         self.multiline = multiline
         self.align_x = align_x
@@ -156,6 +156,7 @@ class FatLine(Item):
 
     todo: rectangle port instead of line port would be nicer
     """
+
     def __init__(self):
         super(FatLine, self).__init__()
         self._handles.extend((Handle(), Handle()))
@@ -167,19 +168,15 @@ class FatLine(Item):
         self.constraint(vertical=(h1.pos, h2.pos))
         self.constraint(above=(h1.pos, h2.pos), delta=20)
 
-
     def _set_height(self, height):
         h1, h2 = self._handles
         h2.pos.y = height
-
 
     def _get_height(self):
         h1, h2 = self._handles
         return h2.pos.y
 
-
     height = property(_get_height, _set_height)
-
 
     def draw(self, context):
         cr = context.cairo
@@ -190,18 +187,15 @@ class FatLine(Item):
         cr.stroke()
 
 
-
 class Circle(Item):
     def __init__(self):
         super(Circle, self).__init__()
         self._handles.extend((Handle(), Handle()))
 
-
     def _set_radius(self, r):
         h1, h2 = self._handles
         h2.pos.x = r
         h2.pos.y = r
-
 
     def _get_radius(self):
         h1, h2 = self._handles
@@ -210,12 +204,10 @@ class Circle(Item):
 
     radius = property(_get_radius, _set_radius)
 
-
     def setup_canvas(self):
         super(Circle, self).setup_canvas()
         h1, h2 = self._handles
         h1.movable = False
-
 
     def point(self, pos):
         h1, _ = self._handles
@@ -224,12 +216,10 @@ class Circle(Item):
         dist = ((x - p1.x) ** 2 + (y - p1.y) ** 2) ** 0.5
         return dist - self.radius
 
-
     def draw(self, context):
         cr = context.cairo
         path_ellipse(cr, 0, 0, 2 * self.radius, 2 * self.radius)
         cr.stroke()
-
 
 
 # vim: sw=4:et:ai

@@ -120,7 +120,7 @@ class AsyncIO(object):
         return s
 
     def __call__(self, func):
-        async_id = '_async_id_%s' % func.__name__
+        async_id = "_async_id_%s" % func.__name__
         source = self.source
 
         def wrapper(*args, **kwargs):
@@ -129,10 +129,12 @@ class AsyncIO(object):
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
+
                 def async_wrapper(*aargs):
                     if DEBUG_ASYNC:
-                        print('async:', func, args, kwargs)
+                        print("async:", func, args, kwargs)
                     func(*args, **kwargs)
+
                 source(async_wrapper).attach()
             else:
                 # Idle handlers should be registered per instance
@@ -141,9 +143,10 @@ class AsyncIO(object):
                     if getattr(holder, async_id):
                         return
                 except AttributeError as e:
+
                     def async_wrapper(*aargs):
                         if DEBUG_ASYNC:
-                            print('async:', func, args, kwargs)
+                            print("async:", func, args, kwargs)
                         try:
                             func(*args, **kwargs)
                         finally:
@@ -151,6 +154,7 @@ class AsyncIO(object):
                         return False
 
                     setattr(holder, async_id, source(async_wrapper).attach())
+
         return wrapper
 
 
@@ -169,6 +173,7 @@ def nonrecursive(func):
     1
     """
     m = threading.Lock()
+
     def wrapper(*args, **kwargs):
         """
         Decorate function with a mutex that prohibits recursive execution.
@@ -178,6 +183,7 @@ def nonrecursive(func):
                 return func(*args, **kwargs)
             finally:
                 m.release()
+
     return wrapper
 
 
@@ -212,6 +218,7 @@ class recursive(object):
                     return func(*args, **kwargs)
                 finally:
                     func._recursion_level -= 1
+
         return wrapper
 
 

@@ -7,6 +7,7 @@ from builtins import zip
 from builtins import object
 from functools import reduce
 
+
 class Table(object):
     """
     A Table structure with indexing. Optimized for lookups.
@@ -31,9 +32,7 @@ class Table(object):
             index[n] = dict()
         self._index = index
 
-
     columns = property(lambda s: s._type)
-
 
     def insert(self, *values):
         """
@@ -54,7 +53,10 @@ class Table(object):
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
         if len(values) != len(self._type._fields):
-            raise ValueError("Number of arguments doesn't match the number of columns (%d != %d)" % (len(values), len(self._type._fields)))
+            raise ValueError(
+                "Number of arguments doesn't match the number of columns (%d != %d)"
+                % (len(values), len(self._type._fields))
+            )
         # Add value to index entries
         index = self._index
         data = self._type._make(values)
@@ -64,7 +66,6 @@ class Table(object):
                 index[n][v].add(data)
             else:
                 index[n][v] = set([data])
-
 
     def delete(self, *_row, **kv):
         """
@@ -107,7 +108,9 @@ class Table(object):
         """
         fields = self._type._fields
         if _row and kv:
-            raise ValueError("Should either provide a row or a query statement, not both")
+            raise ValueError(
+                "Should either provide a row or a query statement, not both"
+            )
         if _row:
             assert len(_row) == len(fields)
             kv = dict(list(zip(self._indexes, _row)))
@@ -122,7 +125,6 @@ class Table(object):
                     index[n][v].remove(row)
                     if len(index[n][v]) == 0:
                         del index[n][v]
-
 
     def query(self, **kv):
         """

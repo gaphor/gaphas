@@ -5,24 +5,23 @@ import unittest
 from gaphas.freehand import FreeHandCairoContext
 import cairo
 
-class PseudoFile(object):
 
+class PseudoFile(object):
     def __init__(self):
-        self.data = ''
+        self.data = ""
 
     def write(self, data):
         self.data = self.data + data
 
 
 class FreeHandCairoContextTest(unittest.TestCase):
-
     def setUp(self):
         pass
 
     def test_drawing_lines(self):
         f = PseudoFile()
 
-        surface = cairo.SVGSurface('freehand-drawing-lines.svg', 100, 100)
+        surface = cairo.SVGSurface("freehand-drawing-lines.svg", 100, 100)
         cr = FreeHandCairoContext(cairo.Context(surface))
         cr.set_line_width(2)
         cr.move_to(20, 20)
@@ -33,7 +32,7 @@ class FreeHandCairoContextTest(unittest.TestCase):
         cr.show_page()
 
     def test_drawing_rectangle(self):
-        surface = cairo.SVGSurface('freehand-drawing-rectangle.svg', 100, 100)
+        surface = cairo.SVGSurface("freehand-drawing-rectangle.svg", 100, 100)
         cr = FreeHandCairoContext(cairo.Context(surface))
         cr.set_line_width(2)
         cr.rectangle(20, 20, 60, 60)

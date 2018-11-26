@@ -3,6 +3,7 @@ import unittest
 from gaphas.solver import Variable
 from gaphas.constraint import PositionConstraint, LineAlignConstraint
 
+
 class PositionTestCase(unittest.TestCase):
     def test_pos_constraint(self):
         """Test position constraint"""
@@ -30,11 +31,11 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(14, y2)
 
 
-
 class LineAlignConstraintTestCase(unittest.TestCase):
     """
     Line align constraint test case.
     """
+
     def test_delta(self):
         """Test line align delta
         """
@@ -46,11 +47,10 @@ class LineAlignConstraintTestCase(unittest.TestCase):
         self.assertAlmostEqual(12.77, point[1].value, 2)
 
         line[1][0].value = 40
-        line[1][1].value =  30
+        line[1][1].value = 30
         lc.solve_for()
         self.assertAlmostEqual(24.00, point[0].value, 2)
         self.assertAlmostEqual(18.00, point[1].value, 2)
-
 
     def test_delta_below_zero(self):
         """Test line align with delta below zero
@@ -63,9 +63,10 @@ class LineAlignConstraintTestCase(unittest.TestCase):
         self.assertAlmostEqual(7.23, point[1].value, 2)
 
         line[1][0].value = 40
-        line[1][1].value =  30
+        line[1][1].value = 30
         lc.solve_for()
         self.assertAlmostEqual(16.0, point[0].value, 2)
         self.assertAlmostEqual(12.00, point[1].value, 2)
+
 
 # vim: sw=4:et:ai

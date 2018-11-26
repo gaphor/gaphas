@@ -1,4 +1,3 @@
-
 import unittest
 from gaphas import state
 
@@ -8,8 +7,10 @@ state.subscribers.clear()
 undo_list = []
 redo_list = []
 
+
 def undo_handler(event):
     undo_list.append(event)
+
 
 def undo():
     apply_me = list(undo_list)
@@ -28,7 +29,6 @@ from gaphas.aspect import Connector, ConnectionSink
 
 
 class UndoTestCase(unittest.TestCase):
-
     def setUp(self):
         state.observers.add(state.revert_handler)
         state.subscribers.add(undo_handler)
@@ -77,8 +77,12 @@ class UndoTestCase(unittest.TestCase):
         cinfo = canvas.get_connection(line.handles()[-1])
         self.assertEqual(None, cinfo)
 
-        self.assertEqual([], list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
-        self.assertEqual([], list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
+        self.assertEqual(
+            [], list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x))
+        )
+        self.assertEqual(
+            [], list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y))
+        )
 
         undo()
 
@@ -91,9 +95,10 @@ class UndoTestCase(unittest.TestCase):
         cinfo = canvas.get_connection(line.handles()[-1])
         self.assertEqual(b2, cinfo.connected)
 
+
 #        self.assertEqual(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x)))
 #        self.assertTrue(list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y)))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 # vim:sw=4:et:ai

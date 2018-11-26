@@ -40,14 +40,13 @@ Guide = generic(ItemGuide)
 
 @Guide.when_type(Element)
 class ElementGuide(ItemGuide):
-
     def horizontal(self):
         y = self.item.height
-        return (0, old_div(y,2), y)
+        return (0, old_div(y, 2), y)
 
     def vertical(self):
         x = self.item.width
-        return (0, old_div(x,2), x)
+        return (0, old_div(x, 2), x)
 
 
 @Guide.when_type(Line)
@@ -82,7 +81,6 @@ class LineGuide(ItemGuide):
 
 
 class Guides(object):
-
     def __init__(self, v, h):
         self.v = v
         self.h = h
@@ -108,9 +106,13 @@ class GuideMixin(object):
         margin = self.MARGIN
         items = []
         for x in item_vedges:
-            items.append(view.get_items_in_rectangle((x - margin, 0, margin*2, height)))
+            items.append(
+                view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
+            )
         try:
-            guides = list(map(Guide, reduce(set.union, list(map(set, items))) - excluded_items))
+            guides = list(
+                map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+            )
         except TypeError:
             guides = []
 
@@ -121,7 +123,6 @@ class GuideMixin(object):
         dx, edges_x = self.find_closest(item_vedges, vedges)
         return dx, edges_x
 
-
     def find_horizontal_guides(self, item_hedges, pdy, width, excluded_items):
         view = self.view
         item = self.item
@@ -129,9 +130,13 @@ class GuideMixin(object):
         margin = self.MARGIN
         items = []
         for y in item_hedges:
-            items.append(view.get_items_in_rectangle((0, y - margin, width, margin*2)))
+            items.append(
+                view.get_items_in_rectangle((0, y - margin, width, margin * 2))
+            )
         try:
-            guides = list(map(Guide, reduce(set.union, list(map(set, items))) - excluded_items))
+            guides = list(
+                map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+            )
         except TypeError:
             guides = []
 
@@ -143,7 +148,6 @@ class GuideMixin(object):
 
         dy, edges_y = self.find_closest(item_hedges, hedges)
         return dy, edges_y
-
 
     def get_excluded_items(self):
         """
@@ -157,14 +161,12 @@ class GuideMixin(object):
         excluded_items.update(view.selected_items)
         return excluded_items
 
-
     def get_view_dimensions(self):
         try:
             allocation = self.view.get_allocation()
         except AttributeError as e:
             return 0, 0
         return allocation.width, allocation.height
-
 
     def queue_draw_guides(self):
         view = self.view
@@ -176,10 +178,9 @@ class GuideMixin(object):
         w, h = self.get_view_dimensions()
 
         for x in guides.vertical():
-            view.queue_draw_area(x-1, 0, x+2, h)
+            view.queue_draw_area(x - 1, 0, x + 2, h)
         for y in guides.horizontal():
-            view.queue_draw_area(0, y-1, w, y+2)
-
+            view.queue_draw_area(0, y - 1, w, y + 2)
 
     def find_closest(self, item_edges, edges):
         delta = 0
@@ -239,7 +240,6 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 
         return sink
 
-
     def stop_move(self):
         self.queue_draw_guides()
         try:
@@ -251,7 +251,6 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 
 @HandleInMotion.when_type(Item)
 class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
-
     def move(self, pos):
 
         sink = super(GuidedItemHandleInMotion, self).move(pos)
@@ -276,7 +275,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             x, y = v2i.transform_point(*newpos)
 
             self.handle.pos = (x, y)
-            #super(GuidedItemHandleInMotion, self).move(newpos)
+            # super(GuidedItemHandleInMotion, self).move(newpos)
 
             self.queue_draw_guides()
 
@@ -285,7 +284,6 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             self.queue_draw_guides()
 
             item.request_update()
-
 
     def stop_move(self):
         self.queue_draw_guides()
@@ -298,7 +296,6 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
 @PaintFocused.when_type(Item)
 class GuidePainter(ItemPaintFocused):
-
     def paint(self, context):
         try:
             guides = self.view.guides
@@ -324,5 +321,6 @@ class GuidePainter(ItemPaintFocused):
                 cr.stroke()
         finally:
             cr.restore()
+
 
 # vim:sw=4:et:ai

@@ -21,7 +21,7 @@ GTK+ and PyGObject_ are required.
 .. _PyGObject: https://pygobject.readthedocs.io/
 """
 
-VERSION = '0.7.2'
+VERSION = "0.7.2"
 
 from ez_setup import use_setuptools
 
@@ -30,44 +30,41 @@ use_setuptools()
 from setuptools import setup, find_packages
 
 setup(
-    name='gaphas',
+    name="gaphas",
     version=VERSION,
-    description='Gaphas is a GTK+ based diagramming widget',
+    description="Gaphas is a GTK+ based diagramming widget",
     long_description=__doc__,
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: X11 Applications :: GTK',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-        'Programming Language :: Python',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: X11 Applications :: GTK",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "Programming Language :: Python",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords='',
+    keywords="",
     author="Arjan J. Molenaar",
-    author_email='arjanmol@users.sourceforge.net',
-    url='https://github.com/gaphor/gaphas',
-    license='GNU Library General Public License (LGPL, see COPYING)',
-    packages=find_packages(exclude=['ez_setup']),
+    author_email="arjanmol@users.sourceforge.net",
+    url="https://github.com/gaphor/gaphas",
+    license="GNU Library General Public License (LGPL, see COPYING)",
+    packages=find_packages(exclude=["ez_setup"]),
     setup_requires=[
-        'pytest-runner',
-        'setuptools-git >= 0.3.4',
-        'future',
-        'six'
+        "pytest-runner",
+        "setuptools-git >= 0.3.4",
+        "future",
+        "six",
+        "pre-commit >= 0.12.0",
     ],
-
     install_requires=[
-        'decorator >= 3.0.0',
-        'simplegeneric >= 0.6',
-        'PyGObject >= 3.26.1',
-        'pycairo >= 1.11.0'
+        "decorator >= 3.0.0",
+        "simplegeneric >= 0.6",
+        "PyGObject >= 3.26.1",
+        "pycairo >= 1.11.0",
     ],
     zip_safe=False,
     package_data={
         # -*- package_data: -*-
     },
-    entry_points={
-    },
-    tests_require = [
-        'pytest'
-    ],
+    entry_points={},
+    tests_require=["pytest"],
 )

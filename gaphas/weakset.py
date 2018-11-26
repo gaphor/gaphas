@@ -9,15 +9,18 @@ Foundation License, version 2.
 from builtins import object
 from _weakref import ref
 
-__all__ = ['WeakSet']
+__all__ = ["WeakSet"]
+
 
 class WeakSet(object):
     def __init__(self, data=None):
         self.data = set()
+
         def _remove(item, selfref=ref(self)):
             self = selfref()
             if self is not None:
                 self.data.discard(item)
+
         self._remove = _remove
         if data is not None:
             self.update(data)
@@ -46,8 +49,7 @@ class WeakSet(object):
         return ref(item) in self.data
 
     def __reduce__(self):
-        return (self.__class__, (list(self),),
-                getattr(self, '__dict__', None))
+        return (self.__class__, (list(self),), getattr(self, "__dict__", None))
 
     def add(self, item):
         self.data.add(ref(item, self._remove))
@@ -85,7 +87,7 @@ class WeakSet(object):
             try:
                 itemref = self.data.pop()
             except KeyError:
-                raise KeyError('pop from empty WeakSet')
+                raise KeyError("pop from empty WeakSet")
             item = itemref()
             if item is not None:
                 return item
@@ -102,6 +104,7 @@ class WeakSet(object):
         else:
             for element in other:
                 self.add(element)
+
     def __ior__(self, other):
         self.update(other)
         return self
@@ -117,6 +120,7 @@ class WeakSet(object):
 
     def difference(self, other):
         return self._apply(other, self.data.difference)
+
     __sub__ = difference
 
     def difference_update(self, other):
@@ -134,16 +138,19 @@ class WeakSet(object):
 
     def intersection(self, other):
         return self._apply(other, self.data.intersection)
+
     __and__ = intersection
 
     def intersection_update(self, other):
         self.data.intersection_update(ref(item) for item in other)
+
     def __iand__(self, other):
         self.data.intersection_update(ref(item) for item in other)
         return self
 
     def issubset(self, other):
         return self.data.issubset(ref(item) for item in other)
+
     __lt__ = issubset
 
     def __le__(self, other):
@@ -151,6 +158,7 @@ class WeakSet(object):
 
     def issuperset(self, other):
         return self.data.issuperset(ref(item) for item in other)
+
     __gt__ = issuperset
 
     def __ge__(self, other):
@@ -194,5 +202,6 @@ class WeakSet(object):
 
     def isdisjoint(self, other):
         return len(self.intersection(other)) == 0
+
 
 # vim:sw=4:et:ai

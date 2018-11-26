@@ -111,7 +111,8 @@ class Variable(object):
     value = reversible_property(lambda s: s._value, set_value)
 
     def __str__(self):
-        return 'Variable(%g, %d)' % (self._value, self._strength)
+        return "Variable(%g, %d)" % (self._value, self._strength)
+
     __repr__ = __str__
 
     def __float__(self):
@@ -368,7 +369,8 @@ class Projection(object):
         return float(self.variable()._value)
 
     def __str__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.variable())
+        return "%s(%s)" % (self.__class__.__name__, self.variable())
+
     __repr__ = __str__
 
 
@@ -385,7 +387,6 @@ class Solver(object):
         self._solving = False
 
     constraints = property(lambda s: s._constraints)
-
 
     def request_resolve(self, variable, projections_only=False):
         """
@@ -432,8 +433,10 @@ class Solver(object):
                     c.mark_dirty(variable)
                     self._marked_cons.append(c)
                     if self._marked_cons.count(c) > 100:
-                        raise JuggleError('Variable juggling detected, constraint %s resolved %d times out of %d' % (c, self._marked_cons.count(c), len(self._marked_cons)))
-
+                        raise JuggleError(
+                            "Variable juggling detected, constraint %s resolved %d times out of %d"
+                            % (c, self._marked_cons.count(c), len(self._marked_cons))
+                        )
 
     @observed
     def add_constraint(self, constraint):
@@ -458,7 +461,7 @@ class Solver(object):
         >>> len(s._constraints)
         1
         """
-        assert constraint, 'No constraint (%s)' % (constraint,)
+        assert constraint, "No constraint (%s)" % (constraint,)
         self._constraints.add(constraint)
         self._marked_cons.append(constraint)
         constraint._solver_has_projections = False
@@ -491,7 +494,7 @@ class Solver(object):
 
         >>> s.remove_constraint(c)
         """
-        assert constraint, 'No constraint (%s)' % (constraint,)
+        assert constraint, "No constraint (%s)" % (constraint,)
         for v in constraint.variables():
             while isinstance(v, Projection):
                 v = v.variable()
@@ -502,13 +505,11 @@ class Solver(object):
 
     reversible_pair(add_constraint, remove_constraint)
 
-
     def request_resolve_constraint(self, c):
         """
         Request resolving a constraint.
         """
         self._marked_cons.append(c)
-
 
     def constraints_with_variable(self, *variables):
         """
@@ -574,12 +575,11 @@ class Solver(object):
                     else:
                         found = False
                     if not found:
-                        break # quit for loop, variable not in constraint
+                        break  # quit for loop, variable not in constraint
                 else:
                     # All iteration have completed succesfully,
                     # so all variables are in the constraint
                     yield c
-
 
     def solve(self):
         """
@@ -654,7 +654,7 @@ class solvable(object):
 
     def __init__(self, strength=NORMAL, varname=None):
         self._strength = strength
-        self._varname = varname or '_variable_%x' % id(self)
+        self._varname = varname or "_variable_%x" % id(self)
 
     def __get__(self, obj, class_=None):
         if not obj:
@@ -685,9 +685,9 @@ class JuggleError(AssertionError):
 
 
 __test__ = {
-    'Solver.add_constraint': Solver.add_constraint,
-    'Solver.remove_constraint': Solver.remove_constraint,
-    }
+    "Solver.add_constraint": Solver.add_constraint,
+    "Solver.remove_constraint": Solver.remove_constraint,
+}
 
 
 # vim:sw=4:et:ai
