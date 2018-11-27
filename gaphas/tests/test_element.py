@@ -46,7 +46,9 @@ class ElementTestCase(unittest.TestCase):
         assert h_se is handles[SE]
 
         # to see how many solver was called:
-        # GAPHAS_TEST_COUNT=3 nosetests -s --with-prof --profile-restrict=gaphas gaphas/tests/test_element.py | grep -e '\<solve\>' -e dirty
+        # GAPHAS_TEST_COUNT=3 nosetests -s --with-prof
+        # --profile-restrict=gaphas gaphas/tests/test_element.py | grep -e
+        # '\<solve\>' -e dirty
 
         count = getenv("GAPHAS_TEST_COUNT")
         if count:

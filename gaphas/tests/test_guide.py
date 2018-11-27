@@ -1,12 +1,14 @@
 from __future__ import print_function
 
-from builtins import range
 import unittest
+from builtins import range
+
 from gi.repository import Gtk
-from gaphas.guide import *
+
 from gaphas.canvas import Canvas
-from gaphas.view import GtkView
+from gaphas.guide import Guide, GuidedItemInMotion
 from gaphas.item import Element, Line
+from gaphas.view import GtkView
 
 
 class GuideTestCase(unittest.TestCase):
@@ -47,41 +49,41 @@ class GuideTestCase(unittest.TestCase):
 
     def test_line_guide(self):
         c = Canvas()
-        l = Line()
-        c.add(l)
-        l.handles().append(l._create_handle((20, 20)))
-        l.handles().append(l._create_handle((30, 30)))
-        l.handles().append(l._create_handle((40, 40)))
-        l.orthogonal = True
+        line = Line()
+        c.add(line)
+        line.handles().append(line._create_handle((20, 20)))
+        line.handles().append(line._create_handle((30, 30)))
+        line.handles().append(line._create_handle((40, 40)))
+        line.orthogonal = True
         c.update_now()
 
-        guides = list(Guide(l).horizontal())
+        guides = list(Guide(line).horizontal())
         self.assertEqual(2, len(guides))
         self.assertEqual(10.0, guides[0])
         self.assertEqual(40.0, guides[1])
 
-        guides = list(Guide(l).vertical())
+        guides = list(Guide(line).vertical())
         self.assertEqual(2, len(guides))
         self.assertEqual(00.0, guides[0])
         self.assertEqual(20.0, guides[1])
 
     def test_line_guide_horizontal(self):
         c = Canvas()
-        l = Line()
-        c.add(l)
-        l.handles().append(l._create_handle((20, 20)))
-        l.handles().append(l._create_handle((30, 30)))
-        l.handles().append(l._create_handle((40, 40)))
-        l.horizontal = True
-        l.orthogonal = True
+        line = Line()
+        c.add(line)
+        line.handles().append(line._create_handle((20, 20)))
+        line.handles().append(line._create_handle((30, 30)))
+        line.handles().append(line._create_handle((40, 40)))
+        line.horizontal = True
+        line.orthogonal = True
         c.update_now()
 
-        guides = list(Guide(l).horizontal())
+        guides = list(Guide(line).horizontal())
         self.assertEqual(2, len(guides))
         self.assertEqual(0.0, guides[0])
         self.assertEqual(20.0, guides[1])
 
-        guides = list(Guide(l).horizontal())
+        guides = list(Guide(line).horizontal())
         self.assertEqual(2, len(guides))
         self.assertEqual(0.0, guides[0])
         self.assertEqual(20.0, guides[1])

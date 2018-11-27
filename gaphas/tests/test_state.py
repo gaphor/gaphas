@@ -8,19 +8,19 @@ from gaphas.state import reversible_pair, observed, _reverse
 
 class SList(object):
     def __init__(self):
-        self.l = list()
+        self.list = list()
 
     def add(self, node, before=None):
         if before:
-            self.l.insert(self.l.index(before), node)
+            self.list.insert(self.list.index(before), node)
         else:
-            self.l.append(node)
+            self.list.append(node)
 
     add = observed(add)
 
     @observed
     def remove(self, node):
-        self.l.remove(self.l.index(node))
+        self.list.remove(self.list.index(node))
 
 
 class StateTestCase(unittest.TestCase):
@@ -30,7 +30,7 @@ class StateTestCase(unittest.TestCase):
         reversible_pair(
             SList.add,
             SList.remove,
-            bind1={"before": lambda self, node: self.l[self.l.index(node) + 1]},
+            bind1={"before": lambda self, node: self.list[self.list.index(node) + 1]},
         )
 
         if six.PY2:

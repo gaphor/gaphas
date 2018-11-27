@@ -10,6 +10,7 @@ from gaphas.segment import *
 from gaphas.canvas import Canvas
 from gaphas.view import View
 from gaphas import state
+from gaphas.tests.test_tool import simple_canvas
 
 
 class SegmentTestCase(unittest.TestCase):
@@ -19,6 +20,7 @@ class SegmentTestCase(unittest.TestCase):
 
     def setUp(self):
         self.canvas = Canvas()
+        self.line = Line()
         self.view = View(self.canvas)
 
     def test_segment_fails_for_item(self):
@@ -43,9 +45,6 @@ class SegmentTestCase(unittest.TestCase):
         self.assertEqual(2, len(line.handles()))
         segment.split((5, 5))
         self.assertEqual(3, len(line.handles()))
-
-
-from gaphas.tests.test_tool import simple_canvas
 
 
 undo_list = []

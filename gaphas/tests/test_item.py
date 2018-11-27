@@ -5,12 +5,7 @@ Generic gaphas item tests.
 import unittest
 
 from gaphas.item import Item
-from gaphas.constraint import (
-    LineAlignConstraint,
-    LineConstraint,
-    EqualsConstraint,
-    LessThanConstraint,
-)
+from gaphas.constraint import LineConstraint, EqualsConstraint, LessThanConstraint
 from gaphas.solver import Variable
 
 

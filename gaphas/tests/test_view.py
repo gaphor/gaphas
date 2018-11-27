@@ -3,15 +3,16 @@ Test cases for the View class.
 """
 from __future__ import division
 
-from past.utils import old_div
-import unittest
-from gi.repository import Gtk
 import math
-from gaphas.view import View, GtkView
-from gaphas.canvas import Canvas, Context
-from gaphas.item import Line
+import unittest
+
+from gi.repository import Gtk
+from past.utils import old_div
+
+from gaphas.canvas import Canvas
 from gaphas.examples import Box
-from gaphas.tool import HoverTool
+from gaphas.item import Line
+from gaphas.view import View, GtkView
 
 
 class ViewTestCase(unittest.TestCase):

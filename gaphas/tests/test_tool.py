@@ -4,17 +4,15 @@ Test all the tools provided by gaphas.
 
 import unittest
 
-from gaphas.tool import ConnectHandleTool
+from gi.repository import Gtk
+
 from gaphas.canvas import Canvas
-from gaphas.examples import Box
-from gaphas.item import Item, Element, Line
-from gaphas.view import View, GtkView
-from gaphas.constraint import LineConstraint
 from gaphas.canvas import Context
-from gaphas import state
-
-from gaphas.aspect import Connector, ConnectionSink
-
+from gaphas.constraint import LineConstraint
+from gaphas.examples import Box
+from gaphas.item import Line
+from gaphas.tool import ConnectHandleTool
+from gaphas.view import GtkView
 
 Event = Context
 
@@ -49,7 +47,6 @@ def simple_canvas(self):
     self.canvas.update_now()
     self.view = GtkView()
     self.view.canvas = self.canvas
-    from gi.repository import Gtk
 
     win = Gtk.Window()
     win.add(self.view)

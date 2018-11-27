@@ -4,7 +4,6 @@ Generic gaphas item tests.
 
 import unittest
 
-from gaphas.item import Item
 from gaphas.aspect import *
 from gaphas.canvas import Canvas
 from gaphas.view import View

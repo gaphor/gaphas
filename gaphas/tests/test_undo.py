@@ -1,5 +1,10 @@
 import unittest
+
 from gaphas import state
+from gaphas.aspect import Connector, ConnectionSink
+from gaphas.canvas import Canvas
+from gaphas.examples import Box
+from gaphas.item import Line
 
 state.observers.clear()
 state.subscribers.clear()
@@ -20,12 +25,6 @@ def undo():
         state.saveapply(*e)
     redo_list[:] = undo_list[:]
     del undo_list[:]
-
-
-from gaphas.canvas import Canvas
-from gaphas.examples import Box
-from gaphas.item import Line
-from gaphas.aspect import Connector, ConnectionSink
 
 
 class UndoTestCase(unittest.TestCase):

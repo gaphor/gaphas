@@ -1,18 +1,21 @@
 from __future__ import print_function
 
-from future import standard_library
-
-standard_library.install_aliases()
-from builtins import object
-import unittest
 import pickle
+import unittest
+from builtins import object
+
+from future import standard_library
+from gi.repository import Gtk
+
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
-from gaphas.item import Item, Element, Line
+from gaphas.item import Element, Line
 from gaphas.view import View, GtkView
 
 # Ensure extra pickle reducers/reconstructors are loaded:
 import gaphas.picklers
+
+standard_library.install_aliases()
 
 
 class MyPickler(pickle.Pickler):
@@ -25,7 +28,7 @@ class MyPickler(pickle.Pickler):
             raise e
 
 
-class my_disconnect(object):
+class MyDisconnect(object):
     """
     Disconnect object should be located at top-level, so the pickle code
     can find it.
@@ -47,7 +50,7 @@ def create_canvas():
     line = Line()
     line.handles()[0].visible = False
     line.handles()[0].connected_to = box
-    line.handles()[0].disconnect = my_disconnect()
+    line.handles()[0].disconnect = MyDisconnect()
     line.handles()[0].connection_data = 1
 
     canvas.add(line)
@@ -99,7 +102,7 @@ class PickleTestCase(unittest.TestCase):
         line = Line()
         line.handles()[0].visible = False
         line.handles()[0].connected_to = box
-        line.handles()[0].disconnect = my_disconnect()
+        line.handles()[0].disconnect = MyDisconnect()
         line.handles()[0].connection_data = 1
 
         canvas.add(line)
@@ -148,8 +151,6 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        from gi.repository import Gtk
-
         win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
@@ -185,8 +186,6 @@ class PickleTestCase(unittest.TestCase):
 
         c2 = pickle.loads(pickled)
 
-        from gi.repository import Gtk
-
         win = Gtk.Window()
         view = GtkView(canvas=c2)
         win.add(view)
@@ -203,8 +202,6 @@ class PickleTestCase(unittest.TestCase):
         pickled = pickle.dumps(canvas)
 
         c2 = pickle.loads(pickled)
-
-        from gi.repository import Gtk
 
         win = Gtk.Window()
         view = GtkView(canvas=c2)
