@@ -37,7 +37,8 @@ class View(object):
     View class for gaphas.Canvas objects.
     """
 
-    def __init__(self, canvas=None):
+    def __init__(self, canvas=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # supports multiple inheritance
         self._matrix = Matrix()
         self._painter = DefaultPainter(self)
         self._bounding_box_painter = BoundingBoxPainter(self)
@@ -521,7 +522,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     }
 
     def __init__(self, canvas=None):
-        Gtk.DrawingArea.__init__(self)
+        super().__init__()
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
