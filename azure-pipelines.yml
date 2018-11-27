@@ -35,7 +35,8 @@ jobs:
 
   - script: |
       pip install pytest
-      pytest gaphas/tests --doctest-modules --junitxml=junit/test-results.xml
+      pip install pytest-faulthandler
+      pytest
     displayName: 'pytest'
 
   - task: PublishTestResults@2
