@@ -6,4 +6,6 @@ setuptools-git==1.2
 simplegeneric==0.8.1
 pytest==4.0.1
 pytest-faulthandler==1.5.0
+pytest-cov==2.6.0
 six==1.11.0
+coverage==4.5.2

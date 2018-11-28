@@ -2,6 +2,8 @@ Gaphas
 ======
 
 |Code style: black|
+|Build status|
+|Coverage|
 
 This module contains a new canvas implementation for Gaphor.
 
@@ -209,3 +211,7 @@ boundries more clear.
 .. _Python coding guidelines: http://www.python.org/dev/peps/pep-0008/
 .. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
+.. |Build status| image:: https://travis-ci.com/gaphor/gaphas.svg?branch=master
+    :target: https://travis-ci.com/gaphor/gaphas
+.. |Coverage| image:: https://coveralls.io/repos/github/gaphor/gaphas/badge.svg?branch=master
+    :target: https://coveralls.io/github/gaphor/gaphas?branch=master

@@ -51,6 +51,7 @@ setup(
     setup_requires=[
         "pytest-runner",
         "pytest-faulthandler >= 1.4.1",
+        "pytest-cov >= 2.6.0",
         "setuptools-git >= 0.3.4",
         "future",
         "six",
