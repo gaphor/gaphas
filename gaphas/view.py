@@ -37,14 +37,13 @@ class View(object):
     View class for gaphas.Canvas objects.
     """
 
-    def __init__(self, canvas=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # supports multiple inheritance
+    def __init__(self, canvas=None):
         self._matrix = Matrix()
         self._painter = DefaultPainter(self)
         self._bounding_box_painter = BoundingBoxPainter(self)
 
         # Handling selections.
-        ### TODO: Move this to a context?
+        # TODO: Move this to a context?
         self._selected_items = set()
         self._focused_item = None
         self._hovered_item = None
@@ -521,15 +520,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         ),
     }
 
-    def __init__(self, canvas=None):
-        super().__init__()
+    def __init__(self):
+        Gtk.DrawingArea.__init__(self)
+        Gtk.Scrollable.__init__(self)
+        View.__init__(self, canvas=None)
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
         self.connect("size-allocate", self.on_size_allocate)
         self.connect("draw", self.on_draw)
-
-        View.__init__(self, canvas)
 
         self.set_can_focus(True)
         self.add_events(
