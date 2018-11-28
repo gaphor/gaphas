@@ -520,16 +520,16 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         ),
     }
 
-    def __init__(self):
-        Gtk.DrawingArea.__init__(self)
-        Gtk.Scrollable.__init__(self)
-        View.__init__(self, canvas=None)
+    def __init__(self, canvas=None):
+        GObject.GObject.__init__(self)
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
+
+        View.__init__(self, canvas)
+
         self.connect("size-allocate", self.on_size_allocate)
         self.connect("draw", self.on_draw)
-
         self.set_can_focus(True)
         self.add_events(
             Gdk.EventMask.BUTTON_PRESS_MASK
