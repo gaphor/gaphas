@@ -1,11 +1,9 @@
 decorator==4.3.0
 future==0.17.1
-pycairo>=1.18.0
-PyGObject>=3.30.3
+pycairo>=1.11.1
 setuptools-git==1.2
 simplegeneric==0.8.1
 pytest==4.0.1
-pytest-faulthandler==1.5.0
 pytest-cov==2.6.0
 six==1.11.0
 coverage==4.5.2
