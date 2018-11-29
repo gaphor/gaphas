@@ -1,5 +1,6 @@
 language: python
 dist: xenial
+sudo: true
 matrix:
   include:
     - python: 2.7
@@ -9,14 +10,19 @@ matrix:
       env: PYTHONFAULTHANDLER=1
     - python: 3.7
       env: PYTHONFAULTHANDLER=1
-      sudo: true
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y python3-dev python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository1.0-dev libcairo2-dev
+  - sudo apt-get install -y gdb  # Install gdb for reading core dumps
 install:
   - pip install -r requirements.txt
   - pip install -r requirements2.txt
+before_script:
+  - ulimit -c unlimited -S  # Enable core dumps
 script:
   - pytest
 after_success:
   - coveralls
+after_failure:
+  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1)  # Find core dump file
+  - if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
