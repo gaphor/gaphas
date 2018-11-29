@@ -21,7 +21,7 @@ GTK+ and PyGObject_ are required.
 .. _PyGObject: https://pygobject.readthedocs.io/
 """
 
-VERSION = "0.7.2"
+VERSION = "1.0.0"
 
 from ez_setup import use_setuptools
 
