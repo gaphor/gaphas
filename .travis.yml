@@ -25,4 +25,4 @@ after_success:
   - coveralls
 after_failure:
   - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1)  # Find core dump file
-  - if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
+  - if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" python -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
