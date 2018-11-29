@@ -4,8 +4,11 @@ matrix:
   include:
     - python: 2.7
     - python: 3.5
+      env: PYTHONFAULTHANDLER=1
     - python: 3.6
+      env: PYTHONFAULTHANDLER=1
     - python: 3.7
+      env: PYTHONFAULTHANDLER=1
       sudo: true
 before_install:
   - sudo apt-get update
