@@ -521,7 +521,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     }
 
     def __init__(self, canvas=None):
-        GObject.GObject.__init__(self)
+        Gtk.DrawingArea.__init__(self)
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
