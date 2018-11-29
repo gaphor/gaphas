@@ -10,6 +10,10 @@ from gaphas.guide import Guide, GuidedItemInMotion
 from gaphas.item import Element, Line
 from gaphas.view import GtkView
 
+import faulthandler
+
+faulthandler.enable()
+
 
 class GuideTestCase(unittest.TestCase):
     def setUp(self):
