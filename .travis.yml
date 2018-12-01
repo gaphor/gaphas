@@ -35,3 +35,12 @@ script:
   - xvfb-run pytest -q
 after_success:
   - coveralls
+
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/1e0a1432c48a12660160
+    on_success: change
+    on_failure: always
+    on_start: never
