@@ -21,14 +21,15 @@ GTK+ and PyGObject_ are required.
 .. _PyGObject: https://pygobject.readthedocs.io/
 """
 
-VERSION = "1.0.0"
-
-from ez_setup import use_setuptools
-
-use_setuptools()
+import sys
 
 from setuptools import setup, find_packages
 
+VERSION = "1.0.0"
+
+needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
+pytest_runner = ["pytest-runner"] if needs_pytest else []
+pytest_cov = ["pytest-cov"] if needs_pytest else []
 setup(
     name="gaphas",
     version=VERSION,
@@ -48,22 +49,17 @@ setup(
     url="https://github.com/gaphor/gaphas",
     license="GNU Library General Public License (LGPL, see COPYING)",
     packages=find_packages(exclude=["ez_setup"]),
-    setup_requires=[
-        "pytest-runner",
-        "pytest-faulthandler >= 1.4.1",
-        "pytest-cov >= 2.6.0",
-        "setuptools-git >= 0.3.4",
-        "future",
-        "six",
-        "pre-commit >= 0.12.0",
-    ],
+    setup_requires=["setuptools-git >= 0.3.4"] + pytest_runner + pytest_cov,
     install_requires=[
         "decorator >= 3.0.0",
         "simplegeneric >= 0.6",
-        "PyGObject >= 3.26.1",
-        "pycairo >= 1.11.0",
+        "PyGObject >= 3.20.0",
+        "pycairo >= 1.10.0",
+        "future >= 0.17.0",
+        "six >= 1.8.0",
     ],
     zip_safe=False,
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
     package_data={
         # -*- package_data: -*-
     },
