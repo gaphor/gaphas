@@ -6,7 +6,7 @@ stages:
   - lint
   - test
 
-matrix:
+jobs:
   include:
     - python: 2.7
     - python: 3.5
@@ -14,6 +14,16 @@ matrix:
     - python: 3.7
       env: PYTEST_ADDOPTS="--doctest-modules"
       sudo: true
+
+    - stage: lint
+      python: 3.7
+      before_install: skip
+      install:
+        - pip install pre-commit
+        - pre-commit install-hooks
+      script:
+        - pre-commit run --all-files
+      after_success: skip
 
 before_install:
   - sudo apt-get update -q
@@ -24,15 +34,3 @@ script:
   - xvfb-run pytest -q
 after_success:
   - coveralls
-
-jobs:
-  include:
-    - stage: lint
-      python: 3.7
-      before_install: skip
-      install:
-        - pip install pre-commit
-        - pre-commit install-hooks
-      script:
-        - pre-commit run --all-files
-      after_success: skip
