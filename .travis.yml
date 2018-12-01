@@ -1,7 +1,12 @@
 language: python
 dist: xenial
 cache: pip
-matrix:
+
+stages:
+  - lint
+  - test
+
+jobs:
   include:
     - python: 2.7
     - python: 3.5
@@ -9,13 +14,21 @@ matrix:
     - python: 3.7
       env: PYTEST_ADDOPTS="--doctest-modules"
       sudo: true
+
+    - stage: lint
+      python: 3.7
+      install:
+        - pip install pre-commit
+        - pre-commit install-hooks
+      script:
+        - pip-commit run --all-files
+
 before_install:
   - sudo apt-get update -q
   - sudo apt-get install --no-install-recommends -y xvfb python3-dev python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository1.0-dev libcairo2-dev
 install:
   - pip install -r requirements.txt
 script:
-  - black --check gaphas/
-  - xvfb-run pytest
+  - xvfb-run pytest -q
 after_success:
   - coveralls
