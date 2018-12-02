@@ -444,7 +444,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     """
     Find the point where the lines (segments) defined by
     ``(line1_start, line1_end)`` and ``(line2_start, line2_end)``
-    intersect.  If no intersecion occurs, ``None`` is returned.
+    intersect.  If no intersection occurs, ``None`` is returned.
 
     >>> intersect_line_line((3, 0), (8, 10), (0, 0), (10, 10))
     (6, 6)
@@ -493,7 +493,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     #        DO_INTERSECT      1
     #        COLLINEAR         2
     #
-    # Error condititions:
+    # Error conditions:
     #
     #     Depending upon the possible ranges, and particularly on 16-bit
     #     computers, care should be taken to protect from overflow.
@@ -548,22 +548,23 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
         return None  # ( DONT_INTERSECT )
 
     # Line segments intersect: compute intersection point.
-
-    denom = a1 * b2 - a2 * b1
-    if not denom:
-        return None  # ( COLLINEAR )
-    offset = abs(denom) / 2
-
-    # The denom/2 is to get rounding instead of truncating.  It
+    # The denom / 2 is to get rounding instead of truncating.  It
     # is added or subtracted to the numerator, depending upon the
     # sign of the numerator.
 
-    num = b1 * c2 - b2 * c1
-    x = ((num < 0) and (num - offset) or (num + offset)) / denom
-
-    num = a2 * c1 - a1 * c2
-    y = ((num < 0) and (num - offset) or (num + offset)) / denom
-
+    denom = a1 * b2 - a2 * b1
+    x_num = b1 * c2 - b2 * c1
+    y_num = a2 * c1 - a1 * c2
+    if not denom:
+        return None  # ( COLLINEAR )
+    elif isinstance(denom, float):  # denom is float, use normal division
+        offset = abs(denom) / 2
+        x = ((x_num < 0) and (x_num - offset) or (x_num + offset)) / denom
+        y = ((y_num < 0) and (y_num - offset) or (y_num + offset)) / denom
+    else:  # denom is int, use integer division
+        offset = abs(denom) // 2
+        x = ((x_num < 0) and (x_num - offset) or (x_num + offset)) // denom
+        y = ((y_num < 0) and (y_num - offset) or (y_num + offset)) // denom
     return x, y
 
 
