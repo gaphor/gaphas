@@ -34,13 +34,10 @@ every constraint is being asked to solve itself
 variables to make the constraint valid again.
 """
 
-from __future__ import division
 from __future__ import absolute_import
+from __future__ import division
 
 from builtins import object
-
-__version__ = "$Revision$"
-# $HeadURL$
 
 from .state import observed, reversible_pair, reversible_property
 

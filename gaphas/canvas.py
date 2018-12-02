@@ -28,24 +28,20 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 from __future__ import absolute_import
 
-from builtins import next
+import logging
 from builtins import map
+from builtins import next
 from builtins import object
 from builtins import range
-
-__version__ = "$Revision$"
-# $HeadURL$
-
 from collections import namedtuple
-import logging
 
 from cairo import Matrix
-from gaphas import tree
+
 from gaphas import solver
 from gaphas import table
+from gaphas import tree
 from gaphas.decorators import nonrecursive, AsyncIO
 from .state import observed, reversible_method, reversible_pair
-
 
 #
 # Information about two connected items

@@ -6,9 +6,6 @@ from builtins import map
 from builtins import object
 from builtins import range
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 from operator import attrgetter
 
 

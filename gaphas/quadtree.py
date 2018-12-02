@@ -28,9 +28,6 @@ from builtins import zip
 
 from .geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 
 class Quadtree(object):
     """

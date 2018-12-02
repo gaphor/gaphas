@@ -10,10 +10,6 @@ A point is represented as a tuple `(x, y)`.
 from __future__ import division
 
 from builtins import object
-
-__version__ = "$Revision$"
-# $HeadURL$
-
 from math import sqrt
 
 

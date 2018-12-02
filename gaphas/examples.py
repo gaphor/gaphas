@@ -10,9 +10,6 @@ from gaphas.item import Element, Item, NW, NE, SW, SE
 from gaphas.solver import WEAK
 from .util import text_align, text_multiline, path_ellipse
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 
 class Box(Element):
     """ A Box has 4 handles (for a start):

@@ -4,11 +4,8 @@ canvas).
 """
 from __future__ import division
 
-
-__version__ = "$Revision$"
-# $HeadURL$
-
 from math import pi
+
 import cairo
 
 

@@ -3,17 +3,13 @@ Basic items.
 """
 from __future__ import absolute_import
 
-from builtins import zip
 from builtins import map
 from builtins import object
 from builtins import range
-
-__version__ = "$Revision$"
-# $HeadURL$
-
+from builtins import zip
+from functools import reduce
 from math import atan2
 from weakref import WeakKeyDictionary
-from functools import reduce
 
 try:
     # python 3.0 (better be prepared)
@@ -24,7 +20,7 @@ except ImportError:
 from .matrix import Matrix
 from .geometry import distance_line_point, distance_rectangle_point
 from .connector import Handle, LinePort
-from .solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG, REQUIRED
+from .solver import solvable, WEAK, VERY_STRONG, REQUIRED
 from .constraint import (
     EqualsConstraint,
     LessThanConstraint,

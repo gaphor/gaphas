@@ -35,9 +35,6 @@ from __future__ import print_function
 
 from builtins import object
 
-__version__ = "$Revision$"
-# $HeadURL$
-
 import gi
 
 gi.require_version("Gtk", "3.0")

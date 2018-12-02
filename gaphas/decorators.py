@@ -3,19 +3,13 @@ Custom decorators.
 """
 from __future__ import print_function
 
+import threading
 from builtins import object
 
-__version__ = "$Revision$"
-# $HeadURL$
-
-import threading
 import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
-
-# from GLib import PRIORITY_HIGH, PRIORITY_HIGH_IDLE, PRIORITY_DEFAULT, \
-#         PRIORITY_DEFAULT_IDLE, PRIORITY_LOW
 
 
 DEBUG_ASYNC = False
