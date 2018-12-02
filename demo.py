@@ -15,6 +15,7 @@ It sports a small canvas and some trivial operations:
 """
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 
 import math
