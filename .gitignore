@@ -1,9 +1,18 @@
+# python
 *.pyc
 *.egg
-.coverage
 .eggs/
 *.egg-info/
 build/
 
 # pyenv
 .python-version
+
+# tox
+.tox/
+
+# coverage
+.coverage
+
+# gaphas
+*.svg
