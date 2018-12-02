@@ -1,6 +1,6 @@
+# python
 *.pyc
 *.egg
-.coverage
 .eggs/
 *.egg-info/
 build/
@@ -10,3 +10,9 @@ build/
 
 # tox
 .tox/
+
+# coverage
+.coverage
+
+# gaphas
+*.svg
