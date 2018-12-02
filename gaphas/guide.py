@@ -5,13 +5,13 @@ from __future__ import division
 
 from builtins import map
 from builtins import object
-from past.utils import old_div
+from functools import reduce
+
 from simplegeneric import generic
+
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
-from gaphas.connector import Handle
-from gaphas.item import Item, Element, Line, SE
-from functools import reduce
+from gaphas.item import Item, Element, Line
 
 
 class ItemGuide(object):
@@ -42,11 +42,11 @@ Guide = generic(ItemGuide)
 class ElementGuide(ItemGuide):
     def horizontal(self):
         y = self.item.height
-        return (0, old_div(y, 2), y)
+        return (0, y / 2, y)
 
     def vertical(self):
         x = self.item.width
-        return (0, old_div(x, 2), x)
+        return (0, x / 2, x)
 
 
 @Guide.when_type(Line)

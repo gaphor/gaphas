@@ -11,7 +11,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 from builtins import object
-from past.utils import old_div
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -60,7 +59,7 @@ class Matrix(object):
     reversible_method(invert, invert)
     reversible_method(rotate, rotate, {"radians": lambda radians: -radians})
     reversible_method(
-        scale, scale, {"sx": lambda sx: old_div(1, sx), "sy": lambda sy: old_div(1, sy)}
+        scale, scale, {"sx": lambda sx: 1 / sx, "sy": lambda sy: 1 / sy}
     )
     reversible_method(
         translate, translate, {"tx": lambda tx: -tx, "ty": lambda ty: -ty}

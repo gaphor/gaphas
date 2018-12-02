@@ -6,7 +6,6 @@ from __future__ import division
 
 from builtins import map
 from builtins import object
-from past.utils import old_div
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -657,7 +656,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 value=v.x,
                 lower=u.x,
                 upper=u.x1,
-                step_increment=old_div(aw, 10),
+                step_increment=aw // 10,
                 page_increment=aw,
                 page_size=aw,
             )
@@ -665,7 +664,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._hadjustment.set_value(v.x)
             self._hadjustment.set_lower(u.x)
             self._hadjustment.set_upper(u.x1)
-            self._hadjustment.set_step_increment(old_div(aw, 10))
+            self._hadjustment.set_step_increment(aw // 10)
             self._hadjustment.set_page_increment(aw)
             self._hadjustment.set_page_size(aw)
 
@@ -674,7 +673,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 value=v.y,
                 lower=u.y,
                 upper=u.y1,
-                step_increment=old_div(ah, 10),
+                step_increment=ah // 10,
                 page_increment=ah,
                 page_size=ah,
             )
@@ -682,7 +681,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._vadjustment.set_value(v.y)
             self._vadjustment.set_lower(u.y)
             self._vadjustment.set_upper(u.y1)
-            self._vadjustment.set_step_increment(old_div(ah, 10))
+            self._vadjustment.set_step_increment(ah // 10)
             self._vadjustment.set_page_increment(ah)
             self._vadjustment.set_page_size(ah)
 

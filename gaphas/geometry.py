@@ -10,7 +10,6 @@ A point is represented as a tuple `(x, y)`.
 from __future__ import division
 
 from builtins import object
-from past.utils import old_div
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -382,12 +381,12 @@ def point_on_rectangle(rect, point, border=False):
     if x_inside and y_inside:
         # Find point on side closest to the point
         if min(abs(rx - px), abs(rx + rw - px)) > min(abs(ry - py), abs(ry + rh - py)):
-            if py < ry + old_div(rh, 2.0):
+            if py < ry + rh / 2.0:
                 py = ry
             else:
                 py = ry + rh
         else:
-            if px < rx + old_div(rw, 2.0):
+            if px < rx + rw / 2.0:
                 px = rx
             else:
                 px = rx + rw
@@ -427,7 +426,7 @@ def distance_line_point(line_start, line_end, point):
     if line_len_sqr < 0.0001:
         return distance_point_point(point), line_start
 
-    projlen = old_div((line_end[0] * point[0] + line_end[1] * point[1]), line_len_sqr)
+    projlen = (line_end[0] * point[0] + line_end[1] * point[1]) / line_len_sqr
 
     if projlen < 0.0:
         # Closest point is the start of the line.
@@ -557,17 +556,17 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     denom = a1 * b2 - a2 * b1
     if not denom:
         return None  # ( COLLINEAR )
-    offset = old_div(abs(denom), 2)
+    offset = abs(denom) / 2
 
     # The denom/2 is to get rounding instead of truncating.  It
     # is added or subtracted to the numerator, depending upon the
     # sign of the numerator.
 
     num = b1 * c2 - b2 * c1
-    x = old_div(((num < 0) and (num - offset) or (num + offset)), denom)
+    x = ((num < 0) and (num - offset) or (num + offset)) / denom
 
     num = a2 * c1 - a1 * c2
-    y = old_div(((num < 0) and (num - offset) or (num + offset)), denom)
+    y = ((num < 0) and (num - offset) or (num + offset)) / denom
 
     return x, y
 
