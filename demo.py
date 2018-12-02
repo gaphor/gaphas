@@ -14,25 +14,20 @@ It sports a small canvas and some trivial operations:
 
 """
 
-__version__ = "$Revision$"
-# $HeadURL$
+import gi
 
-try:
-    import gi
-except ImportError:
-    pass
-else:
-    gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "3.0")
 
 import math
-from gi.repository import Gtk
+
 import cairo
+from gi.repository import Gtk
+
 from gaphas import Canvas, GtkView, View
+from gaphas import state
 from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
-from gaphas.item import Line, NW, SE
-from gaphas.tool import PlacementTool, HandleTool
-from gaphas.segment import Segment
-import gaphas.guide
+from gaphas.freehand import FreeHandPainter
+from gaphas.item import Line
 from gaphas.painter import (
     PainterChain,
     ItemPainter,
@@ -41,11 +36,9 @@ from gaphas.painter import (
     ToolPainter,
     BoundingBoxPainter,
 )
-from gaphas import state
+from gaphas.segment import Segment
+from gaphas.tool import PlacementTool, HandleTool
 from gaphas.util import text_extents, text_underline
-from gaphas.freehand import FreeHandPainter
-
-from gaphas import painter
 
 # painter.DEBUG_DRAW_BOUNDING_BOX = True
 

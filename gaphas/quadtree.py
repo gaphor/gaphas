@@ -21,15 +21,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from builtins import zip
+import operator
 from builtins import map
 from builtins import object
-from past.utils import old_div
+from builtins import zip
 
-__version__ = "$Revision$"
-# $HeadURL$
-
-import operator
 from .geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
 
@@ -298,7 +294,7 @@ class QuadtreeBucket(object):
         # create new subnodes if threshold is reached
         if not self._buckets and len(self.items) >= self.capacity:
             x, y, w, h = self.bounds
-            rw, rh = old_div(w, 2.0), old_div(h, 2.0)
+            rw, rh = w / 2.0, h / 2.0
             cx, cy = x + rw, y + rh
             self._buckets = [
                 QuadtreeBucket((x, y, rw, rh), self.capacity),
@@ -341,7 +337,7 @@ class QuadtreeBucket(object):
         """
         if self._buckets:
             sx, sy, sw, sh = self.bounds
-            cx, cy = sx + old_div(sw, 2.0), sy + old_div(sh, 2.0)
+            cx, cy = sx + sw / 2.0, sy + sh / 2.0
             x, y, w, h = bounds
             index = 0
             if x >= cx:

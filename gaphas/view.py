@@ -6,23 +6,17 @@ from __future__ import division
 
 from builtins import map
 from builtins import object
-from past.utils import old_div
 
-__version__ = "$Revision$"
-# $HeadURL$
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GObject, Gdk
 from cairo import Matrix
+from gi.repository import Gtk, GObject, Gdk
+
 from .canvas import Context
-from .geometry import Rectangle, distance_point_point_fast
-from .quadtree import Quadtree
-from .tool import DefaultTool
-from .painter import DefaultPainter, BoundingBoxPainter
 from .decorators import AsyncIO
 from .decorators import nonrecursive
+from .geometry import Rectangle, distance_point_point_fast
+from .painter import DefaultPainter, BoundingBoxPainter
+from .quadtree import Quadtree
+from .tool import DefaultTool
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -657,7 +651,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 value=v.x,
                 lower=u.x,
                 upper=u.x1,
-                step_increment=old_div(aw, 10),
+                step_increment=aw // 10,
                 page_increment=aw,
                 page_size=aw,
             )
@@ -665,7 +659,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._hadjustment.set_value(v.x)
             self._hadjustment.set_lower(u.x)
             self._hadjustment.set_upper(u.x1)
-            self._hadjustment.set_step_increment(old_div(aw, 10))
+            self._hadjustment.set_step_increment(aw // 10)
             self._hadjustment.set_page_increment(aw)
             self._hadjustment.set_page_size(aw)
 
@@ -674,7 +668,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 value=v.y,
                 lower=u.y,
                 upper=u.y1,
-                step_increment=old_div(ah, 10),
+                step_increment=ah // 10,
                 page_increment=ah,
                 page_size=ah,
             )
@@ -682,7 +676,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._vadjustment.set_value(v.y)
             self._vadjustment.set_lower(u.y)
             self._vadjustment.set_upper(u.y1)
-            self._vadjustment.set_step_increment(old_div(ah, 10))
+            self._vadjustment.set_step_increment(ah // 10)
             self._vadjustment.set_page_increment(ah)
             self._vadjustment.set_page_size(ah)
 

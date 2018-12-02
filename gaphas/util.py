@@ -4,12 +4,8 @@ canvas).
 """
 from __future__ import division
 
-from past.utils import old_div
-
-__version__ = "$Revision$"
-# $HeadURL$
-
 from math import pi
+
 import cairo
 
 
@@ -57,13 +53,13 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
 
     x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
     if align_x == 0:
-        x = 0.5 - (old_div(w, 2) + x_bear) + x
+        x = 0.5 - (w / 2 + x_bear) + x
     elif align_x < 0:
         x = -(w + x_bear) + x - padding_x
     else:
         x = x + padding_x
     if align_y == 0:
-        y = 0.5 - (old_div(h, 2) + y_bear) + y
+        y = 0.5 - (h / 2 + y_bear) + y
     elif align_y < 0:
         y = -(h + y_bear) + y - padding_y
     else:
@@ -131,7 +127,7 @@ def path_ellipse(cr, x, y, width, height, angle=0):
     cr.save()
     cr.translate(x, y)
     cr.rotate(angle)
-    cr.scale(old_div(width, 2.0), old_div(height, 2.0))
+    cr.scale(width / 2.0, height / 2.0)
     cr.move_to(1.0, 0.0)
     cr.arc(0.0, 0.0, 1.0, 0.0, 2.0 * pi)
     cr.restore()

@@ -37,11 +37,6 @@ import math
 
 from gaphas.solver import Projection
 
-
-__version__ = "$Revision$"
-# $HeadURL$
-
-
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
 

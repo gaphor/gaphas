@@ -34,24 +34,9 @@ from __future__ import division
 from __future__ import print_function
 
 from builtins import object
-from past.utils import old_div
 
-__version__ = "$Revision$"
-# $HeadURL$
-
-import sys
-
-import cairo
-
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
-from gaphas.canvas import Context
-from gaphas.geometry import Rectangle
-from gaphas.geometry import distance_point_point_fast, distance_line_point
-from gaphas.item import Line
 from gaphas.aspect import (
     Finder,
     Selection,
@@ -61,7 +46,7 @@ from gaphas.aspect import (
     HandleInMotion,
     Connector,
 )
-
+from gaphas.canvas import Context
 
 DEBUG_TOOL_CHAIN = False
 
@@ -525,9 +510,7 @@ class PanTool(Tool):
             self.x1, self.y1 = event.get_coords()[1:]
             dx = self.x1 - self.x0
             dy = self.y1 - self.y0
-            view._matrix.translate(
-                old_div(dx, view._matrix[0]), old_div(dy, view._matrix[3])
-            )
+            view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
             # Make sure everything's updated
             view.request_update((), view._canvas.get_all_items())
             self.x0 = self.x1
@@ -541,13 +524,13 @@ class PanTool(Tool):
         view = self.view
         direction = get_scroll_direction()[1]
         if direction == Gdk.ScrollDirection.LEFT:
-            view._matrix.translate(old_div(self.speed, view._matrix[0]), 0)
+            view._matrix.translate(self.speed / view._matrix[0], 0)
         elif direction == Gdk.ScrollDirection.RIGHT:
-            view._matrix.translate(old_div(-self.speed, view._matrix[0]), 0)
+            view._matrix.translate(-self.speed / view._matrix[0], 0)
         elif direction == Gdk.ScrollDirection.UP:
-            view._matrix.translate(0, old_div(self.speed, view._matrix[3]))
+            view._matrix.translate(0, self.speed / view._matrix[3])
         elif direction == Gdk.ScrollDirection.DOWN:
-            view._matrix.translate(0, old_div(-self.speed, view._matrix[3]))
+            view._matrix.translate(0, -self.speed / view._matrix[3])
         view.request_update((), view._canvas.get_all_items())
         return True
 
@@ -599,12 +582,12 @@ class ZoomTool(Tool):
 
             sx = view._matrix[0]
             sy = view._matrix[3]
-            ox = old_div((view._matrix[4] - self.x0), sx)
-            oy = old_div((view._matrix[5] - self.y0), sy)
+            ox = (view._matrix[4] - self.x0) / sx
+            oy = (view._matrix[5] - self.y0) / sy
 
             if abs(dy - self.lastdiff) > 20:
                 if dy - self.lastdiff < 0:
-                    factor = old_div(1.0, 0.9)
+                    factor = 1.0 / 0.9
                 else:
                     factor = 0.9
 
@@ -625,11 +608,11 @@ class ZoomTool(Tool):
             sx = view._matrix[0]
             sy = view._matrix[3]
             pos = event.get_coords()[1:]
-            ox = old_div((view._matrix[4] - pos[0]), sx)
-            oy = old_div((view._matrix[5] - pos[1]), sy)
+            ox = (view._matrix[4] - pos[0]) / sx
+            oy = (view._matrix[5] - pos[1]) / sy
             factor = 0.9
             if event.get_scroll_direction()[1] == Gdk.ScrollDirection.UP:
-                factor = old_div(1.0, factor)
+                factor = 1.0 / factor
             view._matrix.translate(-ox, -oy)
             view._matrix.scale(factor, factor)
             view._matrix.translate(+ox, +oy)

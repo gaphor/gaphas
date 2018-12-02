@@ -7,7 +7,6 @@ import math
 import unittest
 
 from gi.repository import Gtk
-from past.utils import old_div
 
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
@@ -113,7 +112,7 @@ class ViewTestCase(unittest.TestCase):
         box.min_width = 20
         box.min_height = 30
         box.matrix.translate(20, 20)
-        box.matrix.rotate(old_div(math.pi, 1.5))
+        box.matrix.rotate(math.pi / 1.5)
         canvas.add(box)
 
         i, h = view.get_handle_at_point((20, 20))
@@ -131,7 +130,7 @@ class ViewTestCase(unittest.TestCase):
         box.min_width = 20
         box.min_height = 30
         box.matrix.translate(20, 20)
-        box.matrix.rotate(old_div(math.pi, 2))
+        box.matrix.rotate(math.pi / 2)
         canvas.add(box)
 
         p = canvas.get_matrix_i2c(box).transform_point(0, 20)

@@ -9,7 +9,6 @@ and handles).
 from __future__ import division
 
 from builtins import object
-from past.utils import old_div
 
 __version__ = "$Revision$"
 # $HeadURL$
@@ -197,7 +196,7 @@ class CairoBoundingBoxContext(object):
         cr.restore()
         if b and line_width:
             # Do this after the restore(), so we can get the proper width.
-            lw = old_div(cr.get_line_width(), 2)
+            lw = cr.get_line_width() / 2
             d = cr.user_to_device_distance(lw, lw)
             b.expand(d[0] + d[1])
         self._update_bounds(b)
@@ -332,9 +331,7 @@ class HandlePainter(Painter):
                 cairo.line_to(2, 3)
                 cairo.move_to(2, -2)
                 cairo.line_to(-2, 3)
-            cairo.set_source_rgba(
-                old_div(r, 4.0), old_div(g, 4.0), old_div(b, 4.0), opacity * 1.3
-            )
+            cairo.set_source_rgba(r / 4.0, g / 4.0, b / 4.0, opacity * 1.3)
             cairo.stroke()
         cairo.restore()
 

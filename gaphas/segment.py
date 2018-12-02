@@ -3,16 +3,17 @@ Allow for easily adding segments to lines.
 """
 from __future__ import division
 
-from builtins import zip
 from builtins import object
-from past.utils import old_div
+from builtins import zip
+
 from cairo import Matrix, ANTIALIAS_NONE
 from simplegeneric import generic
+
+from gaphas.aspect import ConnectionSink
+from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
+from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
 from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
-from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
-from gaphas.aspect import ConnectionSink
-from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
 
 
 @generic
@@ -32,8 +33,8 @@ class LineSegment(object):
         handles = item.handles()
         x, y = self.view.get_matrix_v2i(item).transform_point(*pos)
         for h1, h2 in zip(handles, handles[1:]):
-            xp = old_div((h1.pos.x + h2.pos.x), 2)
-            yp = old_div((h1.pos.y + h2.pos.y), 2)
+            xp = (h1.pos.x + h2.pos.x) / 2
+            yp = (h1.pos.y + h2.pos.y) / 2
             if distance_point_point_fast((x, y), (xp, yp)) <= 4:
                 segment = handles.index(h1)
                 handles, ports = self.split_segment(segment)
@@ -65,9 +66,7 @@ class LineSegment(object):
             p0 = handles[segment].pos
             p1 = handles[segment + 1].pos
             dx, dy = p1.x - p0.x, p1.y - p0.y
-            new_h = item._create_handle(
-                (p0.x + old_div(dx, count), p0.y + old_div(dy, count))
-            )
+            new_h = item._create_handle((p0.x + dx / count, p0.y + dy / count))
             item._reversible_insert_handle(segment + 1, new_h)
 
             p0 = item._create_port(p0, new_h.pos)
@@ -249,8 +248,8 @@ class LineSegmentPainter(ItemPaintFocused):
             h = item.handles()
             for h1, h2 in zip(h[:-1], h[1:]):
                 p1, p2 = h1.pos, h2.pos
-                cx = old_div((p1.x + p2.x), 2)
-                cy = old_div((p1.y + p2.y), 2)
+                cx = (p1.x + p2.x) / 2
+                cy = (p1.y + p2.y) / 2
                 cr.save()
                 cr.identity_matrix()
                 m = Matrix(*view.get_matrix_i2v(item))

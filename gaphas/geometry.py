@@ -10,11 +10,6 @@ A point is represented as a tuple `(x, y)`.
 from __future__ import division
 
 from builtins import object
-from past.utils import old_div
-
-__version__ = "$Revision$"
-# $HeadURL$
-
 from math import sqrt
 
 
@@ -382,12 +377,12 @@ def point_on_rectangle(rect, point, border=False):
     if x_inside and y_inside:
         # Find point on side closest to the point
         if min(abs(rx - px), abs(rx + rw - px)) > min(abs(ry - py), abs(ry + rh - py)):
-            if py < ry + old_div(rh, 2.0):
+            if py < ry + rh / 2.0:
                 py = ry
             else:
                 py = ry + rh
         else:
-            if px < rx + old_div(rw, 2.0):
+            if px < rx + rw / 2.0:
                 px = rx
             else:
                 px = rx + rw
@@ -427,7 +422,7 @@ def distance_line_point(line_start, line_end, point):
     if line_len_sqr < 0.0001:
         return distance_point_point(point), line_start
 
-    projlen = old_div((line_end[0] * point[0] + line_end[1] * point[1]), line_len_sqr)
+    projlen = (line_end[0] * point[0] + line_end[1] * point[1]) / line_len_sqr
 
     if projlen < 0.0:
         # Closest point is the start of the line.
@@ -449,7 +444,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     """
     Find the point where the lines (segments) defined by
     ``(line1_start, line1_end)`` and ``(line2_start, line2_end)``
-    intersect.  If no intersecion occurs, ``None`` is returned.
+    intersect.  If no intersection occurs, ``None`` is returned.
 
     >>> intersect_line_line((3, 0), (8, 10), (0, 0), (10, 10))
     (6, 6)
@@ -498,7 +493,7 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     #        DO_INTERSECT      1
     #        COLLINEAR         2
     #
-    # Error condititions:
+    # Error conditions:
     #
     #     Depending upon the possible ranges, and particularly on 16-bit
     #     computers, care should be taken to protect from overflow.
@@ -553,22 +548,23 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
         return None  # ( DONT_INTERSECT )
 
     # Line segments intersect: compute intersection point.
-
-    denom = a1 * b2 - a2 * b1
-    if not denom:
-        return None  # ( COLLINEAR )
-    offset = old_div(abs(denom), 2)
-
-    # The denom/2 is to get rounding instead of truncating.  It
+    # The denom / 2 is to get rounding instead of truncating.  It
     # is added or subtracted to the numerator, depending upon the
     # sign of the numerator.
 
-    num = b1 * c2 - b2 * c1
-    x = old_div(((num < 0) and (num - offset) or (num + offset)), denom)
-
-    num = a2 * c1 - a1 * c2
-    y = old_div(((num < 0) and (num - offset) or (num + offset)), denom)
-
+    denom = a1 * b2 - a2 * b1
+    x_num = b1 * c2 - b2 * c1
+    y_num = a2 * c1 - a1 * c2
+    if not denom:
+        return None  # ( COLLINEAR )
+    elif isinstance(denom, float):  # denom is float, use normal division
+        offset = abs(denom) / 2
+        x = ((x_num < 0) and (x_num - offset) or (x_num + offset)) / denom
+        y = ((y_num < 0) and (y_num - offset) or (y_num + offset)) / denom
+    else:  # denom is int, use integer division
+        offset = abs(denom) // 2
+        x = ((x_num < 0) and (x_num - offset) or (x_num + offset)) // denom
+        y = ((y_num < 0) and (y_num - offset) or (y_num + offset)) // denom
     return x, y
 
 
