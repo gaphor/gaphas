@@ -66,9 +66,7 @@ class LineSegment(object):
             p0 = handles[segment].pos
             p1 = handles[segment + 1].pos
             dx, dy = p1.x - p0.x, p1.y - p0.y
-            new_h = item._create_handle(
-                (p0.x + dx / count, p0.y + dy / count)
-            )
+            new_h = item._create_handle((p0.x + dx / count, p0.y + dy / count))
             item._reversible_insert_handle(segment + 1, new_h)
 
             p0 = item._create_port(p0, new_h.pos)

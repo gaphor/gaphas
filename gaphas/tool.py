@@ -510,9 +510,7 @@ class PanTool(Tool):
             self.x1, self.y1 = event.get_coords()[1:]
             dx = self.x1 - self.x0
             dy = self.y1 - self.y0
-            view._matrix.translate(
-                dx / view._matrix[0], dy / view._matrix[3]
-            )
+            view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
             # Make sure everything's updated
             view.request_update((), view._canvas.get_all_items())
             self.x0 = self.x1
