@@ -14,12 +14,8 @@ It sports a small canvas and some trivial operations:
 
 """
 
-try:
-    import gi
-except ImportError:
-    pass
-else:
-    gi.require_version("Gtk", "3.0")
+import gi
+gi.require_version("Gtk", "3.0")
 
 import math
 

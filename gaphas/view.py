@@ -7,7 +7,6 @@ from __future__ import division
 from builtins import map
 from builtins import object
 
-import gi
 from cairo import Matrix
 from gi.repository import Gtk, GObject, Gdk
 
@@ -18,8 +17,6 @@ from .geometry import Rectangle, distance_point_point_fast
 from .painter import DefaultPainter, BoundingBoxPainter
 from .quadtree import Quadtree
 from .tool import DefaultTool
-
-gi.require_version("Gtk", "3.0")
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False

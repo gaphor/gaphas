@@ -35,12 +35,8 @@ from __future__ import print_function
 
 from builtins import object
 
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
-from gaphas.canvas import Context
 from gaphas.aspect import (
     Finder,
     Selection,
@@ -50,7 +46,7 @@ from gaphas.aspect import (
     HandleInMotion,
     Connector,
 )
-
+from gaphas.canvas import Context
 
 DEBUG_TOOL_CHAIN = False
 
