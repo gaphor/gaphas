@@ -46,3 +46,19 @@ pytest-sugar = "^0.9.2"
 
 [tool.poetry.scripts]
 poetry = "poetry.console:main"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skipsdist = True
+envlist = py27, py356, py36, py37
+
+[testenv]
+whitelist_externals =
+    poetry
+    xvfb-run
+skip_install = true
+commands =
+    poetry install -v
+    xvfb-run -a pytest
+"""
