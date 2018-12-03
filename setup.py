@@ -55,7 +55,7 @@ setup(
         "simplegeneric >= 0.6",
         "PyGObject >= 3.20.0",
         "pycairo >= 1.10.0",
-        "future >= 0.17.0"
+        "future >= 0.17.0",
     ],
     zip_safe=False,
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
