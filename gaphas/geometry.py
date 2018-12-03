@@ -463,8 +463,18 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     >>> intersect_line_line((527.5, 141.5), (336.5, 139.5), (478.0, 117.0), (478.0, 166.0))
     (478.5, 141.48167539267016)
 
-    This is a Python translation of the ``lines_intersect`` routine written
+    This is a Python translation of the ``lines_intersect``, C Code from
+    Graphics Gems II, Academic Press, Inc. The original routine was written
     by Mukesh Prasad.
+
+    EULA: The Graphics Gems code is copyright-protected. In other words, you
+    cannot claim the text of the code as your own and resell it. Using the code
+    is permitted in any program, product, or library, non-commercial or
+    commercial. Giving credit is not required, though is a nice gesture. The
+    code comes as-is, and if there are any flaws or problems with any Gems
+    code, nobody involved with Gems - authors, editors, publishers, or
+    webmasters - are to be held responsible. Basically, don't be a jerk, and
+    remember that anything free comes with no guarantee.
     """
     #
     #   This function computes whether two line segments,
