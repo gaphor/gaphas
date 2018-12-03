@@ -42,7 +42,6 @@ class View(object):
         self._focused_item = None
         self._hovered_item = None
         self._dropzone_item = None
-        ###/
 
         self._qtree = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)

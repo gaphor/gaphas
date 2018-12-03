@@ -33,7 +33,6 @@ simplegeneric = "^0.8.1"
 PyGObject = "^3.20.0"
 pycairo = "^1.10.0"
 future = "^0.17.0"
-six = "^1.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"

@@ -18,16 +18,16 @@ set::
 
 """
 
+import sys
 from builtins import zip
 from threading import Lock
 from types import MethodType
 
-import six
 from decorator import decorator
 
-if six.PY3:
+if sys.version_info.major >= 3:  # Modern Python
     from inspect import getfullargspec as getargspec
-if six.PY2:
+else:  # Legacy Python
     from inspect import getargspec
 
 # This string is added to each docstring in order to denote is's observed
@@ -280,10 +280,10 @@ def getfunction(func):
     Return the function associated with a class method.
     """
     if isinstance(func, MethodType):
-        if six.PY2:
-            return func.__func__
-        if six.PY3:
+        if sys.version_info.major >= 3:  # Modern Python
             return func
+        else:  # Legacy Python
+            return func.__func__
     return func
 
 
