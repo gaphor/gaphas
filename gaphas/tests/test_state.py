@@ -1,7 +1,6 @@
+import sys
 import unittest
 from builtins import object
-
-import six
 
 from gaphas.state import reversible_pair, observed, _reverse
 
@@ -33,9 +32,9 @@ class StateTestCase(unittest.TestCase):
             bind1={"before": lambda self, node: self.list[self.list.index(node) + 1]},
         )
 
-        if six.PY2:
-            self.assertTrue(SList.add.__func__ in _reverse)
-            self.assertTrue(SList.remove.__func__ in _reverse)
-        if six.PY3:
+        if sys.version_info.major >= 3:  # Modern Python
             self.assertTrue(SList.add in _reverse)
             self.assertTrue(SList.remove in _reverse)
+        else:  # Legacy Python
+            self.assertTrue(SList.add.__func__ in _reverse)
+            self.assertTrue(SList.remove.__func__ in _reverse)

@@ -48,7 +48,7 @@ setup(
     author_email="arjanmol@users.sourceforge.net",
     url="https://github.com/gaphor/gaphas",
     license="GNU Library General Public License (LGPL, see COPYING)",
-    packages=find_packages(exclude=["ez_setup"]),
+    packages=find_packages(),
     setup_requires=["setuptools-git >= 0.3.4"] + pytest_runner + pytest_cov,
     install_requires=[
         "decorator >= 3.0.0",
@@ -56,7 +56,6 @@ setup(
         "PyGObject >= 3.20.0",
         "pycairo >= 1.10.0",
         "future >= 0.17.0",
-        "six >= 1.8.0",
     ],
     zip_safe=False,
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
