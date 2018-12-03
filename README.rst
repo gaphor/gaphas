@@ -19,8 +19,8 @@ The basic idea is:
 - Very modular: e.g. handle support could be swapped in and swapped out.
 - Rendering using Cairo.
 
- Gaphas is released under the terms of the GNU Library General Public License
- (LGPL). See the COPYING file for details.
+ Gaphas is released under the terms of the Apache License, version 2.0.
+ See the LICENSE file for details.
 
 .. contents::
 

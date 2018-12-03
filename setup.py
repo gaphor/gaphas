@@ -39,7 +39,7 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Environment :: X11 Applications :: GTK",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
@@ -47,7 +47,7 @@ setup(
     author="Arjan J. Molenaar",
     author_email="arjanmol@users.sourceforge.net",
     url="https://github.com/gaphor/gaphas",
-    license="GNU Library General Public License (LGPL, see COPYING)",
+    license="Apache 2.0 License (see LICENSE)",
     packages=find_packages(),
     setup_requires=["setuptools-git >= 0.3.4"] + pytest_runner + pytest_cov,
     install_requires=[
