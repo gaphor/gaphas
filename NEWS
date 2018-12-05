@@ -1,3 +1,9 @@
+1.0.0
+-----
+- Port to Python 3 with support for 3.5, 3.6, and 3.7
+- Python < 2.7 no longer supported
+- Port from PyGTK to PyGObject
+
 0.7.2
 -----
 - Fix bug in calculating bounding box for rotated text
