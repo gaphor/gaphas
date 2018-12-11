@@ -18,8 +18,7 @@ The basic idea is:
 - Very modular: e.g. handle support could be swapped in and swapped out.
 - Rendering using Cairo_. This implies the diagrams can be exported in a number of formats, including PNG and SVG.
 
-Gaphas is released under the terms of the GNU Library General Public License
-(LGPL).
+Gaphas is released under the terms of the Apache Software License, version 2.0.
 
 Gaphas has been build using `setuptools` and can be installed as Python Egg.
 
