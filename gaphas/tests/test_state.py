@@ -1,5 +1,4 @@
 import sys
-import unittest
 from builtins import object
 
 from gaphas.state import reversible_pair, observed, _reverse
@@ -22,19 +21,19 @@ class SList(object):
         self.list.remove(self.list.index(node))
 
 
-class StateTestCase(unittest.TestCase):
-    def test_adding_pair(self):
-        """Test adding reversible pair
-        """
-        reversible_pair(
-            SList.add,
-            SList.remove,
-            bind1={"before": lambda self, node: self.list[self.list.index(node) + 1]},
-        )
+def test_adding_pair():
+    """Test adding reversible pair.
 
-        if sys.version_info.major >= 3:  # Modern Python
-            self.assertTrue(SList.add in _reverse)
-            self.assertTrue(SList.remove in _reverse)
-        else:  # Legacy Python
-            self.assertTrue(SList.add.__func__ in _reverse)
-            self.assertTrue(SList.remove.__func__ in _reverse)
+    """
+    reversible_pair(
+        SList.add,
+        SList.remove,
+        bind1={"before": lambda self, node: self.list[self.list.index(node) + 1]},
+    )
+
+    if sys.version_info.major >= 3:  # Modern Python
+        assert SList.add in _reverse
+        assert SList.remove in _reverse
+    else:  # Legacy Python
+        assert SList.add.__func__ in _reverse
+        assert SList.remove.__func__ in _reverse

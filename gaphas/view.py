@@ -252,7 +252,7 @@ class View(object):
                 if -d < (hx - x) < d and -d < (hy - y) < d:
                     return h
 
-        # The focused item is the prefered item for handle grabbing
+        # The focused item is the preferred item for handle grabbing
         if self.focused_item:
             h = find(self.focused_item)
             if h:
