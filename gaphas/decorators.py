@@ -6,6 +6,9 @@ from __future__ import print_function
 import threading
 from builtins import object
 
+import gi
+
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 
 DEBUG_ASYNC = False
