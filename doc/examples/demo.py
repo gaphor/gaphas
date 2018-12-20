@@ -454,9 +454,7 @@ def create_canvas(c=None):
 
 
 def main():
-    ##
-    ## State handling (a.k.a. undo handlers)
-    ##
+    # State handling (a.k.a. undo handlers)
 
     # First, activate the revert handler:
     state.observers.add(state.revert_handler)
@@ -472,9 +470,7 @@ def main():
 
     # state.subscribers.add(print_handler)
 
-    ##
-    ## Start the main application
-    ##
+    # Start the main application
 
     create_window(c, "View created after")
 
