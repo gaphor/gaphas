@@ -22,6 +22,21 @@
         "question",
         "plugin"
       ]
+    },
+    {
+      "login": "danyeaw",
+      "name": "Dan Yeaw",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/10014976?v=4",
+      "profile": "https://ghuser.io/danyeaw",
+      "contributions": [
+        "code",
+        "test",
+        "review",
+        "bug",
+        "question",
+        "infra",
+        "doc"
+      ]
     }
   ]
 }

@@ -1,5 +1,5 @@
 # Gaphas
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors)
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Build state](https://travis-ci.com/gaphor/gaphas.svg?branch=master)](https://travis-ci.com/gaphor/gaphas)
@@ -558,8 +558,8 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
-| [<img src="https://avatars0.githubusercontent.com/u/96249?v=4" width="100px;"/><br /><sub><b>Arjan Molenaar</b></sub>](https://github.com/amolenaar)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aamolenaar "Bug reports") [📖](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Documentation") [👀](#review-amolenaar "Reviewed Pull Requests") [💬](#question-amolenaar "Answering Questions") [🔌](#plugin-amolenaar "Plugin/utility libraries") |
-| :---: |
+| [<img src="https://avatars0.githubusercontent.com/u/96249?v=4" width="100px;"/><br /><sub><b>Arjan Molenaar</b></sub>](https://github.com/amolenaar)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aamolenaar "Bug reports") [📖](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Documentation") [👀](#review-amolenaar "Reviewed Pull Requests") [💬](#question-amolenaar "Answering Questions") [🔌](#plugin-amolenaar "Plugin/utility libraries") | [<img src="https://avatars1.githubusercontent.com/u/10014976?v=4" width="100px;"/><br /><sub><b>Dan Yeaw</b></sub>](https://ghuser.io/danyeaw)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Code") [⚠️](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Tests") [👀](#review-danyeaw "Reviewed Pull Requests") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Adanyeaw "Bug reports") [💬](#question-danyeaw "Answering Questions") [🚇](#infra-danyeaw "Infrastructure (Hosting, Build-Tools, etc)") [📖](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Documentation") |
+| :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
