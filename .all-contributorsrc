@@ -58,6 +58,16 @@
         "bug",
         "doc"
       ]
+    },
+    {
+      "login": "franzlst",
+      "name": "Franz Steinmetz",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/1144966?v=4",
+      "profile": "http://www.franework.de",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ]
 }
