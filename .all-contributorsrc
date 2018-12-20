@@ -45,7 +45,8 @@
       "profile": "https://github.com/wrobell",
       "contributions": [
         "code",
-        "test"
+        "test",
+        "review"
       ]
     },
     {
@@ -76,6 +77,16 @@
       "profile": "https://github.com/adrianboguszewski",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "Rbelder",
+      "name": "Rico Belder",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/15119522?v=4",
+      "profile": "https://github.com/Rbelder",
+      "contributions": [
+        "bug",
+        "review"
       ]
     }
   ]
