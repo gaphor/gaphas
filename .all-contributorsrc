@@ -47,6 +47,17 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "jlstevens",
+      "name": "Jean-Luc Stevens",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/890576?v=4",
+      "profile": "https://github.com/jlstevens",
+      "contributions": [
+        "code",
+        "bug",
+        "doc"
+      ]
     }
   ]
 }
