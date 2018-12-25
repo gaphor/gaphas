@@ -891,7 +891,7 @@ specification. Contributions of any kind are welcome!
 
 1.  Check for open issues or open a fresh issue to start a discussion
     around a feature idea or a bug. There is a 
-    [first-timers-only](https://github.com/gaphor/gaphor/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only)
+    [first-timers-only](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only)
     tag for issues that should be ideal for people who are not very
     familiar with the codebase yet.
 2.  Fork [the repository](https://github.com/gaphor/gaphas) on
