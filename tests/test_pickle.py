@@ -5,10 +5,11 @@ import pickle
 from builtins import object
 
 import cairo
+import pytest
 from future import standard_library
 from gi.repository import Gtk
 
-from doc.examples import demo
+from docs.examples import demo
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Element, Line

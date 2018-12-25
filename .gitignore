@@ -4,6 +4,7 @@
 .eggs/
 *.egg-info/
 build/
+dist/
 
 # pyenv
 .python-version
