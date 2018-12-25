@@ -1,0 +1,195 @@
+State management
+================
+
+A special word should be mentioned about state management. Managing state is
+the first step in creating an undo system.
+
+The state system consists of two parts:
+
+1. A basic observer (the ``@observed`` decorator)
+2. A reverser
+
+
+Observer
+--------
+
+The observer simply dispatches the function called (as ``<function ..>``, not as
+``<unbound method..>``!) to each handler registered in an observers list.
+
+    >>> from gaphas import state
+    >>> state.observers.clear()
+    >>> state.subscribers.clear()
+
+Let's start with creating a Canvas instance and some items:
+
+    >>> from gaphas.canvas import Canvas
+    >>> from gaphas.item import Item
+    >>> canvas = Canvas()
+    >>> item1, item2 = Item(), Item()
+
+For this demonstration let's use the Canvas class (which contains an add/remove
+method pair).
+
+It works (see how the add method automatically schedules the item for update):
+
+    >>> def handler(event):
+    ...     print('event handled', event)
+    >>> state.observers.add(handler)
+    >>> canvas.add(item1)                              # doctest: +ELLIPSIS
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
+    >>> canvas.add(item2, parent=item1)                # doctest: +ELLIPSIS
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
+    >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+
+Note that the handler is invoked before the actual call is made. This is
+important if you want to store the (old) state for an undo mechanism.
+
+Remember that this observer is just a simple method call notifier and knows
+nothing about the internals of the ``Canvas`` class (in this case the
+``remove()`` method recursively calls ``remove()`` for each of it's children).
+Therefore some careful crafting of methods may be necessary in order to get the
+right effect (items should be removed in the right order, child first):
+
+    >>> canvas.remove(item1)                           # doctest: +ELLIPSIS
+    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
+    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
+    >>> canvas.get_all_items()
+    []
+
+The ``@observed`` decorator can also be applied to properties, as is done in
+gaphas/connector.py's Handle class:
+
+    >>> from gaphas.solver import Variable
+    >>> var = Variable()
+    >>> var.value = 10                                  # doctest: +ELLIPSIS
+    event handled (<function Variable.set_value at 0x...>, (Variable(0, 20), 10), {})
+
+(this is simply done by observing the setter method).
+
+Off course handlers can be removed as well (only the default revert handler
+is present now):
+
+    >>> state.observers.remove(handler)
+    >>> state.observers                                 # doctest: +ELLIPSIS
+    set()
+
+What should you know:
+
+1. The observer always generates events based on 'function' calls. Even for
+   class method invocations. This is because, when calling a method (say
+   Tree.add) it's the ``im_func`` field is executed, which is a function type
+   object.
+
+2. It's important to know if an event came from invoking a method or a simple
+   function. With methods, the first argument always is an instance. This can
+   be handy when writing an undo management systems in case multiple calls
+   from the same instance do not have to be registered (e.g. if a method
+   ``set_point()`` is called with exact coordinates (in stead of deltas), only
+   the first call to ``set_point()`` needs to be remembered).
+
+
+Reverser
+--------
+
+The reverser requires some registration.
+
+1. Property setters should be declared with ``reversible_property()``
+2. Method (or function) pairs that implement each others reverse operation
+   (e.g. add and remove) should be registered as ``reversible_pair()``'s in the
+   reverser engine.
+   The reverser will construct a tuple (callable, arguments) which are send
+   to every handler registered in the subscribers list. Arguments is a
+   ``dict()``.
+
+First thing to do is to actually enable the ``revert_handler``:
+
+    >>> state.observers.add(state.revert_handler)
+
+This handler is not enabled by default because:
+
+1. it generates quite a bit of overhead if it isn't used anyway
+2. you might want to add some additional filtering.
+
+Point 2 may require some explanation. First of all observers have been added
+to almost every method that involves a state change. As a result loads of
+events are generated. In most cases you're only interested in the first event,
+since that one contains the state before it started changing.
+
+Handlers for the reverse events should be registered on the subscribers list:
+
+    >>> events = []
+    >>> def handler(event):
+    ...     events.append(event)
+    ...     print('event handler', event)
+    >>> state.subscribers.add(handler)
+
+After that, signals can be received of undoable (reverse-)events:
+
+    >>> canvas.add(Item())                              # doctest: +ELLIPSIS
+    event handler (<function Canvas._remove at ...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <gaphas.item.Item object at 0x...>})
+    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    [<gaphas.item.Item object at 0x...>]
+
+As you can see this event is constructed of only two parameters: the function
+that does the inverse operation of ``add()`` and the arguments that should be
+applied to that function.
+
+The inverse operation is easiest performed by the function ``saveapply()``. Of
+course an inverse operation is emitting a change event too:
+
+    >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
+    event handler (<function Canvas.add at 0x...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <gaphas.item.Item object at 0x...>, 'parent': None, 'index': 0})
+    >>> canvas.get_all_items()
+    []
+
+Just handling method pairs is one thing. Handling properties (descriptors) in
+a simple fashion is another matter. First of all the original value should
+be retrieved before the new value is applied (this is different from applying
+the same arguments to another method in order to reverse an operation).
+
+For this a ``reversible_property`` has been introduced. It works just like a
+property (in fact it creates a plain old property descriptor), but also
+registers the property as being reversible.
+
+    >>> var = Variable()
+    >>> var.value = 10                                  # doctest: +ELLIPSIS
+    event handler (<function Variable.set_value at 0x...>, {'self': Variable(0, 20), 'value': 0.0})
+    
+Handlers can be simply removed:
+
+    >>> state.subscribers.remove(handler)
+    >>> state.observers.remove(state.revert_handler)
+
+What is Observed 
+----------------
+
+As far as Gaphas is concerned, only properties and methods related to the
+model (e.g. ``Canvas``, ``Item``) emit state changes. Some extra effort has
+been taken to monitor the ``Matrix`` class (which is from Cairo).
+
+canvas.py:
+  ``Canvas``: ``add()`` and ``remove()``
+
+connector.py:
+  ``Position``: ``x`` and ``y`` properties
+
+  ``Handle``: ``connectable``, ``movable``, ``visible``, ``connected_to`` and ``disconnect`` properties
+
+item.py:
+  ``Item``: ``matrix`` property
+
+  ``Element``: ``min_height`` and ``min_width`` properties 
+
+  ``Line``: ``line_width``, ``fuzziness``, ``orthogonal`` and ``horizontal`` properties
+
+solver.py:
+  ``Variable``: ``strength`` and ``value`` properties
+
+  ``Solver``: ``add_constraint()`` and ``remove_constraint()``
+
+matrix.py:
+  ``Matrix``: ``invert()``, ``translate()``, ``rotate()`` and ``scale()``
+
+Test cases are described in undo.txt.
+
