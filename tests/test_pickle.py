@@ -9,11 +9,14 @@ import pytest
 from future import standard_library
 from gi.repository import Gtk
 
-from docs.examples import demo
+from examples import demo
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Element, Line
 from gaphas.view import View, GtkView
+
+# Ensure extra pickle reducers/reconstructors are loaded:
+import gaphas.picklers
 
 standard_library.install_aliases()
 
