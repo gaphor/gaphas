@@ -243,7 +243,7 @@ def create_window(canvas, title, zoom=1.0):
         svgview = View(view.canvas)
         svgview.painter = ItemPainter()
 
-        # Update bounding boxes with a temporaly CairoContext
+        # Update bounding boxes with a temporary CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
@@ -454,9 +454,7 @@ def create_canvas(c=None):
 
 
 def main():
-    ##
-    ## State handling (a.k.a. undo handlers)
-    ##
+    # State handling (a.k.a. undo handlers)
 
     # First, activate the revert handler:
     state.observers.add(state.revert_handler)
@@ -472,9 +470,7 @@ def main():
 
     # state.subscribers.add(print_handler)
 
-    ##
-    ## Start the main application
-    ##
+    # Start the main application
 
     create_window(c, "View created after")
 

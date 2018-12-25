@@ -40,6 +40,10 @@ Guide = generic(ItemGuide)
 
 @Guide.when_type(Element)
 class ElementGuide(ItemGuide):
+    """Guide to align Element items.
+
+    """
+
     def horizontal(self):
         y = self.item.height
         return (0, y / 2, y)
@@ -51,8 +55,8 @@ class ElementGuide(ItemGuide):
 
 @Guide.when_type(Line)
 class LineGuide(ItemGuide):
-    """
-    Support guides for orthogonal lines.
+    """Guide for orthogonal lines.
+
     """
 
     def horizontal(self):
@@ -251,6 +255,12 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 
 @HandleInMotion.when_type(Item)
 class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
+    """Move a handle and lock the position of other elements.
+
+     Locks the position of another element that's located at the same position.
+
+    """
+
     def move(self, pos):
 
         sink = super(GuidedItemHandleInMotion, self).move(pos)

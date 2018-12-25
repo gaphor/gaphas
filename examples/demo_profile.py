@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from demo import *
+from examples.demo import *
 
 
 if __name__ == "__main__":

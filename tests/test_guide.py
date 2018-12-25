@@ -11,7 +11,7 @@ from gaphas.item import Element, Line
 from gaphas.view import GtkView
 
 
-class TestWindow(object):
+class Window(object):
     def __init__(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)
@@ -27,7 +27,7 @@ class TestWindow(object):
 
 @pytest.fixture()
 def win():
-    test_window = TestWindow()
+    test_window = Window()
     yield test_window
     test_window.window.destroy()
 

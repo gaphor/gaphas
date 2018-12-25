@@ -4,13 +4,10 @@ Basic connectors such as Ports and Handles.
 
 from builtins import object
 
-__version__ = "$Revision: 2341 $"
-# $HeadURL: https://svn.devjavu.com/gaphor/gaphas/trunk/gaphas/item.py $
-
-from gaphas.solver import solvable, WEAK, NORMAL, STRONG, VERY_STRONG
-from gaphas.state import observed, reversible_property
-from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.constraint import LineConstraint, PositionConstraint
+from gaphas.geometry import distance_line_point, distance_point_point
+from gaphas.solver import solvable, NORMAL
+from gaphas.state import observed, reversible_property
 
 
 def deprecated(e):
@@ -173,8 +170,10 @@ class Handle(object):
 
 
 class Port(object):
-    """
-    Port connectable part of an item. Item's handle connects to a port.
+    """Port connectable part of an item.
+
+    The Item's handle connects to a port.
+
     """
 
     def __init__(self):

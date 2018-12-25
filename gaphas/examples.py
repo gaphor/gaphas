@@ -40,7 +40,7 @@ class PortoBox(Box):
     Default box ports are disabled. Three, non-default connectable
     ports are created (represented by ``x`` on the picture).
 
-    - point port on the east edge, movable with a handle
+    - point port on the east edge, fovable with a handle
     - static point port in the middle of the south edge
     - line port from north-west to south east corner
 

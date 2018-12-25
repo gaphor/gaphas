@@ -55,13 +55,14 @@ REQUIRED = 100
 
 
 class Variable(object):
-    """
-    Representation of a variable in the constraint solver.
-    Each Variable has a @value and a @strength. Ina constraint the
-    weakest variables are changed.
+    """Representation of a variable in the constraint solver.
 
-    You can even do some calculating with it. The Variable always
-    represents a float variable.
+    Each Variable has a @value and a @strength. In a constraint the weakest
+    variables are changed.
+
+    You can even do some calculating with it. The Variable always represents a
+    float variable.
+
     """
 
     def __init__(self, value=0.0, strength=NORMAL):

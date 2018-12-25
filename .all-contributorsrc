@@ -1,0 +1,102 @@
+{
+  "projectName": "gaphas",
+  "projectOwner": "danyeaw",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "contributors": [
+    {
+      "login": "amolenaar",
+      "name": "Arjan Molenaar",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/96249?v=4",
+      "profile": "https://github.com/amolenaar",
+      "contributions": [
+        "code",
+        "bug",
+        "doc",
+        "review",
+        "question",
+        "plugin"
+      ]
+    },
+    {
+      "login": "danyeaw",
+      "name": "Dan Yeaw",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/10014976?v=4",
+      "profile": "https://ghuser.io/danyeaw",
+      "contributions": [
+        "code",
+        "test",
+        "review",
+        "bug",
+        "question",
+        "infra",
+        "doc"
+      ]
+    },
+    {
+      "login": "wrobell",
+      "name": "wrobell",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/105664?v=4",
+      "profile": "https://github.com/wrobell",
+      "contributions": [
+        "code",
+        "test",
+        "review"
+      ]
+    },
+    {
+      "login": "jlstevens",
+      "name": "Jean-Luc Stevens",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/890576?v=4",
+      "profile": "https://github.com/jlstevens",
+      "contributions": [
+        "code",
+        "bug",
+        "doc"
+      ]
+    },
+    {
+      "login": "franzlst",
+      "name": "Franz Steinmetz",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/1144966?v=4",
+      "profile": "http://www.franework.de",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "adrianboguszewski",
+      "name": "Adrian Boguszewski",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/4547501?v=4",
+      "profile": "https://github.com/adrianboguszewski",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Rbelder",
+      "name": "Rico Belder",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/15119522?v=4",
+      "profile": "https://github.com/Rbelder",
+      "contributions": [
+        "bug",
+        "review"
+      ]
+    },
+    {
+      "login": "adamboduch",
+      "name": "Adam Boduch",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/114619?v=4",
+      "profile": "http://www.boduch.ca",
+      "contributions": [
+        "bug"
+      ]
+    }
+  ]
+}

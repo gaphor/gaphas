@@ -42,7 +42,7 @@ class AsyncIO(object):
     ...         print('idle-a', GLib.main_depth())
 
     Methods can also set single mode to True (the method is only
-    scheduled one).
+    scheduled once).
 
     >>> class B(object):
     ...     @AsyncIO(single=True)

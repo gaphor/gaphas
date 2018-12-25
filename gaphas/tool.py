@@ -544,11 +544,12 @@ ZOOM_VALUE = Gdk.ModifierType.CONTROL_MASK
 
 
 class ZoomTool(Tool):
-    """
-    Tool for zooming using either of two techniques:
+    """Tool for zooming.
 
-    - ctrl + middle-mouse dragging in the up-down direction.
-    - ctrl + mouse-wheeel
+    Uses two different user inputs to zoom:
+    - Ctrl + middle-mouse dragging in the up-down direction.
+    - Ctrl + mouse-wheel
+
     """
 
     def __init__(self, view=None):

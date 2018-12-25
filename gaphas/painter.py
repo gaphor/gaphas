@@ -369,8 +369,8 @@ class ToolPainter(Painter):
 
 class FocusedItemPainter(Painter):
     """
-    This painter allows for drawing on top off all other layers for
-    the focused item.
+    This painter allows for drawing on top of all the other layers for the
+    focused item.
     """
 
     def paint(self, context):
