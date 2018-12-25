@@ -1,51 +1,48 @@
-"""
-Generic gaphas item tests.
+"""Test aspects for items.
+
 """
 
-import unittest
+import pytest
 
 from gaphas.aspect import *
 from gaphas.canvas import Canvas
 from gaphas.view import View
 
 
-class AspectTestCase(unittest.TestCase):
-    """
-    Test aspects for items.
-    """
-
-    def setUp(self):
+class CanvasViewItem(object):
+    def __init__(self):
         self.canvas = Canvas()
         self.view = View(self.canvas)
-
-    def test_selection_select(self):
-        """
-        Test the Selection role methods
-        """
-        view = self.view
-        item = Item()
-        self.canvas.add(item)
-        selection = Selection(item, view)
-        assert item not in view.selected_items
-        selection.select()
-        assert item in view.selected_items
-        assert item is view.focused_item
-        selection.unselect()
-        assert item not in view.selected_items
-        assert None is view.focused_item
-
-    def test_selection_move(self):
-        """
-        Test the Selection role methods
-        """
-        view = self.view
-        item = Item()
-        self.canvas.add(item)
-        inmotion = InMotion(item, view)
-        self.assertEqual((1, 0, 0, 1, 0, 0), tuple(item.matrix))
-        inmotion.start_move((0, 0))
-        inmotion.move((12, 26))
-        self.assertEqual((1, 0, 0, 1, 12, 26), tuple(item.matrix))
+        self.item = Item()
 
 
-# vim:sw=4:et:ai
+@pytest.fixture()
+def cvi():
+    return CanvasViewItem()
+
+
+def test_selection_select(cvi):
+    """Test the Selection role methods.
+
+    """
+    cvi.canvas.add(cvi.item)
+    selection = Selection(cvi.item, cvi.view)
+    assert cvi.item not in cvi.view.selected_items
+    selection.select()
+    assert cvi.item in cvi.view.selected_items
+    assert cvi.item is cvi.view.focused_item
+    selection.unselect()
+    assert cvi.item not in cvi.view.selected_items
+    assert None is cvi.view.focused_item
+
+
+def test_selection_move(cvi):
+    """Test the Selection role methods.
+
+    """
+    cvi.canvas.add(cvi.item)
+    in_motion = InMotion(cvi.item, cvi.view)
+    assert (1, 0, 0, 1, 0, 0) == tuple(cvi.item.matrix)
+    in_motion.start_move((0, 0))
+    in_motion.move((12, 26))
+    assert (1, 0, 0, 1, 12, 26) == tuple(cvi.item.matrix)
