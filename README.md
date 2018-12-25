@@ -1,13 +1,15 @@
 # Gaphas
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors)
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Build state](https://travis-ci.com/gaphor/gaphas.svg?branch=master)](https://travis-ci.com/gaphor/gaphas)
 [![Coverage](https://coveralls.io/repos/github/gaphor/gaphas/badge.svg?branch=master)](https://coveralls.io/github/gaphor/gaphas?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Gaphor/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors)
 
 > Gaphas is the diagramming widget library for Python.
+
+![Gaphas Demo](doc/gaphas-demo.gif)
 
 Gaphas is a library that provides the user interface component (widget) for
 drawing diagrams. Diagrams can be drawn to screen and then easily exported to a
@@ -16,8 +18,9 @@ diagrams? Then Gaphas is for you! Use this library to build a tree, network,
 flowchart, or other diagrams.
 
 This library is currently being used by
-[Gaphor](https://github.com/gaphor/gaphor) for UML drawing, and
-[RAFCON](https://github.com/DLR-RM/RAFCON) for state-machine based robot control.
+[Gaphor](https://github.com/gaphor/gaphor) for UML drawing,
+[RAFCON](https://github.com/DLR-RM/RAFCON) for state-machine based robot
+control, and [ASCEND](http://ascend4.org/) for solving mathematical models.
 
 ## :bookmark_tabs: Table of Contents
 
@@ -62,13 +65,23 @@ The main portions of the library include:
 
 To install Gaphas, simply use pip:
 
-``` {.sourceCode .bash}
+```bash
 $ pip install gaphas
 ```
 
 Use of a
 [virtual environment](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments)
 is highly recommended.
+
+### Development
+
+To setup a development environment with Linux:
+```bash
+$ sudo apt-get install -y python3-dev python3-gi python3-gi-cairo
+    gir1.2-gtk-3.0 libgirepository1.0-dev libcairo2-dev
+$ pip install poetry
+$ poetry install
+```
 
 ## :flashlight: Usage
 
@@ -437,29 +450,68 @@ win.add(view)
 #### Class: `gaphas.painter.PainterChain`
 
 Chain up a set of painters.
+```python
+view.painter = (
+    PainterChain()
+    .append(FreeHandPainter(ItemPainter()))
+    .append(HandlePainter())
+    .append(FocusedItemPainter())
+    .append(ToolPainter())
+)
+```
 
 #### Class: `gaphas.painter.DrawContext`
 
 Special context for drawing the item. It contains a cairo context and
 properties like selected and focused.
 
+- **kwargs: Optional cairo properties for a context.
+
+```python
+DrawContext(
+    painter=self,
+    cairo=cairo,
+    selected=(item in view.selected_items),
+    focused=(item is view.focused_item),
+    hovered=(item is view.hovered_item),
+    dropzone=(item is view.dropzone_item),
+    draw_all=self.draw_all,
+)
+```
+
 #### Class: `gaphas.painter.ItemPainter`
 
 Painter to draw an item.
+
+```python
+svgview = View(view.canvas)
+svgview.painter = ItemPainter()
+```
 
 #### Class: `gaphas.painter.CairoBoundingBoxContext`
 
 It is used intercept `stroke()`, `fill()`, and others context operations so
 that the bounding box of the item involved can be calculated.
 
+- cairo (cairo.Context): The cairo context to intercept.
+
+```python
+cairo = CairoBoundingBoxContext(cairo)
+```
+
 #### Class: `gaphas.painter.BoundingBoxPainter`
 
 A type of ItemPainter which is used to calculate the bounding boxes (in canvas
 coordinates) for the items.
 
+```python
+view.bounding_box_painter = BoundingBoxPainter()
+```
+
 #### Class: `gaphas.painter.HandlePainter`
 
 Draw handles of items that are marked as selected in the view.
+
 
 #### Class: `gaphas.painter.ToolPainter`
 
@@ -475,59 +527,366 @@ Interacting with the canvas is done through tools. Tools tell _what_ has to be
 done (like moving). To make an element move aspects are defined. Aspects tell
 _how_ the behaviour has to be performed.
 
+#### Class: `gaphas.tools.ToolChain`
+
+Used to chain tools together. For example, chain a HoverTool, HandleTool,
+and SelectionTool in order to combine their functionality in to a new tool.
+
+- view (`gaphas.view.View`): The view to use for the tool chain. 
+
+```python
+(ToolChain(view)
+.append(HoverTool())
+.append(ConnectHandleTool())
+.append(PanTool())
+.append(ZoomTool())
+.append(ItemTool())
+.append(TextEditTool())
+.append(RubberbandTool())
+)
+```
+
 #### Class: `gaphas.tools.HoverTool`
 
 Makes the item under the mouse cursor the hovered item.
+
+- view (`gaphas.view.View`): The view to use for the tool, default is None.
 
 #### Class: `gaphas.tools.ItemTool`
 
 Does selection and dragging of items.
 
+- view (`gaphas.view.View`): The view to use for the tool, default is None.
+
 #### Class: `gaphas.tools.HandleTool`
 
 Tool to move handles around.
 
+- view (`gaphas.view.View`): The view to use for the tool, default is None.
+
 #### Class: `gaphas.tools.RubberbandTool`
 
 Allows the user to drag a "rubber band" for selecting items in an area. 
+
+- view (`gaphas.view.View`): The view to use for the tool, default is None.
 
 #### Class: `gaphas.tools.PanTool`
 
 Captures drag events with the middle mouse button and uses them to translate
 the canvas within the view.
 
+- view (`gaphas.view.View`): The view to use for the tool, default is None.
+
 #### Class: `gaphas.tools.ZoomTool`
 
 Tool for zooming using two different user inputs: 
+1. Ctrl + middle-mouse dragging in the up and down direction
+2. Ctrl + mouse-wheel
 
-- Ctrl + middle-mouse dragging in the up and down direction
-- Ctrl + mouse-wheel
+- view (`gaphas.view.View`): The view to use for the tool, default is None.
+
 
 #### Class: `gaphas.tools.PlacementTool`
 
 Tool for placing items on the canvas.
 
-   api/aspects
+- view (`gaphas.view.View`): The view to use for the tool. 
+- factory (factory object): A canvas item factory for creating new items.
+- handle_tool (`gaphas.tools.HandleTool`): The handle tool to use.
+- handle_index (int): The index of the handle to be used by the handle tool.
 
-### Extended behaviour
+```python
+def on_clicked(button):
+    view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
+```
+
+#### Class: `gaphas.aspects.ItemFinder`
+
+Find an item on the canvas.
+
+- view (`gaphas.view.View`): The view to use in order to search for an item.
+
+#### Class: `gaphas.aspects.ItemSelection`
+
+Manages selection and unselection of items.
+
+- item (`gaphas.item.Item`): The item to set as focused or unfocused.
+- view (`gaphas.view.View`): The view to focus or unfocus on.
+
+#### Class: `gaphas.aspects.ItemInMotion`
+
+Manages motion of an item.
+
+- item (`gaphas.item.Item`): The item to move.
+- view (`gaphas.view.View`): The view to to use for move coordinates.
+
+#### Class: `gaphas.aspects.ItemHandleFinder`
+
+Finds handles.
+
+- item (`gaphas.item.Item`): The item.
+- view (`gaphas.view.View`): The view to get the handle at the position from.
+
+```python
+canvas = Canvas()
+line = Line()
+canvas.add(line)
+view = View(canvas)
+finder = HandleFinder(line, view)
+```
+
+#### Class: `gaphas.aspects.ElementHandleSelection`
+
+Selects the handle of a `gaphas.item.Element`.
+
+- item (`gaphas.item.Item`): The Element item that the handle belongs to.
+- handle (`gaphas.connector.Handle`): The handle to select or unselect.
+- view (`gaphas.view.View`): The view to use to apply the cursor to.
+
+
+#### Class: `gaphas.aspects.ItemHandleInMotion`
+
+Move a handle.
+
+- item (`gaphas.item.Item`): The item that the handle belongs to.
+- handle (`gaphas.connector.Handle`): The handle to move.
+- view (`gaphas.view.View`): The view to use for the coordinate system.
+
+#### Class: `gaphas.aspects.ItemConnector`
+
+Connect or disconnect an item's handle to another item or port.
+
+- item (`gaphas.item.Item`): The item that the handle belongs to.
+- handle (`gaphas.connector.Handle`): The handle to connect.
+
+#### Class: `gaphas.aspects.ItemConnectionSink`
+
+Makes an item a sink, which is another item that an item's handle is connected
+to like a connected item or port.
+
+- item (`gaphas.item.Item`): The item to look for ports on.
+- port (`gaphas.connector.Port`): The port to use as the sink.
+
+#### Class: `gaphas.aspects.ItemPaintFocused`
+
+Paints on top of all items, just for the focused item and only
+when it's hovered (see `gaphas.painter.FocusedItemPainter`).
+
+- item (`gaphas.item.Item`): The focused item.
+- view (`gaphas.view.View`): The view to paint with.
+
+### Extended Behaviour
 
 By importing the following modules, extra behaviour is added to the default
 view behaviour.
 
+#### Class: `gaphas.segment.LineSegment`
 
-   api/segment
-   api/guide
+Split and merge line segments.
+
+- item (`gaphas.item.Item`): The item of the segment.
+- view (`gaphas.view.View`): The view to use for the split coordinate system.
+
+#### Class: `gaphas.segment.SegmentHandleFinder`
+
+Extends the `gaphas.aspects.ItemHandleFinder` to find a handle on a line, and
+create a new handle if the mouse is located between two handles. The position
+aligns with the points drawn by the SegmentPainter.
+
+- item (`gaphas.item.Item`): The item.
+- view (`gaphas.view.View`): The view to get the handle at the position from.
+
+#### Class: `gaphas.segment.SegmentHandleSelection`
+
+Extends the `gaphas.aspects.ItemHandleSelection` to merge segments if the
+handle is released.
+
+- item (`gaphas.item.Item`): The item that the handle belongs to.
+- handle (`gaphas.connector.Handle`): The handle to select or unselect.
+- view (`gaphas.view.View`): The view to use to apply the cursor to.
+
+#### Class: `gaphas.segment.LineSegmentPainter`
+
+This painter draws pseudo-handles on a `gaphas.item.Line` by extending
+`gaphas.aspects.ItemPaintFocused`. Each line can be split by dragging those
+points, which will result in a new handle.
+
+ConnectHandleTool take care of performing the user interaction required for
+this feature.
+
+- item (`gaphas.item.Item`): The focused item.
+- view (`gaphas.view.View`): The view to paint with.
+
+#### Class: `gaphas.guide.ElementGuide`
+
+Provides a guide to align items for `gaphas.item.Element`.
+
+- item (`gaphas.item.Item`): The item to provide guides for.
+
+#### Class: `gaphas.guide.LineGuide`
+
+Provides a guide to align items for `gaphas.item.Line`.
+
+- item (`gaphas.item.Item`): The item to provide guides for.
+
+#### Class: `gaphas.guide.GuidedItemInMotion`
+
+Move the item and lock the position of any element that's located at the same
+position.
+
+- item (`gaphas.item.Item`): The item to move.
+- view (`gaphas.view.View`): The view with guides to to use for move
+coordinates.
+
+```python
+canvas = Canvas()
+view = GtkView(canvas)
+element = Element()
+guider = GuidedItemInMotion(element, view)
+guider.start_move((0, 0))
+```
+
+#### Class: `gaphas.guide.GuidedItemHandleInMotion`
+
+Move a handle and lock the position of any element that's located at the same
+position.
+
+- item (`gaphas.item.Item`): The item that the handle belongs to.
+- handle (`gaphas.connector.Handle`): The handle to move.
+- view (`gaphas.view.View`): The view with guides to use for the coordinate
+system.
+
+#### Class: `gaphas.guide.GuidePainter`
+
+Paints on top of all items with guides, just for the focused item and only when
+it's hovered.
+
+- item (`gaphas.item.Item`): The focused item.
+- view (`gaphas.view.View`): The view with guides to paint with.
 
 ### Miscellaneous
 
-   api/tree
-   api/matrix
-   api/table
-   api/quadtree
-   api/geometry
+#### Class: `gaphas.tree.Tree`
+
+A Tree structure with the nodes stored in a depth-first order.
+```python
+tree = Tree()
+tree.add("node1")
+tree.add("node2", parent="node1")
+```
+
+#### Class: `gaphas.matrix.Matrix`
+
+Adds @observed messages on state changes to the cairo.Matrix.
+
+- xx (float): xx component of the affine transformation
+- yx (float): yx component of the affine transformation
+- xy (float): xy component of the affine transformation
+- yy (float): yy component of the affine transformation
+- x0 (float): X translation component of the affine transformation
+- y0 (float): Y translation component of the affine transformation
+
+
+```python
+matrix = Matrix(1, 0, 0, 1, 0, 0)
+```
+
+#### Class: `gaphas.table.Table`
+
+Table is a storage class that can be used to store information, like
+one would in a database table, with indexes on the desired "columns." It
+includes indexing and is optimized for lookups.
+
+- columns (tuple): The columns of the table.
+- index (tuple):  
+
+```python
+from collections import namedtuple
+C = namedtuple('C', "foo bar baz")
+s = Table(C, (2,))
+```
+
+#### Class: `gaphas.quadtree.Quadtree`
+
+A quadtree is a tree data structure in which each internal node has up
+to four children. Quadtrees are most often used to partition a two
+
+- bounds (tuple): The boundaries of the quadtree (x, y, width, height).
+- capacity (int); The number of elements in one tree bucket, default is 10.
+
+```python
+qtree = Quadtree((0, 0, 100, 100)) 
+```
+
+#### Class: `gaphas.geometry.Rectangle`
+
+Rectangle object which can be added (union), substituted (intersection), and
+points and rectangles can be tested to be in the rectangle.
+
+- x (int): X position of the rectangle.
+- y (int): Y position of the rectangle.
+- width (int): Width of the rectangle.
+- height (int): Hiehgt of the rectangle.
+
+```python
+rect = Rectangle(1, 1, 5, 5)
+```
+
+#### Decorator: @AsyncIO
+
+Schedule an ide handler at a given priority.
+
+- single (bool): Schedules the decorated function to only be called a signle
+time.
+- timeout (int): The time between calls of the decorated function.
+- priority (int): The GLib.PRIORITY constant to set the event priority.
+
+
+```python
+
+@AsyncIO(single=True, timeout=60)
+def c2(self):
+    print('idle-c2', GLib.main_depth())
+```
+#### Decorator: @nonrecursive
+
+Enforces a function or method to not be executed recursively.
    api/decorators
 
+```python
+
+class A(object):
+    @nonrecursive
+    def a(self, x=1):
+        self.a(x+1)
+```
+
+#### Decorator: @recursive
+Limits the recursion for a specific function.
+
+- limit (int): The limit for the number of recursive loops a function can be
+called, default is 10000.
+
+```python
+@recursive(10)
+def a(self, x=0):
+    self.a()
+```
+
 ## :heart: Contributing
+
+Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+| [<img src="https://avatars0.githubusercontent.com/u/96249?v=4" width="100px;"/><br /><sub><b>Arjan Molenaar</b></sub>](https://github.com/amolenaar)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aamolenaar "Bug reports") [📖](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Documentation") [👀](#review-amolenaar "Reviewed Pull Requests") [💬](#question-amolenaar "Answering Questions") [🔌](#plugin-amolenaar "Plugin/utility libraries") | [<img src="https://avatars1.githubusercontent.com/u/10014976?v=4" width="100px;"/><br /><sub><b>Dan Yeaw</b></sub>](https://ghuser.io/danyeaw)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Code") [⚠️](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Tests") [👀](#review-danyeaw "Reviewed Pull Requests") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Adanyeaw "Bug reports") [💬](#question-danyeaw "Answering Questions") [🚇](#infra-danyeaw "Infrastructure (Hosting, Build-Tools, etc)") [📖](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Documentation") | [<img src="https://avatars2.githubusercontent.com/u/105664?v=4" width="100px;"/><br /><sub><b>wrobell</b></sub>](https://github.com/wrobell)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=wrobell "Code") [⚠️](https://github.com/danyeaw/gaphas/commits?author=wrobell "Tests") [👀](#review-wrobell "Reviewed Pull Requests") | [<img src="https://avatars3.githubusercontent.com/u/890576?v=4" width="100px;"/><br /><sub><b>Jean-Luc Stevens</b></sub>](https://github.com/jlstevens)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=jlstevens "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Ajlstevens "Bug reports") [📖](https://github.com/danyeaw/gaphas/commits?author=jlstevens "Documentation") | [<img src="https://avatars1.githubusercontent.com/u/1144966?v=4" width="100px;"/><br /><sub><b>Franz Steinmetz</b></sub>](http://www.franework.de)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=franzlst "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Afranzlst "Bug reports") | [<img src="https://avatars3.githubusercontent.com/u/4547501?v=4" width="100px;"/><br /><sub><b>Adrian Boguszewski</b></sub>](https://github.com/adrianboguszewski)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=adrianboguszewski "Code") | [<img src="https://avatars3.githubusercontent.com/u/15119522?v=4" width="100px;"/><br /><sub><b>Rico Belder</b></sub>](https://github.com/Rbelder)<br />[🐛](https://github.com/danyeaw/gaphas/issues?q=author%3ARbelder "Bug reports") [👀](#review-Rbelder "Reviewed Pull Requests") |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| [<img src="https://avatars2.githubusercontent.com/u/114619?v=4" width="100px;"/><br /><sub><b>Adam Boduch</b></sub>](http://www.boduch.ca)<br />[🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aadamboduch "Bug reports") |
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the
+[all-contributors](https://github.com/kentcdodds/all-contributors)
+specification. Contributions of any kind are welcome!
 
 1.  Check for open issues or open a fresh issue to start a discussion
     around a feature idea or a bug. There is a 
@@ -540,8 +899,7 @@ view behaviour.
 3.  Write a test which shows that the bug was fixed or that the feature
     works as expected.
 4.  Send a pull request and bug the maintainers until it gets merged and
-    published. :smile: Make sure to add yourself to
-    [AUTHORS](https://github.com/gaphor/gaphas/blob/master/AUTHORS.md).
+    published. :smile:
 
 See [the contributing file](CONTRIBUTING.md)!
 
@@ -551,16 +909,6 @@ Copyright (C) Arjan Molenaar and Dan Yeaw
 
 Licensed under the [Apache License 2.0](LICENSE).
 
-
-## Contributors
-
-Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-| [<img src="https://avatars0.githubusercontent.com/u/96249?v=4" width="100px;"/><br /><sub><b>Arjan Molenaar</b></sub>](https://github.com/amolenaar)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aamolenaar "Bug reports") [📖](https://github.com/danyeaw/gaphas/commits?author=amolenaar "Documentation") [👀](#review-amolenaar "Reviewed Pull Requests") [💬](#question-amolenaar "Answering Questions") [🔌](#plugin-amolenaar "Plugin/utility libraries") | [<img src="https://avatars1.githubusercontent.com/u/10014976?v=4" width="100px;"/><br /><sub><b>Dan Yeaw</b></sub>](https://ghuser.io/danyeaw)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Code") [⚠️](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Tests") [👀](#review-danyeaw "Reviewed Pull Requests") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Adanyeaw "Bug reports") [💬](#question-danyeaw "Answering Questions") [🚇](#infra-danyeaw "Infrastructure (Hosting, Build-Tools, etc)") [📖](https://github.com/danyeaw/gaphas/commits?author=danyeaw "Documentation") | [<img src="https://avatars2.githubusercontent.com/u/105664?v=4" width="100px;"/><br /><sub><b>wrobell</b></sub>](https://github.com/wrobell)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=wrobell "Code") [⚠️](https://github.com/danyeaw/gaphas/commits?author=wrobell "Tests") [👀](#review-wrobell "Reviewed Pull Requests") | [<img src="https://avatars3.githubusercontent.com/u/890576?v=4" width="100px;"/><br /><sub><b>Jean-Luc Stevens</b></sub>](https://github.com/jlstevens)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=jlstevens "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Ajlstevens "Bug reports") [📖](https://github.com/danyeaw/gaphas/commits?author=jlstevens "Documentation") | [<img src="https://avatars1.githubusercontent.com/u/1144966?v=4" width="100px;"/><br /><sub><b>Franz Steinmetz</b></sub>](http://www.franework.de)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=franzlst "Code") [🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Afranzlst "Bug reports") | [<img src="https://avatars3.githubusercontent.com/u/4547501?v=4" width="100px;"/><br /><sub><b>Adrian Boguszewski</b></sub>](https://github.com/adrianboguszewski)<br />[💻](https://github.com/danyeaw/gaphas/commits?author=adrianboguszewski "Code") | [<img src="https://avatars3.githubusercontent.com/u/15119522?v=4" width="100px;"/><br /><sub><b>Rico Belder</b></sub>](https://github.com/Rbelder)<br />[🐛](https://github.com/danyeaw/gaphas/issues?q=author%3ARbelder "Bug reports") [👀](#review-Rbelder "Reviewed Pull Requests") |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| [<img src="https://avatars2.githubusercontent.com/u/114619?v=4" width="100px;"/><br /><sub><b>Adam Boduch</b></sub>](http://www.boduch.ca)<br />[🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aadamboduch "Bug reports") |
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
+Summary: You can do what you like with Gaphas, as long as you include the
+required notices. This permissive license contains a patent license from the
+contributors of the code.
