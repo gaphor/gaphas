@@ -47,7 +47,7 @@ your question can be answered on the
 Unsure where to begin contributing to Gaphas? You can start by looking through
 these `first-timers-only` and `up-for-grabs` issues:
 
- * [First-timers-only issues](https://github.com/gaphor/gaphor/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only) -
+ * [First-timers-only issues](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only) -
   issues which should only require a few lines of code, and a test or two.
  * [Up-for-grabs issues](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aup-for-grabs) -
  issues which should be a bit more involved than `first-timers-only` issues.
