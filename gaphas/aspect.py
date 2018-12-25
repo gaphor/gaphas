@@ -1,11 +1,11 @@
-"""
-Defines aspects for Items. Aspects form intermediate items between
-tools and items.
+"""Defines aspects for Items.
+
+Aspects form intermediate items between tools and items.
 
 Note: This module uses Phillip J. Eby's simplegeneric module. This
 module transforms the generic class (used as fall-back) to a generic
 function. In order to inherit from this class you should inherit from
-Class.default.  The simplegeneric module is dispatching opnly based on
+Class.default.  The simplegeneric module is dispatching only based on
 the first argument.  For Gaphas that's enough.
 """
 from __future__ import absolute_import
@@ -232,6 +232,9 @@ HandleInMotion = generic(ItemHandleInMotion)
 
 
 class ItemConnector(object):
+    """Connect or disconnect an item's handle to another item or port.
+
+    """
 
     GLUE_DISTANCE = 10  # Glue distance in view points
 
@@ -307,8 +310,11 @@ Connector = generic(ItemConnector)
 
 
 class ItemConnectionSink(object):
-    """
-    This role should be applied to items that is connected to.
+    """Makes an item a sink.
+
+    A sink is another item that an item's handle is connected to like a
+    connectable item or port.
+
     """
 
     def __init__(self, item, port):

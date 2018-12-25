@@ -170,10 +170,10 @@ class LineSegment(object):
 
 @HandleFinder.when_type(Line)
 class SegmentHandleFinder(ItemHandleFinder):
-    """
-    Find a handle on a line, create a new one if the mouse is located
-    between two handles. The position aligns with the points drawn by
-    the SegmentPainter.
+    """Find a handle on a line.
+
+    Creates a new handle if the mouse is located between two handles. The
+    position aligns with the points drawn by the SegmentPainter.
     """
 
     def get_handle_at_point(self, pos):

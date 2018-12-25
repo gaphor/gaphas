@@ -12,7 +12,7 @@ examples of their usage.
 EqualsConstraint
     Make 'a' and 'b' equal.
 LessThanConstraint
-    Ensure one variable stays smaller than the other.
+    Ensure one variable stays smaller than another.
 CenterConstraint
     Ensures a Variable is kept between two other variables.
 EquationConstraint
