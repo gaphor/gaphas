@@ -243,7 +243,7 @@ def create_window(canvas, title, zoom=1.0):
         svgview = View(view.canvas)
         svgview.painter = ItemPainter()
 
-        # Update bounding boxes with a temporaly CairoContext
+        # Update bounding boxes with a temporary CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
