@@ -1,12 +1,15 @@
 from __future__ import print_function
 
+import io
 import pickle
 import unittest
 from builtins import object
 
+import cairo
 from future import standard_library
 from gi.repository import Gtk
 
+from doc.examples import demo
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Element, Line
@@ -135,8 +138,6 @@ class PickleTestCase(unittest.TestCase):
 
         view = View(canvas=c2)
 
-        import cairo
-
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         cr = cairo.Context(surface)
         view.update_bounding_box(cr)
@@ -177,8 +178,6 @@ class PickleTestCase(unittest.TestCase):
         #        assert line.handles()[0].disconnect
         #        assert isinstance(line.handles()[0].disconnect, object), line.handles()[0].disconnect
 
-        import io
-
         f = io.BytesIO()
         pickler = MyPickler(f)
         pickler.dump(canvas)
@@ -195,8 +194,6 @@ class PickleTestCase(unittest.TestCase):
         view.update()
 
     def test_pickle_demo(self):
-        import demo
-
         canvas = demo.create_canvas()
 
         pickled = pickle.dumps(canvas)
