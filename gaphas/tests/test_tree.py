@@ -1,164 +1,145 @@
-import unittest
+import pytest
 from gaphas.tree import Tree
 
 
-class TreeTestCase(unittest.TestCase):
-    def test_add(self):
-        """
-        Test creating node trees.
-        """
-        tree = Tree()
-        n1 = "n1"
-        n2 = "n2"
-        n3 = "n3"
-
-        tree.add(n1)
-        assert len(tree._nodes) == 1
-        assert len(tree._children) == 2
-        assert len(tree._children[None]) == 1
-        assert len(tree._children[n1]) == 0
-
-        tree.add(n2)
-        tree.add(n3, parent=n1)
-        assert len(tree._nodes) == 3
-        assert len(tree._children) == 4
-        assert len(tree._children[None]) == 2
-        assert len(tree._children[n1]) == 1
-        assert len(tree._children[n2]) == 0
-        assert len(tree._children[n2]) == 0
-        assert tree._nodes == [n1, n3, n2]
-
-        n4 = "n4"
-        tree.add(n4, parent=n3)
-        assert tree._nodes == [n1, n3, n4, n2]
-
-        n5 = "n5"
-        tree.add(n5, parent=n3)
-        assert tree._nodes == [n1, n3, n4, n5, n2]
-
-        n6 = "n6"
-        tree.add(n6, parent=n2)
-        assert tree._nodes == [n1, n3, n4, n5, n2, n6]
-
-        n7 = "n7"
-        tree.add(n7, parent=n1)
-        assert len(tree._children) == 8
-        assert tree._nodes == [n1, n3, n4, n5, n7, n2, n6]
-        assert tree.get_parent(n7) is n1
-        assert tree.get_parent(n6) is n2
-        assert tree.get_parent(n5) is n3
-        assert tree.get_parent(n4) is n3
-        assert tree.get_parent(n3) is n1
-        assert tree.get_parent(n2) is None
-        assert tree.get_parent(n1) is None
-
-    def test_add_on_index(self):
-        tree = Tree()
-        n1 = "n1"
-        n2 = "n2"
-        n3 = "n3"
-        n4 = "n4"
-        n5 = "n5"
-
-        tree.add(n1)
-        tree.add(n2)
-        tree.add(n3, index=1)
-        assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
-        assert tree.nodes == [n1, n3, n2], tree.nodes
-
-        tree.add(n4, parent=n3)
-        tree.add(n5, parent=n3, index=0)
-        assert tree.get_children(None) == [n1, n3, n2], tree.get_children(None)
-        assert tree.nodes == [n1, n3, n5, n4, n2], tree.nodes
-        assert tree.get_children(n3) == [n5, n4], tree.get_children(n3)
-
-    def test_remove(self):
-        """
-        Test removal of nodes.
-        """
-        tree = Tree()
-        n1 = "n1"
-        n2 = "n2"
-        n3 = "n3"
-        n4 = "n4"
-        n5 = "n5"
-
-        tree.add(n1)
-        tree.add(n2)
-        tree.add(n3, parent=n1)
-        tree.add(n4, parent=n3)
-        tree.add(n5, parent=n4)
-
-        assert tree._nodes == [n1, n3, n4, n5, n2]
-
-        all_ch = list(tree.get_all_children(n1))
-        assert all_ch == [n3, n4, n5], all_ch
-
-        tree.remove(n4)
-        assert tree._nodes == [n1, n3, n2]
-
-        tree.remove(n1)
-        assert len(tree._children) == 2
-        assert tree._children[None] == [n2]
-        assert tree._children[n2] == []
-        assert tree._nodes == [n2]
-
-    def test_siblings(self):
-        tree = Tree()
-        n1 = "n1"
-        n2 = "n2"
-        n3 = "n3"
-
-        tree.add(n1)
-        tree.add(n2)
-        tree.add(n3)
-
-        assert tree.get_next_sibling(n1) is n2
-        assert tree.get_next_sibling(n2) is n3
-        try:
-            tree.get_next_sibling(n3)
-        except IndexError:
-            pass  # okay
-        else:
-            raise AssertionError(
-                "Index should be out of range, not %s" % tree.get_next_sibling(n3)
-            )
-
-        assert tree.get_previous_sibling(n3) is n2
-        assert tree.get_previous_sibling(n2) is n1
-        try:
-            tree.get_previous_sibling(n1)
-        except IndexError:
-            pass  # okay
-        else:
-            raise AssertionError(
-                "Index should be out of range, not %s" % tree.get_previous_sibling(n1)
-            )
-
-    def test_reparent(self):
-        tree = Tree()
-        n1 = "n1"
-        n2 = "n2"
-        n3 = "n3"
-        n4 = "n4"
-        n5 = "n5"
-
-        tree.add(n1)
-        tree.add(n2)
-        tree.add(n3)
-        tree.add(n4, parent=n2)
-        tree.add(n5, parent=n4)
-
-        assert tree.nodes == [n1, n2, n4, n5, n3], tree.nodes
-
-        tree.reparent(n4, parent=n1, index=0)
-        assert tree.nodes == [n1, n4, n5, n2, n3], tree.nodes
-        assert tree.get_children(n2) == [], tree.get_children(n2)
-        assert tree.get_children(n1) == [n4], tree.get_children(n1)
-        assert tree.get_children(n4) == [n5], tree.get_children(n4)
-
-        tree.reparent(n4, parent=None, index=0)
-        assert tree.nodes == [n4, n5, n1, n2, n3], tree.nodes
+@pytest.fixture()
+def tree_fixture():
+    node = ["n0", "n1", "n2", "n3", "n4", "n5", "n6", "n7"]
+    return Tree(), node
 
 
-# vi:sw=4:et:ai
+def test_add(tree_fixture):
+    """ Test creating node trees.
+
+    """
+    tree = tree_fixture[0]
+    n = tree_fixture[1]
+    tree.add(n[1])
+    assert len(tree._nodes) == 1
+    assert len(tree._children) == 2
+    assert len(tree._children[None]) == 1
+    assert len(tree._children[n[1]]) == 0
+
+    tree.add(n[2])
+    tree.add(n[3], parent=n[1])
+    assert len(tree._nodes) == 3
+    assert len(tree._children) == 4
+    assert len(tree._children[None]) == 2
+    assert len(tree._children[n[1]]) == 1
+    assert len(tree._children[n[2]]) == 0
+    assert len(tree._children[n[2]]) == 0
+    assert tree._nodes == [n[1], n[3], n[2]]
+
+    tree.add(n[4], parent=n[3])
+    assert tree._nodes == [n[1], n[3], n[4], n[2]]
+
+    tree.add(n[5], parent=n[3])
+    assert tree._nodes == [n[1], n[3], n[4], n[5], n[2]]
+
+    tree.add(n[6], parent=n[2])
+    assert tree._nodes == [n[1], n[3], n[4], n[5], n[2], n[6]]
+
+    tree.add(n[7], parent=n[1])
+    assert len(tree._children) == 8
+    assert tree._nodes == [n[1], n[3], n[4], n[5], n[7], n[2], n[6]]
+    assert tree.get_parent(n[7]) is n[1]
+    assert tree.get_parent(n[6]) is n[2]
+    assert tree.get_parent(n[5]) is n[3]
+    assert tree.get_parent(n[4]) is n[3]
+    assert tree.get_parent(n[3]) is n[1]
+    assert tree.get_parent(n[2]) is None
+    assert tree.get_parent(n[1]) is None
+
+
+def test_add_on_index(tree_fixture):
+    tree = tree_fixture[0]
+    n = tree_fixture[1]
+    tree.add(n[1])
+    tree.add(n[2])
+    tree.add(n[3], index=1)
+    assert tree.get_children(None) == [n[1], n[3], n[2]], tree.get_children(None)
+    assert tree.nodes == [n[1], n[3], n[2]], tree.nodes
+
+    tree.add(n[4], parent=n[3])
+    tree.add(n[5], parent=n[3], index=0)
+    assert tree.get_children(None) == [n[1], n[3], n[2]], tree.get_children(None)
+    assert tree.nodes == [n[1], n[3], n[5], n[4], n[2]], tree.nodes
+    assert tree.get_children(n[3]) == [n[5], n[4]], tree.get_children(n[3])
+
+
+def test_remove(tree_fixture):
+    """Test removal of nodes.
+
+    """
+    tree = tree_fixture[0]
+    n = tree_fixture[1]
+    tree.add(n[1])
+    tree.add(n[2])
+    tree.add(n[3], parent=n[1])
+    tree.add(n[4], parent=n[3])
+    tree.add(n[5], parent=n[4])
+
+    assert tree._nodes == [n[1], n[3], n[4], n[5], n[2]]
+
+    all_ch = list(tree.get_all_children(n[1]))
+    assert all_ch == [n[3], n[4], n[5]], all_ch
+
+    tree.remove(n[4])
+    assert tree._nodes == [n[1], n[3], n[2]]
+
+    tree.remove(n[1])
+    assert len(tree._children) == 2
+    assert tree._children[None] == [n[2]]
+    assert tree._children[n[2]] == []
+    assert tree._nodes == [n[2]]
+
+
+def test_siblings(tree_fixture):
+    tree = tree_fixture[0]
+    n = tree_fixture[1]
+    tree.add(n[1])
+    tree.add(n[2])
+    tree.add(n[3])
+
+    assert tree.get_next_sibling(n[1]) is n[2]
+    assert tree.get_next_sibling(n[2]) is n[3]
+    try:
+        tree.get_next_sibling(n[3])
+    except IndexError:
+        pass  # Okay
+    else:
+        raise AssertionError(
+            "Index should be out of range, not %s" % tree.get_next_sibling(n[3])
+        )
+
+    assert tree.get_previous_sibling(n[3]) is n[2]
+    assert tree.get_previous_sibling(n[2]) is n[1]
+    try:
+        tree.get_previous_sibling(n[1])
+    except IndexError:
+        pass  # Okay
+    else:
+        raise AssertionError(
+            "Index should be out of range, not %s" % tree.get_previous_sibling(n[1])
+        )
+
+
+def test_reparent(tree_fixture):
+    tree = tree_fixture[0]
+    n = tree_fixture[1]
+    tree.add(n[1])
+    tree.add(n[2])
+    tree.add(n[3])
+    tree.add(n[4], parent=n[2])
+    tree.add(n[5], parent=n[4])
+
+    assert tree.nodes == [n[1], n[2], n[4], n[5], n[3]], tree.nodes
+
+    tree.reparent(n[4], parent=n[1], index=0)
+    assert tree.nodes == [n[1], n[4], n[5], n[2], n[3]], tree.nodes
+    assert tree.get_children(n[2]) == [], tree.get_children(n[2])
+    assert tree.get_children(n[1]) == [n[4]], tree.get_children(n[1])
+    assert tree.get_children(n[4]) == [n[5]], tree.get_children(n[4])
+
+    tree.reparent(n[4], parent=None, index=0)
+    assert tree.nodes == [n[4], n[5], n[1], n[2], n[3]], tree.nodes
