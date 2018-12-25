@@ -1,11 +1,12 @@
 # Gaphas
 
 [![Build state](https://travis-ci.com/gaphor/gaphas.svg?branch=master)](https://travis-ci.com/gaphor/gaphas)
+![Docs build state](https://readthedocs.org/projects/gaphas/badge/?version=latest)
 [![Coverage](https://coveralls.io/repos/github/gaphor/gaphas/badge.svg?branch=master)](https://coveralls.io/github/gaphor/gaphas?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Gaphor/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors)
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat)](https://github.com/RichardLitt/standard-readme)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/Gaphor/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat)](#contributors)
 
 > Gaphas is the diagramming widget library for Python.
 
