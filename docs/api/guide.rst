@@ -6,7 +6,8 @@ By importing this module Guide behaviour will be added to all views. Guides will
 
 The guide module consists of a few aspects, triggered when items are moved, as well as a painter, so guides will be drawn.
 
-:mod: `gaphor.guide`
+:mod: `gaphas.guide`
+
 --------------------
 
 .. module:: gaphas.guide

@@ -4,7 +4,8 @@ Canvas
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.canvas`
+:mod: `gaphas.canvas`
+
 ---------------------
 
 .. module:: gaphas.canvas

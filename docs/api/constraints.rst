@@ -1,11 +1,12 @@
-#################
+###########
 Constraints
-#################
+###########
 
 The default constraint classes provided by Gaphas
 
-:mod: `gaphor.constraint`
----------------------
+:mod: `gaphas.constraint`
+
+-------------------------
 
 .. module:: gaphas.constraint
 

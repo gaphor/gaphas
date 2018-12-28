@@ -4,8 +4,9 @@ Items
 
 Items are put on a Canvas.
 
-:mod: `gaphor.item`
----------------------
+:mod: `gaphas.item`
+
+-------------------
 
 .. module:: gaphas.item
 

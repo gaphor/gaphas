@@ -4,8 +4,9 @@ Tools
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.tool`
----------------------
+:mod: `gaphas.tool`
+
+-------------------
 
 .. module:: gaphas.tool
 

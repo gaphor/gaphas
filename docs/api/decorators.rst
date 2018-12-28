@@ -2,8 +2,9 @@
 Decorators
 ##########
 
-:mod: `gaphor.decorators`
----------------------
+:mod: `gaphas.decorators`
+
+-------------------------
 
 .. module:: gaphas.decorators
 

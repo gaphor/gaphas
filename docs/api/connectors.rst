@@ -4,7 +4,8 @@ Handles and ports
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.connector`
+:mod: `gaphas.connector`
+
 ------------------------
 
 .. module:: gaphas.connector
