@@ -4,8 +4,9 @@ Quadtree
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.quadtree`
----------------------
+:mod: `gaphas.quadtree`
+
+-----------------------
 
 .. module:: gaphas.quadtree
 

@@ -4,7 +4,8 @@ Solver
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.solver`
+:mod: `gaphas.solver`
+
 ---------------------
 
 .. module:: gaphas.solver

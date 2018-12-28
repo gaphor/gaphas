@@ -4,8 +4,9 @@ Painters
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.painter`
----------------------
+:mod: `gaphas.painter`
+
+----------------------
 
 .. module:: gaphas.painter
 

@@ -4,8 +4,9 @@ Tree structure
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.tree`
----------------------
+:mod: `gaphas.tree`
+
+-------------------
 
 .. module:: gaphas.tree
 

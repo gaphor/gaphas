@@ -4,14 +4,13 @@ Line segmentation
 
 This part describes the API of Gaphas.
 
-:mod: `gaphor.segment`
+:mod: `gaphas.segment`
+
 ----------------------
 
 .. module:: gaphas.segment
 
-.. autoclass:: Segment
-   :members:
-   :undoc-members:
+.. autofunction:: Segment
 
 .. autoclass:: LineSegment
    :members:
