@@ -1,8 +1,15 @@
 1.0.0
 -----
+- Change license from LGPL 2.0 to Apache 2.0
 - Port to Python 3 with support for 3.5, 3.6, and 3.7
-- Python < 2.7 no longer supported
-- Port from PyGTK to PyGObject
+- Python < 2.7 is no longer supported
+- Port from GTK+ 2 and PyGTK to GTK+ 3 with PyGObject
+- Migrate tests from Nose to PyTest with Tox
+- Reorganize project files
+- Overhaul the README
+- Add contributing guide and code of conduct
+- Adopt Black as code formatter
+- Add Continuous Integration with Travis and Read The Docs
 
 0.7.2
 -----
