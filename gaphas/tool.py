@@ -522,7 +522,7 @@ class PanTool(Tool):
         if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
             return False
         view = self.view
-        direction = get_scroll_direction()[1]
+        direction = event.get_scroll_direction()[1]
         if direction == Gdk.ScrollDirection.LEFT:
             view._matrix.translate(self.speed / view._matrix[0], 0)
         elif direction == Gdk.ScrollDirection.RIGHT:
