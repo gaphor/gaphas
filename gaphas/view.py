@@ -521,7 +521,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         View.__init__(self, canvas)
 
-        self.connect("size-allocate", self.on_size_allocate)
         self.connect("draw", self.on_draw)
         self.set_can_focus(True)
         self.add_events(
@@ -816,9 +815,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.set_allocation(allocation)
         self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
-
-    def on_size_allocate(self, widget, allocation):
-        pass
 
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
