@@ -44,9 +44,7 @@ easily create a diagramming tool. Hence, Gaphas was created as a library to allo
 Here is how it works:
 
 - Items (Canvas items) can be added to a Canvas.
-- The Canvas maintains the tree structure (parent-child relationships between
-  
-  items).
+- The Canvas maintains the tree structure (parent-child relationships between items).
 - A constraint solver is used to maintain item constraints and inter-item
   
   constraints.
@@ -76,7 +74,7 @@ $ pip install gaphas
 ```
 
 Use of a
-[virtual environment]([https://virtualenv.pypa.io/en/latest/](https://virtualenv.pypa.io/en/latest/)
+[virtual environment](https://virtualenv.pypa.io/en/latest/)
 is highly recommended.
 
 ### Development
@@ -235,13 +233,11 @@ The view context passed to the Items draw() method has the following properties:
 - focused - True if the item has the focus
 - hovered - True if the mouse pointer if over the item. Only the top-most item
   
-            is marked as hovered.
-- dropzone - The item is marked as the drop zone. When this happens then an item is
-  
-             dragged over the item, and if it is dropped, it will become a child of this item.
+  is marked as hovered.
+- dropzone - The item is marked as the drop zone. When this happens then an item is dragged over the item, and if it is dropped, it will become a child of this item.
 - draw_all - True if everything drawable on the item should be drawn, for
   
-             example, when calculating the bounding boxes of an item.
+  example, when calculating the bounding boxes of an item.
 
 The View automatically calculates the bounding box for the item, based on the
 items drawn in the draw (context) function (this is only done when really
