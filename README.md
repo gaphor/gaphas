@@ -180,9 +180,7 @@ following steps:
 1. Pre-update using Item.pre_update(context) for each item marked for update.
 2. Update the Canvas-to-Item matrices, for fast transformation of coordinates
    
-   from the Canvas' to the items' coordinate system.
-   
-   The c2i matrix is stored on the Item as Item._matrix_c2i.
+   from the Canvas' to the items' coordinate system. The c2i matrix is stored on the Item as Item._matrix_c2i.
 3. Solve the constraints.
 4. Normalize the items by setting the coordinates of the first handle to (0, 0).
 5. Update the Canvas-to-Item matrices for items that have been changed by
@@ -231,13 +229,9 @@ The view context passed to the Items draw() method has the following properties:
 - cairo - The CairoContext to draw to.
 - selected - True if the item is actually selected in the view.
 - focused - True if the item has the focus
-- hovered - True if the mouse pointer if over the item. Only the top-most item
-  
-  is marked as hovered.
+- hovered - True if the mouse pointer if over the item. Only the top-most item is marked as hovered.
 - dropzone - The item is marked as the drop zone. When this happens then an item is dragged over the item, and if it is dropped, it will become a child of this item.
-- draw_all - True if everything drawable on the item should be drawn, for
-  
-  example, when calculating the bounding boxes of an item.
+- draw_all - True if everything drawable on the item should be drawn, for example, when calculating the bounding boxes of an item.
 
 The View automatically calculates the bounding box for the item, based on the
 items drawn in the draw (context) function (this is only done when really
@@ -255,15 +249,11 @@ in order to provide more complex behaviour.
 To make it easy, a DefaultTool has been defined which is a ToolChain instance
 with the tools added as follows:
 
-- ToolChain - Delegates to a set of individual tools and keeps track of which
-  
-  tool has grabbed the focus. This normally happens when the user presses a mouse button. Once this happens, the tool requests a "grab" and all events, like motion or button release, are sent directly to the focused tool.
+- ToolChain - Delegates to a set of individual tools and keeps track of which tool has grabbed the focus. This normally happens when the user presses a mouse button. Once this happens, the tool requests a "grab" and all events, like motion or button release, are sent directly to the focused tool.
 
 - HoverTool - Makes the item under the mouse button the "hovered item." When such an item is drawn, its context.hovered_item flag will be set to True.
 
-- HandleTool - Allows for handles to be dragged around and focuses the item
-  
-  when its handle is clicked on.
+- HandleTool - Allows for handles to be dragged around and focuses the item when its handle is clicked on.
 
 - ItemTool - Selects items and enables dragging items around.
 
