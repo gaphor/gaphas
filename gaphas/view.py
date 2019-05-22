@@ -10,13 +10,13 @@ from builtins import object
 from gi.repository import Gtk, GObject, Gdk
 import cairo
 
-from .canvas import Context
-from .decorators import AsyncIO
-from .decorators import nonrecursive
-from .geometry import Rectangle, distance_point_point_fast
-from .painter import DefaultPainter, BoundingBoxPainter
-from .quadtree import Quadtree
-from .tool import DefaultTool
+from gaphas.canvas import Context
+from gaphas.decorators import AsyncIO
+from gaphas.decorators import nonrecursive
+from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.painter import DefaultPainter, BoundingBoxPainter
+from gaphas.quadtree import Quadtree
+from gaphas.tool import DefaultTool
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
