@@ -685,15 +685,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Like ``DrawingArea.queue_draw_area``, but use the bounds of
         the item as update areas. Of course with a pythonic flavor:
         update any number of items at once.
-
-        TODO: Should we also create a (sorted) list of items that need
-        redrawal?
         """
         self.update()
 
     def queue_draw_area(self, x, y, w, h):
         """
-        Wrap draw_area to convert all values to ints.
+        Queue an update for portion of the view port.
         """
         self.update()
 
@@ -752,8 +749,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 self.update_matrix(i)
 
                 if i not in dirty_items:
-                    # Only matrix has changed, so calculate new bb based
-                    # on quadtree data (= bb in item coordinates).
+                    # Only matrix has changed, so calculate new bounding box
+                    # based on quadtree data (= bb in item coordinates).
                     bounds = self._qtree.get_data(i)
                     i2v = self.get_matrix_i2v(i).transform_point
                     x0, y0 = i2v(bounds[0], bounds[1])
@@ -761,7 +758,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
 
-            # Request bb recalculation for all 'really' dirty items
             self.update_bounding_box(set(dirty_items))
 
             self.update_adjustments()
