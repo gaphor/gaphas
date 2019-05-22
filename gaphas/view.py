@@ -7,8 +7,8 @@ from __future__ import division
 from builtins import map
 from builtins import object
 
-from cairo import Matrix
 from gi.repository import Gtk, GObject, Gdk
+import cairo
 
 from .canvas import Context
 from .decorators import AsyncIO
@@ -32,7 +32,7 @@ class View(object):
     """
 
     def __init__(self, canvas=None):
-        self._matrix = Matrix()
+        self._matrix = cairo.Matrix()
         self._painter = DefaultPainter(self)
         self._bounding_box_painter = BoundingBoxPainter(self)
 
@@ -433,7 +433,7 @@ class View(object):
 
         item._matrix_i2v[self] = i2v
 
-        v2i = Matrix(*i2v)
+        v2i = cairo.Matrix(*i2v)
         v2i.invert()
         item._matrix_v2i[self] = v2i
 
@@ -907,7 +907,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # the translate method effectively does a m * self._matrix, which
         # will result in the translation being multiplied by the orig. matrix
 
-        m = Matrix()
+        m = cairo.Matrix()
         if adj is self._hadjustment:
             m.translate(-value, 0)
         elif adj is self._vadjustment:

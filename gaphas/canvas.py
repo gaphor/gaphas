@@ -35,7 +35,7 @@ from builtins import object
 from builtins import range
 from collections import namedtuple
 
-from cairo import Matrix
+import cairo
 
 from gaphas import solver
 from gaphas import table
@@ -743,6 +743,7 @@ class Canvas(object):
         """
         Update matrices of an item.
         """
+        Matrix = cairo.Matrix
         try:
             orig_matrix_i2c = Matrix(*item._matrix_i2c)
         except:
