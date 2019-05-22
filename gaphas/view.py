@@ -521,6 +521,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         View.__init__(self, canvas)
 
+        self.connect("configure-event", self.on_configure)
         self.connect("draw", self.on_draw)
         self.set_can_focus(True)
         self.add_events(
@@ -532,6 +533,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             | Gdk.EventMask.SCROLL_MASK
         )
 
+        self._back_buffer = None
         self._hadjustment = None
         self._vadjustment = None
         self._hadjustment_handler_id = None
@@ -687,36 +689,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         TODO: Should we also create a (sorted) list of items that need
         redrawal?
         """
-        get_bounds = self._qtree.get_bounds
-        items = [_f for _f in items if _f]
-        try:
-            # create a copy, otherwise we'll change the original rectangle
-            bounds = Rectangle(*get_bounds(items[0]))
-            for item in items[1:]:
-                bounds += get_bounds(item)
-            self.queue_draw_area(*bounds)
-        except IndexError:
-            pass
-        except KeyError:
-            pass  # No bounds calculated yet? bummer.
+        self.update()
 
     def queue_draw_area(self, x, y, w, h):
         """
         Wrap draw_area to convert all values to ints.
         """
-        try:
-            super(GtkView, self).queue_draw_area(int(x), int(y), int(w + 1), int(h + 1))
-        except OverflowError:
-            # Okay, now the zoom factor is very large or something
-            a = self.get_allocation()
-            super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+        self.update()
 
     def queue_draw_refresh(self):
         """
         Redraw the entire view.
         """
-        a = self.get_allocation()
-        super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+        self.update()
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
@@ -732,7 +717,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # Remove removed items:
         if removed_items:
             self._dirty_items.difference_update(removed_items)
-            self.queue_draw_item(*removed_items)
 
             for item in removed_items:
                 self._qtree.remove(item)
@@ -759,10 +743,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         dirty_matrix_items = self._dirty_matrix_items
 
         try:
-            self.queue_draw_item(*dirty_items)
-
-            # Mark old bb section for update
-            self.queue_draw_item(*dirty_matrix_items)
             for i in dirty_matrix_items:
                 if i not in self._qtree:
                     dirty_items.add(i)
@@ -781,20 +761,24 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                     self._qtree.add(i, vbounds, bounds)
 
-            self.queue_draw_item(*dirty_matrix_items)
-
             # Request bb recalculation for all 'really' dirty items
             self.update_bounding_box(set(dirty_items))
+
+            self.update_adjustments()
+
+            self.update_back_buffer()
         finally:
             self._dirty_items.clear()
             self._dirty_matrix_items.clear()
 
-    @AsyncIO(single=False)
     def update_bounding_box(self, items):
         """
         Update bounding box is not necessary.
         """
-        cr = self.get_window().cairo_create()
+        if not self._back_buffer:
+            return
+
+        cr = cairo.Context(self._back_buffer)
 
         cr.save()
         cr.rectangle(0, 0, 0, 0)
@@ -803,8 +787,42 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             super(GtkView, self).update_bounding_box(cr, items)
         finally:
             cr.restore()
-        self.queue_draw_item(*items)
-        self.update_adjustments()
+
+    def update_back_buffer(self):
+        if self.canvas and self._back_buffer:
+            cr = cairo.Context(self._back_buffer)
+
+            cr.save()
+            cr.set_source_rgb(1, 1, 1)
+            cr.paint()
+            cr.restore()
+
+            self.paint(cr)
+
+            if DEBUG_DRAW_BOUNDING_BOX:
+                cr.save()
+                cr.identity_matrix()
+                cr.set_source_rgb(0, 0.8, 0)
+                cr.set_line_width(1.0)
+                b = self._bounds
+                cr.rectangle(b[0], b[1], b[2], b[3])
+                cr.stroke()
+                cr.restore()
+
+            if DEBUG_DRAW_QUADTREE:
+
+                def draw_qtree_bucket(bucket):
+                    cr.rectangle(*bucket.bounds)
+                    cr.stroke()
+                    for b in bucket._buckets:
+                        draw_qtree_bucket(b)
+
+                cr.set_source_rgb(0, 0, 0.8)
+                cr.set_line_width(1.0)
+                draw_qtree_bucket(self._qtree._bucket)
+
+            a = self.get_allocation()
+            super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
     @nonrecursive
     def do_size_allocate(self, allocation):
@@ -839,6 +857,22 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
+    def on_configure(self, widget, event):
+        if self.get_window():
+            self._back_buffer = self.get_window().create_similar_surface(
+                cairo.Content.COLOR,
+                self.get_allocated_width(),
+                self.get_allocated_height()
+            )
+            cr = cairo.Context(self._back_buffer)
+            cr.set_source_rgb(1, 1, 1)
+            cr.paint()
+            self.update()
+        else:
+            self._back_buffer = None
+
+        return False
+
     def on_draw(self, widget, cr):
         """
         Render canvas to the screen.
@@ -846,43 +880,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if not self._canvas:
             return
 
-        allocation = self.get_allocation()
-        x = allocation.x
-        y = allocation.y
-        w = allocation.width
-        h = allocation.height
+        if not self._back_buffer:
+            return
 
-        # Draw no more than necessary.
-        cr.rectangle(x, y, w, h)
-        cr.clip()
-
-        area = Rectangle(x, y, width=w, height=h)
-        self._painter.paint(
-            Context(cairo=cr, items=self.get_items_in_rectangle(area), area=area)
-        )
-
-        if DEBUG_DRAW_BOUNDING_BOX:
-            cr.save()
-            cr.identity_matrix()
-            cr.set_source_rgb(0, 0.8, 0)
-            cr.set_line_width(1.0)
-            b = self._bounds
-            cr.rectangle(b[0], b[1], b[2], b[3])
-            cr.stroke()
-            cr.restore()
-
-        # Draw Quadtree structure
-        if DEBUG_DRAW_QUADTREE:
-
-            def draw_qtree_bucket(bucket):
-                cr.rectangle(*bucket.bounds)
-                cr.stroke()
-                for b in bucket._buckets:
-                    draw_qtree_bucket(b)
-
-            cr.set_source_rgb(0, 0, 0.8)
-            cr.set_line_width(1.0)
-            draw_qtree_bucket(self._qtree._bucket)
+        cr.set_source_surface(self._back_buffer, 0, 0)
+        cr.paint()
 
         return False
 
@@ -919,5 +921,3 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self.queue_draw_refresh()
 
-
-# vim: sw=4:et:ai
