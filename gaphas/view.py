@@ -521,8 +521,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         View.__init__(self, canvas)
 
-        self.connect("configure-event", self.on_configure)
-        self.connect("draw", self.on_draw)
         self.set_can_focus(True)
         self.add_events(
             Gdk.EventMask.BUTTON_PRESS_MASK
@@ -853,7 +851,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
-    def on_configure(self, widget, event):
+    def do_configure_event(self, event):
         if self.get_window():
             self._back_buffer = self.get_window().create_similar_surface(
                 cairo.Content.COLOR,
@@ -869,7 +867,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         return False
 
-    def on_draw(self, widget, cr):
+    def do_draw(self, cr):
         """
         Render canvas to the screen.
         """
