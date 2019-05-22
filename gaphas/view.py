@@ -839,14 +839,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         Gtk.DrawingArea.do_unrealize(self)
 
-    def on_draw(self, widget, ctx):
+    def on_draw(self, widget, cr):
         """
         Render canvas to the screen.
         """
         if not self._canvas:
             return
-
-        cr = self.get_window().cairo_create()
 
         allocation = self.get_allocation()
         x = allocation.x
