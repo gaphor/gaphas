@@ -621,7 +621,6 @@ class Canvas(object):
         self.update_now()
 
     def _pre_update_items(self, items, cr):
-        context_map = dict()
         c = Context(cairo=cr)
         for item in items:
             item.pre_update(c)
@@ -861,16 +860,8 @@ class Canvas(object):
         >>> c = Canvas()
         >>> c.update_now()
         """
-        for view in self._registered_views:
-            try:
-                return view.window.cairo_create()
-            except AttributeError:
-                pass
-        else:
-            import cairo
-
-            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-            return cairo.Context(surface)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+        return cairo.Context(surface)
 
     def __getstate__(self):
         """
