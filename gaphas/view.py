@@ -856,7 +856,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._back_buffer = self.get_window().create_similar_surface(
                 cairo.Content.COLOR,
                 self.get_allocated_width(),
-                self.get_allocated_height()
+                self.get_allocated_height(),
             )
             cr = cairo.Context(self._back_buffer)
             cr.set_source_rgb(1, 1, 1)
@@ -914,4 +914,3 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.request_update((), self._canvas.get_all_items())
 
         self.queue_draw_refresh()
-
