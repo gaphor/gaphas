@@ -35,7 +35,7 @@ from builtins import object
 from builtins import range
 from collections import namedtuple
 
-from cairo import Matrix
+import cairo
 
 from gaphas import solver
 from gaphas import table
@@ -621,7 +621,6 @@ class Canvas(object):
         self.update_now()
 
     def _pre_update_items(self, items, cr):
-        context_map = dict()
         c = Context(cairo=cr)
         for item in items:
             item.pre_update(c)
@@ -744,11 +743,11 @@ class Canvas(object):
         Update matrices of an item.
         """
         try:
-            orig_matrix_i2c = Matrix(*item._matrix_i2c)
+            orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
         except:
             orig_matrix_i2c = None
 
-        item._matrix_i2c = Matrix(*item.matrix)
+        item._matrix_i2c = cairo.Matrix(*item.matrix)
 
         if parent is not None:
             try:
@@ -759,7 +758,7 @@ class Canvas(object):
 
         if orig_matrix_i2c is None or orig_matrix_i2c != item._matrix_i2c:
             # calculate c2i matrix and view matrices
-            item._matrix_c2i = Matrix(*item._matrix_i2c)
+            item._matrix_c2i = cairo.Matrix(*item._matrix_i2c)
             item._matrix_c2i.invert()
 
     def update_constraints(self, items):
@@ -860,16 +859,8 @@ class Canvas(object):
         >>> c = Canvas()
         >>> c.update_now()
         """
-        for view in self._registered_views:
-            try:
-                return view.window.cairo_create()
-            except AttributeError:
-                pass
-        else:
-            import cairo
-
-            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-            return cairo.Context(surface)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+        return cairo.Context(surface)
 
     def __getstate__(self):
         """

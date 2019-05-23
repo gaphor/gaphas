@@ -25,7 +25,7 @@ import sys
 
 from setuptools import setup, find_packages
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
 pytest_runner = ["pytest-runner"] if needs_pytest else []
