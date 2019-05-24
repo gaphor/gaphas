@@ -12,16 +12,10 @@
 
 ![Gaphas Demo](docs/images/gaphas-demo.gif)
 
-Gaphas is a library that provides the user interface component (widget) for
-drawing diagrams. Diagrams can be drawn to screen and then easily exported to a
-variety of formats, including SVG and PDF. Want to build an app with chart-like
-diagrams? Then Gaphas is for you! Use this library to build a tree, network,
-flowchart, or other diagrams.
+Gaphas is a library that provides the user interface component (widget) for drawing diagrams. Diagrams can be drawn to screen and then easily exported to a variety of formats, including SVG and PDF. Want to build an app with chart-like diagrams? Then Gaphas is for you! Use this library to build a tree, network, flowchart, or other diagrams.
 
-This library is currently being used by
-[Gaphor](https://github.com/gaphor/gaphor) for UML drawing,
-[RAFCON](https://github.com/DLR-RM/RAFCON) for state-machine based robot
-control, and [ASCEND](http://ascend4.org/) for solving mathematical models.
+This library is currently being used by [Gaphor](https://github.com/gaphor/gaphor) for UML drawing,
+[RAFCON](https://github.com/DLR-RM/RAFCON) for state-machine based robot control, and [ASCEND](http://ascend4.org/) for solving mathematical models.
 
 ## :bookmark_tabs: Table of Contents
 
@@ -34,23 +28,14 @@ control, and [ASCEND](http://ascend4.org/) for solving mathematical models.
 
 ## :scroll: Background
 
-Gaphas was built to provide the foundational diagramming portions of
-[Gaphor](https://github.com/gaphor/gaphor). Since Gaphor is built on GTK and
-Cairo, [PyGObject](https://pygobject.readthedocs.io/) provides access to the
-GUI toolkit and [PyCairo](https://pycairo.readthedocs.io/) to the 2D graphics
-library. However, there wasn't a project that abstracted these technologies to
-easily create a diagramming tool. Hence, Gaphas was created as a library to allow others to create a diagramming tool using GTK and Cairo.
+Gaphas was built to provide the foundational diagramming portions of [Gaphor](https://github.com/gaphor/gaphor). Since Gaphor is built on GTK and Cairo, [PyGObject](https://pygobject.readthedocs.io/) provides access to the GUI toolkit and [PyCairo](https://pycairo.readthedocs.io/) to the 2D graphics library. However, there wasn't a project that abstracted these technologies to easily create a diagramming tool. Hence, Gaphas was created as a library to allow others to create a diagramming tool using GTK and Cairo.
 
 Here is how it works:
 
 - Items (Canvas items) can be added to a Canvas.
 - The Canvas maintains the tree structure (parent-child relationships between items).
-- A constraint solver is used to maintain item constraints and inter-item
-  
-  constraints.
-- The item (and user) should not be bothered with things like bounding-box
-  
-  calculations.
+- A constraint solver is used to maintain item constraints and inter-item constraints.
+- The item (and user) should not be bothered with things like bounding-box calculations.
 - Very modular--e.g., handle support could be swapped in and swapped out.
 - Rendering using Cairo.
 
@@ -74,8 +59,7 @@ $ pip install gaphas
 ```
 
 Use of a
-[virtual environment](https://virtualenv.pypa.io/en/latest/)
-is highly recommended.
+[virtual environment](https://virtualenv.pypa.io/en/latest/) is highly recommended.
 
 ### Development
 
@@ -145,83 +129,49 @@ Gtk.main()
 
 ### Overview
 
-The Canvas class (from canvas.py) acts as a container for Item's (from item.py).
-The item's parent/child relationships are maintained here (not in the Item).
+The Canvas class (from canvas.py) acts as a container for Item's (from item.py). The item's parent/child relationships are maintained here (not in the Item).
 
-An Item can have a set of Handles (from connector.py) which can be used to
-manipulate the item (although this is not necessary). Each item has its own
-coordinate system with x and y position, for example, a (0, 0) point.
-Item.matrix is the transformation relative to the parent item of the Item, as
-defined in the Canvas.
+An Item can have a set of Handles (from connector.py) which can be used to manipulate the item (although this is not necessary). Each item has its own coordinate system with x and y position, for example, a (0, 0) point. Item.matrix is the transformation relative to the parent item of the Item, as defined in the Canvas.
 
-Handles can connect to Ports. A Port is a location (line or point) where a
-handle is allowed to connect on another item. The process of connecting
-depends on the case at hand, but most often involves the creation of some
-sort of constraint between the Handle and the item it is connecting to (see
-doc/ports.rst).
+Handles can connect to Ports. A Port is a location (line or point) where a handle is allowed to connect on another 
+item. The process of connecting depends on the case at hand, but most often involves the creation of some sort of constraint between the Handle and the item it is connecting to (see [ports](https://gaphas.readthedocs.io/en/latest/ports.html)).
 
-The Canvas also contains a constraint Solver (from solver.py) that can be used
-to solve mathematical dependencies between items (such as Handles that should be aligned). The constraint solver can also be used to keep constraints
-contained within the item true, for example, to make sure a box maintains its
-rectangular shape.
+The Canvas also contains a constraint Solver (from solver.py) that can be used to solve mathematical dependencies 
+between items (such as Handles that should be aligned). The constraint solver can also be used to keep constraints contained within the item satisfied, for example, to make sure a box maintains its rectangular shape.
 
-View (from view.py) is used to visualize a Canvas. On a View, a Tool (from
-tool.py) can be applied, which will handle user input like button and key
-presses. Painters (from painter.py) are used to do the actual drawing. This
-module also makes it easy to draw to other media other than a screen, such as a
-printer or a PDF document.
+View (from view.py) is used to visualize a Canvas. On a View, a Tool (from tool.py) can be applied, which will handle user input like button and key presses. Painters (from painter.py) are used to do the actual drawing. This module also makes it easy to draw to other media other than a screen, such as a printer or a PDF document.
 
 ### Updating Item state
 
-If items need updating, it sends out an update request on the Canvas
-(Canvas.request_update()). The canvas performs an update by performing the
-following steps:
+If items need updating, it sends out an update request on the Canvas (Canvas.request_update()). The canvas 
+performs an update by performing the following steps:
 
 1. Pre-update using Item.pre_update(context) for each item marked for update.
-2. Update the Canvas-to-Item matrices, for fast transformation of coordinates
-   
-   from the Canvas' to the items' coordinate system. The c2i matrix is stored on the Item as Item._matrix_c2i.
+2. Update the Canvas-to-Item matrices, for fast transformation of coordinates from the Canvas' to the items' coordinate      system. The c2i matrix is stored on the Item as Item._matrix_c2i.
 3. Solve the constraints.
 4. Normalize the items by setting the coordinates of the first handle to (0, 0).
-5. Update the Canvas-to-Item matrices for items that have been changed by
-   
-   normalization.
-6. Post-update using Item.post_update(context) for each item marked for update, including items that have been marked during the constraint solving step.
+5. Update the Canvas-to-Item matrices for items that have been changed by normalization.
+6. Post-update using Item.post_update(context) for each item marked for update, including items that have been 
+   marked during the constraint solving step.
 
-Gaphas attempts to do as much updating as possible in the {pre|post}_update()
-methods, since they are called when the application is not handling user input.
+Gaphas attempts to do as much updating as possible in the {pre|post}_update() methods, since they are called when the application is not handling user input.
 
-The context contains a CairoContext. This can be used, for example, to
-calculate the dimensions of text. One thing to keep in mind is that updating is
-done from the Canvas. Items should not update sub-items. After the update steps are complete, the Item should be ready to be drawn.
+The context contains a CairoContext. This can be used, for example, to calculate the dimensions of text. One thing to keep in mind is that updating is done from the Canvas. Items should not update sub-items. After the update steps are complete, the Item should be ready to be drawn.
 
 ### Constraint solving
 
-Constraint solving is one of the big features of this library. The Solver is
-able to mathematically solve these constraint rules that are applied to an item
-or between items. Constraints are applied to items through variables owned by
-the item. An example of applying a constraint to an item is that Element items
-use constraints to maintain their rectangular shape. An example of applying
-constraints between items is to apply a constraint between a line and a box in
+Constraint solving is one of the big features of this library. The Solver is able to mathematically solve these constraint rules that are applied to an item or between items. Constraints are applied to items through variables owned by
+the item. An example of applying a constraint to an item is that Element items use constraints to maintain their rectangular shape. An example of applying constraints between items is to apply a constraint between a line and a box in
 order to connect them.
 
-Constraints that apply to one item are pretty straight forward, as all
-variables live in the same coordinate system of the item. The variables, like
-the Handle's x and y coordinate can simply be put in a constraint.
+Constraints that apply to one item are pretty straight forward, as all variables live in the same coordinate system of the item. The variables, like the Handle's x and y coordinate can simply be put in a constraint.
 
-When two items are connected to each other and constraints are created, a
-problem shows up: variables live in separate coordinate systems. In order to
-overcome this problem, a Projection (from solver.py) has been defined. With a
-Projection instance, a variable can be "projected" on another coordinate
-system. In this case, the Canvas' coordinate system is used when two items are
-connected to each other.
+When two items are connected to each other and constraints are created, a problem shows up: variables live in separate coordinate systems. In order to overcome this problem, a Projection (from solver.py) has been defined. With a
+Projection instance, a variable can be "projected" on another coordinate system. In this case, the Canvas' coordinate system is used when two items are connected to each other.
 
 ### Drawing
 
-Drawing is done by the View. All items marked for redraw, the items that have
-been updated, will be drawn in the order in which they reside in the Canvas.
-The order starts with the first root item, then its children, then second root
-item, etc.
+Drawing is done by the View. All items marked for redraw, the items that have been updated, will be drawn in the order in which they reside in the Canvas. The order starts with the first root item, then its children, then second root item, etc.
 
 The view context passed to the Items draw() method has the following properties:
 
@@ -230,26 +180,20 @@ The view context passed to the Items draw() method has the following properties:
 - selected - True if the item is actually selected in the view.
 - focused - True if the item has the focus
 - hovered - True if the mouse pointer if over the item. Only the top-most item is marked as hovered.
-- dropzone - The item is marked as the drop zone. When this happens then an item is dragged over the item, and if it is dropped, it will become a child of this item.
-- draw_all - True if everything drawable on the item should be drawn, for example, when calculating the bounding boxes of an item.
+- dropzone - The item is marked as the drop zone. When this happens then an item is dragged over the item, and if it is     dropped, it will become a child of this item.
+- draw_all - True if everything drawable on the item should be drawn, for example, when calculating the bounding boxes of   an item.
 
-The View automatically calculates the bounding box for the item, based on the
-items drawn in the draw (context) function (this is only done when really
-necessary, e.g., after an update of the item). The bounding box is in viewport
-coordinates.
+The View automatically calculates the bounding box for the item, based on the items drawn in the draw (context) function (this is only done when really necessary, e.g., after an update of the item). The bounding box is in viewport coordinates.
 
-The actual drawing is done by Painters (painter.py). A series of Painters have
-been defined: one for handles, one for items, etc.
+The actual drawing is done by Painters (painter.py). A series of Painters have been defined: one for handles, one for items, etc.
 
 ### Tools
 
-Behaviour is added to the Canvas (view) by tools. Tools can be chained together
-in order to provide more complex behaviour.
+Behaviour is added to the Canvas (view) by tools. Tools can be chained together in order to provide more complex behaviour.
 
-To make it easy, a DefaultTool has been defined which is a ToolChain instance
-with the tools added as follows:
+To make it easy, a DefaultTool has been defined which is a ToolChain instance with the tools added as follows:
 
-- ToolChain - Delegates to a set of individual tools and keeps track of which tool has grabbed the focus. This normally happens when the user presses a mouse button. Once this happens, the tool requests a "grab" and all events, like motion or button release, are sent directly to the focused tool.
+- ToolChain - Delegates to a set of individual tools and keeps track of which tool has grabbed the focus. This normally     happens when the user presses a mouse button. Once this happens, the tool requests a "grab" and all events, like motion   or button release, are sent directly to the focused tool.
 
 - HoverTool - Makes the item under the mouse button the "hovered item." When such an item is drawn, its context.hovered_item flag will be set to True.
 
@@ -263,28 +207,19 @@ with the tools added as follows:
 
 ### Interaction
 
-Tools handle Interaction with the Canvas view (visual component). Although the default tools do a fair amount of work, in most cases you'll desire to create some custom connection behaviour. In order to implement these,
-HandleTool provides hooks including connect, disconnect, and glue.
+Tools handle Interaction with the Canvas view (visual component). Although the default tools do a fair amount of work, in most cases you'll desire to create some custom connection behaviour. In order to implement these, HandleTool provides hooks including connect, disconnect, and glue.
 
-One of the challenges you'll likely face is what to do when an item is removed
-from the Canvas and there are other items (lines) connected to it. Gaphas
-provides a solution to this by providing a disconnect handler to the handle
-instance once it is connected. A function can be assigned to this disconnect
-handler, which is then called when the item that is connected to is removed from the Canvas.
+One of the challenges you'll likely face is what to do when an item is removed from the Canvas and there are other items (lines) connected to it. Gaphas provides a solution to this by providing a disconnect handler to the handle instance once it is connected. A function can be assigned to this disconnect handler, which is then called when the item that is connected to is removed from the Canvas.
 
 ### Undo
 
-Gaphas has a simple built-in system for registering changes in its classes and
-notifying the application. This code resides in state.py.
+Gaphas has a simple built-in system for registering changes in its classes and notifying the application. This code resides in state.py.
 
-There is also a "reverter" framework in place. This system is notified when
-objects change their state, and the framework will figure out the reverse operation that has to be applied in order to undo the operation.
+There is also a "reverter" framework in place. This system is notified when objects change their state, and the framework will figure out the reverse operation that has to be applied in order to undo the operation.
 
 ## :mag: API
 
-The API can be separated into a
-[Model-View-Controller](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)
-with these three parts:
+The API can be separated into a [Model-View-Controller](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) with these three parts:
 
 1. The Model, including the canvas and items
 2. The View, called view
@@ -312,25 +247,19 @@ item = Item()
 
 - `matrix`: The item's transformation matrix
 - `canvas`: The canvas, which owns an item
-- `constraints`: list of item constraints, automatically registered
-  
-  when the item is added to a canvas; may be extended in subclasses
+- `constraints`: list of item constraints, automatically registered when the item is added to a canvas; may be extended in subclasses
 
 #### Class: `gaphas.connector.Handle`
 
 Handles are used to support modifications of Items.
 
-If the handle is connected to an item, the `connected_to`
-property should refer to the item. A `disconnect` handler should
-be provided that handles the required disconnect behaviour, for example
-cleaning up the constraints and `connected_to`.
+If the handle is connected to an item, the `connected_to` property should refer to the item. A `disconnect` handler should
+be provided that handles the required disconnect behaviour, for example, cleaning up the constraints and `connected_to`.
 
 - pos (`gaphas.connector.Position`): The position of the item, default value is (0, 0).
-- strength (int): The strength of the handle to use in the constraint solver,
-  
-  default value is NORMAL, which is 20.
-- connectable (bool): Makes the handle connectable to other items, default value is False.
-- movable (bool): Makes the handle moveable, default value is True.
+- strength (int): The strength of the handle to use in the constraint solver; default value is NORMAL, which is 20.
+- connectable (bool): Makes the handle connectable to other items; default value is False.
+- movable (bool): Makes the handle moveable; default value is True.
   
   ```python
   handle = Handle((10, 10), connectable=True)
@@ -350,8 +279,7 @@ port = LinePort(p1, p2)
 
 #### Class: `gaphas.connector.PointPort`
 
-The Point Port connects the handle to an item using a port at the location of
-the handle.
+The Point Port connects the handle to an item using a port at the location of the handle.
 
 ```python
 h = Handle((10, 10))
@@ -421,8 +349,7 @@ c.value = 2.4
 
 #### Class: `gaphas.constraint.LineConstraint`
 
-Solves the equation where a line is connected to a line or side at
-a specific point.
+Solves the equation where a line is connected to a line or side at a specific point.
 
 ```python
 line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
@@ -468,8 +395,7 @@ view.painter = (
 
 #### Class: `gaphas.painter.DrawContext`
 
-Special context for drawing the item. It contains a cairo context and
-properties like selected and focused.
+Special context for drawing the item. It contains a cairo context and properties like selected and focused.
 
 - **kwargs: Optional cairo properties for a context.
 
@@ -496,8 +422,7 @@ svgview.painter = ItemPainter()
 
 #### Class: `gaphas.painter.CairoBoundingBoxContext`
 
-It is used to intercept `stroke()`, `fill()`, and other context operations so
-that the bounding box of the item involved can be calculated.
+It is used to intercept `stroke()`, `fill()`, and other context operations so that the bounding box of the item involved can be calculated.
 
 - cairo (cairo.Context): The cairo context to intercept.
 
@@ -507,8 +432,7 @@ cairo = CairoBoundingBoxContext(cairo)
 
 #### Class: `gaphas.painter.BoundingBoxPainter`
 
-A type of ItemPainter which is used to calculate the bounding boxes (in canvas
-coordinates) for the items.
+A type of ItemPainter which is used to calculate the bounding boxes (in canvas coordinates) for the items.
 
 ```python
 view.bounding_box_painter = BoundingBoxPainter()
@@ -528,14 +452,11 @@ Used to draw on top of all the other layers for the focused item.
 
 ### Tools
 
-Interacting with the Canvas is done through tools. Tools tell _what_ has to be
-done (like moving). To make an element move aspects are defined. Aspects tell
-_how_ the behaviour has to be performed.
+Interacting with the Canvas is done through tools. Tools tell _what_ has to be done (like moving). To make an element move aspects are defined. Aspects tell how the behaviour has to be performed.
 
 #### Class: `gaphas.tools.ToolChain`
 
-Used to chain tools together. For example, chain a HoverTool, HandleTool,
-and SelectionTool in order to combine their functionality in to a new tool.
+Used to chain tools together. For example, chain a HoverTool, HandleTool, and SelectionTool in order to combine their functionality in to a new tool.
 
 - view (`gaphas.view.View`): The view to use for the tool chain. 
 
@@ -555,48 +476,47 @@ and SelectionTool in order to combine their functionality in to a new tool.
 
 Makes the item under the mouse cursor the hovered item.
 
-- view (`gaphas.view.View`): The view to use for the tool, default is None.
+- view (`gaphas.view.View`): The view to use for the tool; default is None.
 
 #### Class: `gaphas.tools.ItemTool`
 
 Does selection and dragging of items.
 
-- view (`gaphas.view.View`): The view to use for the tool, default is None.
+- view (`gaphas.view.View`): The view to use for the tool; default is None.
 
 #### Class: `gaphas.tools.HandleTool`
 
 Tool to move handles around.
 
-- view (`gaphas.view.View`): The view to use for the tool, default is None.
+- view (`gaphas.view.View`): The view to use for the tool; default is None.
 
 #### Class: `gaphas.tools.RubberbandTool`
 
 Allows the user to drag a "rubber band" for selecting items in an area. 
 
-- view (`gaphas.view.View`): The view to use for the tool, default is None.
+- view (`gaphas.view.View`): The view to use for the tool; default is None.
 
 #### Class: `gaphas.tools.PanTool`
 
-Captures drag events with the middle mouse button and uses them to translate
-the canvas within the view.
+Captures drag events with the middle mouse button and uses them to translate the Canvas within the view.
 
-- view (`gaphas.view.View`): The view to use for the tool, default is None.
+- view (`gaphas.view.View`): The view to use for the tool; default is None.
 
 #### Class: `gaphas.tools.ZoomTool`
 
 Tool for zooming using two different user inputs: 
 
 1. Ctrl + middle-mouse dragging in the up and down direction
-
 2. Ctrl + mouse-wheel
-- view (`gaphas.view.View`): The view to use for the tool, default is None.
+
+- view (`gaphas.view.View`): The view to use for the tool; default is None.
 
 #### Class: `gaphas.tools.PlacementTool`
 
-Tool for placing items on the canvas.
+Tool for placing items on the Canvas.
 
 - view (`gaphas.view.View`): The view to use for the tool. 
-- factory (factory object): A canvas item factory for creating new items.
+- factory (factory object): A Canvas item factory for creating new items.
 - handle_tool (`gaphas.tools.HandleTool`): The handle tool to use.
 - handle_index (int): The index of the handle to be used by the handle tool.
 
@@ -607,7 +527,7 @@ def on_clicked(button):
 
 #### Class: `gaphas.aspects.ItemFinder`
 
-Find an item on the canvas.
+Find an item on the Canvas.
 
 - view (`gaphas.view.View`): The view to use in order to search for an item.
 
@@ -665,24 +585,22 @@ Connect or disconnect an item's handle to another item or port.
 
 #### Class: `gaphas.aspects.ItemConnectionSink`
 
-Makes an item a sink, which is another item that an item's handle is connected
-to like a connected item or port.
+Makes an item a sink, which is another item that an item's handle is connected to like a connected item or port.
 
 - item (`gaphas.item.Item`): The item to look for ports on.
 - port (`gaphas.connector.Port`): The port to use as the sink.
 
 #### Class: `gaphas.aspects.ItemPaintFocused`
 
-Paints on top of all items, just for the focused item and only
-when it's hovered (see `gaphas.painter.FocusedItemPainter`).
+Paints on top of all items, just for the focused item and only when it's hovered (see
+ `gaphas.painter.FocusedItemPainter`).
 
 - item (`gaphas.item.Item`): The focused item.
 - view (`gaphas.view.View`): The view to paint with.
 
 ### Extended Behaviour
 
-By importing the following modules, extra behaviour is added to the default
-view behaviour.
+By importing the following modules, extra behaviour is added to the default view behaviour.
 
 #### Class: `gaphas.segment.LineSegment`
 
@@ -693,17 +611,14 @@ Split and merge line segments.
 
 #### Class: `gaphas.segment.SegmentHandleFinder`
 
-Extends the `gaphas.aspects.ItemHandleFinder` to find a handle on a line, and
-create a new handle if the mouse is located between two handles. The position
-aligns with the points drawn by the SegmentPainter.
+Extends the `gaphas.aspects.ItemHandleFinder` to find a handle on a line, and create a new handle if the mouse is located between two handles. The position aligns with the points drawn by the SegmentPainter.
 
 - item (`gaphas.item.Item`): The item.
 - view (`gaphas.view.View`): The view to get the handle at the position from.
 
 #### Class: `gaphas.segment.SegmentHandleSelection`
 
-Extends the `gaphas.aspects.ItemHandleSelection` to merge segments if the
-handle is released.
+Extends the `gaphas.aspects.ItemHandleSelection` to merge segments if the handle is released.
 
 - item (`gaphas.item.Item`): The item that the handle belongs to.
 - handle (`gaphas.connector.Handle`): The handle to select or unselect.
@@ -711,12 +626,9 @@ handle is released.
 
 #### Class: `gaphas.segment.LineSegmentPainter`
 
-This painter draws pseudo-handles on a `gaphas.item.Line` by extending
-`gaphas.aspects.ItemPaintFocused`. Each line can be split by dragging those
-points, which will result in a new handle.
+This painter draws pseudo-handles on a `gaphas.item.Line` by extending `gaphas.aspects.ItemPaintFocused`. Each line can be split by dragging those points, which will result in a new handle.
 
-ConnectHandleTool takes care of performing the user interaction required for
-this feature.
+ConnectHandleTool takes care of performing the user interaction required for this feature.
 
 - item (`gaphas.item.Item`): The focused item.
 - view (`gaphas.view.View`): The view to paint with.
@@ -735,13 +647,10 @@ Provides a guide to align items for `gaphas.item.Line`.
 
 #### Class: `gaphas.guide.GuidedItemInMotion`
 
-Move the item and lock the position of any element that's located at the same
-position.
+Move the item and lock the position of any element that's located at the same position.
 
 - item (`gaphas.item.Item`): The item to move.
-- view (`gaphas.view.View`): The view with guides to use for move
-  
-  coordinates.
+- view (`gaphas.view.View`): The view with guides to use for move coordinates.
 
 ```python
 canvas = Canvas()
@@ -753,19 +662,15 @@ guider.start_move((0, 0))
 
 #### Class: `gaphas.guide.GuidedItemHandleInMotion`
 
-Move a handle and lock the position of any element that's located at the same
-position.
+Move a handle and lock the position of any element that's located at the same position.
 
 - item (`gaphas.item.Item`): The item that the handle belongs to.
 - handle (`gaphas.connector.Handle`): The handle to move.
-- view (`gaphas.view.View`): The view with guides to use for the coordinate
-  
-  system.
+- view (`gaphas.view.View`): The view with guides to use for the coordinate system.
 
 #### Class: `gaphas.guide.GuidePainter`
 
-Paints on top of all items with guides, just for the focused item and only when
-it's hovered.
+Paints on top of all items with guides, just for the focused item and only when it's hovered.
 
 - item (`gaphas.item.Item`): The focused item.
 - view (`gaphas.view.View`): The view with guides to paint with.
@@ -799,9 +704,7 @@ matrix = Matrix(1, 0, 0, 1, 0, 0)
 
 #### Class: `gaphas.table.Table`
 
-Table is a storage class that can be used to store information, like
-one would in a database table, with indexes on the desired "columns." It
-includes indexing and is optimized for lookups.
+Table is a storage class that can be used to store information, like one would in a database table, with indexes on the desired "columns." It includes indexing and is optimized for lookups.
 
 - columns (tuple): The columns of the table.
 - index (tuple):  
@@ -814,8 +717,7 @@ s = Table(C, (2,))
 
 #### Class: `gaphas.quadtree.Quadtree`
 
-A quadtree is a tree data structure in which each internal node has up
-to four children. Quadtrees are most often used to partition a two
+A quadtree is a tree data structure in which each internal node has up to four children. Quadtrees are most often used to partition a two
 
 - bounds (tuple): The boundaries of the quadtree (x, y, width, height).
 - capacity (int); The number of elements in one tree bucket; default is 10.
@@ -826,8 +728,7 @@ qtree = Quadtree((0, 0, 100, 100))
 
 #### Class: `gaphas.geometry.Rectangle`
 
-Rectangle object which can be added (union), substituted (intersection), and
-points and rectangles can be tested to be in the rectangle.
+Rectangle object which can be added (union), substituted (intersection), and points and rectangles can be tested to be in the rectangle.
 
 - x (int): X position of the rectangle.
 - y (int): Y position of the rectangle.
@@ -842,9 +743,7 @@ rect = Rectangle(1, 1, 5, 5)
 
 Schedule an idle handler at a given priority.
 
-- single (bool): Schedules the decorated function to be called only a single
-  
-  time.
+- single (bool): Schedules the decorated function to be called only a single time.
 - timeout (int): The time between calls of the decorated function.
 - priority (int): The GLib.PRIORITY constant to set the event priority.
 
@@ -872,9 +771,7 @@ class A(object):
 
 Limits the recursion for a specific function.
 
-- limit (int): The limit for the number of recursive loops a function can be
-  
-  called; default is 10000.
+- limit (int): The limit for the number of recursive loops a function can be called; default is 10000.
 
 ```python
 @recursive(10)
@@ -895,29 +792,14 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 | [<img src="https://avatars2.githubusercontent.com/u/114619?v=4" width="100px;"/><br /><sub><b>Adam Boduch</b></sub>](http://www.boduch.ca)<br />[🐛](https://github.com/danyeaw/gaphas/issues?q=author%3Aadamboduch "Bug reports")                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                                                                                                         |                                                                                                                                                                                                                                                                                                                 |                                                                                                                                                                                                                                                         |                                                                                                                                                                                                                                                                                        |
 | <!-- ALL-CONTRIBUTORS-LIST:END -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                                                                                                         |                                                                                                                                                                                                                                                                                                                 |                                                                                                                                                                                                                                                         |                                                                                                                                                                                                                                                                                        |
 
-This project follows the
-[all-contributors](https://github.com/kentcdodds/all-contributors)
-specification. Contributions of any kind are welcome!
+This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
 
-1. Check for open issues or open a fresh issue to start a discussion
-   
-   around a feature idea or a bug. There is a 
-   
-   [first-timers-only](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only)
-   
-   tag for issues that should be ideal for people who are not very
-   
-   familiar with the codebase yet.
-2. Fork [the repository](https://github.com/gaphor/gaphas) on
-   
-   GitHub to start making your changes to the **master** branch (or
-   
-   branch off of it).
+1. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. 
+    There is a [first-timers-only](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only) tag for issues that should be ideal for people who are not very familiar with the codebase yet.
+2. Fork [the repository](https://github.com/gaphor/gaphas) on GitHub to    start making your changes to the **master**       branch (or branch off of it).
 3. Write a test which shows that the bug was fixed or that the feature
-   
    works as expected.
 4. Send a pull request and bug the maintainers until it gets merged and
-   
    published. :smile:
 
 See [the contributing file](CONTRIBUTING.md)!
@@ -928,6 +810,4 @@ Copyright (C) Arjan Molenaar and Dan Yeaw
 
 Licensed under the [Apache License 2.0](LICENSE).
 
-Summary: You can do what you like with Gaphas, as long as you include the
-required notices. This permissive license contains a patent license from the
-contributors of the code.
+Summary: You can do what you like with Gaphas, as long as you include the required notices. This permissive license contains a patent license from the contributors of the code.
