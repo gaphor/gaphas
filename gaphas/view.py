@@ -782,6 +782,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         finally:
             cr.restore()
 
+    @AsyncIO(single=True)
     def update_back_buffer(self):
         if self.canvas and self._back_buffer:
             cr = cairo.Context(self._back_buffer)
