@@ -90,8 +90,6 @@ class DrawContext(Context):
     focused.
     """
 
-    deprecated = False
-
     def __init__(self, **kwargs):
         super(DrawContext, self).__init__(**kwargs)
 

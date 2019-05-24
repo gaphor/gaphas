@@ -26,5 +26,5 @@ def test_set_xy():
 
 def test_handle_x_y():
     h = Handle()
-    assert 0.0 == h.x
-    assert 0.0 == h.y
+    assert 0.0 == h.pos.x
+    assert 0.0 == h.pos.y

@@ -3,6 +3,8 @@ Basic connectors such as Ports and Handles.
 """
 
 from builtins import object
+import functools
+import warnings
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
@@ -10,8 +12,20 @@ from gaphas.solver import solvable, NORMAL
 from gaphas.state import observed, reversible_property
 
 
-def deprecated(e):
-    return e
+def deprecated(message, since):
+    def _deprecated(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            warnings.warn(
+                "{}: {}".format(func.__name__, message),
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return _deprecated
 
 
 class Position(object):
@@ -119,27 +133,31 @@ class Handle(object):
 
     pos = property(lambda s: s._pos, _set_pos)
 
+    @deprecated("Use Handle.pos", "1.1.0")
     def _set_x(self, x):
         """
         Shortcut for ``handle.pos.x = x``
         """
         self._pos.x = x
 
+    @deprecated("Use Handle.pos.x", "1.1.0")
     def _get_x(self):
         return self._pos.x
 
-    x = property(deprecated(_get_x), deprecated(_set_x))
+    x = property(_get_x, _set_x)
 
+    @deprecated("Use Handle.pos", "1.1.0")
     def _set_y(self, y):
         """
         Shortcut for ``handle.pos.y = y``
         """
         self._pos.y = y
 
+    @deprecated("Use Handle.pos.y", "1.1.0")
     def _get_y(self):
         return self._pos.y
 
-    y = property(deprecated(_get_y), deprecated(_set_y))
+    y = property(_get_y, _set_y)
 
     @observed
     def _set_connectable(self, connectable):

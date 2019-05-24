@@ -157,8 +157,8 @@ def test_line_projection():
     line = Line()
     line.matrix.translate(15, 50)
     h1, h2 = line.handles()
-    h1.x, h1.y = 0, 0
-    h2.x, h2.y = 20, 20
+    h1.pos = (0, 0)
+    h2.pos = (20, 20)
 
     box = Box()
     box.matrix.translate(10, 10)
@@ -170,7 +170,7 @@ def test_line_projection():
     canvas.add(box)
 
     # move line's second handle on box side
-    h2.x, h2.y = 5, -20
+    h2.pos = (5, -20)
 
 
 def test_remove_connected_item():
