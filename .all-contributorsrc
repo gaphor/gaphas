@@ -1,6 +1,6 @@
 {
   "projectName": "gaphas",
-  "projectOwner": "danyeaw",
+  "projectOwner": "gaphor",
   "repoType": "github",
   "repoHost": "https://github.com",
   "files": [
@@ -97,6 +97,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "janettech",
+      "name": "Janet Jose",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/13398384?v=4",
+      "profile": "https://github.com/janettech",
+      "contributions": [
+        "doc"
+      ]
     }
-  ]
+  ],
+  "contributorsPerLine": 7
 }
