@@ -23,12 +23,18 @@ from builtins import zip
 from threading import Lock
 from types import MethodType
 
-from decorator import decorator
-
 if sys.version_info.major >= 3:  # Modern Python
-    from inspect import getfullargspec as getargspec
+    from functools import update_wrapper
+    from inspect import getfullargspec as _getargspec
 else:  # Legacy Python
-    from inspect import getargspec
+    from inspect import getargspec as _getargspec
+    import functools
+
+    def update_wrapper(wrapper, wrapped):
+        w = functools.update_wrapper(wrapper, wrapped)
+        w.__wrapped__ = wrapped
+        return w
+
 
 # This string is added to each docstring in order to denote is's observed
 # OBSERVED_DOCSTRING = \
@@ -68,7 +74,7 @@ def observed(func):
     code.
     """
 
-    def wrapper(func, *args, **kwargs):
+    def wrapper(*args, **kwargs):
         o = func.__observer__
         acquired = mutex.acquire(False)
         try:
@@ -79,8 +85,7 @@ def observed(func):
             if acquired:
                 mutex.release()
 
-    dec = decorator(wrapper)(func)
-
+    dec = update_wrapper(wrapper, func)
     func.__observer__ = dec
     return dec
 
@@ -121,7 +126,7 @@ def reversible_function(func, reverse, bind={}):
     """
     global _reverse
     func = getfunction(func)
-    _reverse[func] = (reverse, getargspec(reverse), bind)
+    _reverse[func] = (reverse, getargnames(reverse), bind)
 
 
 reversible_method = reversible_function
@@ -139,8 +144,8 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
     # We need the function, since that's what's in the events
     func1 = getfunction(func1)
     func2 = getfunction(func2)
-    _reverse[func1] = (func2, getargspec(func2), bind2)
-    _reverse[func2] = (func1, getargspec(func1), bind1)
+    _reverse[func1] = (func2, getargnames(func2), bind2)
+    _reverse[func2] = (func1, getargnames(func1), bind1)
 
 
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
@@ -160,17 +165,15 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
     # TODO! handle fdel
     if fset:
-        spec = getargspec(fset)
+        spec = getargnames(fset)
         argnames = spec[0]
-        assert len(argnames) == 2
+        assert len(argnames) == 2, "Set argument {} has argnames {}".format(
+            fset, argnames
+        )
 
         argself, argvalue = argnames
         func = getfunction(fset)
-        b = {
-            argvalue: eval(
-                "lambda %(self)s: fget(%(self)s)" % {"self": argself}, {"fget": fget}
-            )
-        }
+        b = {argvalue: lambda self: fget(self)}
         b.update(bind)
         _reverse[func] = (func, spec, b)
 
@@ -236,7 +239,7 @@ def revert_handler(event):
     """
     global _reverse
     func, args, kwargs = event
-    spec = getargspec(func)
+    spec = getargnames(func)
     reverse, revspec, bind = _reverse.get(func, (None, None, {}))
     if not reverse:
         return
@@ -245,10 +248,10 @@ def revert_handler(event):
     kw.update(dict(list(zip(spec[0], args))))
     for arg, binding in list(bind.items()):
         kw[arg] = saveapply(binding, kw)
-    argnames = list(revspec[0])
-    if spec[1]:
+    argnames = list(revspec[0])  # normal args
+    if spec[1]:  # *args
         argnames.append(revspec[1])
-    if spec[2]:
+    if spec[2]:  # **kwargs
         argnames.append(revspec[2])
     kwargs = {}
     for arg in argnames:
@@ -263,7 +266,7 @@ def saveapply(func, kw):
     The function names should be known at meta-level, since arguments
     are applied as func(\\*\\*kwargs).
     """
-    spec = getargspec(func)
+    spec = getargnames(func)
     argnames = list(spec[0])
     if spec[1]:
         argnames.append(spec[1])
@@ -273,6 +276,13 @@ def saveapply(func, kw):
     for arg in argnames:
         kwargs[arg] = kw.get(arg)
     return func(**kwargs)
+
+
+def getargnames(func):
+    while hasattr(func, "__wrapped__"):
+        func = func.__wrapped__
+    spec = _getargspec(func)
+    return spec[:3]
 
 
 def getfunction(func):

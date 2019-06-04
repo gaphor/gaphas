@@ -51,7 +51,6 @@ setup(
     packages=find_packages(),
     setup_requires=["setuptools-git >= 0.3.4"] + pytest_runner + pytest_cov,
     install_requires=[
-        "decorator >= 3.0.0",
         "simplegeneric >= 0.6",
         "PyGObject >= 3.20.0",
         "pycairo >= 1.10.0",
