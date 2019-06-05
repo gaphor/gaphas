@@ -28,10 +28,10 @@ classifiers = [
 # Requirements
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.5"
-simplegeneric = "^0.8.1"
 PyGObject = "^3.20.0"
 pycairo = "^1.10.0"
 future = "^0.17.0"
+singledispatch = { version = "~3.4.0", python = "~2.7" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
