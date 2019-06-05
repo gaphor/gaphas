@@ -3,11 +3,16 @@ Allow for easily adding segments to lines.
 """
 from __future__ import division
 
+import sys
 from builtins import object
 from builtins import zip
 
+if sys.version_info.major >= 3:  # Modern Python
+    from functools import singledispatch
+else:
+    from singledispatch import singledispatch
+
 from cairo import Matrix, ANTIALIAS_NONE
-from simplegeneric import generic
 
 from gaphas.aspect import ConnectionSink
 from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
@@ -16,13 +21,13 @@ from gaphas.geometry import distance_point_point_fast, distance_line_point
 from gaphas.item import Line
 
 
-@generic
+@singledispatch
 class Segment(object):
     def __init__(self, item, view):
         raise TypeError
 
 
-@Segment.when_type(Line)
+@Segment.register(Line)
 class LineSegment(object):
     def __init__(self, item, view):
         self.item = item
@@ -168,7 +173,7 @@ class LineSegment(object):
             canvas.reconnect_item(item, handle, constraint=constraint)
 
 
-@HandleFinder.when_type(Line)
+@HandleFinder.register(Line)
 class SegmentHandleFinder(ItemHandleFinder):
     """Find a handle on a line.
 
@@ -193,7 +198,7 @@ class SegmentHandleFinder(ItemHandleFinder):
         return item, handle
 
 
-@HandleSelection.when_type(Line)
+@HandleSelection.register(Line)
 class SegmentHandleSelection(ItemHandleSelection):
     """
     In addition to the default behaviour, merge segments if the handle
@@ -229,7 +234,7 @@ class SegmentHandleSelection(ItemHandleSelection):
             item.request_update()
 
 
-@PaintFocused.when_type(Line)
+@PaintFocused.register(Line)
 class LineSegmentPainter(ItemPaintFocused):
     """
     This painter draws pseudo-handles on gaphas.item.Line

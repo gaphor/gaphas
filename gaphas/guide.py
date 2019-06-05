@@ -3,11 +3,15 @@ Module implements guides when moving items and handles around.
 """
 from __future__ import division
 
+import sys
 from builtins import map
 from builtins import object
 from functools import reduce
 
-from simplegeneric import generic
+if sys.version_info.major >= 3:  # Modern Python
+    from functools import singledispatch
+else:
+    from singledispatch import singledispatch
 
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
@@ -35,10 +39,10 @@ class ItemGuide(object):
         return ()
 
 
-Guide = generic(ItemGuide)
+Guide = singledispatch(ItemGuide)
 
 
-@Guide.when_type(Element)
+@Guide.register(Element)
 class ElementGuide(ItemGuide):
     """Guide to align Element items.
 
@@ -53,7 +57,7 @@ class ElementGuide(ItemGuide):
         return (0, x / 2, x)
 
 
-@Guide.when_type(Line)
+@Guide.register(Line)
 class LineGuide(ItemGuide):
     """Guide for orthogonal lines.
 
@@ -205,7 +209,7 @@ class GuideMixin(object):
             return 0, ()
 
 
-@InMotion.when_type(Item)
+@InMotion.register(Item)
 class GuidedItemInMotion(GuideMixin, ItemInMotion):
     """
     Move the item, lock position on any element that's located at the
@@ -253,7 +257,7 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
             pass
 
 
-@HandleInMotion.when_type(Item)
+@HandleInMotion.register(Item)
 class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
     """Move a handle and lock the position of other elements.
 
@@ -304,7 +308,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             pass
 
 
-@PaintFocused.when_type(Item)
+@PaintFocused.register(Item)
 class GuidePainter(ItemPaintFocused):
     def paint(self, context):
         try:

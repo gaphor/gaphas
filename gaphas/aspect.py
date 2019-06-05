@@ -1,19 +1,18 @@
 """Defines aspects for Items.
 
 Aspects form intermediate items between tools and items.
-
-Note: This module uses Phillip J. Eby's simplegeneric module. This
-module transforms the generic class (used as fall-back) to a generic
-function. In order to inherit from this class you should inherit from
-Class.default.  The simplegeneric module is dispatching only based on
-the first argument.  For Gaphas that's enough.
 """
 from __future__ import absolute_import
 
+import sys
 from builtins import object
 
+if sys.version_info.major >= 3:  # Modern Python
+    from functools import singledispatch
+else:
+    from singledispatch import singledispatch
+
 from gi.repository import Gdk
-from simplegeneric import generic
 
 from gaphas.item import Item, Element
 
@@ -31,7 +30,7 @@ class ItemFinder(object):
         return item or self.view.get_item_at_point(pos)
 
 
-Finder = generic(ItemFinder)
+Finder = singledispatch(ItemFinder)
 
 
 class ItemSelection(object):
@@ -57,7 +56,7 @@ class ItemSelection(object):
         self.view.unselect_item(self.item)
 
 
-Selection = generic(ItemSelection)
+Selection = singledispatch(ItemSelection)
 
 
 class ItemInMotion(object):
@@ -95,7 +94,7 @@ class ItemInMotion(object):
         pass
 
 
-InMotion = generic(ItemInMotion)
+InMotion = singledispatch(ItemInMotion)
 
 
 class ItemHandleFinder(object):
@@ -111,7 +110,7 @@ class ItemHandleFinder(object):
         return self.view.get_handle_at_point(pos)
 
 
-HandleFinder = generic(ItemHandleFinder)
+HandleFinder = singledispatch(ItemHandleFinder)
 
 
 class ItemHandleSelection(object):
@@ -131,10 +130,10 @@ class ItemHandleSelection(object):
         pass
 
 
-HandleSelection = generic(ItemHandleSelection)
+HandleSelection = singledispatch(ItemHandleSelection)
 
 
-@HandleSelection.when_type(Element)
+@HandleSelection.register(Element)
 class ElementHandleSelection(ItemHandleSelection):
     CURSORS = ("nw-resize", "ne-resize", "se-resize", "sw-resize")
 
@@ -228,7 +227,7 @@ class ItemHandleInMotion(object):
         return None
 
 
-HandleInMotion = generic(ItemHandleInMotion)
+HandleInMotion = singledispatch(ItemHandleInMotion)
 
 
 class ItemConnector(object):
@@ -306,7 +305,7 @@ class ItemConnector(object):
         self.item.canvas.disconnect_item(self.item, self.handle)
 
 
-Connector = generic(ItemConnector)
+Connector = singledispatch(ItemConnector)
 
 
 class ItemConnectionSink(object):
@@ -338,7 +337,7 @@ class ItemConnectionSink(object):
         return port
 
 
-ConnectionSink = generic(ItemConnectionSink)
+ConnectionSink = singledispatch(ItemConnectionSink)
 
 
 ##
@@ -360,7 +359,7 @@ class ItemPaintFocused(object):
         pass
 
 
-PaintFocused = generic(ItemPaintFocused)
+PaintFocused = singledispatch(ItemPaintFocused)
 
 
 # vim:sw=4:et:ai
