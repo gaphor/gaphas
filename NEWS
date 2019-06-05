@@ -1,3 +1,9 @@
+1.1.0
+-----
+- Remove dependency on simplegeneric and decorator
+- Speed up rendering by using a back-buffer
+- Deprecate Handle.x and Handle.y, use Handle.pos instead
+
 1.0.0
 -----
 - Change license from LGPL 2.0 to Apache 2.0
