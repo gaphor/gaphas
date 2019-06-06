@@ -12,7 +12,6 @@ jobs:
     - python: 3.5.6
     - python: 3.6.8
     - python: 3.7.2
-      env: PYTEST_ADDOPTS="--doctest-modules"
       sudo: true
 
     - stage: lint
