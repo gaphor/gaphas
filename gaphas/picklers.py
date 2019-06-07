@@ -10,23 +10,6 @@ from future import standard_library
 
 standard_library.install_aliases()
 
-
-# Allow instancemethod to be pickled:
-def construct_instancemethod(funcname, self, clazz):
-    func = getattr(clazz, funcname)
-    return types.MethodType(func, self)
-
-
-def reduce_instancemethod(im):
-    return (
-        construct_instancemethod,
-        (im.__func__.__name__, im.__self__, im.__self__.__class__),
-    )
-
-
-copyreg.pickle(types.MethodType, reduce_instancemethod, construct_instancemethod)
-
-
 # Allow cairo.Matrix to be pickled:
 def construct_cairo_matrix(*args):
     return cairo.Matrix(*args)
