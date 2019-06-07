@@ -14,7 +14,7 @@ import types
 
 def construct_instancemethod(funcname, self, clazz):
     func = getattr(clazz, funcname)
-    return types.MethodType(func, self, clazz)
+    return types.MethodType(func, self)
 
 
 def reduce_instancemethod(im):
