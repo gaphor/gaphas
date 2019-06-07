@@ -10,16 +10,13 @@ from __future__ import division
 
 from builtins import object
 
-__version__ = "$Revision$"
-# $HeadURL$
+from cairo import ANTIALIAS_NONE, LINE_JOIN_ROUND
 
-from cairo import Matrix, ANTIALIAS_NONE, LINE_JOIN_ROUND
-
+from gaphas.aspect import PaintFocused
 from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
-from gaphas.item import Line
-from gaphas.aspect import PaintFocused
 
+__version__ = "$Revision$"
 
 DEBUG_DRAW_BOUNDING_BOX = False
 

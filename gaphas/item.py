@@ -12,22 +12,27 @@ from math import atan2
 from weakref import WeakKeyDictionary
 
 try:
-    # python 3.0 (better be prepared)
+    # Python 3.0 (better be prepared)
     from weakref import WeakSet
 except ImportError:
-    from .weakset import WeakSet
+    from gaphas.weakset import WeakSet
 
-from .matrix import Matrix
-from .geometry import distance_line_point, distance_rectangle_point
-from .connector import Handle, LinePort
-from .solver import solvable, WEAK, VERY_STRONG, REQUIRED
-from .constraint import (
+from gaphas.matrix import Matrix
+from gaphas.geometry import distance_line_point, distance_rectangle_point
+from gaphas.connector import Handle, LinePort
+from gaphas.solver import solvable, WEAK, VERY_STRONG, REQUIRED
+from gaphas.constraint import (
     EqualsConstraint,
     LessThanConstraint,
     LineConstraint,
     LineAlignConstraint,
 )
-from .state import observed, reversible_method, reversible_pair, reversible_property
+from gaphas.state import (
+    observed,
+    reversible_method,
+    reversible_pair,
+    reversible_property,
+)
 
 
 class Item(object):

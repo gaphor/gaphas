@@ -16,7 +16,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 import cairo
-from .state import observed, reversible_method
+from gaphas.state import observed, reversible_method
 
 
 class Matrix(object):

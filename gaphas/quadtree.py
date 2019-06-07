@@ -26,7 +26,7 @@ from builtins import map
 from builtins import object
 from builtins import zip
 
-from .geometry import rectangle_contains, rectangle_intersects, rectangle_clip
+from gaphas.geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
 
 class Quadtree(object):

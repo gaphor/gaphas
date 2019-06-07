@@ -39,7 +39,7 @@ from __future__ import division
 
 from builtins import object
 
-from .state import observed, reversible_pair, reversible_property
+from gaphas.state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?

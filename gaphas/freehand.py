@@ -15,7 +15,7 @@ from __future__ import absolute_import
 from builtins import object
 from math import sqrt
 from random import Random
-from .painter import Context
+from gaphas.painter import Context
 
 
 class FreeHandCairoContext(object):

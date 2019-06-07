@@ -41,7 +41,7 @@ from gaphas import solver
 from gaphas import table
 from gaphas import tree
 from gaphas.decorators import nonrecursive, AsyncIO
-from .state import observed, reversible_method, reversible_pair
+from gaphas.state import observed, reversible_method, reversible_pair
 
 #
 # Information about two connected items
