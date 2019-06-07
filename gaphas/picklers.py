@@ -41,6 +41,3 @@ def reduce_cairo_matrix(m):
 
 
 copyreg.pickle(cairo.Matrix, reduce_cairo_matrix, construct_cairo_matrix)
-
-
-# vim:sw=4:et:ai

@@ -295,6 +295,3 @@ def getfunction(func):
         else:  # Legacy Python
             return func.__func__
     return func
-
-
-# vim:sw=4:et:ai

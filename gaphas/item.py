@@ -734,16 +734,5 @@ class Line(Item):
         draw_line_end(self._handles[-1].pos, self._tail_angle, self.draw_tail)
         cr.stroke()
 
-        ### debug code to draw line ports
-        ### cr.set_line_width(1)
-        ### cr.set_source_rgb(1.0, 0.0, 0.0)
-        ### for p in self.ports():
-        ###     cr.move_to(*p.start)
-        ###     cr.line_to(*p.end)
-        ### cr.stroke()
-
 
 __test__ = {"Line._set_orthogonal": Line._set_orthogonal}
-
-
-# vim: sw=4:et:ai

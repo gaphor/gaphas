@@ -176,6 +176,3 @@ class FreeHandPainter(object):
             area=context.area,
         )
         self.subpainter.paint(subcontext)
-
-
-# vi:sw=4:et:ai

@@ -214,6 +214,3 @@ class Circle(Item):
         cr = context.cairo
         path_ellipse(cr, 0, 0, 2 * self.radius, 2 * self.radius)
         cr.stroke()
-
-
-# vim: sw=4:et:ai

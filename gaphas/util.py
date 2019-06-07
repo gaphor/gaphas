@@ -130,6 +130,3 @@ def path_ellipse(cr, x, y, width, height, angle=0):
     cr.move_to(1.0, 0.0)
     cr.arc(0.0, 0.0, 1.0, 0.0, 2.0 * pi)
     cr.restore()
-
-
-# vim:sw=4:et

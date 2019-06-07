@@ -618,6 +618,3 @@ def rectangle_clip(recta, rectb):
     if w < 0 or h < 0:
         return None
     return (x, y, w, h)
-
-
-# vim:sw=4:et:ai

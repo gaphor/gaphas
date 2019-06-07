@@ -606,6 +606,3 @@ class LineAlignConstraint(Constraint):
 
         _update(px, x)
         _update(py, y)
-
-
-# vim:sw=4:et:ai

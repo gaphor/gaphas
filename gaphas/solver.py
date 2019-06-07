@@ -686,6 +686,3 @@ __test__ = {
     "Solver.add_constraint": Solver.add_constraint,
     "Solver.remove_constraint": Solver.remove_constraint,
 }
-
-
-# vim:sw=4:et:ai

@@ -347,6 +347,3 @@ class Tree(object):
         # reorganize children in nodes list
         for c in self._children[node]:
             self._reparent_nodes(c, node)
-
-
-# vi: sw=4:et:ai

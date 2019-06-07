@@ -801,6 +801,3 @@ def DefaultTool(view=None):
         .append(TextEditTool())
         .append(RubberbandTool())
     )
-
-
-# vim: sw=4:et:ai

@@ -1031,6 +1031,3 @@ __test__ = {
     "Canvas.remove": Canvas.remove,
     "Canvas.request_update": Canvas.request_update,
 }
-
-
-# vim:sw=4:et:ai

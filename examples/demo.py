@@ -493,5 +493,3 @@ if __name__ == "__main__":
         stats.print_stats(20)
     else:
         main()
-
-# vim: sw=4:et:

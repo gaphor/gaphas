@@ -381,6 +381,3 @@ class QuadtreeBucket(object):
             print(indent, item, bounds)
         for bucket in self._buckets:
             bucket.dump(indent)
-
-
-# vim:sw=4:et:ai

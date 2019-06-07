@@ -340,9 +340,9 @@ class ItemConnectionSink(object):
 ConnectionSink = singledispatch(ItemConnectionSink)
 
 
-##
-## Painter aspects
-##
+#
+# Painter aspects
+#
 
 
 class ItemPaintFocused(object):
@@ -360,6 +360,3 @@ class ItemPaintFocused(object):
 
 
 PaintFocused = singledispatch(ItemPaintFocused)
-
-
-# vim:sw=4:et:ai

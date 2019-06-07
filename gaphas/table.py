@@ -178,6 +178,3 @@ class Table(object):
             except TypeError as ex:
                 pass
         return r
-
-
-# vi:sw=4:et:ai
