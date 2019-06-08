@@ -61,6 +61,7 @@ whitelist_externals =
     xvfb-run
 skip_install = true
 commands =
+    pip install poetry
     poetry install -v
     xvfb-run -a pytest
 """

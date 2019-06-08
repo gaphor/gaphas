@@ -5,6 +5,7 @@
 *.egg-info/
 build/
 dist/
+pip-wheel-metadata
 
 # virtual env
 .venv*/
