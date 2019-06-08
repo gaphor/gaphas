@@ -467,10 +467,13 @@ class RubberbandTool(Tool):
     def draw(self, context):
         cr = context.cairo
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
-        cr.set_line_width(1.0)
-        cr.set_source_rgba(0.5, 0.5, 0.7, 0.6)
         cr.rectangle(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
-        cr.fill()
+        cr.set_source_rgba(0.9, 0.9, 0.9, 0.3)
+        cr.fill_preserve()
+        cr.set_line_width(2.0)
+        cr.set_dash((7.0, 5.0), 0)
+        cr.set_source_rgba(0.5, 0.5, 0.7, 0.7)
+        cr.stroke()
 
 
 PAN_MASK = (
