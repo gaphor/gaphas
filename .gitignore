@@ -6,6 +6,9 @@
 build/
 dist/
 
+# virtual env
+.venv*/
+
 # docs
 docs/_build
 
@@ -17,6 +20,11 @@ docs/_build
 
 # coverage
 .coverage
+htmlcov/
 
 # gaphas
 *.svg
+*.pickled
+
+# VS Code
+.vscode/
