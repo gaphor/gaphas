@@ -202,6 +202,3 @@ class WeakSet(object):
 
     def isdisjoint(self, other):
         return len(self.intersection(other)) == 0
-
-
-# vim:sw=4:et:ai

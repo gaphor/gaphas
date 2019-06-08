@@ -42,9 +42,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 
-from .canvas import Canvas
-from .connector import Handle
-from .item import Item, Line, Element
-from .view import View, GtkView
-
-# vi:sw=4:et:ai
+from gaphas.canvas import Canvas
+from gaphas.connector import Handle
+from gaphas.item import Item, Line, Element
+from gaphas.view import View, GtkView

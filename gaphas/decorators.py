@@ -213,6 +213,3 @@ class recursive(object):
                     func._recursion_level -= 1
 
         return wrapper
-
-
-# vim:sw=4:et:ai

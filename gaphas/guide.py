@@ -335,6 +335,3 @@ class GuidePainter(ItemPaintFocused):
                 cr.stroke()
         finally:
             cr.restore()
-
-
-# vim:sw=4:et:ai

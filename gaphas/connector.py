@@ -283,6 +283,3 @@ class PointPort(Port):
         point = canvas.project(item, handle.pos)
         c = PositionConstraint(origin, point)
         return c  # PositionConstraint(origin, point)
-
-
-# vim: sw=4:et:ai

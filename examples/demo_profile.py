@@ -22,5 +22,3 @@ if __name__ == "__main__":
         stats.strip_dirs()
         stats.sort_stats("time", "calls")
         stats.print_stats(20)
-
-# vim: sw=4:et:

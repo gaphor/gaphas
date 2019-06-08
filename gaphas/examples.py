@@ -8,7 +8,7 @@ from __future__ import division
 from gaphas.connector import Handle, PointPort, LinePort, Position
 from gaphas.item import Element, Item, NW, NE, SW, SE
 from gaphas.solver import WEAK
-from .util import text_align, text_multiline, path_ellipse
+from gaphas.util import text_align, text_multiline, path_ellipse
 
 
 class Box(Element):
@@ -214,6 +214,3 @@ class Circle(Item):
         cr = context.cairo
         path_ellipse(cr, 0, 0, 2 * self.radius, 2 * self.radius)
         cr.stroke()
-
-
-# vim: sw=4:et:ai

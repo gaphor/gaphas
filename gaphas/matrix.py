@@ -16,7 +16,7 @@ __version__ = "$Revision$"
 # $HeadURL$
 
 import cairo
-from .state import observed, reversible_method
+from gaphas.state import observed, reversible_method
 
 
 class Matrix(object):
@@ -100,6 +100,3 @@ class Matrix(object):
 
     def __repr__(self):
         return "Matrix(%g, %g, %g, %g, %g, %g)" % tuple(self._matrix)
-
-
-# vim:sw=4:et

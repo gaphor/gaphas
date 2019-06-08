@@ -41,7 +41,7 @@ from gaphas import solver
 from gaphas import table
 from gaphas import tree
 from gaphas.decorators import nonrecursive, AsyncIO
-from .state import observed, reversible_method, reversible_pair
+from gaphas.state import observed, reversible_method, reversible_pair
 
 #
 # Information about two connected items
@@ -1031,6 +1031,3 @@ __test__ = {
     "Canvas.remove": Canvas.remove,
     "Canvas.request_update": Canvas.request_update,
 }
-
-
-# vim:sw=4:et:ai

@@ -268,6 +268,3 @@ class LineSegmentPainter(ItemPaintFocused):
                 cr.set_line_width(1)
                 cr.stroke()
                 cr.restore()
-
-
-# vim:sw=4:et:ai
