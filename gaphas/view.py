@@ -788,7 +788,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             cr = cairo.Context(self._back_buffer)
 
             cr.save()
-            cr.set_source_rgb(1, 1, 1)
+            cr.set_operator(cairo.OPERATOR_CLEAR)
             cr.paint()
             cr.restore()
 
@@ -855,13 +855,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def do_configure_event(self, event):
         if self.get_window():
             self._back_buffer = self.get_window().create_similar_surface(
-                cairo.Content.COLOR,
+                cairo.Content.COLOR_ALPHA,
                 self.get_allocated_width(),
                 self.get_allocated_height(),
             )
-            cr = cairo.Context(self._back_buffer)
-            cr.set_source_rgb(1, 1, 1)
-            cr.paint()
             self.update()
         else:
             self._back_buffer = None
