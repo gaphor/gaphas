@@ -15,18 +15,22 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+from pathlib import Path
 
+from tomlkit import parse
 
 # -- Project information -----------------------------------------------------
 
 project = "Gaphas"
-copyright = "2018, Arjan J. Molenaar"
+copyright = "2019, Arjan J. Molenaar"
 author = "Arjan J. Molenaar"
 
 # The short X.Y version
 version = ""
 # The full version, including alpha/beta/rc tags
-release = "1.0.0"
+project_dir = Path(__file__).resolve().parent.parent
+f = project_dir.joinpath("pyproject.toml")
+release = str(parse(f.read_text())["tool"]["poetry"]["version"])
 
 
 # -- General configuration ---------------------------------------------------
