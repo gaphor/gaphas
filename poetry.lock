@@ -34,11 +34,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "19.1.0"
 
-[package.extras]
-dev = ["coverage", "hypothesis", "pympler", "pytest", "six", "zope.interface", "sphinx", "pre-commit"]
-docs = ["sphinx", "zope.interface"]
-tests = ["coverage", "hypothesis", "pympler", "pytest", "six", "zope.interface"]
-
 [[package]]
 category = "dev"
 description = "The uncompromising code formatter."
@@ -53,9 +48,6 @@ appdirs = "*"
 attrs = ">=18.1.0"
 click = ">=6.5"
 toml = ">=0.9.4"
-
-[package.extras]
-d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
 category = "dev"
@@ -94,10 +86,6 @@ name = "configparser"
 optional = false
 python-versions = ">=2.6"
 version = "3.7.4"
-
-[package.extras]
-docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
-testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2)", "pytest-flake8"]
 
 [[package]]
 category = "dev"
@@ -143,15 +131,6 @@ version = "0.17.1"
 
 [[package]]
 category = "dev"
-description = "Backport of the concurrent.futures package from Python 3.2"
-marker = "python_version < \"3.2\""
-name = "futures"
-optional = false
-python-versions = "*"
-version = "3.1.1"
-
-[[package]]
-category = "dev"
 description = "Backport of the concurrent.futures package from Python 3"
 marker = "python_version < \"3.2\""
 name = "futures"
@@ -165,10 +144,7 @@ description = "File identification library for Python"
 name = "identify"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.4.3"
-
-[package.extras]
-license = ["editdistance"]
+version = "1.4.4"
 
 [[package]]
 category = "dev"
@@ -176,21 +152,18 @@ description = "Read metadata from Python packages"
 name = "importlib-metadata"
 optional = false
 python-versions = ">=2.7,!=3.0,!=3.1,!=3.2,!=3.3"
-version = "0.17"
+version = "0.18"
 
 [package.dependencies]
 zipp = ">=0.5"
 
 [package.dependencies.configparser]
 python = "<3"
-version = "*"
+version = ">=3.5"
 
 [package.dependencies.contextlib2]
 python = "<3"
 version = "*"
-
-[package.extras]
-docs = ["sphinx", "docutils (0.12)", "rst.linker"]
 
 [[package]]
 category = "dev"
@@ -213,7 +186,7 @@ version = "*"
 [[package]]
 category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
-marker = "python_version <= \"2.7\" or python_version > \"2.7\""
+marker = "python_version <= \"2.7\""
 name = "more-itertools"
 optional = false
 python-versions = "*"
@@ -221,6 +194,15 @@ version = "5.0.0"
 
 [package.dependencies]
 six = ">=1.0.0,<2.0.0"
+
+[[package]]
+category = "dev"
+description = "More routines for operating on iterables, beyond itertools"
+marker = "python_version > \"2.7\""
+name = "more-itertools"
+optional = false
+python-versions = ">=3.4"
+version = "7.0.0"
 
 [[package]]
 category = "dev"
@@ -268,9 +250,6 @@ version = "0.12.0"
 
 [package.dependencies]
 importlib-metadata = ">=0.12"
-
-[package.extras]
-dev = ["pre-commit", "tox"]
 
 [[package]]
 category = "dev"
@@ -340,7 +319,7 @@ description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "4.6.2"
+version = "4.6.3"
 
 [package.dependencies]
 atomicwrites = ">=1.0"
@@ -354,11 +333,11 @@ six = ">=1.10.0"
 wcwidth = "*"
 
 [[package.dependencies.more-itertools]]
-python = "<=2.7"
+python = "<2.8"
 version = ">=4.0.0,<6.0.0"
 
 [[package.dependencies.more-itertools]]
-python = ">2.7"
+python = ">=2.8"
 version = ">=4.0.0"
 
 [package.dependencies.funcsigs]
@@ -368,9 +347,6 @@ version = ">=1.0"
 [package.dependencies.pathlib2]
 python = "<3.6"
 version = ">=2.2.0"
-
-[package.extras]
-testing = ["argcomplete", "hypothesis (>=3.56)", "nose", "requests", "mock"]
 
 [[package]]
 category = "dev"
@@ -384,9 +360,6 @@ version = "2.7.1"
 coverage = ">=4.4"
 pytest = ">=3.6"
 
-[package.extras]
-testing = ["fields", "hunter", "process-tests (2.0.2)", "six", "virtualenv"]
-
 [[package]]
 category = "dev"
 description = "Invoke py.test as distutils command with dependency resolution"
@@ -394,10 +367,6 @@ name = "pytest-runner"
 optional = false
 python-versions = ">=2.7"
 version = "5.1"
-
-[package.extras]
-docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
-testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs", "pytest-flake8", "pytest-black-multipy", "pytest-virtualenv"]
 
 [[package]]
 category = "dev"
@@ -417,7 +386,7 @@ category = "dev"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
-python-versions = "*"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "5.1.1"
 
 [[package]]
@@ -482,10 +451,6 @@ six = ">=1.0.0,<2"
 toml = ">=0.9.4"
 virtualenv = ">=14.0.0"
 
-[package.extras]
-docs = ["sphinx (>=2.0.0,<3)", "towncrier (>=18.5.0)", "pygments-github-lexers (>=0.0.5)", "sphinxcontrib-autoprogram (>=0.1.5)"]
-testing = ["freezegun (>=0.3.11,<1)", "pathlib2 (>=2.3.3,<3)", "pytest (>=3.0.0,<5)", "pytest-cov (>=2.5.1,<3)", "pytest-mock (>=1.10.0,<2)", "pytest-xdist (>=1.22.2,<2)", "pytest-randomly (>=1.2.3,<2)", "flaky (>=3.4.0,<4)", "psutil (>=5.6.1,<6)"]
-
 [[package]]
 category = "dev"
 description = "Type Hints for Python"
@@ -503,10 +468,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "16.6.0"
 
-[package.extras]
-docs = ["sphinx (>=1.8.0,<2)", "towncrier (>=18.5.0)", "sphinx-rtd-theme (>=0.4.2,<1)"]
-testing = ["pytest (>=4.0.0,<5)", "coverage (>=4.5.0,<5)", "pytest-timeout (>=1.3.0,<2)", "six (>=1.10.0,<2)", "pytest-xdist", "pytest-localserver", "pypiserver", "mock", "xonsh"]
-
 [[package]]
 category = "dev"
 description = "Measures number of Terminal column cells of wide-character codes"
@@ -522,10 +483,6 @@ name = "zipp"
 optional = false
 python-versions = ">=2.7"
 version = "0.5.1"
-
-[package.extras]
-docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
-testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
 content-hash = "92bd85f3991927ac981c6399151b03b70f6b75fbba81ed7ef15b4ad9b25e18bb"
@@ -546,11 +503,11 @@ coverage = ["0c5fe441b9cfdab64719f24e9684502a59432df7570521563d7b1aff27ac755f", 
 filelock = ["18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59", "929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"]
 funcsigs = ["330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca", "a7bb0f2cf3a3fd1ab2732cb49eba4252c2af4240442415b4abce3b87022a8f50"]
 future = ["67045236dcfd6816dc439556d009594abf643e5eb48992e36beac09c2ca659b8"]
-futures = ["51ecb45f0add83c806c68e4b06106f90db260585b25ef2abfcda0bd95c0132fd", "c4884a65654a7c45435063e14ae85280eb1f111d94e542396717ba9828c4337f", "9ec02aa7d674acb8618afb127e27fde7fc68994c0437ad759fa094a574adb265", "ec0a6cb848cc212002b9828c3e34c675e0c9ff6741dc445cab6fdd4e1085d1f1"]
-identify = ["432c548d6138cb57a3d8f62f079a025a29b8ae34a50dd3b496bbf661818f2bc0", "d4401d60bf1938aa3074a352a5cc9044107edf11a6fedd3a1db172c141619b81"]
-importlib-metadata = ["a9f185022cfa69e9ca5f7eabfd5a58b689894cb78a11e3c8c89398a8ccbb8e7f", "df1403cd3aebeb2b1dcd3515ca062eecb5bd3ea7611f18cba81130c68707e879"]
+futures = ["9ec02aa7d674acb8618afb127e27fde7fc68994c0437ad759fa094a574adb265", "ec0a6cb848cc212002b9828c3e34c675e0c9ff6741dc445cab6fdd4e1085d1f1"]
+identify = ["3e8268640da8fa2a62acd5af2c299c45597a9a845d6706b3c19ddd5a46fb32dd", "78fcb1bdd37f4ecc954e8cba01680054781412a8aac82aed1998d8b5c8488011"]
+importlib-metadata = ["6dfd58dfe281e8d240937776065dd3624ad5469c835248219bd16cf2e12dbeb7", "cb6ee23b46173539939964df59d3d72c3e0c1b5d54b84f1d8a7e912fe43612db"]
 importlib-resources = ["6e2783b2538bd5a14678284a3962b0660c715e5a0f10243fd5e00a4b5974f50b", "d3279fd0f6f847cced9f7acc19bd3e5df54d34f93a2e7bb5f238f81545787078"]
-more-itertools = ["38a936c0a6d98a38bcc2d03fdaaedaba9f412879461dd2ceff8d37564d6522e4", "c0a5785b1109a6bd7fac76d6837fd1feca158e54e521ccd2ae8bfe393cc9d4fc", "fe7a7cae1ccb57d33952113ff4fa1bc5f879963600ed74918f1236e212ee50b9"]
+more-itertools = ["38a936c0a6d98a38bcc2d03fdaaedaba9f412879461dd2ceff8d37564d6522e4", "c0a5785b1109a6bd7fac76d6837fd1feca158e54e521ccd2ae8bfe393cc9d4fc", "fe7a7cae1ccb57d33952113ff4fa1bc5f879963600ed74918f1236e212ee50b9", "2112d2ca570bb7c3e53ea1a35cd5df42bb0fd10c45f0fb97178679c3c03d64c7", "c3e4748ba1aad8dba30a4886b0b1a2004f9a863837b8654e7059eebf727afa5a"]
 nodeenv = ["ad8259494cf1c9034539f6cced78a1da4840a4b157e23640bc4a0c0546b0cb7a"]
 packaging = ["0c98a5d0be38ed775798ece1b9727178c4469d9c3b4ada66e8e6b7849f8732af", "9e1cbf8c12b1f1ce0bb5344b8d7ecf66a6f8a6e91bcb0c84593ed6d3ab5c4ab3"]
 pathlib2 = ["25199318e8cc3c25dcb45cbe084cc061051336d5a9ea2a12448d3d8cb748f742", "5887121d7f7df3603bca2f710e7219f3eca0eb69e0b7cc6e0a022e155ac931a7"]
@@ -560,7 +517,7 @@ py = ["64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa", "dc639
 pycairo = ["70172e58b6bad7572a3518c26729b074acdde15e6fee6cbab6d3528ad552b786"]
 pygobject = ["4165d9fb4157e69c76f29e52a6d73a39a804e18ad9ef0eede15efd9c57c52bf2"]
 pyparsing = ["1873c03321fc118f4e9746baf201ff990ceb915f433f23b395f5580d1840cb2a", "9b6323ef4ab914af344ba97510e966d64ba91055d6b9afa6b30799340e89cc03"]
-pytest = ["6032845e68a17a96e8da3088037f899b56357769a724122056265ca2ea1890ee", "bea27a646a3d74cbbcf8d3d4a06b2dfc336baf3dc2cc85cf70ad0157e73e8322"]
+pytest = ["4a784f1d4f2ef198fe9b7aef793e9fa1a3b2f84e822d9b3a64a181293a572d45", "926855726d8ae8371803f7b2e6ec0a69953d9c6311fa7c3b6c1b929ff92d27da"]
 pytest-cov = ["2b097cde81a302e1047331b48cadacf23577e431b61e9c6f49a1170bbe3d3da6", "e00ea4fdde970725482f1f35630d12f074e121a23801aabf2ae154ec6bdd343a"]
 pytest-runner = ["25a013c8d84f0ca60bb01bd11913a3bcab420f601f0f236de4423074af656e7a", "d04243fbf29a3b574f18f1bcff2a07f505db5daede82f706f2e32728f77d3f4d"]
 pytest-sugar = ["26cf8289fe10880cbbc130bd77398c4e6a8b936d8393b116a5c16121d95ab283", "fcd87a74b2bce5386d244b49ad60549bfbc4602527797fac167da147983f58ab"]
