@@ -11,11 +11,7 @@ from functools import reduce
 from math import atan2
 from weakref import WeakKeyDictionary
 
-try:
-    # Python 3.0 (better be prepared)
-    from weakref import WeakSet
-except ImportError:
-    from gaphas.weakset import WeakSet
+from weakref import WeakSet
 
 from gaphas.matrix import Matrix
 from gaphas.geometry import distance_line_point, distance_rectangle_point
