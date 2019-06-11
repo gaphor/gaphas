@@ -5,16 +5,36 @@ Aspects form intermediate items between tools and items.
 from __future__ import absolute_import
 
 import sys
+import warnings
 from builtins import object
 
 if sys.version_info.major >= 3:  # Modern Python
-    from functools import singledispatch
+    from functools import singledispatch as real_singledispatch
 else:
-    from singledispatch import singledispatch
+    from singledispatch import singledispatch as real_singledispatch
 
 from gi.repository import Gdk
 
 from gaphas.item import Item, Element
+
+
+def singledispatch(func):
+    """
+    Wrapper around singledispatch(), with an extra compatibility function
+    so code will not break when upgrading from 1.0 to 1.1.
+    """
+    wrapped = real_singledispatch(func)
+
+    def when_type(cls):
+        warnings.warn(
+            "when_type: is deprecated, use `register` instead",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        return wrapped.register(cls)
+
+    wrapped.when_type = when_type
+    return wrapped
 
 
 class ItemFinder(object):
