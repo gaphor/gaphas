@@ -7,13 +7,9 @@ import sys
 from builtins import object
 from builtins import zip
 
-if sys.version_info.major >= 3:  # Modern Python
-    from functools import singledispatch
-else:
-    from singledispatch import singledispatch
-
 from cairo import Matrix, ANTIALIAS_NONE
 
+from gaphas.aspect import singledispatch
 from gaphas.aspect import ConnectionSink
 from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
 from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused

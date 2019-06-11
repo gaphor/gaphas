@@ -8,11 +8,7 @@ from builtins import map
 from builtins import object
 from functools import reduce
 
-if sys.version_info.major >= 3:  # Modern Python
-    from functools import singledispatch
-else:
-    from singledispatch import singledispatch
-
+from gaphas.aspect import singledispatch
 from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
 from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
 from gaphas.item import Item, Element, Line
