@@ -25,13 +25,19 @@ def singledispatch(func):
     """
     wrapped = real_singledispatch(func)
 
-    def when_type(cls):
+    def when_type(*types):
+        if not types:
+            raise TypeError("should provide at least one type")
         warnings.warn(
             "when_type: is deprecated, use `register` instead",
             category=DeprecationWarning,
             stacklevel=2,
         )
-        return wrapped.register(cls)
+        def wrapper_for_types(func):
+            for cls in types:
+                wrapped.register(cls, func)
+            return func
+        return wrapper_for_types
 
     wrapped.when_type = when_type
     return wrapped
