@@ -399,11 +399,6 @@ class View(object):
         # Update the view's bounding box with the rest of the items
         self._bounds = Rectangle(*self._qtree.soft_bounds)
 
-    def paint(self, cr):
-        self._painter.paint(
-            Context(cairo=cr, items=self.canvas.get_all_items(), area=None)
-        )
-
     def get_matrix_i2v(self, item):
         """
         Get Item to View matrix for ``item``.
@@ -792,7 +787,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             cr.paint()
             cr.restore()
 
-            self.paint(cr)
+            width = self.get_allocated_width()
+            height = self.get_allocated_height()
+            items = self.get_items_in_rectangle((0, 0, width, height))
+
+            self.painter.paint(
+                Context(cairo=cr, items=items, area=None)
+            )
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 cr.save()
