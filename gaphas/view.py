@@ -524,6 +524,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             | Gdk.EventMask.KEY_PRESS_MASK
             | Gdk.EventMask.KEY_RELEASE_MASK
             | Gdk.EventMask.SCROLL_MASK
+            | Gdk.EventMask.STRUCTURE_MASK
         )
 
         self._back_buffer = None
@@ -791,9 +792,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             height = self.get_allocated_height()
             items = self.get_items_in_rectangle((0, 0, width, height))
 
-            self.painter.paint(
-                Context(cairo=cr, items=items, area=None)
-            )
+            self.painter.paint(Context(cairo=cr, items=items, area=None))
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 cr.save()
@@ -820,16 +819,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             a = self.get_allocation()
             super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
 
-    @nonrecursive
-    def do_size_allocate(self, allocation):
-        """
-        Allocate the widget size ``(x, y, width, height)``.
-        """
-        Gtk.DrawingArea.do_size_allocate(self, allocation)
-        self.set_allocation(allocation)
-        self.update_adjustments(allocation)
-        self._qtree.resize((0, 0, allocation.width, allocation.height))
-
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
 
@@ -854,11 +843,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Gtk.DrawingArea.do_unrealize(self)
 
     def do_configure_event(self, event):
+        allocation = self.get_allocation()
+        self.update_adjustments(allocation)
+        self._qtree.resize((0, 0, allocation.width, allocation.height))
         if self.get_window():
             self._back_buffer = self.get_window().create_similar_surface(
-                cairo.Content.COLOR_ALPHA,
-                self.get_allocated_width(),
-                self.get_allocated_height(),
+                cairo.Content.COLOR_ALPHA, allocation.width, allocation.height
             )
             self.update()
         else:
