@@ -33,10 +33,12 @@ def singledispatch(func):
             category=DeprecationWarning,
             stacklevel=2,
         )
+
         def wrapper_for_types(func):
             for cls in types:
                 wrapped.register(cls, func)
             return func
+
         return wrapper_for_types
 
     wrapped.when_type = when_type
