@@ -680,19 +680,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         the item as update areas. Of course with a pythonic flavor:
         update any number of items at once.
         """
-        self.update()
+        self.update_back_buffer()
 
     def queue_draw_area(self, x, y, w, h):
         """
         Queue an update for portion of the view port.
         """
-        self.update()
+        self.update_back_buffer()
 
     def queue_draw_refresh(self):
         """
         Redraw the entire view.
         """
-        self.update()
+        self.update_back_buffer()
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
@@ -781,6 +781,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     @AsyncIO(single=True)
     def update_back_buffer(self):
         if self.canvas and self._back_buffer:
+            allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 
             cr.save()
@@ -788,9 +789,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             cr.paint()
             cr.restore()
 
-            width = self.get_allocated_width()
-            height = self.get_allocated_height()
-            items = self.get_items_in_rectangle((0, 0, width, height))
+            items = self.get_items_in_rectangle((0, 0, allocation.width, allocation.height))
 
             self.painter.paint(Context(cairo=cr, items=items, area=None))
 
@@ -816,8 +815,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 cr.set_line_width(1.0)
                 draw_qtree_bucket(self._qtree._bucket)
 
-            a = self.get_allocation()
-            super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
+            super(GtkView, self).queue_draw_area(0, 0, allocation.width, allocation.height)
 
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
@@ -850,7 +848,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._back_buffer = self.get_window().create_similar_surface(
                 cairo.Content.COLOR_ALPHA, allocation.width, allocation.height
             )
-            self.update()
+            self.update_back_buffer()
         else:
             self._back_buffer = None
 
