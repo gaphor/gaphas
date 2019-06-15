@@ -791,7 +791,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             cr.paint()
             cr.restore()
 
-            items = self.get_items_in_rectangle((0, 0, allocation.width, allocation.height))
+            items = self.get_items_in_rectangle(
+                (0, 0, allocation.width, allocation.height)
+            )
 
             self.painter.paint(Context(cairo=cr, items=items, area=None))
 
@@ -817,7 +819,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 cr.set_line_width(1.0)
                 draw_qtree_bucket(self._qtree._bucket)
 
-            super(GtkView, self).queue_draw_area(0, 0, allocation.width, allocation.height)
+            self.get_window().invalidate_rect(None, True)
 
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
