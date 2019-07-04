@@ -114,11 +114,10 @@ class AsyncIO(object):
 
     def __call__(self, func):
         async_id = "_async_id_%s" % func.__name__
-        source = self.source
 
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
-            # execute directly if we're not in the main loop.
+            # execute directly if we're not in the main loop
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
@@ -128,7 +127,7 @@ class AsyncIO(object):
                         print("async:", func, args, kwargs)
                     func(*args, **kwargs)
 
-                source(async_wrapper).attach()
+                self.source(async_wrapper).attach()
             else:
                 # Idle handlers should be registered per instance
                 holder = args[0]
@@ -146,7 +145,7 @@ class AsyncIO(object):
                             delattr(holder, async_id)
                         return False
 
-                    setattr(holder, async_id, source(async_wrapper).attach())
+                    setattr(holder, async_id, self.source(async_wrapper).attach())
 
         return wrapper
 
