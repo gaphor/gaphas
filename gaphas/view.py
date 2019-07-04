@@ -7,7 +7,7 @@ from __future__ import division
 from builtins import map
 from builtins import object
 
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import GLib, GObject, Gdk, Gtk
 import cairo
 
 from gaphas.canvas import Context
@@ -779,10 +779,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         finally:
             cr.restore()
 
-    @AsyncIO(single=True)
+    @AsyncIO(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self):
         if self.canvas and self._back_buffer:
-            print("update_back_buffer")
+            print("update_back_buffer2")
             allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 
@@ -819,7 +819,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 cr.set_line_width(1.0)
                 draw_qtree_bucket(self._qtree._bucket)
 
-            self.get_window().invalidate_rect(None, True)
+            self.get_window().invalidate_rect(allocation, True)
 
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
@@ -865,6 +865,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         if not self._canvas:
             return
+
+        print("do_draw")
 
         if not self._back_buffer:
             return
