@@ -730,7 +730,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         if not self.get_window():
             return
-        print("update")
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
@@ -790,7 +789,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 )
                 self._back_buffer_needs_resizing = False
 
-            print("update_back_buffer2")
             allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 
@@ -853,7 +851,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Gtk.DrawingArea.do_unrealize(self)
 
     def do_configure_event(self, event):
-        print("do_configure_event")
         allocation = self.get_allocation()
         self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
@@ -871,8 +868,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         if not self._canvas:
             return
-
-        print("do_draw")
 
         if not self._back_buffer:
             return
