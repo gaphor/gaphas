@@ -528,6 +528,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         )
 
         self._back_buffer = None
+        self._back_buffer_needs_resizing = True
         self._hadjustment = None
         self._vadjustment = None
         self._hadjustment_handler_id = None
@@ -781,7 +782,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     @AsyncIO(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self):
-        if self.canvas and self._back_buffer:
+        if self.canvas and self.get_window():
+            if not self._back_buffer or self._back_buffer_needs_resizing:
+                allocation = self.get_allocation()
+                self._back_buffer = self.get_window().create_similar_surface(
+                    cairo.Content.COLOR_ALPHA, allocation.width, allocation.height
+                )
+                self._back_buffer_needs_resizing = False
+
             print("update_back_buffer2")
             allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
@@ -850,9 +858,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.update_adjustments(allocation)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
         if self.get_window():
-            self._back_buffer = self.get_window().create_similar_surface(
-                cairo.Content.COLOR_ALPHA, allocation.width, allocation.height
-            )
+            self._back_buffer_needs_resizing = True
             self.update_back_buffer()
         else:
             self._back_buffer = None
