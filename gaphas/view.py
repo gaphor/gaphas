@@ -7,7 +7,7 @@ from __future__ import division
 from builtins import map
 from builtins import object
 
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import GLib, GObject, Gdk, Gtk
 import cairo
 
 from gaphas.canvas import Context
@@ -524,9 +524,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             | Gdk.EventMask.KEY_PRESS_MASK
             | Gdk.EventMask.KEY_RELEASE_MASK
             | Gdk.EventMask.SCROLL_MASK
+            | Gdk.EventMask.STRUCTURE_MASK
         )
 
         self._back_buffer = None
+        self._back_buffer_needs_resizing = True
         self._hadjustment = None
         self._vadjustment = None
         self._hadjustment_handler_id = None
@@ -679,19 +681,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         the item as update areas. Of course with a pythonic flavor:
         update any number of items at once.
         """
-        self.update()
+        self.update_back_buffer()
 
     def queue_draw_area(self, x, y, w, h):
         """
         Queue an update for portion of the view port.
         """
-        self.update()
+        self.update_back_buffer()
 
     def queue_draw_refresh(self):
         """
         Redraw the entire view.
         """
-        self.update()
+        self.update_back_buffer()
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
         """
@@ -777,9 +779,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         finally:
             cr.restore()
 
-    @AsyncIO(single=True)
+    @AsyncIO(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self):
-        if self.canvas and self._back_buffer:
+        if self.canvas and self.get_window():
+            if not self._back_buffer or self._back_buffer_needs_resizing:
+                allocation = self.get_allocation()
+                self._back_buffer = self.get_window().create_similar_surface(
+                    cairo.Content.COLOR_ALPHA, allocation.width, allocation.height
+                )
+                self._back_buffer_needs_resizing = False
+
+            allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 
             cr.save()
@@ -787,13 +797,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             cr.paint()
             cr.restore()
 
-            width = self.get_allocated_width()
-            height = self.get_allocated_height()
-            items = self.get_items_in_rectangle((0, 0, width, height))
-
-            self.painter.paint(
-                Context(cairo=cr, items=items, area=None)
+            items = self.get_items_in_rectangle(
+                (0, 0, allocation.width, allocation.height)
             )
+
+            self.painter.paint(Context(cairo=cr, items=items, area=None))
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 cr.save()
@@ -817,18 +825,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 cr.set_line_width(1.0)
                 draw_qtree_bucket(self._qtree._bucket)
 
-            a = self.get_allocation()
-            super(GtkView, self).queue_draw_area(0, 0, a.width, a.height)
-
-    @nonrecursive
-    def do_size_allocate(self, allocation):
-        """
-        Allocate the widget size ``(x, y, width, height)``.
-        """
-        Gtk.DrawingArea.do_size_allocate(self, allocation)
-        self.set_allocation(allocation)
-        self.update_adjustments(allocation)
-        self._qtree.resize((0, 0, allocation.width, allocation.height))
+            self.get_window().invalidate_rect(allocation, True)
 
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
@@ -854,13 +851,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         Gtk.DrawingArea.do_unrealize(self)
 
     def do_configure_event(self, event):
+        allocation = self.get_allocation()
+        self.update_adjustments(allocation)
+        self._qtree.resize((0, 0, allocation.width, allocation.height))
         if self.get_window():
-            self._back_buffer = self.get_window().create_similar_surface(
-                cairo.Content.COLOR_ALPHA,
-                self.get_allocated_width(),
-                self.get_allocated_height(),
-            )
-            self.update()
+            self._back_buffer_needs_resizing = True
+            self.update_back_buffer()
         else:
             self._back_buffer = None
 
