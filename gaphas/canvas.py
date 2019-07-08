@@ -846,19 +846,6 @@ class Canvas(object):
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
 
     def _obtain_cairo_context(self):
-        """
-        Try to obtain a Cairo context.
-
-        This is a not-so-clean way to solve issues like calculating
-        the bounding box for a piece of text (for that you'll need a
-        CairoContext).  The Cairo context is created by a View
-        registered as view on this canvas. By lack of registered
-        views, a PNG image surface is created that is used to create a
-        context.
-
-        >>> c = Canvas()
-        >>> c.update_now()
-        """
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         return cairo.Context(surface)
 
