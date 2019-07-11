@@ -84,6 +84,14 @@ class Context(object):
         raise AttributeError("context is not writable")
 
 
+def instant_cairo_context():
+    """
+    A simple Cairo context, not attached to any window.
+    """
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+    return cairo.Context(surface)
+
+
 class Canvas(object):
     """
     Container class for items.
@@ -662,7 +670,7 @@ class Canvas(object):
         self._dirty_items.clear()
 
         try:
-            cr = self._obtain_cairo_context()
+            cr = instant_cairo_context()
 
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
@@ -844,10 +852,6 @@ class Canvas(object):
         """
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
-
-    def _obtain_cairo_context(self):
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-        return cairo.Context(surface)
 
     def __getstate__(self):
         """

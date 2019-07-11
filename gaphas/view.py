@@ -10,7 +10,7 @@ from builtins import object
 from gi.repository import GLib, GObject, Gdk, Gtk
 import cairo
 
-from gaphas.canvas import Context
+from gaphas.canvas import Context, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.decorators import nonrecursive
 from gaphas.geometry import Rectangle, distance_point_point_fast
@@ -728,6 +728,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         Update view status according to the items updated by the canvas.
         """
+
         if not self.get_window():
             return
 
@@ -763,13 +764,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._dirty_matrix_items.clear()
 
     def update_bounding_box(self, items):
-        """
-        Update bounding box is not necessary.
-        """
-        if not self._back_buffer:
-            return
-
-        cr = cairo.Context(self._back_buffer)
+        cr = cairo.Context(self._back_buffer) if self._back_buffer else instant_cairo_context()
 
         cr.save()
         cr.rectangle(0, 0, 0, 0)
