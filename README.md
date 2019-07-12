@@ -98,12 +98,7 @@ def create_canvas(canvas, title):
     window.add(win_box)
     win_box.pack_start(view, True, True, 0)
 
-    # Draw first gaphas box
-    b1 = Box(60, 60)
-    b1.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
-    canvas.add(b1)
-
-    # Draw second gaphas box
+    # Draw gaphas box
     b2 = Box(60, 60)
     b2.min_width = 40
     b2.min_height = 50
@@ -129,29 +124,29 @@ Gtk.main()
 
 ### Overview
 
-The Canvas class (from canvas.py) acts as a container for Item's (from item.py). The item's parent/child relationships are maintained here (not in the Item).
+The `Canvas` class acts as a container for Item's . The item's parent/child relationships are maintained here, not in the `Item`.
 
-An Item can have a set of Handles (from connector.py) which can be used to manipulate the item (although this is not necessary). Each item has its own coordinate system with x and y position, for example, a (0, 0) point. Item.matrix is the transformation relative to the parent item of the Item, as defined in the Canvas.
+An `Item` can have a set of handles which can be used to manipulate the item (although this is not necessary). Each item has its own coordinate system with x and y position, for example, a (0, 0) point `Item.matrix` is the transformation relative to the parent item of the `Item`, as defined in the `Canvas`.
 
-Handles can connect to Ports. A Port is a location (line or point) where a handle is allowed to connect on another 
-item. The process of connecting depends on the case at hand, but most often involves the creation of some sort of constraint between the Handle and the item it is connecting to (see [ports](https://gaphas.readthedocs.io/en/latest/ports.html)).
+Handles can connect to [ports](https://gaphas.readthedocs.io/en/latest/ports.html). A `Port` is a location (line or point) where a handle is allowed to connect on another
+item. The process of connecting depends on the case at hand, but most often involves the creation of some sort of constraint between the Handle and the item it is connecting to.
 
-The Canvas also contains a constraint Solver (from solver.py) that can be used to solve mathematical dependencies 
+The Canvas also contains a [constraint solver](https://gaphas.readthedocs.io/en/latest/solver.html) (from solver.py) that can be used to solve mathematical dependencies
 between items (such as Handles that should be aligned). The constraint solver can also be used to keep constraints contained within the item satisfied, for example, to make sure a box maintains its rectangular shape.
 
-View (from view.py) is used to visualize a Canvas. On a View, a Tool (from tool.py) can be applied, which will handle user input like button and key presses. Painters (from painter.py) are used to do the actual drawing. This module also makes it easy to draw to other media other than a screen, such as a printer or a PDF document.
+A View is used to visualize a Canvas. On a View, a Tool (from tool.py) can be applied, which will handle user input like button and key presses. Painters (from painter.py) are used to do the actual drawing. This module also makes it easy to draw to other media other than a screen, such as a printer or a PDF document.
 
 ### Updating Item state
 
-If items need updating, it sends out an update request on the Canvas (Canvas.request_update()). The canvas 
+If items need updating, it sends out an update request on the Canvas (`Canvas.request_update()`). The canvas
 performs an update by performing the following steps:
 
-1. Pre-update using Item.pre_update(context) for each item marked for update.
-2. Update the Canvas-to-Item matrices, for fast transformation of coordinates from the Canvas' to the items' coordinate      system. The c2i matrix is stored on the Item as Item._matrix_c2i.
+1. Pre-update using `Item.pre_update(context)` for each item marked for update.
+2. Update the Canvas-to-Item matrices, for fast transformation of coordinates from the Canvas' to the items' coordinate      system.
 3. Solve the constraints.
 4. Normalize the items by setting the coordinates of the first handle to (0, 0).
 5. Update the Canvas-to-Item matrices for items that have been changed by normalization.
-6. Post-update using Item.post_update(context) for each item marked for update, including items that have been 
+6. Post-update using `Item.post_update(context)` for each item marked for update, including items that have been
    marked during the constraint solving step.
 
 Gaphas attempts to do as much updating as possible in the {pre|post}_update() methods, since they are called when the application is not handling user input.
@@ -260,7 +255,7 @@ be provided that handles the required disconnect behaviour, for example, cleanin
 - strength (int): The strength of the handle to use in the constraint solver; default value is NORMAL, which is 20.
 - connectable (bool): Makes the handle connectable to other items; default value is False.
 - movable (bool): Makes the handle moveable; default value is True.
-  
+
   ```python
   handle = Handle((10, 10), connectable=True)
   ```
@@ -458,7 +453,7 @@ Interacting with the Canvas is done through tools. Tools tell _what_ has to be d
 
 Used to chain tools together. For example, chain a HoverTool, HandleTool, and SelectionTool in order to combine their functionality in to a new tool.
 
-- view (`gaphas.view.View`): The view to use for the tool chain. 
+- view (`gaphas.view.View`): The view to use for the tool chain.
 
 ```python
 (ToolChain(view)
@@ -492,7 +487,7 @@ Tool to move handles around.
 
 #### Class: `gaphas.tools.RubberbandTool`
 
-Allows the user to drag a "rubber band" for selecting items in an area. 
+Allows the user to drag a "rubber band" for selecting items in an area.
 
 - view (`gaphas.view.View`): The view to use for the tool; default is None.
 
@@ -504,7 +499,7 @@ Captures drag events with the middle mouse button and uses them to translate the
 
 #### Class: `gaphas.tools.ZoomTool`
 
-Tool for zooming using two different user inputs: 
+Tool for zooming using two different user inputs:
 
 1. Ctrl + middle-mouse dragging in the up and down direction
 2. Ctrl + mouse-wheel
@@ -515,7 +510,7 @@ Tool for zooming using two different user inputs:
 
 Tool for placing items on the Canvas.
 
-- view (`gaphas.view.View`): The view to use for the tool. 
+- view (`gaphas.view.View`): The view to use for the tool.
 - factory (factory object): A Canvas item factory for creating new items.
 - handle_tool (`gaphas.tools.HandleTool`): The handle tool to use.
 - handle_index (int): The index of the handle to be used by the handle tool.
@@ -707,7 +702,7 @@ matrix = Matrix(1, 0, 0, 1, 0, 0)
 Table is a storage class that can be used to store information, like one would in a database table, with indexes on the desired "columns." It includes indexing and is optimized for lookups.
 
 - columns (tuple): The columns of the table.
-- index (tuple):  
+- index (tuple):
 
 ```python
 from collections import namedtuple
@@ -723,7 +718,7 @@ A quadtree is a tree data structure in which each internal node has up to four c
 - capacity (int); The number of elements in one tree bucket; default is 10.
 
 ```python
-qtree = Quadtree((0, 0, 100, 100)) 
+qtree = Quadtree((0, 0, 100, 100))
 ```
 
 #### Class: `gaphas.geometry.Rectangle`
@@ -787,11 +782,11 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 <!-- prettier-ignore -->
 <table><tr><td align="center"><a href="https://github.com/amolenaar"><img src="https://avatars0.githubusercontent.com/u/96249?v=4" width="100px;" alt="Arjan Molenaar"/><br /><sub><b>Arjan Molenaar</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=amolenaar" title="Code">💻</a> <a href="https://github.com/gaphor/gaphas/issues?q=author%3Aamolenaar" title="Bug reports">🐛</a> <a href="https://github.com/gaphor/gaphas/commits?author=amolenaar" title="Documentation">📖</a> <a href="#review-amolenaar" title="Reviewed Pull Requests">👀</a> <a href="#question-amolenaar" title="Answering Questions">💬</a> <a href="#plugin-amolenaar" title="Plugin/utility libraries">🔌</a></td><td align="center"><a href="https://ghuser.io/danyeaw"><img src="https://avatars1.githubusercontent.com/u/10014976?v=4" width="100px;" alt="Dan Yeaw"/><br /><sub><b>Dan Yeaw</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=danyeaw" title="Code">💻</a> <a href="https://github.com/gaphor/gaphas/commits?author=danyeaw" title="Tests">⚠️</a> <a href="#review-danyeaw" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/gaphor/gaphas/issues?q=author%3Adanyeaw" title="Bug reports">🐛</a> <a href="#question-danyeaw" title="Answering Questions">💬</a> <a href="#infra-danyeaw" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/gaphor/gaphas/commits?author=danyeaw" title="Documentation">📖</a></td><td align="center"><a href="https://github.com/wrobell"><img src="https://avatars2.githubusercontent.com/u/105664?v=4" width="100px;" alt="wrobell"/><br /><sub><b>wrobell</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=wrobell" title="Code">💻</a> <a href="https://github.com/gaphor/gaphas/commits?author=wrobell" title="Tests">⚠️</a> <a href="#review-wrobell" title="Reviewed Pull Requests">👀</a></td><td align="center"><a href="https://github.com/jlstevens"><img src="https://avatars3.githubusercontent.com/u/890576?v=4" width="100px;" alt="Jean-Luc Stevens"/><br /><sub><b>Jean-Luc Stevens</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=jlstevens" title="Code">💻</a> <a href="https://github.com/gaphor/gaphas/issues?q=author%3Ajlstevens" title="Bug reports">🐛</a> <a href="https://github.com/gaphor/gaphas/commits?author=jlstevens" title="Documentation">📖</a></td><td align="center"><a href="http://www.franework.de"><img src="https://avatars1.githubusercontent.com/u/1144966?v=4" width="100px;" alt="Franz Steinmetz"/><br /><sub><b>Franz Steinmetz</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=franzlst" title="Code">💻</a> <a href="https://github.com/gaphor/gaphas/issues?q=author%3Afranzlst" title="Bug reports">🐛</a></td><td align="center"><a href="https://github.com/adrianboguszewski"><img src="https://avatars3.githubusercontent.com/u/4547501?v=4" width="100px;" alt="Adrian Boguszewski"/><br /><sub><b>Adrian Boguszewski</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=adrianboguszewski" title="Code">💻</a></td><td align="center"><a href="https://github.com/Rbelder"><img src="https://avatars3.githubusercontent.com/u/15119522?v=4" width="100px;" alt="Rico Belder"/><br /><sub><b>Rico Belder</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/issues?q=author%3ARbelder" title="Bug reports">🐛</a> <a href="#review-Rbelder" title="Reviewed Pull Requests">👀</a></td></tr><tr><td align="center"><a href="http://www.boduch.ca"><img src="https://avatars2.githubusercontent.com/u/114619?v=4" width="100px;" alt="Adam Boduch"/><br /><sub><b>Adam Boduch</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/issues?q=author%3Aadamboduch" title="Bug reports">🐛</a></td><td align="center"><a href="https://github.com/janettech"><img src="https://avatars3.githubusercontent.com/u/13398384?v=4" width="100px;" alt="Janet Jose"/><br /><sub><b>Janet Jose</b></sub></a><br /><a href="https://github.com/gaphor/gaphas/commits?author=janettech" title="Documentation">📖</a></td></tr></table>
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
 
-1. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. 
+1. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug.
     There is a [first-timers-only](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only) tag for issues that should be ideal for people who are not very familiar with the codebase yet.
 2. Fork [the repository](https://github.com/gaphor/gaphas) on GitHub to    start making your changes to the **master**       branch (or branch off of it).
 3. Write a test which shows that the bug was fixed or that the feature
