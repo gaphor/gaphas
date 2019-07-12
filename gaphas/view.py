@@ -764,7 +764,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._dirty_matrix_items.clear()
 
     def update_bounding_box(self, items):
-        cr = cairo.Context(self._back_buffer) if self._back_buffer else instant_cairo_context()
+        cr = (
+            cairo.Context(self._back_buffer)
+            if self._back_buffer
+            else instant_cairo_context()
+        )
 
         cr.save()
         cr.rectangle(0, 0, 0, 0)
