@@ -663,27 +663,6 @@ class Line(Item):
         p1, p0 = h1.pos, h0.pos
         self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)
 
-    def closest_segment(self, pos):
-        """
-        Obtain a tuple (distance, point_on_line, segment).  Distance
-        is the distance from point to the closest line segment
-        Point_on_line is the reflection of the point on the line.
-        Segment is the line segment closest to (x, y)
-
-        >>> a = Line()
-        >>> a.closest_segment((4, 5))
-        (0.7071067811865476, (4.5, 4.5), 0)
-        """
-        h = self._handles
-        hpos = list(map(getattr, h, ["pos"] * len(h)))
-
-        # create a list of (distance, point_on_line) tuples:
-        distances = list(
-            map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
-        )
-        distances, pols = list(zip(*distances))
-        return reduce(min, list(zip(distances, pols, list(range(len(distances))))))
-
     def point(self, pos):
         """
         >>> a = Line()
@@ -696,7 +675,11 @@ class Line(Item):
         >>> '%.3f' % a.point((29, 29))
         '0.784'
         """
-        distance, point, segment = self.closest_segment(pos)
+        hpos = [h.pos for h in self._handles]
+
+        distance, _point = min(
+            map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
+        )
         return max(0, distance - self.fuzziness)
 
     def draw_head(self, context):
