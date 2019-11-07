@@ -539,7 +539,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._set_tool(DefaultTool())
 
     def do_get_property(self, prop):
-        if prop.name == "hadjustemnet":
+        if prop.name == "hadjustment":
             return self._hadjustment
         elif prop.name == "vadjustment":
             return self._vadjustment
