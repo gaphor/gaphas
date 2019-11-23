@@ -1,0 +1,52 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          pip install pre-commit
+          pre-commit install-hooks
+      - name: Lint with pre-commit
+        run: |
+          pre-commit run --all-files
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Ubuntu dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install --no-install-recommends -y xvfb python3-dev python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository1.0-dev libcairo2-dev
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry==1.0.0b3
+          poetry install
+      - name: Test with pytest
+        run: |
+          poetry run xvfb-run pytest -q
+      # - name: Code Climate Coverage Action
+      #   uses: paambaati/codeclimate-action@v2.3.0
+      #   env:
+      #     CC_TEST_REPORTER_ID:
+      #   with:
+      #     coverageCommand: poetry run coverage xml
