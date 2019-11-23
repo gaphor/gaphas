@@ -1,6 +1,5 @@
 # Gaphas
-
-[![Build state](https://travis-ci.com/gaphor/gaphas.svg?branch=master)](https://travis-ci.com/gaphor/gaphas)
+[![Build state](https://github.com/gaphor/gaphas/workflows/build/badge.svg)](https://github.com/gaphor/gaphas/actions)
 ![Docs build state](https://readthedocs.org/projects/gaphas/badge/?version=latest)
 [![Coverage](https://coveralls.io/repos/github/gaphor/gaphas/badge.svg?branch=master)](https://coveralls.io/github/gaphor/gaphas?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
