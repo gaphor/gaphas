@@ -1,4 +1,4 @@
-name: Python package
+name: Test
 
 on: [push]
 
@@ -28,10 +28,10 @@ jobs:
         poetry install
     - name: Test with pytest
       run: |
-        xvfb-run pytest -q
+        poetry run xvfb-run pytest -q
     - name: Code Climate Coverage Action
       uses: paambaati/codeclimate-action@v2.3.0
       # env:
         # CC_TEST_REPORTER_ID: 
       with:
-        coverageCommand: coverage xml
+        coverageCommand: poetry run coverage xml
