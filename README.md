@@ -1,7 +1,8 @@
 # Gaphas
 [![Build state](https://github.com/gaphor/gaphas/workflows/build/badge.svg)](https://github.com/gaphor/gaphas/actions)
+[![Maintainability](https://api.codeclimate.com/v1/badges/e9837cc647b72119fd11/maintainability)](https://codeclimate.com/github/gaphor/gaphas/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/e9837cc647b72119fd11/test_coverage)](https://codeclimate.com/github/gaphor/gaphas/test_coverage)
 ![Docs build state](https://readthedocs.org/projects/gaphas/badge/?version=latest)
-[![Coverage](https://coveralls.io/repos/github/gaphor/gaphas/badge.svg?branch=master)](https://coveralls.io/github/gaphor/gaphas?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat)](https://github.com/RichardLitt/standard-readme)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/Gaphor/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
