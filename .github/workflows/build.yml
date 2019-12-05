@@ -13,18 +13,22 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: '3.x'
+      - name: Use Python Dependency Cache
+        uses: actions/cache@v1.0.3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           pip install pre-commit
           pre-commit install-hooks
       - name: Lint with pre-commit
-        run: |
-          pre-commit run --all-files
+        run: pre-commit run --all-files
   test:
     needs: lint
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 4
       matrix:
         python-version: [2.7, 3.6, 3.7, 3.8]
     steps:
@@ -42,14 +46,21 @@ jobs:
         uses: dschep/install-poetry-action@v1.2
         with:
           version: 1.0.0b3
+      - name: Turn off Virtualenvs
+        run: poetry config virtualenvs.create false
+      - name: Use Python Dependency Cache
+        uses: actions/cache@v1.0.3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-
       - name: Install Python Dependencies
         run: poetry install
       - name: Test with Pytest
-        run: |
-          poetry run xvfb-run pytest
+        run: xvfb-run pytest
       - name: Code Climate Coverage Action
         uses: paambaati/codeclimate-action@v2.3.0
         env:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
-          coverageCommand: poetry run coverage xml
+          coverageCommand: coverage xml
