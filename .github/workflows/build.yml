@@ -13,18 +13,14 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: '3.x'
-      - name: Use Python Dependency Cache
-        uses: actions/cache@v1.0.3
+      - name: set PY
+        run: echo "::set-env name=PY::$(python --version --version | sha256sum | cut -d' ' -f1)"
+      - uses: actions/cache@v1
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: ${{ runner.os }}-pip-
-      - name: Install dependencies
-        run: |
-          pip install pre-commit
-          pre-commit install-hooks
+          path: ~/.cache/pre-commit
+          key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
       - name: Lint with pre-commit
-        run: pre-commit run --all-files
+        uses: pre-commit/action@v1.0.0
   test:
     needs: lint
     runs-on: ubuntu-latest
