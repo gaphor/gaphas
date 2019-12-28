@@ -2,7 +2,6 @@
 Basic connectors such as Ports and Handles.
 """
 
-from builtins import object
 import functools
 import warnings
 

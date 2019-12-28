@@ -1,5 +1,4 @@
 import pytest
-from builtins import range
 from os import getenv
 
 from gaphas.canvas import Canvas

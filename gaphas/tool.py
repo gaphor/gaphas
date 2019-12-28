@@ -30,8 +30,6 @@ Tools can handle events in different ways
 - event can be ignored
 - tool can handle the event (obviously)
 """
-from builtins import object
-
 from gi.repository import Gtk, Gdk
 
 from gaphas.aspect import (

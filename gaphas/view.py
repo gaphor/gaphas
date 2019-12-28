@@ -1,9 +1,6 @@
 """This module contains everything to display a Canvas on a screen.
 
 """
-from builtins import map
-from builtins import object
-
 from gi.repository import GLib, GObject, Gdk, Gtk
 import cairo
 

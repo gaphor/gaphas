@@ -1,5 +1,3 @@
-from builtins import range
-
 import pytest
 
 from gaphas.geometry import Rectangle

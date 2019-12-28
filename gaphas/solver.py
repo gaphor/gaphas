@@ -33,8 +33,6 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
-from builtins import object
-
 from gaphas.state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison

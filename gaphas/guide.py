@@ -1,9 +1,6 @@
 """
 Module implements guides when moving items and handles around.
 """
-import sys
-from builtins import map
-from builtins import object
 from functools import reduce
 
 from gaphas.aspect import singledispatch

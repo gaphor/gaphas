@@ -1,10 +1,6 @@
 """
 Allow for easily adding segments to lines.
 """
-import sys
-from builtins import object
-from builtins import zip
-
 from cairo import Matrix, ANTIALIAS_NONE
 
 from gaphas.aspect import singledispatch

@@ -3,7 +3,6 @@
 Aspects form intermediate items between tools and items.
 """
 import warnings
-from builtins import object
 
 from functools import singledispatch as real_singledispatch
 

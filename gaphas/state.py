@@ -17,8 +17,6 @@ set::
     gaphas.state.observers.add(gaphas.state.revert_handler)
 
 """
-import sys
-from builtins import zip
 from threading import Lock
 from types import MethodType
 

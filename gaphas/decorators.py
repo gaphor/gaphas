@@ -2,7 +2,6 @@
 Custom decorators.
 """
 import threading
-from builtins import object
 
 import gi
 

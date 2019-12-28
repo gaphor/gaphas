@@ -7,8 +7,6 @@ Matrix
 Small utility class wrapping cairo.Matrix. The `Matrix` class adds
 state preservation capabilities.
 """
-from builtins import object
-
 __version__ = "$Revision$"
 # $HeadURL$
 

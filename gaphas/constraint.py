@@ -27,7 +27,6 @@ New constraint class should derive from Constraint class abstract
 class and implement `Constraint.solve_for(Variable)` method to update
 a variable with appropriate value.
 """
-from builtins import object
 import math
 
 from gaphas.solver import Projection

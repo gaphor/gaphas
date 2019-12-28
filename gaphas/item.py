@@ -1,10 +1,6 @@
 """
 Basic items.
 """
-from builtins import map
-from builtins import object
-from builtins import range
-from builtins import zip
 from functools import reduce
 from math import atan2
 from weakref import WeakKeyDictionary

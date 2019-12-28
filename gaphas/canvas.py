@@ -27,10 +27,6 @@ To get connecting items (i.e. all lines connected to a class)::
 
 """
 import logging
-from builtins import map
-from builtins import next
-from builtins import object
-from builtins import range
 from collections import namedtuple
 
 import cairo

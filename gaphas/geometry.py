@@ -7,7 +7,6 @@ intersections).
 A point is represented as a tuple `(x, y)`.
 
 """
-from builtins import object
 from math import sqrt
 
 

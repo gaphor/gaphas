@@ -1,5 +1,4 @@
 import sys
-from builtins import object
 
 from gaphas.state import reversible_pair, observed, _reverse
 
