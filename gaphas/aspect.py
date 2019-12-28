@@ -2,14 +2,10 @@
 
 Aspects form intermediate items between tools and items.
 """
-import sys
 import warnings
 from builtins import object
 
-if sys.version_info.major >= 3:  # Modern Python
-    from functools import singledispatch as real_singledispatch
-else:
-    from singledispatch import singledispatch as real_singledispatch
+from functools import singledispatch as real_singledispatch
 
 from gi.repository import Gdk
 

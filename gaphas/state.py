@@ -17,23 +17,13 @@ set::
     gaphas.state.observers.add(gaphas.state.revert_handler)
 
 """
-
 import sys
 from builtins import zip
 from threading import Lock
 from types import MethodType
 
-if sys.version_info.major >= 3:  # Modern Python
-    from functools import update_wrapper
-    from inspect import getfullargspec as _getargspec
-else:  # Legacy Python
-    from inspect import getargspec as _getargspec
-    import functools
-
-    def update_wrapper(wrapper, wrapped):
-        w = functools.update_wrapper(wrapper, wrapped)
-        w.__wrapped__ = wrapped
-        return w
+from functools import update_wrapper
+from inspect import getfullargspec as _getargspec
 
 
 # This string is added to each docstring in order to denote is's observed
@@ -289,9 +279,4 @@ def getfunction(func):
     """
     Return the function associated with a class method.
     """
-    if isinstance(func, MethodType):
-        if sys.version_info.major >= 3:  # Modern Python
-            return func
-        else:  # Legacy Python
-            return func.__func__
     return func
