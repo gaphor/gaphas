@@ -1,8 +1,6 @@
 """Helper functions and classes for Cairo (drawing engine used by the canvas).
 
 """
-from __future__ import division
-
 from math import pi
 
 import cairo

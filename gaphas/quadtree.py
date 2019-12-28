@@ -17,10 +17,6 @@ as a Q-tree. All forms of Quadtrees share some common features:
 
 (From Wikipedia, the free encyclopedia)
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import operator
 from builtins import map
 from builtins import object

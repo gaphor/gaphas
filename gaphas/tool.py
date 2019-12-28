@@ -30,9 +30,6 @@ Tools can handle events in different ways
 - event can be ignored
 - tool can handle the event (obviously)
 """
-from __future__ import division
-from __future__ import print_function
-
 from builtins import object
 
 from gi.repository import Gtk, Gdk

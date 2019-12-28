@@ -1,12 +1,8 @@
-from __future__ import print_function
-
 import io
 import pickle
-from builtins import object
 
 import cairo
 import pytest
-from future import standard_library
 from gi.repository import Gtk
 
 from examples import demo
@@ -17,8 +13,6 @@ from gaphas.view import View, GtkView
 
 # Ensure extra pickle reducers/reconstructors are loaded:
 import gaphas.picklers
-
-standard_library.install_aliases()
 
 
 class MyPickler(pickle.Pickler):

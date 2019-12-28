@@ -1,8 +1,6 @@
 """Test cases for the View class.
 
 """
-from __future__ import division
-
 import math
 
 import pytest

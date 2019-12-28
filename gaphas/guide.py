@@ -1,8 +1,6 @@
 """
 Module implements guides when moving items and handles around.
 """
-from __future__ import division
-
 import sys
 from builtins import map
 from builtins import object

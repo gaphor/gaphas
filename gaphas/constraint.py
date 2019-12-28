@@ -27,11 +27,6 @@ New constraint class should derive from Constraint class abstract
 class and implement `Constraint.solve_for(Variable)` method to update
 a variable with appropriate value.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from builtins import object
 import math
 

@@ -1,8 +1,6 @@
 """Test segment aspects for items.
 
 """
-from __future__ import print_function
-
 import pytest
 
 from gaphas.canvas import Canvas

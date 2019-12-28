@@ -2,8 +2,6 @@
 
 Aspects form intermediate items between tools and items.
 """
-from __future__ import absolute_import
-
 import sys
 import warnings
 from builtins import object

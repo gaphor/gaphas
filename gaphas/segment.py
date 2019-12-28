@@ -1,8 +1,6 @@
 """
 Allow for easily adding segments to lines.
 """
-from __future__ import division
-
 import sys
 from builtins import object
 from builtins import zip

@@ -1,9 +1,6 @@
 """This module contains everything to display a Canvas on a screen.
 
 """
-from __future__ import absolute_import
-from __future__ import division
-
 from builtins import map
 from builtins import object
 

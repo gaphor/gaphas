@@ -2,9 +2,6 @@
 Simple example items.
 These items are used in various tests.
 """
-from __future__ import absolute_import
-from __future__ import division
-
 from gaphas.connector import Handle, PointPort, LinePort, Position
 from gaphas.item import Element, Item, NW, NE, SW, SE
 from gaphas.solver import WEAK

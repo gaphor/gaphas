@@ -6,8 +6,6 @@ Painters can be swapped in and out.
 Each painter takes care of a layer in the canvas (such as grid, items
 and handles).
 """
-from __future__ import division
-
 from builtins import object
 
 from cairo import ANTIALIAS_NONE, LINE_JOIN_ROUND
