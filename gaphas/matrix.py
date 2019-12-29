@@ -7,8 +7,6 @@ Matrix
 Small utility class wrapping cairo.Matrix. The `Matrix` class adds
 state preservation capabilities.
 """
-__version__ = "$Revision$"
-# $HeadURL$
 
 import cairo
 from gaphas.state import observed, reversible_method

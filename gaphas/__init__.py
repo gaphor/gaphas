@@ -35,12 +35,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
-__version__ = "$Revision$"
-# $HeadURL$
-
+import importlib_metadata
 
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle
 from gaphas.item import Item, Line, Element
 from gaphas.view import View, GtkView
+
+
+__version__ = importlib_metadata.version("gaphas")

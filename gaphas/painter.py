@@ -12,8 +12,6 @@ from gaphas.aspect import PaintFocused
 from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 
-__version__ = "$Revision$"
-
 DEBUG_DRAW_BOUNDING_BOX = False
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
