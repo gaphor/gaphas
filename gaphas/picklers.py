@@ -3,13 +3,9 @@ Some extra picklers needed to gracefully dump and load a canvas.
 """
 
 import copyreg
-import types
 
 import cairo
 
-from future import standard_library
-
-standard_library.install_aliases()
 
 # Allow cairo.Matrix to be pickled:
 def construct_cairo_matrix(*args):
