@@ -7,7 +7,7 @@ from gaphas.item import Element, Line
 from gaphas.view import GtkView
 
 
-class Window(object):
+class Window:
     def __init__(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)

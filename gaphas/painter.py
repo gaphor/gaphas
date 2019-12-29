@@ -21,7 +21,7 @@ DEBUG_DRAW_BOUNDING_BOX = False
 TOLERANCE = 0.8
 
 
-class Painter(object):
+class Painter:
     """
     Painter interface.
     """
@@ -46,7 +46,7 @@ class PainterChain(Painter):
     """
 
     def __init__(self, view=None):
-        super(PainterChain, self).__init__(view)
+        super().__init__(view)
         self._painters = []
 
     def set_view(self, view):
@@ -84,7 +84,7 @@ class DrawContext(Context):
     """
 
     def __init__(self, **kwargs):
-        super(DrawContext, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class ItemPainter(Painter):
@@ -146,7 +146,7 @@ class ItemPainter(Painter):
         self._draw_items(context.items, cairo, context.area)
 
 
-class CairoBoundingBoxContext(object):
+class CairoBoundingBoxContext:
     """
     Delegate all calls to the wrapped CairoBoundingBoxContext,
     intercept ``stroke()``, ``fill()`` and a few others so the
@@ -252,7 +252,7 @@ class BoundingBoxPainter(ItemPainter):
 
     def _draw_item(self, item, cairo, area=None):
         cairo = CairoBoundingBoxContext(cairo)
-        super(BoundingBoxPainter, self)._draw_item(item, cairo)
+        super()._draw_item(item, cairo)
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.

@@ -57,7 +57,7 @@ class ConnectionError(Exception):
     """
 
 
-class Context(object):
+class Context:
     """
     Context used for updating and drawing items in a drawing canvas.
 
@@ -86,7 +86,7 @@ def instant_cairo_context():
     return cairo.Context(surface)
 
 
-class Canvas(object):
+class Canvas:
     """
     Container class for items.
     """
@@ -930,7 +930,7 @@ class VariableProjection(solver.Projection):
         return self._var
 
 
-class CanvasProjection(object):
+class CanvasProjection:
     """
     Project a point as Canvas coordinates.  Although this is a
     projection, it behaves like a tuple with two Variables

@@ -14,7 +14,7 @@ import cairo
 from gaphas.state import observed, reversible_method
 
 
-class Matrix(object):
+class Matrix:
     """
     Matrix wrapper. This version sends @observed messages on state changes
 

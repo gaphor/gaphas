@@ -38,7 +38,7 @@ def singledispatch(func):
     return wrapped
 
 
-class ItemFinder(object):
+class ItemFinder:
     """
     Find an item on the canvas.
     """
@@ -54,7 +54,7 @@ class ItemFinder(object):
 Finder = singledispatch(ItemFinder)
 
 
-class ItemSelection(object):
+class ItemSelection:
     """
     A role for items. When dealing with selection.
 
@@ -80,7 +80,7 @@ class ItemSelection(object):
 Selection = singledispatch(ItemSelection)
 
 
-class ItemInMotion(object):
+class ItemInMotion:
     """
     Aspect for dealing with motion on an item.
 
@@ -118,7 +118,7 @@ class ItemInMotion(object):
 InMotion = singledispatch(ItemInMotion)
 
 
-class ItemHandleFinder(object):
+class ItemHandleFinder:
     """
     Deals with the task of finding handles.
     """
@@ -134,7 +134,7 @@ class ItemHandleFinder(object):
 HandleFinder = singledispatch(ItemHandleFinder)
 
 
-class ItemHandleSelection(object):
+class ItemHandleSelection:
     """
     Deal with selection of the handle.
     """
@@ -172,7 +172,7 @@ class ElementHandleSelection(ItemHandleSelection):
         self.view.get_window().set_cursor(cursor)
 
 
-class ItemHandleInMotion(object):
+class ItemHandleInMotion:
     """
     Move a handle (role is applied to the handle)
     """
@@ -251,7 +251,7 @@ class ItemHandleInMotion(object):
 HandleInMotion = singledispatch(ItemHandleInMotion)
 
 
-class ItemConnector(object):
+class ItemConnector:
     """Connect or disconnect an item's handle to another item or port.
 
     """
@@ -329,7 +329,7 @@ class ItemConnector(object):
 Connector = singledispatch(ItemConnector)
 
 
-class ItemConnectionSink(object):
+class ItemConnectionSink:
     """Makes an item a sink.
 
     A sink is another item that an item's handle is connected to like a
@@ -366,7 +366,7 @@ ConnectionSink = singledispatch(ItemConnectionSink)
 #
 
 
-class ItemPaintFocused(object):
+class ItemPaintFocused:
     """
     Paints on top of all items, just for the focused item and only
     when it's hovered (see gaphas.painter.FocusedItemPainter)

@@ -12,13 +12,13 @@ from gaphas.item import Line
 
 
 @singledispatch
-class Segment(object):
+class Segment:
     def __init__(self, item, view):
         raise TypeError
 
 
 @Segment.register(Line)
-class LineSegment(object):
+class LineSegment:
     def __init__(self, item, view):
         self.item = item
         self.view = view
@@ -184,7 +184,7 @@ class SegmentHandleFinder(ItemHandleFinder):
                 handle = segment.split(pos)
 
         if not handle:
-            item, handle = super(SegmentHandleFinder, self).get_handle_at_point(pos)
+            item, handle = super().get_handle_at_point(pos)
         return item, handle
 
 

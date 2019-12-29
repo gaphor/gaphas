@@ -77,7 +77,7 @@ class MyLine(Line):
     """
 
     def __init__(self):
-        super(MyLine, self).__init__()
+        super().__init__()
         self.fuzziness = 2
 
     def draw_head(self, context):

@@ -11,7 +11,7 @@ from gi.repository import Gtk, GLib
 DEBUG_ASYNC = False
 
 
-class AsyncIO(object):
+class AsyncIO:
     """
     Instead of calling the function, schedule an idle handler at a
     given priority. This requires the async'ed method to be called
@@ -176,7 +176,7 @@ def nonrecursive(func):
     return wrapper
 
 
-class recursive(object):
+class recursive:
     """
     This decorator limits the recursion for a specific function
 

@@ -5,7 +5,7 @@ one would in a database table, with indexes on the desired "columns."
 from functools import reduce
 
 
-class Table(object):
+class Table:
     """
     A Table structure with indexing. Optimized for lookups.
     """
@@ -61,7 +61,7 @@ class Table(object):
             if v in index[n]:
                 index[n][v].add(data)
             else:
-                index[n][v] = set([data])
+                index[n][v] = {data}
 
     def delete(self, *_row, **kv):
         """

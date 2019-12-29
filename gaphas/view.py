@@ -20,7 +20,7 @@ DEBUG_DRAW_QUADTREE = False
 DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
-class View(object):
+class View:
     """
     View class for gaphas.Canvas objects.
     """
@@ -583,7 +583,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._clear_matrices()
             self._canvas.unregister_view(self)
 
-        super(GtkView, self)._set_canvas(canvas)
+        super()._set_canvas(canvas)
 
         if self._canvas:
             self._canvas.register_view(self)
@@ -610,7 +610,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         Zoom in/out by factor ``factor``.
         """
-        super(GtkView, self).zoom(factor)
+        super().zoom(factor)
         self.queue_draw_refresh()
 
     @AsyncIO(single=True)
@@ -768,7 +768,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
         try:
-            super(GtkView, self).update_bounding_box(cr, items)
+            super().update_bounding_box(cr, items)
         finally:
             cr.restore()
 

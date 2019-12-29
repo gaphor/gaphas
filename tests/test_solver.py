@@ -22,7 +22,7 @@ REPEAT = 30
 NUMBER = 1000
 
 
-class SolverFixture(object):
+class SolverFixture:
     def __init__(self):
         self.solver = Solver()
         self.a = Variable(1, 30)

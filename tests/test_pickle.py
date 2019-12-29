@@ -24,7 +24,7 @@ class MyPickler(pickle.Pickler):
             raise e
 
 
-class MyDisconnect(object):
+class MyDisconnect:
     """Create a disconnect object.
 
     The disconnect object should be located at top-level, so the pickle code
@@ -36,7 +36,7 @@ class MyDisconnect(object):
         pass
 
 
-class CanvasFixture(object):
+class CanvasFixture:
     def __init__(self):
         self.canvas = Canvas()
         self.box = Box()

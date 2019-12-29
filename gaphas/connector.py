@@ -27,7 +27,7 @@ def deprecated(message, since):
     return _deprecated
 
 
-class Position(object):
+class Position:
     """
     A point constructed of two `Variable`'s.
 
@@ -91,7 +91,7 @@ class Position(object):
         return (self.x, self.y)[index]
 
 
-class Handle(object):
+class Handle:
     """
     Handles are used to support modifications of Items.
 
@@ -178,7 +178,7 @@ class Handle(object):
     __repr__ = __str__
 
 
-class Port(object):
+class Port:
     """Port connectable part of an item.
 
     The Item's handle connects to a port.
@@ -186,7 +186,7 @@ class Port(object):
     """
 
     def __init__(self):
-        super(Port, self).__init__()
+        super().__init__()
 
         self._connectable = True
 
@@ -215,7 +215,7 @@ class LinePort(Port):
     """
 
     def __init__(self, start, end):
-        super(LinePort, self).__init__()
+        super().__init__()
 
         self.start = start
         self.end = end
@@ -250,7 +250,7 @@ class PointPort(Port):
     """
 
     def __init__(self, point):
-        super(PointPort, self).__init__()
+        super().__init__()
         self.point = point
 
     def glue(self, pos):

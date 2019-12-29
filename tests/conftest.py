@@ -12,7 +12,7 @@ from gaphas.tool import ConnectHandleTool
 from gaphas.view import GtkView
 
 
-class SimpleCanvas(object):
+class SimpleCanvas:
     """Creates a test canvas object.
 
     Adds a view, canvas, and handle connection tool to a test

@@ -25,7 +25,7 @@ from gaphas.state import (
 )
 
 
-class Item(object):
+class Item:
     """
     Base class (or interface) for items on a canvas.Canvas.
 
@@ -314,7 +314,7 @@ class Element(Item):
     min_height = solvable(strength=REQUIRED, varname="_min_height")
 
     def __init__(self, width=10, height=10):
-        super(Element, self).__init__()
+        super().__init__()
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
 
         handles = self._handles
@@ -351,7 +351,7 @@ class Element(Item):
         # self.constraints.append(EqualsConstraint(p1[1], p2[1], delta))
 
     def setup_canvas(self):
-        super(Element, self).setup_canvas()
+        super().setup_canvas()
 
         # Trigger solver to honour width/height by SE handle pos
         self._handles[SE].pos.x.dirty()
@@ -464,7 +464,7 @@ class Line(Item):
     """
 
     def __init__(self):
-        super(Line, self).__init__()
+        super().__init__()
         self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
         self._ports = []
         self._update_ports()
@@ -578,14 +578,14 @@ class Line(Item):
         """
         Setup constraints. In this case orthogonal.
         """
-        super(Line, self).setup_canvas()
+        super().setup_canvas()
         self._update_orthogonal_constraints(self.orthogonal)
 
     def teardown_canvas(self):
         """
         Remove constraints created in setup_canvas().
         """
-        super(Line, self).teardown_canvas()
+        super().teardown_canvas()
         for c in self._orthogonal_constraints:
             self.canvas.solver.remove_constraint(c)
 
@@ -649,7 +649,7 @@ class Line(Item):
     def post_update(self, context):
         """
         """
-        super(Line, self).post_update(context)
+        super().post_update(context)
         h0, h1 = self._handles[:2]
         p0, p1 = h0.pos, h1.pos
         self._head_angle = atan2(p1.y - p0.y, p1.x - p0.x)

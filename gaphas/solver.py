@@ -48,7 +48,7 @@ VERY_STRONG = 40
 REQUIRED = 100
 
 
-class Variable(object):
+class Variable:
     """Representation of a variable in the constraint solver.
 
     Each Variable has a @value and a @strength. In a constraint the weakest
@@ -309,7 +309,7 @@ class Variable(object):
         return self._value.__rtruediv__(other)
 
 
-class Projection(object):
+class Projection:
     """
     Projections are used to convert values from one space to another,
     e.g. from Canvas to Item space or visa versa.
@@ -366,7 +366,7 @@ class Projection(object):
     __repr__ = __str__
 
 
-class Solver(object):
+class Solver:
     """
     Solve constraints. A constraint should have accompanying
     variables.
@@ -622,7 +622,7 @@ class Solver(object):
             self._solving = False
 
 
-class solvable(object):
+class solvable:
     """
     Easy-to-use drop Variable descriptor.
 

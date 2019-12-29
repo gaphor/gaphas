@@ -3,7 +3,7 @@ import sys
 from gaphas.state import reversible_pair, observed, _reverse
 
 
-class SList(object):
+class SList:
     def __init__(self):
         self.list = list()
 

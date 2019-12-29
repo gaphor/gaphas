@@ -12,7 +12,7 @@ from gaphas.item import Line
 from gaphas.view import View, GtkView
 
 
-class ViewFixture(object):
+class ViewFixture:
     def __init__(self):
         self.canvas = Canvas()
         self.view = GtkView(self.canvas)

@@ -9,7 +9,7 @@ from gaphas.canvas import Canvas
 from gaphas.view import View
 
 
-class CanvasViewItem(object):
+class CanvasViewItem:
     def __init__(self):
         self.canvas = Canvas()
         self.view = View(self.canvas)

@@ -40,7 +40,7 @@ def _update(variable, value):
         variable.value = value
 
 
-class Constraint(object):
+class Constraint:
     """
     Constraint base class.
 
@@ -152,7 +152,7 @@ class EqualsConstraint(Constraint):
     """
 
     def __init__(self, a=None, b=None, delta=0.0):
-        super(EqualsConstraint, self).__init__(a, b, delta)
+        super().__init__(a, b, delta)
         self.a = a
         self.b = b
         self.delta = delta
@@ -194,7 +194,7 @@ class CenterConstraint(Constraint):
     """
 
     def __init__(self, a=None, b=None, center=None):
-        super(CenterConstraint, self).__init__(a, b, center)
+        super().__init__(a, b, center)
         self.a = a
         self.b = b
         self.center = center
@@ -234,7 +234,7 @@ class LessThanConstraint(Constraint):
     """
 
     def __init__(self, smaller=None, bigger=None, delta=0.0):
-        super(LessThanConstraint, self).__init__(smaller, bigger, delta)
+        super().__init__(smaller, bigger, delta)
         self.smaller = smaller
         self.bigger = bigger
         self.delta = delta
@@ -276,7 +276,7 @@ class EquationConstraint(Constraint):
     """
 
     def __init__(self, f, **args):
-        super(EquationConstraint, self).__init__(*list(args.values()))
+        super().__init__(*list(args.values()))
         self._f = f
         self._args = {}
         # see important note on order of operations in __setattr__ below.
@@ -422,7 +422,7 @@ class BalanceConstraint(Constraint):
     """
 
     def __init__(self, band=None, v=None, balance=None):
-        super(BalanceConstraint, self).__init__(band[0], band[1], v)
+        super().__init__(band[0], band[1], v)
         self.band = band
         self.balance = balance
         self.v = v
@@ -455,7 +455,7 @@ class LineConstraint(Constraint):
     """
 
     def __init__(self, line, point):
-        super(LineConstraint, self).__init__(
+        super().__init__(
             line[0][0], line[0][1], line[1][0], line[1][1], point[0], point[1]
         )
 
@@ -535,9 +535,7 @@ class PositionConstraint(Constraint):
     """
 
     def __init__(self, origin, point):
-        super(PositionConstraint, self).__init__(
-            origin[0], origin[1], point[0], point[1]
-        )
+        super().__init__(origin[0], origin[1], point[0], point[1])
 
         self._origin = origin
         self._point = point
@@ -580,7 +578,7 @@ class LineAlignConstraint(Constraint):
     """
 
     def __init__(self, line, point, align=0.5, delta=0.0):
-        super(LineAlignConstraint, self).__init__(
+        super().__init__(
             line[0][0], line[0][1], line[1][0], line[1][1], point[0], point[1]
         )
 

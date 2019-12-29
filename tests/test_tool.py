@@ -56,7 +56,7 @@ def test_glue_no_port_no_can_glue(simple_canvas):
 
     class Tool(ConnectHandleTool):
         def __init__(self, *args):
-            super(Tool, self).__init__(*args)
+            super().__init__(*args)
             self._calls = 0
 
         def can_glue(self, *args):

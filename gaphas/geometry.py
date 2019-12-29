@@ -10,7 +10,7 @@ A point is represented as a tuple `(x, y)`.
 from math import sqrt
 
 
-class Rectangle(object):
+class Rectangle:
     """
     Python Rectangle implementation. Rectangles can be added (union),
     substituted (intersection) and points and rectangles can be tested
