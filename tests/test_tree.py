@@ -109,7 +109,7 @@ def test_siblings(tree_fixture):
         pass  # Okay
     else:
         raise AssertionError(
-            "Index should be out of range, not %s" % tree.get_next_sibling(n[3])
+            f"Index should be out of range, not {tree.get_next_sibling(n[3])}"
         )
 
     assert tree.get_previous_sibling(n[3]) is n[2]
@@ -120,7 +120,7 @@ def test_siblings(tree_fixture):
         pass  # Okay
     else:
         raise AssertionError(
-            "Index should be out of range, not %s" % tree.get_previous_sibling(n[1])
+            f"Index should be out of range, not {tree.get_previous_sibling(n[1])}"
         )
 
 

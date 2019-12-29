@@ -221,7 +221,7 @@ class View(object):
             ix, iy = v2i.transform_point(*pos)
             item_distance = item.point((ix, iy))
             if item_distance is None:
-                print("Item distance is None for {}".format(item))
+                print(f"Item distance is None for {item}")
                 continue
             if item_distance < 0.5:
                 return item
@@ -542,7 +542,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif prop.name == "vscroll-policy":
             return self._vscroll_policy
         else:
-            raise AttributeError("Unknown property %s" % prop.name)
+            raise AttributeError(f"Unknown property {prop.name}")
 
     def do_set_property(self, prop, value):
         if prop.name == "hadjustment":
@@ -564,7 +564,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif prop.name == "vscroll-policy":
             self._vscroll_policy = value
         else:
-            raise AttributeError("Unknown property %s" % prop.name)
+            raise AttributeError(f"Unknown property {prop.name}")
 
     def emit(self, *args, **kwargs):
         """

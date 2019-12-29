@@ -155,9 +155,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
     if fset:
         spec = getargnames(fset)
         argnames = spec[0]
-        assert len(argnames) == 2, "Set argument {} has argnames {}".format(
-            fset, argnames
-        )
+        assert len(argnames) == 2, f"Set argument {fset} has argnames {argnames}"
 
         argself, argvalue = argnames
         func = getfunction(fset)

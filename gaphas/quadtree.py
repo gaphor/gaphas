@@ -21,7 +21,7 @@ import operator
 from gaphas.geometry import rectangle_contains, rectangle_intersects, rectangle_clip
 
 
-class Quadtree(object):
+class Quadtree:
     """
     The Quad-tree.
 
@@ -29,7 +29,7 @@ class Quadtree(object):
 
     >>> qtree = Quadtree((0, 0, 100, 100))
     >>> for i in range(20):
-    ...     qtree.add('%d' % i, ((i * 4) % 90, (i * 10) % 90, 10, 10))
+    ...     qtree.add(f"{i}", ((i * 4) % 90, (i * 10) % 90, 10, 10))
     >>> len(qtree)
     20
     >>> qtree.dump() # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -261,7 +261,7 @@ class Quadtree(object):
         self._bucket.dump()
 
 
-class QuadtreeBucket(object):
+class QuadtreeBucket:
     """
     A node in a Quadtree structure.
     """
@@ -356,8 +356,7 @@ class QuadtreeBucket(object):
                 if method(bounds, rect):
                     yield item
             for bucket in self._buckets:
-                for item in bucket.find(rect, method=method):
-                    yield item
+                yield from bucket.find(rect, method=method)
 
     def clear(self):
         """

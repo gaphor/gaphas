@@ -51,8 +51,7 @@ class Table(object):
         """
         if len(values) != len(self._type._fields):
             raise ValueError(
-                "Number of arguments doesn't match the number of columns (%d != %d)"
-                % (len(values), len(self._type._fields))
+                f"Number of arguments doesn't match the number of columns ({len(values)} != {len(self._type._fields)})"
             )
         # Add value to index entries
         index = self._index
@@ -156,15 +155,15 @@ class Table(object):
 
         bad = set(kv.keys()) - set(self._type._fields)
         if len(bad) == 1:
-            raise KeyError("Invalid column '%s'" % bad.pop())
+            raise KeyError(f"Invalid column {bad.pop()}")
         elif len(bad) > 1:
-            raise KeyError("Invalid columns '%s'" % str(tuple(bad)))
+            raise KeyError(f"Invalid columns {str(tuple(bad))}")
 
         bad = set(kv.keys()) - set(self._indexes)
         if len(bad) == 1:
-            raise AttributeError("Column '%s' is not indexed" % bad.pop())
+            raise AttributeError(f"Column {bad.pop()} is not indexed")
         elif len(bad) > 1:
-            raise AttributeError("Columns %s are not indexed" % str(tuple(bad)))
+            raise AttributeError(f"Columns {str(tuple(bad))} are not indexed")
 
         r = iter([])
         items = tuple((n, v) for n, v in list(kv.items()) if v is not None)

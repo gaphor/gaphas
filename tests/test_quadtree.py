@@ -9,7 +9,7 @@ def qtree():
     qtree = Quadtree((0, 0, 100, 100))
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
-            qtree.add(item="%dx%d" % (i, j), bounds=Rectangle(i, j, 10, 10))
+            qtree.add(item=f"{i:d}x{j:d}", bounds=Rectangle(i, j, 10, 10))
     return qtree
 
 
@@ -17,7 +17,7 @@ def test_lookups(qtree):
     for i in range(100, 10):
         for j in range(100, 10):
             assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
-                "%dx%d" % (i, j)
+                f"{i:d}x{j:d}"
             ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
 
 
@@ -27,7 +27,7 @@ def test_with_rectangles(qtree):
     for i in range(100, 10):
         for j in range(100, 10):
             assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
-                "%dx%d" % (i, j)
+                f"{i:d}x{j:d}"
             ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
 
 
@@ -76,11 +76,11 @@ def test_get_data(qtree):
     """
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
-            qtree.add(item="%dx%d" % (i, j), bounds=(i, j, 10, 10), data=i + j)
+            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=i + j)
 
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
-            assert i + j == qtree.get_data(item="%dx%d" % (i, j))
+            assert i + j == qtree.get_data(item=f"{i:d}x{j:d}")
 
 
 def test_clipped_bounds(qtree):

@@ -286,12 +286,12 @@ class EquationConstraint(Constraint):
 
     def __repr__(self):
         argstring = ", ".join(
-            ["%s=%s" % (arg, str(value)) for (arg, value) in list(self._args.items())]
+            [f"{arg}={value}" for (arg, value) in list(self._args.items())]
         )
         if argstring:
-            return "EquationConstraint(%s, %s)" % (self._f.__code__.co_name, argstring)
+            return f"EquationConstraint({self._f.__code__.co_name}, {argstring})"
         else:
-            return "EquationConstraint(%s)" % self._f.__code__.co_name
+            return f"EquationConstraint({self._f.__code__.co_name})"
 
     def __getattr__(self, name):
         """

@@ -63,22 +63,14 @@ def test_bounding_box_calculations(view_fixture):
         assert view_fixture.view.get_item_bounding_box(view_fixture.box)
         assert view_fixture.view.get_item_bounding_box(
             view_fixture.box
-        ) == view2.get_item_bounding_box(view_fixture.box), (
-            "%s != %s"
-            % (
-                view_fixture.view.get_item_bounding_box(view_fixture.box),
-                view2.get_item_bounding_box(view_fixture.box),
-            )
-        )
+        ) == view2.get_item_bounding_box(
+            view_fixture.box
+        ), f"{view_fixture.view.get_item_bounding_box(view_fixture.box)} != {view2.get_item_bounding_box(view_fixture.box)}"
         assert view_fixture.view.get_item_bounding_box(
             line
-        ) == view2.get_item_bounding_box(line), (
-            "%s != %s"
-            % (
-                view_fixture.view.get_item_bounding_box(line),
-                view2.get_item_bounding_box(line),
-            )
-        )
+        ) == view2.get_item_bounding_box(
+            line
+        ), f"{view_fixture.view.get_item_bounding_box(line)} != {view2.get_item_bounding_box(line)}"
     finally:
         view_fixture.window.destroy()
         window2.destroy()

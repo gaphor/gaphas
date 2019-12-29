@@ -103,7 +103,7 @@ class Variable(object):
     value = reversible_property(lambda s: s._value, set_value)
 
     def __str__(self):
-        return "Variable(%g, %d)" % (self._value, self._strength)
+        return f"Variable({self._value:g}, {self._strength:d})"
 
     __repr__ = __str__
 
@@ -361,7 +361,7 @@ class Projection(object):
         return float(self.variable()._value)
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.variable())
+        return f"{self.__class__.__name__}({self.variable()})"
 
     __repr__ = __str__
 
@@ -426,8 +426,7 @@ class Solver(object):
                     self._marked_cons.append(c)
                     if self._marked_cons.count(c) > 100:
                         raise JuggleError(
-                            "Variable juggling detected, constraint %s resolved %d times out of %d"
-                            % (c, self._marked_cons.count(c), len(self._marked_cons))
+                            f"Variable juggling detected, constraint {c} resolved {self._marked_cons.count(c)} times out of {len(self._marked_cons)}"
                         )
 
     @observed
@@ -453,7 +452,7 @@ class Solver(object):
         >>> len(s._constraints)
         1
         """
-        assert constraint, "No constraint (%s)" % (constraint,)
+        assert constraint, f"No constraint ({constraint})"
         self._constraints.add(constraint)
         self._marked_cons.append(constraint)
         constraint._solver_has_projections = False
@@ -486,7 +485,7 @@ class Solver(object):
 
         >>> s.remove_constraint(c)
         """
-        assert constraint, "No constraint (%s)" % (constraint,)
+        assert constraint, f"No constraint ({constraint})"
         for v in constraint.variables():
             while isinstance(v, Projection):
                 v = v.variable()
@@ -646,7 +645,7 @@ class solvable(object):
 
     def __init__(self, strength=NORMAL, varname=None):
         self._strength = strength
-        self._varname = varname or "_variable_%x" % id(self)
+        self._varname = varname or f"_variable_{id(self)}"
 
     def __get__(self, obj, class_=None):
         if not obj:

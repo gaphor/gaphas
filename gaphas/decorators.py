@@ -110,7 +110,7 @@ class AsyncIO(object):
         return s
 
     def __call__(self, func):
-        async_id = "_async_id_%s" % func.__name__
+        async_id = f"_async_id_{func.__name__}"
 
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr

@@ -94,4 +94,4 @@ class Matrix(object):
         return self._matrix.__rmul__(other)
 
     def __repr__(self):
-        return "Matrix(%g, %g, %g, %g, %g, %g)" % tuple(self._matrix)
+        return f"Matrix{tuple(self._matrix)}"

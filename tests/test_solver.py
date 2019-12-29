@@ -136,4 +136,4 @@ c_eq.weakest()""",
 
     # Print the average of the best 10 runs:
     results.sort()
-    print("[Avg: %gms]" % (sum(results[:10]) / 10) * 1000)
+    print(f"[Avg: {(sum(results[:10]) / 10) * 1000}ms]")

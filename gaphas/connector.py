@@ -16,7 +16,7 @@ def deprecated(message, since):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             warnings.warn(
-                "{}: {}".format(func.__name__, message),
+                f"{func.__name__}: {message}",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -74,11 +74,7 @@ class Position(object):
         self._v_y = vy
 
     def __str__(self):
-        return "<%s object on (%g, %g)>" % (
-            self.__class__.__name__,
-            float(self.x),
-            float(self.y),
-        )
+        return f"<{self.__class__.__name__} object on ({self.x}, {self.y})>"
 
     __repr__ = __str__
 
@@ -177,11 +173,7 @@ class Handle(object):
     visible = reversible_property(lambda s: s._visible, _set_visible)
 
     def __str__(self):
-        return "<%s object on (%g, %g)>" % (
-            self.__class__.__name__,
-            float(self._pos.x),
-            float(self._pos.y),
-        )
+        return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
 
     __repr__ = __str__
 

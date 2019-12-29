@@ -438,7 +438,7 @@ def create_canvas(c=None):
     for align_x in (-1, 0, 1):
         for align_y in (-1, 0, 1):
             t = MyText(
-                "Aligned text %d/%d" % (align_x, align_y),
+                f"Aligned text {align_x:d}/{align_y:d}",
                 align_x=align_x,
                 align_y=align_y,
             )

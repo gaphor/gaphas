@@ -78,7 +78,7 @@ def test_connect(simple_canvas):
     cinfo = simple_canvas.canvas.get_connection(head)
     assert cinfo is not None
     assert simple_canvas.box1 == cinfo.connected
-    assert cinfo.port is simple_canvas.box1.ports()[0], "port %s" % cinfo.port
+    assert cinfo.port is simple_canvas.box1.ports()[0], f"port {cinfo.port}"
     assert isinstance(cinfo.constraint, LineConstraint)
     # No default callback defined:
     assert cinfo.callback is None
