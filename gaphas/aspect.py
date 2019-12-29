@@ -3,12 +3,11 @@
 Aspects form intermediate items between tools and items.
 """
 import warnings
-
 from functools import singledispatch as real_singledispatch
 
 from gi.repository import Gdk
 
-from gaphas.item import Item, Element
+from gaphas.item import Element, Item
 
 
 def singledispatch(func):

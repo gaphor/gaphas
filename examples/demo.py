@@ -13,37 +13,32 @@ It sports a small canvas and some trivial operations:
  - Exports to SVG and PNG
 
 """
-
-import gi
-
-gi.require_version("Gtk", "3.0")
-
 import math
 
 import cairo
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-from gaphas import Canvas, GtkView, View
-from gaphas import state
-from gaphas.examples import Box, PortoBox, Text, FatLine, Circle
+import gaphas.picklers
+from gaphas import Canvas, GtkView, View, state
+from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
 from gaphas.freehand import FreeHandPainter
 from gaphas.item import Line
 from gaphas.painter import (
-    PainterChain,
-    ItemPainter,
-    HandlePainter,
-    FocusedItemPainter,
-    ToolPainter,
     BoundingBoxPainter,
+    FocusedItemPainter,
+    HandlePainter,
+    ItemPainter,
+    PainterChain,
+    ToolPainter,
 )
 from gaphas.segment import Segment
-from gaphas.tool import PlacementTool, HandleTool
+from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
 
-# painter.DEBUG_DRAW_BOUNDING_BOX = True
 
-# Ensure data gets picked well:
-import gaphas.picklers
+# painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Global undo list
 undo_list = []

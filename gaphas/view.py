@@ -1,14 +1,13 @@
 """This module contains everything to display a Canvas on a screen.
 
 """
-from gi.repository import GLib, GObject, Gdk, Gtk
 import cairo
+from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import Context, instant_cairo_context
-from gaphas.decorators import AsyncIO
-from gaphas.decorators import nonrecursive
+from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.geometry import Rectangle, distance_point_point_fast
-from gaphas.painter import DefaultPainter, BoundingBoxPainter
+from gaphas.painter import BoundingBoxPainter, DefaultPainter
 from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
 

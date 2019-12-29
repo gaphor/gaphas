@@ -7,7 +7,7 @@ import warnings
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
-from gaphas.solver import solvable, NORMAL
+from gaphas.solver import NORMAL, solvable
 from gaphas.state import observed, reversible_property
 
 

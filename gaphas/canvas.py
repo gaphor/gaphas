@@ -31,10 +31,8 @@ from collections import namedtuple
 
 import cairo
 
-from gaphas import solver
-from gaphas import table
-from gaphas import tree
-from gaphas.decorators import nonrecursive, AsyncIO
+from gaphas import solver, table, tree
+from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
 #

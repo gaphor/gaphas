@@ -17,12 +17,10 @@ set::
     gaphas.state.observers.add(gaphas.state.revert_handler)
 
 """
-from threading import Lock
-from types import MethodType
-
 from functools import update_wrapper
 from inspect import getfullargspec as _getargspec
-
+from threading import Lock
+from types import MethodType
 
 # This string is added to each docstring in order to denote is's observed
 # OBSERVED_DOCSTRING = \

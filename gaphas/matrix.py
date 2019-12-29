@@ -9,6 +9,7 @@ state preservation capabilities.
 """
 
 import cairo
+
 from gaphas.state import observed, reversible_method
 
 

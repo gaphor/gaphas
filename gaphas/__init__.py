@@ -39,8 +39,7 @@ import importlib_metadata
 
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle
-from gaphas.item import Item, Line, Element
-from gaphas.view import View, GtkView
-
+from gaphas.item import Element, Item, Line
+from gaphas.view import GtkView, View
 
 __version__ = importlib_metadata.version("gaphas")

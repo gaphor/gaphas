@@ -2,7 +2,6 @@
 
 from examples.demo import *
 
-
 if __name__ == "__main__":
     try:
         import cProfile

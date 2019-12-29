@@ -2,10 +2,10 @@
 Simple example items.
 These items are used in various tests.
 """
-from gaphas.connector import Handle, PointPort, LinePort, Position
-from gaphas.item import Element, Item, NW, NE, SW, SE
+from gaphas.connector import Handle, LinePort, PointPort, Position
+from gaphas.item import NE, NW, SE, SW, Element, Item
 from gaphas.solver import WEAK
-from gaphas.util import text_align, text_multiline, path_ellipse
+from gaphas.util import path_ellipse, text_align, text_multiline
 
 
 class Box(Element):

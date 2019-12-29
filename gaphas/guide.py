@@ -3,10 +3,16 @@ Module implements guides when moving items and handles around.
 """
 from functools import reduce
 
-from gaphas.aspect import singledispatch
-from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
-from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
-from gaphas.item import Item, Element, Line
+from gaphas.aspect import (
+    HandleInMotion,
+    InMotion,
+    ItemHandleInMotion,
+    ItemInMotion,
+    ItemPaintFocused,
+    PaintFocused,
+    singledispatch,
+)
+from gaphas.item import Element, Item, Line
 
 
 class ItemGuide:

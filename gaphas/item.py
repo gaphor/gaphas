@@ -3,20 +3,18 @@ Basic items.
 """
 from functools import reduce
 from math import atan2
-from weakref import WeakKeyDictionary
+from weakref import WeakKeyDictionary, WeakSet
 
-from weakref import WeakSet
-
-from gaphas.matrix import Matrix
-from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.connector import Handle, LinePort
-from gaphas.solver import solvable, WEAK, VERY_STRONG, REQUIRED
 from gaphas.constraint import (
     EqualsConstraint,
     LessThanConstraint,
-    LineConstraint,
     LineAlignConstraint,
+    LineConstraint,
 )
+from gaphas.geometry import distance_line_point, distance_rectangle_point
+from gaphas.matrix import Matrix
+from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
 from gaphas.state import (
     observed,
     reversible_method,

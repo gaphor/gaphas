@@ -18,7 +18,8 @@ as a Q-tree. All forms of Quadtrees share some common features:
 (From Wikipedia, the free encyclopedia)
 """
 import operator
-from gaphas.geometry import rectangle_contains, rectangle_intersects, rectangle_clip
+
+from gaphas.geometry import rectangle_clip, rectangle_contains, rectangle_intersects
 
 
 class Quadtree:

@@ -9,8 +9,8 @@ from gi.repository import Gtk
 
 from gaphas import Canvas, GtkView
 from gaphas.examples import Box
-from gaphas.painter import DefaultPainter
 from gaphas.item import Line
+from gaphas.painter import DefaultPainter
 from gaphas.segment import Segment
 
 

@@ -30,16 +30,16 @@ Tools can handle events in different ways
 - event can be ignored
 - tool can handle the event (obviously)
 """
-from gi.repository import Gtk, Gdk
+from gi.repository import Gdk, Gtk
 
 from gaphas.aspect import (
-    Finder,
-    Selection,
-    InMotion,
-    HandleFinder,
-    HandleSelection,
-    HandleInMotion,
     Connector,
+    Finder,
+    HandleFinder,
+    HandleInMotion,
+    HandleSelection,
+    InMotion,
+    Selection,
 )
 from gaphas.canvas import Context
 

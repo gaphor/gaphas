@@ -1,13 +1,19 @@
 """
 Allow for easily adding segments to lines.
 """
-from cairo import Matrix, ANTIALIAS_NONE
+from cairo import ANTIALIAS_NONE, Matrix
 
-from gaphas.aspect import singledispatch
-from gaphas.aspect import ConnectionSink
-from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
-from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
-from gaphas.geometry import distance_point_point_fast, distance_line_point
+from gaphas.aspect import (
+    ConnectionSink,
+    HandleFinder,
+    HandleSelection,
+    ItemHandleFinder,
+    ItemHandleSelection,
+    ItemPaintFocused,
+    PaintFocused,
+    singledispatch,
+)
+from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line
 
 
