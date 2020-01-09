@@ -1,8 +1,6 @@
 """Test segment aspects for items.
 
 """
-from __future__ import print_function
-
 import pytest
 
 from gaphas.canvas import Canvas
@@ -11,7 +9,7 @@ from gaphas.segment import *
 from gaphas.view import View
 
 
-class SegmentFixture(object):
+class SegmentFixture:
     def __init__(self):
         self.canvas = Canvas()
         self.line = Line()

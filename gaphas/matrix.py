@@ -7,19 +7,13 @@ Matrix
 Small utility class wrapping cairo.Matrix. The `Matrix` class adds
 state preservation capabilities.
 """
-from __future__ import absolute_import
-from __future__ import division
-
-from builtins import object
-
-__version__ = "$Revision$"
-# $HeadURL$
 
 import cairo
+
 from gaphas.state import observed, reversible_method
 
 
-class Matrix(object):
+class Matrix:
     """
     Matrix wrapper. This version sends @observed messages on state changes
 
@@ -99,4 +93,4 @@ class Matrix(object):
         return self._matrix.__rmul__(other)
 
     def __repr__(self):
-        return "Matrix(%g, %g, %g, %g, %g, %g)" % tuple(self._matrix)
+        return f"Matrix{tuple(self._matrix)}"

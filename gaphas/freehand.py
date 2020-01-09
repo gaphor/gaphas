@@ -10,15 +10,13 @@ Cairo context using Steve Hanov's freehand drawing code.
 See: http://stevehanov.ca/blog/index.php?id=33 and
      http://stevehanov.ca/blog/index.php?id=93
 """
-from __future__ import absolute_import
-
-from builtins import object
 from math import sqrt
 from random import Random
+
 from gaphas.painter import Context
 
 
-class FreeHandCairoContext(object):
+class FreeHandCairoContext:
 
     KAPPA = 0.5522847498
 
@@ -159,7 +157,7 @@ class FreeHandCairoContext(object):
             self.close_path()
 
 
-class FreeHandPainter(object):
+class FreeHandPainter:
     def __init__(self, subpainter, sloppiness=1.0, view=None):
         self.subpainter = subpainter
         self.view = view

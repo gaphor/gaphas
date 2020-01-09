@@ -17,24 +17,10 @@ set::
     gaphas.state.observers.add(gaphas.state.revert_handler)
 
 """
-
-import sys
-from builtins import zip
+from functools import update_wrapper
+from inspect import getfullargspec as _getargspec
 from threading import Lock
 from types import MethodType
-
-if sys.version_info.major >= 3:  # Modern Python
-    from functools import update_wrapper
-    from inspect import getfullargspec as _getargspec
-else:  # Legacy Python
-    from inspect import getargspec as _getargspec
-    import functools
-
-    def update_wrapper(wrapper, wrapped):
-        w = functools.update_wrapper(wrapper, wrapped)
-        w.__wrapped__ = wrapped
-        return w
-
 
 # This string is added to each docstring in order to denote is's observed
 # OBSERVED_DOCSTRING = \
@@ -167,9 +153,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
     if fset:
         spec = getargnames(fset)
         argnames = spec[0]
-        assert len(argnames) == 2, "Set argument {} has argnames {}".format(
-            fset, argnames
-        )
+        assert len(argnames) == 2, f"Set argument {fset} has argnames {argnames}"
 
         argself, argvalue = argnames
         func = getfunction(fset)
@@ -289,9 +273,4 @@ def getfunction(func):
     """
     Return the function associated with a class method.
     """
-    if isinstance(func, MethodType):
-        if sys.version_info.major >= 3:  # Modern Python
-            return func
-        else:  # Legacy Python
-            return func.__func__
     return func

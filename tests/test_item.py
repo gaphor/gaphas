@@ -11,7 +11,7 @@ from gaphas.item import Item
 from gaphas.solver import Variable
 
 
-class ItemPosition(object):
+class ItemPosition:
     def __init__(self):
         self.item = Item()
         self.pos1 = Variable(1), Variable(2)

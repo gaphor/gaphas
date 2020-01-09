@@ -2,13 +2,12 @@
 Basic connectors such as Ports and Handles.
 """
 
-from builtins import object
 import functools
 import warnings
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
-from gaphas.solver import solvable, NORMAL
+from gaphas.solver import NORMAL, solvable
 from gaphas.state import observed, reversible_property
 
 
@@ -17,7 +16,7 @@ def deprecated(message, since):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             warnings.warn(
-                "{}: {}".format(func.__name__, message),
+                f"{func.__name__}: {message}",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -28,7 +27,7 @@ def deprecated(message, since):
     return _deprecated
 
 
-class Position(object):
+class Position:
     """
     A point constructed of two `Variable`'s.
 
@@ -75,11 +74,7 @@ class Position(object):
         self._v_y = vy
 
     def __str__(self):
-        return "<%s object on (%g, %g)>" % (
-            self.__class__.__name__,
-            float(self.x),
-            float(self.y),
-        )
+        return f"<{self.__class__.__name__} object on ({self.x}, {self.y})>"
 
     __repr__ = __str__
 
@@ -96,7 +91,7 @@ class Position(object):
         return (self.x, self.y)[index]
 
 
-class Handle(object):
+class Handle:
     """
     Handles are used to support modifications of Items.
 
@@ -178,16 +173,12 @@ class Handle(object):
     visible = reversible_property(lambda s: s._visible, _set_visible)
 
     def __str__(self):
-        return "<%s object on (%g, %g)>" % (
-            self.__class__.__name__,
-            float(self._pos.x),
-            float(self._pos.y),
-        )
+        return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
 
     __repr__ = __str__
 
 
-class Port(object):
+class Port:
     """Port connectable part of an item.
 
     The Item's handle connects to a port.
@@ -195,7 +186,7 @@ class Port(object):
     """
 
     def __init__(self):
-        super(Port, self).__init__()
+        super().__init__()
 
         self._connectable = True
 
@@ -224,7 +215,7 @@ class LinePort(Port):
     """
 
     def __init__(self, start, end):
-        super(LinePort, self).__init__()
+        super().__init__()
 
         self.start = start
         self.end = end
@@ -259,7 +250,7 @@ class PointPort(Port):
     """
 
     def __init__(self, point):
-        super(PointPort, self).__init__()
+        super().__init__()
         self.point = point
 
     def glue(self, pos):

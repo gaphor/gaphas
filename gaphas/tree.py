@@ -2,14 +2,10 @@
 Simple class containing the tree structure for the canvas items.
 """
 
-from builtins import map
-from builtins import object
-from builtins import range
-
 from operator import attrgetter
 
 
-class Tree(object):
+class Tree:
     """
     A Tree structure. Nodes are stores in a depth-first order.
 
@@ -131,8 +127,7 @@ class Tree(object):
         children = self.get_children(node)
         for c in children:
             yield c
-            for cc in self.get_all_children(c):
-                yield cc
+            yield from self.get_all_children(c)
 
     def get_ancestors(self, node):
         """

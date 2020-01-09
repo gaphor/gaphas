@@ -21,7 +21,7 @@ older version of py-cairo is used.
 Copyright notice
 ================
 
-Copyright 2018 Arjan Molenaar & Dan Yeaw
+Copyright 2006-2020, Arjan Molenaar & Dan Yeaw
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,14 +35,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
-from __future__ import absolute_import
-
-__version__ = "$Revision$"
-# $HeadURL$
-
+import importlib_metadata
 
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle
-from gaphas.item import Item, Line, Element
-from gaphas.view import View, GtkView
+from gaphas.item import Element, Item, Line
+from gaphas.view import GtkView, View
+
+__version__ = importlib_metadata.version("gaphas")

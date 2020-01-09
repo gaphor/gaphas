@@ -1,12 +1,8 @@
-from __future__ import print_function
-
 import io
 import pickle
-from builtins import object
 
 import cairo
 import pytest
-from future import standard_library
 from gi.repository import Gtk
 
 from examples import demo
@@ -18,8 +14,6 @@ from gaphas.view import View, GtkView
 # Ensure extra pickle reducers/reconstructors are loaded:
 import gaphas.picklers
 
-standard_library.install_aliases()
-
 
 class MyPickler(pickle.Pickler):
     def save(self, obj, save_persistent_id=True):
@@ -30,7 +24,7 @@ class MyPickler(pickle.Pickler):
             raise e
 
 
-class MyDisconnect(object):
+class MyDisconnect:
     """Create a disconnect object.
 
     The disconnect object should be located at top-level, so the pickle code
@@ -42,7 +36,7 @@ class MyDisconnect(object):
         pass
 
 
-class CanvasFixture(object):
+class CanvasFixture:
     def __init__(self):
         self.canvas = Canvas()
         self.box = Box()

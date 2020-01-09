@@ -1,30 +1,30 @@
 """
 Allow for easily adding segments to lines.
 """
-from __future__ import division
+from cairo import ANTIALIAS_NONE, Matrix
 
-import sys
-from builtins import object
-from builtins import zip
-
-from cairo import Matrix, ANTIALIAS_NONE
-
-from gaphas.aspect import singledispatch
-from gaphas.aspect import ConnectionSink
-from gaphas.aspect import HandleFinder, HandleSelection, PaintFocused
-from gaphas.aspect import ItemHandleFinder, ItemHandleSelection, ItemPaintFocused
-from gaphas.geometry import distance_point_point_fast, distance_line_point
+from gaphas.aspect import (
+    ConnectionSink,
+    HandleFinder,
+    HandleSelection,
+    ItemHandleFinder,
+    ItemHandleSelection,
+    ItemPaintFocused,
+    PaintFocused,
+    singledispatch,
+)
+from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line
 
 
 @singledispatch
-class Segment(object):
+class Segment:
     def __init__(self, item, view):
         raise TypeError
 
 
 @Segment.register(Line)
-class LineSegment(object):
+class LineSegment:
     def __init__(self, item, view):
         self.item = item
         self.view = view
@@ -190,7 +190,7 @@ class SegmentHandleFinder(ItemHandleFinder):
                 handle = segment.split(pos)
 
         if not handle:
-            item, handle = super(SegmentHandleFinder, self).get_handle_at_point(pos)
+            item, handle = super().get_handle_at_point(pos)
         return item, handle
 
 

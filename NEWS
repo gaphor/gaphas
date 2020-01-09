@@ -1,3 +1,7 @@
+2.0.0
+-----
+- Drop support for Python 2.7
+
 1.1.2
 -----
 - Fix issue with placing popovers in the new

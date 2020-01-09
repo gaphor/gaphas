@@ -1,9 +1,6 @@
 """Test constraint solver.
 
 """
-from __future__ import division
-from __future__ import print_function
-
 from timeit import Timer
 
 import pytest
@@ -25,7 +22,7 @@ REPEAT = 30
 NUMBER = 1000
 
 
-class SolverFixture(object):
+class SolverFixture:
     def __init__(self):
         self.solver = Solver()
         self.a = Variable(1, 30)
@@ -139,4 +136,4 @@ c_eq.weakest()""",
 
     # Print the average of the best 10 runs:
     results.sort()
-    print("[Avg: %gms]" % (sum(results[:10]) / 10) * 1000)
+    print(f"[Avg: {(sum(results[:10]) / 10) * 1000}ms]")

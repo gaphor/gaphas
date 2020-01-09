@@ -30,21 +30,16 @@ Tools can handle events in different ways
 - event can be ignored
 - tool can handle the event (obviously)
 """
-from __future__ import division
-from __future__ import print_function
-
-from builtins import object
-
-from gi.repository import Gtk, Gdk
+from gi.repository import Gdk, Gtk
 
 from gaphas.aspect import (
-    Finder,
-    Selection,
-    InMotion,
-    HandleFinder,
-    HandleSelection,
-    HandleInMotion,
     Connector,
+    Finder,
+    HandleFinder,
+    HandleInMotion,
+    HandleSelection,
+    InMotion,
+    Selection,
 )
 from gaphas.canvas import Context
 
@@ -53,7 +48,7 @@ DEBUG_TOOL_CHAIN = False
 Event = Context
 
 
-class Tool(object):
+class Tool:
     """
     Base class for a tool. This class
     A word on click events:
@@ -147,7 +142,7 @@ class ToolChain(Tool):
     """
 
     def __init__(self, view=None):
-        super(ToolChain, self).__init__(view)
+        super().__init__(view)
         self._tools = []
         self._grabbed_tool = None
 
@@ -246,7 +241,7 @@ class ItemTool(Tool):
     """
 
     def __init__(self, view=None, buttons=(1,)):
-        super(ItemTool, self).__init__(view)
+        super().__init__(view)
         self._buttons = buttons
         self._movable_items = set()
 
@@ -332,7 +327,7 @@ class HandleTool(Tool):
     """
 
     def __init__(self, view=None):
-        super(HandleTool, self).__init__(view)
+        super().__init__(view)
         self.grabbed_handle = None
         self.grabbed_item = None
         self.motion_handle = None
@@ -436,7 +431,7 @@ class HandleTool(Tool):
 
 class RubberbandTool(Tool):
     def __init__(self, view=None):
-        super(RubberbandTool, self).__init__(view)
+        super().__init__(view)
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
 
     def on_button_press(self, event):
@@ -492,7 +487,7 @@ class PanTool(Tool):
     """
 
     def __init__(self, view=None):
-        super(PanTool, self).__init__(view)
+        super().__init__(view)
         self.x0, self.y0 = 0, 0
         self.speed = 10
 
@@ -556,7 +551,7 @@ class ZoomTool(Tool):
     """
 
     def __init__(self, view=None):
-        super(ZoomTool, self).__init__(view)
+        super().__init__(view)
         self.x0, self.y0 = 0, 0
         self.lastdiff = 0
 
@@ -627,7 +622,7 @@ class ZoomTool(Tool):
 
 class PlacementTool(Tool):
     def __init__(self, view, factory, handle_tool, handle_index):
-        super(PlacementTool, self).__init__(view)
+        super().__init__(view)
         self._factory = factory
         self.handle_tool = handle_tool
         handle_tool.set_view(view)
@@ -688,7 +683,7 @@ class TextEditTool(Tool):
     """
 
     def __init__(self, view=None):
-        super(TextEditTool, self).__init__(view)
+        super().__init__(view)
 
     def on_double_click(self, event):
         """
@@ -787,7 +782,7 @@ class ConnectHandleTool(HandleTool):
                 pos = event.get_coords()[1:]
                 self.connect(item, handle, pos)
         finally:
-            return super(ConnectHandleTool, self).on_button_release(event)
+            return super().on_button_release(event)
 
 
 def DefaultTool(view=None):

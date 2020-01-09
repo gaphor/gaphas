@@ -26,21 +26,13 @@ To get connecting items (i.e. all lines connected to a class)::
     lines = (c.item for c in canvas.get_connections(connected=item))
 
 """
-from __future__ import absolute_import
-
 import logging
-from builtins import map
-from builtins import next
-from builtins import object
-from builtins import range
 from collections import namedtuple
 
 import cairo
 
-from gaphas import solver
-from gaphas import table
-from gaphas import tree
-from gaphas.decorators import nonrecursive, AsyncIO
+from gaphas import solver, table, tree
+from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
 #
@@ -63,7 +55,7 @@ class ConnectionError(Exception):
     """
 
 
-class Context(object):
+class Context:
     """
     Context used for updating and drawing items in a drawing canvas.
 
@@ -92,7 +84,7 @@ def instant_cairo_context():
     return cairo.Context(surface)
 
 
-class Canvas(object):
+class Canvas:
     """
     Container class for items.
     """
@@ -123,7 +115,7 @@ class Canvas(object):
         >>> i._canvas is c
         True
         """
-        assert item not in self._tree.nodes, "Adding already added node %s" % item
+        assert item not in self._tree.nodes, f"Adding already added node {item}"
         self._tree.add(item, parent, index)
         self._dirty_index = True
 
@@ -333,7 +325,7 @@ class Canvas(object):
         """
         if self.get_connection(handle):
             raise ConnectionError(
-                "Handle %r of item %r is already connected" % (handle, item)
+                f"Handle {handle} of item {item} is already connected"
             )
 
         self._connections.insert(item, handle, connected, port, constraint, callback)
@@ -430,7 +422,7 @@ class Canvas(object):
         cinfo = self.get_connection(handle)
         if not cinfo:
             raise ValueError(
-                'No data available for item "%s" and handle "%s"' % (item, handle)
+                f'No data available for item "{item}" and handle "{handle}"'
             )
 
         if cinfo.constraint:
@@ -683,17 +675,16 @@ class Canvas(object):
             self.update_constraints(dirty_matrix_items)
 
             # no matrix can change during constraint solving
-            assert not self._dirty_matrix_items, (
-                "No matrices may have been marked dirty (%s)"
-                % (self._dirty_matrix_items,)
-            )
+            assert (
+                not self._dirty_matrix_items
+            ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
 
             # item's can be marked dirty due to external constraints solving
             extend_dirty_items(dirty_items)
 
-            assert not self._dirty_items, "No items may have been marked dirty (%s)" % (
-                self._dirty_items,
-            )
+            assert (
+                not self._dirty_items
+            ), f"No items may have been marked dirty {self._dirty_items}"
 
             # normalize items, which changed after constraint solving;
             # store those items, whose matrices changed
@@ -708,9 +699,9 @@ class Canvas(object):
             # item's can be marked dirty due to normalization and solving
             extend_dirty_items(dirty_items)
 
-            assert not self._dirty_items, "No items may have been marked dirty (%s)" % (
-                self._dirty_items,
-            )
+            assert (
+                not self._dirty_items
+            ), f"No items may have been marked dirty ({self._dirty_items})"
 
             self._post_update_items(dirty_items, cr)
 
@@ -719,7 +710,7 @@ class Canvas(object):
 
         assert (
             len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0
-        ), "dirty: %s; matrix: %s" % (self._dirty_items, self._dirty_matrix_items)
+        ), f"dirty: {self._dirty_items}; matrix: {self._dirty_matrix_items}"
 
         self._update_views(dirty_items, dirty_matrix_items)
 
@@ -937,7 +928,7 @@ class VariableProjection(solver.Projection):
         return self._var
 
 
-class CanvasProjection(object):
+class CanvasProjection:
     """
     Project a point as Canvas coordinates.  Although this is a
     projection, it behaves like a tuple with two Variables

@@ -1,20 +1,21 @@
 """
 Module implements guides when moving items and handles around.
 """
-from __future__ import division
-
-import sys
-from builtins import map
-from builtins import object
 from functools import reduce
 
-from gaphas.aspect import singledispatch
-from gaphas.aspect import InMotion, HandleInMotion, PaintFocused
-from gaphas.aspect import ItemInMotion, ItemHandleInMotion, ItemPaintFocused
-from gaphas.item import Item, Element, Line
+from gaphas.aspect import (
+    HandleInMotion,
+    InMotion,
+    ItemHandleInMotion,
+    ItemInMotion,
+    ItemPaintFocused,
+    PaintFocused,
+    singledispatch,
+)
+from gaphas.item import Element, Item, Line
 
 
-class ItemGuide(object):
+class ItemGuide:
     """
     Get edges on an item, on which we can align the items.
     """
@@ -84,7 +85,7 @@ class LineGuide(ItemGuide):
                         yield h.pos.x
 
 
-class Guides(object):
+class Guides:
     def __init__(self, v, h):
         self.v = v
         self.h = h
@@ -96,7 +97,7 @@ class Guides(object):
         return self.h
 
 
-class GuideMixin(object):
+class GuideMixin:
     """
     Helper methods for guides.
     """
@@ -234,7 +235,7 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
         newpos = px + dx, py + dy
 
         # Call super class, with new position
-        sink = super(GuidedItemInMotion, self).move(newpos)
+        sink = super().move(newpos)
 
         self.queue_draw_guides()
 
@@ -263,7 +264,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
     def move(self, pos):
 
-        sink = super(GuidedItemHandleInMotion, self).move(pos)
+        sink = super().move(pos)
 
         if not sink:
             item = self.item

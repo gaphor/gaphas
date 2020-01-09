@@ -7,13 +7,10 @@ intersections).
 A point is represented as a tuple `(x, y)`.
 
 """
-from __future__ import division
-
-from builtins import object
 from math import sqrt
 
 
-class Rectangle(object):
+class Rectangle:
     """
     Python Rectangle implementation. Rectangles can be added (union),
     substituted (intersection) and points and rectangles can be tested
@@ -94,14 +91,8 @@ class Rectangle(object):
         Rectangle(5, 7, 20, 25)
         """
         if self:
-            return "%s(%g, %g, %g, %g)" % (
-                self.__class__.__name__,
-                self.x,
-                self.y,
-                self.width,
-                self.height,
-            )
-        return "%s()" % self.__class__.__name__
+            return f"({self.__class__.__name__}, {self.x}, {self.y}, {self.width}, {self.height})"
+        return f"{self.__class__.__name__}()"
 
     def __iter__(self):
         """
@@ -167,8 +158,7 @@ class Rectangle(object):
             x, y, width, height = obj
         except ValueError:
             raise TypeError(
-                "Can only add Rectangle or tuple (x, y, width, height), not %s."
-                % repr(obj)
+                f"Can only add Rectangle or tuple (x, y, width, height), not {repr(obj)}."
             )
         x1, y1 = x + width, y + height
         if self:
@@ -210,8 +200,7 @@ class Rectangle(object):
             x, y, width, height = obj
         except ValueError:
             raise TypeError(
-                "Can only substract Rectangle or tuple (x, y, width, height), not %s."
-                % repr(obj)
+                f"Can only substract Rectangle or tuple (x, y, width, height), not {repr(obj)}."
             )
         x1, y1 = x + width, y + height
 
@@ -263,8 +252,7 @@ class Rectangle(object):
                 x1, y1 = obj
             except ValueError:
                 raise TypeError(
-                    "Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not %s."
-                    % repr(obj)
+                    f"Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not {repr(obj)}."
                 )
         return x >= self.x and x1 <= self.x1 and y >= self.y and y1 <= self.y1
 
@@ -273,7 +261,7 @@ def distance_point_point(point1, point2=(0.0, 0.0)):
     """
     Return the distance from point ``point1`` to ``point2``.
 
-    >>> '%.3f' % distance_point_point((0,0), (1,1))
+    >>> f"{distance_point_point((0,0), (1,1))}:.3f"
     '1.414'
     """
     dx = point1[0] - point2[0]
@@ -404,9 +392,9 @@ def distance_line_point(line_start, line_end, point):
     >>> distance_line_point((0., 0.), (2., 4.), point=(1., 2.))
     (0.0, (1.0, 2.0))
     >>> d, p = distance_line_point((0., 0.), (2., 4.), point=(2., 2.))
-    >>> '%.3f' % d
+    >>> f"{d:.3f}"
     '0.894'
-    >>> '(%.3f, %.3f)' % p
+    >>> f"({p:.3f}, {p:.3f}"
     '(1.200, 2.400)'
     """
     # The original end point:

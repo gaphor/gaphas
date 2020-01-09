@@ -1,20 +1,13 @@
 """This module contains everything to display a Canvas on a screen.
 
 """
-from __future__ import absolute_import
-from __future__ import division
-
-from builtins import map
-from builtins import object
-
-from gi.repository import GLib, GObject, Gdk, Gtk
 import cairo
+from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import Context, instant_cairo_context
-from gaphas.decorators import AsyncIO
-from gaphas.decorators import nonrecursive
+from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.geometry import Rectangle, distance_point_point_fast
-from gaphas.painter import DefaultPainter, BoundingBoxPainter
+from gaphas.painter import BoundingBoxPainter, DefaultPainter
 from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
 
@@ -26,7 +19,7 @@ DEBUG_DRAW_QUADTREE = False
 DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
-class View(object):
+class View:
     """
     View class for gaphas.Canvas objects.
     """
@@ -227,7 +220,7 @@ class View(object):
             ix, iy = v2i.transform_point(*pos)
             item_distance = item.point((ix, iy))
             if item_distance is None:
-                print("Item distance is None for {}".format(item))
+                print(f"Item distance is None for {item}")
                 continue
             if item_distance < 0.5:
                 return item
@@ -548,7 +541,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif prop.name == "vscroll-policy":
             return self._vscroll_policy
         else:
-            raise AttributeError("Unknown property %s" % prop.name)
+            raise AttributeError(f"Unknown property {prop.name}")
 
     def do_set_property(self, prop, value):
         if prop.name == "hadjustment":
@@ -570,7 +563,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         elif prop.name == "vscroll-policy":
             self._vscroll_policy = value
         else:
-            raise AttributeError("Unknown property %s" % prop.name)
+            raise AttributeError(f"Unknown property {prop.name}")
 
     def emit(self, *args, **kwargs):
         """
@@ -589,7 +582,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._clear_matrices()
             self._canvas.unregister_view(self)
 
-        super(GtkView, self)._set_canvas(canvas)
+        super()._set_canvas(canvas)
 
         if self._canvas:
             self._canvas.register_view(self)
@@ -616,7 +609,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         Zoom in/out by factor ``factor``.
         """
-        super(GtkView, self).zoom(factor)
+        super().zoom(factor)
         self.queue_draw_refresh()
 
     @AsyncIO(single=True)
@@ -774,7 +767,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
         try:
-            super(GtkView, self).update_bounding_box(cr, items)
+            super().update_bounding_box(cr, items)
         finally:
             cr.restore()
 

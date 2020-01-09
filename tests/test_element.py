@@ -1,5 +1,4 @@
 import pytest
-from builtins import range
 from os import getenv
 
 from gaphas.canvas import Canvas
@@ -7,7 +6,7 @@ from gaphas.examples import Box
 from gaphas.item import NW, NE, SE, SW
 
 
-class CanvasBox(object):
+class CanvasBox:
     def __init__(self):
         self.canvas = Canvas()
         self.box = Box()

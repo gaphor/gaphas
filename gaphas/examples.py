@@ -2,13 +2,10 @@
 Simple example items.
 These items are used in various tests.
 """
-from __future__ import absolute_import
-from __future__ import division
-
-from gaphas.connector import Handle, PointPort, LinePort, Position
-from gaphas.item import Element, Item, NW, NE, SW, SE
+from gaphas.connector import Handle, LinePort, PointPort, Position
+from gaphas.item import NE, NW, SE, SW, Element, Item
 from gaphas.solver import WEAK
-from gaphas.util import text_align, text_multiline, path_ellipse
+from gaphas.util import path_ellipse, text_align, text_multiline
 
 
 class Box(Element):
@@ -18,7 +15,7 @@ class Box(Element):
     """
 
     def __init__(self, width=10, height=10):
-        super(Box, self).__init__(width, height)
+        super().__init__(width, height)
 
     def draw(self, context):
         c = context.cairo
@@ -54,7 +51,7 @@ class PortoBox(Box):
     """
 
     def __init__(self, width=10, height=10):
-        super(PortoBox, self).__init__(width, height)
+        super().__init__(width, height)
 
         # disable default ports
         for p in self._ports:
@@ -89,7 +86,7 @@ class PortoBox(Box):
         self._ports.append(self._lport)
 
     def draw(self, context):
-        super(PortoBox, self).draw(context)
+        super().draw(context)
         c = context.cairo
 
         if context.hovered:
@@ -124,7 +121,7 @@ class Text(Item):
     """
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
-        super(Text, self).__init__()
+        super().__init__()
         self.text = text is None and "Hello" or text
         self.plain = plain
         self.multiline = multiline
@@ -152,7 +149,7 @@ class FatLine(Item):
     """
 
     def __init__(self):
-        super(FatLine, self).__init__()
+        super().__init__()
         self._handles.extend((Handle(), Handle()))
 
         h1, h2 = self._handles
@@ -183,7 +180,7 @@ class FatLine(Item):
 
 class Circle(Item):
     def __init__(self):
-        super(Circle, self).__init__()
+        super().__init__()
         self._handles.extend((Handle(), Handle()))
 
     def _set_radius(self, r):
@@ -199,7 +196,7 @@ class Circle(Item):
     radius = property(_get_radius, _set_radius)
 
     def setup_canvas(self):
-        super(Circle, self).setup_canvas()
+        super().setup_canvas()
         h1, h2 = self._handles
         h1.movable = False
 

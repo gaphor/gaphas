@@ -1,10 +1,7 @@
 """
 Custom decorators.
 """
-from __future__ import print_function
-
 import threading
-from builtins import object
 
 import gi
 
@@ -14,7 +11,7 @@ from gi.repository import Gtk, GLib
 DEBUG_ASYNC = False
 
 
-class AsyncIO(object):
+class AsyncIO:
     """
     Instead of calling the function, schedule an idle handler at a
     given priority. This requires the async'ed method to be called
@@ -113,7 +110,7 @@ class AsyncIO(object):
         return s
 
     def __call__(self, func):
-        async_id = "_async_id_%s" % func.__name__
+        async_id = f"_async_id_{func.__name__}"
 
         def wrapper(*args, **kwargs):
             global getattr, setattr, delattr
@@ -179,7 +176,7 @@ def nonrecursive(func):
     return wrapper
 
 
-class recursive(object):
+class recursive:
     """
     This decorator limits the recursion for a specific function
 
