@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -48,4 +51,4 @@ jobs:
         with:
           files: 'dist/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ github.ref }}
+          release-tag: ${{ steps.get_version.outputs.VERSION }}
