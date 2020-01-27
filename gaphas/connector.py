@@ -48,7 +48,6 @@ class Position:
         self.x.strength = strength
         self.y.strength = strength
 
-    @observed
     def _set_pos(self, pos):
         """
         Set handle position (Item coordinates).
