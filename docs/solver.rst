@@ -33,5 +33,4 @@ When a constraint contains projections, it is most likely that this constraint c
 
 ------
 
-The Solver can be found at: http://github.com/amolenaar/gaphas/trees/blobs/gaphas/solver.py, along with Variables and Projections.
-
+The Solver can be found at: https://github.com/gaphor/gaphas/blob/master/gaphas/solver.py, along with Variables and Projections.

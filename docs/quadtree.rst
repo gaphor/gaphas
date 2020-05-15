@@ -52,7 +52,7 @@ Methods working on the quadtree itself:
 Implementation
 --------------
 
-The implementation of gaphas' Quadtree can be found at http://github.com/amolenaar/gaphas/trees/blob/gaphas/quadtree.py.
+The implementation of gaphas' Quadtree can be found at https://github.com/gaphor/gaphas/blob/master/gaphas/quadtree.py.
 
 Here's an example of the Quadtree in action (Gaphas' demo app with `gaphas.view.DEBUG_DRAW_QUADTREE` enabled):
 
@@ -75,5 +75,5 @@ http://www.pygame.org/wiki/QuadTree?parent=CookBook
 (PythonCAD)
 http://www.koders.com/python/fidB93B4D02B1C4E9F90F351736873DF6BE4D8D5783.aspx
 
-.. _Quadtrees: http://en.wikipedia.org/wiki/Quadtree 
-.. _R-trees: http://en.wikipedia.org/wiki/R-tree 
+.. _Quadtrees: http://en.wikipedia.org/wiki/Quadtree
+.. _R-trees: http://en.wikipedia.org/wiki/R-tree
