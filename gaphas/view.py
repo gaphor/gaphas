@@ -454,7 +454,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     # Just defined a name to make GTK register this class.
     __gtype_name__ = "GaphasView"
 
-    # Signals: emited after the change takes effect.
+    # Signals: emitted after the change takes effect.
     __gsignals__ = {
         "dropzone-changed": (
             GObject.SignalFlags.RUN_LAST,

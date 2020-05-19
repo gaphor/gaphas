@@ -641,7 +641,7 @@ class Canvas:
     @nonrecursive
     def update_now(self):
         """
-        Peform an update of the items that requested an update.
+        Perform an update of the items that requested an update.
         """
 
         if self._dirty_index:

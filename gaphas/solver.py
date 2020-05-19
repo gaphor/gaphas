@@ -568,7 +568,7 @@ class Solver:
                     if not found:
                         break  # quit for loop, variable not in constraint
                 else:
-                    # All iteration have completed succesfully,
+                    # All iteration have completed successfully,
                     # so all variables are in the constraint
                     yield c
 

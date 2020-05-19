@@ -4,7 +4,7 @@ Gaphas
 
 Gaphor's Canvas.
 
-This module contains the application independant parts of Gaphor's
+This module contains the application independent parts of Gaphor's
 Canvas.
 
 Notes
