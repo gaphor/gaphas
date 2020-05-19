@@ -1,7 +1,7 @@
 Constraint Solver
 =================
 
-Gaphas' constraint solver can be consider the hart of the Canvas (The Canvas instance holds and orders the items that are drawn on it and in the end will be displayed to the user).
+Gaphas' constraint solver can be consider the heart of the Canvas (The Canvas instance holds and orders the items that are drawn on it and in the end will be displayed to the user).
 
 The constraint solver ('solver' for short) is called during the update of the canvas.
 

@@ -35,7 +35,7 @@ There is a lot of behaviour possible and it can depend on the kind of diagrams t
 
 To organize the event sequences and keep some order in what the user is doing Tools are used. Tools define what has to happen (find a handle nearly the mouse cursor, move an item).
 
-Gaphas contains a set of default tools. Each tool is ment to deal with a special part of the view. A list of responsibilities is also defined here:
+Gaphas contains a set of default tools. Each tool is meant to deal with a special part of the view. A list of responsibilities is also defined here:
 
 :HoverTool:
   First thing a user wants to know is if the mouse cursor is over an item. The ``HoverTool`` makes that explicit.
