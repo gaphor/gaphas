@@ -369,7 +369,7 @@ def test_orthogonal_line_merge(simple_canvas):
     """Test orthogonal line merging.
 
     """
-    assert 4 == len(simple_canvas.canvas.solver._constraints)
+    assert 12 == len(simple_canvas.canvas.solver._constraints)
 
     simple_canvas.line.handles()[-1].pos = 100, 100
 
@@ -379,14 +379,14 @@ def test_orthogonal_line_merge(simple_canvas):
     segment.split_segment(0)
     simple_canvas.line.orthogonal = True
 
-    assert 4 + 3 == len(simple_canvas.canvas.solver._constraints)
+    assert 6 + 6 + 3 == len(simple_canvas.canvas.solver._constraints)
     assert 4 == len(simple_canvas.line.handles())
     assert 3 == len(simple_canvas.line.ports())
 
     # Test the merging
     segment.merge_segment(0)
 
-    assert 4 + 2 == len(simple_canvas.canvas.solver._constraints)
+    assert 6 + 6 + 2 == len(simple_canvas.canvas.solver._constraints)
     assert 3 == len(simple_canvas.line.handles())
     assert 2 == len(simple_canvas.line.ports())
 
