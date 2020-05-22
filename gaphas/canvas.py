@@ -28,6 +28,7 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 import logging
 from collections import namedtuple
+from operator import attrgetter
 
 import cairo
 
@@ -524,7 +525,7 @@ class Canvas:
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return self._tree.sort(items, index_key="_canvas_index", reverse=reverse)
+        return sorted(items, key=attrgetter("_canvas_index"), reverse=reverse)
 
     def get_matrix_i2c(self, item, calculate=False):
         """

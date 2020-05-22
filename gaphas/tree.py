@@ -2,8 +2,6 @@
 Simple class containing the tree structure for the canvas items.
 """
 
-from operator import attrgetter
-
 
 class Tree:
     """
@@ -171,38 +169,10 @@ class Tree:
         >>> t.index_nodes('my_key')
         >>> t.nodes[0].my_key, t.nodes[1].my_key, t.nodes[2].my_key
         (0, 1, 2)
-
-        For sorting, see ``sort()``.
         """
         nodes = self.nodes
         lnodes = len(nodes)
         list(map(setattr, nodes, [index_key] * lnodes, list(range(lnodes))))
-
-    def sort(self, nodes, index_key, reverse=False):
-        """
-        Sort a set (or list) of nodes.
-
-        >>> class A(object):
-        ...     def __init__(self, n):
-        ...         self.n = n
-        ...     def __repr__(self):
-        ...         return self.n
-        >>> t = Tree()
-        >>> a = A('a')
-        >>> t.add(a)
-        >>> t.add(A('b'))
-        >>> t.add(A('c'), parent=a)
-        >>> t.nodes    # the series from Tree.index_nodes
-        [a, c, b]
-        >>> t.index_nodes('my_key')
-        >>> selection = (t.nodes[2], t.nodes[1])
-        >>> t.sort(selection, index_key='my_key')
-        [c, b]
-        """
-        if index_key:
-            return sorted(nodes, key=attrgetter(index_key), reverse=reverse)
-        else:
-            raise NotImplemented("index_key should be provided.")
 
     def _add_to_nodes(self, node, parent, index=None):
         """
