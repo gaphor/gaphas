@@ -176,7 +176,6 @@ The view context passed to the Items draw() method has the following properties:
 - focused - True if the item has the focus
 - hovered - True if the mouse pointer if over the item. Only the top-most item is marked as hovered.
 - dropzone - The item is marked as the drop zone. When this happens then an item is dragged over the item, and if it is     dropped, it will become a child of this item.
-- draw_all - True if everything drawable on the item should be drawn, for example, when calculating the bounding boxes of   an item.
 
 The View automatically calculates the bounding box for the item, based on the items drawn in the draw (context) function (this is only done when really necessary, e.g., after an update of the item). The bounding box is in viewport coordinates.
 
@@ -402,7 +401,6 @@ DrawContext(
     focused=(item is view.focused_item),
     hovered=(item is view.hovered_item),
     dropzone=(item is view.dropzone_item),
-    draw_all=self.draw_all,
 )
 ```
 
