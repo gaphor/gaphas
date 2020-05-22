@@ -428,7 +428,7 @@ cairo = CairoBoundingBoxContext(cairo)
 A type of ItemPainter which is used to calculate the bounding boxes (in canvas coordinates) for the items.
 
 ```python
-view.bounding_box_painter = BoundingBoxPainter()
+view.bounding_box_painter = BoundingBoxPainter(ItemPainter())
 ```
 
 #### Class: `gaphas.painter.HandlePainter`

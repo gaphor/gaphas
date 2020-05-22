@@ -86,7 +86,7 @@ class DrawContext(Context):
 
 
 class ItemPainter(Painter):
-    def _draw_item(self, item, cairo, area=None):
+    def draw_item(self, item, cairo, area=None):
         view = self.view
         cairo.save()
         try:
@@ -109,12 +109,12 @@ class ItemPainter(Painter):
         finally:
             cairo.restore()
 
-    def _draw_items(self, items, cairo, area=None):
+    def draw_items(self, items, cairo, area=None):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, cairo, area=area)
+            self.draw_item(item, cairo, area=area)
             if DEBUG_DRAW_BOUNDING_BOX:
                 self._draw_bounds(item, cairo)
 
@@ -137,7 +137,7 @@ class ItemPainter(Painter):
         cairo = context.cairo
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-        self._draw_items(context.items, cairo, context.area)
+        self.draw_items(context.items, cairo, context.area)
 
 
 class CairoBoundingBoxContext:
@@ -236,15 +236,23 @@ class CairoBoundingBoxContext:
         cr.show_text(utf8)
 
 
-class BoundingBoxPainter(ItemPainter):
+class BoundingBoxPainter(Painter):
     """
     This specific case of an ItemPainter is used to calculate the
     bounding boxes (in canvas coordinates) for the items.
     """
 
-    def _draw_item(self, item, cairo, area=None):
+    def __init__(self, item_painter, view=None):
+        super().__init__(view)
+        self.item_painter = item_painter
+
+    def set_view(self, view):
+        super().set_view(view)
+        self.item_painter.set_view(view)
+
+    def draw_item(self, item, cairo, area=None):
         cairo = CairoBoundingBoxContext(cairo)
-        super()._draw_item(item, cairo)
+        self.item_painter.draw_item(item, cairo)
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.
@@ -257,15 +265,15 @@ class BoundingBoxPainter(ItemPainter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def _draw_items(self, items, cairo, area=None):
+    def draw_items(self, items, cairo, area=None):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, cairo)
+            self.draw_item(item, cairo)
 
     def paint(self, context):
-        self._draw_items(context.items, context.cairo)
+        self.draw_items(context.items, context.cairo)
 
 
 class HandlePainter(Painter):
