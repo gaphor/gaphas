@@ -86,7 +86,7 @@ class DrawContext(Context):
 
 
 class ItemPainter(Painter):
-    def draw_item(self, item, cairo, area=None):
+    def draw_item(self, item, cairo):
         view = self.view
         cairo.save()
         try:
@@ -97,7 +97,6 @@ class ItemPainter(Painter):
                 DrawContext(
                     painter=self,
                     cairo=cairo,
-                    _area=area,
                     _item=item,
                     selected=(item in view.selected_items),
                     focused=(item is view.focused_item),
@@ -109,12 +108,12 @@ class ItemPainter(Painter):
         finally:
             cairo.restore()
 
-    def draw_items(self, items, cairo, area=None):
+    def draw_items(self, items, cairo):
         """
         Draw the items.
         """
         for item in items:
-            self.draw_item(item, cairo, area=area)
+            self.draw_item(item, cairo)
             if DEBUG_DRAW_BOUNDING_BOX:
                 self._draw_bounds(item, cairo)
 
@@ -137,7 +136,7 @@ class ItemPainter(Painter):
         cairo = context.cairo
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-        self.draw_items(context.items, cairo, context.area)
+        self.draw_items(context.items, cairo)
 
 
 class CairoBoundingBoxContext:
@@ -250,7 +249,7 @@ class BoundingBoxPainter(Painter):
         super().set_view(view)
         self.item_painter.set_view(view)
 
-    def draw_item(self, item, cairo, area=None):
+    def draw_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
         self.item_painter.draw_item(item, cairo)
         bounds = cairo.get_bounds()
@@ -265,7 +264,7 @@ class BoundingBoxPainter(Painter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def draw_items(self, items, cairo, area=None):
+    def draw_items(self, items, cairo):
         """
         Draw the items.
         """

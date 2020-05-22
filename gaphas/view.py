@@ -387,7 +387,7 @@ class View:
             items = self.canvas.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
-        painter.paint(Context(cairo=cr, items=items, area=None))
+        painter.paint(Context(cairo=cr, items=items))
 
         # Update the view's bounding box with the rest of the items
         self._bounds = Rectangle(*self._qtree.soft_bounds)
@@ -793,7 +793,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 (0, 0, allocation.width, allocation.height)
             )
 
-            self.painter.paint(Context(cairo=cr, items=items, area=None))
+            self.painter.paint(Context(cairo=cr, items=items))
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 cr.save()

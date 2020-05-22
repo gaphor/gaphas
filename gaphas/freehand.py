@@ -171,6 +171,5 @@ class FreeHandPainter:
         subcontext = Context(
             cairo=FreeHandCairoContext(context.cairo, self.sloppiness),
             items=context.items,
-            area=context.area,
         )
         self.subpainter.paint(subcontext)
