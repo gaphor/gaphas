@@ -622,15 +622,13 @@ class Canvas:
         """
         self.update_now()
 
-    def _pre_update_items(self, items, cr):
-        c = Context(cairo=cr)
+    def _pre_update_items(self, items, context):
         for item in items:
-            item.pre_update(c)
+            item.pre_update(context)
 
-    def _post_update_items(self, items, cr):
-        c = Context(cairo=cr)
+    def _post_update_items(self, items, context):
         for item in items:
-            item.post_update(c)
+            item.post_update(context)
 
     def _extend_dirty_items(self, dirty_items):
         # item's can be marked dirty due to external constraints solving
@@ -664,11 +662,11 @@ class Canvas:
         self._dirty_items.clear()
 
         try:
-            cr = instant_cairo_context()
+            context = Context(cairo=instant_cairo_context())
 
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
-            self._pre_update_items(dirty_items, cr)
+            self._pre_update_items(dirty_items, context)
 
             # recalculate matrices
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
@@ -705,7 +703,7 @@ class Canvas:
                 not self._dirty_items
             ), f"No items may have been marked dirty ({self._dirty_items})"
 
-            self._post_update_items(dirty_items, cr)
+            self._post_update_items(dirty_items, context)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
