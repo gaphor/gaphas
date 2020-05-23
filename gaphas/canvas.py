@@ -630,37 +630,23 @@ class Canvas:
         for item in items:
             item.post_update(context)
 
-    def _extend_dirty_items(self, dirty_items):
-        # item's can be marked dirty due to external constraints solving
-        if self._dirty_items:
-            dirty_items.extend(self._dirty_items)
-            self._dirty_items.clear()
-
-            return self.sort(dirty_items, reverse=True)
-        return dirty_items
-
     @nonrecursive
     def update_now(self):
         """
         Perform an update of the items that requested an update.
         """
+        sort = self.sort
 
         if self._dirty_index:
             self.update_index()
             self._dirty_index = False
 
-        sort = self.sort
-        extend_dirty_items = self._extend_dirty_items
+        def dirty_items_with_ancestors():
+            for item in self._dirty_items:
+                yield item
+                yield from self._tree.get_ancestors(item)
 
-        # perform update requests for parents of dirty items
-        dirty_items = self._dirty_items
-        for item in set(dirty_items):
-            dirty_items.update(self._tree.get_ancestors(item))
-
-        # order the dirty items, so they are updated bottom to top
-        dirty_items = sort(self._dirty_items, reverse=True)
-
-        self._dirty_items.clear()
+        dirty_items = sort(dirty_items_with_ancestors(), reverse=True)
 
         try:
             context = Context(cairo=instant_cairo_context())
@@ -681,7 +667,8 @@ class Canvas:
             ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
 
             # item's can be marked dirty due to external constraints solving
-            dirty_items = extend_dirty_items(dirty_items)
+            if len(dirty_items) != len(self._dirty_items):
+                dirty_items = sort(self._dirty_items, reverse=True)
 
             # normalize items, which changed after constraint solving;
             # store those items, whose matrices changed
@@ -694,7 +681,10 @@ class Canvas:
             self._solver.solve()
 
             # item's can be marked dirty due to normalization and solving
-            dirty_items = extend_dirty_items(dirty_items)
+            if len(dirty_items) != len(self._dirty_items):
+                dirty_items = sort(self._dirty_items, reverse=True)
+
+            self._dirty_items.clear()
 
             self._post_update_items(dirty_items, context)
 
