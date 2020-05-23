@@ -636,7 +636,8 @@ class Canvas:
             dirty_items.extend(self._dirty_items)
             self._dirty_items.clear()
 
-            dirty_items = self.sort(set(dirty_items), reverse=True)
+            return self.sort(dirty_items, reverse=True)
+        return dirty_items
 
     @nonrecursive
     def update_now(self):
@@ -680,11 +681,7 @@ class Canvas:
             ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
 
             # item's can be marked dirty due to external constraints solving
-            extend_dirty_items(dirty_items)
-
-            assert (
-                not self._dirty_items
-            ), f"No items may have been marked dirty {self._dirty_items}"
+            dirty_items = extend_dirty_items(dirty_items)
 
             # normalize items, which changed after constraint solving;
             # store those items, whose matrices changed
@@ -697,11 +694,7 @@ class Canvas:
             self._solver.solve()
 
             # item's can be marked dirty due to normalization and solving
-            extend_dirty_items(dirty_items)
-
-            assert (
-                not self._dirty_items
-            ), f"No items may have been marked dirty ({self._dirty_items})"
+            dirty_items = extend_dirty_items(dirty_items)
 
             self._post_update_items(dirty_items, context)
 
