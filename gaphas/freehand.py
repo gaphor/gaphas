@@ -120,30 +120,6 @@ class FreeHandCairoContext:
             from_y + dy3,
         )
 
-    def corner_to(self, cx, cy, x, y):
-        cr = self.cr
-        from_x, from_y = cr.get_current_point()
-
-        # calculate radius of the circle.
-        radius1 = Math.sqrt(
-            (cx - from_x) * (cx - from_x) + (cy - from_y) * (cy - from_y)
-        )
-
-        radius2 = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y))
-
-        dev_x, dev_y = cr.user_to_device(x, y)
-        rand = Random((cx, cy, dev_x, dev_y, radius1, radius2)).random
-
-        # place first control point
-        c1_x = from_x + self.KAPPA * (cx - from_x) + rand() * sloppiness * radius1 / 2
-        c1_y = from_y + self.KAPPA * (cy - from_y) + rand() * sloppiness * radius1 / 2
-
-        # place second control point
-        c2_x = x + self.KAPPA * (cx - x) + rand() * sloppiness * radius2 / 1.5
-        c2_y = y + self.KAPPA * (cy - y) + rand() * sloppiness * radius2 / 1.5
-
-        cr.curve_to(c1_x, c1_y, c2_x, c2_y, x3, y3)
-
     def rectangle(self, x, y, width, height):
         x1 = x + width
         y1 = y + height
