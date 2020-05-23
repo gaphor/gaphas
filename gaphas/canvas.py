@@ -671,11 +671,8 @@ class Canvas:
                 dirty_items = sort(self._dirty_items, reverse=True)
 
             # normalize items, which changed after constraint solving;
-            # store those items, whose matrices changed
-            normalized_items = self._normalize(dirty_items)
-
             # recalculate matrices of normalized items
-            dirty_matrix_items.update(self.update_matrices(normalized_items))
+            dirty_matrix_items.update(self._normalize(dirty_items))
 
             # ensure constraints are still true after normalization
             self._solver.solve()
@@ -795,7 +792,7 @@ class Canvas:
             if item.normalize():
                 dirty_matrix_items.add(item)
 
-        return dirty_matrix_items
+        return self.update_matrices(dirty_matrix_items)
 
     def update_index(self):
         """
