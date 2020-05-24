@@ -16,9 +16,7 @@ def deprecated(message, since):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             warnings.warn(
-                f"{func.__name__}: {message}",
-                category=DeprecationWarning,
-                stacklevel=2,
+                f"{func.__name__}: {message}", category=DeprecationWarning, stacklevel=2
             )
             return func(*args, **kwargs)
 
@@ -55,22 +53,6 @@ class Position:
         self.x, self.y = pos
 
     pos = property(lambda s: (s.x, s.y), _set_pos)
-
-    def set_x(self, vx):
-        """
-        Set the variable for x.
-
-        NOTE: This changes the variable object itself, not only the value!
-        """
-        self._v_x = vx
-
-    def set_y(self, vy):
-        """
-        Set the variable for y.
-
-        NOTE: This changes the variable object itself, not only the value!
-        """
-        self._v_y = vy
 
     def __str__(self):
         return f"<{self.__class__.__name__} object on ({self.x}, {self.y})>"

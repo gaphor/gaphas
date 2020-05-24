@@ -28,12 +28,14 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 import logging
 from collections import namedtuple
+from operator import attrgetter
 
 import cairo
 
 from gaphas import solver, table, tree
 from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
+from gaphas.projections import CanvasProjection
 
 #
 # Information about two connected items
@@ -524,7 +526,7 @@ class Canvas:
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return self._tree.sort(items, index_key="_canvas_index", reverse=reverse)
+        return sorted(items, key=attrgetter("_canvas_index"), reverse=reverse)
 
     def get_matrix_i2c(self, item, calculate=False):
         """
@@ -620,53 +622,38 @@ class Canvas:
         """
         self.update_now()
 
-    def _pre_update_items(self, items, cr):
-        c = Context(cairo=cr)
+    def _pre_update_items(self, items, context):
         for item in items:
-            item.pre_update(c)
+            item.pre_update(context)
 
-    def _post_update_items(self, items, cr):
-        c = Context(cairo=cr)
+    def _post_update_items(self, items, context):
         for item in items:
-            item.post_update(c)
-
-    def _extend_dirty_items(self, dirty_items):
-        # item's can be marked dirty due to external constraints solving
-        if self._dirty_items:
-            dirty_items.extend(self._dirty_items)
-            self._dirty_items.clear()
-
-            dirty_items = self.sort(set(dirty_items), reverse=True)
+            item.post_update(context)
 
     @nonrecursive
     def update_now(self):
         """
-        Peform an update of the items that requested an update.
+        Perform an update of the items that requested an update.
         """
+        sort = self.sort
 
         if self._dirty_index:
             self.update_index()
             self._dirty_index = False
 
-        sort = self.sort
-        extend_dirty_items = self._extend_dirty_items
+        def dirty_items_with_ancestors():
+            for item in self._dirty_items:
+                yield item
+                yield from self._tree.get_ancestors(item)
 
-        # perform update requests for parents of dirty items
-        dirty_items = self._dirty_items
-        for item in set(dirty_items):
-            dirty_items.update(self._tree.get_ancestors(item))
-
-        # order the dirty items, so they are updated bottom to top
-        dirty_items = sort(self._dirty_items, reverse=True)
-
-        self._dirty_items.clear()
+        dirty_items = sort(dirty_items_with_ancestors(), reverse=True)
 
         try:
-            cr = instant_cairo_context()
+            context = Context(cairo=instant_cairo_context())
 
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
-            self._pre_update_items(dirty_items, cr)
+            self._pre_update_items(dirty_items, context)
 
             # recalculate matrices
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
@@ -680,30 +667,23 @@ class Canvas:
             ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
 
             # item's can be marked dirty due to external constraints solving
-            extend_dirty_items(dirty_items)
-
-            assert (
-                not self._dirty_items
-            ), f"No items may have been marked dirty {self._dirty_items}"
+            if len(dirty_items) != len(self._dirty_items):
+                dirty_items = sort(self._dirty_items, reverse=True)
 
             # normalize items, which changed after constraint solving;
-            # store those items, whose matrices changed
-            normalized_items = self._normalize(dirty_items)
-
             # recalculate matrices of normalized items
-            dirty_matrix_items.update(self.update_matrices(normalized_items))
+            dirty_matrix_items.update(self._normalize(dirty_items))
 
             # ensure constraints are still true after normalization
             self._solver.solve()
 
             # item's can be marked dirty due to normalization and solving
-            extend_dirty_items(dirty_items)
+            if len(dirty_items) != len(self._dirty_items):
+                dirty_items = sort(self._dirty_items, reverse=True)
 
-            assert (
-                not self._dirty_items
-            ), f"No items may have been marked dirty ({self._dirty_items})"
+            self._dirty_items.clear()
 
-            self._post_update_items(dirty_items, cr)
+            self._post_update_items(dirty_items, context)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
@@ -812,7 +792,7 @@ class Canvas:
             if item.normalize():
                 dirty_matrix_items.add(item)
 
-        return dirty_matrix_items
+        return self.update_matrices(dirty_matrix_items)
 
     def update_index(self):
         """
@@ -893,118 +873,6 @@ class Canvas:
             return tuple(reg(CanvasProjection(p, item)) for p in points)
         else:
             raise AttributeError("There should be at least one point specified")
-
-
-class VariableProjection(solver.Projection):
-    """
-    Project a single `solver.Variable` to another space/coordinate system.
-
-    The value has been set in the "other" coordinate system. A
-    callback is executed when the value changes.
-
-    It's a simple Variable-like class, following the Projection protocol:
-
-    >>> def notify_me(val):
-    ...     print('new value', val)
-    >>> p = VariableProjection('var placeholder', 3.0, callback=notify_me)
-    >>> p.value
-    3.0
-    >>> p.value = 6.5
-    new value 6.5
-    """
-
-    def __init__(self, var, value, callback):
-        self._var = var
-        self._value = value
-        self._callback = callback
-
-    def _set_value(self, value):
-        self._value = value
-        self._callback(value)
-
-    value = property(lambda s: s._value, _set_value)
-
-    def variable(self):
-        return self._var
-
-
-class CanvasProjection:
-    """
-    Project a point as Canvas coordinates.  Although this is a
-    projection, it behaves like a tuple with two Variables
-    (Projections).
-
-    >>> canvas = Canvas()
-    >>> from gaphas.item import Element
-    >>> a = Element()
-    >>> canvas.add(a)
-    >>> a.matrix.translate(30, 2)
-    >>> canvas.request_matrix_update(a)
-    >>> canvas.update_now()
-    >>> canvas.get_matrix_i2c(a)
-    cairo.Matrix(1, 0, 0, 1, 30, 2)
-    >>> p = CanvasProjection(a.handles()[2].pos, a)
-    >>> a.handles()[2].pos
-    <Position object on (10, 10)>
-    >>> p[0].value
-    40.0
-    >>> p[1].value
-    12.0
-    >>> p[0].value = 63
-    >>> p._point
-    <Position object on (33, 10)>
-
-    When the variables are retrieved, new values are calculated.
-    """
-
-    def __init__(self, point, item):
-        self._point = point
-        self._item = item
-
-    def _on_change_x(self, value):
-        item = self._item
-        self._px = value
-        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(
-            item
-        ).transform_point(value, self._py)
-        item.canvas.request_update(item, matrix=False)
-
-    def _on_change_y(self, value):
-        item = self._item
-        self._py = value
-        self._point.x.value, self._point.y.value = item.canvas.get_matrix_c2i(
-            item
-        ).transform_point(self._px, value)
-        item.canvas.request_update(item, matrix=False)
-
-    def _get_value(self):
-        """
-        Return two delegating variables. Each variable should contain
-        a value attribute with the real value.
-        """
-        item = self._item
-        x, y = self._point.x, self._point.y
-        self._px, self._py = item.canvas.get_matrix_i2c(item).transform_point(x, y)
-        return self._px, self._py
-
-    pos = property(
-        lambda self: list(
-            map(
-                VariableProjection,
-                self._point,
-                self._get_value(),
-                (self._on_change_x, self._on_change_y),
-            )
-        )
-    )
-
-    def __getitem__(self, key):
-        # Note: we can not use bound methods as callbacks, since that will
-        #       cause pickle to fail.
-        return self.pos[key]
-
-    def __iter__(self):
-        return iter(self.pos)
 
 
 # Additional tests in @observed methods

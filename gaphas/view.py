@@ -7,7 +7,7 @@ from gi.repository import Gdk, GLib, GObject, Gtk
 from gaphas.canvas import Context, instant_cairo_context
 from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.geometry import Rectangle, distance_point_point_fast
-from gaphas.painter import BoundingBoxPainter, DefaultPainter
+from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter
 from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
 
@@ -27,7 +27,7 @@ class View:
     def __init__(self, canvas=None):
         self._matrix = cairo.Matrix()
         self._painter = DefaultPainter(self)
-        self._bounding_box_painter = BoundingBoxPainter(self)
+        self._bounding_box_painter = BoundingBoxPainter(ItemPainter(self), self)
 
         # Handling selections.
         # TODO: Move this to a context?
@@ -387,7 +387,7 @@ class View:
             items = self.canvas.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
-        painter.paint(Context(cairo=cr, items=items, area=None))
+        painter.paint(Context(cairo=cr, items=items))
 
         # Update the view's bounding box with the rest of the items
         self._bounds = Rectangle(*self._qtree.soft_bounds)
@@ -454,7 +454,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     # Just defined a name to make GTK register this class.
     __gtype_name__ = "GaphasView"
 
-    # Signals: emited after the change takes effect.
+    # Signals: emitted after the change takes effect.
     __gsignals__ = {
         "dropzone-changed": (
             GObject.SignalFlags.RUN_LAST,
@@ -793,7 +793,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 (0, 0, allocation.width, allocation.height)
             )
 
-            self.painter.paint(Context(cairo=cr, items=items, area=None))
+            self.painter.paint(Context(cairo=cr, items=items))
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 cr.save()

@@ -64,7 +64,7 @@ minimum.
 Connections
 -----------
 Connection between two items is established by creating a constraint
-between handle's postion and port's positions (positions are constraint
+between handle's position and port's positions (positions are constraint
 solver variables).
 
 `ConnectHandleTool` class provides functionality to allow an user to

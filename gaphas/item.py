@@ -187,8 +187,6 @@ class Item:
         - view: the view that is to be rendered to
         - selected, focused, hovered, dropzone: view state of items
           (True/False)
-        - draw_all: a request to draw everything, for bounding box
-          calculations
         """
         pass
 
@@ -321,12 +319,6 @@ class Element(Item):
         h_sw = handles[SW]
         h_se = handles[SE]
 
-        # Share variables
-        h_sw.pos.set_x(h_nw.pos.x)
-        h_se.pos.set_x(h_ne.pos.x)
-        h_ne.pos.set_y(h_nw.pos.y)
-        h_se.pos.set_y(h_sw.pos.y)
-
         # edge of element define default element ports
         self._ports = [
             LinePort(h_nw.pos, h_ne.pos),
@@ -337,6 +329,11 @@ class Element(Item):
 
         # initialize min_x variables
         self.min_width, self.min_height = 10, 10
+
+        self.constraint(horizontal=(h_nw.pos, h_ne.pos))
+        self.constraint(horizontal=(h_sw.pos, h_se.pos))
+        self.constraint(vertical=(h_nw.pos, h_sw.pos))
+        self.constraint(vertical=(h_ne.pos, h_se.pos))
 
         # create minimal size constraints
         self.constraint(left_of=(h_nw.pos, h_se.pos), delta=self._min_width)

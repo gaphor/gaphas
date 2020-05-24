@@ -83,7 +83,7 @@ class Quadtree:
         """
         Create a new Quadtree instance.
 
-        Bounds is the boundries of the quadtree. this is fixed and do not
+        Bounds is the boundaries of the quadtree. this is fixed and do not
         change depending on the contents.
 
         Capacity defines the number of elements in one tree bucket (default: 10)
@@ -223,7 +223,7 @@ class Quadtree:
     def get_clipped_bounds(self, item):
         """
         Return the bounding box for the given item. The bounding box
-        is clipped on the boundries of the tree (provided on
+        is clipped on the boundaries of the tree (provided on
         construction or with resize()).
         """
         return self._ids[item][2]
@@ -280,7 +280,7 @@ class QuadtreeBucket:
     def add(self, item, bounds):
         """
         Add an item to the quadtree.
-        The bucket is split when nessecary.
+        The bucket is split when necessary.
         Items are otherwise added to this bucket, not some sub-bucket.
         """
         assert rectangle_contains(bounds, self.bounds)

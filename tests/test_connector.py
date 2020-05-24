@@ -11,19 +11,6 @@ def test_position(position):
     assert position[1] == pos.y
 
 
-def test_set_xy():
-    pos = Position((1, 2))
-    x = Variable()
-    y = Variable()
-    assert x is not pos.x
-    assert y is not pos.y
-
-    pos.set_x(x)
-    pos.set_y(y)
-    assert x is pos.x
-    assert y is pos.y
-
-
 def test_handle_x_y():
     h = Handle()
     assert 0.0 == h.pos.x

@@ -194,13 +194,13 @@ class Rectangle:
         >>> r -= 'aap'
         Traceback (most recent call last):
           ...
-        TypeError: Can only substract Rectangle or tuple (x, y, width, height), not 'aap'.
+        TypeError: Can only subtract Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
             x, y, width, height = obj
         except ValueError:
             raise TypeError(
-                f"Can only substract Rectangle or tuple (x, y, width, height), not {repr(obj)}."
+                f"Can only subtract Rectangle or tuple (x, y, width, height), not {repr(obj)}."
             )
         x1, y1 = x + width, y + height
 

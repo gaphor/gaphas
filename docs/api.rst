@@ -209,7 +209,6 @@ Special context for drawing the item. It contains a cairo context and properties
         focused=(item is view.focused_item),
         hovered=(item is view.hovered_item),
         dropzone=(item is view.dropzone_item),
-        draw_all=self.draw_all,
     )
 
 Class: ``gaphas.painter.ItemPainter``
@@ -625,4 +624,3 @@ Limits the recursion for a specific function.
     @recursive(10)
     def a(self, x=0):
         self.a()
-

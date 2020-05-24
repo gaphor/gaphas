@@ -2,14 +2,14 @@
 This module is the central point where Gaphas' classes report their
 state changes.
 
-Invocations of method and state changing properties are emited to all
+Invocations of method and state changing properties are emitted to all
 functions (or bound methods) registered in the 'observers' set.  Use
 `observers.add()` and `observers.remove()` to add/remove handlers.
 
 This module also contains a second layer: a state inverser. Instead of
-emiting the invoked method, it emits a signal (callable, \\*\\*kwargs)
+emitting the invoked method, it emits a signal (callable, \\*\\*kwargs)
 that can be applied to revert the state of the object to the point
-before the method invokation.
+before the method invocation.
 
 For this to work the revert_handler has to be added to the observers
 set::
@@ -26,7 +26,7 @@ from types import MethodType
 # OBSERVED_DOCSTRING = \
 #        '\n\n        This method is @observed. See gaphas.state for extra info.\n'
 
-# Tell @observed to dispatch invokation messages by default
+# Tell @observed to dispatch invocation messages by default
 # May be changed (but be sure to do that right at the start of your
 # application,otherwise you have no idea what's enabled and what's not!)
 DISPATCH_BY_DEFAULT = True
@@ -51,7 +51,7 @@ def observed(func):
     observers list.
 
     On the function an ``__observer__`` property is set, which
-    references to the observer decorator. This is nessesary, since the
+    references to the observer decorator. This is necessary, since the
     event handlers expect the outer most function to be returned
     (that's what they see).
 

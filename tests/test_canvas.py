@@ -94,13 +94,12 @@ def test_disconnect_item_with_constraint():
     c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
     assert count(c.get_connections(handle=line.handles()[0])) == 1
 
-    ncons = len(c.solver.constraints)
-    assert ncons == 5
+    assert len(c.solver.constraints) == 13
 
     c.disconnect_item(line, line.handles()[0])
     assert count(c.get_connections(handle=line.handles()[0])) == 0
 
-    assert len(c.solver.constraints) == 4
+    assert len(c.solver.constraints) == 12
 
 
 def test_disconnect_item_by_deleting_element():
@@ -141,13 +140,13 @@ def test_disconnect_item_with_constraint_by_deleting_element():
     assert count(c.get_connections(handle=line.handles()[0])) == 1
 
     ncons = len(c.solver.constraints)
-    assert ncons == 5
+    assert ncons == 13
 
     c.remove(b1)
 
     assert count(c.get_connections(handle=line.handles()[0])) == 0
 
-    assert 2 == len(c.solver.constraints)
+    assert 6 == len(c.solver.constraints)
 
 
 def test_line_projection():

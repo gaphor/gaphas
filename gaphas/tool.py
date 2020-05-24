@@ -57,7 +57,7 @@ class Tool:
     by a button release. Double and triple clicks should work together
     with the button methods.
 
-    A single click is emited as:
+    A single click is emitted as:
             on_button_press
             on_button_release
 
@@ -66,7 +66,7 @@ class Tool:
             on_double_click
             on_button_release
 
-    In case of a tripple click:
+    In case of a triple click:
             on_button_press (x 3)
             on_triple_click
             on_button_release

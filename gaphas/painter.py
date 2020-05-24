@@ -86,10 +86,7 @@ class DrawContext(Context):
 
 
 class ItemPainter(Painter):
-
-    draw_all = False
-
-    def _draw_item(self, item, cairo, area=None):
+    def draw_item(self, item, cairo):
         view = self.view
         cairo.save()
         try:
@@ -100,25 +97,23 @@ class ItemPainter(Painter):
                 DrawContext(
                     painter=self,
                     cairo=cairo,
-                    _area=area,
                     _item=item,
                     selected=(item in view.selected_items),
                     focused=(item is view.focused_item),
                     hovered=(item is view.hovered_item),
                     dropzone=(item is view.dropzone_item),
-                    draw_all=self.draw_all,
                 )
             )
 
         finally:
             cairo.restore()
 
-    def _draw_items(self, items, cairo, area=None):
+    def draw_items(self, items, cairo):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, cairo, area=area)
+            self.draw_item(item, cairo)
             if DEBUG_DRAW_BOUNDING_BOX:
                 self._draw_bounds(item, cairo)
 
@@ -141,7 +136,7 @@ class ItemPainter(Painter):
         cairo = context.cairo
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-        self._draw_items(context.items, cairo, context.area)
+        self.draw_items(context.items, cairo)
 
 
 class CairoBoundingBoxContext:
@@ -240,17 +235,23 @@ class CairoBoundingBoxContext:
         cr.show_text(utf8)
 
 
-class BoundingBoxPainter(ItemPainter):
+class BoundingBoxPainter(Painter):
     """
     This specific case of an ItemPainter is used to calculate the
     bounding boxes (in canvas coordinates) for the items.
     """
 
-    draw_all = True
+    def __init__(self, item_painter, view=None):
+        super().__init__(view)
+        self.item_painter = item_painter
 
-    def _draw_item(self, item, cairo, area=None):
+    def set_view(self, view):
+        super().set_view(view)
+        self.item_painter.set_view(view)
+
+    def draw_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
-        super()._draw_item(item, cairo)
+        self.item_painter.draw_item(item, cairo)
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.
@@ -263,15 +264,15 @@ class BoundingBoxPainter(ItemPainter):
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def _draw_items(self, items, cairo, area=None):
+    def draw_items(self, items, cairo):
         """
         Draw the items.
         """
         for item in items:
-            self._draw_item(item, cairo)
+            self.draw_item(item, cairo)
 
     def paint(self, context):
-        self._draw_items(context.items, context.cairo)
+        self.draw_items(context.items, context.cairo)
 
 
 class HandlePainter(Painter):

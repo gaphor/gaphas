@@ -11,10 +11,10 @@ def test_undo_on_delete_element(revert_undo, undo_fixture):
 
     canvas = Canvas()
     canvas.add(b1)
-    assert 2 == len(canvas.solver.constraints)
+    assert 6 == len(canvas.solver.constraints)
 
     canvas.add(b2)
-    assert 4 == len(canvas.solver.constraints)
+    assert 12 == len(canvas.solver.constraints)
 
     canvas.add(line)
 
@@ -26,7 +26,7 @@ def test_undo_on_delete_element(revert_undo, undo_fixture):
     connector = Connector(line, line.handles()[-1])
     connector.connect(sink)
 
-    assert 6 == len(canvas.solver.constraints)
+    assert 14 == len(canvas.solver.constraints)
     assert 2 == len(list(canvas.get_connections(item=line)))
 
     del undo_fixture[2][:]  # Clear undo_list
@@ -34,7 +34,7 @@ def test_undo_on_delete_element(revert_undo, undo_fixture):
     # Here disconnect is not invoked!
     canvas.remove(b2)
 
-    assert 3 == len(canvas.solver.constraints)
+    assert 7 == len(canvas.solver.constraints)
     assert 1 == len(list(canvas.get_connections(item=line)))
 
     cinfo = canvas.get_connection(line.handles()[0])
@@ -48,7 +48,7 @@ def test_undo_on_delete_element(revert_undo, undo_fixture):
 
     undo_fixture[0]()  # Call undo
 
-    assert 6 == len(canvas.solver.constraints)
+    assert 14 == len(canvas.solver.constraints)
     assert 2 == len(list(canvas.get_connections(item=line)))
 
     cinfo = canvas.get_connection(line.handles()[0])
