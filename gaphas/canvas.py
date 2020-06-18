@@ -376,7 +376,7 @@ class Canvas:
             disconnect_item(*cinfo)
 
     @observed
-    def reconnect_item(self, item, handle, constraint=None):
+    def reconnect_item(self, item, handle, port=None, constraint=None):
         """
         Update an existing connection. This is used to provide a new
         constraint to the connection. ``item`` and ``handle`` are
@@ -432,7 +432,12 @@ class Canvas:
         self._connections.delete(item=cinfo.item, handle=cinfo.handle)
 
         self._connections.insert(
-            item, handle, cinfo.connected, cinfo.port, constraint, cinfo.callback
+            item,
+            handle,
+            cinfo.connected,
+            port or cinfo.port,
+            constraint,
+            cinfo.callback,
         )
         if constraint:
             self._solver.add_constraint(constraint)
@@ -441,9 +446,10 @@ class Canvas:
         reconnect_item,
         reverse=reconnect_item,
         bind={
+            "port": lambda self, item, handle: self.get_connection(handle).port,
             "constraint": lambda self, item, handle: self.get_connection(
                 handle
-            ).constraint
+            ).constraint,
         },
     )
 
