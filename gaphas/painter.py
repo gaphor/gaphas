@@ -241,9 +241,9 @@ class BoundingBoxPainter(Painter):
     bounding boxes (in canvas coordinates) for the items.
     """
 
-    def __init__(self, item_painter, view=None):
+    def __init__(self, item_painter=None, view=None):
         super().__init__(view)
-        self.item_painter = item_painter
+        self.item_painter = item_painter or ItemPainter(view)
 
     def set_view(self, view):
         super().set_view(view)
