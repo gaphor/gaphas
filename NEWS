@@ -1,6 +1,9 @@
-2.0.2
+2.1.0
 -----
 - Fix issue where port could not be updated when reconnecting two items
+- Documentation fixes
+- BoundingBoxPainter now takes an Item painter as its argument
+  (composition over inheritance)
 
 2.0.1
 -----
