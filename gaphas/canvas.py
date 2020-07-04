@@ -86,12 +86,17 @@ def instant_cairo_context():
     return cairo.Context(surface)
 
 
+def default_update_context(item, cairo=instant_cairo_context()):
+    return Context(cairo=cairo)
+
+
 class Canvas:
     """
     Container class for items.
     """
 
-    def __init__(self):
+    def __init__(self, create_update_context=default_update_context):
+        self._create_update_context = create_update_context
         self._tree = tree.Tree()
         self._solver = solver.Solver()
         self._connections = table.Table(Connection, list(range(4)))
@@ -628,12 +633,21 @@ class Canvas:
         """
         self.update_now()
 
-    def _pre_update_items(self, items, context):
+    def _pre_update_items(self, items):
+        create_update_context = self._create_update_context
+        contexts = {}
         for item in items:
+            context = create_update_context(item)
             item.pre_update(context)
+            contexts[item] = context
+        return contexts
 
-    def _post_update_items(self, items, context):
+    def _post_update_items(self, items, contexts):
+        create_update_context = self._create_update_context
         for item in items:
+            context = contexts.get(item)
+            if not context:
+                context = create_update_context(item)
             item.post_update(context)
 
     @nonrecursive
@@ -655,11 +669,9 @@ class Canvas:
         dirty_items = sort(dirty_items_with_ancestors(), reverse=True)
 
         try:
-            context = Context(cairo=instant_cairo_context())
-
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
-            self._pre_update_items(dirty_items, context)
+            contexts = self._pre_update_items(dirty_items)
 
             # recalculate matrices
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
@@ -689,7 +701,7 @@ class Canvas:
 
             self._dirty_items.clear()
 
-            self._post_update_items(dirty_items, context)
+            self._post_update_items(dirty_items, contexts)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
