@@ -805,11 +805,7 @@ class Canvas:
         >>> e.handles()
         [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
         """
-        dirty_matrix_items = set()
-        for item in items:
-            if item.normalize():
-                dirty_matrix_items.add(item)
-
+        dirty_matrix_items = {item for item in items if item.normalize()}
         return self.update_matrices(dirty_matrix_items)
 
     def update_index(self):

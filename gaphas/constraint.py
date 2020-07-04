@@ -433,10 +433,7 @@ class BalanceConstraint(Constraint):
     def update_balance(self):
         b1, b2 = self.band
         w = b2 - b1
-        if w != 0:
-            self.balance = (self.v - b1) / w
-        else:
-            self.balance = 0
+        self.balance = (self.v - b1) / w if w != 0 else 0
 
     def solve_for(self, var):
         b1, b2 = self.band

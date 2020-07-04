@@ -5,7 +5,7 @@ from gaphas.state import reversible_pair, observed, _reverse
 
 class SList:
     def __init__(self):
-        self.list = list()
+        self.list = []
 
     def add(self, node, before=None):
         if before:
