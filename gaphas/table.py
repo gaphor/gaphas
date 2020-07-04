@@ -24,9 +24,7 @@ class Table:
         self._indexes = tuple(fields[i] for i in indexes)
 
         # create data structure, which acts as cache
-        index = {}
-        for n in fields:
-            index[n] = dict()
+        index = {n: {} for n in fields}
         self._index = index
 
     columns = property(lambda s: s._type)

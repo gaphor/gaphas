@@ -116,7 +116,7 @@ class View:
         Set the focused item, this item is also added to the
         selected_items set.
         """
-        if not item is self._focused_item:
+        if item is not self._focused_item:
             self.queue_draw_item(self._focused_item, item)
 
         if item:
@@ -629,11 +629,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         v = Rectangle(0, 0, aw, ah)
 
         # union of these limits gives scrollbar limits
-        if v in c:
-            u = c
-        else:
-            u = c + v
-
+        u = c if v in c else c + v
         if hadjustment is None:
             self._hadjustment = Gtk.Adjustment.new(
                 value=v.x,
@@ -753,7 +749,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
             self.update_back_buffer()
         finally:
-            self._dirty_items.clear()
+            dirty_items.clear()
             self._dirty_matrix_items.clear()
 
     def update_bounding_box(self, items):

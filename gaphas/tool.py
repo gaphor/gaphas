@@ -492,7 +492,7 @@ class PanTool(Tool):
         self.speed = 10
 
     def on_button_press(self, event):
-        if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
+        if event.get_state()[1] & PAN_MASK != PAN_VALUE:
             return False
         if event.get_button()[1] == 2:
             self.x0, self.y0 = event.get_coords()[1:]
@@ -517,7 +517,7 @@ class PanTool(Tool):
 
     def on_scroll(self, event):
         # Ensure no modifiers
-        if not event.get_state()[1] & PAN_MASK == PAN_VALUE:
+        if event.get_state()[1] & PAN_MASK != PAN_VALUE:
             return False
         view = self.view
         direction = event.get_scroll_direction()[1]
@@ -572,34 +572,32 @@ class ZoomTool(Tool):
 
     def on_motion_notify(self, event):
         if (
-            event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE
-            and event.get_state()[1] & Gdk.ModifierType.BUTTON2_MASK
+            event.get_state()[1] & ZOOM_MASK != ZOOM_VALUE
+            or not event.get_state()[1] & Gdk.ModifierType.BUTTON2_MASK
         ):
-            view = self.view
-            pos = event.get_coords()[1:]
-            dy = pos[1] - self.y0
+            return
 
-            sx = view._matrix[0]
-            sy = view._matrix[3]
-            ox = (view._matrix[4] - self.x0) / sx
-            oy = (view._matrix[5] - self.y0) / sy
+        view = self.view
+        pos = event.get_coords()[1:]
+        dy = pos[1] - self.y0
 
-            if abs(dy - self.lastdiff) > 20:
-                if dy - self.lastdiff < 0:
-                    factor = 1.0 / 0.9
-                else:
-                    factor = 0.9
+        sx = view._matrix[0]
+        sy = view._matrix[3]
+        ox = (view._matrix[4] - self.x0) / sx
+        oy = (view._matrix[5] - self.y0) / sy
 
-                m = view.matrix
-                m.translate(-ox, -oy)
-                m.scale(factor, factor)
-                m.translate(+ox, +oy)
+        if abs(dy - self.lastdiff) > 20:
+            factor = 1.0 / 0.9 if dy - self.lastdiff < 0 else 0.9
+            m = view.matrix
+            m.translate(-ox, -oy)
+            m.scale(factor, factor)
+            m.translate(+ox, +oy)
 
-                # Make sure everything's updated
-                view.request_update((), view._canvas.get_all_items())
+            # Make sure everything's updated
+            view.request_update((), view._canvas.get_all_items())
 
-                self.lastdiff = dy
-            return True
+            self.lastdiff = dy
+        return True
 
     def on_scroll(self, event):
         if event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:

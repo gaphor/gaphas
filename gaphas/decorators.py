@@ -101,10 +101,7 @@ class AsyncIO:
 
     def source(self, func):
         timeout = self.timeout
-        if timeout > 0:
-            s = GLib.Timeout(timeout)
-        else:
-            s = GLib.Idle()
+        s = GLib.Timeout(timeout) if timeout > 0 else GLib.Idle()
         s.set_callback(func)
         s.priority = self.priority
         return s

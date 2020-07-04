@@ -92,7 +92,7 @@ class Quadtree:
         self._bucket = QuadtreeBucket(bounds, capacity)
 
         # Easy lookup item->(bounds, data, clipped bounds) mapping
-        self._ids = dict()
+        self._ids = {}
 
     bounds = property(lambda s: s._bucket.bounds)
 
@@ -328,22 +328,22 @@ class QuadtreeBucket:
         This method should be used to find a bucket that fits, before
         add() or remove() is called.
         """
-        if self._buckets:
-            sx, sy, sw, sh = self.bounds
-            cx, cy = sx + sw / 2.0, sy + sh / 2.0
-            x, y, w, h = bounds
-            index = 0
-            if x >= cx:
-                index += 1
-            elif x + w > cx:
-                return self
+        if not self._buckets:
+            return self
+        sx, sy, sw, sh = self.bounds
+        cx, cy = sx + sw / 2.0, sy + sh / 2.0
+        x, y, w, h = bounds
+        index = 0
+        if x >= cx:
+            index += 1
+        elif x + w > cx:
+            return self
 
-            if y >= cy:
-                index += 2
-            elif y + h > cy:
-                return self
-            return self._buckets[index].find_bucket(bounds)
-        return self
+        if y >= cy:
+            index += 2
+        elif y + h > cy:
+            return self
+        return self._buckets[index].find_bucket(bounds)
 
     def find(self, rect, method):
         """

@@ -112,7 +112,7 @@ def test_guide_item_in_motion(win):
     assert 0 == win.e3.matrix[5]
 
     # Moved back to guided lines:
-    for d in range(0, 3):
+    for d in range(3):
         guider.move((d, d))
         assert 0 == win.e3.matrix[4]
         assert 0 == win.e3.matrix[5]

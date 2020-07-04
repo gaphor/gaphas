@@ -148,7 +148,7 @@ def test_ports_after_split(simple_canvas):
     # Split 1st segment again: 1st port should be deleted, but 2nd one should
     # remain untouched
     segment.split_segment(0)
-    assert not (old_ports[0] in simple_canvas.line.ports())
+    assert old_ports[0] not in simple_canvas.line.ports()
     assert old_ports[1] == simple_canvas.line.ports()[2]
 
 
@@ -308,7 +308,7 @@ def test_constraints_after_merge(simple_canvas):
     cinfo = simple_canvas.canvas.get_connection(head)
     assert cinfo.constraint._line[0]._point == h1.pos
     assert cinfo.constraint._line[1]._point == h2.pos
-    assert not (c1 == cinfo.constraint)
+    assert c1 != cinfo.constraint
 
 
 def test_merge_multiple(simple_canvas):

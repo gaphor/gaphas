@@ -102,7 +102,7 @@ def dispatch(event, queue):
         s(event)
 
 
-_reverse = dict()
+_reverse = {}
 
 
 def reversible_function(func, reverse, bind={}):

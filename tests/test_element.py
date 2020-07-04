@@ -51,12 +51,8 @@ def test_resize_se(cb):
     assert h_se is cb.handles[SE]
 
     count = getenv("GAPHAS_TEST_COUNT")
-    if count:
-        count = int(count)
-    else:
-        count = 1
-
-    for i in range(count):
+    count = int(count) if count else 1
+    for _ in range(count):
         h_se.pos.x += 100  # h.se.{x,y} = 10, now
         h_se.pos.y += 100
         cb.box.request_update()
