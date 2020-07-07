@@ -785,6 +785,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             cr.paint()
             cr.restore()
 
+            Gtk.render_background(
+                self.get_style_context(), cr, 0, 0, allocation.width, allocation.height
+            )
+
             items = self.get_items_in_rectangle(
                 (0, 0, allocation.width, allocation.height)
             )
