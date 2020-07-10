@@ -13,7 +13,7 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 from math import sqrt
 from random import Random
 
-from gaphas.painter import Context
+from gaphas.painter import Context, Painter
 
 
 class FreeHandCairoContext:
@@ -133,15 +133,19 @@ class FreeHandCairoContext:
             self.close_path()
 
 
-class FreeHandPainter:
+class FreeHandPainter(Painter):
     def __init__(self, subpainter, sloppiness=1.0, view=None):
         self.subpainter = subpainter
-        self.view = view
         self.sloppiness = sloppiness
+        if view:
+            self.set_view(view)
 
     def set_view(self, view):
-        self.view = view
         self.subpainter.set_view(view)
+
+    def draw_item(self, item, cairo):
+        # Bounding box painter requires painting per item
+        self.subpainter.draw_item(item, cairo)
 
     def paint(self, context):
         subcontext = Context(

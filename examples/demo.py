@@ -120,7 +120,7 @@ def create_window(canvas, title, zoom=1.0):
         .append(FocusedItemPainter())
         .append(ToolPainter())
     )
-    view.bounding_box_painter = FreeHandPainter(BoundingBoxPainter(ItemPainter()))
+    view.bounding_box_painter = BoundingBoxPainter(FreeHandPainter(ItemPainter()))
     w = Gtk.Window()
     w.set_title(title)
     w.set_default_size(400, 120)
