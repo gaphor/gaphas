@@ -86,6 +86,9 @@ class DrawContext(Context):
 
 
 class ItemPainter(Painter):
+
+    draw_all = False
+
     def draw_item(self, item, cairo):
         view = self.view
         cairo.save()
@@ -102,6 +105,7 @@ class ItemPainter(Painter):
                     focused=(item is view.focused_item),
                     hovered=(item is view.hovered_item),
                     dropzone=(item is view.dropzone_item),
+                    draw_all=self.draw_all,
                 )
             )
 
@@ -240,6 +244,8 @@ class BoundingBoxPainter(Painter):
     This specific case of an ItemPainter is used to calculate the
     bounding boxes (in canvas coordinates) for the items.
     """
+
+    draw_all = True
 
     def __init__(self, item_painter=None, view=None):
         super().__init__(view)
