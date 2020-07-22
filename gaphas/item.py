@@ -187,6 +187,8 @@ class Item:
         - view: the view that is to be rendered to
         - selected, focused, hovered, dropzone: view state of items
           (True/False)
+        - draw_all: a request to draw everything, for bounding box
+          calculations
         """
         pass
 

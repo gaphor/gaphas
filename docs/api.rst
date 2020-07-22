@@ -209,6 +209,7 @@ Special context for drawing the item. It contains a cairo context and properties
         focused=(item is view.focused_item),
         hovered=(item is view.hovered_item),
         dropzone=(item is view.dropzone_item),
+        draw_all=self.draw_all,
     )
 
 Class: ``gaphas.painter.ItemPainter``
