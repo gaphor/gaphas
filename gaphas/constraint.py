@@ -129,7 +129,7 @@ class Constraint:
         Solve the constraint for a given variable.
         The variable itself is updated.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class EqualsConstraint(Constraint):
