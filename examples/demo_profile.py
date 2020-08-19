@@ -11,8 +11,10 @@ if __name__ == "__main__":
         p = pstats.Stats("demo-gaphas.prof")
         p.strip_dirs().sort_stats("time").print_stats(40)
     except ImportError as ex:
-        import hotshot, hotshot.stats
         import gc
+
+        import hotshot
+        import hotshot.stats
 
         prof = hotshot.Profile("demo-gaphas.prof")
         prof.runcall(main)

@@ -6,7 +6,7 @@ themselves.
 """
 import pytest
 
-from gaphas.constraint import LineConstraint, EqualsConstraint, LessThanConstraint
+from gaphas.constraint import EqualsConstraint, LessThanConstraint, LineConstraint
 from gaphas.item import Item
 from gaphas.solver import Variable
 

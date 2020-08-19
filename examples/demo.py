@@ -38,7 +38,6 @@ from gaphas.segment import Segment
 from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
 
-
 # painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Global undo list
@@ -478,7 +477,8 @@ if __name__ == "__main__":
 
     if "-p" in sys.argv:
         print("Profiling...")
-        import hotshot, hotshot.stats
+        import hotshot
+        import hotshot.stats
 
         prof = hotshot.Profile("demo-gaphas.prof")
         prof.runcall(main)

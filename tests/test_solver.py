@@ -5,7 +5,7 @@ from timeit import Timer
 
 import pytest
 
-from gaphas.constraint import EquationConstraint, EqualsConstraint, LessThanConstraint
+from gaphas.constraint import EqualsConstraint, EquationConstraint, LessThanConstraint
 from gaphas.solver import Solver, Variable
 
 SETUP = """

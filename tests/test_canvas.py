@@ -178,7 +178,7 @@ def test_remove_connected_item():
     """
     canvas = Canvas()
 
-    from gaphas.aspect import Connector, ConnectionSink
+    from gaphas.aspect import ConnectionSink, Connector
 
     l1 = Line()
     canvas.add(l1)

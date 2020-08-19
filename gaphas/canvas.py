@@ -34,8 +34,8 @@ import cairo
 
 from gaphas import solver, table, tree
 from gaphas.decorators import AsyncIO, nonrecursive
-from gaphas.state import observed, reversible_method, reversible_pair
 from gaphas.projections import CanvasProjection
+from gaphas.state import observed, reversible_method, reversible_pair
 
 #
 # Information about two connected items

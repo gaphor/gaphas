@@ -1,6 +1,6 @@
 import pytest
 
-from gaphas.connector import Position, Handle
+from gaphas.connector import Handle, Position
 from gaphas.solver import Variable
 
 

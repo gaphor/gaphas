@@ -1,5 +1,5 @@
+from gaphas.constraint import LineAlignConstraint, PositionConstraint
 from gaphas.solver import Variable
-from gaphas.constraint import PositionConstraint, LineAlignConstraint
 
 
 def test_pos_constraint():

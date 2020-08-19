@@ -1,6 +1,6 @@
 import sys
 
-from gaphas.state import reversible_pair, observed, _reverse
+from gaphas.state import _reverse, observed, reversible_pair
 
 
 class SList:
