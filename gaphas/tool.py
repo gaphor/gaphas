@@ -410,7 +410,6 @@ class HandleTool(Tool):
         else, if the pointer is over a handle, make the owning item
         the hovered-item.
         """
-        view = self.view
         if (
             self.grabbed_handle
             and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK
