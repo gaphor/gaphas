@@ -28,8 +28,8 @@ def test_segment_fails_for_item(seg):
 
     """
     try:
-        s = Segment(seg.item, seg.view)
-    except TypeError as e:
+        Segment(seg.item, seg.view)
+    except TypeError:
         pass
     else:
         assert False, "Should not be reached"

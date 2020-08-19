@@ -416,7 +416,6 @@ class HandleTool(Tool):
             self.grabbed_handle
             and event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK
         ):
-            canvas = view.canvas
             item = self.grabbed_item
             handle = self.grabbed_handle
             pos = event.get_coords()[1:]
@@ -772,7 +771,6 @@ class ConnectHandleTool(HandleTool):
                 connector.disconnect()
 
     def on_button_release(self, event):
-        view = self.view
         item = self.grabbed_item
         handle = self.grabbed_handle
         try:

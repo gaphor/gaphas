@@ -263,7 +263,6 @@ class View:
             (x - distance, y - distance, distance * 2, distance * 2), reverse=True
         )
 
-        found_item, found_h = None, None
         for item in items:
             h = find(item)
             if h:

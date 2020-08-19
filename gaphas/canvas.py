@@ -478,7 +478,7 @@ class Canvas:
         """
         try:
             return next(self._connections.query(handle=handle))
-        except StopIteration as ex:
+        except StopIteration:
             return None
 
     def get_connections(self, item=None, handle=None, connected=None, port=None):

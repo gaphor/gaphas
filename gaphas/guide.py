@@ -106,7 +106,6 @@ class GuideMixin:
 
     def find_vertical_guides(self, item_vedges, pdx, height, excluded_items):
         view = self.view
-        item = self.item
         i2v = self.view.get_matrix_i2v
         margin = self.MARGIN
         items = []
@@ -130,7 +129,6 @@ class GuideMixin:
 
     def find_horizontal_guides(self, item_hedges, pdy, width, excluded_items):
         view = self.view
-        item = self.item
         i2v = self.view.get_matrix_i2v
         margin = self.MARGIN
         items = []
@@ -169,7 +167,7 @@ class GuideMixin:
     def get_view_dimensions(self):
         try:
             allocation = self.view.get_allocation()
-        except AttributeError as e:
+        except AttributeError:
             return 0, 0
         return allocation.width, allocation.height
 
@@ -268,7 +266,6 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
         if not sink:
             item = self.item
-            handle = self.handle
             view = self.view
             x, y = pos
             v2i = view.get_matrix_v2i(item)

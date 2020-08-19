@@ -128,7 +128,7 @@ class AsyncIO:
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError as e:
+                except AttributeError:
 
                     def async_wrapper(*aargs):
                         if DEBUG_ASYNC:

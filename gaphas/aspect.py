@@ -194,7 +194,6 @@ class ItemHandleInMotion:
 
     def move(self, pos):
         item = self.item
-        handle = self.handle
         view = self.view
 
         v2i = view.get_matrix_v2i(item)
