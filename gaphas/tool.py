@@ -263,7 +263,7 @@ class ItemTool(Tool):
                 yield InMotion(item, view)
 
     def on_button_press(self, event):
-        ### TODO: make keys configurable
+        # TODO: make keys configurable
         view = self.view
         item = self.get_item()
 
@@ -371,14 +371,13 @@ class HandleTool(Tool):
         if handle:
             # Deselect all items unless CTRL or SHIFT is pressed
             # or the item is already selected.
-            ### TODO: duplicate from ItemTool
+            # TODO: duplicate from ItemTool
             if not (
                 event.get_state()[1]
                 & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
                 or view.hovered_item in view.selected_items
             ):
                 del view.selected_items
-            ###/
             view.hovered_item = item
             view.focused_item = item
 
