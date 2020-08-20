@@ -741,7 +741,7 @@ class Canvas:
         """
         try:
             orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
-        except:
+        except TypeError:
             orig_matrix_i2c = None
 
         item._matrix_i2c = cairo.Matrix(*item.matrix)
