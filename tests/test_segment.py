@@ -5,7 +5,7 @@ import pytest
 
 from gaphas.canvas import Canvas
 from gaphas.item import Item
-from gaphas.segment import *
+from gaphas.segment import HandleFinder, Line, Segment, SegmentHandleFinder
 from gaphas.view import View
 
 

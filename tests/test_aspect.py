@@ -4,7 +4,7 @@
 
 import pytest
 
-from gaphas.aspect import *
+from gaphas.aspect import InMotion, Item, Selection
 from gaphas.canvas import Canvas
 from gaphas.view import View
 
