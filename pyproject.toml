@@ -41,7 +41,7 @@ pytest-cov = "^2.10"
 pytest-runner = "^5.1"
 black = { version = "^19.3b0", python = "^3.7" }
 pre-commit = "^2.1"
-tox = "^3.12"
+tox = "^3.19"
 pytest-sugar = "^0.9.2"
 
 [tool.tox]
