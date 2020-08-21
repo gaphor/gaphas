@@ -112,7 +112,7 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
-def create_window(canvas, title, zoom=1.0):
+def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.painter = (
         PainterChain()
