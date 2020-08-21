@@ -29,7 +29,7 @@ a variable with appropriate value.
 """
 import math
 
-from gaphas.solver import Projection
+from gaphas.solver import Projection  # noqa
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6

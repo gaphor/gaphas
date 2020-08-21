@@ -1,7 +1,6 @@
 """
 Basic items.
 """
-from functools import reduce
 from math import atan2
 from weakref import WeakKeyDictionary, WeakSet
 

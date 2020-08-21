@@ -5,7 +5,7 @@ import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import Context, instant_cairo_context
-from gaphas.decorators import AsyncIO, nonrecursive
+from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter
 from gaphas.quadtree import Quadtree

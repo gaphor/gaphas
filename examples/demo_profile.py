@@ -11,8 +11,6 @@ if __name__ == "__main__":
         p = pstats.Stats("demo-gaphas.prof")
         p.strip_dirs().sort_stats("time").print_stats(40)
     except ImportError:
-        import gc
-
         import hotshot
         import hotshot.stats
 

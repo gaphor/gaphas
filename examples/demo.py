@@ -18,7 +18,7 @@ import math
 import cairo
 import gi
 
-import gaphas.picklers
+import gaphas.picklers  # noqa
 from gaphas import Canvas, GtkView, View, state
 from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
 from gaphas.freehand import FreeHandPainter

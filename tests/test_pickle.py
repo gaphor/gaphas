@@ -5,8 +5,6 @@ import cairo
 import pytest
 from gi.repository import Gtk
 
-# Ensure extra pickle reducers/reconstructors are loaded:
-import gaphas.picklers
 from examples import demo
 from gaphas.canvas import Canvas
 from gaphas.examples import Box

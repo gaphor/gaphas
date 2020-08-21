@@ -1,7 +1,6 @@
 import pytest
 
 from gaphas.connector import Handle, Position
-from gaphas.solver import Variable
 
 
 @pytest.mark.parametrize("position", [(0, 0), (1, 2)])
