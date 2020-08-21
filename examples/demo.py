@@ -18,9 +18,6 @@ import math
 import cairo
 import gi
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
-
 import gaphas.picklers
 from gaphas import Canvas, GtkView, View, state
 from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
@@ -37,6 +34,11 @@ from gaphas.painter import (
 from gaphas.segment import Segment
 from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
+
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import Gtk  # noqa: isort:skip
+# fmt: on
 
 # painter.DEBUG_DRAW_BOUNDING_BOX = True
 

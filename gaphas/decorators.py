@@ -5,8 +5,10 @@ import threading
 
 import gi
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, Gtk
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import GLib, Gtk  # noqa: isort:skip
+# fmt: on
 
 DEBUG_ASYNC = False
 
