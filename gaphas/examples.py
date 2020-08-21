@@ -77,8 +77,8 @@ class PortoBox(Box):
 
         # static point port
         self._sport = PointPort(Position((width / 2.0, height)))
-        l = sw.pos, se.pos
-        self.constraint(line=(self._sport.point, l))
+        line = sw.pos, se.pos
+        self.constraint(line=(self._sport.point, line))
         self._ports.append(self._sport)
 
         # line port
