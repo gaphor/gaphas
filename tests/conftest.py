@@ -1,15 +1,17 @@
 import gi
 import pytest
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
-
 from gaphas import state
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Line
 from gaphas.tool import ConnectHandleTool
 from gaphas.view import GtkView
+
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import Gtk  # noqa: isort:skip
+# fmt: on
 
 
 class SimpleCanvas:
