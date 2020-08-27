@@ -23,7 +23,7 @@ class Segment:
         raise TypeError
 
 
-@Segment.register(Line)
+@Segment.register(Line)  # type: ignore
 class LineSegment:
     def __init__(self, item, view):
         self.item = item
