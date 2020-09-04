@@ -5,7 +5,7 @@ import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import Context, instant_cairo_context
-from gaphas.decorators import AsyncIO, nonrecursive
+from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter
 from gaphas.quadtree import Quadtree
@@ -263,7 +263,6 @@ class View:
             (x - distance, y - distance, distance * 2, distance * 2), reverse=True
         )
 
-        found_item, found_h = None, None
         for item in items:
             h = find(item)
             if h:

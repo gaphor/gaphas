@@ -20,7 +20,7 @@ set::
 from functools import update_wrapper
 from inspect import getfullargspec as _getargspec
 from threading import Lock
-from types import MethodType
+from typing import Callable, Set, Tuple
 
 # This string is added to each docstring in order to denote is's observed
 # OBSERVED_DOCSTRING = \
@@ -34,12 +34,12 @@ DISPATCH_BY_DEFAULT = True
 # Add/remove methods from this subscribers list.
 # Subscribers should have signature method(event) where event is a
 # Event has the form: (func, keywords)
-# Since most events originate from methods, it's save to call
+# Since most events originate from methods, it's safe to call
 # saveapply(func, keywords) for those functions
-subscribers = set()
+subscribers: Set[Callable[[Tuple[Callable, str]], None]] = set()
 
 # Subscribe to low-level change events:
-observers = set()
+observers: Set[Callable[[Tuple[Callable, str]], None]] = set()
 
 # Perform locking (should be per thread?).
 mutex = Lock()

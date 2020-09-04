@@ -9,7 +9,7 @@ from gi.repository import Gtk
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Line
-from gaphas.view import View, GtkView
+from gaphas.view import GtkView, View
 
 
 class ViewFixture:

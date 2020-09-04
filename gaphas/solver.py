@@ -33,9 +33,8 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
-from gaphas.state import observed, reversible_pair, reversible_property
 from gaphas.projections import Projection
-
+from gaphas.state import observed, reversible_pair, reversible_property
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?

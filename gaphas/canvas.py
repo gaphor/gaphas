@@ -34,8 +34,8 @@ import cairo
 
 from gaphas import solver, table, tree
 from gaphas.decorators import AsyncIO, nonrecursive
-from gaphas.state import observed, reversible_method, reversible_pair
 from gaphas.projections import CanvasProjection
+from gaphas.state import observed, reversible_method, reversible_pair
 
 #
 # Information about two connected items
@@ -478,7 +478,7 @@ class Canvas:
         """
         try:
             return next(self._connections.query(handle=handle))
-        except StopIteration as ex:
+        except StopIteration:
             return None
 
     def get_connections(self, item=None, handle=None, connected=None, port=None):
@@ -741,7 +741,7 @@ class Canvas:
         """
         try:
             orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
-        except:
+        except TypeError:
             orig_matrix_i2c = None
 
         item._matrix_i2c = cairo.Matrix(*item.matrix)

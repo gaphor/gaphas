@@ -18,10 +18,7 @@ import math
 import cairo
 import gi
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
-
-import gaphas.picklers
+import gaphas.picklers  # noqa
 from gaphas import Canvas, GtkView, View, state
 from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
 from gaphas.freehand import FreeHandPainter
@@ -38,6 +35,10 @@ from gaphas.segment import Segment
 from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
 
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import Gtk  # noqa: isort:skip
+# fmt: on
 
 # painter.DEBUG_DRAW_BOUNDING_BOX = True
 
@@ -111,7 +112,7 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
-def create_window(canvas, title, zoom=1.0):
+def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.painter = (
         PainterChain()
@@ -422,13 +423,13 @@ def create_canvas(c=None):
     t.matrix.translate(70, 70)
     c.add(t)
 
-    l = MyLine()
-    c.add(l)
-    l.handles()[1].pos = (30, 30)
-    segment = Segment(l, view=None)
+    line = MyLine()
+    c.add(line)
+    line.handles()[1].pos = (30, 30)
+    segment = Segment(line, view=None)
     segment.split_segment(0, 3)
-    l.matrix.translate(30, 60)
-    l.orthogonal = True
+    line.matrix.translate(30, 60)
+    line.orthogonal = True
 
     off_y = 0
     for align_x in (-1, 0, 1):
@@ -478,7 +479,8 @@ if __name__ == "__main__":
 
     if "-p" in sys.argv:
         print("Profiling...")
-        import hotshot, hotshot.stats
+        import hotshot
+        import hotshot.stats
 
         prof = hotshot.Profile("demo-gaphas.prof")
         prof.runcall(main)

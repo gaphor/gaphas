@@ -181,13 +181,13 @@ class Port:
         """
         Get glue point on the port and distance to the port.
         """
-        raise NotImplemented("Glue method not implemented")
+        raise NotImplementedError("Glue method not implemented")
 
     def constraint(self, canvas, item, handle, glue_item):
         """
         Create connection constraint between item's handle and glue item.
         """
-        raise NotImplemented("Constraint method not implemented")
+        raise NotImplementedError("Constraint method not implemented")
 
 
 class LinePort(Port):

@@ -17,7 +17,7 @@ def test_update_matrices():
     i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
     ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
 
-    updated = c.update_matrices([i])
+    c.update_matrices([i])
 
     assert i._matrix_i2c == cairo.Matrix(1, 0, 0, 1, 5, 0)
     assert ii._matrix_i2c == cairo.Matrix(1, 0, 0, 1, 5, 8)
@@ -178,7 +178,7 @@ def test_remove_connected_item():
     """
     canvas = Canvas()
 
-    from gaphas.aspect import Connector, ConnectionSink
+    from gaphas.aspect import ConnectionSink, Connector
 
     l1 = Line()
     canvas.add(l1)

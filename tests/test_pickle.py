@@ -9,10 +9,7 @@ from examples import demo
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
 from gaphas.item import Element, Line
-from gaphas.view import View, GtkView
-
-# Ensure extra pickle reducers/reconstructors are loaded:
-import gaphas.picklers
+from gaphas.view import GtkView, View
 
 
 class MyPickler(pickle.Pickler):

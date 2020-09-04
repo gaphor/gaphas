@@ -1,9 +1,10 @@
-import pytest
 from os import getenv
+
+import pytest
 
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
-from gaphas.item import NW, NE, SE, SW
+from gaphas.item import NE, NW, SE, SW
 
 
 class CanvasBox:

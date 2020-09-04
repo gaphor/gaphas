@@ -7,7 +7,7 @@ from functools import singledispatch as real_singledispatch
 
 from gi.repository import Gdk
 
-from gaphas.item import Element, Item
+from gaphas.item import Element
 
 
 def singledispatch(func):
@@ -194,7 +194,6 @@ class ItemHandleInMotion:
 
     def move(self, pos):
         item = self.item
-        handle = self.handle
         view = self.view
 
         v2i = view.get_matrix_v2i(item)

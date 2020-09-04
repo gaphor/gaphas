@@ -1,7 +1,6 @@
 """
 Basic items.
 """
-from functools import reduce
 from math import atan2
 from weakref import WeakKeyDictionary, WeakSet
 
@@ -260,11 +259,13 @@ class Item:
             p1, p2 = above
             cc = LessThanConstraint(p1[1], p2[1], delta)
         elif line:
-            pos, l = line
+            pos, line_l = line
             if align is None:
-                cc = LineConstraint(line=l, point=pos)
+                cc = LineConstraint(line=line_l, point=pos)
             else:
-                cc = LineAlignConstraint(line=l, point=pos, align=align, delta=delta)
+                cc = LineAlignConstraint(
+                    line=line_l, point=pos, align=align, delta=delta
+                )
         else:
             raise ValueError("Constraint incorrectly specified")
         assert cc is not None

@@ -4,14 +4,15 @@
 """
 import gi
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
-
 from gaphas import Canvas, GtkView
 from gaphas.examples import Box
 from gaphas.item import Line
 from gaphas.painter import DefaultPainter
-from gaphas.segment import Segment
+
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import Gtk  # noqa: isort:skip
+# fmt: on
 
 
 def create_canvas(canvas, title):

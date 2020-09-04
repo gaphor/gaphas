@@ -6,6 +6,12 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+from datetime import date
+from pathlib import Path
+from typing import Dict
+
+from tomlkit import parse
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -15,14 +21,11 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-from pathlib import Path
-
-from tomlkit import parse
 
 # -- Project information -----------------------------------------------------
 
 project = "Gaphas"
-copyright = "2019, Arjan J. Molenaar"
+copyright = f"2006-{date.today().year}, Arjan J. Molenaar"
 author = "Arjan J. Molenaar"
 
 # The short X.Y version
@@ -122,7 +125,7 @@ htmlhelp_basename = "Gaphasdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',

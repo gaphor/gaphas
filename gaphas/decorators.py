@@ -5,8 +5,10 @@ import threading
 
 import gi
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import GLib, Gtk  # noqa: isort:skip
+# fmt: on
 
 DEBUG_ASYNC = False
 
@@ -128,7 +130,7 @@ class AsyncIO:
                 try:
                     if getattr(holder, async_id):
                         return
-                except AttributeError as e:
+                except AttributeError:
 
                     def async_wrapper(*aargs):
                         if DEBUG_ASYNC:

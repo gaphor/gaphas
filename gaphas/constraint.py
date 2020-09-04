@@ -29,7 +29,7 @@ a variable with appropriate value.
 """
 import math
 
-from gaphas.solver import Projection
+from gaphas.solver import Projection  # noqa
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
@@ -129,7 +129,7 @@ class Constraint:
         Solve the constraint for a given variable.
         The variable itself is updated.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class EqualsConstraint(Constraint):
