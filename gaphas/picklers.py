@@ -1,6 +1,4 @@
-"""
-Some extra picklers needed to gracefully dump and load a canvas.
-"""
+"""Some extra picklers needed to gracefully dump and load a canvas."""
 
 import copyreg
 

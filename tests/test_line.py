@@ -1,6 +1,4 @@
-"""Basic item tests for lines.
-
-"""
+"""Basic item tests for lines."""
 
 from gaphas.canvas import Canvas
 from gaphas.item import Line
@@ -8,17 +6,13 @@ from gaphas.segment import Segment
 
 
 def test_initial_ports(revert_undo):
-    """Test initial ports amount.
-
-    """
+    """Test initial ports amount."""
     line = Line()
     assert 1 == len(line.ports())
 
 
 def test_orthogonal_horizontal_undo(revert_undo, undo_fixture):
-    """Test orthogonal line constraints bug (#107).
-
-    """
+    """Test orthogonal line constraints bug (#107)."""
     canvas = Canvas()
     line = Line()
     canvas.add(line)
@@ -49,9 +43,7 @@ def test_orthogonal_horizontal_undo(revert_undo, undo_fixture):
 
 
 def test_orthogonal_line_undo(revert_undo, undo_fixture):
-    """Test orthogonal line undo.
-
-    """
+    """Test orthogonal line undo."""
     canvas = Canvas()
     line = Line()
     canvas.add(line)

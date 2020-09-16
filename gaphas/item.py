@@ -1,6 +1,4 @@
-"""
-Basic items.
-"""
+"""Basic items."""
 from math import atan2
 from weakref import WeakKeyDictionary, WeakSet
 
@@ -23,8 +21,7 @@ from gaphas.state import (
 
 
 class Item:
-    """
-    Base class (or interface) for items on a canvas.Canvas.
+    """Base class (or interface) for items on a canvas.Canvas.
 
     Attributes:
 
@@ -64,9 +61,9 @@ class Item:
 
     @observed
     def _set_canvas(self, canvas):
-        """
-        Set the canvas. Should only be called from Canvas.add and
-        Canvas.remove().
+        """Set the canvas.
+
+        Should only be called from Canvas.add and Canvas.remove().
         """
         assert not canvas or not self._canvas or self._canvas is canvas
         if self._canvas:
@@ -82,8 +79,8 @@ class Item:
     constraints = property(lambda s: s._constraints, doc="Item constraints")
 
     def setup_canvas(self):
-        """
-        Called when the canvas is set for the item.
+        """Called when the canvas is set for the item.
+
         This method can be used to create constraints.
         """
         add = self.canvas.solver.add_constraint
@@ -91,8 +88,8 @@ class Item:
             add(c)
 
     def teardown_canvas(self):
-        """
-        Called when the canvas is unset for the item.
+        """Called when the canvas is unset for the item.
+
         This method can be used to dispose constraints.
         """
         self.canvas.disconnect_item(self)
@@ -103,9 +100,7 @@ class Item:
 
     @observed
     def _set_matrix(self, matrix):
-        """
-        Set the conversion matrix (parent -> item)
-        """
+        """Set the conversion matrix (parent -> item)"""
         if not isinstance(matrix, Matrix):
             matrix = Matrix(*matrix)
         self._matrix = matrix
@@ -117,8 +112,7 @@ class Item:
             self._canvas.request_update(self, update=update, matrix=matrix)
 
     def pre_update(self, context):
-        """
-        Perform any changes before item update here, for example:
+        """Perform any changes before item update here, for example:
 
         - change matrix
         - move handles
@@ -130,8 +124,7 @@ class Item:
         pass
 
     def post_update(self, context):
-        """
-        Method called after item update.
+        """Method called after item update.
 
         If some variables should be used during drawing or in another
         update, then they should be calculated in post method.
@@ -144,9 +137,8 @@ class Item:
         pass
 
     def normalize(self):
-        """
-        Update handle positions of the item, so the first handle is
-        always located at (0, 0).
+        """Update handle positions of the item, so the first handle is always
+        located at (0, 0).
 
         Note that, since this method basically does some housekeeping
         during the update phase, there's no need to keep track of the
@@ -178,9 +170,8 @@ class Item:
         return updated
 
     def draw(self, context):
-        """
-        Render the item to a canvas view.
-        Context contains the following attributes:
+        """Render the item to a canvas view. Context contains the following
+        attributes:
 
         - cairo: the Cairo Context use this one to draw
         - view: the view that is to be rendered to
@@ -192,20 +183,16 @@ class Item:
         pass
 
     def handles(self):
-        """
-        Return a list of handles owned by the item.
-        """
+        """Return a list of handles owned by the item."""
         return self._handles
 
     def ports(self):
-        """
-        Return list of ports.
-        """
+        """Return list of ports."""
         return self._ports
 
     def point(self, pos):
-        """
-        Get the distance from a point (``x``, ``y``) to the item.
+        """Get the distance from a point (``x``, ``y``) to the item.
+
         ``x`` and ``y`` are in item coordinates.
         """
         pass
@@ -220,8 +207,7 @@ class Item:
         delta=0.0,
         align=None,
     ):
-        """
-        Utility (factory) method to create item's internal constraint
+        """Utility (factory) method to create item's internal constraint
         between two positions or between a position and a line.
 
         Position is a tuple of coordinates, i.e. ``(2, 4)``.
@@ -273,9 +259,7 @@ class Item:
         return cc
 
     def __getstate__(self):
-        """
-        Persist all, but calculated values (``_matrix_?2?``).
-        """
+        """Persist all, but calculated values (``_matrix_?2?``)."""
         d = dict(self.__dict__)
         for n in ("_matrix_i2c", "_matrix_c2i", "_matrix_i2v", "_matrix_v2i"):
             try:
@@ -286,8 +270,9 @@ class Item:
         return d
 
     def __setstate__(self, state):
-        """
-        Set state. No ``__init__()`` is called.
+        """Set state.
+
+        No ``__init__()`` is called.
         """
         for n in ("_matrix_i2c", "_matrix_c2i"):
             setattr(self, n, None)
@@ -301,12 +286,9 @@ class Item:
 
 
 class Element(Item):
-    """
-    An Element has 4 handles (for a start)::
+    """An Element has 4 handles (for a start)::
 
-     NW +---+ NE
-        |   |
-     SW +---+ SE
+    NW +---+ NE    |   | SW +---+ SE
     """
 
     min_width = solvable(strength=REQUIRED, varname="_min_width")
@@ -370,10 +352,8 @@ class Element(Item):
         h[SE].pos.x = h[NW].pos.x + width
 
     def _get_width(self):
-        """
-        Width of the box, calculated as the distance from the left and
-        right handle.
-        """
+        """Width of the box, calculated as the distance from the left and right
+        handle."""
         h = self._handles
         return float(h[SE].pos.x) - float(h[NW].pos.x)
 
@@ -397,18 +377,14 @@ class Element(Item):
         h[SE].pos.y = h[NW].pos.y + height
 
     def _get_height(self):
-        """
-        Height.
-        """
+        """Height."""
         h = self._handles
         return float(h[SE].pos.y) - float(h[NW].pos.y)
 
     height = property(_get_height, _set_height)
 
     def normalize(self):
-        """
-        Normalize only NW and SE handles
-        """
+        """Normalize only NW and SE handles."""
         updated = False
         handles = self._handles
         handles = (handles[NW], handles[SE])
@@ -426,8 +402,7 @@ class Element(Item):
         return updated
 
     def point(self, pos):
-        """
-        Distance from the point (x, y) to the item.
+        """Distance from the point (x, y) to the item.
 
         >>> e = Element()
         >>> e.point((20, 10))
@@ -441,8 +416,7 @@ class Element(Item):
 
 
 class Line(Item):
-    """
-    A Line item.
+    """A Line item.
 
     Properties:
      - fuzziness (0.0..n): an extra margin that should be taken into
@@ -486,10 +460,11 @@ class Line(Item):
     fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
 
     def _update_orthogonal_constraints(self, orthogonal):
-        """
-        Update the constraints required to maintain the orthogonal line.
-        The actual constraints attribute (``_orthogonal_constraints``) is
-        observed, so the undo system will update the contents properly
+        """Update the constraints required to maintain the orthogonal line.
+
+        The actual constraints attribute (``_orthogonal_constraints``)
+        is observed, so the undo system will update the contents
+        properly
         """
         if not self.canvas:
             self._orthogonal_constraints = orthogonal and [None] or []
@@ -523,9 +498,9 @@ class Line(Item):
 
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):
-        """
-        Setter for the constraints maintained. Required for the undo
-        system.
+        """Setter for the constraints maintained.
+
+        Required for the undo system.
         """
         self._orthogonal_constraints = orthogonal_constraints
 
@@ -573,16 +548,15 @@ class Line(Item):
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
     def setup_canvas(self):
-        """
-        Setup constraints. In this case orthogonal.
+        """Setup constraints.
+
+        In this case orthogonal.
         """
         super().setup_canvas()
         self._update_orthogonal_constraints(self.orthogonal)
 
     def teardown_canvas(self):
-        """
-        Remove constraints created in setup_canvas().
-        """
+        """Remove constraints created in setup_canvas()."""
         super().teardown_canvas()
         for c in self._orthogonal_constraints:
             self.canvas.solver.remove_constraint(c)
@@ -622,9 +596,10 @@ class Line(Item):
         return LinePort(p1, p2)
 
     def _update_ports(self):
-        """
-        Update line ports. This destroys all previously created ports
-        and should only be used when initializing the line.
+        """Update line ports.
+
+        This destroys all previously created ports and should only be
+        used when initializing the line.
         """
         assert len(self._handles) >= 2, "Not enough segments"
         self._ports = []
@@ -633,9 +608,7 @@ class Line(Item):
             self._ports.append(self._create_port(h1.pos, h2.pos))
 
     def opposite(self, handle):
-        """
-        Given the handle of one end of the line, return the other end.
-        """
+        """Given the handle of one end of the line, return the other end."""
         handles = self._handles
         if handle is handles[0]:
             return handles[-1]
@@ -645,8 +618,7 @@ class Line(Item):
             raise KeyError("Handle is not an end handle")
 
     def post_update(self, context):
-        """
-        """
+        """"""
         super().post_update(context)
         h0, h1 = self._handles[:2]
         p0, p1 = h0.pos, h1.pos
@@ -675,20 +647,16 @@ class Line(Item):
         return max(0, distance - self.fuzziness)
 
     def draw_head(self, context):
-        """
-        Default head drawer: move cursor to the first handle.
-        """
+        """Default head drawer: move cursor to the first handle."""
         context.cairo.move_to(0, 0)
 
     def draw_tail(self, context):
-        """
-        Default tail drawer: draw line to the last handle.
-        """
+        """Default tail drawer: draw line to the last handle."""
         context.cairo.line_to(0, 0)
 
     def draw(self, context):
-        """
-        Draw the line itself.
+        """Draw the line itself.
+
         See Item.draw(context).
         """
 

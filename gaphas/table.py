@@ -1,18 +1,16 @@
-"""
-Table is a storage class that can be used to store information, like
-one would in a database table, with indexes on the desired "columns."
-"""
+"""Table is a storage class that can be used to store information, like one
+would in a database table, with indexes on the desired "columns."."""
 from functools import reduce
 
 
 class Table:
-    """
-    A Table structure with indexing. Optimized for lookups.
+    """A Table structure with indexing.
+
+    Optimized for lookups.
     """
 
     def __init__(self, columns, indexes):
-        """
-        Create a new Store instance with columns and indexes:
+        """Create a new Store instance with columns and indexes:
 
         >>> from collections import namedtuple
         >>> C = namedtuple('C', "foo bar baz")
@@ -30,8 +28,7 @@ class Table:
     columns = property(lambda s: s._type)
 
     def insert(self, *values):
-        """
-        Add a set of values to the store.
+        """Add a set of values to the store.
 
         >>> from collections import namedtuple
         >>> C = namedtuple('C', "foo bar baz")
@@ -62,9 +59,8 @@ class Table:
                 index[n][v] = {data}
 
     def delete(self, *_row, **kv):
-        """
-        Remove value from the table. Either a complete set may be
-        given or just one entry in "column=value" style.
+        """Remove value from the table. Either a complete set may be given or
+        just one entry in "column=value" style.
 
         >>> from collections import namedtuple
         >>> C = namedtuple('C', "foo bar baz")
@@ -121,8 +117,7 @@ class Table:
                         del index[n][v]
 
     def query(self, **kv):
-        """
-        Get rows (tuples) for each key defined. An iterator is returned.
+        """Get rows (tuples) for each key defined. An iterator is returned.
 
         >>> from collections import namedtuple
         >>> C = namedtuple('C', "foo bar baz")

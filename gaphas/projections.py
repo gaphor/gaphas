@@ -1,7 +1,6 @@
 class Projection:
-    """
-    Projections are used to convert values from one space to another,
-    e.g. from Canvas to Item space or visa versa.
+    """Projections are used to convert values from one space to another, e.g.
+    from Canvas to Item space or visa versa.
 
     In order to be a Projection the ``value`` and ``strength``
     properties should be implemented and a method named ``variable()``
@@ -41,9 +40,7 @@ class Projection:
     strength = property(lambda s: s._var.strength)
 
     def variable(self):
-        """
-        Return the variable owned by the projection.
-        """
+        """Return the variable owned by the projection."""
         return self._var
 
     def __float__(self):
@@ -56,8 +53,7 @@ class Projection:
 
 
 class VariableProjection(Projection):
-    """
-    Project a single `solver.Variable` to another space/coordinate system.
+    """Project a single `solver.Variable` to another space/coordinate system.
 
     The value has been set in the "other" coordinate system. A
     callback is executed when the value changes.
@@ -89,10 +85,8 @@ class VariableProjection(Projection):
 
 
 class CanvasProjection:
-    """
-    Project a point as Canvas coordinates.  Although this is a
-    projection, it behaves like a tuple with two Variables
-    (Projections).
+    """Project a point as Canvas coordinates.  Although this is a projection,
+    it behaves like a tuple with two Variables (Projections).
 
     >>> canvas = Canvas()
     >>> from gaphas.item import Element
@@ -138,9 +132,10 @@ class CanvasProjection:
         item.canvas.request_update(item, matrix=False)
 
     def _get_value(self):
-        """
-        Return two delegating variables. Each variable should contain
-        a value attribute with the real value.
+        """Return two delegating variables.
+
+        Each variable should contain a value attribute with the real
+        value.
         """
         item = self._item
         x, y = self._point.x, self._point.y

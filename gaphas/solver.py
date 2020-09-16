@@ -1,8 +1,7 @@
-"""
-Constraint solver allows to define constraint between two or more
-different variables and keep this constraint always true when one or
-more of the constrained variables change. For example, one may want to
-keep two variables always equal.
+"""Constraint solver allows to define constraint between two or more different
+variables and keep this constraint always true when one or more of the
+constrained variables change. For example, one may want to keep two variables
+always equal.
 
 Variables change and at some point of time we want to make all
 constraints valid again. This process is called solving constraints.
@@ -57,7 +56,6 @@ class Variable:
 
     You can even do some calculating with it. The Variable always represents a
     float variable.
-
     """
 
     def __init__(self, value=0.0, strength=NORMAL):
@@ -80,9 +78,8 @@ class Variable:
     strength = reversible_property(lambda s: s._strength, _set_strength)
 
     def dirty(self):
-        """
-        Mark the variable dirty in both the constraint solver and
-        attached constraints.
+        """Mark the variable dirty in both the constraint solver and attached
+        constraints.
 
         Variables are marked dirty also during constraints solving to
         solve all dependent constraints, i.e. two equals constraints
@@ -311,9 +308,9 @@ class Variable:
 
 
 class Solver:
-    """
-    Solve constraints. A constraint should have accompanying
-    variables.
+    """Solve constraints.
+
+    A constraint should have accompanying variables.
     """
 
     def __init__(self):
@@ -325,9 +322,8 @@ class Solver:
     constraints = property(lambda s: s._constraints)
 
     def request_resolve(self, variable, projections_only=False):
-        """
-        Mark a variable as "dirty". This means it it solved the next
-        time the constraints are resolved.
+        """Mark a variable as "dirty". This means it it solved the next time
+        the constraints are resolved.
 
         If projections_only is set to True, only constraints using the
         variable through a Projection instance (e.i. variable itself
@@ -375,10 +371,8 @@ class Solver:
 
     @observed
     def add_constraint(self, constraint):
-        """
-        Add a constraint.
-        The actual constraint is returned, so the constraint can be
-        removed later on.
+        """Add a constraint. The actual constraint is returned, so the
+        constraint can be removed later on.
 
         Example:
 
@@ -410,8 +404,7 @@ class Solver:
 
     @observed
     def remove_constraint(self, constraint):
-        """
-        Remove a constraint from the solver
+        """Remove a constraint from the solver.
 
         >>> from gaphas.constraint import EquationConstraint
         >>> s = Solver()
@@ -441,15 +434,12 @@ class Solver:
     reversible_pair(add_constraint, remove_constraint)
 
     def request_resolve_constraint(self, c):
-        """
-        Request resolving a constraint.
-        """
+        """Request resolving a constraint."""
         self._marked_cons.append(c)
 
     def constraints_with_variable(self, *variables):
-        """
-        Return an iterator of constraints that work with variable.
-        The variable in question should be exposed by the constraints
+        """Return an iterator of constraints that work with variable. The
+        variable in question should be exposed by the constraints
         `constraint.Constraint.variables()` method.
 
         >>> from gaphas.constraint import EquationConstraint
@@ -567,8 +557,7 @@ class Solver:
 
 
 class solvable:
-    """
-    Easy-to-use drop Variable descriptor.
+    """Easy-to-use drop Variable descriptor.
 
     >>> class A(object):
     ...     x = solvable(varname='_v_x')
@@ -613,9 +602,10 @@ class solvable:
 
 
 class JuggleError(AssertionError):
-    """
-    Variable juggling exception. Raised when constraint's variables
-    are marking each other dirty forever.
+    """Variable juggling exception.
+
+    Raised when constraint's variables are marking each other dirty
+    forever.
     """
 
 

@@ -1,6 +1,5 @@
-"""
-A Canvas owns a set of Items and acts as a container for both the
-items and a constraint solver.
+"""A Canvas owns a set of Items and acts as a container for both the items and
+a constraint solver.
 
 Connections
 ===========
@@ -24,7 +23,6 @@ To get all connected items (i.e. items on both sides of a line)::
 To get connecting items (i.e. all lines connected to a class)::
 
     lines = (c.item for c in canvas.get_connections(connected=item))
-
 """
 import logging
 from collections import namedtuple
@@ -51,15 +49,12 @@ Connection = namedtuple("Connection", "item handle connected port constraint cal
 
 
 class ConnectionError(Exception):
-    """
-    Exception raised when there is an error when connecting an items
-    with each other.
-    """
+    """Exception raised when there is an error when connecting an items with
+    each other."""
 
 
 class Context:
-    """
-    Context used for updating and drawing items in a drawing canvas.
+    """Context used for updating and drawing items in a drawing canvas.
 
     >>> c=Context(one=1,two='two')
     >>> c.one
@@ -79,9 +74,7 @@ class Context:
 
 
 def instant_cairo_context():
-    """
-    A simple Cairo context, not attached to any window.
-    """
+    """A simple Cairo context, not attached to any window."""
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
     return cairo.Context(surface)
 
@@ -91,9 +84,7 @@ def default_update_context(item, cairo=instant_cairo_context()):
 
 
 class Canvas:
-    """
-    Container class for items.
-    """
+    """Container class for items."""
 
     def __init__(self, create_update_context=default_update_context):
         self._create_update_context = create_update_context
@@ -110,8 +101,7 @@ class Canvas:
 
     @observed
     def add(self, item, parent=None, index=None):
-        """
-        Add an item to the canvas.
+        """Add an item to the canvas.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -134,10 +124,8 @@ class Canvas:
 
     @observed
     def _remove(self, item):
-        """
-        Remove is done in a separate, @observed, method so the undo
-        system can restore removed items in the right order.
-        """
+        """Remove is done in a separate, @observed, method so the undo system
+        can restore removed items in the right order."""
         item._set_canvas(None)
         self._tree.remove(item)
         self._update_views(removed_items=(item,))
@@ -145,8 +133,7 @@ class Canvas:
         self._dirty_matrix_items.discard(item)
 
     def remove(self, item):
-        """
-        Remove item from the canvas.
+        """Remove item from the canvas.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -173,9 +160,7 @@ class Canvas:
 
     @observed
     def reparent(self, item, parent, index=None):
-        """
-        Set new parent for an item.
-        """
+        """Set new parent for an item."""
         self._tree.reparent(item, parent, index)
 
         self._dirty_index = True
@@ -190,8 +175,7 @@ class Canvas:
     )
 
     def get_all_items(self):
-        """
-        Get a list of all items.
+        """Get a list of all items.
 
         >>> c = Canvas()
         >>> c.get_all_items()
@@ -205,8 +189,7 @@ class Canvas:
         return self._tree.nodes
 
     def get_root_items(self):
-        """
-        Return the root items of the canvas.
+        """Return the root items of the canvas.
 
         >>> c = Canvas()
         >>> c.get_all_items()
@@ -222,8 +205,7 @@ class Canvas:
         return self._tree.get_children(None)
 
     def get_parent(self, item):
-        """
-        See `tree.Tree.get_parent()`.
+        """See `tree.Tree.get_parent()`.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -238,8 +220,7 @@ class Canvas:
         return self._tree.get_parent(item)
 
     def get_ancestors(self, item):
-        """
-        See `tree.Tree.get_ancestors()`.
+        """See `tree.Tree.get_ancestors()`.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -259,8 +240,7 @@ class Canvas:
         return self._tree.get_ancestors(item)
 
     def get_children(self, item):
-        """
-        See `tree.Tree.get_children()`.
+        """See `tree.Tree.get_children()`.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -280,8 +260,7 @@ class Canvas:
         return self._tree.get_children(item)
 
     def get_all_children(self, item):
-        """
-        See `tree.Tree.get_all_children()`.
+        """See `tree.Tree.get_all_children()`.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -304,10 +283,8 @@ class Canvas:
     def connect_item(
         self, item, handle, connected, port, constraint=None, callback=None
     ):
-        """
-        Create a connection between two items. The connection is
-        registered and the constraint is added to the constraint
-        solver.
+        """Create a connection between two items. The connection is registered
+        and the constraint is added to the constraint solver.
 
         The pair (item, handle) should be unique and not yet connected.
 
@@ -341,9 +318,10 @@ class Canvas:
             self._solver.add_constraint(constraint)
 
     def disconnect_item(self, item, handle=None):
-        """
-        Disconnect the connections of an item. If handle is not None,
-        only the connection for that handle is disconnected.
+        """Disconnect the connections of an item.
+
+        If handle is not None, only the connection for that handle is
+        disconnected.
         """
         # disconnect on canvas level
         for cinfo in list(self._connections.query(item=item, handle=handle)):
@@ -351,9 +329,7 @@ class Canvas:
 
     @observed
     def _disconnect_item(self, item, handle, connected, port, constraint, callback):
-        """
-        Perform the real disconnect.
-        """
+        """Perform the real disconnect."""
         # Same arguments as connect_item, makes reverser easy
         if constraint:
             self._solver.remove_constraint(constraint)
@@ -366,11 +342,11 @@ class Canvas:
     reversible_pair(connect_item, _disconnect_item)
 
     def remove_connections_to_item(self, item):
-        """
-        Remove all connections (handles connected to and constraints)
-        for a specific item (to and from the item).  This is some
-        brute force cleanup (e.g. if constraints are referenced by
-        items, those references are not cleaned up).
+        """Remove all connections (handles connected to and constraints) for a
+        specific item (to and from the item).
+
+        This is some brute force cleanup (e.g. if constraints are
+        referenced by items, those references are not cleaned up).
         """
         disconnect_item = self._disconnect_item
         # remove connections from this item
@@ -382,10 +358,9 @@ class Canvas:
 
     @observed
     def reconnect_item(self, item, handle, port=None, constraint=None):
-        """
-        Update an existing connection. This is used to provide a new
-        constraint to the connection. ``item`` and ``handle`` are
-        the keys to the to-be-updated connection.
+        """Update an existing connection. This is used to provide a new
+        constraint to the connection. ``item`` and ``handle`` are the keys to
+        the to-be-updated connection.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -423,7 +398,6 @@ class Canvas:
         Traceback (most recent call last):
         ...
         ValueError: No data available for item ...
-
         """
         # checks:
         cinfo = self.get_connection(handle)
@@ -459,8 +433,7 @@ class Canvas:
     )
 
     def get_connection(self, handle):
-        """
-        Get connection information for specified handle.
+        """Get connection information for specified handle.
 
         >>> c = Canvas()
         >>> from gaphas.item import Line
@@ -482,8 +455,7 @@ class Canvas:
             return None
 
     def get_connections(self, item=None, handle=None, connected=None, port=None):
-        """
-        Return an iterator of connection information.
+        """Return an iterator of connection information.
 
         The list contains (item, handle). As a result an item may be
         in the list more than once (depending on the number of handles
@@ -518,9 +490,8 @@ class Canvas:
         )
 
     def sort(self, items, reverse=False):
-        """
-        Sort a list of items in the order in which they are traversed
-        in the canvas (Depth first).
+        """Sort a list of items in the order in which they are traversed in the
+        canvas (Depth first).
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -540,8 +511,7 @@ class Canvas:
         return sorted(items, key=attrgetter("_canvas_index"), reverse=reverse)
 
     def get_matrix_i2c(self, item, calculate=False):
-        """
-        Get the Item to Canvas matrix for ``item``.
+        """Get the Item to Canvas matrix for ``item``.
 
         item:
             The item who's item-to-canvas transformation matrix should
@@ -557,8 +527,8 @@ class Canvas:
         return item._matrix_i2c
 
     def get_matrix_c2i(self, item, calculate=False):
-        """
-        Get the Canvas to Item matrix for ``item``.
+        """Get the Canvas to Item matrix for ``item``.
+
         See `get_matrix_i2c()`.
         """
         if item._matrix_c2i is None or calculate:
@@ -576,8 +546,7 @@ class Canvas:
 
     @observed
     def request_update(self, item, update=True, matrix=True):
-        """
-        Set an update request for the item.
+        """Set an update request for the item.
 
         >>> c = Canvas()
         >>> from gaphas import item
@@ -601,15 +570,11 @@ class Canvas:
     reversible_method(request_update, reverse=request_update)
 
     def request_matrix_update(self, item):
-        """
-        Schedule only the matrix to be updated.
-        """
+        """Schedule only the matrix to be updated."""
         self.request_update(item, update=False, matrix=True)
 
     def require_update(self):
-        """
-        Returns ``True`` or ``False`` depending on if an update is
-        needed.
+        """Returns ``True`` or ``False`` depending on if an update is needed.
 
         >>> c=Canvas()
         >>> c.require_update()
@@ -627,10 +592,8 @@ class Canvas:
 
     @AsyncIO(single=True)
     def update(self):
-        """
-        Update the canvas, if called from within a gtk-mainloop, the
-        update job is scheduled as idle job.
-        """
+        """Update the canvas, if called from within a gtk-mainloop, the update
+        job is scheduled as idle job."""
         self.update_now()
 
     def _pre_update_items(self, items):
@@ -652,9 +615,7 @@ class Canvas:
 
     @nonrecursive
     def update_now(self):
-        """
-        Perform an update of the items that requested an update.
-        """
+        """Perform an update of the items that requested an update."""
         sort = self.sort
 
         if self._dirty_index:
@@ -713,9 +674,8 @@ class Canvas:
         self._update_views(dirty_items, dirty_matrix_items)
 
     def update_matrices(self, items):
-        """
-        Recalculate matrices of the items. Items' children matrices
-        are recalculated, too.
+        """Recalculate matrices of the items. Items' children matrices are
+        recalculated, too.
 
         Return items, which matrices were recalculated.
         """
@@ -736,9 +696,7 @@ class Canvas:
         return changed
 
     def update_matrix(self, item, parent=None):
-        """
-        Update matrices of an item.
-        """
+        """Update matrices of an item."""
         try:
             orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
         except TypeError:
@@ -759,9 +717,10 @@ class Canvas:
             item._matrix_c2i.invert()
 
     def update_constraints(self, items):
-        """
-        Update constraints. Also variables may be marked as dirty
-        before the constraint solver kicks in.
+        """Update constraints.
+
+        Also variables may be marked as dirty before the constraint
+        solver kicks in.
         """
         # request solving of external constraints associated with dirty items
         request_resolve = self._solver.request_resolve
@@ -774,9 +733,8 @@ class Canvas:
         self._solver.solve()
 
     def _normalize(self, items):
-        """
-        Update handle positions of items, so the first handle is
-        always located at (0, 0).
+        """Update handle positions of items, so the first handle is always
+        located at (0, 0).
 
         Return those items, which matrices changed due to first handle
         movement.
@@ -809,38 +767,37 @@ class Canvas:
         return self.update_matrices(dirty_matrix_items)
 
     def update_index(self):
-        """
-        Provide each item in the canvas with an index attribute. This
-        makes for fast searching of items.
+        """Provide each item in the canvas with an index attribute.
+
+        This makes for fast searching of items.
         """
         self._tree.index_nodes("_canvas_index")
 
     def register_view(self, view):
-        """
-        Register a view on this canvas. This method is called when
-        setting a canvas on a view and should not be called directly
-        from user code.
+        """Register a view on this canvas.
+
+        This method is called when setting a canvas on a view and should
+        not be called directly from user code.
         """
         self._registered_views.add(view)
 
     def unregister_view(self, view):
-        """
-        Unregister a view on this canvas. This method is called when
-        setting a canvas on a view and should not be called directly
-        from user code.
+        """Unregister a view on this canvas.
+
+        This method is called when setting a canvas on a view and should
+        not be called directly from user code.
         """
         self._registered_views.discard(view)
 
     def _update_views(self, dirty_items=(), dirty_matrix_items=(), removed_items=()):
-        """
-        Send an update notification to all registered views.
-        """
+        """Send an update notification to all registered views."""
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
 
     def __getstate__(self):
-        """
-        Persist canvas. Dirty item sets and views are not saved.
+        """Persist canvas.
+
+        Dirty item sets and views are not saved.
         """
         d = dict(self.__dict__)
         for n in (
@@ -856,8 +813,7 @@ class Canvas:
         return d
 
     def __setstate__(self, state):
-        """
-        Load persisted state.
+        """Load persisted state.
 
         Before loading the state, the constructor is called.
         """
@@ -869,8 +825,7 @@ class Canvas:
         # self.update()
 
     def project(self, item, *points):
-        """
-        Project item's points into canvas coordinate system.
+        """Project item's points into canvas coordinate system.
 
         If there is only one point returned than projected point is
         returned. If there are more than one points, then tuple of

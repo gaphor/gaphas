@@ -1,8 +1,7 @@
-"""
-This module contains several flavors of constraint classes.  Each has
-a method `Constraint.solve_for(name)` and a method
-`Constraint.mark_dirty(v)`. These methods are used by the constraint
-solver (`solver.Solver`) to set the variables.
+"""This module contains several flavors of constraint classes.  Each has a
+method `Constraint.solve_for(name)` and a method `Constraint.mark_dirty(v)`.
+These methods are used by the constraint solver (`solver.Solver`) to set the
+variables.
 
 Variables should be of type `solver.Variable`.
 
@@ -41,8 +40,7 @@ def _update(variable, value):
 
 
 class Constraint:
-    """
-    Constraint base class.
+    """Constraint base class.
 
     - _variables - list of all variables
     - _weakest   - list of weakest variables
@@ -51,12 +49,11 @@ class Constraint:
     disabled = False
 
     def __init__(self, *variables):
-        """
-        Create new constraint, register all variables, and find
-        weakest variables.
+        """Create new constraint, register all variables, and find weakest
+        variables.
 
-        Any value can be added. It is assumed to be a variable if it
-        has a 'strength' attribute.
+        Any value can be added. It is assumed to be a variable if it has
+        a 'strength' attribute.
         """
         self._variables = []
         for v in variables:
@@ -69,33 +66,28 @@ class Constraint:
         self._solver_has_projections = False
 
     def create_weakest_list(self):
-        """
-        Create list of weakest variables.
-        """
+        """Create list of weakest variables."""
         # strength = min([v.strength for v in self._variables])
         strength = min(v.strength for v in self._variables)
         self._weakest = [v for v in self._variables if v.strength == strength]
 
     def variables(self):
-        """
-        Return an iterator which iterates over the variables that are
-        held by this constraint.
-        """
+        """Return an iterator which iterates over the variables that are held
+        by this constraint."""
         return self._variables
 
     def weakest(self):
-        """
-        Return the weakest variable. The weakest variable should be
-        always as first element of Constraint._weakest list.
+        """Return the weakest variable.
+
+        The weakest variable should be always as first element of
+        Constraint._weakest list.
         """
         return self._weakest[0]
 
     def mark_dirty(self, v):
-        """
-        Mark variable v dirty and if possible move it to the end of
-        Constraint._weakest list to maintain weakest variable
-        invariants (see gaphas.solver module documentation).
-        """
+        """Mark variable v dirty and if possible move it to the end of
+        Constraint._weakest list to maintain weakest variable invariants (see
+        gaphas.solver module documentation)."""
         weakest = self.weakest()
         # Fast lane:
         if v is weakest:
@@ -114,27 +106,26 @@ class Constraint:
                 return
 
     def solve(self):
-        """
-        Solve the constraint. This is done by determining the weakest
-        variable and calling solve_for() for that variable. The
-        weakest variable is always in the set of variables with the
-        weakest strength. The least recently changed variable is
-        considered the weakest.
+        """Solve the constraint.
+
+        This is done by determining the weakest variable and calling
+        solve_for() for that variable. The weakest variable is always in
+        the set of variables with the weakest strength. The least
+        recently changed variable is considered the weakest.
         """
         wvar = self.weakest()
         self.solve_for(wvar)
 
     def solve_for(self, var):
-        """
-        Solve the constraint for a given variable.
+        """Solve the constraint for a given variable.
+
         The variable itself is updated.
         """
         raise NotImplementedError
 
 
 class EqualsConstraint(Constraint):
-    """
-    Constraint, which ensures that two arguments ``a`` and ``b`` are equal:
+    """Constraint, which ensures that two arguments ``a`` and ``b`` are equal:
 
         a + delta = b
 
@@ -172,10 +163,9 @@ class EqualsConstraint(Constraint):
 
 
 class CenterConstraint(Constraint):
-    """
-    Simple Constraint, takes three arguments: 'a', 'b' and center.
-    When solved, the constraint ensures 'center' is located in the
-    middle of 'a' and 'b'.
+    """Simple Constraint, takes three arguments: 'a', 'b' and center. When
+    solved, the constraint ensures 'center' is located in the middle of 'a' and
+    'b'.
 
     >>> from gaphas.solver import Variable
     >>> a, b, center = Variable(1.0), Variable(3.0), Variable()
@@ -207,11 +197,9 @@ class CenterConstraint(Constraint):
 
 
 class LessThanConstraint(Constraint):
-    """
-    Ensure ``smaller`` is less than ``bigger``. The variable that is
-    passed as to-be-solved is left alone (cause it is the variable
-    that has not been moved lately). Instead the other variable is
-    solved.
+    """Ensure ``smaller`` is less than ``bigger``. The variable that is passed
+    as to-be-solved is left alone (cause it is the variable that has not been
+    moved lately). Instead the other variable is solved.
 
     >>> from gaphas.solver import Variable
     >>> a, b = Variable(3.0), Variable(2.0)
@@ -254,8 +242,7 @@ ITERLIMIT = 1000  # iteration limit
 
 
 class EquationConstraint(Constraint):
-    """
-    Equation solver using attributes and introspection.
+    """Equation solver using attributes and introspection.
 
     Takes a function, named arg value (opt.) and returns a Constraint
     object Calling EquationConstraint.solve_for will solve the
@@ -294,16 +281,12 @@ class EquationConstraint(Constraint):
             return f"EquationConstraint({self._f.__code__.co_name})"
 
     def __getattr__(self, name):
-        """
-        Used to extract function argument values.
-        """
+        """Used to extract function argument values."""
         self._args[name]
         return self.solve_for(name)
 
     def __setattr__(self, name, value):
-        """
-        Sets function argument values.
-        """
+        """Sets function argument values."""
         # Note - once self._args is created, no new attributes can
         # be added to self.__dict__.  This is a good thing as it throws
         # an exception if you try to assign to an arg which is inappropriate
@@ -319,18 +302,14 @@ class EquationConstraint(Constraint):
             object.__setattr__(self, name, value)
 
     def _set(self, **args):
-        """
-        Sets values of function arguments.
-        """
+        """Sets values of function arguments."""
         for arg in args:
             self._args[arg]  # raise exception if arg not in _args
             setattr(self, arg, args[arg])
 
     def solve_for(self, var):
-        """
-        Solve this constraint for the variable named 'arg' in the
-        constraint.
-        """
+        """Solve this constraint for the variable named 'arg' in the
+        constraint."""
         args = {}
         for nm, v in list(self._args.items()):
             args[nm] = v.value
@@ -341,9 +320,7 @@ class EquationConstraint(Constraint):
             var.value = v
 
     def _solve_for(self, arg, args):
-        """
-        Newton's method solver
-        """
+        """Newton's method solver."""
         # args = self._args
         close_runs = 10  # after getting close, do more passes
         if args[arg]:
@@ -356,7 +333,7 @@ class EquationConstraint(Constraint):
             x1 = x0 * 1.1
 
         def f(x):
-            """function to solve"""
+            """function to solve."""
             args[arg] = x
             return self._f(**args)
 
@@ -393,9 +370,8 @@ class EquationConstraint(Constraint):
 
 
 class BalanceConstraint(Constraint):
-    """
-    Ensure that a variable ``v`` is between values specified by
-    ``band`` and in distance proportional from ``band[0]``.
+    """Ensure that a variable ``v`` is between values specified by ``band`` and
+    in distance proportional from ``band[0]``.
 
     Consider
 
@@ -443,8 +419,7 @@ class BalanceConstraint(Constraint):
 
 
 class LineConstraint(Constraint):
-    """
-    Ensure a point is kept on a line.
+    """Ensure a point is kept on a line.
 
     Attributes:
      - _line: line defined by tuple ((x1, y1), (x2, y2))
@@ -494,8 +469,7 @@ class LineConstraint(Constraint):
         self._solve()
 
     def _solve(self):
-        """
-        Solve the equation for the connected_handle.
+        """Solve the equation for the connected_handle.
 
         >>> from gaphas.solver import Variable
         >>> line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
@@ -523,8 +497,7 @@ class LineConstraint(Constraint):
 
 
 class PositionConstraint(Constraint):
-    """
-    Ensure that point is always in origin position.
+    """Ensure that point is always in origin position.
 
     Attributes:
      - _origin: origin position
@@ -538,19 +511,16 @@ class PositionConstraint(Constraint):
         self._point = point
 
     def solve_for(self, var=None):
-        """
-        Ensure that point's coordinates are the same as coordinates of the
-        origin position.
-        """
+        """Ensure that point's coordinates are the same as coordinates of the
+        origin position."""
         x, y = self._origin[0].value, self._origin[1].value
         _update(self._point[0], x)
         _update(self._point[1], y)
 
 
 class LineAlignConstraint(Constraint):
-    """
-    Ensure a point is kept on a line in position specified by align
-    and padding information.
+    """Ensure a point is kept on a line in position specified by align and
+    padding information.
 
     Align is specified as a number between 0 and 1, for example
      0

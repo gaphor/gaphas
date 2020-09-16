@@ -71,9 +71,7 @@ def test_moving_items(qtree):
 
 
 def test_get_data(qtree):
-    """Test extra data added to a node.
-
-    """
+    """Test extra data added to a node."""
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
             qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=i + j)

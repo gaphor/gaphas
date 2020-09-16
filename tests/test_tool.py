@@ -1,6 +1,4 @@
-"""Test all the tools.
-
-"""
+"""Test all the tools."""
 from gaphas.canvas import Context
 from gaphas.constraint import LineConstraint
 from gaphas.tool import ConnectHandleTool
@@ -12,9 +10,7 @@ Event = Context
 
 
 def test_item_and_port_glue(simple_canvas):
-    """Test glue operation to an item and its ports.
-
-    """
+    """Test glue operation to an item and its ports."""
     ports = simple_canvas.box1.ports()
 
     # Glue to port nw-ne
@@ -39,9 +35,7 @@ def test_item_and_port_glue(simple_canvas):
 
 
 def test_failed_glue(simple_canvas):
-    """Test glue from too far distance.
-
-    """
+    """Test glue from too far distance."""
     sink = simple_canvas.tool.glue(simple_canvas.line, simple_canvas.head, (90, 50))
     assert sink is None
 
@@ -49,9 +43,8 @@ def test_failed_glue(simple_canvas):
 def test_glue_no_port_no_can_glue(simple_canvas):
     """Test no glue with no port.
 
-    Test if glue method does not call ConnectHandleTool.can_glue method when
-    port is not found.
-
+    Test if glue method does not call ConnectHandleTool.can_glue method
+    when port is not found.
     """
 
     class Tool(ConnectHandleTool):
@@ -70,9 +63,7 @@ def test_glue_no_port_no_can_glue(simple_canvas):
 
 
 def test_connect(simple_canvas):
-    """Test connection to an item.
-
-    """
+    """Test connection to an item."""
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (120, 50))
     cinfo = simple_canvas.canvas.get_connection(head)
@@ -91,9 +82,7 @@ def test_connect(simple_canvas):
 
 
 def test_reconnect_another(simple_canvas):
-    """Test reconnection to another item.
-
-    """
+    """Test reconnection to another item."""
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (120, 50))
     cinfo = simple_canvas.canvas.get_connection(head)
@@ -120,9 +109,7 @@ def test_reconnect_another(simple_canvas):
 
 
 def test_reconnect_same(simple_canvas):
-    """Test reconnection to same item.
-
-    """
+    """Test reconnection to same item."""
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (120, 50))
     cinfo = simple_canvas.canvas.get_connection(head)
@@ -144,9 +131,7 @@ def test_reconnect_same(simple_canvas):
 
 
 def xtest_find_port(simple_canvas):
-    """Test finding a port.
-
-    """
+    """Test finding a port."""
     line, head = simple_canvas.line, simple_canvas.head
     p1, p2, p3, p4 = simple_canvas.box1.ports()
 

@@ -1,6 +1,4 @@
-"""
-Module implements guides when moving items and handles around.
-"""
+"""Module implements guides when moving items and handles around."""
 from functools import reduce
 
 from gaphas.aspect import (
@@ -16,23 +14,17 @@ from gaphas.item import Element, Item, Line
 
 
 class ItemGuide:
-    """
-    Get edges on an item, on which we can align the items.
-    """
+    """Get edges on an item, on which we can align the items."""
 
     def __init__(self, item):
         self.item = item
 
     def horizontal(self):
-        """
-        Return horizontal edges (on y axis)
-        """
+        """Return horizontal edges (on y axis)"""
         return ()
 
     def vertical(self):
-        """
-        Return vertical edges (on x axis)
-        """
+        """Return vertical edges (on x axis)"""
         return ()
 
 
@@ -41,9 +33,7 @@ Guide = singledispatch(ItemGuide)
 
 @Guide.register(Element)
 class ElementGuide(ItemGuide):
-    """Guide to align Element items.
-
-    """
+    """Guide to align Element items."""
 
     def horizontal(self):
         y = self.item.height
@@ -56,9 +46,7 @@ class ElementGuide(ItemGuide):
 
 @Guide.register(Line)
 class LineGuide(ItemGuide):
-    """Guide for orthogonal lines.
-
-    """
+    """Guide for orthogonal lines."""
 
     def horizontal(self):
         line = self.item
@@ -98,9 +86,7 @@ class Guides:
 
 
 class GuideMixin:
-    """
-    Helper methods for guides.
-    """
+    """Helper methods for guides."""
 
     MARGIN = 2
 
@@ -153,9 +139,7 @@ class GuideMixin:
         return dy, edges_y
 
     def get_excluded_items(self):
-        """
-        Get a set of items excluded from guide calculation.
-        """
+        """Get a set of items excluded from guide calculation."""
         item = self.item
         view = self.view
 
@@ -206,10 +190,8 @@ class GuideMixin:
 
 @InMotion.register(Item)
 class GuidedItemInMotion(GuideMixin, ItemInMotion):
-    """
-    Move the item, lock position on any element that's located at the
-    same location.
-    """
+    """Move the item, lock position on any element that's located at the same
+    location."""
 
     def move(self, pos):
         item = self.item
@@ -256,8 +238,8 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
     """Move a handle and lock the position of other elements.
 
-     Locks the position of another element that's located at the same position.
-
+    Locks the position of another element that's located at the same
+    position.
     """
 
     def move(self, pos):

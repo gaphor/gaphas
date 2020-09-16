@@ -29,9 +29,7 @@ def win():
 
 
 def test_find_closest(win):
-    """Test find closest method.
-
-    """
+    """Test find closest method."""
     set1 = [0, 10, 20]
     set2 = [2, 15, 30]
 

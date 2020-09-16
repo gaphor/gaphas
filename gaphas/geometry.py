@@ -1,20 +1,17 @@
-"""
-Geometry functions.
+"""Geometry functions.
 
 Rectangle is a utility class for working with rectangles (unions and
 intersections).
 
 A point is represented as a tuple `(x, y)`.
-
 """
 from math import sqrt
 
 
 class Rectangle:
-    """
-    Python Rectangle implementation. Rectangles can be added (union),
-    substituted (intersection) and points and rectangles can be tested
-    to be in the rectangle.
+    """Python Rectangle implementation. Rectangles can be added (union),
+    substituted (intersection) and points and rectangles can be tested to be in
+    the rectangle.
 
     >>> r1= Rectangle(1,1,5,5)
     >>> r2 = Rectangle(3,3,6,7)
@@ -54,8 +51,7 @@ class Rectangle:
             self.height = height
 
     def _set_x1(self, x1):
-        """
-        """
+        """"""
         width = x1 - self.x
         if width < 0:
             width = 0
@@ -64,8 +60,7 @@ class Rectangle:
     x1 = property(lambda s: s.x + s.width, _set_x1)
 
     def _set_y1(self, y1):
-        """
-        """
+        """"""
         height = y1 - self.y
         if height < 0:
             height = 0
@@ -128,9 +123,8 @@ class Rectangle:
         )
 
     def __add__(self, obj):
-        """
-        Create a new Rectangle is the union of the current rectangle
-        with another Rectangle, tuple `(x,y)` or tuple `(x, y, width, height)`.
+        """Create a new Rectangle is the union of the current rectangle with
+        another Rectangle, tuple `(x,y)` or tuple `(x, y, width, height)`.
 
         >>> r=Rectangle(5, 7, 20, 25)
         >>> r + (0, 0)
@@ -172,9 +166,8 @@ class Rectangle:
         return self
 
     def __sub__(self, obj):
-        """
-        Create a new Rectangle is the union of the current rectangle
-        with another Rectangle or tuple (x, y, width, height).
+        """Create a new Rectangle is the union of the current rectangle with
+        another Rectangle or tuple (x, y, width, height).
 
         >>> r = Rectangle(5, 7, 20, 25)
         >>> r - (20, 30, 40, 50)
@@ -216,9 +209,8 @@ class Rectangle:
         return self
 
     def __contains__(self, obj):
-        """
-        Check if a point `(x, y)` in inside rectangle `(x, y, width, height)`
-        or if a rectangle instance is inside with the rectangle.
+        """Check if a point `(x, y)` in inside rectangle `(x, y, width,
+        height)` or if a rectangle instance is inside with the rectangle.
 
         >>> r=Rectangle(10, 5, 12, 12)
         >>> (0, 0) in r
@@ -258,8 +250,7 @@ class Rectangle:
 
 
 def distance_point_point(point1, point2=(0.0, 0.0)):
-    """
-    Return the distance from point ``point1`` to ``point2``.
+    """Return the distance from point ``point1`` to ``point2``.
 
     >>> f"{distance_point_point((0,0), (1,1))}:.3f"
     '1.414'
@@ -270,10 +261,8 @@ def distance_point_point(point1, point2=(0.0, 0.0)):
 
 
 def distance_point_point_fast(point1, point2=(0.0, 0.0)):
-    """
-    Return the distance from point ``point1`` to ``point2``. This
-    version is faster than ``distance_point_point()``, but less
-    precise.
+    """Return the distance from point ``point1`` to ``point2``. This version is
+    faster than ``distance_point_point()``, but less precise.
 
     >>> distance_point_point_fast((0,0), (1,1))
     2
@@ -284,9 +273,8 @@ def distance_point_point_fast(point1, point2=(0.0, 0.0)):
 
 
 def distance_rectangle_point(rect, point):
-    """
-    Return the distance (fast) from a rectangle ``(x, y, width,height)``
-    to a ``point``.
+    """Return the distance (fast) from a rectangle ``(x, y, width,height)`` to
+    a ``point``.
 
     >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
     2
@@ -379,9 +367,8 @@ def point_on_rectangle(rect, point, border=False):
 
 
 def distance_line_point(line_start, line_end, point):
-    """
-    Calculate the distance of a ``point`` from a line. The line is
-    marked by begin and end point ``line_start`` and ``line_end``.
+    """Calculate the distance of a ``point`` from a line. The line is marked by
+    begin and end point ``line_start`` and ``line_end``.
 
     A tuple is returned containing the distance and point on the line.
 
@@ -429,10 +416,9 @@ def distance_line_point(line_start, line_end, point):
 
 
 def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
-    """
-    Find the point where the lines (segments) defined by
-    ``(line1_start, line1_end)`` and ``(line2_start, line2_end)``
-    intersect.  If no intersection occurs, ``None`` is returned.
+    """Find the point where the lines (segments) defined by ``(line1_start,
+    line1_end)`` and ``(line2_start, line2_end)`` intersect.  If no
+    intersection occurs, ``None`` is returned.
 
     >>> intersect_line_line((3, 0), (8, 10), (0, 0), (10, 10))
     (6, 6)
@@ -567,17 +553,14 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
 
 
 def rectangle_contains(inner, outer):
-    """
-    Returns True if ``inner`` rect is contained in ``outer`` rect.
-    """
+    """Returns True if ``inner`` rect is contained in ``outer`` rect."""
     ix, iy, iw, ih = inner
     ox, oy, ow, oh = outer
     return ox <= ix and oy <= iy and ox + ow >= ix + iw and oy + oh >= iy + ih
 
 
 def rectangle_intersects(recta, rectb):
-    """
-    Return True if ``recta`` and ``rectb`` intersect.
+    """Return True if ``recta`` and ``rectb`` intersect.
 
     >>> rectangle_intersects((5,5,20, 20), (10, 10, 1, 1))
     True
@@ -590,9 +573,8 @@ def rectangle_intersects(recta, rectb):
 
 
 def rectangle_clip(recta, rectb):
-    """
-    Return the clipped rectangle of ``recta`` and ``rectb``. If they
-    do not intersect, ``None`` is returned.
+    """Return the clipped rectangle of ``recta`` and ``rectb``. If they do not
+    intersect, ``None`` is returned.
 
     >>> rectangle_clip((0, 0, 20, 20), (10, 10, 20, 20))
     (10, 10, 10, 10)

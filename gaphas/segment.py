@@ -1,6 +1,4 @@
-"""
-Allow for easily adding segments to lines.
-"""
+"""Allow for easily adding segments to lines."""
 from cairo import ANTIALIAS_NONE, Matrix
 
 from gaphas.aspect import (
@@ -42,8 +40,7 @@ class LineSegment:
                 return handles and handles[0]
 
     def split_segment(self, segment, count=2):
-        """
-        Split one item segment into ``count`` equal pieces.
+        """Split one item segment into ``count`` equal pieces.
 
         Two lists are returned
 
@@ -91,8 +88,7 @@ class LineSegment:
         return handles, ports
 
     def merge_segment(self, segment, count=2):
-        """
-        Merge two (or more) item segments.
+        """Merge two (or more) item segments.
 
         Tuple of two lists is returned, list of deleted handles and
         list of deleted ports.
@@ -134,8 +130,7 @@ class LineSegment:
         return deleted_handles, deleted_ports
 
     def _recreate_constraints(self):
-        """
-        Create connection constraints between connecting lines and an item.
+        """Create connection constraints between connecting lines and an item.
 
         :Parameters:
          connected
@@ -173,8 +168,8 @@ class LineSegment:
 class SegmentHandleFinder(ItemHandleFinder):
     """Find a handle on a line.
 
-    Creates a new handle if the mouse is located between two handles. The
-    position aligns with the points drawn by the SegmentPainter.
+    Creates a new handle if the mouse is located between two handles.
+    The position aligns with the points drawn by the SegmentPainter.
     """
 
     def get_handle_at_point(self, pos):
@@ -196,10 +191,8 @@ class SegmentHandleFinder(ItemHandleFinder):
 
 @HandleSelection.register(Line)
 class SegmentHandleSelection(ItemHandleSelection):
-    """
-    In addition to the default behaviour, merge segments if the handle
-    is released.
-    """
+    """In addition to the default behaviour, merge segments if the handle is
+    released."""
 
     def unselect(self):
         item = self.item
@@ -232,10 +225,8 @@ class SegmentHandleSelection(ItemHandleSelection):
 
 @PaintFocused.register(Line)
 class LineSegmentPainter(ItemPaintFocused):
-    """
-    This painter draws pseudo-handles on gaphas.item.Line
-    objects. Each line can be split by dragging those points, which
-    will result in a new handle.
+    """This painter draws pseudo-handles on gaphas.item.Line objects. Each line
+    can be split by dragging those points, which will result in a new handle.
 
     ConnectHandleTool take care of performing the user interaction
     required for this feature.

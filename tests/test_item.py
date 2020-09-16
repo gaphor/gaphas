@@ -1,8 +1,7 @@
 """Item constraint creation tests.
 
-The test check functionality of `Item.constraint` method, not constraints
-themselves.
-
+The test check functionality of `Item.constraint` method, not
+constraints themselves.
 """
 import pytest
 
@@ -24,9 +23,7 @@ def item_pos():
 
 
 def test_line_constraint(item_pos):
-    """Test line creation constraint.
-
-    """
+    """Test line creation constraint."""
     line = (Variable(3), Variable(4)), (Variable(5), Variable(6))
     item_pos.item.constraint(line=(item_pos.pos1, line))
     assert 1 == len(item_pos.item._constraints)
@@ -38,9 +35,7 @@ def test_line_constraint(item_pos):
 
 
 def test_horizontal_constraint(item_pos):
-    """Test horizontal constraint creation.
-
-    """
+    """Test horizontal constraint creation."""
     item_pos.item.constraint(horizontal=(item_pos.pos1, item_pos.pos2))
     assert 1 == len(item_pos.item._constraints)
 
@@ -52,9 +47,7 @@ def test_horizontal_constraint(item_pos):
 
 
 def test_vertical_constraint(item_pos):
-    """Test vertical constraint creation.
-
-    """
+    """Test vertical constraint creation."""
     item_pos.item.constraint(vertical=(item_pos.pos1, item_pos.pos2))
     assert 1 == len(item_pos.item._constraints)
 
@@ -66,9 +59,7 @@ def test_vertical_constraint(item_pos):
 
 
 def test_left_of_constraint(item_pos):
-    """Test "less than" constraint (horizontal) creation.
-
-    """
+    """Test "less than" constraint (horizontal) creation."""
     item_pos.item.constraint(left_of=(item_pos.pos1, item_pos.pos2))
     assert 1 == len(item_pos.item._constraints)
 
@@ -79,9 +70,7 @@ def test_left_of_constraint(item_pos):
 
 
 def test_above_constraint(item_pos):
-    """
-    Test "less than" constraint (vertical) creation.
-    """
+    """Test "less than" constraint (vertical) creation."""
     item_pos.item.constraint(above=(item_pos.pos1, item_pos.pos2))
     assert 1 == len(item_pos.item._constraints)
 

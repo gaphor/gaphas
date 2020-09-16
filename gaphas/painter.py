@@ -1,5 +1,4 @@
-"""
-The painter module provides different painters for parts of the canvas.
+"""The painter module provides different painters for parts of the canvas.
 
 Painters can be swapped in and out.
 
@@ -20,9 +19,7 @@ TOLERANCE = 0.8
 
 
 class Painter:
-    """
-    Painter interface.
-    """
+    """Painter interface."""
 
     def __init__(self, view=None):
         self.view = view
@@ -31,15 +28,13 @@ class Painter:
         self.view = view
 
     def paint(self, context):
-        """
-        Do the paint action (called from the View).
-        """
+        """Do the paint action (called from the View)."""
         pass
 
 
 class PainterChain(Painter):
-    """
-    Chain up a set of painters.
+    """Chain up a set of painters.
+
     like ToolChain.
     """
 
@@ -53,32 +48,26 @@ class PainterChain(Painter):
             painter.set_view(self.view)
 
     def append(self, painter):
-        """
-        Add a painter to the list of painters.
-        """
+        """Add a painter to the list of painters."""
         self._painters.append(painter)
         painter.set_view(self.view)
         return self
 
     def prepend(self, painter):
-        """
-        Add a painter to the beginning of the list of painters.
-        """
+        """Add a painter to the beginning of the list of painters."""
         self._painters.insert(0, painter)
 
     def paint(self, context):
-        """
-        See Painter.paint().
-        """
+        """See Painter.paint()."""
         for painter in self._painters:
             painter.paint(context)
 
 
 class DrawContext(Context):
-    """
-    Special context for draw()'ing the item. The draw-context contains
-    stuff like the cairo context and properties like selected and
-    focused.
+    """Special context for draw()'ing the item.
+
+    The draw-context contains stuff like the cairo context and
+    properties like selected and focused.
     """
 
     def __init__(self, **kwargs):
@@ -113,9 +102,7 @@ class ItemPainter(Painter):
             cairo.restore()
 
     def draw_items(self, items, cairo):
-        """
-        Draw the items.
-        """
+        """Draw the items."""
         for item in items:
             self.draw_item(item, cairo)
             if DEBUG_DRAW_BOUNDING_BOX:
@@ -144,11 +131,9 @@ class ItemPainter(Painter):
 
 
 class CairoBoundingBoxContext:
-    """
-    Delegate all calls to the wrapped CairoBoundingBoxContext,
-    intercept ``stroke()``, ``fill()`` and a few others so the
-    bounding box of the item involved can be calculated.
-    """
+    """Delegate all calls to the wrapped CairoBoundingBoxContext, intercept
+    ``stroke()``, ``fill()`` and a few others so the bounding box of the item
+    involved can be calculated."""
 
     def __init__(self, cairo):
         self._cairo = cairo
@@ -158,9 +143,7 @@ class CairoBoundingBoxContext:
         return getattr(self._cairo, key)
 
     def get_bounds(self):
-        """
-        Return the bounding box.
-        """
+        """Return the bounding box."""
         return self._bounds or Rectangle()
 
     def _update_bounds(self, bounds):
@@ -171,9 +154,9 @@ class CairoBoundingBoxContext:
                 self._bounds += bounds
 
     def _extents(self, extents_func, line_width=False):
-        """
-        Calculate the bounding box for a given drawing operation.  if
-        ``line_width`` is True, the current line-width is taken into
+        """Calculate the bounding box for a given drawing operation.
+
+        if ``line_width`` is True, the current line-width is taken into
         account.
         """
         cr = self._cairo
@@ -191,43 +174,33 @@ class CairoBoundingBoxContext:
         return b
 
     def fill(self, b=None):
-        """
-        Interceptor for Cairo drawing method.
-        """
+        """Interceptor for Cairo drawing method."""
         cr = self._cairo
         if not b:
             b = self._extents(cr.fill_extents)
         cr.fill()
 
     def fill_preserve(self, b=None):
-        """
-        Interceptor for Cairo drawing method.
-        """
+        """Interceptor for Cairo drawing method."""
         cr = self._cairo
         if not b:
             b = self._extents(cr.fill_extents)
 
     def stroke(self, b=None):
-        """
-        Interceptor for Cairo drawing method.
-        """
+        """Interceptor for Cairo drawing method."""
         cr = self._cairo
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
         cr.stroke()
 
     def stroke_preserve(self, b=None):
-        """
-        Interceptor for Cairo drawing method.
-        """
+        """Interceptor for Cairo drawing method."""
         cr = self._cairo
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
 
     def show_text(self, utf8, b=None):
-        """
-        Interceptor for Cairo drawing method.
-        """
+        """Interceptor for Cairo drawing method."""
         cr = self._cairo
         if not b:
             x, y = cr.get_current_point()
@@ -240,10 +213,8 @@ class CairoBoundingBoxContext:
 
 
 class BoundingBoxPainter(Painter):
-    """
-    This specific case of an ItemPainter is used to calculate the
-    bounding boxes (in canvas coordinates) for the items.
-    """
+    """This specific case of an ItemPainter is used to calculate the bounding
+    boxes (in canvas coordinates) for the items."""
 
     draw_all = True
 
@@ -271,9 +242,7 @@ class BoundingBoxPainter(Painter):
         view.set_item_bounding_box(item, bounds)
 
     def draw_items(self, items, cairo):
-        """
-        Draw the items.
-        """
+        """Draw the items."""
         for item in items:
             self.draw_item(item, cairo)
 
@@ -282,13 +251,11 @@ class BoundingBoxPainter(Painter):
 
 
 class HandlePainter(Painter):
-    """
-    Draw handles of items that are marked as selected in the view.
-    """
+    """Draw handles of items that are marked as selected in the view."""
 
     def _draw_handles(self, item, cairo, opacity=None, inner=False):
-        """
-        Draw handles for an item.
+        """Draw handles for an item.
+
         The handles are drawn in non-antialiased mode for clarity.
         """
         view = self.view
@@ -348,10 +315,8 @@ class HandlePainter(Painter):
 
 
 class ToolPainter(Painter):
-    """
-    ToolPainter allows the Tool defined on a view to do some special
-    drawing.
-    """
+    """ToolPainter allows the Tool defined on a view to do some special
+    drawing."""
 
     def paint(self, context):
         view = self.view
@@ -364,10 +329,8 @@ class ToolPainter(Painter):
 
 
 class FocusedItemPainter(Painter):
-    """
-    This painter allows for drawing on top of all the other layers for the
-    focused item.
-    """
+    """This painter allows for drawing on top of all the other layers for the
+    focused item."""
 
     def paint(self, context):
         view = self.view
@@ -377,9 +340,7 @@ class FocusedItemPainter(Painter):
 
 
 def DefaultPainter(view=None):
-    """
-    Default painter, containing item, handle and tool painters.
-    """
+    """Default painter, containing item, handle and tool painters."""
     return (
         PainterChain(view)
         .append(ItemPainter())

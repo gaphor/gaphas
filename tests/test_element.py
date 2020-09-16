@@ -20,9 +20,7 @@ def cb():
 
 
 def test_creation_with_size(cb):
-    """Test if initial size holds when added to a canvas.
-
-    """
+    """Test if initial size holds when added to a canvas."""
     cb.box.width = 150
     cb.box.height = 153
 
@@ -40,9 +38,7 @@ def test_creation_with_size(cb):
 
 
 def test_resize_se(cb):
-    """Test resizing of element by dragging its SE handle.
-
-    """
+    """Test resizing of element by dragging its SE handle."""
     cb.canvas.add(cb.box)
 
     h_nw, h_ne, h_se, h_sw = cb.handles
@@ -67,9 +63,7 @@ def test_resize_se(cb):
 
 
 def test_minimal_se(cb):
-    """Test resizing of element by dragging its SE handle.
-
-    """
+    """Test resizing of element by dragging its SE handle."""
     cb.canvas.add(cb.box)
 
     h_nw, h_ne, h_se, h_sw = cb.handles

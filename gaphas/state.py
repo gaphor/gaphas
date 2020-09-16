@@ -1,6 +1,5 @@
-"""
-This module is the central point where Gaphas' classes report their
-state changes.
+"""This module is the central point where Gaphas' classes report their state
+changes.
 
 Invocations of method and state changing properties are emitted to all
 functions (or bound methods) registered in the 'observers' set.  Use
@@ -15,7 +14,6 @@ For this to work the revert_handler has to be added to the observers
 set::
 
     gaphas.state.observers.add(gaphas.state.revert_handler)
-
 """
 from functools import update_wrapper
 from inspect import getfullargspec as _getargspec
@@ -46,8 +44,7 @@ mutex = Lock()
 
 
 def observed(func):
-    """
-    Simple observer, dispatches events to functions registered in the
+    """Simple observer, dispatches events to functions registered in the
     observers list.
 
     On the function an ``__observer__`` property is set, which
@@ -77,9 +74,8 @@ def observed(func):
 
 
 def dispatch(event, queue):
-    """
-    Dispatch an event to a queue of event handlers.
-    Event handlers should have signature: handler(event).
+    """Dispatch an event to a queue of event handlers. Event handlers should
+    have signature: handler(event).
 
     >>> def handler(event):
     ...     print("event handled", event)
@@ -106,10 +102,8 @@ _reverse = {}
 
 
 def reversible_function(func, reverse, bind={}):
-    """
-    Straight forward reversible method, if func is invoked, reverse
-    is dispatched with bind as arguments.
-    """
+    """Straight forward reversible method, if func is invoked, reverse is
+    dispatched with bind as arguments."""
     global _reverse
     func = getfunction(func)
     _reverse[func] = (reverse, getargnames(reverse), bind)
@@ -119,10 +113,9 @@ reversible_method = reversible_function
 
 
 def reversible_pair(func1, func2, bind1={}, bind2={}):
-    """
-    Treat a pair of functions (func1 and func2) as each others inverse
-    operation. bind1 provides arguments that can overrule the default
-    values (or add additional values). bind2 does the same for func2.
+    """Treat a pair of functions (func1 and func2) as each others inverse
+    operation. bind1 provides arguments that can overrule the default values
+    (or add additional values). bind2 does the same for func2.
 
     See `revert_handler()` for doctesting.
     """
@@ -135,10 +128,9 @@ def reversible_pair(func1, func2, bind1={}, bind2={}):
 
 
 def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
-    """
-    Replacement for the property descriptor. In addition to creating a
-    property instance, the property is registered as reversible and
-    reverse events can be send out when changes occur.
+    """Replacement for the property descriptor. In addition to creating a
+    property instance, the property is registered as reversible and reverse
+    events can be send out when changes occur.
 
     Caveat: we can't handle both fset and fdel in the proper
     way. Therefore fdel should somehow invoke fset. (personally, I
@@ -165,8 +157,7 @@ def reversible_property(fget=None, fset=None, fdel=None, doc=None, bind={}):
 
 
 def revert_handler(event):
-    """
-    Event handler, generates undoable statements and puts them on the
+    """Event handler, generates undoable statements and puts them on the
     subscribers queue.
 
     First thing to do is to actually enable the revert_handler:
@@ -245,8 +236,8 @@ def revert_handler(event):
 
 
 def saveapply(func, kw):
-    """
-    Do apply a set of keywords to a method or function.
+    """Do apply a set of keywords to a method or function.
+
     The function names should be known at meta-level, since arguments
     are applied as func(\\*\\*kwargs).
     """
@@ -270,7 +261,5 @@ def getargnames(func):
 
 
 def getfunction(func):
-    """
-    Return the function associated with a class method.
-    """
+    """Return the function associated with a class method."""
     return func

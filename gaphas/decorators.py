@@ -1,6 +1,4 @@
-"""
-Custom decorators.
-"""
+"""Custom decorators."""
 import threading
 
 import gi
@@ -14,11 +12,9 @@ DEBUG_ASYNC = False
 
 
 class AsyncIO:
-    """
-    Instead of calling the function, schedule an idle handler at a
-    given priority. This requires the async'ed method to be called
-    from within the GTK main loop. Otherwise the method is executed
-    directly.
+    """Instead of calling the function, schedule an idle handler at a given
+    priority. This requires the async'ed method to be called from within the
+    GTK main loop. Otherwise the method is executed directly.
 
     Note:
         the current implementation of async single mode only works for
@@ -147,8 +143,7 @@ class AsyncIO:
 
 
 def nonrecursive(func):
-    """
-    Enforce a function or method is not executed recursively:
+    """Enforce a function or method is not executed recursively:
 
     >>> class A(object):
     ...     @nonrecursive
@@ -163,9 +158,8 @@ def nonrecursive(func):
     m = threading.Lock()
 
     def wrapper(*args, **kwargs):
-        """
-        Decorate function with a mutex that prohibits recursive execution.
-        """
+        """Decorate function with a mutex that prohibits recursive
+        execution."""
         if m.acquire(False):
             try:
                 return func(*args, **kwargs)
@@ -176,8 +170,7 @@ def nonrecursive(func):
 
 
 class recursive:
-    """
-    This decorator limits the recursion for a specific function
+    """This decorator limits the recursion for a specific function.
 
     >>> class A(object):
     ...    def __init__(self): self.r = 0

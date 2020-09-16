@@ -1,6 +1,4 @@
-"""Test segment aspects for items.
-
-"""
+"""Test segment aspects for items."""
 import pytest
 
 from gaphas.canvas import Canvas
@@ -24,9 +22,7 @@ def segment_fixture():
 
 
 def test_segment_fails_for_item(seg):
-    """Test if Segment aspect can be applied to Item.
-
-    """
+    """Test if Segment aspect can be applied to Item."""
     try:
         Segment(seg.item, seg.view)
     except TypeError:
@@ -36,9 +32,7 @@ def test_segment_fails_for_item(seg):
 
 
 def test_segment(seg):
-    """Test add a new segment to a line.
-
-    """
+    """Test add a new segment to a line."""
     line = Line()
     seg.canvas.add(line)
     segment = Segment(line, seg.view)
@@ -51,8 +45,7 @@ def test_segment(seg):
 
 
 def test_split_single(simple_canvas):
-    """Test single line splitting
-    """
+    """Test single line splitting."""
     # Start with 2 handles & 1 port, after split: expect 3 handles & 2 ports
     assert len(simple_canvas.line.handles()) == 2
     assert len(simple_canvas.line.ports()) == 1
@@ -86,9 +79,7 @@ def test_split_single(simple_canvas):
 
 
 def test_split_multiple(simple_canvas):
-    """Test multiple line splitting.
-
-    """
+    """Test multiple line splitting."""
     simple_canvas.line.handles()[1].pos = (20, 16)
     handles = simple_canvas.line.handles()
     old_ports = simple_canvas.line.ports()[:]
@@ -131,8 +122,7 @@ def test_split_multiple(simple_canvas):
 
 
 def test_ports_after_split(simple_canvas):
-    """Test ports removal after split
-    """
+    """Test ports removal after split."""
     simple_canvas.line.handles()[1].pos = (20, 16)
 
     segment = Segment(simple_canvas.line, simple_canvas.view)
@@ -153,9 +143,7 @@ def test_ports_after_split(simple_canvas):
 
 
 def test_constraints_after_split(simple_canvas):
-    """Test if constraints are recreated after line split.
-
-    """
+    """Test if constraints are recreated after line split."""
     # Connect line2 to self.line
     line2 = Line()
     simple_canvas.canvas.add(line2)
@@ -175,9 +163,7 @@ def test_constraints_after_split(simple_canvas):
 
 
 def test_split_undo(simple_canvas, revert_undo, undo_fixture):
-    """Test line splitting undo.
-
-    """
+    """Test line splitting undo."""
     simple_canvas.line.handles()[1].pos = (20, 0)
 
     # We start with two handles and one port, after split 3 handles and
@@ -197,9 +183,7 @@ def test_split_undo(simple_canvas, revert_undo, undo_fixture):
 
 
 def test_orthogonal_line_split(simple_canvas):
-    """Test orthogonal line splitting.
-
-    """
+    """Test orthogonal line splitting."""
     # Start with no orthogonal constraints
     assert len(simple_canvas.line._orthogonal_constraints) == 0
 
@@ -222,9 +206,7 @@ def test_orthogonal_line_split(simple_canvas):
 
 
 def test_params_error_exc(simple_canvas):
-    """Test parameter error exceptions.
-
-    """
+    """Test parameter error exceptions."""
     line = Line()
     segment = Segment(line, simple_canvas.view)
 
@@ -248,9 +230,7 @@ def test_params_error_exc(simple_canvas):
 
 
 def test_merge_first_single(simple_canvas):
-    """Test single line merging starting from 1st segment.
-
-    """
+    """Test single line merging starting from 1st segment."""
     simple_canvas.line.handles()[1].pos = (20, 0)
     segment = Segment(simple_canvas.line, simple_canvas.view)
     segment.split_segment(0)
@@ -284,9 +264,7 @@ def test_merge_first_single(simple_canvas):
 
 
 def test_constraints_after_merge(simple_canvas):
-    """Test if constraints are recreated after line merge.
-
-    """
+    """Test if constraints are recreated after line merge."""
     line2 = Line()
     simple_canvas.canvas.add(line2)
     head = line2.handles()[0]
@@ -312,9 +290,7 @@ def test_constraints_after_merge(simple_canvas):
 
 
 def test_merge_multiple(simple_canvas):
-    """Test multiple line merge.
-
-    """
+    """Test multiple line merge."""
     simple_canvas.line.handles()[1].pos = (20, 16)
     segment = Segment(simple_canvas.line, simple_canvas.view)
     segment.split_segment(0, count=3)
@@ -339,9 +315,7 @@ def test_merge_multiple(simple_canvas):
 
 
 def test_merge_undo(simple_canvas, revert_undo, undo_fixture):
-    """Test line merging undo.
-
-    """
+    """Test line merging undo."""
     simple_canvas.line.handles()[1].pos = (20, 0)
 
     segment = Segment(simple_canvas.line, simple_canvas.view)
@@ -366,9 +340,7 @@ def test_merge_undo(simple_canvas, revert_undo, undo_fixture):
 
 
 def test_orthogonal_line_merge(simple_canvas):
-    """Test orthogonal line merging.
-
-    """
+    """Test orthogonal line merging."""
     assert 12 == len(simple_canvas.canvas.solver._constraints)
 
     simple_canvas.line.handles()[-1].pos = 100, 100
@@ -393,9 +365,7 @@ def test_orthogonal_line_merge(simple_canvas):
 
 @pytest.mark.parametrize("num_segments", [-1, 2, (0, 1), 0, 1, (0, 3)])
 def test_params_errors(simple_canvas, num_segments):
-    """Test parameter error exceptions.
-
-    """
+    """Test parameter error exceptions."""
     line = Line()
     simple_canvas.canvas.add(line)
     segment = Segment(line, simple_canvas.view)

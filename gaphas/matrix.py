@@ -1,6 +1,5 @@
-"""
-Some Gaphor specific updates to the canvas. This is done by setting
-the correct properties on gaphas' modules.
+"""Some Gaphor specific updates to the canvas. This is done by setting the
+correct properties on gaphas' modules.
 
 Matrix
 ------
@@ -14,8 +13,7 @@ from gaphas.state import observed, reversible_method
 
 
 class Matrix:
-    """
-    Matrix wrapper. This version sends @observed messages on state changes
+    """Matrix wrapper. This version sends @observed messages on state changes.
 
     >>> cairo.Matrix()
     cairo.Matrix(1, 0, 0, 1, 0, 0)

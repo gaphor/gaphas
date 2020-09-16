@@ -1,6 +1,4 @@
-"""
-Basic connectors such as Ports and Handles.
-"""
+"""Basic connectors such as Ports and Handles."""
 
 import functools
 import warnings
@@ -26,8 +24,7 @@ def deprecated(message, since):
 
 
 class Position:
-    """
-    A point constructed of two `Variable`'s.
+    """A point constructed of two `Variable`'s.
 
     >>> vp = Position((3, 5))
     >>> vp.x, vp.y
@@ -47,9 +44,7 @@ class Position:
         self.y.strength = strength
 
     def _set_pos(self, pos):
-        """
-        Set handle position (Item coordinates).
-        """
+        """Set handle position (Item coordinates)."""
         self.x, self.y = pos
 
     pos = property(lambda s: (s.x, s.y), _set_pos)
@@ -60,8 +55,7 @@ class Position:
     __repr__ = __str__
 
     def __getitem__(self, index):
-        """
-        Shorthand for returning the x(0) or y(1) component of the point.
+        """Shorthand for returning the x(0) or y(1) component of the point.
 
         >>> h = Position((3, 5))
         >>> h[0]
@@ -73,8 +67,7 @@ class Position:
 
 
 class Handle:
-    """
-    Handles are used to support modifications of Items.
+    """Handles are used to support modifications of Items.
 
     If the handle is connected to an item, the ``connected_to``
     property should refer to the item. A ``disconnect`` handler should
@@ -163,7 +156,6 @@ class Port:
     """Port connectable part of an item.
 
     The Item's handle connects to a port.
-
     """
 
     def __init__(self):
@@ -178,22 +170,16 @@ class Port:
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
     def glue(self, pos):
-        """
-        Get glue point on the port and distance to the port.
-        """
+        """Get glue point on the port and distance to the port."""
         raise NotImplementedError("Glue method not implemented")
 
     def constraint(self, canvas, item, handle, glue_item):
-        """
-        Create connection constraint between item's handle and glue item.
-        """
+        """Create connection constraint between item's handle and glue item."""
         raise NotImplementedError("Constraint method not implemented")
 
 
 class LinePort(Port):
-    """
-    Port defined as a line between two handles.
-    """
+    """Port defined as a line between two handles."""
 
     def __init__(self, start, end):
         super().__init__()
@@ -202,8 +188,7 @@ class LinePort(Port):
         self.end = end
 
     def glue(self, pos):
-        """
-        Get glue point on the port and distance to the port.
+        """Get glue point on the port and distance to the port.
 
         >>> p1, p2 = (0.0, 0.0), (100.0, 100.0)
         >>> port = LinePort(p1, p2)
@@ -216,27 +201,22 @@ class LinePort(Port):
         return pl, d
 
     def constraint(self, canvas, item, handle, glue_item):
-        """
-        Create connection line constraint between item's handle and
-        the port.
-        """
+        """Create connection line constraint between item's handle and the
+        port."""
         line = canvas.project(glue_item, self.start, self.end)
         point = canvas.project(item, handle.pos)
         return LineConstraint(line, point)
 
 
 class PointPort(Port):
-    """
-    Port defined as a point.
-    """
+    """Port defined as a point."""
 
     def __init__(self, point):
         super().__init__()
         self.point = point
 
     def glue(self, pos):
-        """
-        Get glue point on the port and distance to the port.
+        """Get glue point on the port and distance to the port.
 
         >>> h = Handle((10, 10))
         >>> port = PointPort(h.pos)
@@ -247,10 +227,8 @@ class PointPort(Port):
         return self.point, d
 
     def constraint(self, canvas, item, handle, glue_item):
-        """
-        Return connection position constraint between item's handle
-        and the port.
-        """
+        """Return connection position constraint between item's handle and the
+        port."""
         origin = canvas.project(glue_item, self.point)
         point = canvas.project(item, handle.pos)
         c = PositionConstraint(origin, point)

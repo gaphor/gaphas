@@ -1,6 +1,4 @@
-"""Test aspects for items.
-
-"""
+"""Test aspects for items."""
 
 import pytest
 
@@ -23,9 +21,7 @@ def cvi():
 
 
 def test_selection_select(cvi):
-    """Test the Selection role methods.
-
-    """
+    """Test the Selection role methods."""
     cvi.canvas.add(cvi.item)
     selection = Selection(cvi.item, cvi.view)
     assert cvi.item not in cvi.view.selected_items
@@ -38,9 +34,7 @@ def test_selection_select(cvi):
 
 
 def test_selection_move(cvi):
-    """Test the Selection role methods.
-
-    """
+    """Test the Selection role methods."""
     cvi.canvas.add(cvi.item)
     in_motion = InMotion(cvi.item, cvi.view)
     assert (1, 0, 0, 1, 0, 0) == tuple(cvi.item.matrix)

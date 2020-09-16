@@ -21,9 +21,7 @@ class SList:
 
 
 def test_adding_pair():
-    """Test adding reversible pair.
-
-    """
+    """Test adding reversible pair."""
     reversible_pair(
         SList.add,
         SList.remove,

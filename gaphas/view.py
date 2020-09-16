@@ -1,6 +1,4 @@
-"""This module contains everything to display a Canvas on a screen.
-
-"""
+"""This module contains everything to display a Canvas on a screen."""
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
@@ -20,9 +18,7 @@ DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
 class View:
-    """
-    View class for gaphas.Canvas objects.
-    """
+    """View class for gaphas.Canvas objects."""
 
     def __init__(self, canvas=None):
         self._matrix = cairo.Matrix()
@@ -62,20 +58,17 @@ class View:
     canvas = property(lambda s: s._canvas, _set_canvas)
 
     def emit(self, *args, **kwargs):
-        """
-        Placeholder method for signal emission functionality.
-        """
+        """Placeholder method for signal emission functionality."""
         pass
 
     def queue_draw_item(self, *items):
-        """
-        Placeholder for item redraw queueing.
-        """
+        """Placeholder for item redraw queueing."""
         pass
 
     def select_item(self, item):
-        """
-        Select an item. This adds @item to the set of selected items.
+        """Select an item.
+
+        This adds @item to the set of selected items.
         """
         self.queue_draw_item(item)
         if item not in self._selected_items:
@@ -83,9 +76,7 @@ class View:
             self.emit("selection-changed", self._selected_items)
 
     def unselect_item(self, item):
-        """
-        Unselect an item.
-        """
+        """Unselect an item."""
         self.queue_draw_item(item)
         if item in self._selected_items:
             self._selected_items.discard(item)
@@ -96,9 +87,7 @@ class View:
             self.select_item(item)
 
     def unselect_all(self):
-        """
-        Clearing the selected_item also clears the focused_item.
-        """
+        """Clearing the selected_item also clears the focused_item."""
         self.queue_draw_item(*self._selected_items)
         self._selected_items.clear()
         self.focused_item = None
@@ -112,10 +101,8 @@ class View:
     )
 
     def _set_focused_item(self, item):
-        """
-        Set the focused item, this item is also added to the
-        selected_items set.
-        """
+        """Set the focused item, this item is also added to the selected_items
+        set."""
         if item is not self._focused_item:
             self.queue_draw_item(self._focused_item, item)
 
@@ -126,9 +113,7 @@ class View:
             self.emit("focus-changed", item)
 
     def _del_focused_item(self):
-        """
-        Items that loose focus remain selected.
-        """
+        """Items that loose focus remain selected."""
         self._set_focused_item(None)
 
     focused_item = property(
@@ -139,18 +124,14 @@ class View:
     )
 
     def _set_hovered_item(self, item):
-        """
-        Set the hovered item.
-        """
+        """Set the hovered item."""
         if item is not self._hovered_item:
             self.queue_draw_item(self._hovered_item, item)
             self._hovered_item = item
             self.emit("hover-changed", item)
 
     def _del_hovered_item(self):
-        """
-        Unset the hovered item.
-        """
+        """Unset the hovered item."""
         self._set_hovered_item(None)
 
     hovered_item = property(
@@ -161,18 +142,14 @@ class View:
     )
 
     def _set_dropzone_item(self, item):
-        """
-        Set dropzone item.
-        """
+        """Set dropzone item."""
         if item is not self._dropzone_item:
             self.queue_draw_item(self._dropzone_item, item)
             self._dropzone_item = item
             self.emit("dropzone-changed", item)
 
     def _del_dropzone_item(self):
-        """
-        Unset dropzone item.
-        """
+        """Unset dropzone item."""
         self._set_dropzone_item(None)
 
     dropzone_item = property(
@@ -183,8 +160,9 @@ class View:
     )
 
     def _set_painter(self, painter):
-        """
-        Set the painter to use. Painters should implement painter.Painter.
+        """Set the painter to use.
+
+        Painters should implement painter.Painter.
         """
         self._painter = painter
         painter.set_view(self)
@@ -193,9 +171,7 @@ class View:
     painter = property(lambda s: s._painter, _set_painter)
 
     def _set_bounding_box_painter(self, painter):
-        """
-        Set the painter to use for bounding box calculations.
-        """
+        """Set the painter to use for bounding box calculations."""
         self._bounding_box_painter = painter
         painter.set_view(self)
         self.emit("painter-changed")
@@ -205,8 +181,7 @@ class View:
     )
 
     def get_item_at_point(self, pos, selected=True):
-        """
-        Return the topmost item located at ``pos`` (x, y).
+        """Return the topmost item located at ``pos`` (x, y).
 
         Parameters:
          - selected: if False returns first non-selected item
@@ -227,13 +202,10 @@ class View:
         return None
 
     def get_handle_at_point(self, pos, distance=6):
-        """
-        Look for a handle at ``pos`` and return the
-        tuple (item, handle).
-        """
+        """Look for a handle at ``pos`` and return the tuple (item, handle)."""
 
         def find(item):
-            """ Find item's handle at pos """
+            """Find item's handle at pos."""
             v2i = self.get_matrix_v2i(item)
             d = distance_point_point_fast(v2i.transform_distance(0, distance))
             x, y = v2i.transform_point(*pos)
@@ -270,8 +242,7 @@ class View:
         return None, None
 
     def get_port_at_point(self, vpos, distance=10, exclude=None):
-        """
-        Find item with port closest to specified position.
+        """Find item with port closest to specified position.
 
         List of items to be ignored can be specified with `exclude`
         parameter.
@@ -325,8 +296,8 @@ class View:
         return item, port, glue_pos
 
     def get_items_in_rectangle(self, rect, intersect=True, reverse=False):
-        """
-        Return the items in the rectangle 'rect'.
+        """Return the items in the rectangle 'rect'.
+
         Items are automatically sorted in canvas' processing order.
         """
         if intersect:
@@ -336,17 +307,15 @@ class View:
         return self._canvas.sort(items, reverse=reverse)
 
     def select_in_rectangle(self, rect):
-        """
-        Select all items who have their bounding box within the
-        rectangle @rect.
+        """Select all items who have their bounding box within the rectangle.
+
+        @rect.
         """
         items = self._qtree.find_inside(rect)
         list(map(self.select_item, items))
 
     def zoom(self, factor):
-        """
-        Zoom in/out by factor @factor.
-        """
+        """Zoom in/out by factor @factor."""
         # TODO: should the scale factor be clipped?
         self._matrix.scale(factor, factor)
 
@@ -355,8 +324,7 @@ class View:
         self.request_update((), self._canvas.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
-        """
-        Update the bounding box of the item.
+        """Update the bounding box of the item.
 
         ``bounds`` is in view coordinates.
 
@@ -369,18 +337,14 @@ class View:
         self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
 
     def get_item_bounding_box(self, item):
-        """
-        Get the bounding box for the item, in view coordinates.
-        """
+        """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)
 
     bounding_box = property(lambda s: s._bounds)
 
     def update_bounding_box(self, cr, items=None):
-        """
-        Update the bounding boxes of the canvas items for this view,
-        in canvas coordinates.
-        """
+        """Update the bounding boxes of the canvas items for this view, in
+        canvas coordinates."""
         painter = self._bounding_box_painter
         if items is None:
             items = self.canvas.get_all_items()
@@ -392,25 +356,19 @@ class View:
         self._bounds = Rectangle(*self._qtree.soft_bounds)
 
     def get_matrix_i2v(self, item):
-        """
-        Get Item to View matrix for ``item``.
-        """
+        """Get Item to View matrix for ``item``."""
         if self not in item._matrix_i2v:
             self.update_matrix(item)
         return item._matrix_i2v[self]
 
     def get_matrix_v2i(self, item):
-        """
-        Get View to Item matrix for ``item``.
-        """
+        """Get View to Item matrix for ``item``."""
         if self not in item._matrix_v2i:
             self.update_matrix(item)
         return item._matrix_v2i[self]
 
     def update_matrix(self, item):
-        """
-        Update item matrices related to view.
-        """
+        """Update item matrices related to view."""
         matrix_i2c = self.canvas.get_matrix_i2c(item)
         try:
             i2v = matrix_i2c.multiply(self._matrix)
@@ -425,9 +383,7 @@ class View:
         item._matrix_v2i[self] = v2i
 
     def _clear_matrices(self):
-        """
-        Clear registered data in Item's _matrix{i2c|v2i} attributes.
-        """
+        """Clear registered data in Item's _matrix{i2c|v2i} attributes."""
         for item in self.canvas.get_all_items():
             try:
                 del item._matrix_i2v[self]
@@ -438,10 +394,9 @@ class View:
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
-    """
-    GTK+ widget for rendering a canvas.Canvas to a screen.  The view
-    uses Tools from `tool.py` to handle events and Painters from
-    `painter.py` to draw. Both are configurable.
+    """GTK+ widget for rendering a canvas.Canvas to a screen.  The view uses
+    Tools from `tool.py` to handle events and Painters from `painter.py` to
+    draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.
@@ -565,9 +520,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             raise AttributeError(f"Unknown property {prop.name}")
 
     def emit(self, *args, **kwargs):
-        """
-        Delegate signal emissions to the DrawingArea (=GTK+)
-        """
+        """Delegate signal emissions to the DrawingArea (=GTK+)"""
         Gtk.DrawingArea.emit(self, *args, **kwargs)
 
     def _set_canvas(self, canvas):
@@ -591,8 +544,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     canvas = property(lambda s: s._canvas, _set_canvas)
 
     def _set_tool(self, tool):
-        """
-        Set the tool to use. Tools should implement tool.Tool.
+        """Set the tool to use.
+
+        Tools should implement tool.Tool.
         """
         self._tool = tool
         tool.set_view(self)
@@ -605,9 +559,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     vadjustment = property(lambda s: s._vadjustment)
 
     def zoom(self, factor):
-        """
-        Zoom in/out by factor ``factor``.
-        """
+        """Zoom in/out by factor ``factor``."""
         super().zoom(factor)
         self.queue_draw_refresh()
 
@@ -664,30 +616,28 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._vadjustment.set_page_size(ah)
 
     def queue_draw_item(self, *items):
-        """
-        Like ``DrawingArea.queue_draw_area``, but use the bounds of
-        the item as update areas. Of course with a pythonic flavor:
-        update any number of items at once.
+        """Like ``DrawingArea.queue_draw_area``, but use the bounds of the item
+        as update areas.
+
+        Of course with a pythonic flavor: update any number of items at
+        once.
         """
         self.update_back_buffer()
 
     def queue_draw_area(self, x, y, w, h):
-        """
-        Queue an update for portion of the view port.
-        """
+        """Queue an update for portion of the view port."""
         self.update_back_buffer()
 
     def queue_draw_refresh(self):
-        """
-        Redraw the entire view.
-        """
+        """Redraw the entire view."""
         self.update_back_buffer()
 
     def request_update(self, items, matrix_only_items=(), removed_items=()):
-        """
-        Request update for items. Items will get a full update
-        treatment, while ``matrix_only_items`` will only have their
-        bounding box recalculated.
+        """Request update for items.
+
+        Items will get a full update treatment, while
+        ``matrix_only_items`` will only have their bounding box
+        recalculated.
         """
         if items:
             self._dirty_items.update(items)
@@ -713,9 +663,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     @AsyncIO(single=True)
     def update(self):
-        """
-        Update view status according to the items updated by the canvas.
-        """
+        """Update view status according to the items updated by the canvas."""
 
         if not self.get_window():
             return
@@ -854,9 +802,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         return False
 
     def do_draw(self, cr):
-        """
-        Render canvas to the screen.
-        """
+        """Render canvas to the screen."""
         if not self._canvas:
             return
 
@@ -869,18 +815,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         return False
 
     def do_event(self, event):
-        """
-        Handle GDK events. Events are delegated to a `tool.Tool`.
+        """Handle GDK events.
+
+        Events are delegated to a `tool.Tool`.
         """
         if self._tool:
             return self._tool.handle(event) and True or False
         return False
 
     def on_adjustment_changed(self, adj):
-        """
-        Change the transformation matrix of the view to reflect the
-        value of the x/y adjustment (scrollbar).
-        """
+        """Change the transformation matrix of the view to reflect the value of
+        the x/y adjustment (scrollbar)."""
         value = adj.get_value()
         if value == 0.0:
             return
