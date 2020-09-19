@@ -1,5 +1,5 @@
-"""
-Simple example items.
+"""Simple example items.
+
 These items are used in various tests.
 """
 from gaphas.connector import Handle, LinePort, PointPort, Position
@@ -9,9 +9,9 @@ from gaphas.util import path_ellipse, text_align, text_multiline
 
 
 class Box(Element):
-    """ A Box has 4 handles (for a start):
-     NW +---+ NE
-     SW +---+ SE
+    """A Box has 4 handles (for a start):
+
+    NW +---+ NE SW +---+ SE
     """
 
     def __init__(self, width=10, height=10):
@@ -31,8 +31,7 @@ class Box(Element):
 
 
 class PortoBox(Box):
-    """
-    Box item with few flavours of port(o)s.
+    """Box item with few flavours of port(o)s.
 
     Default box ports are disabled. Three, non-default connectable
     ports are created (represented by ``x`` on the picture).
@@ -116,9 +115,7 @@ class PortoBox(Box):
 
 
 class Text(Item):
-    """
-    Simple item showing some text on the canvas.
-    """
+    """Simple item showing some text on the canvas."""
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
         super().__init__()
@@ -142,8 +139,7 @@ class Text(Item):
 
 
 class FatLine(Item):
-    """
-    Simple, vertical line with two handles.
+    """Simple, vertical line with two handles.
 
     todo: rectangle port instead of line port would be nicer
     """

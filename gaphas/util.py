@@ -1,15 +1,12 @@
-"""Helper functions and classes for Cairo (drawing engine used by the canvas).
-
-"""
+"""Helper functions and classes for Cairo (drawing engine used by the
+canvas)."""
 from math import pi
 
 import cairo
 
 
 def text_extents(cr, text, font=None, multiline=False, padding=1):
-    """
-    Simple way to determine the size of a piece of text.
-    """
+    """Simple way to determine the size of a piece of text."""
     if not text:
         return 0, 0
     if font:
@@ -36,8 +33,8 @@ def text_center(cr, x, y, text):
 
 
 def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
-    """
-    Draw text relative to (x, y).
+    """Draw text relative to (x, y).
+
     x, y - coordinates
     text - text to print (utf8)
     align_x - -1 (top), 0 (middle), 1 (bottom)
@@ -66,8 +63,8 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
 
 
 def text_multiline(cr, x, y, text, padding=1):
-    """
-    Draw a string of text with embedded newlines.
+    """Draw a string of text with embedded newlines.
+
     cr - cairo context
     x - leftmost x
     y - topmost y
@@ -85,9 +82,7 @@ def text_multiline(cr, x, y, text, padding=1):
 
 
 def text_underline(cr, x, y, text, offset=1.5):
-    """
-    Draw text with underline.
-    """
+    """Draw text with underline."""
     x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
     cr.move_to(x, y - y_bear)
     cr.show_text(text)
@@ -98,10 +93,11 @@ def text_underline(cr, x, y, text, offset=1.5):
 
 
 def text_set_font(cr, font):
-    """
-    Set the font from a string. E.g. 'sans 10' or 'sans italic bold
-    12' only restriction is that the font name should be the first
-    option and the font size as last argument
+    """Set the font from a string.
+
+    E.g. 'sans 10' or 'sans italic bold 12' only restriction is that the
+    font name should be the first option and the font size as last
+    argument
     """
     font = font.split()
     cr.select_font_face(
@@ -113,8 +109,8 @@ def text_set_font(cr, font):
 
 
 def path_ellipse(cr, x, y, width, height, angle=0):
-    """
-    Draw an ellipse.
+    """Draw an ellipse.
+
     x      - center x
     y      - center y
     width  - width of ellipse  (in x direction when angle=0)

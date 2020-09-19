@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""A simple example containing two boxes and a line.
-
-"""
+"""A simple example containing two boxes and a line."""
 import gi
 
 from gaphas import Canvas, GtkView

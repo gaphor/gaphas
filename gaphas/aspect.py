@@ -11,10 +11,8 @@ from gaphas.item import Element
 
 
 def singledispatch(func):
-    """
-    Wrapper around singledispatch(), with an extra compatibility function
-    so code will not break when upgrading from 1.0 to 1.1.
-    """
+    """Wrapper around singledispatch(), with an extra compatibility function so
+    code will not break when upgrading from 1.0 to 1.1."""
     wrapped = real_singledispatch(func)
 
     def when_type(*types):
@@ -38,9 +36,7 @@ def singledispatch(func):
 
 
 class ItemFinder:
-    """
-    Find an item on the canvas.
-    """
+    """Find an item on the canvas."""
 
     def __init__(self, view):
         self.view = view
@@ -54,11 +50,10 @@ Finder = singledispatch(ItemFinder)
 
 
 class ItemSelection:
-    """
-    A role for items. When dealing with selection.
+    """A role for items. When dealing with selection.
 
-    Behaviour can be overridden by applying the @aspect decorator
-    to a subclass.
+    Behaviour can be overridden by applying the @aspect decorator to a
+    subclass.
     """
 
     def __init__(self, item, view):
@@ -66,9 +61,7 @@ class ItemSelection:
         self.view = view
 
     def select(self):
-        """
-        Set selection on the view.
-        """
+        """Set selection on the view."""
         self.view.focused_item = self.item
 
     def unselect(self):
@@ -80,8 +73,7 @@ Selection = singledispatch(ItemSelection)
 
 
 class ItemInMotion:
-    """
-    Aspect for dealing with motion on an item.
+    """Aspect for dealing with motion on an item.
 
     In this case the item is moved.
     """
@@ -95,8 +87,9 @@ class ItemInMotion:
         self.last_x, self.last_y = pos
 
     def move(self, pos):
-        """
-        Move the item. x and y are in view coordinates.
+        """Move the item.
+
+        x and y are in view coordinates.
         """
         item = self.item
         view = self.view
@@ -118,9 +111,7 @@ InMotion = singledispatch(ItemInMotion)
 
 
 class ItemHandleFinder:
-    """
-    Deals with the task of finding handles.
-    """
+    """Deals with the task of finding handles."""
 
     def __init__(self, item, view):
         self.item = item
@@ -134,9 +125,7 @@ HandleFinder = singledispatch(ItemHandleFinder)
 
 
 class ItemHandleSelection:
-    """
-    Deal with selection of the handle.
-    """
+    """Deal with selection of the handle."""
 
     def __init__(self, item, handle, view):
         self.item = item
@@ -172,9 +161,7 @@ class ElementHandleSelection(ItemHandleSelection):
 
 
 class ItemHandleInMotion:
-    """
-    Move a handle (role is applied to the handle)
-    """
+    """Move a handle (role is applied to the handle)"""
 
     GLUE_DISTANCE = 10
 
@@ -214,8 +201,7 @@ class ItemHandleInMotion:
         pass
 
     def glue(self, pos, distance=GLUE_DISTANCE):
-        """
-        Glue to an item near a specific point.
+        """Glue to an item near a specific point.
 
         Returns a ConnectionSink or None.
         """
@@ -250,9 +236,7 @@ HandleInMotion = singledispatch(ItemHandleInMotion)
 
 
 class ItemConnector:
-    """Connect or disconnect an item's handle to another item or port.
-
-    """
+    """Connect or disconnect an item's handle to another item or port."""
 
     GLUE_DISTANCE = 10  # Glue distance in view points
 
@@ -264,9 +248,7 @@ class ItemConnector:
         return True
 
     def glue(self, sink):
-        """
-        Glue the Connector handle on the sink's port.
-        """
+        """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
         matrix = item.canvas.get_matrix_i2i(item, sink.item)
@@ -276,8 +258,7 @@ class ItemConnector:
         handle.pos = matrix.transform_point(*gluepos)
 
     def connect(self, sink):
-        """
-        Connect the handle to a sink (item, port).
+        """Connect the handle to a sink (item, port).
 
         Note that connect() also takes care of disconnecting in case a
         handle is reattached to another element.
@@ -297,9 +278,8 @@ class ItemConnector:
         self.connect_handle(sink)
 
     def connect_handle(self, sink, callback=None):
-        """
-        Create constraint between handle of a line and port of
-        connectable item.
+        """Create constraint between handle of a line and port of connectable
+        item.
 
         :Parameters:
          sink
@@ -318,9 +298,7 @@ class ItemConnector:
         )
 
     def disconnect(self):
-        """
-        Disconnect the handle from the attached element.
-        """
+        """Disconnect the handle from the attached element."""
         self.item.canvas.disconnect_item(self.item, self.handle)
 
 
@@ -332,7 +310,6 @@ class ItemConnectionSink:
 
     A sink is another item that an item's handle is connected to like a
     connectable item or port.
-
     """
 
     def __init__(self, item, port):
@@ -340,8 +317,8 @@ class ItemConnectionSink:
         self.port = port
 
     def find_port(self, pos):
-        """
-        Glue to the closest item on the canvas.
+        """Glue to the closest item on the canvas.
+
         If the item can connect, it returns a port.
         """
         port = None
@@ -365,10 +342,8 @@ ConnectionSink = singledispatch(ItemConnectionSink)
 
 
 class ItemPaintFocused:
-    """
-    Paints on top of all items, just for the focused item and only
-    when it's hovered (see gaphas.painter.FocusedItemPainter)
-    """
+    """Paints on top of all items, just for the focused item and only when it's
+    hovered (see gaphas.painter.FocusedItemPainter)"""
 
     def __init__(self, item, view):
         self.item = item

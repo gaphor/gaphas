@@ -1,5 +1,4 @@
-"""
-Cairo context using Steve Hanov's freehand drawing code.
+"""Cairo context using Steve Hanov's freehand drawing code.
 
     # Crazyline. By Steve Hanov, 2008 Released to the public domain.
 
@@ -21,9 +20,8 @@ class FreeHandCairoContext:
     KAPPA = 0.5522847498
 
     def __init__(self, cr, sloppiness=0.5):
-        """
-        Create context with given sloppiness. Range [0..2.0] gives acceptable
-        results.
+        """Create context with given sloppiness. Range [0..2.0] gives
+        acceptable results.
 
         * Draftsman: 0.0
         * Artist: 0.25

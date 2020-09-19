@@ -17,8 +17,8 @@ from gi.repository import Gtk  # noqa: isort:skip
 class SimpleCanvas:
     """Creates a test canvas object.
 
-    Adds a view, canvas, and handle connection tool to a test
-    case. Two boxes and a line are added to the canvas as well.
+    Adds a view, canvas, and handle connection tool to a test case. Two
+    boxes and a line are added to the canvas as well.
     """
 
     def __init__(self):
@@ -59,9 +59,7 @@ class SimpleCanvas:
 
 @pytest.fixture()
 def simple_canvas():
-    """Creates a `SimpleCanvas`.
-
-    """
+    """Creates a `SimpleCanvas`."""
     return SimpleCanvas()
 
 

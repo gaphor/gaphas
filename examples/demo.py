@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-A simple demo app.
+"""A simple demo app.
 
 It sports a small canvas and some trivial operations:
 
@@ -11,7 +10,6 @@ It sports a small canvas and some trivial operations:
  - Record state changes
  - Play back state changes (= undo !) With visual updates
  - Exports to SVG and PNG
-
 """
 import math
 
@@ -52,9 +50,7 @@ def undo_handler(event):
 
 
 def factory(view, cls):
-    """
-    Simple canvas item factory.
-    """
+    """Simple canvas item factory."""
 
     def wrapper():
         item = cls()
@@ -65,13 +61,11 @@ def factory(view, cls):
 
 
 class MyBox(Box):
-    """Box with an example connection protocol.
-    """
+    """Box with an example connection protocol."""
 
 
 class MyLine(Line):
-    """Line with experimental connection protocol.
-    """
+    """Line with experimental connection protocol."""
 
     def __init__(self):
         super().__init__()
@@ -93,9 +87,7 @@ class MyLine(Line):
 
 
 class MyText(Text):
-    """
-    Text with experimental connection protocol.
-    """
+    """Text with experimental connection protocol."""
 
     def draw(self, context):
         Text.draw(self, context)

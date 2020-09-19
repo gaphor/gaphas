@@ -10,9 +10,7 @@ def tree_fixture():
 
 
 def test_add(tree_fixture):
-    """ Test creating node trees.
-
-    """
+    """Test creating node trees."""
     tree = tree_fixture[0]
     n = tree_fixture[1]
     tree.add(n[1])
@@ -69,9 +67,7 @@ def test_add_on_index(tree_fixture):
 
 
 def test_remove(tree_fixture):
-    """Test removal of nodes.
-
-    """
+    """Test removal of nodes."""
     tree = tree_fixture[0]
     n = tree_fixture[1]
     tree.add(n[1])

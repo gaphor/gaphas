@@ -1,6 +1,4 @@
-"""Test constraint solver.
-
-"""
+"""Test constraint solver."""
 from timeit import Timer
 
 import pytest
@@ -40,17 +38,13 @@ def solver_fixture():
 
 
 def test_weakest_list(solv):
-    """Test weakest list.
-
-    """
+    """Test weakest list."""
     assert solv.b in solv.c_eq._weakest
     assert solv.c in solv.c_eq._weakest
 
 
 def test_weakest_list_order(solv):
-    """Test weakest list order.
-
-    """
+    """Test weakest list order."""
     weakest = [el for el in solv.c_eq._weakest]
     solv.a.value = 4
 
@@ -72,17 +66,13 @@ def test_weakest_list_order(solv):
 
 
 def test_strength_change(solv):
-    """Test strength change.
-
-    """
+    """Test strength change."""
     solv.b.strength = 9
     assert solv.c_eq._weakest == [solv.b]
 
 
 def test_min_size(solv):
-    """Test minimal size constraint.
-
-    """
+    """Test minimal size constraint."""
     v1 = Variable(0)
     v2 = Variable(10)
     v3 = Variable(10)
@@ -124,9 +114,7 @@ def test_min_size(solv):
 
 
 def test_speed_run_weakest():
-    """Speed test for weakest variable.
-
-    """
+    """Speed test for weakest variable."""
     results = Timer(
         setup=SETUP,
         stmt="""

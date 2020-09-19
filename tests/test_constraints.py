@@ -3,7 +3,7 @@ from gaphas.solver import Variable
 
 
 def test_pos_constraint():
-    """Test position constraint"""
+    """Test position constraint."""
     x1, y1 = Variable(10), Variable(11)
     x2, y2 = Variable(12), Variable(13)
     pc = PositionConstraint(origin=(x1, y1), point=(x2, y2))
@@ -29,8 +29,7 @@ def test_pos_constraint():
 
 
 def test_delta():
-    """Test line align constraint delta.
-    """
+    """Test line align constraint delta."""
     line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
     point = (Variable(15), Variable(10))
     lc = LineAlignConstraint(line=line, point=point, align=0.5, delta=5)
@@ -46,8 +45,7 @@ def test_delta():
 
 
 def test_delta_below_zero():
-    """Test line align constraint with delta below zero.
-    """
+    """Test line align constraint with delta below zero."""
     line = (Variable(0), Variable(0)), (Variable(30), Variable(20))
     point = (Variable(15), Variable(10))
     lc = LineAlignConstraint(line=line, point=point, align=0.5, delta=-5)

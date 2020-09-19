@@ -24,9 +24,8 @@ class MyPickler(pickle.Pickler):
 class MyDisconnect:
     """Create a disconnect object.
 
-    The disconnect object should be located at top-level, so the pickle code
-    can find it.
-
+    The disconnect object should be located at top-level, so the pickle
+    code can find it.
     """
 
     def __call__(self):
@@ -91,9 +90,7 @@ def test_pickle(canvas_fixture):
 
 
 def test_pickle_connect(canvas_fixture):
-    """Persist a connection.
-
-    """
+    """Persist a connection."""
     canvas_fixture.line.handles()[0].visible = False
     canvas_fixture.line.handles()[0].connected_to = canvas_fixture.box
     canvas_fixture.line.handles()[0].disconnect = MyDisconnect()

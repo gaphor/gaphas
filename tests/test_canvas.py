@@ -7,7 +7,7 @@ from gaphas.item import Line
 
 
 def test_update_matrices():
-    """Test updating of matrices"""
+    """Test updating of matrices."""
     c = Canvas()
     i = Box()
     ii = Box()
@@ -150,9 +150,7 @@ def test_disconnect_item_with_constraint_by_deleting_element():
 
 
 def test_line_projection():
-    """Test projection with line's handle on element's side.
-
-    """
+    """Test projection with line's handle on element's side."""
     line = Line()
     line.matrix.translate(15, 50)
     h1, h2 = line.handles()
@@ -173,9 +171,7 @@ def test_line_projection():
 
 
 def test_remove_connected_item():
-    """Test adding canvas constraint.
-
-    """
+    """Test adding canvas constraint."""
     canvas = Canvas()
 
     from gaphas.aspect import ConnectionSink, Connector

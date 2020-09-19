@@ -23,8 +23,7 @@ from gaphas.geometry import rectangle_clip, rectangle_contains, rectangle_inters
 
 
 class Quadtree:
-    """
-    The Quad-tree.
+    """The Quad-tree.
 
     Rectangles use the same scheme throughout Gaphas: (x, y, width, height).
 
@@ -80,8 +79,7 @@ class Quadtree:
     """
 
     def __init__(self, bounds=(0, 0, 0, 0), capacity=10):
-        """
-        Create a new Quadtree instance.
+        """Create a new Quadtree instance.
 
         Bounds is the boundaries of the quadtree. this is fixed and do not
         change depending on the contents.
@@ -97,17 +95,16 @@ class Quadtree:
     bounds = property(lambda s: s._bucket.bounds)
 
     def resize(self, bounds):
-        """
-        Resize the tree.
+        """Resize the tree.
+
         The tree structure is rebuild.
         """
         self._bucket = QuadtreeBucket(bounds, self._capacity)
         self.rebuild()
 
     def get_soft_bounds(self):
-        """
-        Calculate the size of all items in the tree. This size may be
-        beyond the limits of the tree itself.
+        """Calculate the size of all items in the tree. This size may be beyond
+        the limits of the tree itself.
 
         Returns a tuple (x, y, width, height).
 
@@ -147,11 +144,11 @@ class Quadtree:
     soft_bounds = property(get_soft_bounds)
 
     def add(self, item, bounds, data=None):
-        """
-        Add an item to the tree.
+        """Add an item to the tree.
+
         If an item already exists, its bounds are updated and the item
-        is moved to the right bucket.
-        Data can be used to add some extra info to the item
+        is moved to the right bucket. Data can be used to add some extra
+        info to the item
         """
         # Clip item bounds to fit in top-level bucket
         # Keep original bounds in _ids, for reference
@@ -180,25 +177,19 @@ class Quadtree:
         self._ids[item] = (bounds, data, clipped_bounds)
 
     def remove(self, item):
-        """
-        Remove an item from the tree.
-        """
+        """Remove an item from the tree."""
         bounds, data, clipped_bounds = self._ids[item]
         del self._ids[item]
         if clipped_bounds:
             self._bucket.find_bucket(clipped_bounds).remove(item)
 
     def clear(self):
-        """
-        Remove all items from the tree.
-        """
+        """Remove all items from the tree."""
         self._bucket.clear()
         self._ids.clear()
 
     def rebuild(self):
-        """
-        Rebuild the tree structure.
-        """
+        """Rebuild the tree structure."""
         # Clean bucket and items:
         self._bucket.clear()
 
@@ -209,68 +200,54 @@ class Quadtree:
             self._ids[item] = (bounds, data, clipped_bounds)
 
     def get_bounds(self, item):
-        """
-        Return the bounding box for the given item.
-        """
+        """Return the bounding box for the given item."""
         return self._ids[item][0]
 
     def get_data(self, item):
-        """
-        Return the data for the given item, None if no data was provided.
-        """
+        """Return the data for the given item, None if no data was provided."""
         return self._ids[item][1]
 
     def get_clipped_bounds(self, item):
-        """
-        Return the bounding box for the given item. The bounding box
-        is clipped on the boundaries of the tree (provided on
-        construction or with resize()).
+        """Return the bounding box for the given item.
+
+        The bounding box is clipped on the boundaries of the tree
+        (provided on construction or with resize()).
         """
         return self._ids[item][2]
 
     def find_inside(self, rect):
-        """
-        Find all items in the given rectangle (x, y, with, height).
+        """Find all items in the given rectangle (x, y, with, height).
+
         Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_contains))
 
     def find_intersect(self, rect):
-        """
-        Find all items that intersect with the given rectangle
-        (x, y, width, height).
+        """Find all items that intersect with the given rectangle (x, y, width,
+        height).
+
         Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_intersects))
 
     def __len__(self):
-        """
-        Return number of items in tree.
-        """
+        """Return number of items in tree."""
         return len(self._ids)
 
     def __contains__(self, item):
-        """
-        Check if an item is in tree.
-        """
+        """Check if an item is in tree."""
         return item in self._ids
 
     def dump(self):
-        """
-        Print structure to stdout.
-        """
+        """Print structure to stdout."""
         self._bucket.dump()
 
 
 class QuadtreeBucket:
-    """
-    A node in a Quadtree structure.
-    """
+    """A node in a Quadtree structure."""
 
     def __init__(self, bounds, capacity):
-        """
-        Set bounding box for the node as (x, y, width, height).
-        """
+        """Set bounding box for the node as (x, y, width, height)."""
         self.bounds = bounds
         self.capacity = capacity
 
@@ -278,10 +255,10 @@ class QuadtreeBucket:
         self._buckets = []
 
     def add(self, item, bounds):
-        """
-        Add an item to the quadtree.
-        The bucket is split when necessary.
-        Items are otherwise added to this bucket, not some sub-bucket.
+        """Add an item to the quadtree.
+
+        The bucket is split when necessary. Items are otherwise added to
+        this bucket, not some sub-bucket.
         """
         assert rectangle_contains(bounds, self.bounds)
         # create new subnodes if threshold is reached
@@ -305,25 +282,25 @@ class QuadtreeBucket:
             self.items[item] = bounds
 
     def remove(self, item):
-        """
-        Remove an item from the quadtree bucket.
-        The item should be contained by *this* bucket (not a sub-bucket).
+        """Remove an item from the quadtree bucket.
+
+        The item should be contained by *this* bucket (not a sub-
+        bucket).
         """
         del self.items[item]
 
     def update(self, item, new_bounds):
-        """
-        Update the position of an item within the current bucket.
-        The item should live in the current bucket, but may be placed in a
-        sub-bucket.
+        """Update the position of an item within the current bucket.
+
+        The item should live in the current bucket, but may be placed in
+        a sub-bucket.
         """
         assert item in self.items
         self.remove(item)
         self.find_bucket(new_bounds).add(item, new_bounds)
 
     def find_bucket(self, bounds):
-        """
-        Find the bucket that holds a bounding box.
+        """Find the bucket that holds a bounding box.
 
         This method should be used to find a bucket that fits, before
         add() or remove() is called.
@@ -346,9 +323,8 @@ class QuadtreeBucket:
         return self._buckets[index].find_bucket(bounds)
 
     def find(self, rect, method):
-        """
-        Find all items in the given rectangle (x, y, with, height).
-        Method can be either the contains or intersects function.
+        """Find all items in the given rectangle (x, y, with, height). Method
+        can be either the contains or intersects function.
 
         Returns an iterator.
         """
@@ -360,9 +336,7 @@ class QuadtreeBucket:
                 yield from bucket.find(rect, method=method)
 
     def clear(self):
-        """
-        Clear the bucket, including sub-buckets.
-        """
+        """Clear the bucket, including sub-buckets."""
         del self._buckets[:]
         self.items.clear()
 

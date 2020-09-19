@@ -1,6 +1,4 @@
-"""Test cases for the View class.
-
-"""
+"""Test cases for the View class."""
 import math
 
 import pytest
@@ -37,9 +35,7 @@ def view_fixture():
 
 def test_bounding_box_calculations(view_fixture):
     """A view created before and after the canvas is populated should contain
-    the same data.
-
-    """
+    the same data."""
     view_fixture.view.realize()
     view_fixture.box.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
 
@@ -77,9 +73,7 @@ def test_bounding_box_calculations(view_fixture):
 
 
 def test_get_item_at_point(view_fixture):
-    """Hover tool only reacts on motion-notify events.
-
-    """
+    """Hover tool only reacts on motion-notify events."""
     view_fixture.box.width = 50
     view_fixture.box.height = 50
     assert len(view_fixture.view._qtree._ids) == 1
@@ -182,9 +176,7 @@ def test_view_registration(view_fixture):
 
 
 def test_view_registration_2(view_fixture):
-    """Test view registration and destroy when view is destroyed.
-
-    """
+    """Test view registration and destroy when view is destroyed."""
     assert hasattr(view_fixture.box, "_matrix_i2v")
     assert hasattr(view_fixture.box, "_matrix_v2i")
 

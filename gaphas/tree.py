@@ -1,11 +1,8 @@
-"""
-Simple class containing the tree structure for the canvas items.
-"""
+"""Simple class containing the tree structure for the canvas items."""
 
 
 class Tree:
-    """
-    A Tree structure. Nodes are stores in a depth-first order.
+    """A Tree structure. Nodes are stores in a depth-first order.
 
     ``None`` is the root node.
 
@@ -26,8 +23,7 @@ class Tree:
     nodes = property(lambda s: list(s._nodes))
 
     def get_parent(self, node):
-        """
-        Return the parent item of ``node``.
+        """Return the parent item of ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -38,8 +34,7 @@ class Tree:
         return self._parents.get(node)
 
     def get_children(self, node):
-        """
-        Return all child objects of ``node``.
+        """Return all child objects of ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -53,8 +48,7 @@ class Tree:
         return self._children[node]
 
     def get_siblings(self, node):
-        """
-        Get all siblings of ``node``, including ``node``.
+        """Get all siblings of ``node``, including ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -67,8 +61,7 @@ class Tree:
         return self._children[parent]
 
     def get_next_sibling(self, node):
-        """
-        Return the node on the same level after ``node``.
+        """Return the node on the same level after ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -86,8 +79,7 @@ class Tree:
         return siblings[siblings.index(node) + 1]
 
     def get_previous_sibling(self, node):
-        """
-        Return the node on the same level before ``node``.
+        """Return the node on the same level before ``node``.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -108,8 +100,7 @@ class Tree:
         return siblings[index]
 
     def get_all_children(self, node):
-        """
-        Iterate all children (and children of children and so forth)
+        """Iterate all children (and children of children and so forth)
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -128,8 +119,7 @@ class Tree:
             yield from self.get_all_children(c)
 
     def get_ancestors(self, node):
-        """
-        Iterate all parents and parents of parents, etc.
+        """Iterate all parents and parents of parents, etc.
 
         >>> tree = Tree()
         >>> tree.add('n1')
@@ -150,9 +140,8 @@ class Tree:
             parent = self.get_parent(parent)
 
     def index_nodes(self, index_key):
-        """
-        Provide each item in the tree with an index attribute. This
-        makes for fast sorting of items.
+        """Provide each item in the tree with an index attribute. This makes
+        for fast sorting of items.
 
         >>> class A(object):
         ...     def __init__(self, n):
@@ -175,10 +164,8 @@ class Tree:
         list(map(setattr, nodes, [index_key] * lnodes, list(range(lnodes))))
 
     def _add_to_nodes(self, node, parent, index=None):
-        """
-        Helper method to place nodes on the right location in the
-        nodes list Called only from add() and reparent()
-        """
+        """Helper method to place nodes on the right location in the nodes list
+        Called only from add() and reparent()"""
         nodes = self._nodes
         siblings = self._children[parent]
         try:
@@ -202,9 +189,7 @@ class Tree:
             nodes.insert(nodes.index(atnode), node)
 
     def _add(self, node, parent=None, index=None):
-        """
-        Helper method for both add() and reparent().
-        """
+        """Helper method for both add() and reparent()."""
         assert node not in self._nodes
 
         siblings = self._children[parent]
@@ -222,9 +207,8 @@ class Tree:
             self._parents[node] = parent
 
     def add(self, node, parent=None, index=None):
-        """
-        Add node to the tree. parent is the parent node, which may be
-        None if the item should be added to the root item.
+        """Add node to the tree. parent is the parent node, which may be None
+        if the item should be added to the root item.
 
         For usage, see the unit tests.
         """
@@ -243,8 +227,7 @@ class Tree:
             pass
 
     def remove(self, node):
-        """
-        Remove ``node`` from the tree.
+        """Remove ``node`` from the tree.
 
         For usage, see the unit tests.
         """
@@ -254,11 +237,11 @@ class Tree:
         self._remove(node)
 
     def _reparent_nodes(self, node, parent):
-        """
-        Helper for reparent().
+        """Helper for reparent().
+
         The _children and _parent trees can be left intact as far as
-        children of the reparented node are concerned. Only the
-        position in the _nodes list changes.
+        children of the reparented node are concerned. Only the position
+        in the _nodes list changes.
         """
         self._nodes.remove(node)
         self._add_to_nodes(node, parent)
@@ -266,8 +249,7 @@ class Tree:
             self._reparent_nodes(c, node)
 
     def reparent(self, node, parent, index=None):
-        """
-        Set new parent for a ``node``. ``Parent`` can be ``None``,
+        """Set new parent for a ``node``. ``Parent`` can be ``None``,
         indicating it's added to the top.
 
         >>> tree = Tree()
