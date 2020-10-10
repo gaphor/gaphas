@@ -98,11 +98,11 @@ class GuideMixin:
         view = self.view
         i2v = self.view.get_matrix_i2v
         margin = self.MARGIN
-        items = []
-        for x in item_vedges:
-            items.append(
-                view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
-            )
+        items = [
+            view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
+            for x in item_vedges
+        ]
+
         try:
             guides = list(
                 map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
@@ -121,11 +121,11 @@ class GuideMixin:
         view = self.view
         i2v = self.view.get_matrix_i2v
         margin = self.MARGIN
-        items = []
-        for y in item_hedges:
-            items.append(
-                view.get_items_in_rectangle((0, y - margin, width, margin * 2))
-            )
+        items = [
+            view.get_items_in_rectangle((0, y - margin, width, margin * 2))
+            for y in item_hedges
+        ]
+
         try:
             guides = list(
                 map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
