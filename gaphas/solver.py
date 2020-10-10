@@ -221,17 +221,12 @@ class Variable:
         """
         return self._value.__pow__(float(other))
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         """
         >>> Variable(5) / 4.
         1.25
         >>> Variable(5) / Variable(4)
         1.25
-        """
-        return self._value.__div__(float(other))
-
-    def __truediv__(self, other):
-        """
         >>> Variable(5.) / 4
         1.25
         >>> 10 / Variable(5.)
@@ -292,15 +287,10 @@ class Variable:
         """
         return self._value.__rpow__(other)
 
-    def __rdiv__(self, other):
+    def __rtruediv__(self, other):
         """
         >>> 5 / Variable(4.)
         1.25
-        """
-        return self._value.__rdiv__(other)
-
-    def __rtruediv__(self, other):
-        """
         >>> 5. / Variable(4)
         1.25
         """
@@ -437,7 +427,7 @@ class Solver:
         """Request resolving a constraint."""
         self._marked_cons.append(c)
 
-    def constraints_with_variable(self, *variables):
+    def constraints_with_variable(self, *variables: Variable):
         """Return an iterator of constraints that work with variable. The
         variable in question should be exposed by the constraints
         `constraint.Constraint.variables()` method.
@@ -484,18 +474,18 @@ class Solver:
         """
         # Use a copy of the original set, so constraints may be
         # deleted in the meantime.
-        variables = set(variables)
+        varset = set(variables)
         for c in set(self._constraints):
-            if variables.issubset(set(c.variables())):
+            if varset.issubset(set(c.variables())):
                 yield c
             elif c._solver_has_projections:
                 found = True
                 for v in c.variables():
-                    if v in variables:
+                    if v in varset:
                         continue
                     while isinstance(v, Projection):
                         v = v.variable()
-                        if v in variables:
+                        if v in varset:
                             break
                     else:
                         found = False

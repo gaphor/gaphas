@@ -27,8 +27,9 @@ class and implement `Constraint.solve_for(Variable)` method to update
 a variable with appropriate value.
 """
 import math
+from typing import Dict, Optional
 
-from gaphas.solver import Projection  # noqa
+from gaphas.solver import Projection, Variable  # noqa
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
@@ -265,7 +266,7 @@ class EquationConstraint(Constraint):
     def __init__(self, f, **args):
         super().__init__(*list(args.values()))
         self._f = f
-        self._args = {}
+        self._args: Dict[str, Optional[Variable]] = {}
         # see important note on order of operations in __setattr__ below.
         for arg in f.__code__.co_varnames[0 : f.__code__.co_argcount]:
             self._args[arg] = None
@@ -312,6 +313,7 @@ class EquationConstraint(Constraint):
         constraint."""
         args = {}
         for nm, v in list(self._args.items()):
+            assert v
             args[nm] = v.value
             if v is var:
                 arg = nm

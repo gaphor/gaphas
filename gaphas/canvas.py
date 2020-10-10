@@ -27,6 +27,7 @@ To get connecting items (i.e. all lines connected to a class)::
 import logging
 from collections import namedtuple
 from operator import attrgetter
+from typing import TYPE_CHECKING
 
 import cairo
 
@@ -34,6 +35,9 @@ from gaphas import solver, table, tree
 from gaphas.decorators import AsyncIO, nonrecursive
 from gaphas.projections import CanvasProjection
 from gaphas.state import observed, reversible_method, reversible_pair
+
+if TYPE_CHECKING:
+    from gaphas.item import Item
 
 #
 # Information about two connected items
@@ -88,7 +92,7 @@ class Canvas:
 
     def __init__(self, create_update_context=default_update_context):
         self._create_update_context = create_update_context
-        self._tree = tree.Tree()
+        self._tree: tree.Tree[Item] = tree.Tree()
         self._solver = solver.Solver()
         self._connections = table.Table(Connection, list(range(4)))
         self._dirty_items = set()

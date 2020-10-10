@@ -388,7 +388,7 @@ class HandleTool(Tool):
 
         self.ungrab_handle()
 
-        if grabbed_handle:
+        if grabbed_handle and grabbed_item:
             grabbed_item.request_update()
         return True
 

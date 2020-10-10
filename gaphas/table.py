@@ -1,6 +1,8 @@
 """Table is a storage class that can be used to store information, like one
 would in a database table, with indexes on the desired "columns."."""
+
 from functools import reduce
+from typing import Dict, Set
 
 
 class Table:
@@ -22,7 +24,7 @@ class Table:
         self._indexes = tuple(fields[i] for i in indexes)
 
         # create data structure, which acts as cache
-        index = {n: {} for n in fields}
+        index: Dict[str, Dict[object, Set[object]]] = {n: {} for n in fields}
         self._index = index
 
     columns = property(lambda s: s._type)
@@ -158,12 +160,12 @@ class Table:
         elif len(bad) > 1:
             raise AttributeError(f"Columns {str(tuple(bad))} are not indexed")
 
-        r = iter([])
+        r = iter([])  # type: ignore[var-annotated]
         items = tuple((n, v) for n, v in list(kv.items()) if v is not None)
         if all(v in index[n] for n, v in items):
             rows = (index[n][v] for n, v in items)
             try:
-                r = iter(reduce(set.intersection, rows))
+                r = iter(reduce(set.intersection, rows))  # type: ignore[arg-type]
             except TypeError:
                 pass
         return r

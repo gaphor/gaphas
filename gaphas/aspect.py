@@ -31,7 +31,7 @@ def singledispatch(func):
 
         return wrapper_for_types
 
-    wrapped.when_type = when_type
+    wrapped.when_type = when_type  # type: ignore[attr-defined]
     return wrapped
 
 

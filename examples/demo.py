@@ -32,6 +32,7 @@ from gaphas.painter import (
 from gaphas.segment import Segment
 from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
+from gaphas.view import Context
 
 # fmt: off
 gi.require_version("Gtk", "3.0")  # noqa: isort:skip
@@ -58,6 +59,10 @@ def factory(view, cls):
         return item
 
     return wrapper
+
+
+def paint(view, cr):
+    view.painter.paint(Context(cairo=cr, items=view.canvas.get_all_items(), area=None))
 
 
 class MyBox(Box):
@@ -133,59 +138,59 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Add box")
 
-    def on_clicked(button, view):
+    def on_add_box_clicked(button, view):
         # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
         view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(), 2))
 
-    b.connect("clicked", on_clicked, view)
+    b.connect("clicked", on_add_box_clicked, view)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Add line")
 
-    def on_clicked(button):
+    def on_add_line_clicked(button):
         view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_add_line_clicked)
     v.add(b)
 
     v.add(Gtk.Label.new("Zooming:"))
 
     b = Gtk.Button.new_with_label("Zoom in")
 
-    def on_clicked(button):
+    def on_zoom_in_clicked(button):
         view.zoom(1.2)
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_zoom_in_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Zoom out")
 
-    def on_clicked(button):
+    def on_zoom_out_clicked(button):
         view.zoom(1 / 1.2)
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_zoom_out_clicked)
     v.add(b)
 
     v.add(Gtk.Label.new("Misc:"))
 
     b = Gtk.Button.new_with_label("Split line")
 
-    def on_clicked(button):
+    def on_split_line_clicked(button):
         if isinstance(view.focused_item, Line):
             segment = Segment(view.focused_item, view)
             segment.split_segment(0)
             view.queue_draw_item(view.focused_item)
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_split_line_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Delete focused")
 
-    def on_clicked(button):
+    def on_delete_focused_clicked(button):
         if view.focused_item:
             canvas.remove(view.focused_item)
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_delete_focused_clicked)
     v.add(b)
 
     v.add(Gtk.Label.new("State:"))
@@ -206,7 +211,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Play back")
 
-    def on_clicked(self):
+    def on_play_back_clicked(self):
         global undo_list
         apply_me = list(undo_list)
         del undo_list[:]
@@ -221,14 +226,14 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
             # while Gtk.events_pending():
             #    Gtk.main_iteration()
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_play_back_clicked)
     v.add(b)
 
     v.add(Gtk.Label.new("Export:"))
 
     b = Gtk.Button.new_with_label("Write demo.png")
 
-    def on_clicked(button):
+    def on_write_demo_png_clicked(button):
         svgview = View(view.canvas)
         svgview.painter = ItemPainter()
 
@@ -245,18 +250,18 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         cr = cairo.Context(surface)
         svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
         cr.save()
-        svgview.paint(cr)
+        paint(svgview, cr)
 
         cr.restore()
         cr.show_page()
         surface.write_to_png("demo.png")
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_write_demo_png_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Write demo.svg")
 
-    def on_clicked(button):
+    def on_write_demo_svg_clicked(button):
         svgview = View(view.canvas)
         svgview.painter = ItemPainter()
 
@@ -272,25 +277,25 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         surface = cairo.SVGSurface("demo.svg", w, h)
         cr = cairo.Context(surface)
         svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
-        svgview.paint(cr)
+        paint(svgview, cr)
         cr.show_page()
         surface.flush()
         surface.finish()
 
-    b.connect("clicked", on_clicked)
+    b.connect("clicked", on_write_demo_svg_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Dump QTree")
 
-    def on_clicked(button, li):
+    def on_dump_qtree_clicked(button, li):
         view._qtree.dump()
 
-    b.connect("clicked", on_clicked, [0])
+    b.connect("clicked", on_dump_qtree_clicked, [0])
     v.add(b)
 
     b = Gtk.Button.new_with_label("Pickle (save)")
 
-    def on_clicked(button, li):
+    def on_pickle_clicked(button, li):
         f = open("demo.pickled", "wb")
         try:
             import pickle
@@ -299,12 +304,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         finally:
             f.close()
 
-    b.connect("clicked", on_clicked, [0])
+    b.connect("clicked", on_pickle_clicked, [0])
     v.add(b)
 
     b = Gtk.Button.new_with_label("Unpickle (load)")
 
-    def on_clicked(button, li):
+    def on_unpickle_clicked(button, li):
         f = open("demo.pickled", "rb")
         try:
             import pickle
@@ -315,12 +320,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
             f.close()
         create_window(canvas, "Unpickled diagram")
 
-    b.connect("clicked", on_clicked, [0])
+    b.connect("clicked", on_unpickle_clicked, [0])
     v.add(b)
 
     b = Gtk.Button.new_with_label("Unpickle (in place)")
 
-    def on_clicked(button, li):
+    def on_unpickle_in_place_clicked(button, li):
         f = open("demo.pickled", "rb")
         try:
             import pickle
@@ -332,16 +337,16 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         canvas.update_now()
         view.canvas = canvas
 
-    b.connect("clicked", on_clicked, [0])
+    b.connect("clicked", on_unpickle_in_place_clicked, [0])
     v.add(b)
 
     b = Gtk.Button.new_with_label("Reattach (in place)")
 
-    def on_clicked(button, li):
+    def on_reattach_clicked(button, li):
         view.canvas = None
         view.canvas = canvas
 
-    b.connect("clicked", on_clicked, [0])
+    b.connect("clicked", on_reattach_clicked, [0])
     v.add(b)
 
     # Add the actual View:
@@ -401,15 +406,15 @@ def create_canvas(c=None):
     #     bb.matrix.rotate(math.pi/4.0 * i / 10.0)
     #     c.add(bb, parent=b)
 
-    b = PortoBox(60, 60)
-    b.min_width = 40
-    b.min_height = 50
-    b.matrix.translate(55, 55)
-    c.add(b)
+    pb = PortoBox(60, 60)
+    pb.min_width = 40
+    pb.min_height = 50
+    pb.matrix.translate(55, 55)
+    c.add(pb)
 
-    t = UnderlineText()
-    t.matrix.translate(70, 30)
-    c.add(t)
+    ut = UnderlineText()
+    ut.matrix.translate(70, 30)
+    c.add(ut)
 
     t = MyText("Single line")
     t.matrix.translate(70, 70)

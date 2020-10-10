@@ -272,7 +272,7 @@ class HandlePainter(Painter):
                 continue
             # connected and not being moved, see HandleTool.on_button_press
             if get_connection(h):
-                r, g, b = 1, 0, 0
+                r, g, b = 1.0, 0.0, 0.0
             # connected but being moved, see HandleTool.on_button_press
             elif get_connection(h):
                 r, g, b = 1, 0.6, 0

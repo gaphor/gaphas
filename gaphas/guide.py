@@ -11,6 +11,7 @@ from gaphas.aspect import (
     singledispatch,
 )
 from gaphas.item import Element, Item, Line
+from gaphas.view import GtkView
 
 
 class ItemGuide:
@@ -89,6 +90,9 @@ class GuideMixin:
     """Helper methods for guides."""
 
     MARGIN = 2
+
+    item: Item
+    view: GtkView
 
     def find_vertical_guides(self, item_vedges, pdx, height, excluded_items):
         view = self.view
