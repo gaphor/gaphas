@@ -17,6 +17,52 @@ DEBUG_DRAW_QUADTREE = False
 DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
+class Selection:
+    def __init__(self):
+        # Handling selections.
+        self._selected_items = set()
+        self._focused_item = None
+        self._hovered_item = None
+        self._dropzone_item = None
+
+    def clear(self):
+        self._selected_items.clear()
+        self._focused_item = None
+        self._hovered_item = None
+        self._dropzone_item = None
+
+    @property
+    def selected_items(self):
+        return self._selected_items
+
+    @property
+    def focused_item(self):
+        return self._focused_item
+
+    @property
+    def hovered_item(self):
+        return self._hovered_item
+
+    @property
+    def dropzone_item(self):
+        return self._dropzone_item
+
+    def add_selected_item(self, item):
+        self._selected_items.add(item)
+
+    def remove_selected_item(self, item):
+        self._selected_items.discard(item)
+
+    def set_focused_item(self, item):
+        self._focused_item = item
+
+    def set_hovered_item(self, item):
+        self._hovered_item = item
+
+    def set_dropzone_item(self, item):
+        self._dropzone_item = item
+
+
 class View:
     """View class for gaphas.Canvas objects."""
 
@@ -27,10 +73,7 @@ class View:
 
         # Handling selections.
         # TODO: Move this to a context?
-        self._selected_items = set()
-        self._focused_item = None
-        self._hovered_item = None
-        self._dropzone_item = None
+        self._selection = Selection()
 
         self._qtree = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)
@@ -48,10 +91,7 @@ class View:
         """
         if self._canvas:
             self._qtree.clear()
-            self._selected_items.clear()
-            self._focused_item = None
-            self._hovered_item = None
-            self._dropzone_item = None
+            self._selection.clear()
 
         self._canvas = canvas
 
@@ -71,16 +111,16 @@ class View:
         This adds @item to the set of selected items.
         """
         self.queue_draw_item(item)
-        if item not in self._selected_items:
-            self._selected_items.add(item)
-            self.emit("selection-changed", self._selected_items)
+        if item not in self._selection.selected_items:
+            self._selection.add_selected_item(item)
+            self.emit("selection-changed", self._selection.selected_items)
 
     def unselect_item(self, item):
         """Unselect an item."""
         self.queue_draw_item(item)
-        if item in self._selected_items:
-            self._selected_items.discard(item)
-            self.emit("selection-changed", self._selected_items)
+        if item in self._selection.selected_items:
+            self._selection.remove_selected_item(item)
+            self.emit("selection-changed", self._selection.selected_items)
 
     def select_all(self):
         for item in self.canvas.get_all_items():
@@ -88,13 +128,14 @@ class View:
 
     def unselect_all(self):
         """Clearing the selected_item also clears the focused_item."""
-        self.queue_draw_item(*self._selected_items)
-        self._selected_items.clear()
-        self.focused_item = None
-        self.emit("selection-changed", self._selected_items)
+        self.queue_draw_item(*self._selection.selected_items)
+        for item in self.canvas.get_all_items():
+            self._selection.remove_selected_item(item)
+        self._selection.set_focused_item(None)
+        self.emit("selection-changed", self._selection.selected_items)
 
     selected_items = property(
-        lambda s: s._selected_items,
+        lambda s: s._selection.selected_items,
         select_item,
         unselect_all,
         "Items selected by the view",
@@ -103,13 +144,13 @@ class View:
     def _set_focused_item(self, item):
         """Set the focused item, this item is also added to the selected_items
         set."""
-        if item is not self._focused_item:
-            self.queue_draw_item(self._focused_item, item)
+        if item is not self._selection.focused_item:
+            self.queue_draw_item(self._selection.focused_item, item)
 
         if item:
-            self.select_item(item)
-        if item is not self._focused_item:
-            self._focused_item = item
+            self._selection.add_selected_item(item)
+        if item is not self._selection.focused_item:
+            self._selection.set_focused_item(item)
             self.emit("focus-changed", item)
 
     def _del_focused_item(self):
@@ -117,7 +158,7 @@ class View:
         self._set_focused_item(None)
 
     focused_item = property(
-        lambda s: s._focused_item,
+        lambda s: s._selection.focused_item,
         _set_focused_item,
         _del_focused_item,
         "The item with focus (receives key events a.o.)",
@@ -125,9 +166,9 @@ class View:
 
     def _set_hovered_item(self, item):
         """Set the hovered item."""
-        if item is not self._hovered_item:
-            self.queue_draw_item(self._hovered_item, item)
-            self._hovered_item = item
+        if item is not self._selection.hovered_item:
+            self.queue_draw_item(self._selection.hovered_item, item)
+            self._selection.set_hovered_item(item)
             self.emit("hover-changed", item)
 
     def _del_hovered_item(self):
@@ -135,7 +176,7 @@ class View:
         self._set_hovered_item(None)
 
     hovered_item = property(
-        lambda s: s._hovered_item,
+        lambda s: s._selection.hovered_item,
         _set_hovered_item,
         _del_hovered_item,
         "The item directly under the mouse pointer",
@@ -143,9 +184,9 @@ class View:
 
     def _set_dropzone_item(self, item):
         """Set dropzone item."""
-        if item is not self._dropzone_item:
-            self.queue_draw_item(self._dropzone_item, item)
-            self._dropzone_item = item
+        if item is not self._selection.dropzone_item:
+            self.queue_draw_item(self._selection.dropzone_item, item)
+            self._selection.set_dropzone_item(item)
             self.emit("dropzone-changed", item)
 
     def _del_dropzone_item(self):
@@ -153,7 +194,7 @@ class View:
         self._set_dropzone_item(None)
 
     dropzone_item = property(
-        lambda s: s._dropzone_item,
+        lambda s: s._selection.dropzone_item,
         _set_dropzone_item,
         _del_dropzone_item,
         "The item which can group other items",
@@ -218,17 +259,19 @@ class View:
                 if -d < (hx - x) < d and -d < (hy - y) < d:
                     return h
 
+        selection = self._selection
+
         # The focused item is the preferred item for handle grabbing
-        if self.focused_item:
-            h = find(self.focused_item)
+        if selection.focused_item:
+            h = find(selection.focused_item)
             if h:
-                return self.focused_item, h
+                return selection.focused_item, h
 
         # then try hovered item
-        if self.hovered_item:
-            h = find(self.hovered_item)
+        if selection.hovered_item:
+            h = find(selection.hovered_item)
             if h:
-                return self.hovered_item, h
+                return selection.hovered_item, h
 
         # Last try all items, checking the bounding box first
         x, y = pos
@@ -624,18 +667,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         # Remove removed items:
         if removed_items:
+            selection = self._selection
             self._dirty_items.difference_update(removed_items)
 
             for item in removed_items:
                 self._qtree.remove(item)
-                self.selected_items.discard(item)
+                selection.remove_selected_item(item)
 
-            if self.focused_item in removed_items:
-                self.focused_item = None
-            if self.hovered_item in removed_items:
-                self.hovered_item = None
-            if self.dropzone_item in removed_items:
-                self.dropzone_item = None
+            if selection.focused_item in removed_items:
+                selection.set_focused_item(None)
+            if selection.hovered_item in removed_items:
+                selection.set_hovered_item(None)
+            if selection.dropzone_item in removed_items:
+                selection.set_dropzone_item(None)
 
         self.update()
 
