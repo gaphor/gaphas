@@ -798,36 +798,6 @@ class Canvas:
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
 
-    def __getstate__(self):
-        """Persist canvas.
-
-        Dirty item sets and views are not saved.
-        """
-        d = dict(self.__dict__)
-        for n in (
-            "_dirty_items",
-            "_dirty_matrix_items",
-            "_dirty_index",
-            "_registered_views",
-        ):
-            try:
-                del d[n]
-            except KeyError:
-                pass
-        return d
-
-    def __setstate__(self, state):
-        """Load persisted state.
-
-        Before loading the state, the constructor is called.
-        """
-        self.__dict__.update(state)
-        self._dirty_items = set(self._tree.nodes)
-        self._dirty_matrix_items = set(self._tree.nodes)
-        self._dirty_index = True
-        self._registered_views = set()
-        # self.update()
-
     def project(self, item, *points):
         """Project item's points into canvas coordinate system.
 

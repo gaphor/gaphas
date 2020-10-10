@@ -16,7 +16,6 @@ import math
 import cairo
 import gi
 
-import gaphas.picklers  # noqa
 from gaphas import Canvas, GtkView, View, state
 from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
 from gaphas.freehand import FreeHandPainter
@@ -291,53 +290,6 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         view._qtree.dump()
 
     b.connect("clicked", on_dump_qtree_clicked, [0])
-    v.add(b)
-
-    b = Gtk.Button.new_with_label("Pickle (save)")
-
-    def on_pickle_clicked(button, li):
-        f = open("demo.pickled", "wb")
-        try:
-            import pickle
-
-            pickle.dump(view.canvas, f)
-        finally:
-            f.close()
-
-    b.connect("clicked", on_pickle_clicked, [0])
-    v.add(b)
-
-    b = Gtk.Button.new_with_label("Unpickle (load)")
-
-    def on_unpickle_clicked(button, li):
-        f = open("demo.pickled", "rb")
-        try:
-            import pickle
-
-            canvas = pickle.load(f)
-            canvas.update_now()
-        finally:
-            f.close()
-        create_window(canvas, "Unpickled diagram")
-
-    b.connect("clicked", on_unpickle_clicked, [0])
-    v.add(b)
-
-    b = Gtk.Button.new_with_label("Unpickle (in place)")
-
-    def on_unpickle_in_place_clicked(button, li):
-        f = open("demo.pickled", "rb")
-        try:
-            import pickle
-
-            canvas = pickle.load(f)
-        finally:
-            f.close()
-        # [i.request_update() for i in canvas.get_all_items()]
-        canvas.update_now()
-        view.canvas = canvas
-
-    b.connect("clicked", on_unpickle_in_place_clicked, [0])
     v.add(b)
 
     b = Gtk.Button.new_with_label("Reattach (in place)")

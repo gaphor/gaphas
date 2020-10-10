@@ -263,29 +263,6 @@ class Item:
         self._constraints.append(cc)
         return cc
 
-    def __getstate__(self):
-        """Persist all, but calculated values (``_matrix_?2?``)."""
-        d = dict(self.__dict__)
-        for n in ("_matrix_i2c", "_matrix_c2i", "_matrix_i2v", "_matrix_v2i"):
-            try:
-                del d[n]
-            except KeyError:
-                pass
-        d["_canvas_projections"] = tuple(self._canvas_projections)
-        return d
-
-    def __setstate__(self, state):
-        """Set state.
-
-        No ``__init__()`` is called.
-        """
-        for n in ("_matrix_i2c", "_matrix_c2i"):
-            setattr(self, n, None)
-        for n in ("_matrix_i2v", "_matrix_v2i"):
-            setattr(self, n, WeakKeyDictionary())
-        self.__dict__.update(state)
-        self._canvas_projections = WeakSet(state["_canvas_projections"])  # type: ignore[assignment]
-
 
 [NW, NE, SE, SW] = list(range(4))
 
