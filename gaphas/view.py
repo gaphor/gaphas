@@ -186,6 +186,7 @@ class View:
         Parameters:
          - selected: if False returns first non-selected item
         """
+        assert self._canvas
         items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
         for item in self._canvas.sort(items, reverse=True):
             if not selected and item in self.selected_items:
@@ -300,6 +301,7 @@ class View:
 
         Items are automatically sorted in canvas' processing order.
         """
+        assert self._canvas
         if intersect:
             items = self._qtree.find_intersect(rect)
         else:
@@ -318,10 +320,6 @@ class View:
         """Zoom in/out by factor @factor."""
         # TODO: should the scale factor be clipped?
         self._matrix.scale(factor, factor)
-
-        # Make sure everything's updated
-        # map(self.update_matrix, self._canvas.get_all_items())
-        self.request_update((), self._canvas.get_all_items())
 
     def set_item_bounding_box(self, item, bounds):
         """Update the bounding box of the item.
@@ -560,7 +558,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     def zoom(self, factor):
         """Zoom in/out by factor ``factor``."""
+        assert self._canvas
         super().zoom(factor)
+        # Make sure everything's updated
+        # map(self.update_matrix, self._canvas.get_all_items())
+        self.request_update((), self._canvas.get_all_items())
         self.queue_draw_refresh()
 
     @AsyncIO(single=True)
@@ -591,6 +593,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 page_size=aw,
             )
         else:
+            assert self._hadjustment
             self._hadjustment.set_value(v.x)
             self._hadjustment.set_lower(u.x)
             self._hadjustment.set_upper(u.x1)
@@ -608,6 +611,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 page_size=ah,
             )
         else:
+            assert self._vadjustment
             self._vadjustment.set_value(v.y)
             self._vadjustment.set_lower(u.y)
             self._vadjustment.set_upper(u.y1)
@@ -769,23 +773,22 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
 
-        # Ensure updates are propagated
-        self._canvas.register_view(self)
-
         if self._canvas:
+            # Ensure updates are propagated
+            self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
 
     def do_unrealize(self):
-        if self.canvas:
+        if self._canvas:
             # Although Item._matrix_{i2v|v2i} keys are automatically removed
             # (weak refs), better do it explicitly to be sure.
             self._clear_matrices()
+            self._canvas.unregister_view(self)
+
         self._qtree.clear()
 
         self._dirty_items.clear()
         self._dirty_matrix_items.clear()
-
-        self._canvas.unregister_view(self)
 
         Gtk.DrawingArea.do_unrealize(self)
 
@@ -826,6 +829,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def on_adjustment_changed(self, adj):
         """Change the transformation matrix of the view to reflect the value of
         the x/y adjustment (scrollbar)."""
+        assert self._canvas
+
         value = adj.get_value()
         if value == 0.0:
             return
@@ -839,7 +844,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             m.translate(-value, 0)
         elif adj is self._vadjustment:
             m.translate(0, -value)
-        self._matrix *= m
+        self._matrix *= m  # type: ignore[operator]
 
         # Force recalculation of the bounding boxes:
         self.request_update((), self._canvas.get_all_items())
