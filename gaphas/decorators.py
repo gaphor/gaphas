@@ -108,7 +108,6 @@ class AsyncIO:
         async_id = f"_async_id_{func.__name__}"
 
         def wrapper(*args, **kwargs):
-            global getattr, setattr, delattr
             # execute directly if we're not in the main loop
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)

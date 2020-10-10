@@ -1,7 +1,10 @@
 """Simple class containing the tree structure for the canvas items."""
+from typing import Dict, Generic, List, TypeVar, Union
+
+T = TypeVar("T")
 
 
-class Tree:
+class Tree(Generic[T]):
     """A Tree structure. Nodes are stores in a depth-first order.
 
     ``None`` is the root node.
@@ -12,13 +15,13 @@ class Tree:
     def __init__(self):
         # List of nodes in the tree, sorted in the order they ought to be
         # rendered
-        self._nodes = []
+        self._nodes: List[T] = []
 
         # Per entry a list of children is maintained.
-        self._children = {None: []}
+        self._children: Dict[Union[T, None], List[T]] = {None: []}
 
         # For easy and fast lookups, also maintain a child -> parent mapping
-        self._parents = {}
+        self._parents: Dict[T, T] = {}
 
     nodes = property(lambda s: list(s._nodes))
 

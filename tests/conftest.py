@@ -65,8 +65,8 @@ def simple_canvas():
 
 @pytest.fixture(scope="module")
 def undo_fixture():
-    undo_list = []
-    redo_list = []
+    undo_list = []  # type: ignore[var-annotated]
+    redo_list = []  # type: ignore[var-annotated]
 
     def undo():
         apply_me = list(undo_list)

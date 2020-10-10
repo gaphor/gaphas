@@ -47,8 +47,8 @@ def test_resize_se(cb):
     assert h_sw is cb.handles[SW]
     assert h_se is cb.handles[SE]
 
-    count = getenv("GAPHAS_TEST_COUNT")
-    count = int(count) if count else 1
+    countvar = getenv("GAPHAS_TEST_COUNT")
+    count = int(countvar) if countvar else 1
     for _ in range(count):
         h_se.pos.x += 100  # h.se.{x,y} = 10, now
         h_se.pos.y += 100

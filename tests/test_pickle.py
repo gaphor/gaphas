@@ -15,9 +15,9 @@ from gaphas.view import GtkView, View
 class MyPickler(pickle.Pickler):
     def save(self, obj, save_persistent_id=True):
         try:
-            return pickle.Pickler.save(self, obj)
+            return pickle.Pickler.save(self, obj)  # type: ignore[attr-defined]
         except pickle.PicklingError as e:
-            print("Error while pickling", obj, self.dispatch.get(type(obj)))
+            print("Error while pickling", obj, self.dispatch.get(type(obj)))  # type: ignore[attr-defined]
             raise e
 
 

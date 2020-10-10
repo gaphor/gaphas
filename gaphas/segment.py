@@ -20,6 +20,15 @@ class Segment:
     def __init__(self, item, view):
         raise TypeError
 
+    def split_segment(self, segment, count=2):
+        ...
+
+    def split(self, pos):
+        ...
+
+    def merge_segment(self, segment, count=2):
+        ...
+
 
 @Segment.register(Line)  # type: ignore
 class LineSegment:
@@ -42,16 +51,17 @@ class LineSegment:
     def split_segment(self, segment, count=2):
         """Split one item segment into ``count`` equal pieces.
 
+        def split_segment(self, segment, count=2):
         Two lists are returned
 
-        - list of created handles
-        - list of created ports
+          - list of created handles
+          - list of created ports
 
-        :Parameters:
-         segment
-            Segment number to split (starting from zero).
-         count
-            Amount of new segments to be created (minimum 2).
+          :Parameters:
+           segment
+              Segment number to split (starting from zero).
+           count
+              Amount of new segments to be created (minimum 2).
         """
         item = self.item
         if segment < 0 or segment >= len(item.ports()):

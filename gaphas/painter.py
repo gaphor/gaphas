@@ -182,8 +182,8 @@ class CairoBoundingBoxContext:
 
     def fill_preserve(self, b=None):
         """Interceptor for Cairo drawing method."""
-        cr = self._cairo
         if not b:
+            cr = self._cairo
             b = self._extents(cr.fill_extents)
 
     def stroke(self, b=None):
@@ -195,8 +195,8 @@ class CairoBoundingBoxContext:
 
     def stroke_preserve(self, b=None):
         """Interceptor for Cairo drawing method."""
-        cr = self._cairo
         if not b:
+            cr = self._cairo
             b = self._extents(cr.stroke_extents, line_width=True)
 
     def show_text(self, utf8, b=None):
@@ -272,7 +272,7 @@ class HandlePainter(Painter):
                 continue
             # connected and not being moved, see HandleTool.on_button_press
             if get_connection(h):
-                r, g, b = 1, 0, 0
+                r, g, b = 1.0, 0.0, 0.0
             # connected but being moved, see HandleTool.on_button_press
             elif get_connection(h):
                 r, g, b = 1, 0.6, 0
@@ -320,8 +320,8 @@ class ToolPainter(Painter):
 
     def paint(self, context):
         view = self.view
-        cairo = context.cairo
         if view.tool:
+            cairo = context.cairo
             cairo.save()
             cairo.identity_matrix()
             view.tool.draw(context)

@@ -1,9 +1,11 @@
 """Basic items."""
 from math import atan2
+from typing import TYPE_CHECKING, Dict, Optional, Set
 from weakref import WeakKeyDictionary, WeakSet
 
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import (
+    Constraint,
     EqualsConstraint,
     LessThanConstraint,
     LineAlignConstraint,
@@ -11,13 +13,16 @@ from gaphas.constraint import (
 )
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
-from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
+from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, Projection, solvable
 from gaphas.state import (
     observed,
     reversible_method,
     reversible_pair,
     reversible_property,
 )
+
+if TYPE_CHECKING:
+    from gaphas.view import View
 
 
 class Item:
@@ -55,9 +60,9 @@ class Item:
         self._matrix_c2i = None
 
         # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
-        self._matrix_i2v = WeakKeyDictionary()
-        self._matrix_v2i = WeakKeyDictionary()
-        self._canvas_projections = WeakSet()
+        self._matrix_i2v: Dict[View, Matrix] = WeakKeyDictionary()  # type: ignore[assignment]
+        self._matrix_v2i: Dict[View, Matrix] = WeakKeyDictionary()  # type: ignore[assignment]
+        self._canvas_projections: Set[Projection] = WeakSet()  # type: ignore[assignment]
 
     @observed
     def _set_canvas(self, canvas):
@@ -231,7 +236,7 @@ class Item:
          line=(p, l)
             Keep position ``p`` on line ``l``.
         """
-        cc = None  # created constraint
+        cc: Optional[Constraint] = None  # created constraint
         if horizontal:
             p1, p2 = horizontal
             cc = EqualsConstraint(p1[1], p2[1], delta)
@@ -279,7 +284,7 @@ class Item:
         for n in ("_matrix_i2v", "_matrix_v2i"):
             setattr(self, n, WeakKeyDictionary())
         self.__dict__.update(state)
-        self._canvas_projections = WeakSet(state["_canvas_projections"])
+        self._canvas_projections = WeakSet(state["_canvas_projections"])  # type: ignore[assignment]
 
 
 [NW, NE, SE, SW] = list(range(4))
@@ -321,8 +326,8 @@ class Element(Item):
         self.constraint(vertical=(h_ne.pos, h_se.pos))
 
         # create minimal size constraints
-        self.constraint(left_of=(h_nw.pos, h_se.pos), delta=self._min_width)
-        self.constraint(above=(h_nw.pos, h_se.pos), delta=self._min_height)
+        self.constraint(left_of=(h_nw.pos, h_se.pos), delta=self.min_width)
+        self.constraint(above=(h_nw.pos, h_se.pos), delta=self.min_height)
 
         self.width = width
         self.height = height
@@ -386,8 +391,7 @@ class Element(Item):
     def normalize(self):
         """Normalize only NW and SE handles."""
         updated = False
-        handles = self._handles
-        handles = (handles[NW], handles[SE])
+        handles = (self._handles[NW], self._handles[SE])
         x, y = list(map(float, handles[0].pos))
         if x:
             self.matrix.translate(x, 0)
@@ -622,10 +626,10 @@ class Line(Item):
         super().post_update(context)
         h0, h1 = self._handles[:2]
         p0, p1 = h0.pos, h1.pos
-        self._head_angle = atan2(p1.y - p0.y, p1.x - p0.x)
+        self._head_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
         h1, h0 = self._handles[-2:]
         p1, p0 = h1.pos, h0.pos
-        self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)
+        self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
 
     def point(self, pos):
         """

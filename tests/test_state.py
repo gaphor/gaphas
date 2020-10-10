@@ -32,5 +32,5 @@ def test_adding_pair():
         assert SList.add in _reverse
         assert SList.remove in _reverse
     else:  # Legacy Python
-        assert SList.add.__func__ in _reverse
+        assert SList.add.__func__ in _reverse  # type: ignore[attr-defined]
         assert SList.remove.__func__ in _reverse

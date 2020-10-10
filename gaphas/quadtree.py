@@ -122,7 +122,7 @@ class Quadtree:
         (0, 0, 0, 0)
         """
         x_y_w_h = list(
-            zip(
+            zip(  # type: ignore[call-overload]
                 *list(
                     map(
                         operator.getitem,
