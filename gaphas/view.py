@@ -18,7 +18,8 @@ DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
 class Selection:
-    def __init__(self):
+    def __init__(self, view):
+        self._view = view
         # Handling selections.
         self._selected_items = set()
         self._focused_item = None
@@ -48,19 +49,32 @@ class Selection:
         return self._dropzone_item
 
     def add_selected_item(self, item):
-        self._selected_items.add(item)
+        if item not in self._selected_items:
+            self._selected_items.add(item)
+            self._view.emit("selection-changed", self._selected_items)
 
     def remove_selected_item(self, item):
-        self._selected_items.discard(item)
+        if item in self._selected_items:
+            self._selected_items.discard(item)
+            self._view.emit("selection-changed", self._selected_items)
 
     def set_focused_item(self, item):
-        self._focused_item = item
+        if item:
+            self.add_selected_item(item)
+
+        if item is not self._focused_item:
+            self._focused_item = item
+            self._view.emit("focus-changed", item)
 
     def set_hovered_item(self, item):
-        self._hovered_item = item
+        if item is not self._hovered_item:
+            self._hovered_item = item
+            self._view.emit("hover-changed", item)
 
     def set_dropzone_item(self, item):
-        self._dropzone_item = item
+        if item is not self._dropzone_item:
+            self._dropzone_item = item
+            self._view.emit("dropzone-changed", item)
 
 
 class View:
@@ -73,7 +87,7 @@ class View:
 
         # Handling selections.
         # TODO: Move this to a context?
-        self._selection = Selection()
+        self._selection = Selection(self)
 
         self._qtree = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)
@@ -111,16 +125,12 @@ class View:
         This adds @item to the set of selected items.
         """
         self.queue_draw_item(item)
-        if item not in self._selection.selected_items:
-            self._selection.add_selected_item(item)
-            self.emit("selection-changed", self._selection.selected_items)
+        self._selection.add_selected_item(item)
 
     def unselect_item(self, item):
         """Unselect an item."""
         self.queue_draw_item(item)
-        if item in self._selection.selected_items:
-            self._selection.remove_selected_item(item)
-            self.emit("selection-changed", self._selection.selected_items)
+        self._selection.remove_selected_item(item)
 
     def select_all(self):
         for item in self.canvas.get_all_items():
@@ -132,7 +142,6 @@ class View:
         for item in self.canvas.get_all_items():
             self._selection.remove_selected_item(item)
         self._selection.set_focused_item(None)
-        self.emit("selection-changed", self._selection.selected_items)
 
     selected_items = property(
         lambda s: s._selection.selected_items,
@@ -144,14 +153,8 @@ class View:
     def _set_focused_item(self, item):
         """Set the focused item, this item is also added to the selected_items
         set."""
-        if item is not self._selection.focused_item:
-            self.queue_draw_item(self._selection.focused_item, item)
-
-        if item:
-            self._selection.add_selected_item(item)
-        if item is not self._selection.focused_item:
-            self._selection.set_focused_item(item)
-            self.emit("focus-changed", item)
+        self.queue_draw_item(self._selection.focused_item, item)
+        self._selection.set_focused_item(item)
 
     def _del_focused_item(self):
         """Items that loose focus remain selected."""
@@ -166,10 +169,8 @@ class View:
 
     def _set_hovered_item(self, item):
         """Set the hovered item."""
-        if item is not self._selection.hovered_item:
-            self.queue_draw_item(self._selection.hovered_item, item)
-            self._selection.set_hovered_item(item)
-            self.emit("hover-changed", item)
+        self.queue_draw_item(self._selection.hovered_item, item)
+        self._selection.set_hovered_item(item)
 
     def _del_hovered_item(self):
         """Unset the hovered item."""
@@ -184,10 +185,8 @@ class View:
 
     def _set_dropzone_item(self, item):
         """Set dropzone item."""
-        if item is not self._selection.dropzone_item:
-            self.queue_draw_item(self._selection.dropzone_item, item)
-            self._selection.set_dropzone_item(item)
-            self.emit("dropzone-changed", item)
+        self.queue_draw_item(self._selection.dropzone_item, item)
+        self._selection.set_dropzone_item(item)
 
     def _del_dropzone_item(self):
         """Unset dropzone item."""
@@ -199,6 +198,8 @@ class View:
         _del_dropzone_item,
         "The item which can group other items",
     )
+
+    # ####################
 
     def _set_painter(self, painter):
         """Set the painter to use.
