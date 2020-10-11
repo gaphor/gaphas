@@ -35,10 +35,6 @@ class View:
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
-    def queue_draw_item(self, *items):
-        """Placeholder for item redraw queueing."""
-        pass
-
     def _set_painter(self, painter):
         """Set the painter to use.
 

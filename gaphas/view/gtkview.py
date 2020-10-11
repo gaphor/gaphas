@@ -109,7 +109,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._selection = Selection()
         self._selection.connect(
-            "selection-changed", self._forward_selection_signal, "selection-changed"
+            "selection-changed", self._forward_signal, "selection-changed"
         )
         self._selection.connect("focus-changed", self._forward_signal, "focus-changed")
         self._selection.connect("hover-changed", self._forward_signal, "hover-changed")
@@ -119,12 +119,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._set_tool(DefaultTool())
 
-    def _forward_selection_signal(self, selection, items, signal_name):
-        self.queue_draw_item(*items)
-        self.emit(signal_name, items)
-
     def _forward_signal(self, selection, item, signal_name):
-        self.queue_draw_item(item)
+        self.queue_redraw()
         self.emit(signal_name, item)
 
     def do_get_property(self, prop):
@@ -196,7 +192,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if self._canvas:
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
-        self.queue_draw_refresh()
+        self.queue_redraw()
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -222,7 +218,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         assert self._canvas
         super().zoom(factor)
         self.request_update((), self._canvas.get_all_items())
-        self.queue_draw_refresh()
+        self.queue_redraw()
 
     def select_in_rectangle(self, rect):
         """Select all items who have their bounding box within the rectangle.
@@ -352,20 +348,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self._vadjustment.set_page_increment(ah)
             self._vadjustment.set_page_size(ah)
 
-    def queue_draw_item(self, *items):
-        """Like ``DrawingArea.queue_draw_area``, but use the bounds of the item
-        as update areas.
-
-        Of course with a pythonic flavor: update any number of items at
-        once.
-        """
-        self.update_back_buffer()
-
-    def queue_draw_area(self, x, y, w, h):
-        """Queue an update for portion of the view port."""
-        self.update_back_buffer()
-
-    def queue_draw_refresh(self):
+    def queue_redraw(self):
         """Redraw the entire view."""
         self.update_back_buffer()
 
@@ -577,4 +560,4 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # Force recalculation of the bounding boxes:
         self.request_update((), self._canvas.get_all_items())
 
-        self.queue_draw_refresh()
+        self.queue_redraw()

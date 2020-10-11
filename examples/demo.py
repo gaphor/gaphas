@@ -179,7 +179,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         if isinstance(selection.focused_item, Line):
             segment = Segment(selection.focused_item, view)
             segment.split_segment(0)
-            view.queue_draw_item(selection.focused_item)
+            view.queue_redraw()
 
     b.connect("clicked", on_split_line_clicked)
     v.add(b)

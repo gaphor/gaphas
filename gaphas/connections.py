@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from gaphas import table
+from gaphas.solver import Solver
 from gaphas.state import observed, reversible_method, reversible_pair
 
 #
@@ -24,8 +25,8 @@ class ConnectionError(Exception):
 
 
 class Connections:
-    def __init__(self, solver):
-        self._solver = solver
+    def __init__(self, solver=None):
+        self._solver = solver or Solver()
         self._connections = table.Table(Connection, list(range(4)))
 
     solver = property(lambda s: s._solver)

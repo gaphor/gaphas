@@ -82,7 +82,6 @@ class Selection(GObject.Object):
 
     def unselect_all(self):
         """Clearing the selected_item also clears the focused_item."""
-        # self.queue_draw_item(*self._selection.selected_items)
         for item in list(self._selected_items):
             self.unselect_item(item)
         self.set_focused_item(None)

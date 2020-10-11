@@ -442,8 +442,7 @@ class RubberbandTool(Tool):
             return True
 
     def queue_draw(self, view):
-        x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
-        view.queue_draw_area(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
+        view.queue_redraw()
 
     def draw(self, context):
         cr = context.cairo

@@ -169,9 +169,9 @@ class GuideMixin:
         w, h = self.get_view_dimensions()
 
         for x in guides.vertical():
-            view.queue_draw_area(x - 1, 0, x + 2, h)
+            view.queue_redraw()
         for y in guides.horizontal():
-            view.queue_draw_area(0, y - 1, w, y + 2)
+            view.queue_redraw()
 
     def find_closest(self, item_edges, edges):
         delta = 0
