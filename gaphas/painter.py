@@ -334,7 +334,7 @@ class FocusedItemPainter(Painter):
 
     def paint(self, context):
         view = self.view
-        item = view.hovered_item
+        item = view.selection.hovered_item
         if item and item is view.focused_item:
             PaintFocused(item, view).paint(context)
 

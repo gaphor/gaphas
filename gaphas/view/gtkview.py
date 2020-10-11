@@ -272,38 +272,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         "The item with focus (receives key events a.o.)",
     )
 
-    def _set_hovered_item(self, item):
-        """Set the hovered item."""
-        # self.queue_draw_item(self._selection.hovered_item, item)
-        self._selection.set_hovered_item(item)
-
-    def _del_hovered_item(self):
-        """Unset the hovered item."""
-        self._set_hovered_item(None)
-
-    hovered_item = property(
-        lambda s: s._selection.hovered_item,
-        _set_hovered_item,
-        _del_hovered_item,
-        "The item directly under the mouse pointer",
-    )
-
-    def _set_dropzone_item(self, item):
-        """Set dropzone item."""
-        # self.queue_draw_item(self._selection.dropzone_item, item)
-        self._selection.set_dropzone_item(item)
-
-    def _del_dropzone_item(self):
-        """Unset dropzone item."""
-        self._set_dropzone_item(None)
-
-    dropzone_item = property(
-        lambda s: s._selection.dropzone_item,
-        _set_dropzone_item,
-        _del_dropzone_item,
-        "The item which can group other items",
-    )
-
     def select_in_rectangle(self, rect):
         """Select all items who have their bounding box within the rectangle.
 

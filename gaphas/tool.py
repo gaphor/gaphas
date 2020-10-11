@@ -221,7 +221,7 @@ class HoverTool(Tool):
     def on_motion_notify(self, event):
         view = self.view
         pos = event.get_coords()[1:]
-        view.hovered_item = Finder(view).get_item_at_point(pos)
+        view.selection.set_hovered_item(Finder(view).get_item_at_point(pos))
 
 
 class ItemTool(Tool):
@@ -239,7 +239,7 @@ class ItemTool(Tool):
         self._movable_items = set()
 
     def get_item(self):
-        return self.view.hovered_item
+        return self.view.selection.hovered_item
 
     def movable_items(self):
         """Filter the items that should eventually be moved.
@@ -273,7 +273,7 @@ class ItemTool(Tool):
 
         if item:
             if (
-                view.hovered_item in view.selected_items
+                view.selection.hovered_item in view.selected_items
                 and event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK
             ):
                 selection = Selection(item, view)
@@ -353,8 +353,9 @@ class HandleTool(Tool):
         (item.Handle), that handle is grabbed and can be dragged around.
         """
         view = self.view
+        selection = view.selection
 
-        item, handle = HandleFinder(view.hovered_item, view).get_handle_at_point(
+        item, handle = HandleFinder(selection.hovered_item, view).get_handle_at_point(
             event.get_coords()[1:]
         )
 
@@ -365,11 +366,11 @@ class HandleTool(Tool):
             if not (
                 event.get_state()[1]
                 & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-                or view.hovered_item in view.selected_items
+                or selection.hovered_item in selection.selected_items
             ):
-                del view.selected_items
-            view.hovered_item = item
-            view.focused_item = item
+                selection.unselect_all()
+            selection.set_hovered_item(item)
+            selection.set_focused_item(item)
 
             self.motion_handle = None
 
