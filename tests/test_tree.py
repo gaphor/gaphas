@@ -132,11 +132,11 @@ def test_reparent(tree_fixture):
 
     assert tree.nodes == [n[1], n[2], n[4], n[5], n[3]], tree.nodes
 
-    tree.reparent(n[4], parent=n[1], index=0)
+    tree.move(n[4], parent=n[1], index=0)
     assert tree.nodes == [n[1], n[4], n[5], n[2], n[3]], tree.nodes
     assert tree.get_children(n[2]) == [], tree.get_children(n[2])
     assert tree.get_children(n[1]) == [n[4]], tree.get_children(n[1])
     assert tree.get_children(n[4]) == [n[5]], tree.get_children(n[4])
 
-    tree.reparent(n[4], parent=None, index=0)
+    tree.move(n[4], parent=None, index=0)
     assert tree.nodes == [n[4], n[5], n[1], n[2], n[3]], tree.nodes

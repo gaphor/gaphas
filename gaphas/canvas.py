@@ -144,7 +144,7 @@ class Canvas:
     @observed
     def reparent(self, item, parent, index=None):
         """Set new parent for an item."""
-        self._tree.reparent(item, parent, index)
+        self._tree.move(item, parent, index)
 
     reversible_method(
         reparent,
