@@ -230,7 +230,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         This adds @item to the set of selected items.
         """
         # self.queue_draw_item(item)
-        self._selection.add_selected_item(item)
+        self._selection.select_items(item)
 
     def unselect_item(self, item):
         """Unselect an item."""
@@ -310,7 +310,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         @rect.
         """
         for item in self._qtree.find_inside(rect):
-            self._selection.add_selected_item(item)
+            self._selection.select_items(item)
 
     def get_item_at_point(self, pos, selected=True):
         """Return the topmost item located at ``pos`` (x, y).

@@ -51,10 +51,11 @@ class Selection(GObject.Object):
     def dropzone_item(self):
         return self._dropzone_item
 
-    def add_selected_item(self, item):
-        if item not in self._selected_items:
-            self._selected_items.add(item)
-            self.emit("selection-changed", self._selected_items)
+    def select_items(self, *items):
+        for item in items:
+            if item not in self._selected_items:
+                self._selected_items.add(item)
+                self.emit("selection-changed", self._selected_items)
 
     def remove_selected_item(self, item):
         if item in self._selected_items:
@@ -63,7 +64,7 @@ class Selection(GObject.Object):
 
     def set_focused_item(self, item):
         if item:
-            self.add_selected_item(item)
+            self.select_items(item)
 
         if item is not self._focused_item:
             self._focused_item = item
@@ -78,3 +79,10 @@ class Selection(GObject.Object):
         if item is not self._dropzone_item:
             self._dropzone_item = item
             self.emit("dropzone-changed", item)
+
+    def unselect_all(self):
+        """Clearing the selected_item also clears the focused_item."""
+        # self.queue_draw_item(*self._selection.selected_items)
+        for item in list(self._selected_items):
+            self._selection.remove_selected_item(item)
+        self._selection.set_focused_item(None)
