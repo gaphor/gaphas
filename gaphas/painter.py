@@ -90,10 +90,10 @@ class ItemPainter(Painter):
                     painter=self,
                     cairo=cairo,
                     _item=item,
-                    selected=(item in view.selected_items),
-                    focused=(item is view.focused_item),
-                    hovered=(item is view.hovered_item),
-                    dropzone=(item is view.dropzone_item),
+                    selected=(item in view.selection.selected_items),
+                    focused=(item is view.selection.focused_item),
+                    hovered=(item is view.selection.hovered_item),
+                    dropzone=(item is view.selection.dropzone_item),
                     draw_all=self.draw_all,
                 )
             )
@@ -306,11 +306,11 @@ class HandlePainter(Painter):
         for item in canvas.sort(view.selected_items):
             self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
-        item = view.hovered_item
-        if item and item not in view.selected_items:
+        item = view.selection.hovered_item
+        if item and item not in view.selection.selected_items:
             self._draw_handles(item, cairo, opacity=0.25)
-        item = view.dropzone_item
-        if item and item not in view.selected_items:
+        item = view.selection.dropzone_item
+        if item and item not in view.selection.selected_items:
             self._draw_handles(item, cairo, opacity=0.25, inner=True)
 
 

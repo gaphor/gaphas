@@ -17,66 +17,6 @@ DEBUG_DRAW_QUADTREE = False
 DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
 
-class Selection:
-    def __init__(self, view):
-        self._view = view
-        # Handling selections.
-        self._selected_items = set()
-        self._focused_item = None
-        self._hovered_item = None
-        self._dropzone_item = None
-
-    def clear(self):
-        self._selected_items.clear()
-        self._focused_item = None
-        self._hovered_item = None
-        self._dropzone_item = None
-
-    @property
-    def selected_items(self):
-        return self._selected_items
-
-    @property
-    def focused_item(self):
-        return self._focused_item
-
-    @property
-    def hovered_item(self):
-        return self._hovered_item
-
-    @property
-    def dropzone_item(self):
-        return self._dropzone_item
-
-    def add_selected_item(self, item):
-        if item not in self._selected_items:
-            self._selected_items.add(item)
-            self._view.emit("selection-changed", self._selected_items)
-
-    def remove_selected_item(self, item):
-        if item in self._selected_items:
-            self._selected_items.discard(item)
-            self._view.emit("selection-changed", self._selected_items)
-
-    def set_focused_item(self, item):
-        if item:
-            self.add_selected_item(item)
-
-        if item is not self._focused_item:
-            self._focused_item = item
-            self._view.emit("focus-changed", item)
-
-    def set_hovered_item(self, item):
-        if item is not self._hovered_item:
-            self._hovered_item = item
-            self._view.emit("hover-changed", item)
-
-    def set_dropzone_item(self, item):
-        if item is not self._dropzone_item:
-            self._dropzone_item = item
-            self._view.emit("dropzone-changed", item)
-
-
 class View:
     """View class for gaphas.Canvas objects."""
 
@@ -84,10 +24,6 @@ class View:
         self._matrix = cairo.Matrix()
         self._painter = DefaultPainter(self)
         self._bounding_box_painter = BoundingBoxPainter(ItemPainter(self), self)
-
-        # Handling selections.
-        # TODO: Move this to a context?
-        self._selection = Selection(self)
 
         self._qtree = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)
@@ -105,101 +41,14 @@ class View:
         """
         if self._canvas:
             self._qtree.clear()
-            self._selection.clear()
 
         self._canvas = canvas
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
-    def emit(self, *args, **kwargs):
-        """Placeholder method for signal emission functionality."""
-        pass
-
     def queue_draw_item(self, *items):
         """Placeholder for item redraw queueing."""
         pass
-
-    def select_item(self, item):
-        """Select an item.
-
-        This adds @item to the set of selected items.
-        """
-        self.queue_draw_item(item)
-        self._selection.add_selected_item(item)
-
-    def unselect_item(self, item):
-        """Unselect an item."""
-        self.queue_draw_item(item)
-        self._selection.remove_selected_item(item)
-
-    def select_all(self):
-        for item in self.canvas.get_all_items():
-            self.select_item(item)
-
-    def unselect_all(self):
-        """Clearing the selected_item also clears the focused_item."""
-        self.queue_draw_item(*self._selection.selected_items)
-        for item in self.canvas.get_all_items():
-            self._selection.remove_selected_item(item)
-        self._selection.set_focused_item(None)
-
-    selected_items = property(
-        lambda s: s._selection.selected_items,
-        select_item,
-        unselect_all,
-        "Items selected by the view",
-    )
-
-    def _set_focused_item(self, item):
-        """Set the focused item, this item is also added to the selected_items
-        set."""
-        self.queue_draw_item(self._selection.focused_item, item)
-        self._selection.set_focused_item(item)
-
-    def _del_focused_item(self):
-        """Items that loose focus remain selected."""
-        self._set_focused_item(None)
-
-    focused_item = property(
-        lambda s: s._selection.focused_item,
-        _set_focused_item,
-        _del_focused_item,
-        "The item with focus (receives key events a.o.)",
-    )
-
-    def _set_hovered_item(self, item):
-        """Set the hovered item."""
-        self.queue_draw_item(self._selection.hovered_item, item)
-        self._selection.set_hovered_item(item)
-
-    def _del_hovered_item(self):
-        """Unset the hovered item."""
-        self._set_hovered_item(None)
-
-    hovered_item = property(
-        lambda s: s._selection.hovered_item,
-        _set_hovered_item,
-        _del_hovered_item,
-        "The item directly under the mouse pointer",
-    )
-
-    def _set_dropzone_item(self, item):
-        """Set dropzone item."""
-        self.queue_draw_item(self._selection.dropzone_item, item)
-        self._selection.set_dropzone_item(item)
-
-    def _del_dropzone_item(self):
-        """Unset dropzone item."""
-        self._set_dropzone_item(None)
-
-    dropzone_item = property(
-        lambda s: s._selection.dropzone_item,
-        _set_dropzone_item,
-        _del_dropzone_item,
-        "The item which can group other items",
-    )
-
-    # ####################
 
     def _set_painter(self, painter):
         """Set the painter to use.
@@ -208,7 +57,6 @@ class View:
         """
         self._painter = painter
         painter.set_view(self)
-        self.emit("painter-changed")
 
     painter = property(lambda s: s._painter, _set_painter)
 
@@ -216,77 +64,10 @@ class View:
         """Set the painter to use for bounding box calculations."""
         self._bounding_box_painter = painter
         painter.set_view(self)
-        self.emit("painter-changed")
 
     bounding_box_painter = property(
         lambda s: s._bounding_box_painter, _set_bounding_box_painter
     )
-
-    def get_item_at_point(self, pos, selected=True):
-        """Return the topmost item located at ``pos`` (x, y).
-
-        Parameters:
-         - selected: if False returns first non-selected item
-        """
-        assert self._canvas
-        items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
-        for item in reversed(self._canvas.sort(items)):
-            if not selected and item in self.selected_items:
-                continue  # skip selected items
-
-            v2i = self.get_matrix_v2i(item)
-            ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point((ix, iy))
-            if item_distance is None:
-                print(f"Item distance is None for {item}")
-                continue
-            if item_distance < 0.5:
-                return item
-        return None
-
-    def get_handle_at_point(self, pos, distance=6):
-        """Look for a handle at ``pos`` and return the tuple (item, handle)."""
-
-        def find(item):
-            """Find item's handle at pos."""
-            v2i = self.get_matrix_v2i(item)
-            d = distance_point_point_fast(v2i.transform_distance(0, distance))
-            x, y = v2i.transform_point(*pos)
-
-            for h in item.handles():
-                if not h.movable:
-                    continue
-                hx, hy = h.pos
-                if -d < (hx - x) < d and -d < (hy - y) < d:
-                    return h
-
-        selection = self._selection
-
-        # The focused item is the preferred item for handle grabbing
-        if selection.focused_item:
-            h = find(selection.focused_item)
-            if h:
-                return selection.focused_item, h
-
-        # then try hovered item
-        if selection.hovered_item:
-            h = find(selection.hovered_item)
-            if h:
-                return selection.hovered_item, h
-
-        # Last try all items, checking the bounding box first
-        x, y = pos
-        items = reversed(
-            self.get_items_in_rectangle(
-                (x - distance, y - distance, distance * 2, distance * 2)
-            )
-        )
-
-        for item in items:
-            h = find(item)
-            if h:
-                return item, h
-        return None, None
 
     def get_port_at_point(self, vpos, distance=10, exclude=None):
         """Find item with port closest to specified position.
@@ -354,14 +135,6 @@ class View:
             items = self._qtree.find_inside(rect)
         return self._canvas.sort(items)
 
-    def select_in_rectangle(self, rect):
-        """Select all items who have their bounding box within the rectangle.
-
-        @rect.
-        """
-        items = self._qtree.find_inside(rect)
-        list(map(self.select_item, items))
-
     def zoom(self, factor):
         """Zoom in/out by factor @factor."""
         # TODO: should the scale factor be clipped?
@@ -409,6 +182,86 @@ class View:
         m = self.get_matrix_i2v(item)
         m.invert()
         return m
+
+
+class Selection(GObject.Object):
+    # Just defined a name to make GTK register this class.
+    __gtype_name__ = "GaphasSelection"
+
+    # Signals: emitted after the change takes effect.
+    __gsignals__ = {
+        "dropzone-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),
+        "hover-changed": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
+        "focus-changed": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
+        "selection-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),
+    }
+
+    def __init__(self, view):
+        super().__init__()
+        self._view = view
+        # Handling selections.
+        self._selected_items = set()
+        self._focused_item = None
+        self._hovered_item = None
+        self._dropzone_item = None
+
+    def clear(self):
+        self._selected_items.clear()
+        self._focused_item = None
+        self._hovered_item = None
+        self._dropzone_item = None
+
+    @property
+    def selected_items(self):
+        return self._selected_items
+
+    @property
+    def focused_item(self):
+        return self._focused_item
+
+    @property
+    def hovered_item(self):
+        return self._hovered_item
+
+    @property
+    def dropzone_item(self):
+        return self._dropzone_item
+
+    def add_selected_item(self, item):
+        if item not in self._selected_items:
+            self._selected_items.add(item)
+            self.emit("selection-changed", self._selected_items)
+
+    def remove_selected_item(self, item):
+        if item in self._selected_items:
+            self._selected_items.discard(item)
+            self.emit("selection-changed", self._selected_items)
+
+    def set_focused_item(self, item):
+        if item:
+            self.add_selected_item(item)
+
+        if item is not self._focused_item:
+            self._focused_item = item
+            self.emit("focus-changed", item)
+
+    def set_hovered_item(self, item):
+        if item is not self._hovered_item:
+            self._hovered_item = item
+            self.emit("hover-changed", item)
+
+    def set_dropzone_item(self, item):
+        if item is not self._dropzone_item:
+            self._dropzone_item = item
+            self.emit("dropzone-changed", item)
 
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
@@ -502,7 +355,25 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._hscroll_policy = None
         self._vscroll_policy = None
 
+        self._selection = Selection(self)
+        self._selection.connect(
+            "selection-changed", self._forward_selection_signal, "selection-changed"
+        )
+        self._selection.connect("focus-changed", self._forward_signal, "focus-changed")
+        self._selection.connect("hover-changed", self._forward_signal, "hover-changed")
+        self._selection.connect(
+            "dropzone-changed", self._forward_signal, "dropzone-changed"
+        )
+
         self._set_tool(DefaultTool())
+
+    def _forward_selection_signal(self, selection, items, signal_name):
+        self.queue_draw_item(*items)
+        self.emit(signal_name, items)
+
+    def _forward_signal(self, selection, item, signal_name):
+        self.queue_draw_item(item)
+        self.emit(signal_name, item)
 
     def do_get_property(self, prop):
         if prop.name == "hadjustment":
@@ -538,6 +409,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         else:
             raise AttributeError(f"Unknown property {prop.name}")
 
+    def _set_painter(self, painter):
+        """Set the painter to use.
+
+        Painters should implement painter.Painter.
+        """
+        super()._set_painter(painter)
+        self.emit("painter-changed")
+
+    def _set_bounding_box_painter(self, painter):
+        """Set the painter to use for bounding box calculations."""
+        super()._set_bounding_box_painter(painter)
+        self.emit("painter-changed")
+
     def emit(self, *args, **kwargs):
         """Delegate signal emissions to the DrawingArea (=GTK+)"""
         Gtk.DrawingArea.emit(self, *args, **kwargs)
@@ -551,6 +435,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         if self._canvas:
             self._canvas.unregister_view(self)
+            self._selection.clear()
+
+        self._canvas = canvas
 
         super()._set_canvas(canvas)
 
@@ -560,6 +447,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.queue_draw_refresh()
 
     canvas = property(lambda s: s._canvas, _set_canvas)
+
+    selection = property(lambda s: s._selection)
 
     def _set_tool(self, tool):
         """Set the tool to use.
@@ -582,6 +471,160 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         super().zoom(factor)
         self.request_update((), self._canvas.get_all_items())
         self.queue_draw_refresh()
+
+    def select_item(self, item):
+        """Select an item.
+
+        This adds @item to the set of selected items.
+        """
+        # self.queue_draw_item(item)
+        self._selection.add_selected_item(item)
+
+    def unselect_item(self, item):
+        """Unselect an item."""
+        # self.queue_draw_item(item)
+        self._selection.remove_selected_item(item)
+
+    def select_all(self):
+        for item in self.canvas.get_all_items():
+            self.select_item(item)
+
+    def unselect_all(self):
+        """Clearing the selected_item also clears the focused_item."""
+        # self.queue_draw_item(*self._selection.selected_items)
+        for item in self.canvas.get_all_items():
+            self._selection.remove_selected_item(item)
+        self._selection.set_focused_item(None)
+
+    selected_items = property(
+        lambda s: s._selection.selected_items,
+        select_item,
+        unselect_all,
+        "Items selected by the view",
+    )
+
+    def _set_focused_item(self, item):
+        """Set the focused item, this item is also added to the selected_items
+        set."""
+        # self.queue_draw_item(self._selection.focused_item, item)
+        self._selection.set_focused_item(item)
+
+    def _del_focused_item(self):
+        """Items that loose focus remain selected."""
+        self._set_focused_item(None)
+
+    focused_item = property(
+        lambda s: s._selection.focused_item,
+        _set_focused_item,
+        _del_focused_item,
+        "The item with focus (receives key events a.o.)",
+    )
+
+    def _set_hovered_item(self, item):
+        """Set the hovered item."""
+        # self.queue_draw_item(self._selection.hovered_item, item)
+        self._selection.set_hovered_item(item)
+
+    def _del_hovered_item(self):
+        """Unset the hovered item."""
+        self._set_hovered_item(None)
+
+    hovered_item = property(
+        lambda s: s._selection.hovered_item,
+        _set_hovered_item,
+        _del_hovered_item,
+        "The item directly under the mouse pointer",
+    )
+
+    def _set_dropzone_item(self, item):
+        """Set dropzone item."""
+        # self.queue_draw_item(self._selection.dropzone_item, item)
+        self._selection.set_dropzone_item(item)
+
+    def _del_dropzone_item(self):
+        """Unset dropzone item."""
+        self._set_dropzone_item(None)
+
+    dropzone_item = property(
+        lambda s: s._selection.dropzone_item,
+        _set_dropzone_item,
+        _del_dropzone_item,
+        "The item which can group other items",
+    )
+
+    def select_in_rectangle(self, rect):
+        """Select all items who have their bounding box within the rectangle.
+
+        @rect.
+        """
+        for item in self._qtree.find_inside(rect):
+            self._selection.add_selected_item(item)
+
+    def get_item_at_point(self, pos, selected=True):
+        """Return the topmost item located at ``pos`` (x, y).
+
+        Parameters:
+         - selected: if False returns first non-selected item
+        """
+        assert self._canvas
+        items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
+        for item in reversed(self._canvas.sort(items)):
+            if not selected and item in self.selected_items:
+                continue  # skip selected items
+
+            v2i = self.get_matrix_v2i(item)
+            ix, iy = v2i.transform_point(*pos)
+            item_distance = item.point((ix, iy))
+            if item_distance is None:
+                print(f"Item distance is None for {item}")
+                continue
+            if item_distance < 0.5:
+                return item
+        return None
+
+    def get_handle_at_point(self, pos, distance=6):
+        """Look for a handle at ``pos`` and return the tuple (item, handle)."""
+
+        def find(item):
+            """Find item's handle at pos."""
+            v2i = self.get_matrix_v2i(item)
+            d = distance_point_point_fast(v2i.transform_distance(0, distance))
+            x, y = v2i.transform_point(*pos)
+
+            for h in item.handles():
+                if not h.movable:
+                    continue
+                hx, hy = h.pos
+                if -d < (hx - x) < d and -d < (hy - y) < d:
+                    return h
+
+        selection = self._selection
+
+        # The focused item is the preferred item for handle grabbing
+        if selection.focused_item:
+            h = find(selection.focused_item)
+            if h:
+                return selection.focused_item, h
+
+        # then try hovered item
+        if selection.hovered_item:
+            h = find(selection.hovered_item)
+            if h:
+                return selection.hovered_item, h
+
+        # Last try all items, checking the bounding box first
+        x, y = pos
+        items = reversed(
+            self.get_items_in_rectangle(
+                (x - distance, y - distance, distance * 2, distance * 2)
+            )
+        )
+
+        for item in items:
+            h = find(item)
+            if h:
+                return item, h
+        return None, None
 
     @AsyncIO(single=True)
     def update_adjustments(self, allocation=None):
