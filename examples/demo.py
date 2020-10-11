@@ -17,6 +17,7 @@ import cairo
 import gi
 
 from gaphas import Canvas, GtkView, View, state
+from gaphas.canvas import Context
 from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
 from gaphas.freehand import FreeHandPainter
 from gaphas.item import Line
@@ -31,7 +32,6 @@ from gaphas.painter import (
 from gaphas.segment import Segment
 from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
-from gaphas.view import Context
 
 # fmt: off
 gi.require_version("Gtk", "3.0")  # noqa: isort:skip
