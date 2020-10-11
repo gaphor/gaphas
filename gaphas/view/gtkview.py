@@ -224,54 +224,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.request_update((), self._canvas.get_all_items())
         self.queue_draw_refresh()
 
-    def select_item(self, item):
-        """Select an item.
-
-        This adds @item to the set of selected items.
-        """
-        # self.queue_draw_item(item)
-        self._selection.select_items(item)
-
-    def unselect_item(self, item):
-        """Unselect an item."""
-        # self.queue_draw_item(item)
-        self._selection.remove_selected_item(item)
-
-    def select_all(self):
-        for item in self.canvas.get_all_items():
-            self.select_item(item)
-
-    def unselect_all(self):
-        """Clearing the selected_item also clears the focused_item."""
-        # self.queue_draw_item(*self._selection.selected_items)
-        for item in self.canvas.get_all_items():
-            self._selection.remove_selected_item(item)
-        self._selection.set_focused_item(None)
-
-    selected_items = property(
-        lambda s: s._selection.selected_items,
-        select_item,
-        unselect_all,
-        "Items selected by the view",
-    )
-
-    def _set_focused_item(self, item):
-        """Set the focused item, this item is also added to the selected_items
-        set."""
-        # self.queue_draw_item(self._selection.focused_item, item)
-        self._selection.set_focused_item(item)
-
-    def _del_focused_item(self):
-        """Items that loose focus remain selected."""
-        self._set_focused_item(None)
-
-    focused_item = property(
-        lambda s: s._selection.focused_item,
-        _set_focused_item,
-        _del_focused_item,
-        "The item with focus (receives key events a.o.)",
-    )
-
     def select_in_rectangle(self, rect):
         """Select all items who have their bounding box within the rectangle.
 
@@ -436,7 +388,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
             for item in removed_items:
                 self._qtree.remove(item)
-                selection.remove_selected_item(item)
+                selection.unselect_item(item)
 
             if selection.focused_item in removed_items:
                 selection.set_focused_item(None)

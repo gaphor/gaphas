@@ -57,7 +57,7 @@ class Selection(GObject.Object):
                 self._selected_items.add(item)
                 self.emit("selection-changed", self._selected_items)
 
-    def remove_selected_item(self, item):
+    def unselect_item(self, item):
         if item in self._selected_items:
             self._selected_items.discard(item)
             self.emit("selection-changed", self._selected_items)
@@ -84,5 +84,5 @@ class Selection(GObject.Object):
         """Clearing the selected_item also clears the focused_item."""
         # self.queue_draw_item(*self._selection.selected_items)
         for item in list(self._selected_items):
-            self._selection.remove_selected_item(item)
-        self._selection.set_focused_item(None)
+            self.unselect_item(item)
+        self.set_focused_item(None)

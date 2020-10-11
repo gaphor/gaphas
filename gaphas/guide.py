@@ -149,7 +149,7 @@ class GuideMixin:
 
         excluded_items = set(view.canvas.get_all_children(item))
         excluded_items.add(item)
-        excluded_items.update(view.selected_items)
+        excluded_items.update(view.selection.selected_items)
         return excluded_items
 
     def get_view_dimensions(self):

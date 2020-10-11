@@ -262,7 +262,7 @@ class HandlePainter(Painter):
         cairo.save()
         i2v = view.get_matrix_i2v(item)
         if not opacity:
-            opacity = (item is view.focused_item) and 0.7 or 0.4
+            opacity = (item is view.selection.focused_item) and 0.7 or 0.4
 
         cairo.set_line_width(1)
 
@@ -302,15 +302,16 @@ class HandlePainter(Painter):
         view = self.view
         canvas = view.canvas
         cairo = context.cairo
+        selection = view.selection
         # Order matters here:
-        for item in canvas.sort(view.selected_items):
+        for item in canvas.sort(selection.selected_items):
             self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
-        item = view.selection.hovered_item
-        if item and item not in view.selection.selected_items:
+        item = selection.hovered_item
+        if item and item not in selection.selected_items:
             self._draw_handles(item, cairo, opacity=0.25)
-        item = view.selection.dropzone_item
-        if item and item not in view.selection.selected_items:
+        item = selection.dropzone_item
+        if item and item not in selection.selected_items:
             self._draw_handles(item, cairo, opacity=0.25, inner=True)
 
 
@@ -335,7 +336,7 @@ class FocusedItemPainter(Painter):
     def paint(self, context):
         view = self.view
         item = view.selection.hovered_item
-        if item and item is view.focused_item:
+        if item and item is view.selection.focused_item:
             PaintFocused(item, view).paint(context)
 
 

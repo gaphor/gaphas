@@ -62,11 +62,11 @@ class ItemSelection:
 
     def select(self):
         """Set selection on the view."""
-        self.view.focused_item = self.item
+        self.view.selection.set_focused_item(self.item)
 
     def unselect(self):
-        self.view.focused_item = None
-        self.view.unselect_item(self.item)
+        self.view.selection.set_focused_item(None)
+        self.view.selection.unselect_item(self.item)
 
 
 Selection = singledispatch(ItemSelection)

@@ -248,7 +248,7 @@ class ItemTool(Tool):
         """
         view = self.view
         get_ancestors = view.canvas.get_ancestors
-        selected_items = set(view.selected_items)
+        selected_items = set(view.selection.selected_items)
         for item in selected_items:
             # Do not move subitems of selected items
             if not set(get_ancestors(item)).intersection(selected_items):
@@ -267,13 +267,13 @@ class ItemTool(Tool):
         if not (
             event.get_state()[1]
             & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-            or item in view.selected_items
+            or item in view.selection.selected_items
         ):
-            del view.selected_items
+            view.selection.unselect_all()
 
         if item:
             if (
-                view.selection.hovered_item in view.selected_items
+                view.selection.hovered_item in view.selection.selected_items
                 and event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK
             ):
                 selection = Selection(item, view)
@@ -629,7 +629,7 @@ class PlacementTool(Tool):
         canvas.get_matrix_i2c(new_item, calculate=True)
 
         self._new_item = new_item
-        view.focused_item = new_item
+        view.selection.set_focused_item(new_item)
 
         h = new_item.handles()[self._handle_index]
         if h.movable:

@@ -79,7 +79,7 @@ def test_get_handle_at_point_at_pi_div_2(view_fixture):
 def test_item_removal(view_fixture):
     assert len(view_fixture.canvas.get_all_items()) == len(view_fixture.view._qtree)
 
-    view_fixture.view.focused_item = view_fixture.box
+    view_fixture.view.selection.set_focused_item(view_fixture.box)
     view_fixture.canvas.remove(view_fixture.box)
 
     assert len(view_fixture.canvas.get_all_items()) == 0
