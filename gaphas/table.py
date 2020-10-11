@@ -140,11 +140,11 @@ class Table:
         >>> list(s.query(invalid_column_name=42))         # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
-        KeyError: "Invalid column 'invalid_column_name'"
+        KeyError: 'Invalid column invalid_column_name'
         >>> list(s.query(baz=42))                         # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
-        AttributeError: Column 'baz' is not indexed
+        AttributeError: Column baz is not indexed
         """
         index = self._index
 

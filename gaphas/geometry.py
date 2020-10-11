@@ -91,7 +91,7 @@ class Rectangle:
         Rectangle(5, 7, 20, 25)
         """
         if self:
-            return f"({self.__class__.__name__}, {self.x}, {self.y}, {self.width}, {self.height})"
+            return f"{self.__class__.__name__}({self.x}, {self.y}, {self.width}, {self.height})"
         return f"{self.__class__.__name__}()"
 
     def __iter__(self):
@@ -257,7 +257,7 @@ class Rectangle:
 def distance_point_point(point1, point2=(0.0, 0.0)):
     """Return the distance from point ``point1`` to ``point2``.
 
-    >>> f"{distance_point_point((0,0), (1,1))}:.3f"
+    >>> f"{distance_point_point((0,0), (1,1)):.3f}"
     '1.414'
     """
     dx = point1[0] - point2[0]
@@ -386,7 +386,7 @@ def distance_line_point(line_start, line_end, point):
     >>> d, p = distance_line_point((0., 0.), (2., 4.), point=(2., 2.))
     >>> f"{d:.3f}"
     '0.894'
-    >>> f"({p:.3f}, {p:.3f}"
+    >>> f"({p[0]:.3f}, {p[1]:.3f})"
     '(1.200, 2.400)'
     """
     # The original end point:
