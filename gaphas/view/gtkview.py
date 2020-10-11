@@ -107,7 +107,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._hscroll_policy = None
         self._vscroll_policy = None
 
-        self._selection = Selection(self)
+        self._selection = Selection()
         self._selection.connect(
             "selection-changed", self._forward_selection_signal, "selection-changed"
         )

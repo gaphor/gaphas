@@ -21,9 +21,8 @@ class Selection(GObject.Object):
         ),
     }
 
-    def __init__(self, view):
+    def __init__(self):
         super().__init__()
-        self._view = view
         # Handling selections.
         self._selected_items = set()
         self._focused_item = None
