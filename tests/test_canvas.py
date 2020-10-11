@@ -1,7 +1,8 @@
 import cairo
 import pytest
 
-from gaphas.canvas import Canvas, ConnectionError
+from gaphas.canvas import Canvas
+from gaphas.connections import ConnectionError
 from gaphas.examples import Box
 from gaphas.item import Line
 
