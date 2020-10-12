@@ -6,7 +6,6 @@ from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
 from gaphas.examples import Box
-from gaphas.item import Line
 from gaphas.view import GtkView, View
 
 
@@ -31,45 +30,6 @@ class ViewFixture:
 @pytest.fixture()
 def view_fixture():
     return ViewFixture()
-
-
-def test_bounding_box_calculations(view_fixture):
-    """A view created before and after the canvas is populated should contain
-    the same data."""
-    view_fixture.view.realize()
-    view_fixture.box.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
-
-    line = Line()
-    line.fuzziness = 1
-    line.handles()[1].pos = (30, 30)
-    line.matrix.translate(30, 60)
-    view_fixture.canvas.add(line)
-
-    window2 = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
-    view2 = GtkView(canvas=view_fixture.canvas)
-    window2.add(view2)
-    window2.show_all()
-
-    # Process pending (expose) events, which cause the canvas to be drawn.
-    while Gtk.events_pending():
-        Gtk.main_iteration()
-
-    try:
-        assert view2.get_item_bounding_box(view_fixture.box)
-        assert view_fixture.view.get_item_bounding_box(view_fixture.box)
-        assert view_fixture.view.get_item_bounding_box(
-            view_fixture.box
-        ) == view2.get_item_bounding_box(
-            view_fixture.box
-        ), f"{view_fixture.view.get_item_bounding_box(view_fixture.box)} != {view2.get_item_bounding_box(view_fixture.box)}"
-        assert view_fixture.view.get_item_bounding_box(
-            line
-        ) == view2.get_item_bounding_box(
-            line
-        ), f"{view_fixture.view.get_item_bounding_box(line)} != {view2.get_item_bounding_box(line)}"
-    finally:
-        view_fixture.window.destroy()
-        window2.destroy()
 
 
 def test_get_item_at_point(view_fixture):

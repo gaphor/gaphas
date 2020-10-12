@@ -40,8 +40,6 @@ class Item:
     - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
-    - _matrix_i2c:  item to canvas coordinates matrix
-    - _matrix_c2i:  canvas to item coordinates matrix
     - _matrix_i2v:  item to view coordinates matrices
     - _matrix_v2i:  view to item coordinates matrices
     - _sort_key:  used to sort items
@@ -54,10 +52,6 @@ class Item:
         self._handles = []
         self._constraints = []
         self._ports = []
-
-        # used by gaphas.canvas.Canvas to hold conversion matrices
-        self._matrix_i2c = None
-        self._matrix_c2i = None
 
         # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
         self._matrix_i2v: Dict[View, Matrix] = WeakKeyDictionary()  # type: ignore[assignment]

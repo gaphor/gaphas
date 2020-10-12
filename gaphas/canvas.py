@@ -26,7 +26,7 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 import logging
 from collections import namedtuple
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import cairo
 
@@ -116,8 +116,6 @@ class Canvas:
         """
         assert item not in self._tree.nodes, f"Adding already added node {item}"
         self._tree.add(item, parent, index)
-
-        self.update_matrix(item, parent)
 
         item._set_canvas(self)
 
@@ -519,18 +517,21 @@ class Canvas:
             present yet. Note that out-of-date matrices are not
             recalculated.
         """
-        if item._matrix_i2c is None or calculate:
-            self.update_matrix(item)
-        return item._matrix_i2c
+        m = cairo.Matrix(*item.matrix)
+
+        parent = self._tree.get_parent(item)
+        if parent is not None:
+            m = m.multiply(self.get_matrix_i2c(parent))
+        return m
 
     def get_matrix_c2i(self, item, calculate=False):
         """Get the Canvas to Item matrix for ``item``.
 
         See `get_matrix_i2c()`.
         """
-        if item._matrix_c2i is None or calculate:
-            self.update_matrix(item)
-        return item._matrix_c2i
+        m = self.get_matrix_i2c(item)
+        m.invert()
+        return m
 
     def get_matrix_i2i(self, from_item, to_item, calculate=False):
         i2c = self.get_matrix_i2c(from_item, calculate)
@@ -680,35 +681,12 @@ class Canvas:
                 # update
                 continue
 
-            self.update_matrix(item, parent)
             changed.add(item)
 
             changed_children = self.update_matrices(set(self.get_children(item)))
             changed.update(changed_children)
 
         return changed
-
-    def update_matrix(self, item, parent=None):
-        """Update matrices of an item."""
-        orig_matrix_i2c: Optional[cairo.Matrix]
-        try:
-            orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
-        except TypeError:
-            orig_matrix_i2c = None
-
-        item._matrix_i2c = cairo.Matrix(*item.matrix)
-
-        if parent is not None:
-            try:
-                item._matrix_i2c = item._matrix_i2c.multiply(parent._matrix_i2c)
-            except AttributeError:
-                # Fall back to old behaviour
-                item._matrix_i2c *= parent._matrix_i2c
-
-        if orig_matrix_i2c is None or orig_matrix_i2c != item._matrix_i2c:
-            # calculate c2i matrix and view matrices
-            item._matrix_c2i = cairo.Matrix(*item._matrix_i2c)
-            item._matrix_c2i.invert()
 
     def update_constraints(self, items):
         """Update constraints.
