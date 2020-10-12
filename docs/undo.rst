@@ -52,25 +52,25 @@ Matrix is used by Item classes.
     >>> from gaphas.matrix import Matrix
     >>> m = Matrix()
     >>> m
-    Matrix(1, 0, 0, 1, 0, 0)
+    Matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
 translate(tx, ty):
 
     >>> m.translate(12, 16)
     >>> m
-    Matrix(1, 0, 0, 1, 12, 16)
+    Matrix(1.0, 0.0, 0.0, 1.0, 12.0, 16.0)
     >>> undo()
     >>> m
-    Matrix(1, 0, 0, 1, 0, 0)
+    Matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
 scale(sx, sy):
 
     >>> m.scale(1.5, 1.5)
     >>> m
-    Matrix(1.5, 0, 0, 1.5, 0, 0)
+    Matrix(1.5, 0.0, 0.0, 1.5, 0.0, 0.0)
     >>> undo()
     >>> m
-    Matrix(1, 0, 0, 1, 0, 0)
+    Matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
 rotate(radians):
 
@@ -83,7 +83,7 @@ rotate(radians):
 
     >>> m.rotate(0.5)
     >>> m
-    Matrix(0.877583, 0.479426, -0.479426, 0.877583, 0, 0)
+    Matrix(0.8775825618903728, 0.479425538604203, -0.479425538604203, 0.8775825618903728, 0.0, 0.0)
     >>> undo()
     >>> matrix_approx(m)
     (1.0, 0, 0, 1.0, 0, 0)
@@ -95,10 +95,10 @@ Okay, nearly, close enough IMHO...
     >>> m.scale(1.5, 1.5)
     >>> m.rotate(0.5)
     >>> m
-    Matrix(1.31637, 0.719138, -0.719138, 1.31637, 12, 10)
+    Matrix(1.3163738428355591, 0.7191383079063045, -0.7191383079063045, 1.3163738428355591, 12.0, 10.0)
     >>> m.invert()
     >>> m
-    Matrix(0.585055, -0.319617, 0.319617, 0.585055, -10.2168, -2.01515)
+    Matrix(0.5850550412602484, -0.3196170257361353, 0.3196170257361353, 0.5850550412602484, -10.216830752484334, -2.0151461037688607)
     >>> undo()
     >>> matrix_approx(m)
     (1.0, 0, 0, 1.0, 0, 0)
@@ -245,10 +245,10 @@ Changing the Handle's position is reversible:
     >>> handle = Handle()
     >>> handle.pos = 10, 12
     >>> handle.pos
-    <Position object on (10, 12)>
+    <Position object on (Variable(10, 20), Variable(12, 20))>
     >>> undo()
     >>> handle.pos
-    <Position object on (0, 0)>
+    <Position object on (Variable(0, 20), Variable(0, 20))>
 
 As are all other properties:
 
@@ -333,22 +333,22 @@ In addition to those properties, line segments can be split and merged.
 
     >>> l.handles()[1].pos = 10, 10
     >>> l.handles()
-    [<Handle object on (0, 0)>, <Handle object on (10, 10)>]
+    [<Handle object on (Variable(0, 20), Variable(0, 20))>, <Handle object on (Variable(10, 20), Variable(10, 20))>]
 
 This is our basis for further testing.
 
     >>> del undo_list[:]
 
     >>> Segment(l, canvas).split_segment(0)      # doctest: +ELLIPSIS
-    ([<Handle object on (5, 5)>], [<gaphas.connector.LinePort object at 0x...>])
+    ([<Handle object on (Variable(5, 10), Variable(5, 10))>], [<gaphas.connector.LinePort object at 0x...>])
     >>> l.handles()
-    [<Handle object on (0, 0)>, <Handle object on (5, 5)>, <Handle object on (10, 10)>]
+    [<Handle object on (Variable(0, 20), Variable(0, 20))>, <Handle object on (Variable(5, 10), Variable(5, 10))>, <Handle object on (Variable(10, 20), Variable(10, 20))>]
 
 The opposite operation is performed with the merge_segment() method:
 
     >>> undo()
     >>> l.handles()
-    [<Handle object on (0, 0)>, <Handle object on (10, 10)>]
+    [<Handle object on (Variable(0, 20), Variable(0, 20))>, <Handle object on (Variable(10, 20), Variable(10, 20))>]
 
 Also creation and removal of connected lines is recorded and can be undone:
 

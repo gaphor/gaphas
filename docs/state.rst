@@ -36,9 +36,9 @@ It works (see how the add method automatically schedules the item for update):
     ...     print('event handled', event)
     >>> state.observers.add(handler)
     >>> canvas.add(item1)                              # doctest: +ELLIPSIS
-    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, None, None), {})
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at ...>, <gaphas.item.Item object at ...>), {})
     >>> canvas.add(item2, parent=item1)                # doctest: +ELLIPSIS
-    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...), {})
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at ...>, <gaphas.item.Item object at ...>), {'parent': <gaphas.item.Item object at ...>})
     >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
@@ -155,13 +155,13 @@ registers the property as being reversible.
     >>> var = Variable()
     >>> var.value = 10                                  # doctest: +ELLIPSIS
     event handler (<function Variable.set_value at 0x...>, {'self': Variable(0, 20), 'value': 0.0})
-    
+
 Handlers can be simply removed:
 
     >>> state.subscribers.remove(handler)
     >>> state.observers.remove(state.revert_handler)
 
-What is Observed 
+What is Observed
 ----------------
 
 As far as Gaphas is concerned, only properties and methods related to the
@@ -179,7 +179,7 @@ connector.py:
 item.py:
   ``Item``: ``matrix`` property
 
-  ``Element``: ``min_height`` and ``min_width`` properties 
+  ``Element``: ``min_height`` and ``min_width`` properties
 
   ``Line``: ``line_width``, ``fuzziness``, ``orthogonal`` and ``horizontal`` properties
 
@@ -192,4 +192,3 @@ matrix.py:
   ``Matrix``: ``invert()``, ``translate()``, ``rotate()`` and ``scale()``
 
 Test cases are described in undo.txt.
-
