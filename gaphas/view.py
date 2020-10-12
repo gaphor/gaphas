@@ -357,39 +357,14 @@ class View:
 
     def get_matrix_i2v(self, item):
         """Get Item to View matrix for ``item``."""
-        if self not in item._matrix_i2v:
-            self.update_matrix(item)
-        return item._matrix_i2v[self]
+        matrix_i2c = self.canvas.get_matrix_i2c(item)
+        return matrix_i2c.multiply(self._matrix)
 
     def get_matrix_v2i(self, item):
         """Get View to Item matrix for ``item``."""
-        if self not in item._matrix_v2i:
-            self.update_matrix(item)
-        return item._matrix_v2i[self]
-
-    def update_matrix(self, item):
-        """Update item matrices related to view."""
-        matrix_i2c = self.canvas.get_matrix_i2c(item)
-        try:
-            i2v = matrix_i2c.multiply(self._matrix)
-        except AttributeError:
-            # Fall back to old behaviour
-            i2v = matrix_i2c * self._matrix
-
-        item._matrix_i2v[self] = i2v
-
-        v2i = cairo.Matrix(*i2v)
-        v2i.invert()
-        item._matrix_v2i[self] = v2i
-
-    def _clear_matrices(self):
-        """Clear registered data in Item's _matrix{i2c|v2i} attributes."""
-        for item in self.canvas.get_all_items():
-            try:
-                del item._matrix_i2v[self]
-                del item._matrix_v2i[self]
-            except KeyError:
-                pass
+        m = self.get_matrix_i2v(item)
+        m.invert()
+        return m
 
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
@@ -531,7 +506,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         The view is also registered.
         """
         if self._canvas:
-            self._clear_matrices()
             self._canvas.unregister_view(self)
 
         super()._set_canvas(canvas)
@@ -562,8 +536,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """Zoom in/out by factor ``factor``."""
         assert self._canvas
         super().zoom(factor)
-        # Make sure everything's updated
-        # map(self.update_matrix, self._canvas.get_all_items())
         self.request_update((), self._canvas.get_all_items())
         self.queue_draw_refresh()
 
@@ -681,10 +653,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             for i in dirty_matrix_items:
                 if i not in self._qtree:
                     dirty_items.add(i)
-                    self.update_matrix(i)
                     continue
-
-                self.update_matrix(i)
 
                 if i not in dirty_items:
                     # Only matrix has changed, so calculate new bounding box
@@ -782,9 +751,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     def do_unrealize(self):
         if self._canvas:
-            # Although Item._matrix_{i2v|v2i} keys are automatically removed
-            # (weak refs), better do it explicitly to be sure.
-            self._clear_matrices()
             self._canvas.unregister_view(self)
 
         self._qtree.clear()

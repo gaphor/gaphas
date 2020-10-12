@@ -1,7 +1,7 @@
 """Basic items."""
 from math import atan2
-from typing import TYPE_CHECKING, Dict, Optional, Set
-from weakref import WeakKeyDictionary, WeakSet
+from typing import Optional, Set
+from weakref import WeakSet
 
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import (
@@ -20,9 +20,6 @@ from gaphas.state import (
     reversible_pair,
     reversible_property,
 )
-
-if TYPE_CHECKING:
-    from gaphas.view import View
 
 
 class Item:
@@ -54,8 +51,6 @@ class Item:
         self._ports = []
 
         # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
-        self._matrix_i2v: Dict[View, Matrix] = WeakKeyDictionary()  # type: ignore[assignment]
-        self._matrix_v2i: Dict[View, Matrix] = WeakKeyDictionary()  # type: ignore[assignment]
         self._canvas_projections: Set[Projection] = WeakSet()  # type: ignore[assignment]
 
     @observed

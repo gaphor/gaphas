@@ -70,8 +70,6 @@ def test_get_handle_at_point_at_pi_div_2(view_fixture):
     box.matrix.translate(20, 20)
     box.matrix.rotate(math.pi / 2)
     view_fixture.canvas.add(box)
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 2)
 
     i, h = view_fixture.view.get_handle_at_point((20, 20))
     assert i is box
@@ -101,57 +99,30 @@ def test_view_registration(view_fixture):
     box = Box()
     canvas.add(box)
 
-    # By default no complex updating/calculations are done:
-    assert view not in box._matrix_i2v
-    assert view not in box._matrix_v2i
-
     # GTK view does register for updates though
 
     view = GtkView(canvas)
     assert len(canvas._registered_views) == 1
 
-    # No entry, since GtkView is not realized and has no window
-    assert view not in box._matrix_i2v
-    assert view not in box._matrix_v2i
-
     window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
     window.add(view)
     window.show_all()
 
-    # Now everything is realized and updated
-    assert view in box._matrix_i2v
-    assert view in box._matrix_v2i
-
     view.canvas = None
     assert len(canvas._registered_views) == 0
-
-    assert view not in box._matrix_i2v
-    assert view not in box._matrix_v2i
 
     view.canvas = canvas
     assert len(canvas._registered_views) == 1
 
-    assert view in box._matrix_i2v
-    assert view in box._matrix_v2i
-
 
 def test_view_registration_2(view_fixture):
     """Test view registration and destroy when view is destroyed."""
-    assert hasattr(view_fixture.box, "_matrix_i2v")
-    assert hasattr(view_fixture.box, "_matrix_v2i")
-
-    assert view_fixture.box._matrix_i2v[view_fixture.view]
-    assert view_fixture.box._matrix_v2i[view_fixture.view]
-
     assert len(view_fixture.canvas._registered_views) == 1
     assert view_fixture.view in view_fixture.canvas._registered_views
 
     view_fixture.window.destroy()
 
     assert len(view_fixture.canvas._registered_views) == 0
-
-    assert view_fixture.view not in view_fixture.box._matrix_i2v
-    assert view_fixture.view not in view_fixture.box._matrix_v2i
 
 
 @pytest.fixture()
