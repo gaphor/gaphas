@@ -26,8 +26,7 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 import logging
 from collections import namedtuple
-from operator import attrgetter
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import cairo
 
@@ -493,7 +492,7 @@ class Canvas:
             item=item, handle=handle, connected=connected, port=port
         )
 
-    def sort(self, items, reverse=False):
+    def sort(self, items):
         """Sort a list of items in the order in which they are traversed in the
         canvas (Depth first).
 
@@ -506,13 +505,11 @@ class Canvas:
         >>> i3 = item.Line()
         >>> c.add (i3)
         >>> c.update() # ensure items are indexed
-        >>> i1._canvas_index
-        0
         >>> s = c.sort([i2, i3, i1])
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return sorted(items, key=attrgetter("_canvas_index"), reverse=reverse)
+        return self._tree.order(items)
 
     def get_matrix_i2c(self, item, calculate=False):
         """Get the Item to Canvas matrix for ``item``.
@@ -631,7 +628,7 @@ class Canvas:
                 yield item
                 yield from self._tree.get_ancestors(item)
 
-        dirty_items = sort(dirty_items_with_ancestors(), reverse=True)
+        dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
 
         try:
             # allow programmers to perform tricks and hacks before item
@@ -651,7 +648,7 @@ class Canvas:
 
             # item's can be marked dirty due to external constraints solving
             if len(dirty_items) != len(self._dirty_items):
-                dirty_items = sort(self._dirty_items, reverse=True)
+                dirty_items = list(reversed(sort(self._dirty_items)))
 
             # normalize items, which changed after constraint solving;
             # recalculate matrices of normalized items
@@ -662,7 +659,7 @@ class Canvas:
 
             # item's can be marked dirty due to normalization and solving
             if len(dirty_items) != len(self._dirty_items):
-                dirty_items = sort(self._dirty_items, reverse=True)
+                dirty_items = list(reversed(sort(self._dirty_items)))
 
             self._dirty_items.clear()
 
@@ -701,6 +698,7 @@ class Canvas:
 
     def update_matrix(self, item, parent=None):
         """Update matrices of an item."""
+        orig_matrix_i2c: Optional[cairo.Matrix]
         try:
             orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
         except TypeError:

@@ -188,7 +188,7 @@ class View:
         """
         assert self._canvas
         items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
-        for item in self._canvas.sort(items, reverse=True):
+        for item in reversed(self._canvas.sort(items)):
             if not selected and item in self.selected_items:
                 continue  # skip selected items
 
@@ -232,8 +232,10 @@ class View:
 
         # Last try all items, checking the bounding box first
         x, y = pos
-        items = self.get_items_in_rectangle(
-            (x - distance, y - distance, distance * 2, distance * 2), reverse=True
+        items = reversed(
+            self.get_items_in_rectangle(
+                (x - distance, y - distance, distance * 2, distance * 2)
+            )
         )
 
         for item in items:
@@ -271,7 +273,7 @@ class View:
         item = None
 
         rect = (vx - distance, vy - distance, distance * 2, distance * 2)
-        items = self.get_items_in_rectangle(rect, reverse=True)
+        items = reversed(self.get_items_in_rectangle(rect))
         for i in items:
             if i in exclude:
                 continue
@@ -296,7 +298,7 @@ class View:
 
         return item, port, glue_pos
 
-    def get_items_in_rectangle(self, rect, intersect=True, reverse=False):
+    def get_items_in_rectangle(self, rect, intersect=True):
         """Return the items in the rectangle 'rect'.
 
         Items are automatically sorted in canvas' processing order.
@@ -306,7 +308,7 @@ class View:
             items = self._qtree.find_intersect(rect)
         else:
             items = self._qtree.find_inside(rect)
-        return self._canvas.sort(items, reverse=reverse)
+        return self._canvas.sort(items)
 
     def select_in_rectangle(self, rect):
         """Select all items who have their bounding box within the rectangle.

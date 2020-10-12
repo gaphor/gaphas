@@ -166,6 +166,10 @@ class Tree(Generic[T]):
         lnodes = len(nodes)
         list(map(setattr, nodes, [index_key] * lnodes, list(range(lnodes))))
 
+    def order(self, items):
+        items_set = set(items)
+        return list(n for n in self._nodes if n in items_set)
+
     def _add_to_nodes(self, node, parent, index=None):
         """Helper method to place nodes on the right location in the nodes list
         Called only from add() and reparent()"""
