@@ -96,7 +96,6 @@ class Canvas:
         self._connections = table.Table(Connection, list(range(4)))
         self._dirty_items = set()
         self._dirty_matrix_items = set()
-        self._dirty_index = False
 
         self._registered_views = set()
 
@@ -117,7 +116,6 @@ class Canvas:
         """
         assert item not in self._tree.nodes, f"Adding already added node {item}"
         self._tree.add(item, parent, index)
-        self._dirty_index = True
 
         self.update_matrix(item, parent)
 
@@ -165,8 +163,6 @@ class Canvas:
     def reparent(self, item, parent, index=None):
         """Set new parent for an item."""
         self._tree.reparent(item, parent, index)
-
-        self._dirty_index = True
 
     reversible_method(
         reparent,
@@ -619,10 +615,6 @@ class Canvas:
         """Perform an update of the items that requested an update."""
         sort = self.sort
 
-        if self._dirty_index:
-            self.update_index()
-            self._dirty_index = False
-
         def dirty_items_with_ancestors():
             for item in self._dirty_items:
                 yield item
@@ -767,13 +759,6 @@ class Canvas:
         """
         dirty_matrix_items = {item for item in items if item.normalize()}
         return self.update_matrices(dirty_matrix_items)
-
-    def update_index(self):
-        """Provide each item in the canvas with an index attribute.
-
-        This makes for fast searching of items.
-        """
-        self._tree.index_nodes("_canvas_index")
 
     def register_view(self, view):
         """Register a view on this canvas.

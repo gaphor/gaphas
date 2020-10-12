@@ -142,30 +142,6 @@ class Tree(Generic[T]):
             yield parent
             parent = self.get_parent(parent)
 
-    def index_nodes(self, index_key):
-        """Provide each item in the tree with an index attribute. This makes
-        for fast sorting of items.
-
-        >>> class A(object):
-        ...     def __init__(self, n):
-        ...         self.n = n
-        ...     def __repr__(self):
-        ...         return self.n
-        >>> t = Tree()
-        >>> a = A('a')
-        >>> t.add(a)
-        >>> t.add(A('b'))
-        >>> t.add(A('c'), parent=a)
-        >>> t.nodes
-        [a, c, b]
-        >>> t.index_nodes('my_key')
-        >>> t.nodes[0].my_key, t.nodes[1].my_key, t.nodes[2].my_key
-        (0, 1, 2)
-        """
-        nodes = self.nodes
-        lnodes = len(nodes)
-        list(map(setattr, nodes, [index_key] * lnodes, list(range(lnodes))))
-
     def order(self, items):
         items_set = set(items)
         return list(n for n in self._nodes if n in items_set)
