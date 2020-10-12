@@ -35,7 +35,7 @@ jobs:
         with:
           version: 1.0.2
       - name: Use Python Dependency Cache
-        uses: actions/cache@v2.1.1
+        uses: actions/cache@v2.1.2
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
