@@ -26,10 +26,10 @@ class Variable:
     def __init__(self, value=0.0, strength=NORMAL):
         self._value = float(value)
         self._strength = strength
+        self._handlers = set()
 
         # These variables are set by the Solver:
         self._constraints = set()
-        self._handlers = set()
 
     def add_handler(self, handler):
         self._handlers.add(handler)
