@@ -632,7 +632,11 @@ class Canvas:
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
             self._dirty_matrix_items.clear()
 
+            # This is a hack, since variables are not marked as dirty on a move ==> Fix that!
             self.update_constraints(dirty_matrix_items)
+
+            # solve all constraints
+            self._solver.solve()
 
             # no matrix can change during constraint solving
             assert (
@@ -700,9 +704,6 @@ class Canvas:
             for p in item._canvas_projections:
                 request_resolve(p[0], projections_only=True)
                 request_resolve(p[1], projections_only=True)
-
-        # solve all constraints
-        self._solver.solve()
 
     def _normalize(self, items):
         """Update handle positions of items, so the first handle is always
