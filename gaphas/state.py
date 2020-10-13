@@ -39,6 +39,7 @@ subscribers: Set[Callable[[Tuple[Callable, str]], None]] = set()
 # Subscribe to low-level change events:
 observers: Set[Callable[[Tuple[Callable, str]], None]] = set()
 
+
 # Perform locking (should be per thread?).
 mutex = Lock()
 
@@ -47,30 +48,23 @@ def observed(func):
     """Simple observer, dispatches events to functions registered in the
     observers list.
 
-    On the function an ``__observer__`` property is set, which
-    references to the observer decorator. This is necessary, since the
-    event handlers expect the outer most function to be returned
-    (that's what they see).
-
     Also note that the events are dispatched *before* the function is
-    invoked.  This is an important feature, esp. for the reverter
-    code.
+    invoked.  This is an important feature, esp. for the reverter code.
     """
 
     def wrapper(*args, **kwargs):
-        o = func.__observer__
         acquired = mutex.acquire(False)
         try:
             if acquired:
-                dispatch((o, args, kwargs), queue=observers)
+                dispatch((observer, args, kwargs), queue=observers)
+            # args[0].notify()
             return func(*args, **kwargs)
         finally:
             if acquired:
                 mutex.release()
 
-    dec = update_wrapper(wrapper, func)
-    func.__observer__ = dec
-    return dec
+    observer = update_wrapper(wrapper, func)
+    return observer
 
 
 def dispatch(event, queue):
