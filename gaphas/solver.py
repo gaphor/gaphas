@@ -63,8 +63,18 @@ class Variable:
         self._strength = strength
 
         # These variables are set by the Solver:
-        self._solver = None
         self._constraints = set()
+        self._handlers = set()
+
+    def add_handler(self, handler):
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler):
+        self._handlers.discard(handler)
+
+    def notify(self):
+        for handler in self._handlers:
+            handler(self)
 
     def __hash__(self):
         return object.__hash__(self)
@@ -85,11 +95,7 @@ class Variable:
         solve all dependent constraints, i.e. two equals constraints
         between 3 variables.
         """
-        solver = self._solver
-        if not solver:
-            return
-
-        solver.request_resolve(self)
+        self.notify()
 
     @observed
     def set_value(self, value):
@@ -389,7 +395,7 @@ class Solver:
                 v = v.variable()
                 constraint._solver_has_projections = True
             v._constraints.add(constraint)
-            v._solver = self
+            v.add_handler(self.request_resolve)
         return constraint
 
     @observed
@@ -417,6 +423,7 @@ class Solver:
             while isinstance(v, Projection):
                 v = v.variable()
             v._constraints.discard(constraint)
+            v.remove_handler(self.request_resolve)
         self._constraints.discard(constraint)
         while constraint in self._marked_cons:
             self._marked_cons.remove(constraint)
