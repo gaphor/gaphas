@@ -24,10 +24,6 @@ class Matrix:
     def __init__(self, xx=1.0, yx=0.0, xy=0.0, yy=1.0, x0=0.0, y0=0.0):
         self._matrix = cairo.Matrix(xx, yx, xy, yy, x0, y0)
 
-    @staticmethod
-    def init_rotate(radians):
-        return cairo.Matrix.init_rotate(radians)
-
     @observed
     def invert(self):
         return self._matrix.invert()
