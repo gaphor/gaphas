@@ -102,32 +102,6 @@ class Handle:
 
     pos = property(lambda s: s._pos, _set_pos)
 
-    @deprecated("Use Handle.pos", "1.1.0")
-    def _set_x(self, x):
-        """
-        Shortcut for ``handle.pos.x = x``
-        """
-        self._pos.x = x
-
-    @deprecated("Use Handle.pos.x", "1.1.0")
-    def _get_x(self):
-        return self._pos.x
-
-    x = property(_get_x, _set_x)
-
-    @deprecated("Use Handle.pos", "1.1.0")
-    def _set_y(self, y):
-        """
-        Shortcut for ``handle.pos.y = y``
-        """
-        self._pos.y = y
-
-    @deprecated("Use Handle.pos.y", "1.1.0")
-    def _get_y(self):
-        return self._pos.y
-
-    y = property(_get_y, _set_y)
-
     @observed
     def _set_connectable(self, connectable):
         self._connectable = connectable

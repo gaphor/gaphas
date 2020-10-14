@@ -5,7 +5,7 @@ class VariableProjection(Projection):
     """Project a single `solver.Variable` to another space/coordinate system.
 
     The value has been set in the "other" coordinate system. A
-    callback is executed when the value changes.
+    callback is executed when the value changes. The callback should set the original value.
 
     It's a simple Variable-like class, following the Projection protocol:
 
@@ -19,13 +19,14 @@ class VariableProjection(Projection):
     """
 
     def __init__(self, var, value, callback):
-        self._var = var
+        super().__init__(var)
         self._value = value
         self._callback = callback
 
     def _set_value(self, value):
         self._value = value
         self._callback(value)
+        self.notify()
 
     value = property(lambda s: s._value, _set_value)
 

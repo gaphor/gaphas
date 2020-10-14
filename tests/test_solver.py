@@ -65,12 +65,6 @@ def test_weakest_list_order(solv):
     assert solv.c_eq.weakest() == solv.c
 
 
-def test_strength_change(solv):
-    """Test strength change."""
-    solv.b.strength = 9
-    assert solv.c_eq._weakest == [solv.b]
-
-
 def test_min_size(solv):
     """Test minimal size constraint."""
     v1 = Variable(0)

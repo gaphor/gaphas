@@ -461,8 +461,10 @@ class Line(Item):
                 cons.append(add(eq(a=p0.x, b=p1.x)))
             else:
                 cons.append(add(eq(a=p0.y, b=p1.y)))
-            self.canvas.solver.request_resolve(p1.x)
-            self.canvas.solver.request_resolve(p1.y)
+            # self.canvas.solver.request_resolve(p1.x)
+            # self.canvas.solver.request_resolve(p1.y)
+            p1.x.notify()
+            p1.y.notify()
         self._set_orthogonal_constraints(cons)
         self.request_update()
 
