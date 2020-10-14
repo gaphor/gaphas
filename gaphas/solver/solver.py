@@ -33,7 +33,6 @@ every constraint is being asked to solve itself
 variables to make the constraint valid again.
 """
 from gaphas.solver.constraint import Constraint
-from gaphas.solver.projection import Projection
 from gaphas.solver.variable import NORMAL, Variable
 from gaphas.state import observed, reversible_pair
 
@@ -51,44 +50,6 @@ class Solver:
         self._solving = False
 
     constraints = property(lambda s: s._constraints)
-
-    # TODO: should get constraint as variable
-    def request_resolve(self, variable, projections_only=False):
-        """Mark a variable as "dirty". This means it it solved the next time
-        the constraints are resolved.
-
-        If projections_only is set to True, only constraints using the
-        variable through a Projection instance (e.i. variable itself
-        is not in `constraint.Constraint.variables()`) are marked.
-
-        Example:
-
-        >>> from gaphas.constraint import EquationConstraint
-        >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
-        >>> s = Solver()
-        >>> c_eq = EquationConstraint(lambda a,b: a+b, a=a, b=b)
-        >>> s.add_constraint(c_eq)
-        EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
-        >>> c_eq._weakest
-        [Variable(1, 20), Variable(2, 20)]
-        >>> s._marked_cons
-        [EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
-        >>> a.value=5.0
-        >>> c_eq.weakest()
-        Variable(2, 20)
-        >>> b.value=2.0
-        >>> c_eq.weakest()
-        Variable(2, 20)
-        >>> a.value=5.0
-        >>> c_eq.weakest()
-        Variable(2, 20)
-        """
-        # Peel of Projections:
-        while isinstance(variable, Projection):
-            variable = variable.variable()
-        for c in variable._constraints:
-            if not projections_only or c._solver_has_projections:
-                self.request_resolve_constraint(c)
 
     @observed
     def add_constraint(self, constraint: Constraint):
@@ -157,75 +118,6 @@ class Solver:
                 raise JuggleError(
                     f"Variable juggling detected, constraint {c} resolved {self._marked_cons.count(c)} times out of {len(self._marked_cons)}"
                 )
-
-    def constraints_with_variable(self, *variables: Variable):
-        """Return an iterator of constraints that work with variable. The
-        variable in question should be exposed by the constraints
-        `constraint.Constraint.variables()` method.
-
-        >>> from gaphas.constraint import EquationConstraint
-        >>> s = Solver()
-        >>> a, b, c = Variable(), Variable(2.0), Variable(4.0)
-        >>> eq_a_b = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
-        >>> eq_a_b
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
-        >>> eq_a_c = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=c))
-        >>> eq_a_c
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(4, 20))
-
-        And now for some testing:
-
-        >>> eq_a_b in s.constraints_with_variable(a)
-        True
-        >>> eq_a_c in s.constraints_with_variable(a)
-        True
-        >>> eq_a_b in s.constraints_with_variable(a, b)
-        True
-        >>> eq_a_c in s.constraints_with_variable(a, b)
-        False
-
-        Using another variable with the same value does not work:
-
-        >>> d = Variable(2.0)
-        >>> eq_a_b in s.constraints_with_variable(a, d)
-        False
-
-        This also works for projections:
-
-        >>> eq_pr_a_b = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=Projection(a), b=Projection(b)))
-        >>> eq_pr_a_b   # doctest: +ELLIPSIS
-        EquationConstraint(<lambda>, a=Projection(Variable(0, 20)), b=Projection(Variable(2, 20)))
-
-        >>> eq_pr_a_b in s.constraints_with_variable(a, b)
-        True
-        >>> eq_pr_a_b in s.constraints_with_variable(a, c)
-        False
-        >>> eq_pr_a_b in s.constraints_with_variable(a, d)
-        False
-        """
-        # Use a copy of the original set, so constraints may be
-        # deleted in the meantime.
-        varset = set(variables)
-        for c in set(self._constraints):
-            if varset.issubset(set(c.variables())):
-                yield c
-            elif c._solver_has_projections:
-                found = True
-                for v in c.variables():
-                    if v in varset:
-                        continue
-                    while isinstance(v, Projection):
-                        v = v.variable()
-                        if v in varset:
-                            break
-                    else:
-                        found = False
-                    if not found:
-                        break  # quit for loop, variable not in constraint
-                else:
-                    # All iteration have completed successfully,
-                    # so all variables are in the constraint
-                    yield c
 
     def solve(self):
         """

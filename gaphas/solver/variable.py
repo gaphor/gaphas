@@ -32,9 +32,6 @@ class Variable:
         self._strength = strength
         self._handlers: Set[Callable[[Variable], None]] = set()
 
-        # These variables are set by the Solver:
-        self._constraints = set()  # type: ignore[var-annotated]
-
     def add_handler(self, handler: Callable[[Variable], None]):
         self._handlers.add(handler)
 
@@ -51,9 +48,6 @@ class Variable:
     @observed
     def _set_strength(self, strength):
         self._strength = strength
-        # TODO: disallow change of strength
-        for c in self._constraints:
-            c.create_weakest_list()
 
     strength = reversible_property(lambda s: s._strength, _set_strength)
 
