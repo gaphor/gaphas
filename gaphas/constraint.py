@@ -29,7 +29,7 @@ a variable with appropriate value.
 import math
 from typing import Dict, Optional
 
-from gaphas.solver import Projection, Variable  # noqa
+from gaphas.solver import Constraint, Projection, Variable  # noqa
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6
@@ -38,91 +38,6 @@ EPSILON = 1e-6
 def _update(variable, value):
     if abs(variable.value - value) > EPSILON:
         variable.value = value
-
-
-class Constraint:
-    """Constraint base class.
-
-    - _variables - list of all variables
-    - _weakest   - list of weakest variables
-    """
-
-    disabled = False
-
-    def __init__(self, *variables):
-        """Create new constraint, register all variables, and find weakest
-        variables.
-
-        Any value can be added. It is assumed to be a variable if it has
-        a 'strength' attribute.
-        """
-        self._variables = []
-        for v in variables:
-            if hasattr(v, "strength"):
-                self._variables.append(v)
-
-        self.create_weakest_list()
-
-        # Used by the Solver for efficiency
-        self._solver_has_projections = False
-
-    def create_weakest_list(self):
-        """Create list of weakest variables."""
-        # strength = min([v.strength for v in self._variables])
-        strength = min(v.strength for v in self._variables)
-        self._weakest = [v for v in self._variables if v.strength == strength]
-
-    def variables(self):
-        """Return an iterator which iterates over the variables that are held
-        by this constraint."""
-        return self._variables
-
-    def weakest(self):
-        """Return the weakest variable.
-
-        The weakest variable should be always as first element of
-        Constraint._weakest list.
-        """
-        return self._weakest[0]
-
-    def mark_dirty(self, v):
-        """Mark variable v dirty and if possible move it to the end of
-        Constraint._weakest list to maintain weakest variable invariants (see
-        gaphas.solver module documentation)."""
-        weakest = self.weakest()
-        # Fast lane:
-        if v is weakest:
-            self._weakest.remove(v)
-            self._weakest.append(v)
-            return
-
-        # Handle projected variables well:
-        global Projection
-        p = weakest
-        while isinstance(weakest, Projection):
-            weakest = weakest.variable()
-            if v is weakest:
-                self._weakest.remove(p)
-                self._weakest.append(p)
-                return
-
-    def solve(self):
-        """Solve the constraint.
-
-        This is done by determining the weakest variable and calling
-        solve_for() for that variable. The weakest variable is always in
-        the set of variables with the weakest strength. The least
-        recently changed variable is considered the weakest.
-        """
-        wvar = self.weakest()
-        self.solve_for(wvar)
-
-    def solve_for(self, var):
-        """Solve the constraint for a given variable.
-
-        The variable itself is updated.
-        """
-        raise NotImplementedError
 
 
 class EqualsConstraint(Constraint):
