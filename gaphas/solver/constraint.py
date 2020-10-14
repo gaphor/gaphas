@@ -26,9 +26,6 @@ class Constraint:
 
         self.create_weakest_list()
 
-        # Used by the Solver for efficiency
-        self._solver_has_projections = False
-
     def variables(self):
         """Return an iterator which iterates over the variables that are held
         by this constraint."""

@@ -290,7 +290,7 @@ An element has ``min_height`` and ``min_width`` properties.
     >>> undo()
     >>> e.min_height, e.min_width
     (Variable(0, 100), Variable(0, 100))
-    
+
     >>> canvas = Canvas()
     >>> canvas.add(e)
     >>> undo()
@@ -414,7 +414,7 @@ Variable's strength and value properties are observed:
 solver.py: Solver
 -----------------
 
-Solvers ``add_constraint()`` and ``remove_constraint()`` are observed. 
+Solvers ``add_constraint()`` and ``remove_constraint()`` are observed.
 
     >>> from gaphas.solver import Solver
     >>> from gaphas.constraint import EquationConstraint
@@ -422,15 +422,7 @@ Solvers ``add_constraint()`` and ``remove_constraint()`` are observed.
     >>> a, b = Variable(1.0), Variable(2.0)
     >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
     EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
-    >>> list(s.constraints_with_variable(a))
-    [EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
-    
     >>> undo()
-    >>> list(s.constraints_with_variable(a))
-    []
 
     >>> undo_list[:] = redo_list[:]
     >>> undo()
-    >>> list(s.constraints_with_variable(a))
-    [EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))]
-    
