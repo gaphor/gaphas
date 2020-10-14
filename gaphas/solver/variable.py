@@ -45,11 +45,7 @@ class Variable:
     def __hash__(self):
         return object.__hash__(self)
 
-    @observed
-    def _set_strength(self, strength):
-        self._strength = strength
-
-    strength = reversible_property(lambda s: s._strength, _set_strength)
+    strength = reversible_property(lambda s: s._strength)
 
     def dirty(self):
         """Mark the variable dirty in both the constraint solver and attached
