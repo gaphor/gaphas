@@ -32,6 +32,7 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
+from gaphas.solver.constraint import Constraint
 from gaphas.solver.projection import Projection
 from gaphas.solver.variable import NORMAL, Variable
 from gaphas.state import observed, reversible_pair
@@ -51,6 +52,7 @@ class Solver:
 
     constraints = property(lambda s: s._constraints)
 
+    # TODO: should get constraint as variable
     def request_resolve(self, variable, projections_only=False):
         """Mark a variable as "dirty". This means it it solved the next time
         the constraints are resolved.
@@ -86,21 +88,10 @@ class Solver:
             variable = variable.variable()
         for c in variable._constraints:
             if not projections_only or c._solver_has_projections:
-                if not self._solving:
-                    if c in self._marked_cons:
-                        self._marked_cons.remove(c)
-                    c.mark_dirty(variable)
-                    self._marked_cons.append(c)
-                else:
-                    c.mark_dirty(variable)
-                    self._marked_cons.append(c)
-                    if self._marked_cons.count(c) > 100:
-                        raise JuggleError(
-                            f"Variable juggling detected, constraint {c} resolved {self._marked_cons.count(c)} times out of {len(self._marked_cons)}"
-                        )
+                self.request_resolve_constraint(c)
 
     @observed
-    def add_constraint(self, constraint):
+    def add_constraint(self, constraint: Constraint):
         """Add a constraint. The actual constraint is returned, so the
         constraint can be removed later on.
 
@@ -123,17 +114,11 @@ class Solver:
         assert constraint, f"No constraint ({constraint})"
         self._constraints.add(constraint)
         self._marked_cons.append(constraint)
-        constraint._solver_has_projections = False
-        for v in constraint.variables():
-            while isinstance(v, Projection):
-                v = v.variable()
-                constraint._solver_has_projections = True
-            v._constraints.add(constraint)
-            v.add_handler(self.request_resolve)
+        constraint.add_handler(self.request_resolve_constraint)
         return constraint
 
     @observed
-    def remove_constraint(self, constraint):
+    def remove_constraint(self, constraint: Constraint):
         """Remove a constraint from the solver.
 
         >>> from gaphas.constraint import EquationConstraint
@@ -153,20 +138,25 @@ class Solver:
         >>> s.remove_constraint(c)
         """
         assert constraint, f"No constraint ({constraint})"
-        for v in constraint.variables():
-            while isinstance(v, Projection):
-                v = v.variable()
-            v._constraints.discard(constraint)
-            v.remove_handler(self.request_resolve)
+        constraint.remove_handler(self.request_resolve_constraint)
         self._constraints.discard(constraint)
         while constraint in self._marked_cons:
             self._marked_cons.remove(constraint)
 
     reversible_pair(add_constraint, remove_constraint)
 
-    def request_resolve_constraint(self, c):
+    def request_resolve_constraint(self, c: Constraint):
         """Request resolving a constraint."""
-        self._marked_cons.append(c)
+        if not self._solving:
+            if c in self._marked_cons:
+                self._marked_cons.remove(c)
+            self._marked_cons.append(c)
+        else:
+            self._marked_cons.append(c)
+            if self._marked_cons.count(c) > 100:
+                raise JuggleError(
+                    f"Variable juggling detected, constraint {c} resolved {self._marked_cons.count(c)} times out of {len(self._marked_cons)}"
+                )
 
     def constraints_with_variable(self, *variables: Variable):
         """Return an iterator of constraints that work with variable. The

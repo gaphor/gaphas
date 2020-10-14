@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Callable, Set, SupportsFloat
+
 from gaphas.state import observed, reversible_property
 
 # epsilon for float comparison
@@ -23,18 +27,18 @@ class Variable:
     float variable.
     """
 
-    def __init__(self, value=0.0, strength=NORMAL):
+    def __init__(self, value: SupportsFloat = 0.0, strength: int = NORMAL):
         self._value = float(value)
         self._strength = strength
-        self._handlers = set()
+        self._handlers: Set[Callable[[Variable], None]] = set()
 
         # These variables are set by the Solver:
-        self._constraints = set()
+        self._constraints = set()  # type: ignore[var-annotated]
 
-    def add_handler(self, handler):
+    def add_handler(self, handler: Callable[[Variable], None]):
         self._handlers.add(handler)
 
-    def remove_handler(self, handler):
+    def remove_handler(self, handler: Callable[[Variable], None]):
         self._handlers.discard(handler)
 
     def notify(self):
@@ -47,6 +51,7 @@ class Variable:
     @observed
     def _set_strength(self, strength):
         self._strength = strength
+        # TODO: disallow change of strength
         for c in self._constraints:
             c.create_weakest_list()
 
