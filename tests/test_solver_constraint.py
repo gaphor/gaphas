@@ -1,6 +1,6 @@
 import pytest
 
-from gaphas.solver import Constraint, MultiConstraint, Projection, Variable
+from gaphas.solver import Constraint, MultiConstraint, Variable
 
 
 @pytest.fixture
@@ -17,17 +17,6 @@ def handler():
 def test_constraint_propagates_variable_changed(handler):
     v = Variable()
     c = Constraint(v)
-    c.add_handler(handler)
-
-    v.value = 3
-
-    assert handler.events == [c]
-
-
-def test_constraint_propagates_variable_wrapped_in_projection(handler):
-    v = Variable()
-    p = Projection(v)
-    c = Constraint(p)
     c.add_handler(handler)
 
     v.value = 3

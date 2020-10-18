@@ -1,7 +1,6 @@
 """Basic items."""
 from math import atan2
-from typing import Optional, Set
-from weakref import WeakSet
+from typing import Optional
 
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import (
@@ -13,7 +12,7 @@ from gaphas.constraint import (
 )
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
-from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, Projection, solvable
+from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
 from gaphas.state import (
     observed,
     reversible_method,
@@ -37,10 +36,7 @@ class Item:
     - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
-    - _matrix_i2v:  item to view coordinates matrices
-    - _matrix_v2i:  view to item coordinates matrices
-    - _sort_key:  used to sort items
-    - _canvas_projections:  used to sort items
+    - _constraints: list of constraints that belong to the lifecycle of this item
     """
 
     def __init__(self):
@@ -49,9 +45,6 @@ class Item:
         self._handles = []
         self._constraints = []
         self._ports = []
-
-        # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
-        self._canvas_projections: Set[Projection] = WeakSet()  # type: ignore[assignment]
 
     @observed
     def _set_canvas(self, canvas):

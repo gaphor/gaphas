@@ -32,7 +32,6 @@ import cairo
 
 from gaphas import solver, table, tree
 from gaphas.decorators import AsyncIO, nonrecursive
-from gaphas.projections import CanvasProjection
 from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
@@ -743,25 +742,6 @@ class Canvas:
         """Send an update notification to all registered views."""
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
-
-    def project(self, item, *points):
-        """Project item's points into canvas coordinate system.
-
-        If there is only one point returned than projected point is
-        returned. If there are more than one points, then tuple of
-        projected points is returned.
-        """
-
-        def reg(cp):
-            item._canvas_projections.add(cp)
-            return cp
-
-        if len(points) == 1:
-            return reg(CanvasProjection(points[0], item))
-        elif len(points) > 1:
-            return tuple(reg(CanvasProjection(p, item)) for p in points)
-        else:
-            raise AttributeError("There should be at least one point specified")
 
 
 # Additional tests in @observed methods

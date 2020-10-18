@@ -52,6 +52,9 @@ class Position:
         """
         return (self._x, self._y)[index]
 
+    def __iter__(self):
+        return iter((self._x, self._y))
+
 
 class MatrixProjection(Constraint):
     def __init__(self, pos: Position, matrix: Matrix):
