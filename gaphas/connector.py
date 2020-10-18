@@ -49,6 +49,8 @@ class Position:
 
     y = property(lambda s: s._y, _set_y)
 
+    strength = property(lambda s: s._x.strength)
+
     def _set_pos(self, pos):
         """Set handle position (Item coordinates)."""
         self._x.value, self._y.value = pos
