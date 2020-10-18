@@ -1,14 +1,20 @@
 import pytest
 
-from gaphas.connector import Position
 from gaphas.matrix import Matrix
-from gaphas.projections import MatrixProjection
+from gaphas.position import MatrixProjection, Position
 from gaphas.solver import Solver, Variable
 
 
 @pytest.fixture
 def solver():
     return Solver()
+
+
+@pytest.mark.parametrize("position", [(0, 0), (1, 2)])
+def test_position(position):
+    pos = Position(position)
+    assert position[0] == pos.x
+    assert position[1] == pos.y
 
 
 def test_matrix_projection_exposes_variables():

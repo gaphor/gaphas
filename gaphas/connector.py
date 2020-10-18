@@ -5,7 +5,8 @@ import warnings
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
-from gaphas.solver import NORMAL, Variable
+from gaphas.position import Position
+from gaphas.solver import NORMAL
 from gaphas.state import observed, reversible_property
 
 
@@ -21,57 +22,6 @@ def deprecated(message, since):
         return wrapper
 
     return _deprecated
-
-
-class Position:
-    """A point constructed of two `Variable`'s.
-
-    >>> vp = Position((3, 5))
-    >>> vp.x, vp.y
-    (Variable(3, 20), Variable(5, 20))
-    >>> vp.pos
-    (Variable(3, 20), Variable(5, 20))
-    >>> vp[0], vp[1]
-    (Variable(3, 20), Variable(5, 20))
-    """
-
-    def __init__(self, pos, strength=NORMAL):
-        self._x = Variable(pos[0], strength)
-        self._y = Variable(pos[1], strength)
-
-    def _set_x(self, v):
-        self._x.value = v
-
-    x = property(lambda s: s._x, _set_x)
-
-    def _set_y(self, v):
-        self._y.value = v
-
-    y = property(lambda s: s._y, _set_y)
-
-    strength = property(lambda s: s._x.strength)
-
-    def _set_pos(self, pos):
-        """Set handle position (Item coordinates)."""
-        self._x.value, self._y.value = pos
-
-    pos = property(lambda s: (s._x, s._y), _set_pos)
-
-    def __str__(self):
-        return f"<{self.__class__.__name__} object on ({self._x}, {self._y})>"
-
-    __repr__ = __str__
-
-    def __getitem__(self, index):
-        """Shorthand for returning the x(0) or y(1) component of the point.
-
-        >>> h = Position((3, 5))
-        >>> h[0]
-        Variable(3, 20)
-        >>> h[1]
-        Variable(5, 20)
-        """
-        return (self._x, self._y)[index]
 
 
 class Handle:

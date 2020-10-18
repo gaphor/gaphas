@@ -1,4 +1,6 @@
-from typing import Union
+from __future__ import annotations
+
+from typing import Callable, Set, Union
 
 from gaphas.solver.projection import Projection
 from gaphas.solver.variable import Variable
@@ -25,20 +27,20 @@ class Constraint:
         strength = min(v.strength for v in self._variables)
         # manage weakest based on id, so variables are uniquely identifyable
         self._weakest = [(id(v), v) for v in self._variables if v.strength == strength]
-        self._handlers = set()
+        self._handlers: Set[Callable[[Constraint], None]] = set()
 
     def variables(self):
         """Return an iterator which iterates over the variables that are held
         by this constraint."""
         return self._variables
 
-    def add_handler(self, handler):
+    def add_handler(self, handler: Callable[[Constraint], None]):
         if not self._handlers:
             for v in self._variables:
                 v.add_handler(self._propagate)
         self._handlers.add(handler)
 
-    def remove_handler(self, handler):
+    def remove_handler(self, handler: Callable[[Constraint], None]):
         self._handlers.discard(handler)
         if not self._handlers:
             for v in self._variables:
@@ -104,3 +106,31 @@ class Constraint:
         The variable itself is updated.
         """
         raise NotImplementedError
+
+
+class MultiConstraint:
+    """A constraint constaining constraints."""
+
+    def __init__(self, *constraints: Constraint):
+        self._constraints = constraints
+        self._handlers: Set[Callable[[Constraint], None]] = set()
+
+    def add_handler(self, handler: Callable[[Constraint], None]):
+        if not self._handlers:
+            for c in self._constraints:
+                c.add_handler(self._propagate)
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler: Callable[[Constraint], None]):
+        self._handlers.discard(handler)
+        if not self._handlers:
+            for c in self._constraints:
+                c.remove_handler(self._propagate)
+
+    def _propagate(self, constraint: Constraint):
+        for handler in self._handlers:
+            handler(constraint)
+
+    def solve(self):
+        for c in self._constraints:
+            c.solve()
