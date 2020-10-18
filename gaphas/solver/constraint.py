@@ -21,10 +21,11 @@ class Constraint:
         a 'strength' attribute.
         """
         self._variables = [v for v in variables if hasattr(v, "strength")]
-        self._weakest = []
-        self._handlers = set()
 
-        self.create_weakest_list()
+        strength = min(v.strength for v in self._variables)
+        # manage weakest based on id, so variables are uniquely identifyable
+        self._weakest = [(id(v), v) for v in self._variables if v.strength == strength]
+        self._handlers = set()
 
     def variables(self):
         """Return an iterator which iterates over the variables that are held
@@ -51,38 +52,39 @@ class Constraint:
         self.mark_dirty(variable)
         self.notify()
 
-    def create_weakest_list(self):
-        """Create list of weakest variables."""
-        strength = min(v.strength for v in self._variables)
-        self._weakest = [v for v in self._variables if v.strength == strength]
-
     def weakest(self):
         """Return the weakest variable.
 
         The weakest variable should be always as first element of
         Constraint._weakest list.
         """
-        return self._weakest[0]
+        return self._weakest[0][1]
 
     def mark_dirty(self, var: Union[Projection, Variable]):
         """Mark variable v dirty and if possible move it to the end of
         Constraint.weakest list to maintain weakest variable invariants (see
         gaphas.solver module documentation)."""
-        weakest = self.weakest()
-        # Fast lane:
-        if var is weakest:
-            self._weakest.remove(var)
-            self._weakest.append(var)
-            return
+
+        if isinstance(var, Variable):
+            key = (id(var), var)
+            try:
+                self._weakest.remove(key)
+            except ValueError:
+                return
+            else:
+                self._weakest.append(key)
+                return
 
         # Handle projected variables well:
         global Projection
+        weakest = self.weakest()
         p = weakest
         while isinstance(weakest, Projection):
             weakest = weakest.variable()
             if var is weakest:
-                self._weakest.remove(p)
-                self._weakest.append(p)
+                key = (id(p), p)
+                self._weakest.remove(key)
+                self._weakest.append(key)
                 return
 
     def solve(self):

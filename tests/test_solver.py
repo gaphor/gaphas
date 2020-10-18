@@ -37,12 +37,6 @@ def solver_fixture():
     return SolverFixture()
 
 
-def test_weakest_list(solv):
-    """Test weakest list."""
-    assert solv.b in solv.c_eq._weakest
-    assert solv.c in solv.c_eq._weakest
-
-
 def test_weakest_list_order(solv):
     """Test weakest list order."""
     weakest = [el for el in solv.c_eq._weakest]
