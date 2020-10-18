@@ -2,8 +2,9 @@
 
 These items are used in various tests.
 """
-from gaphas.connector import Handle, LinePort, PointPort, Position
+from gaphas.connector import Handle, LinePort, PointPort
 from gaphas.item import NE, NW, SE, SW, Element, Item
+from gaphas.position import Position
 from gaphas.solver import WEAK
 from gaphas.util import path_ellipse, text_align, text_multiline
 
