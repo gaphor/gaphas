@@ -162,8 +162,7 @@ class Solver:
             n = 0
             while n < len(marked_cons):
                 c = marked_cons[n]
-                if not c.disabled:
-                    c.solve()
+                c.solve()
                 n += 1
 
             self._marked_cons = []
