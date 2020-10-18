@@ -95,9 +95,15 @@ class MatrixProjection(Constraint):
             inv = Matrix(*self.matrix)  # type: ignore[misc]
             inv.invert()
             self._orig_pos.x, self._orig_pos.y = inv.transform_point(*self._proj_pos)  # type: ignore[misc]
+            print("matrix solved orig", self._orig_pos)
         else:
             self._proj_pos.x, self._proj_pos.y = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
+            print("matrix solve proj", self._proj_pos)
 
     def _on_matrix_changed(self, matrix):
+        print("matrix updated")
         self.mark_dirty(self._orig_pos.x)
         self.notify()
+
+    def __getitem__(self, index):
+        return self._proj_pos[index]

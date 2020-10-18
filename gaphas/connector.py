@@ -2,8 +2,8 @@
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
-from gaphas.position import Position
-from gaphas.solver import NORMAL
+from gaphas.position import MatrixProjection, Position
+from gaphas.solver import NORMAL, MultiConstraint
 from gaphas.state import observed, reversible_property
 
 
@@ -126,7 +126,7 @@ class LinePort(Port):
 class PointPort(Port):
     """Port defined as a point."""
 
-    def __init__(self, point):
+    def __init__(self, point: Position):
         super().__init__()
         self.point = point
 
@@ -144,7 +144,10 @@ class PointPort(Port):
     def constraint(self, canvas, item, handle, glue_item):
         """Return connection position constraint between item's handle and the
         port."""
-        origin = canvas.project(glue_item, self.point)
-        point = canvas.project(item, handle.pos)
-        c = PositionConstraint(origin, point)
-        return c  # PositionConstraint(origin, point)
+        # origin = canvas.project(glue_item, self.point)
+        # point = canvas.project(item, handle.pos)
+        origin = MatrixProjection(self.point, glue_item.matrix)
+        point = MatrixProjection(handle.pos, item.matrix)
+
+        c = PositionConstraint(origin.pos, point.pos)
+        return MultiConstraint(origin, point, c)

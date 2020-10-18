@@ -13,8 +13,6 @@ class Constraint:
     - weakest   - list of weakest variables
     """
 
-    disabled = False
-
     def __init__(self, *variables):
         """Create new constraint, register all variables, and find weakest
         variables.
@@ -113,23 +111,14 @@ class MultiConstraint:
 
     def __init__(self, *constraints: Constraint):
         self._constraints = constraints
-        self._handlers: Set[Callable[[Constraint], None]] = set()
 
     def add_handler(self, handler: Callable[[Constraint], None]):
-        if not self._handlers:
-            for c in self._constraints:
-                c.add_handler(self._propagate)
-        self._handlers.add(handler)
+        for c in self._constraints:
+            c.add_handler(handler)
 
     def remove_handler(self, handler: Callable[[Constraint], None]):
-        self._handlers.discard(handler)
-        if not self._handlers:
-            for c in self._constraints:
-                c.remove_handler(self._propagate)
-
-    def _propagate(self, constraint: Constraint):
-        for handler in self._handlers:
-            handler(constraint)
+        for c in self._constraints:
+            c.remove_handler(handler)
 
     def solve(self):
         for c in self._constraints:
