@@ -1,34 +1,41 @@
 from gaphas.connector import Position
 from gaphas.matrix import Matrix
-from gaphas.solver import Projection, Variable
+from gaphas.solver import Constraint, Projection
 
 
-class MatrixProjection:
+class MatrixProjection(Constraint):
     def __init__(self, pos: Position, matrix: Matrix):
+        proj_pos = Position((0, 0), pos.strength)
+        super().__init__(proj_pos.x, proj_pos.y, pos.x, pos.y)
+
         self._orig_pos = pos
+        self._proj_pos = proj_pos
         self.matrix = matrix
-        self._x = Variable(0.0, pos.strength)
-        self._y = Variable(0.0, pos.strength)
-        self._update_projected_pos()
-
-    def _update_projected_pos(self):
-        self._x.value, self._y.value = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
-
-    def _update_orig_pos(self):
-        inv = Matrix(*self.matrix)  # type: ignore[misc]
-        inv.invert()
-        self._orig_pos.x, self._orig_pos.y = inv.transform_point(self._x, self._y)  # type: ignore[arg-type]
 
     def _set_x(self, x):
-        self._x.value = x
-        self._update_orig_pos()
+        self._proj_pos.x = x
 
     def _set_y(self, y):
-        self._y.value = y
-        self._update_orig_pos()
+        self._proj_pos.y = y
 
-    x = property(lambda s: s._x, _set_x)
-    y = property(lambda s: s._y, _set_y)
+    x = property(lambda s: s._proj_pos.x, _set_x)
+    y = property(lambda s: s._proj_pos.y, _set_y)
+
+    def mark_dirty(self, var):
+        if var in self._orig_pos.pos:
+            super().mark_dirty(self._orig_pos.x)
+            super().mark_dirty(self._orig_pos.y)
+        else:
+            super().mark_dirty(self._proj_pos.x)
+            super().mark_dirty(self._proj_pos.y)
+
+    def solve_for(self, var):
+        if var is self._orig_pos.x or var is self._orig_pos.y:
+            inv = Matrix(*self.matrix)  # type: ignore[misc]
+            inv.invert()
+            self._orig_pos.x, self._orig_pos.y = inv.transform_point(*self._proj_pos)  # type: ignore[misc]
+        else:
+            self._proj_pos.x, self._proj_pos.y = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
 
 
 # Deprecated:
