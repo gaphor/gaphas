@@ -32,10 +32,6 @@ def test_reparent():
     c.reparent(b2, None)
 
 
-# fixme: what about multiple constraints for a handle?
-#        what about 1d projection?
-
-
 def count(i):
     return len(list(i))
 
@@ -147,27 +143,6 @@ def test_disconnect_item_with_constraint_by_deleting_element():
     assert count(c.get_connections(handle=line.handles()[0])) == 0
 
     assert 6 == len(c.solver.constraints)
-
-
-def test_line_projection():
-    """Test projection with line's handle on element's side."""
-    line = Line()
-    line.matrix.translate(15, 50)
-    h1, h2 = line.handles()
-    h1.pos = (0, 0)
-    h2.pos = (20, 20)
-
-    box = Box()
-    box.matrix.translate(10, 10)
-    box.width = 40
-    box.height = 20
-
-    canvas = Canvas()
-    canvas.add(line)
-    canvas.add(box)
-
-    # move line's second handle on box side
-    h2.pos = (5, -20)
 
 
 def test_remove_connected_item():

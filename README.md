@@ -161,8 +161,8 @@ order to connect them.
 
 Constraints that apply to one item are pretty straight forward, as all variables live in the same coordinate system of the item. The variables, like the Handle's x and y coordinate can simply be put in a constraint.
 
-When two items are connected to each other and constraints are created, a problem shows up: variables live in separate coordinate systems. In order to overcome this problem, a Projection (from solver.py) has been defined. With a
-Projection instance, a variable can be "projected" on another coordinate system. In this case, the Canvas' coordinate system is used when two items are connected to each other.
+When two items are connected to each other and constraints are created, a problem shows up: variables live in separate coordinate systems. In order to overcome this problem, a MatrixProjection (from position.py) has been defined. With a
+MatrixProjection instance, a variable can be "projected" on another coordinate system. In this case, the Canvas' coordinate system is used when two items are connected to each other.
 
 ### Drawing
 

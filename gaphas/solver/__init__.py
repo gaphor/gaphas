@@ -1,5 +1,4 @@
 from gaphas.solver.constraint import Constraint, MultiConstraint
-from gaphas.solver.projection import Projection
 from gaphas.solver.solver import Solver, solvable
 from gaphas.solver.variable import (
     NORMAL,

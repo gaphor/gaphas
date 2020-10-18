@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, Set, Union
+from typing import Callable, Set
 
-from gaphas.solver.projection import Projection
 from gaphas.solver.variable import Variable
 
 
@@ -60,7 +59,7 @@ class Constraint:
         """
         return self._weakest[0][1]
 
-    def mark_dirty(self, var: Union[Projection, Variable]):
+    def mark_dirty(self, var: Variable):
         """Mark variable v dirty and if possible move it to the end of
         Constraint.weakest list to maintain weakest variable invariants (see
         gaphas.solver module documentation)."""
@@ -72,18 +71,6 @@ class Constraint:
             except ValueError:
                 return
             else:
-                self._weakest.append(key)
-                return
-
-        # Handle projected variables well:
-        global Projection
-        weakest = self.weakest()
-        p = weakest
-        while isinstance(weakest, Projection):
-            weakest = weakest.variable()
-            if var is weakest:
-                key = (id(p), p)
-                self._weakest.remove(key)
                 self._weakest.append(key)
                 return
 

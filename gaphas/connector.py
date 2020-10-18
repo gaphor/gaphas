@@ -28,7 +28,7 @@ class Handle:
         self._movable = movable
         self._visible = True
 
-    def _set_pos(self, pos):
+    def _set_pos(self, pos: Position):
         """
         Shortcut for ``handle.pos.pos = pos``
 
