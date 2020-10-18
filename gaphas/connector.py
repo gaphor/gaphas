@@ -1,27 +1,10 @@
 """Basic connectors such as Ports and Handles."""
 
-import functools
-import warnings
-
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.position import Position
 from gaphas.solver import NORMAL
 from gaphas.state import observed, reversible_property
-
-
-def deprecated(message, since):
-    def _deprecated(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            warnings.warn(
-                f"{func.__name__}: {message}", category=DeprecationWarning, stacklevel=2
-            )
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return _deprecated
 
 
 class Handle:
