@@ -182,6 +182,7 @@ class EquationConstraint(Constraint):
         super().__init__(*list(args.values()))
         self._f = f
         self._args: Dict[str, Optional[Variable]] = {}
+
         # see important note on order of operations in __setattr__ below.
         for arg in f.__code__.co_varnames[0 : f.__code__.co_argcount]:
             self._args[arg] = None
