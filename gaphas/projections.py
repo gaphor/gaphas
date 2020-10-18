@@ -12,17 +12,28 @@ class MatrixProjection(Constraint):
         self._proj_pos = proj_pos
         self.matrix = matrix
 
+    def add_handler(self, handler):
+        if not self._handlers:
+            self.matrix.add_handler(self._on_matrix_changed)
+        super().add_handler(handler)
+
+    def remove_handler(self, handler):
+        super().remove_handler(handler)
+        if not self._handlers:
+            self.matrix.remove_handler(self._on_matrix_changed)
+
     def _set_x(self, x):
         self._proj_pos.x = x
 
     def _set_y(self, y):
         self._proj_pos.y = y
 
+    pos = property(lambda s: s._proj_pos)
     x = property(lambda s: s._proj_pos.x, _set_x)
     y = property(lambda s: s._proj_pos.y, _set_y)
 
     def mark_dirty(self, var):
-        if var in self._orig_pos.pos:
+        if var is self._orig_pos.x or var is self._orig_pos.y:
             super().mark_dirty(self._orig_pos.x)
             super().mark_dirty(self._orig_pos.y)
         else:
@@ -36,6 +47,10 @@ class MatrixProjection(Constraint):
             self._orig_pos.x, self._orig_pos.y = inv.transform_point(*self._proj_pos)  # type: ignore[misc]
         else:
             self._proj_pos.x, self._proj_pos.y = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
+
+    def _on_matrix_changed(self, matrix):
+        self.mark_dirty(self._orig_pos.x)
+        self.notify()
 
 
 # Deprecated:

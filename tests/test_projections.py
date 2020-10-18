@@ -26,10 +26,11 @@ def test_matrix_projection_exposes_variables():
         [(2, 4), Matrix(2, 0, 0, 1, 2, 3), (6, 7)],
     ],
 )
-def test_position_is_projected(solver, position, matrix, result):
+def test_projection_updates_when_original_is_changed(solver, position, matrix, result):
     pos = Position((0, 0))
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
+    solver.solve()
 
     pos.x, pos.y = position
     solver.solve()
@@ -47,11 +48,11 @@ def test_position_is_projected(solver, position, matrix, result):
         [(1, 2), Matrix(1, 0, 0, 1, 4, 3), (-3, -1)],
     ],
 )
-def test_projection_updates_original(solver, position, matrix, result):
+def test_original_updates_when_projection_is_changed(solver, position, matrix, result):
     pos = Position((0, 0))
-
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
+    solver.solve()
 
     proj.x, proj.y = position
 
@@ -61,3 +62,17 @@ def test_projection_updates_original(solver, position, matrix, result):
     print(proj.x, proj.y)
     assert pos.x == result[0]
     assert pos.y == result[1]
+
+
+def test_projection_updates_when_matrix_is_changed(solver):
+    pos = Position((0, 0))
+    matrix = Matrix()
+    proj = MatrixProjection(pos, matrix)
+    solver.add_constraint(proj)
+    solver.solve()
+
+    matrix.translate(2, 3)
+    solver.solve()
+
+    assert proj.x == 2
+    assert proj.y == 3
