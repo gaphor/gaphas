@@ -7,6 +7,10 @@ Small utility class wrapping cairo.Matrix. The `Matrix` class adds
 state preservation capabilities.
 """
 
+from __future__ import annotations
+
+from typing import Callable, Set, Tuple
+
 import cairo
 
 from gaphas.state import observed, reversible_method
@@ -23,25 +27,39 @@ class Matrix:
 
     def __init__(self, xx=1.0, yx=0.0, xy=0.0, yy=1.0, x0=0.0, y0=0.0):
         self._matrix = cairo.Matrix(xx, yx, xy, yy, x0, y0)
+        self._handlers: Set[Callable[[Matrix], None]] = set()
+
+    def add_handler(self, handler: Callable[[Matrix], None]):
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler: Callable[[Matrix], None]):
+        self._handlers.discard(handler)
+
+    def notify(self):
+        for handler in self._handlers:
+            handler(self)
 
     @observed
-    def invert(self):
-        return self._matrix.invert()
+    def invert(self) -> None:
+        self._matrix.invert()
+        self.notify()
 
     @observed
-    def rotate(self, radians):
-        return self._matrix.rotate(radians)
+    def rotate(self, radians: float) -> None:
+        self._matrix.rotate(radians)
+        self.notify()
 
     @observed
-    def scale(self, sx, sy):
-        return self._matrix.scale(sx, sy)
+    def scale(self, sx, sy) -> None:
+        self._matrix.scale(sx, sy)
+        self.notify()
 
     @observed
-    def translate(self, tx, ty):
+    def translate(self, tx, ty) -> None:
         self._matrix.translate(tx, ty)
+        self.notify()
 
-    @observed
-    def multiply(self, m):
+    def multiply(self, m: cairo.Matrix) -> cairo.Matrix:
         return self._matrix.multiply(m)
 
     reversible_method(invert, invert)
@@ -51,40 +69,29 @@ class Matrix:
         translate, translate, {"tx": lambda tx: -tx, "ty": lambda ty: -ty}
     )
 
-    def transform_distance(self, dx, dy):
-        self._matrix.transform_distance(dx, dy)
+    def transform_distance(self, dx, dy) -> Tuple[float, float]:
+        return self._matrix.transform_distance(dx, dy)  # type: ignore[no-any-return]
 
-    def transform_point(self, x, y):
-        self._matrix.transform_point(x, y)
+    def transform_point(self, x, y) -> Tuple[float, float]:
+        return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
 
-    def __eq__(self, other):
-        return self._matrix.__eq__(other)
+    def __eq__(self, other) -> bool:
+        if isinstance(other, cairo.Matrix):
+            return self._matrix.__eq__(other)  # type: ignore[no-any-return]
+        else:
+            return False
 
-    def __ne__(self, other):
-        return self._matrix.__ne__(other)
+    def __ne__(self, other) -> bool:
+        if isinstance(other, cairo.Matrix):
+            return self._matrix.__ne__(other)  # type: ignore[no-any-return]
+        else:
+            return False
 
-    def __le__(self, other):
-        return self._matrix.__le__(other)
+    def __getitem__(self, val: int) -> float:
+        return self._matrix[val]  # type: ignore[index,no-any-return]
 
-    def __lt__(self, other):
-        return self._matrix.__lt__(other)
-
-    def __ge__(self, other):
-        return self._matrix.__ge__(other)
-
-    def __gt__(self, other):
-        return self._matrix.__gt__(other)
-
-    def __getitem__(self, val):
-        return self._matrix.__getitem__(val)
-
-    @observed
-    def __mul__(self, other):
-        return self._matrix.__mul__(other)
-
-    @observed
-    def __rmul__(self, other):
-        return self._matrix.__rmul__(other)
+    def __mul__(self, other: cairo.Matrix) -> cairo.Matrix:
+        return self._matrix.__mul__(other)  # type: ignore[operator,no-any-return]
 
     def __repr__(self):
-        return f"Matrix{tuple(self._matrix)}"
+        return f"Matrix{tuple(self._matrix)}"  # type: ignore[arg-type]

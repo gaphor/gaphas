@@ -1,4 +1,37 @@
-from gaphas.solver import Projection
+from gaphas.connector import Position
+from gaphas.matrix import Matrix
+from gaphas.solver import Projection, Variable
+
+
+class MatrixProjection:
+    def __init__(self, pos: Position, matrix: Matrix):
+        self._orig_pos = pos
+        self.matrix = matrix
+        self._x = Variable(0.0, pos.strength)
+        self._y = Variable(0.0, pos.strength)
+        self._update_projected_pos()
+
+    def _update_projected_pos(self):
+        self._x.value, self._y.value = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
+
+    def _update_orig_pos(self):
+        inv = Matrix(*self.matrix)  # type: ignore[misc]
+        inv.invert()
+        self._orig_pos.x, self._orig_pos.y = inv.transform_point(self._x, self._y)  # type: ignore[arg-type]
+
+    def _set_x(self, x):
+        self._x.value = x
+        self._update_orig_pos()
+
+    def _set_y(self, y):
+        self._y.value = y
+        self._update_orig_pos()
+
+    x = property(lambda s: s._x, _set_x)
+    y = property(lambda s: s._y, _set_y)
+
+
+# Deprecated:
 
 
 class VariableProjection(Projection):
@@ -27,6 +60,12 @@ class VariableProjection(Projection):
         self._value = value
         self._callback(value)
         self.notify()
+
+    def add_handler(self, handler):
+        super().add_handler(handler)
+
+    def remove_handler(self, handler):
+        super().remove_handler(handler)
 
     value = property(lambda s: s._value, _set_value)
 
