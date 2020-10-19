@@ -42,9 +42,6 @@ class Variable:
         for handler in self._handlers:
             handler(self)
 
-    def __hash__(self):
-        return object.__hash__(self)
-
     strength = reversible_property(lambda s: s._strength)
 
     def dirty(self):
