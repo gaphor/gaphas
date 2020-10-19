@@ -85,14 +85,7 @@ class Item:
         for c in self._constraints:
             remove(c)
 
-    @observed
-    def _set_matrix(self, matrix):
-        """Set the conversion matrix (parent -> item)"""
-        if not isinstance(matrix, Matrix):
-            matrix = Matrix(*matrix)
-        self._matrix = matrix
-
-    matrix = reversible_property(lambda s: s._matrix, _set_matrix)
+    matrix = property(lambda s: s._matrix)
 
     def request_update(self, update=True, matrix=True):
         if self._canvas:

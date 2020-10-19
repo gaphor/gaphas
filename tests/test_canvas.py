@@ -14,8 +14,8 @@ def test_update_matrices():
     c.add(i)
     c.add(ii, i)
 
-    i.matrix = (1.0, 0.0, 0.0, 1.0, 5.0, 0.0)
-    ii.matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 8.0)
+    i.matrix.translate(5.0, 0.0)
+    ii.matrix.translate(0.0, 8.0)
 
     c.update_matrices([i])
 
