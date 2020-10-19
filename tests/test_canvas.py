@@ -19,8 +19,8 @@ def test_update_matrices():
 
     c.update_matrices([i])
 
-    assert i._matrix_i2c == cairo.Matrix(1, 0, 0, 1, 5, 0)
-    assert ii._matrix_i2c == cairo.Matrix(1, 0, 0, 1, 5, 8)
+    assert c.get_matrix_i2c(i) == cairo.Matrix(1, 0, 0, 1, 5, 0)
+    assert c.get_matrix_i2c(ii) == cairo.Matrix(1, 0, 0, 1, 5, 8)
 
 
 def test_reparent():

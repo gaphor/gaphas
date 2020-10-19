@@ -26,7 +26,6 @@ To get connecting items (i.e. all lines connected to a class)::
 """
 import logging
 from collections import namedtuple
-from operator import attrgetter
 from typing import TYPE_CHECKING
 
 import cairo
@@ -97,7 +96,6 @@ class Canvas:
         self._connections = table.Table(Connection, list(range(4)))
         self._dirty_items = set()
         self._dirty_matrix_items = set()
-        self._dirty_index = False
 
         self._registered_views = set()
 
@@ -118,9 +116,6 @@ class Canvas:
         """
         assert item not in self._tree.nodes, f"Adding already added node {item}"
         self._tree.add(item, parent, index)
-        self._dirty_index = True
-
-        self.update_matrix(item, parent)
 
         item._set_canvas(self)
 
@@ -166,8 +161,6 @@ class Canvas:
     def reparent(self, item, parent, index=None):
         """Set new parent for an item."""
         self._tree.reparent(item, parent, index)
-
-        self._dirty_index = True
 
     reversible_method(
         reparent,
@@ -493,7 +486,7 @@ class Canvas:
             item=item, handle=handle, connected=connected, port=port
         )
 
-    def sort(self, items, reverse=False):
+    def sort(self, items):
         """Sort a list of items in the order in which they are traversed in the
         canvas (Depth first).
 
@@ -506,13 +499,11 @@ class Canvas:
         >>> i3 = item.Line()
         >>> c.add (i3)
         >>> c.update() # ensure items are indexed
-        >>> i1._canvas_index
-        0
         >>> s = c.sort([i2, i3, i1])
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
         """
-        return sorted(items, key=attrgetter("_canvas_index"), reverse=reverse)
+        return self._tree.order(items)
 
     def get_matrix_i2c(self, item, calculate=False):
         """Get the Item to Canvas matrix for ``item``.
@@ -526,18 +517,21 @@ class Canvas:
             present yet. Note that out-of-date matrices are not
             recalculated.
         """
-        if item._matrix_i2c is None or calculate:
-            self.update_matrix(item)
-        return item._matrix_i2c
+        m = cairo.Matrix(*item.matrix)
+
+        parent = self._tree.get_parent(item)
+        if parent is not None:
+            m = m.multiply(self.get_matrix_i2c(parent))
+        return m
 
     def get_matrix_c2i(self, item, calculate=False):
         """Get the Canvas to Item matrix for ``item``.
 
         See `get_matrix_i2c()`.
         """
-        if item._matrix_c2i is None or calculate:
-            self.update_matrix(item)
-        return item._matrix_c2i
+        m = self.get_matrix_i2c(item)
+        m.invert()
+        return m
 
     def get_matrix_i2i(self, from_item, to_item, calculate=False):
         i2c = self.get_matrix_i2c(from_item, calculate)
@@ -622,16 +616,12 @@ class Canvas:
         """Perform an update of the items that requested an update."""
         sort = self.sort
 
-        if self._dirty_index:
-            self.update_index()
-            self._dirty_index = False
-
         def dirty_items_with_ancestors():
             for item in self._dirty_items:
                 yield item
                 yield from self._tree.get_ancestors(item)
 
-        dirty_items = sort(dirty_items_with_ancestors(), reverse=True)
+        dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
 
         try:
             # allow programmers to perform tricks and hacks before item
@@ -651,7 +641,7 @@ class Canvas:
 
             # item's can be marked dirty due to external constraints solving
             if len(dirty_items) != len(self._dirty_items):
-                dirty_items = sort(self._dirty_items, reverse=True)
+                dirty_items = list(reversed(sort(self._dirty_items)))
 
             # normalize items, which changed after constraint solving;
             # recalculate matrices of normalized items
@@ -662,7 +652,7 @@ class Canvas:
 
             # item's can be marked dirty due to normalization and solving
             if len(dirty_items) != len(self._dirty_items):
-                dirty_items = sort(self._dirty_items, reverse=True)
+                dirty_items = list(reversed(sort(self._dirty_items)))
 
             self._dirty_items.clear()
 
@@ -691,34 +681,12 @@ class Canvas:
                 # update
                 continue
 
-            self.update_matrix(item, parent)
             changed.add(item)
 
             changed_children = self.update_matrices(set(self.get_children(item)))
             changed.update(changed_children)
 
         return changed
-
-    def update_matrix(self, item, parent=None):
-        """Update matrices of an item."""
-        try:
-            orig_matrix_i2c = cairo.Matrix(*item._matrix_i2c)
-        except TypeError:
-            orig_matrix_i2c = None
-
-        item._matrix_i2c = cairo.Matrix(*item.matrix)
-
-        if parent is not None:
-            try:
-                item._matrix_i2c = item._matrix_i2c.multiply(parent._matrix_i2c)
-            except AttributeError:
-                # Fall back to old behaviour
-                item._matrix_i2c *= parent._matrix_i2c
-
-        if orig_matrix_i2c is None or orig_matrix_i2c != item._matrix_i2c:
-            # calculate c2i matrix and view matrices
-            item._matrix_c2i = cairo.Matrix(*item._matrix_i2c)
-            item._matrix_c2i.invert()
 
     def update_constraints(self, items):
         """Update constraints.
@@ -769,13 +737,6 @@ class Canvas:
         """
         dirty_matrix_items = {item for item in items if item.normalize()}
         return self.update_matrices(dirty_matrix_items)
-
-    def update_index(self):
-        """Provide each item in the canvas with an index attribute.
-
-        This makes for fast searching of items.
-        """
-        self._tree.index_nodes("_canvas_index")
 
     def register_view(self, view):
         """Register a view on this canvas.
