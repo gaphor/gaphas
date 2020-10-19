@@ -96,9 +96,7 @@ class MatrixProjection(Constraint):
 
     def solve_for(self, var):
         if var is self._orig_pos.x or var is self._orig_pos.y:
-            inv = Matrix(*self.matrix)  # type: ignore[misc]
-            inv.invert()
-            self._orig_pos.x, self._orig_pos.y = inv.transform_point(*self._proj_pos)  # type: ignore[misc]
+            self._orig_pos.x, self._orig_pos.y = self.matrix.inverse().transform_point(*self._proj_pos)  # type: ignore[misc]
         else:
             self._proj_pos.x, self._proj_pos.y = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
 

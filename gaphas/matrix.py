@@ -75,6 +75,11 @@ class Matrix:
     def transform_point(self, x, y) -> Tuple[float, float]:
         return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
 
+    def inverse(self) -> Matrix:
+        m = Matrix(*self._matrix)
+        m.invert()
+        return m
+
     def __eq__(self, other) -> bool:
         if isinstance(other, cairo.Matrix):
             return self._matrix.__eq__(other)  # type: ignore[no-any-return]
