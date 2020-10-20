@@ -1,9 +1,9 @@
-import cairo
 import pytest
 
 from gaphas.canvas import Canvas, ConnectionError
 from gaphas.examples import Box
 from gaphas.item import Line
+from gaphas.matrix import Matrix
 
 
 def test_update_matrices():
@@ -19,8 +19,8 @@ def test_update_matrices():
 
     c.update_matrices([i])
 
-    assert c.get_matrix_i2c(i) == cairo.Matrix(1, 0, 0, 1, 5, 0)
-    assert c.get_matrix_i2c(ii) == cairo.Matrix(1, 0, 0, 1, 5, 8)
+    assert c.get_matrix_i2c(i) == Matrix(1, 0, 0, 1, 5, 0)
+    assert c.get_matrix_i2c(ii) == Matrix(1, 0, 0, 1, 5, 8)
 
 
 def test_reparent():

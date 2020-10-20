@@ -85,7 +85,9 @@ class Item:
         for c in self._constraints:
             remove(c)
 
-    matrix = property(lambda s: s._matrix)
+    @property
+    def matrix(self) -> Matrix:
+        return self._matrix
 
     def request_update(self, update=True, matrix=True):
         if self._canvas:

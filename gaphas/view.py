@@ -5,6 +5,7 @@ from gi.repository import Gdk, GLib, GObject, Gtk
 from gaphas.canvas import Context, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter
 from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
@@ -21,7 +22,7 @@ class View:
     """View class for gaphas.Canvas objects."""
 
     def __init__(self, canvas=None):
-        self._matrix = cairo.Matrix()
+        self._matrix = Matrix()
         self._painter = DefaultPainter(self)
         self._bounding_box_painter = BoundingBoxPainter(ItemPainter(self), self)
 
@@ -39,7 +40,10 @@ class View:
         if canvas:
             self._set_canvas(canvas)
 
-    matrix = property(lambda s: s._matrix, doc="Canvas to view transformation matrix")
+    @property
+    def matrix(self) -> Matrix:
+        """Canvas to view transformation matrix."""
+        return self._matrix
 
     def _set_canvas(self, canvas):
         """
@@ -806,8 +810,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # Can not use self._matrix.translate(-value , 0) here, since
         # the translate method effectively does a m * self._matrix, which
         # will result in the translation being multiplied by the orig. matrix
-
-        m = cairo.Matrix()
+        m = Matrix()
         if adj is self._hadjustment:
             m.translate(-value, 0)
         elif adj is self._vadjustment:
