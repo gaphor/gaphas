@@ -27,9 +27,70 @@ class and implement `Constraint.solve_for(Variable)` method to update
 a variable with appropriate value.
 """
 import math
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
+from gaphas.position import Position
 from gaphas.solver import Constraint, Variable
+
+PositionTuple = Optional[Tuple[Position, Position]]
+
+
+def constraint(
+    horizontal: PositionTuple = None,
+    vertical: PositionTuple = None,
+    left_of: PositionTuple = None,
+    above: PositionTuple = None,
+    line: Optional[Tuple[Position, Tuple[Position, Position]]] = None,
+    delta: float = 0.0,
+    align: Optional[float] = None,
+) -> Constraint:
+    """Utility (factory) method to create item's internal constraint between
+    two positions or between a position and a line.
+
+    Position is a tuple of coordinates, i.e. ``(2, 4)``.
+
+    Line is a tuple of positions, i.e. ``((2, 3), (4, 2))``.
+
+    This method shall not be used to create constraints between
+    two different items.
+
+    Created constraint is returned.
+
+    :Parameters:
+        horizontal=(p1, p2)
+        Keep positions ``p1`` and ``p2`` aligned horizontally.
+        vertical=(p1, p2)
+        Keep positions ``p1`` and ``p2`` aligned vertically.
+        left_of=(p1, p2)
+        Keep position ``p1`` on the left side of position ``p2``.
+        above=(p1, p2)
+        Keep position ``p1`` above position ``p2``.
+        line=(p, l)
+        Keep position ``p`` on line ``l``.
+    """
+    cc: Optional[Constraint]
+    if horizontal:
+        p1, p2 = horizontal
+        cc = EqualsConstraint(p1[1], p2[1], delta)
+    elif vertical:
+        p1, p2 = vertical
+        cc = EqualsConstraint(p1[0], p2[0], delta)
+    elif left_of:
+        p1, p2 = left_of
+        cc = LessThanConstraint(p1[0], p2[0], delta)
+    elif above:
+        p1, p2 = above
+        cc = LessThanConstraint(p1[1], p2[1], delta)
+    elif line:
+        pos, line_l = line
+        if align is None:
+            cc = LineConstraint(line=line_l, point=pos)
+        else:
+            cc = LineAlignConstraint(line=line_l, point=pos, align=align, delta=delta)
+    else:
+        raise ValueError("Constraint incorrectly specified")
+    return cc
+
 
 # is simple abs(x - y) > EPSILON enough for canvas needs?
 EPSILON = 1e-6

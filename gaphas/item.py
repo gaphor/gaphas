@@ -1,15 +1,8 @@
 """Basic items."""
 from math import atan2
-from typing import Optional
 
 from gaphas.connector import Handle, LinePort
-from gaphas.constraint import (
-    Constraint,
-    EqualsConstraint,
-    LessThanConstraint,
-    LineAlignConstraint,
-    LineConstraint,
-)
+from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
 from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
@@ -189,17 +182,7 @@ class Item:
         delta=0.0,
         align=None,
     ):
-        """Utility (factory) method to create item's internal constraint
-        between two positions or between a position and a line.
-
-        Position is a tuple of coordinates, i.e. ``(2, 4)``.
-
-        Line is a tuple of positions, i.e. ``((2, 3), (4, 2))``.
-
-        This method shall not be used to create constraints between
-        two different items.
-
-        Created constraint is returned.
+        """See gaphas.constraint.constraint().
 
         :Parameters:
          horizontal=(p1, p2)
@@ -213,30 +196,7 @@ class Item:
          line=(p, l)
             Keep position ``p`` on line ``l``.
         """
-        cc: Optional[Constraint] = None  # created constraint
-        if horizontal:
-            p1, p2 = horizontal
-            cc = EqualsConstraint(p1[1], p2[1], delta)
-        elif vertical:
-            p1, p2 = vertical
-            cc = EqualsConstraint(p1[0], p2[0], delta)
-        elif left_of:
-            p1, p2 = left_of
-            cc = LessThanConstraint(p1[0], p2[0], delta)
-        elif above:
-            p1, p2 = above
-            cc = LessThanConstraint(p1[1], p2[1], delta)
-        elif line:
-            pos, line_l = line
-            if align is None:
-                cc = LineConstraint(line=line_l, point=pos)
-            else:
-                cc = LineAlignConstraint(
-                    line=line_l, point=pos, align=align, delta=delta
-                )
-        else:
-            raise ValueError("Constraint incorrectly specified")
-        assert cc is not None
+        cc = constraint(horizontal, vertical, left_of, above, line, delta, align)
         self._constraints.append(cc)
         return cc
 
