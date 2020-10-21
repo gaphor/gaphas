@@ -37,6 +37,7 @@ class Item:
     def __init__(self):
         self._canvas = None
         self._matrix = Matrix()
+        self._matrix_i2c = Matrix()
         self._handles = []
         self._constraints = []
         self._ports = []
@@ -83,6 +84,10 @@ class Item:
     @property
     def matrix(self) -> Matrix:
         return self._matrix
+
+    @property
+    def matrix_i2c(self) -> Matrix:
+        return self._matrix_i2c
 
     def request_update(self, update=True, matrix=True):
         if self._canvas:

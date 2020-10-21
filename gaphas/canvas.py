@@ -641,6 +641,9 @@ class Canvas:
             # recalculate matrices of normalized items
             dirty_matrix_items.update(self._normalize(dirty_items))
 
+            for d in dirty_matrix_items:
+                d.matrix_i2c.set(*self.get_matrix_i2c(d))
+
             # ensure constraints are still true after normalization
             self._solver.solve()
 

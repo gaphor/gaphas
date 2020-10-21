@@ -117,9 +117,9 @@ class LinePort(Port):
     def constraint(self, canvas, item, handle, glue_item):
         """Create connection line constraint between item's handle and the
         port."""
-        start = MatrixProjection(self.start, glue_item.matrix)
-        end = MatrixProjection(self.end, glue_item.matrix)
-        point = MatrixProjection(handle.pos, item.matrix)
+        start = MatrixProjection(self.start, glue_item.matrix_i2c)
+        end = MatrixProjection(self.end, glue_item.matrix_i2c)
+        point = MatrixProjection(handle.pos, item.matrix_i2c)
         line = LineConstraint((start.pos, end.pos), point.pos)
         return MultiConstraint(start, end, point, line)
 
@@ -145,8 +145,7 @@ class PointPort(Port):
     def constraint(self, canvas, item, handle, glue_item):
         """Return connection position constraint between item's handle and the
         port."""
-        origin = MatrixProjection(self.point, glue_item.matrix)
-        point = MatrixProjection(handle.pos, item.matrix)
-
+        origin = MatrixProjection(self.point, glue_item.matrix_i2c)
+        point = MatrixProjection(handle.pos, item.matrix_i2c)
         c = PositionConstraint(origin.pos, point.pos)
         return MultiConstraint(origin, point, c)
