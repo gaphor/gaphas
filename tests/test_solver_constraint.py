@@ -41,3 +41,22 @@ def test_default_constraint_can_not_solve():
 
     with pytest.raises(NotImplementedError):
         c.solve()
+
+
+def test_constraint_handlers_are_set_just_in_time():
+    v = Variable()
+    c = Constraint(v)
+
+    def handler(c):
+        pass
+
+    assert not v._handlers
+
+    c.add_handler(handler)
+
+    assert v._handlers
+    assert handler in c._handlers
+
+    c.remove_handler(handler)
+
+    assert not v._handlers

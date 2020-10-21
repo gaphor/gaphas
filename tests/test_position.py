@@ -82,3 +82,28 @@ def test_projection_updates_when_matrix_is_changed(solver):
 
     assert proj.x == 2
     assert proj.y == 3
+
+
+def test_matrix_projection_sets_handlers_just_in_time():
+    pos = Position((0, 0))
+    matrix = Matrix()
+    proj = MatrixProjection(pos, matrix)
+
+    def handler(c):
+        pass
+
+    assert not matrix._handlers
+    assert not pos.x._handlers
+    assert not pos.y._handlers
+
+    proj.add_handler(handler)
+
+    assert matrix._handlers
+    assert pos.x._handlers
+    assert pos.y._handlers
+
+    proj.remove_handler(handler)
+
+    assert not matrix._handlers
+    assert not pos.x._handlers
+    assert not pos.y._handlers
