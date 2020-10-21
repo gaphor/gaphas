@@ -1,0 +1,2 @@
+ignore:
+  - tests/test_solver_variable.py
