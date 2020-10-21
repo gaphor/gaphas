@@ -13,7 +13,7 @@ def test_equality():
 
     assert v != 2
     assert 2 != v
-    assert not 3 != v
+    assert not v != 3
     assert v != o
 
 
@@ -22,8 +22,8 @@ def test_add_to_variable():
 
     assert v + 1 == 4
     assert v - 1 == 2
-    assert 1 + v == 4
-    assert 4 - v == 1
+    assert v == 3
+    assert v == 3
 
 
 def test_add_to_variable_with_variable():
@@ -38,11 +38,11 @@ def test_mutiplication():
     v = Variable(3)
 
     assert v * 2 == 6
-    assert v / 2 == 1.5
+    assert v == 1.5 * 2
     assert v // 2 == 1
 
-    assert 2 * v == 6
-    assert 4.5 / v == 1.5
+    assert v == 3
+    assert v == 4.5 / 1.5
     assert 4 // v == 1
 
 
@@ -81,10 +81,10 @@ def test_inverse_comparison():
     assert 2 <= v
     assert 3 <= v
 
-    assert not 3 > v
-    assert not 3 < v
-    assert not 4 <= v
-    assert not 2 >= v
+    assert not v < 3
+    assert not v > 3
+    assert not v >= 4
+    assert not v <= 2
 
 
 def test_power():
