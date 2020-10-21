@@ -1,5 +1,5 @@
 from gaphas.solver.constraint import Constraint, MultiConstraint
-from gaphas.solver.solver import Solver, solvable
+from gaphas.solver.solver import JuggleError, Solver, solvable
 from gaphas.solver.variable import (
     NORMAL,
     REQUIRED,

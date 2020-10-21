@@ -211,9 +211,6 @@ class solvable:
             setattr(obj, self._varname, v)
             v.value = value
 
-    def setvar(self, obj, v):
-        setattr(obj, self._varname, v)
-
 
 class JuggleError(AssertionError):
     """Variable juggling exception.
