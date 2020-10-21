@@ -1,6 +1,6 @@
 from gaphas.aspect import ConnectionSink, Connector
 from gaphas.canvas import Canvas
-from gaphas.examples import Box
+from gaphas.item import Element as Box
 from gaphas.item import Line
 
 

@@ -16,8 +16,8 @@ import math
 import cairo
 import gi
 
+from examples.exampleitems import Box, Circle, FatLine, PortoBox, Text
 from gaphas import Canvas, GtkView, View, state
-from gaphas.examples import Box, Circle, FatLine, PortoBox, Text
 from gaphas.freehand import FreeHandPainter
 from gaphas.item import Line
 from gaphas.painter import (

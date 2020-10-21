@@ -3,7 +3,7 @@ import pytest
 
 from gaphas import state
 from gaphas.canvas import Canvas
-from gaphas.examples import Box
+from gaphas.item import Element as Box
 from gaphas.item import Line
 from gaphas.tool import ConnectHandleTool
 from gaphas.view import GtkView

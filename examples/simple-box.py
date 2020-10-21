@@ -2,8 +2,8 @@
 """A simple example containing two boxes and a line."""
 import gi
 
+from examples.exampleitems import Box
 from gaphas import Canvas, GtkView
-from gaphas.examples import Box
 from gaphas.item import Line
 from gaphas.painter import DefaultPainter
 

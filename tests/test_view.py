@@ -5,7 +5,7 @@ import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
-from gaphas.examples import Box
+from gaphas.item import Element as Box
 from gaphas.view import GtkView, View
 
 

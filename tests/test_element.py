@@ -3,8 +3,8 @@ from os import getenv
 import pytest
 
 from gaphas.canvas import Canvas
-from gaphas.examples import Box
 from gaphas.item import NE, NW, SE, SW
+from gaphas.item import Element as Box
 
 
 class CanvasBox:
