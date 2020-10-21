@@ -1,10 +1,12 @@
 """Basic items."""
 from math import atan2
+from typing import Optional, Tuple
 
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
+from gaphas.position import Position
 from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
 from gaphas.state import (
     observed,
@@ -174,13 +176,13 @@ class Item:
 
     def constraint(
         self,
-        horizontal=None,
-        vertical=None,
-        left_of=None,
-        above=None,
-        line=None,
-        delta=0.0,
-        align=None,
+        horizontal: Optional[Tuple[Position, Position]] = None,
+        vertical: Optional[Tuple[Position, Position]] = None,
+        left_of: Optional[Tuple[Position, Position]] = None,
+        above: Optional[Tuple[Position, Position]] = None,
+        line: Optional[Tuple[Position, Tuple[Position, Position]]] = None,
+        delta: float = 0.0,
+        align: Optional[float] = None,
     ):
         """See gaphas.constraint.constraint().
 

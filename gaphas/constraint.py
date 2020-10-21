@@ -32,14 +32,12 @@ from typing import Dict, Optional, Tuple
 from gaphas.position import Position
 from gaphas.solver import Constraint, Variable
 
-PositionTuple = Optional[Tuple[Position, Position]]
-
 
 def constraint(
-    horizontal: PositionTuple = None,
-    vertical: PositionTuple = None,
-    left_of: PositionTuple = None,
-    above: PositionTuple = None,
+    horizontal: Optional[Tuple[Position, Position]] = None,
+    vertical: Optional[Tuple[Position, Position]] = None,
+    left_of: Optional[Tuple[Position, Position]] = None,
+    above: Optional[Tuple[Position, Position]] = None,
     line: Optional[Tuple[Position, Tuple[Position, Position]]] = None,
     delta: float = 0.0,
     align: Optional[float] = None,
