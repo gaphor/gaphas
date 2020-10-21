@@ -76,14 +76,6 @@ class Quadtree(Generic[T, D]):
 
     >>> sorted(qtree.find_inside((40, 40, 40, 40)))
     ['13', '14', '15', '16']
-    >>> sorted([qtree.get_bounds(item) for item in qtree.find_inside((40, 40, 40, 40))])
-    [(52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10), (64, 70, 10, 10)]
-
-    >>> sorted(qtree.find_intersect((40, 40, 20, 20)))
-    ['12', '13', '14', '15']
-    >>> sorted([qtree.get_bounds(item) for item in qtree.find_intersect((40, 40, 20, 20))])
-    [(48, 30, 10, 10), (52, 40, 10, 10), (56, 50, 10, 10), (60, 60, 10, 10)]
-    >>> qtree.rebuild()
     """
 
     def __init__(self, bounds: Bounds = (0, 0, 0, 0), capacity=10):
@@ -97,7 +89,7 @@ class Quadtree(Generic[T, D]):
         self._capacity = capacity
         self._bucket: QuadtreeBucket[T] = QuadtreeBucket(bounds, capacity)
 
-        # Easy lookup item->(bounds, data, clipped bounds) mapping
+        # Easy lookup item->(bounds, data, clipped bounds)
         self._ids: Dict[T, Tuple[Bounds, Optional[D], Bounds]] = {}
 
     bounds = property(lambda s: s._bucket.bounds)
@@ -120,8 +112,6 @@ class Quadtree(Generic[T, D]):
         >>> qtree = Quadtree()
         >>> qtree.add('1', (10, 20, 30, 40))
         >>> qtree.add('2', (20, 30, 40, 10))
-        >>> qtree.bounds
-        (0, 0, 0, 0)
         >>> qtree.soft_bounds
         (10, 20, 50, 40)
 
@@ -140,7 +130,7 @@ class Quadtree(Generic[T, D]):
         y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
         return x0, y0, x1 - x0, y1 - y0
 
-    def add(self, item: T, bounds: Bounds, data: D = None):
+    def add(self, item: T, bounds: Bounds, data: Optional[D] = None):
         """Add an item to the tree.
 
         If an item already exists, its bounds are updated and the item
@@ -190,7 +180,7 @@ class Quadtree(Generic[T, D]):
         # Clean bucket and items:
         self._bucket.clear()
 
-        for item, (bounds, data, _) in list(dict(self._ids).items()):
+        for item, (bounds, data, _) in dict(self._ids).items():
             clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
             if clipped_bounds:
                 self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
