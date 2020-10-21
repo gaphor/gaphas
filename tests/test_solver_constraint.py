@@ -33,3 +33,11 @@ def test_multi_constraint(handler):
     v.value = 3
 
     assert handler.events == [c]
+
+
+def test_default_constraint_can_not_solve():
+    v = Variable()
+    c = Constraint(v)
+
+    with pytest.raises(NotImplementedError):
+        c.solve()
