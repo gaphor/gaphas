@@ -64,11 +64,12 @@ class PortoBox(Box):
 
         # handle for movable port
         self._hm = Handle(strength=WEAK)
-        self._hm.pos = width, height / 2.0
+        self._hm.pos.x = width
+        self._hm.pos.y = height / 2.0
         self._handles.append(self._hm)
 
         # movable port
-        self._ports.append(PointPort(self._hm.pos))  # type: ignore[arg-type]
+        self._ports.append(PointPort(self._hm.pos))
 
         # keep movable port at right edge
         self.constraint(vertical=(self._hm.pos, ne.pos), delta=10)

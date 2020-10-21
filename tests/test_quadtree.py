@@ -1,15 +1,14 @@
 import pytest
 
-from gaphas.geometry import Rectangle
 from gaphas.quadtree import Quadtree
 
 
 @pytest.fixture()
 def qtree():
-    qtree = Quadtree((0, 0, 100, 100))
+    qtree: Quadtree[str, None] = Quadtree((0, 0, 100, 100))
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
-            qtree.add(item=f"{i:d}x{j:d}", bounds=Rectangle(i, j, 10, 10))
+            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10))
     return qtree
 
 

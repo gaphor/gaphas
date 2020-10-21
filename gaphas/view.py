@@ -1,10 +1,13 @@
 """This module contains everything to display a Canvas on a screen."""
+from typing import Tuple
+
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import Context, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter
 from gaphas.quadtree import Quadtree
@@ -33,7 +36,7 @@ class View:
         self._hovered_item = None
         self._dropzone_item = None
 
-        self._qtree = Quadtree()
+        self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
         self._bounds = Rectangle(0, 0, 0, 0)
 
         self._canvas = None
@@ -667,7 +670,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                     x0, y0 = i2v(bounds[0], bounds[1])
                     x1, y1 = i2v(bounds[2], bounds[3])
                     vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    self._qtree.add(i, vbounds, bounds)
+                    self._qtree.add(i, vbounds.tuple(), bounds)
 
             self.update_bounding_box(set(dirty_items))
 

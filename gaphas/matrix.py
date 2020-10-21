@@ -90,15 +90,15 @@ class Matrix:
     def to_cairo(self):
         return self._matrix
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         if isinstance(other, Matrix):
-            return self._matrix == other._matrix  # type: ignore[no-any-return]
+            return self._matrix == other._matrix
         else:
             return False
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other):
         if isinstance(other, Matrix):
-            return self._matrix != other._matrix  # type: ignore[no-any-return]
+            return self._matrix != other._matrix
         else:
             return False
 

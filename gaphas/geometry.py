@@ -6,6 +6,7 @@ intersections).
 A point is represented as a tuple `(x, y)`.
 """
 from math import sqrt
+from typing import Tuple
 
 
 class Rectangle:
@@ -79,6 +80,10 @@ class Rectangle:
         self.y -= delta
         self.width += delta * 2
         self.height += delta * 2
+
+    def tuple(self) -> Tuple[float, float, float, float]:
+        """A type safe version of `tuple(rectangle)`."""
+        return (self.x, self.y, self.width, self.height)
 
     def __repr__(self):
         """

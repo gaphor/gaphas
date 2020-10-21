@@ -1,4 +1,5 @@
 """Basic connectors such as Ports and Handles."""
+from typing import Tuple, Union
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
@@ -28,13 +29,11 @@ class Handle:
         self._movable = movable
         self._visible = True
 
-    def _set_pos(self, pos: Position):
+    def _set_pos(self, pos: Union[Position, Tuple[float, float]]):
         """
         Shortcut for ``handle.pos.pos = pos``
 
         >>> h = Handle((10, 10))
-        >>> h.pos
-        <Position object on (10, 10)>
         >>> h.pos = (20, 15)
         >>> h.pos
         <Position object on (20, 15)>
