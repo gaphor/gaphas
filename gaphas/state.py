@@ -222,10 +222,7 @@ def revert_handler(event):
         argnames.append(revspec[1])
     if spec[2]:  # **kwargs
         argnames.append(revspec[2])
-    kwargs = {}
-    for arg in argnames:
-        kwargs[arg] = kw.get(arg)
-
+    kwargs = {arg: kw.get(arg) for arg in argnames}
     dispatch((reverse, kwargs), queue=subscribers)
 
 
@@ -241,9 +238,7 @@ def saveapply(func, kw):
         argnames.append(spec[1])
     if spec[2]:
         argnames.append(spec[2])
-    kwargs = {}
-    for arg in argnames:
-        kwargs[arg] = kw.get(arg)
+    kwargs = {arg: kw.get(arg) for arg in argnames}
     return func(**kwargs)
 
 
