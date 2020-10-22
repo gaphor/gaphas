@@ -15,7 +15,6 @@ class View:
         self._bounding_box_painter = BoundingBoxPainter(ItemPainter(self), self)
 
         self._qtree = Quadtree()
-        self._bounds = Rectangle(0, 0, 0, 0)
 
         self._canvas = None
         if canvas:
@@ -137,7 +136,7 @@ class View:
         """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)
 
-    bounding_box = property(lambda s: s._bounds)
+    bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
 
     def update_bounding_box(self, cr, items=None):
         """Update the bounding boxes of the canvas items for this view, in
@@ -148,9 +147,6 @@ class View:
 
         # The painter calls set_item_bounding_box() for each rendered item.
         painter.paint(Context(cairo=cr, items=items))
-
-        # Update the view's bounding box with the rest of the items
-        self._bounds = Rectangle(*self._qtree.soft_bounds)
 
     def get_matrix_i2v(self, item):
         """Get Item to View matrix for ``item``."""

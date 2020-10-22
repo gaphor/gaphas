@@ -465,7 +465,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 cr.identity_matrix()
                 cr.set_source_rgb(0, 0.8, 0)
                 cr.set_line_width(1.0)
-                b = self._bounds
+                b = self.bounding_box
                 cr.rectangle(b[0], b[1], b[2], b[3])
                 cr.stroke()
                 cr.restore()
