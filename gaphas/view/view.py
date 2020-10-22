@@ -120,11 +120,6 @@ class View:
             items = self._qtree.find_inside(rect)
         return self._canvas.sort(items)
 
-    def zoom(self, factor):
-        """Zoom in/out by factor @factor."""
-        # TODO: should the scale factor be clipped?
-        self._matrix.scale(factor, factor)
-
     def set_item_bounding_box(self, item, bounds):
         """Update the bounding box of the item.
 

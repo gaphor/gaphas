@@ -216,7 +216,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def zoom(self, factor):
         """Zoom in/out by factor ``factor``."""
         assert self._canvas
-        super().zoom(factor)
+        self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
         self.queue_redraw()
 
