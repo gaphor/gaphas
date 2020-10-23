@@ -1,6 +1,7 @@
 import pytest
 
-from gaphas.canvas import Canvas, ConnectionError
+from gaphas.canvas import Canvas
+from gaphas.connections import ConnectionError
 from gaphas.item import Element as Box
 from gaphas.item import Line
 from gaphas.matrix import Matrix

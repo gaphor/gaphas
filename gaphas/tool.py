@@ -221,7 +221,7 @@ class HoverTool(Tool):
     def on_motion_notify(self, event):
         view = self.view
         pos = event.get_coords()[1:]
-        view.hovered_item = Finder(view).get_item_at_point(pos)
+        view.selection.set_hovered_item(Finder(view).get_item_at_point(pos))
 
 
 class ItemTool(Tool):
@@ -239,7 +239,7 @@ class ItemTool(Tool):
         self._movable_items = set()
 
     def get_item(self):
-        return self.view.hovered_item
+        return self.view.selection.hovered_item
 
     def movable_items(self):
         """Filter the items that should eventually be moved.
@@ -248,7 +248,7 @@ class ItemTool(Tool):
         """
         view = self.view
         get_ancestors = view.canvas.get_ancestors
-        selected_items = set(view.selected_items)
+        selected_items = set(view.selection.selected_items)
         for item in selected_items:
             # Do not move subitems of selected items
             if not set(get_ancestors(item)).intersection(selected_items):
@@ -267,13 +267,13 @@ class ItemTool(Tool):
         if not (
             event.get_state()[1]
             & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-            or item in view.selected_items
+            or item in view.selection.selected_items
         ):
-            del view.selected_items
+            view.selection.unselect_all()
 
         if item:
             if (
-                view.hovered_item in view.selected_items
+                view.selection.hovered_item in view.selection.selected_items
                 and event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK
             ):
                 selection = Selection(item, view)
@@ -353,8 +353,9 @@ class HandleTool(Tool):
         (item.Handle), that handle is grabbed and can be dragged around.
         """
         view = self.view
+        selection = view.selection
 
-        item, handle = HandleFinder(view.hovered_item, view).get_handle_at_point(
+        item, handle = HandleFinder(selection.hovered_item, view).get_handle_at_point(
             event.get_coords()[1:]
         )
 
@@ -365,11 +366,11 @@ class HandleTool(Tool):
             if not (
                 event.get_state()[1]
                 & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-                or view.hovered_item in view.selected_items
+                or selection.hovered_item in selection.selected_items
             ):
-                del view.selected_items
-            view.hovered_item = item
-            view.focused_item = item
+                selection.unselect_all()
+            selection.set_hovered_item(item)
+            selection.set_focused_item(item)
 
             self.motion_handle = None
 
@@ -441,8 +442,7 @@ class RubberbandTool(Tool):
             return True
 
     def queue_draw(self, view):
-        x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
-        view.queue_draw_area(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
+        view.queue_redraw()
 
     def draw(self, context):
         cr = context.cairo
@@ -628,7 +628,7 @@ class PlacementTool(Tool):
         canvas.get_matrix_i2c(new_item, calculate=True)
 
         self._new_item = new_item
-        view.focused_item = new_item
+        view.selection.set_focused_item(new_item)
 
         h = new_item.handles()[self._handle_index]
         if h.movable:

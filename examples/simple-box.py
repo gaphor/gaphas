@@ -47,6 +47,7 @@ def create_canvas(canvas, title):
     window.connect("destroy", Gtk.main_quit)
 
 
-c = Canvas()
-create_canvas(c, "Simple Gaphas App")
-Gtk.main()
+if __name__ == "__main__":
+    c = Canvas()
+    create_canvas(c, "Simple Gaphas App")
+    Gtk.main()

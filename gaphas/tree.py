@@ -148,7 +148,7 @@ class Tree(Generic[T]):
 
     def _add_to_nodes(self, node, parent, index=None):
         """Helper method to place nodes on the right location in the nodes list
-        Called only from add() and reparent()"""
+        Called only from add() and move()"""
         nodes = self._nodes
         siblings = self._children[parent]
         try:
@@ -172,7 +172,7 @@ class Tree(Generic[T]):
             nodes.insert(nodes.index(atnode), node)
 
     def _add(self, node, parent=None, index=None):
-        """Helper method for both add() and reparent()."""
+        """Helper method for both add() and move()."""
         assert node not in self._nodes
 
         siblings = self._children[parent]
@@ -220,7 +220,7 @@ class Tree(Generic[T]):
         self._remove(node)
 
     def _reparent_nodes(self, node, parent):
-        """Helper for reparent().
+        """Helper for move().
 
         The _children and _parent trees can be left intact as far as
         children of the reparented node are concerned. Only the position
@@ -231,7 +231,7 @@ class Tree(Generic[T]):
         for c in self._children[node]:
             self._reparent_nodes(c, node)
 
-    def reparent(self, node, parent, index=None):
+    def move(self, node, parent, index=None):
         """Set new parent for a ``node``. ``Parent`` can be ``None``,
         indicating it's added to the top.
 
@@ -241,7 +241,7 @@ class Tree(Generic[T]):
         >>> tree.add('n3', parent='n1')
         >>> tree.nodes
         ['n1', 'n2', 'n3']
-        >>> tree.reparent('n2', 'n3')
+        >>> tree.move('n2', 'n3')
         >>> tree.get_parent('n2')
         'n3'
         >>> tree.get_children('n3')
@@ -254,7 +254,7 @@ class Tree(Generic[T]):
         >>> tree.add('n4')
         >>> tree.nodes
         ['n1', 'n3', 'n2', 'n4']
-        >>> tree.reparent('n1', 'n4')
+        >>> tree.move('n1', 'n4')
         >>> tree.get_parent('n1')
         'n4'
         >>> list(tree.get_all_children('n4'))

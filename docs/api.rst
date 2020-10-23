@@ -205,10 +205,10 @@ Special context for drawing the item. It contains a cairo context and properties
     DrawContext(
         painter=self,
         cairo=cairo,
-        selected=(item in view.selected_items),
-        focused=(item is view.focused_item),
-        hovered=(item is view.hovered_item),
-        dropzone=(item is view.dropzone_item),
+        selected=(item in view.selection.selected_items),
+        focused=(item is view.selection.focused_item),
+        hovered=(item is view.selection.hovered_item),
+        dropzone=(item is view.selection.dropzone_item),
         draw_all=self.draw_all,
     )
 

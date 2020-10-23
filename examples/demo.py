@@ -18,6 +18,7 @@ import gi
 
 from examples.exampleitems import Box, Circle, FatLine, PortoBox, Text
 from gaphas import Canvas, GtkView, View, state
+from gaphas.canvas import Context
 from gaphas.freehand import FreeHandPainter
 from gaphas.item import Line
 from gaphas.painter import (
@@ -31,7 +32,6 @@ from gaphas.painter import (
 from gaphas.segment import Segment
 from gaphas.tool import HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
-from gaphas.view import Context
 
 # fmt: off
 gi.require_version("Gtk", "3.0")  # noqa: isort:skip
@@ -175,10 +175,11 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Split line")
 
     def on_split_line_clicked(button):
-        if isinstance(view.focused_item, Line):
-            segment = Segment(view.focused_item, view)
+        selection = view.selection
+        if isinstance(selection.focused_item, Line):
+            segment = Segment(selection.focused_item, view)
             segment.split_segment(0)
-            view.queue_draw_item(view.focused_item)
+            view.queue_redraw()
 
     b.connect("clicked", on_split_line_clicked)
     v.add(b)
@@ -186,8 +187,8 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Delete focused")
 
     def on_delete_focused_clicked(button):
-        if view.focused_item:
-            canvas.remove(view.focused_item)
+        if view.selection.focused_item:
+            canvas.remove(view.selection.focused_item)
 
     b.connect("clicked", on_delete_focused_clicked)
     v.add(b)

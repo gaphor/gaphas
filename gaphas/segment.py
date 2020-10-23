@@ -184,9 +184,9 @@ class SegmentHandleFinder(ItemHandleFinder):
 
     def get_handle_at_point(self, pos):
         view = self.view
-        item = view.hovered_item
+        item = view.selection.hovered_item
         handle = None
-        if self.item is view.focused_item:
+        if self.item is view.selection.focused_item:
             try:
                 segment = Segment(self.item, self.view)
             except TypeError:
@@ -244,8 +244,8 @@ class LineSegmentPainter(ItemPaintFocused):
 
     def paint(self, context):
         view = self.view
-        item = view.hovered_item
-        if item and item is view.focused_item:
+        item = view.selection.hovered_item
+        if item and item is view.selection.focused_item:
             cr = context.cairo
             h = item.handles()
             for h1, h2 in zip(h[:-1], h[1:]):
