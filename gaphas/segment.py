@@ -12,7 +12,7 @@ from gaphas.aspect import (
     singledispatch,
 )
 from gaphas.geometry import distance_line_point, distance_point_point_fast
-from gaphas.item import Line
+from gaphas.item import Line, matrix_i2i
 
 
 @singledispatch
@@ -153,15 +153,11 @@ class LineSegment:
             # port = None
             # max_dist = sys.maxint
 
-            ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
+            ix, iy = matrix_i2i(line, item).transform_point(*handle.pos)
 
             # find the port using item's coordinates
             sink = ConnectionSink(item, None)
             return sink.find_port((ix, iy))
-
-        if not connected.canvas:  # TODO: also an Item.canvas
-            # No canvas, no constraints
-            return
 
         for cinfo in list(canvas.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle

@@ -734,7 +734,8 @@ class ConnectHandleTool(HandleTool):
          vpos
             Position to connect to (or near at least)
         """
-        connector = Connector(item, handle)
+        connections = self.view.canvas.connections
+        connector = Connector(item, handle, connections)
 
         # find connectable item and its port
         sink = self.glue(item, handle, vpos)
@@ -743,7 +744,7 @@ class ConnectHandleTool(HandleTool):
         if sink:
             connector.connect(sink)
         else:
-            cinfo = self.view.canvas.get_connection(handle)
+            cinfo = connections.get_connection(handle)
             if cinfo:
                 connector.disconnect()
 

@@ -87,6 +87,8 @@ class Canvas:
 
     solver = property(lambda s: s._solver)
 
+    connections = property(lambda s: s._connections)
+
     @observed
     def add(self, item, parent=None, index=None):
         """Add an item to the canvas.
@@ -327,15 +329,6 @@ class Canvas:
         if parent is not None:
             m = m.multiply(self.get_matrix_i2c(parent))
         return m
-
-    def get_matrix_i2i(self, from_item, to_item):
-        i2c = self.get_matrix_i2c(from_item)
-        c2i = self.get_matrix_i2c(to_item).inverse()
-        try:
-            return i2c.multiply(c2i)
-        except AttributeError:
-            # Fall back to old behaviour
-            return i2c * c2i
 
     @observed
     def request_update(self, item, update=True, matrix=True):
