@@ -7,6 +7,7 @@ from gaphas.canvas import Context, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.matrix import Matrix
+from gaphas.position import Position
 from gaphas.tool import DefaultTool
 from gaphas.view.selection import Selection
 from gaphas.view.view import View
@@ -245,7 +246,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
             v2i = self.get_matrix_v2i(item)
             ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point((ix, iy))
+            item_distance = item.point(Position((ix, iy)))
             if item_distance is None:
                 print(f"Item distance is None for {item}")
                 continue
