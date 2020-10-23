@@ -150,7 +150,7 @@ class ItemHandleInMotion:
         self.last_x, self.last_y = pos
         canvas = self.view.canvas
 
-        cinfo = canvas.get_connection(self.handle)
+        cinfo = canvas.connections.get_connection(self.handle)
         if cinfo:
             canvas.solver.remove_constraint(cinfo.constraint)
 

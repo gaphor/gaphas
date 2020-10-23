@@ -495,7 +495,7 @@ class PanTool(Tool):
             dy = self.y1 - self.y0
             view._matrix.translate(dx / view._matrix[0], dy / view._matrix[3])
             # Make sure everything's updated
-            view.request_update((), view._canvas.get_all_items())
+            view.request_update((), view.canvas.get_all_items())
             self.x0 = self.x1
             self.y0 = self.y1
             return True
@@ -514,7 +514,7 @@ class PanTool(Tool):
             view._matrix.translate(0, self.speed / view._matrix[3])
         elif direction == Gdk.ScrollDirection.DOWN:
             view._matrix.translate(0, -self.speed / view._matrix[3])
-        view.request_update((), view._canvas.get_all_items())
+        view.request_update((), view.canvas.get_all_items())
         return True
 
 
@@ -578,7 +578,7 @@ class ZoomTool(Tool):
             m.translate(+ox, +oy)
 
             # Make sure everything's updated
-            view.request_update((), view._canvas.get_all_items())
+            view.request_update((), view.canvas.get_all_items())
 
             self.lastdiff = dy
         return True
@@ -598,7 +598,7 @@ class ZoomTool(Tool):
             view._matrix.scale(factor, factor)
             view._matrix.translate(+ox, +oy)
             # Make sure everything's updated
-            view.request_update((), view._canvas.get_all_items())
+            view.request_update((), view.canvas.get_all_items())
             return True
 
 
@@ -620,12 +620,8 @@ class PlacementTool(Tool):
 
     def on_button_press(self, event):
         view = self.view
-        canvas = view.canvas
         pos = event.get_coords()[1:]
         new_item = self._create_item(pos)
-        # Enforce matrix update, as a good matrix is required for the handle
-        # positioning:
-        canvas.get_matrix_i2c(new_item)
 
         self._new_item = new_item
         view.selection.set_focused_item(new_item)
