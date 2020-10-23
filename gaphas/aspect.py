@@ -2,37 +2,11 @@
 
 Aspects form intermediate items between tools and items.
 """
-import warnings
-from functools import singledispatch as real_singledispatch
+from functools import singledispatch
 
 from gi.repository import Gdk
 
 from gaphas.item import Element
-
-
-def singledispatch(func):
-    """Wrapper around singledispatch(), with an extra compatibility function so
-    code will not break when upgrading from 1.0 to 1.1."""
-    wrapped = real_singledispatch(func)
-
-    def when_type(*types):
-        if not types:
-            raise TypeError("should provide at least one type")
-        warnings.warn(
-            "when_type: is deprecated, use `register` instead",
-            category=DeprecationWarning,
-            stacklevel=2,
-        )
-
-        def wrapper_for_types(func):
-            for cls in types:
-                wrapped.register(cls, func)
-            return func
-
-        return wrapper_for_types
-
-    wrapped.when_type = when_type  # type: ignore[attr-defined]
-    return wrapped
 
 
 class ItemFinder:
