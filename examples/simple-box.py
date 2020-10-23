@@ -2,8 +2,8 @@
 """A simple example containing two boxes and a line."""
 import gi
 
+from examples.exampleitems import Box
 from gaphas import Canvas, GtkView
-from gaphas.examples import Box
 from gaphas.item import Line
 from gaphas.painter import DefaultPainter
 
@@ -27,7 +27,7 @@ def create_canvas(canvas, title):
 
     # Draw first gaphas box
     b1 = Box(60, 60)
-    b1.matrix = (1.0, 0.0, 0.0, 1, 10, 10)
+    b1.matrix.translate(10, 10)
     canvas.add(b1)
 
     # Draw second gaphas box

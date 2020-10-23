@@ -2,8 +2,9 @@
 
 These items are used in various tests.
 """
-from gaphas.connector import Handle, LinePort, PointPort, Position
+from gaphas.connector import Handle, LinePort, PointPort
 from gaphas.item import NE, NW, SE, SW, Element, Item
+from gaphas.position import Position
 from gaphas.solver import WEAK
 from gaphas.util import path_ellipse, text_align, text_multiline
 
@@ -63,7 +64,8 @@ class PortoBox(Box):
 
         # handle for movable port
         self._hm = Handle(strength=WEAK)
-        self._hm.pos = width, height / 2.0
+        self._hm.pos.x = width
+        self._hm.pos.y = height / 2.0
         self._handles.append(self._hm)
 
         # movable port

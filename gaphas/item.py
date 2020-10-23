@@ -1,19 +1,13 @@
 """Basic items."""
 from math import atan2
-from typing import Optional, Set
-from weakref import WeakSet
+from typing import Optional, Tuple
 
 from gaphas.connector import Handle, LinePort
-from gaphas.constraint import (
-    Constraint,
-    EqualsConstraint,
-    LessThanConstraint,
-    LineAlignConstraint,
-    LineConstraint,
-)
+from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
-from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, Projection, solvable
+from gaphas.position import Position
+from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
 from gaphas.state import (
     observed,
     reversible_method,
@@ -37,21 +31,16 @@ class Item:
     - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
-    - _matrix_i2v:  item to view coordinates matrices
-    - _matrix_v2i:  view to item coordinates matrices
-    - _sort_key:  used to sort items
-    - _canvas_projections:  used to sort items
+    - _constraints: list of constraints that belong to the lifecycle of this item
     """
 
     def __init__(self):
         self._canvas = None
         self._matrix = Matrix()
+        self._matrix_i2c = Matrix()
         self._handles = []
         self._constraints = []
         self._ports = []
-
-        # used by gaphas.view.GtkView to hold item 2 view matrices (view=key)
-        self._canvas_projections: Set[Projection] = WeakSet()  # type: ignore[assignment]
 
     @observed
     def _set_canvas(self, canvas):
@@ -92,14 +81,13 @@ class Item:
         for c in self._constraints:
             remove(c)
 
-    @observed
-    def _set_matrix(self, matrix):
-        """Set the conversion matrix (parent -> item)"""
-        if not isinstance(matrix, Matrix):
-            matrix = Matrix(*matrix)
-        self._matrix = matrix
+    @property
+    def matrix(self) -> Matrix:
+        return self._matrix
 
-    matrix = reversible_property(lambda s: s._matrix, _set_matrix)
+    @property
+    def matrix_i2c(self) -> Matrix:
+        return self._matrix_i2c
 
     def request_update(self, update=True, matrix=True):
         if self._canvas:
@@ -193,25 +181,15 @@ class Item:
 
     def constraint(
         self,
-        horizontal=None,
-        vertical=None,
-        left_of=None,
-        above=None,
-        line=None,
-        delta=0.0,
-        align=None,
+        horizontal: Optional[Tuple[Position, Position]] = None,
+        vertical: Optional[Tuple[Position, Position]] = None,
+        left_of: Optional[Tuple[Position, Position]] = None,
+        above: Optional[Tuple[Position, Position]] = None,
+        line: Optional[Tuple[Position, Tuple[Position, Position]]] = None,
+        delta: float = 0.0,
+        align: Optional[float] = None,
     ):
-        """Utility (factory) method to create item's internal constraint
-        between two positions or between a position and a line.
-
-        Position is a tuple of coordinates, i.e. ``(2, 4)``.
-
-        Line is a tuple of positions, i.e. ``((2, 3), (4, 2))``.
-
-        This method shall not be used to create constraints between
-        two different items.
-
-        Created constraint is returned.
+        """See gaphas.constraint.constraint().
 
         :Parameters:
          horizontal=(p1, p2)
@@ -225,30 +203,7 @@ class Item:
          line=(p, l)
             Keep position ``p`` on line ``l``.
         """
-        cc: Optional[Constraint] = None  # created constraint
-        if horizontal:
-            p1, p2 = horizontal
-            cc = EqualsConstraint(p1[1], p2[1], delta)
-        elif vertical:
-            p1, p2 = vertical
-            cc = EqualsConstraint(p1[0], p2[0], delta)
-        elif left_of:
-            p1, p2 = left_of
-            cc = LessThanConstraint(p1[0], p2[0], delta)
-        elif above:
-            p1, p2 = above
-            cc = LessThanConstraint(p1[1], p2[1], delta)
-        elif line:
-            pos, line_l = line
-            if align is None:
-                cc = LineConstraint(line=line_l, point=pos)
-            else:
-                cc = LineAlignConstraint(
-                    line=line_l, point=pos, align=align, delta=delta
-                )
-        else:
-            raise ValueError("Constraint incorrectly specified")
-        assert cc is not None
+        cc = constraint(horizontal, vertical, left_of, above, line, delta, align)
         self._constraints.append(cc)
         return cc
 
@@ -461,8 +416,8 @@ class Line(Item):
                 cons.append(add(eq(a=p0.x, b=p1.x)))
             else:
                 cons.append(add(eq(a=p0.y, b=p1.y)))
-            self.canvas.solver.request_resolve(p1.x)
-            self.canvas.solver.request_resolve(p1.y)
+            p1.x.notify()
+            p1.y.notify()
         self._set_orthogonal_constraints(cons)
         self.request_update()
 

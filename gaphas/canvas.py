@@ -24,15 +24,17 @@ To get connecting items (i.e. all lines connected to a class)::
 
     lines = (c.item for c in canvas.get_connections(connected=item))
 """
+
+from __future__ import annotations
+
 import logging
 from collections import namedtuple
 from typing import TYPE_CHECKING
 
 import cairo
 
-from gaphas import solver, table, tree
+from gaphas import matrix, solver, table, tree
 from gaphas.decorators import AsyncIO, nonrecursive
-from gaphas.projections import CanvasProjection
 from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
@@ -505,7 +507,7 @@ class Canvas:
         """
         return self._tree.order(items)
 
-    def get_matrix_i2c(self, item, calculate=False):
+    def get_matrix_i2c(self, item: Item) -> matrix.Matrix:
         """Get the Item to Canvas matrix for ``item``.
 
         item:
@@ -517,25 +519,16 @@ class Canvas:
             present yet. Note that out-of-date matrices are not
             recalculated.
         """
-        m = cairo.Matrix(*item.matrix)
+        m = item.matrix
 
         parent = self._tree.get_parent(item)
         if parent is not None:
             m = m.multiply(self.get_matrix_i2c(parent))
         return m
 
-    def get_matrix_c2i(self, item, calculate=False):
-        """Get the Canvas to Item matrix for ``item``.
-
-        See `get_matrix_i2c()`.
-        """
-        m = self.get_matrix_i2c(item)
-        m.invert()
-        return m
-
-    def get_matrix_i2i(self, from_item, to_item, calculate=False):
-        i2c = self.get_matrix_i2c(from_item, calculate)
-        c2i = self.get_matrix_c2i(to_item, calculate)
+    def get_matrix_i2i(self, from_item, to_item):
+        i2c = self.get_matrix_i2c(from_item)
+        c2i = self.get_matrix_i2c(to_item).inverse()
         try:
             return i2c.multiply(c2i)
         except AttributeError:
@@ -632,7 +625,8 @@ class Canvas:
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
             self._dirty_matrix_items.clear()
 
-            self.update_constraints(dirty_matrix_items)
+            # solve all constraints
+            self._solver.solve()
 
             # no matrix can change during constraint solving
             assert (
@@ -646,6 +640,9 @@ class Canvas:
             # normalize items, which changed after constraint solving;
             # recalculate matrices of normalized items
             dirty_matrix_items.update(self._normalize(dirty_items))
+
+            for d in dirty_matrix_items:
+                d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # ensure constraints are still true after normalization
             self._solver.solve()
@@ -687,22 +684,6 @@ class Canvas:
             changed.update(changed_children)
 
         return changed
-
-    def update_constraints(self, items):
-        """Update constraints.
-
-        Also variables may be marked as dirty before the constraint
-        solver kicks in.
-        """
-        # request solving of external constraints associated with dirty items
-        request_resolve = self._solver.request_resolve
-        for item in items:
-            for p in item._canvas_projections:
-                request_resolve(p[0], projections_only=True)
-                request_resolve(p[1], projections_only=True)
-
-        # solve all constraints
-        self._solver.solve()
 
     def _normalize(self, items):
         """Update handle positions of items, so the first handle is always
@@ -758,25 +739,6 @@ class Canvas:
         """Send an update notification to all registered views."""
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
-
-    def project(self, item, *points):
-        """Project item's points into canvas coordinate system.
-
-        If there is only one point returned than projected point is
-        returned. If there are more than one points, then tuple of
-        projected points is returned.
-        """
-
-        def reg(cp):
-            item._canvas_projections.add(cp)
-            return cp
-
-        if len(points) == 1:
-            return reg(CanvasProjection(points[0], item))
-        elif len(points) > 1:
-            return tuple(reg(CanvasProjection(p, item)) for p in points)
-        else:
-            raise AttributeError("There should be at least one point specified")
 
 
 # Additional tests in @observed methods

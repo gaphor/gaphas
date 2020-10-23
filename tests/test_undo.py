@@ -1,6 +1,6 @@
 from gaphas.aspect import ConnectionSink, Connector
 from gaphas.canvas import Canvas
-from gaphas.examples import Box
+from gaphas.item import Element as Box
 from gaphas.item import Line
 
 
@@ -42,9 +42,6 @@ def test_undo_on_delete_element(revert_undo, undo_fixture):
 
     cinfo = canvas.get_connection(line.handles()[-1])
     assert cinfo is None
-
-    assert [] == list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.x))
-    assert [] == list(canvas.solver.constraints_with_variable(line.handles()[-1].pos.y))
 
     undo_fixture[0]()  # Call undo
 

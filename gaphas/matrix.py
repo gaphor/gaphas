@@ -7,6 +7,10 @@ Small utility class wrapping cairo.Matrix. The `Matrix` class adds
 state preservation capabilities.
 """
 
+from __future__ import annotations
+
+from typing import Callable, Optional, Set, Tuple
+
 import cairo
 
 from gaphas.state import observed, reversible_method
@@ -15,39 +19,73 @@ from gaphas.state import observed, reversible_method
 class Matrix:
     """Matrix wrapper. This version sends @observed messages on state changes.
 
-    >>> cairo.Matrix()
-    cairo.Matrix(1, 0, 0, 1, 0, 0)
     >>> Matrix()
     Matrix(1, 0, 0, 1, 0, 0)
     """
 
-    def __init__(self, xx=1.0, yx=0.0, xy=0.0, yy=1.0, x0=0.0, y0=0.0):
-        self._matrix = cairo.Matrix(xx, yx, xy, yy, x0, y0)
+    def __init__(
+        self,
+        xx=1.0,
+        yx=0.0,
+        xy=0.0,
+        yy=1.0,
+        x0=0.0,
+        y0=0.0,
+        matrix: Optional[cairo.Matrix] = None,
+    ):
+        self._matrix = matrix or cairo.Matrix(xx, yx, xy, yy, x0, y0)
+        self._handlers: Set[Callable[[Matrix], None]] = set()
 
-    @staticmethod
-    def init_rotate(radians):
-        return cairo.Matrix.init_rotate(radians)
+    def add_handler(self, handler: Callable[[Matrix], None]):
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler: Callable[[Matrix], None]):
+        self._handlers.discard(handler)
+
+    def notify(self):
+        for handler in self._handlers:
+            handler(self)
 
     @observed
-    def invert(self):
-        return self._matrix.invert()
+    def invert(self) -> None:
+        self._matrix.invert()
+        self.notify()
 
     @observed
-    def rotate(self, radians):
-        return self._matrix.rotate(radians)
+    def rotate(self, radians: float) -> None:
+        self._matrix.rotate(radians)
+        self.notify()
 
     @observed
-    def scale(self, sx, sy):
-        return self._matrix.scale(sx, sy)
+    def scale(self, sx, sy) -> None:
+        self._matrix.scale(sx, sy)
+        self.notify()
 
     @observed
-    def translate(self, tx, ty):
+    def translate(self, tx, ty) -> None:
         self._matrix.translate(tx, ty)
+        self.notify()
 
     @observed
-    def multiply(self, m):
-        return self._matrix.multiply(m)
+    def set(self, xx=None, yx=None, xy=None, yy=None, x0=None, y0=None) -> None:
+        updated = False
+        m = self._matrix
+        for name, val in (
+            ("xx", xx),
+            ("yx", yx),
+            ("xy", xy),
+            ("yy", yy),
+            ("x0", x0),
+            ("y0", y0),
+        ):
+            if val is not None and val != getattr(m, name):
+                setattr(m, name, val)
+                updated = True
+        if updated:
+            print("Matrix set", self._matrix)
+            self.notify()
 
+    # TODO: Make reversible
     reversible_method(invert, invert)
     reversible_method(rotate, rotate, {"radians": lambda radians: -radians})
     reversible_method(scale, scale, {"sx": lambda sx: 1 / sx, "sy": lambda sy: 1 / sy})
@@ -55,40 +93,40 @@ class Matrix:
         translate, translate, {"tx": lambda tx: -tx, "ty": lambda ty: -ty}
     )
 
-    def transform_distance(self, dx, dy):
-        self._matrix.transform_distance(dx, dy)
+    def multiply(self, m: Matrix) -> Matrix:
+        return Matrix(matrix=self._matrix.multiply(m._matrix))
 
-    def transform_point(self, x, y):
-        self._matrix.transform_point(x, y)
+    def transform_distance(self, dx, dy) -> Tuple[float, float]:
+        return self._matrix.transform_distance(dx, dy)  # type: ignore[no-any-return]
+
+    def transform_point(self, x, y) -> Tuple[float, float]:
+        return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
+
+    def inverse(self) -> Matrix:
+        m = Matrix(matrix=cairo.Matrix(*self._matrix))  # type: ignore[misc]
+        m.invert()
+        return m
+
+    def to_cairo(self):
+        return self._matrix
 
     def __eq__(self, other):
-        return self._matrix.__eq__(other)
+        if isinstance(other, Matrix):
+            return self._matrix == other._matrix
+        else:
+            return False
 
     def __ne__(self, other):
-        return self._matrix.__ne__(other)
+        if isinstance(other, Matrix):
+            return self._matrix != other._matrix
+        else:
+            return False
 
-    def __le__(self, other):
-        return self._matrix.__le__(other)
+    def __getitem__(self, val: int) -> float:
+        return self._matrix[val]  # type: ignore[index,no-any-return]
 
-    def __lt__(self, other):
-        return self._matrix.__lt__(other)
-
-    def __ge__(self, other):
-        return self._matrix.__ge__(other)
-
-    def __gt__(self, other):
-        return self._matrix.__gt__(other)
-
-    def __getitem__(self, val):
-        return self._matrix.__getitem__(val)
-
-    @observed
-    def __mul__(self, other):
-        return self._matrix.__mul__(other)
-
-    @observed
-    def __rmul__(self, other):
-        return self._matrix.__rmul__(other)
+    def __mul__(self, other: Matrix) -> Matrix:
+        return Matrix(matrix=self._matrix * other._matrix)
 
     def __repr__(self):
-        return f"Matrix{tuple(self._matrix)}"
+        return f"Matrix{tuple(self._matrix)}"  # type: ignore[arg-type]

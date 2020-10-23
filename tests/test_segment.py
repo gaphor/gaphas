@@ -151,15 +151,14 @@ def test_constraints_after_split(simple_canvas):
     simple_canvas.tool.connect(line2, head, (25, 25))
     cinfo = simple_canvas.canvas.get_connection(head)
     assert simple_canvas.line == cinfo.connected
+    orig_constraint = cinfo.constraint
 
     Segment(simple_canvas.line, simple_canvas.view).split_segment(0)
     assert len(simple_canvas.line.handles()) == 3
     h1, h2, h3 = simple_canvas.line.handles()
 
     cinfo = simple_canvas.canvas.get_connection(head)
-    # Connection shall be reconstrained between 1st and 2nd handle
-    assert h1.pos == cinfo.constraint._line[0]._point
-    assert h2.pos == cinfo.constraint._line[1]._point
+    assert cinfo.constraint != orig_constraint
 
 
 def test_split_undo(simple_canvas, revert_undo, undo_fixture):
@@ -276,7 +275,7 @@ def test_constraints_after_merge(simple_canvas):
     segment = Segment(simple_canvas.line, simple_canvas.view)
     segment.split_segment(0)
     assert len(simple_canvas.line.handles()) == 3
-    c1 = cinfo.constraint
+    orig_constraint = cinfo.constraint
 
     segment.merge_segment(0)
     assert len(simple_canvas.line.handles()) == 2
@@ -284,9 +283,7 @@ def test_constraints_after_merge(simple_canvas):
     h1, h2 = simple_canvas.line.handles()
     # Connection shall be reconstrained between 1st and 2nd handle
     cinfo = simple_canvas.canvas.get_connection(head)
-    assert cinfo.constraint._line[0]._point == h1.pos
-    assert cinfo.constraint._line[1]._point == h2.pos
-    assert c1 != cinfo.constraint
+    assert orig_constraint != cinfo.constraint
 
 
 def test_merge_multiple(simple_canvas):

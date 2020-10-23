@@ -82,8 +82,8 @@ class ItemPainter(Painter):
         view = self.view
         cairo.save()
         try:
-            cairo.set_matrix(view.matrix)
-            cairo.transform(view.canvas.get_matrix_i2c(item))
+            cairo.set_matrix(view.matrix.to_cairo())
+            cairo.transform(view.canvas.get_matrix_i2c(item).to_cairo())
 
             item.draw(
                 DrawContext(

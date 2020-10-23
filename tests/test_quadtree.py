@@ -1,15 +1,14 @@
 import pytest
 
-from gaphas.geometry import Rectangle
 from gaphas.quadtree import Quadtree
 
 
 @pytest.fixture()
 def qtree():
-    qtree = Quadtree((0, 0, 100, 100))
+    qtree: Quadtree[str, None] = Quadtree((0, 0, 100, 100))
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
-            qtree.add(item=f"{i:d}x{j:d}", bounds=Rectangle(i, j, 10, 10))
+            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10))
     return qtree
 
 
@@ -82,6 +81,19 @@ def test_get_data(qtree):
 
 
 def test_clipped_bounds(qtree):
-    qtree.capacity = 10
     qtree.add(item=1, bounds=(-100, -100, 120, 120))
     assert (0, 0, 20, 20) == qtree.get_clipped_bounds(item=1)
+
+
+def test_resize_will_not_find_items_outside_bounds(qtree):
+    assert len(qtree.find_inside((0, 0, 100, 100))) == 100
+
+    qtree.resize((0, 0, 19, 19))
+    assert len(qtree.find_inside((0, 0, 100, 100))) == 4
+
+
+def test_dump_quadtree(qtree, capsys):
+    qtree.dump()
+    captured = capsys.readouterr()
+
+    assert "gaphas.quadtree.QuadtreeBucket" in captured.out

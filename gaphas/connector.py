@@ -1,69 +1,11 @@
 """Basic connectors such as Ports and Handles."""
-
-import functools
-import warnings
+from typing import Tuple, Union
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
-from gaphas.solver import NORMAL, solvable
+from gaphas.position import MatrixProjection, Position
+from gaphas.solver import NORMAL, MultiConstraint
 from gaphas.state import observed, reversible_property
-
-
-def deprecated(message, since):
-    def _deprecated(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            warnings.warn(
-                f"{func.__name__}: {message}", category=DeprecationWarning, stacklevel=2
-            )
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return _deprecated
-
-
-class Position:
-    """A point constructed of two `Variable`'s.
-
-    >>> vp = Position((3, 5))
-    >>> vp.x, vp.y
-    (Variable(3, 20), Variable(5, 20))
-    >>> vp.pos
-    (Variable(3, 20), Variable(5, 20))
-    >>> vp[0], vp[1]
-    (Variable(3, 20), Variable(5, 20))
-    """
-
-    x = solvable(varname="_v_x")
-    y = solvable(varname="_v_y")
-
-    def __init__(self, pos, strength=NORMAL):
-        self.x, self.y = pos
-        self.x.strength = strength
-        self.y.strength = strength
-
-    def _set_pos(self, pos):
-        """Set handle position (Item coordinates)."""
-        self.x, self.y = pos
-
-    pos = property(lambda s: (s.x, s.y), _set_pos)
-
-    def __str__(self):
-        return f"<{self.__class__.__name__} object on ({self.x}, {self.y})>"
-
-    __repr__ = __str__
-
-    def __getitem__(self, index):
-        """Shorthand for returning the x(0) or y(1) component of the point.
-
-        >>> h = Position((3, 5))
-        >>> h[0]
-        Variable(3, 20)
-        >>> h[1]
-        Variable(5, 20)
-        """
-        return (self.x, self.y)[index]
 
 
 class Handle:
@@ -87,13 +29,11 @@ class Handle:
         self._movable = movable
         self._visible = True
 
-    def _set_pos(self, pos):
+    def _set_pos(self, pos: Union[Position, Tuple[float, float]]):
         """
         Shortcut for ``handle.pos.pos = pos``
 
         >>> h = Handle((10, 10))
-        >>> h.pos
-        <Position object on (10, 10)>
         >>> h.pos = (20, 15)
         >>> h.pos
         <Position object on (20, 15)>
@@ -101,32 +41,6 @@ class Handle:
         self._pos.pos = pos
 
     pos = property(lambda s: s._pos, _set_pos)
-
-    @deprecated("Use Handle.pos", "1.1.0")
-    def _set_x(self, x):
-        """
-        Shortcut for ``handle.pos.x = x``
-        """
-        self._pos.x = x
-
-    @deprecated("Use Handle.pos.x", "1.1.0")
-    def _get_x(self):
-        return self._pos.x
-
-    x = property(_get_x, _set_x)
-
-    @deprecated("Use Handle.pos", "1.1.0")
-    def _set_y(self, y):
-        """
-        Shortcut for ``handle.pos.y = y``
-        """
-        self._pos.y = y
-
-    @deprecated("Use Handle.pos.y", "1.1.0")
-    def _get_y(self):
-        return self._pos.y
-
-    y = property(_get_y, _set_y)
 
     @observed
     def _set_connectable(self, connectable):
@@ -203,15 +117,17 @@ class LinePort(Port):
     def constraint(self, canvas, item, handle, glue_item):
         """Create connection line constraint between item's handle and the
         port."""
-        line = canvas.project(glue_item, self.start, self.end)
-        point = canvas.project(item, handle.pos)
-        return LineConstraint(line, point)
+        start = MatrixProjection(self.start, glue_item.matrix_i2c)
+        end = MatrixProjection(self.end, glue_item.matrix_i2c)
+        point = MatrixProjection(handle.pos, item.matrix_i2c)
+        line = LineConstraint((start.pos, end.pos), point.pos)
+        return MultiConstraint(start, end, point, line)
 
 
 class PointPort(Port):
     """Port defined as a point."""
 
-    def __init__(self, point):
+    def __init__(self, point: Position):
         super().__init__()
         self.point = point
 
@@ -229,7 +145,7 @@ class PointPort(Port):
     def constraint(self, canvas, item, handle, glue_item):
         """Return connection position constraint between item's handle and the
         port."""
-        origin = canvas.project(glue_item, self.point)
-        point = canvas.project(item, handle.pos)
-        c = PositionConstraint(origin, point)
-        return c  # PositionConstraint(origin, point)
+        origin = MatrixProjection(self.point, glue_item.matrix_i2c)
+        point = MatrixProjection(handle.pos, item.matrix_i2c)
+        c = PositionConstraint(origin.pos, point.pos)
+        return MultiConstraint(origin, point, c)
