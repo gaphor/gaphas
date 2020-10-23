@@ -77,15 +77,14 @@ class Canvas:
     def __init__(self, create_update_context=default_update_context):
         self._create_update_context = create_update_context
         self._tree: tree.Tree[Item] = tree.Tree()
-        self._solver = solver.Solver()
-        self._connections = Connections(self._solver)
+        self._connections = Connections(solver.Solver())
 
         self._dirty_items = set()
         self._dirty_matrix_items = set()
 
         self._registered_views = set()
 
-    solver = property(lambda s: s._solver)
+    solver = property(lambda s: s._connections.solver)
 
     connections = property(lambda s: s._connections)
 
@@ -421,7 +420,7 @@ class Canvas:
             self._dirty_matrix_items.clear()
 
             # solve all constraints
-            self._solver.solve()
+            self.solver.solve()
 
             # no matrix can change during constraint solving
             assert (
@@ -440,7 +439,7 @@ class Canvas:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # ensure constraints are still true after normalization
-            self._solver.solve()
+            self.solver.solve()
 
             # item's can be marked dirty due to normalization and solving
             if len(dirty_items) != len(self._dirty_items):
