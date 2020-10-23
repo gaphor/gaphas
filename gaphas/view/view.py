@@ -155,8 +155,7 @@ class View:
 
     def get_matrix_i2v(self, item):
         """Get Item to View matrix for ``item``."""
-        matrix_i2c = self.canvas.get_matrix_i2c(item)
-        return matrix_i2c.multiply(self._matrix)
+        return item.matrix_i2c.multiply(self._matrix)
 
     def get_matrix_v2i(self, item):
         """Get View to Item matrix for ``item``."""

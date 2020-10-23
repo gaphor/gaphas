@@ -319,9 +319,9 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     def handle_changed(view, item, what):
         print(what, "changed: ", item)
 
-    view.connect("focus-changed", handle_changed, "focus")
-    view.connect("hover-changed", handle_changed, "hover")
-    view.connect("selection-changed", handle_changed, "selection")
+    view.selection.connect("focus-changed", handle_changed, "focus")
+    view.selection.connect("hover-changed", handle_changed, "hover")
+    view.selection.connect("selection-changed", handle_changed, "selection")
 
 
 def create_canvas(c=None):

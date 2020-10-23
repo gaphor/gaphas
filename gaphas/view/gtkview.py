@@ -38,18 +38,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     # Signals: emitted after the change takes effect.
     __gsignals__ = {
-        "dropzone-changed": (
-            GObject.SignalFlags.RUN_LAST,
-            None,
-            (GObject.TYPE_PYOBJECT,),
-        ),
-        "hover-changed": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "focus-changed": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "selection-changed": (
-            GObject.SignalFlags.RUN_LAST,
-            None,
-            (GObject.TYPE_PYOBJECT,),
-        ),
         "tool-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
         "painter-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
     }
@@ -112,20 +100,16 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._vscroll_policy = None
 
         self._selection = Selection()
-        self._selection.connect(
-            "selection-changed", self._forward_signal, "selection-changed"
-        )
-        self._selection.connect("focus-changed", self._forward_signal, "focus-changed")
-        self._selection.connect("hover-changed", self._forward_signal, "hover-changed")
-        self._selection.connect(
-            "dropzone-changed", self._forward_signal, "dropzone-changed"
-        )
+
+        def redraw(selection, item, signal_name):
+            self.queue_redraw()
+
+        self._selection.connect("selection-changed", redraw, "selection-changed")
+        self._selection.connect("focus-changed", redraw, "focus-changed")
+        self._selection.connect("hover-changed", redraw, "hover-changed")
+        self._selection.connect("dropzone-changed", redraw, "dropzone-changed")
 
         self._set_tool(DefaultTool())
-
-    def _forward_signal(self, selection, item, signal_name):
-        self.queue_redraw()
-        self.emit(signal_name, item)
 
     def do_get_property(self, prop):
         if prop.name == "hadjustment":
@@ -173,10 +157,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """Set the painter to use for bounding box calculations."""
         super()._set_bounding_box_painter(painter)
         self.emit("painter-changed")
-
-    def emit(self, *args, **kwargs):
-        """Delegate signal emissions to the DrawingArea (=GTK+)"""
-        Gtk.DrawingArea.emit(self, *args, **kwargs)
 
     def _set_canvas(self, canvas):
         """
