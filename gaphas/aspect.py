@@ -265,7 +265,7 @@ class ItemConnector:
         handle = self.handle
         item = self.item
 
-        constraint = sink.port.constraint(canvas, item, handle, sink.item)
+        constraint = sink.port.constraint(item, handle, sink.item)
 
         canvas.connect_item(
             item, handle, sink.item, sink.port, constraint, callback=callback

@@ -87,7 +87,7 @@ class Port:
         """Get glue point on the port and distance to the port."""
         raise NotImplementedError("Glue method not implemented")
 
-    def constraint(self, canvas, item, handle, glue_item):
+    def constraint(self, item, handle, glue_item):
         """Create connection constraint between item's handle and glue item."""
         raise NotImplementedError("Constraint method not implemented")
 
@@ -114,7 +114,7 @@ class LinePort(Port):
         d, pl = distance_line_point(self.start, self.end, pos)
         return pl, d
 
-    def constraint(self, canvas, item, handle, glue_item):
+    def constraint(self, item, handle, glue_item):
         """Create connection line constraint between item's handle and the
         port."""
         start = MatrixProjection(self.start, glue_item.matrix_i2c)
@@ -142,7 +142,7 @@ class PointPort(Port):
         d = distance_point_point(self.point, pos)
         return self.point, d
 
-    def constraint(self, canvas, item, handle, glue_item):
+    def constraint(self, item, handle, glue_item):
         """Return connection position constraint between item's handle and the
         port."""
         origin = MatrixProjection(self.point, glue_item.matrix_i2c)

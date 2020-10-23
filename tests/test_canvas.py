@@ -86,7 +86,7 @@ def test_disconnect_item_with_constraint():
     c.add(b2)
     c.add(line)
 
-    cons = b1.ports()[0].constraint(c, line, line.handles()[0], b1)
+    cons = b1.ports()[0].constraint(line, line.handles()[0], b1)
 
     c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
     assert count(c.get_connections(handle=line.handles()[0])) == 1
@@ -131,7 +131,7 @@ def test_disconnect_item_with_constraint_by_deleting_element():
     c.add(b2)
     c.add(line)
 
-    cons = b1.ports()[0].constraint(c, line, line.handles()[0], b1)
+    cons = b1.ports()[0].constraint(line, line.handles()[0], b1)
 
     c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
     assert count(c.get_connections(handle=line.handles()[0])) == 1
