@@ -308,7 +308,7 @@ A line has the following properties: ``line_width``, ``fuzziness``,
 
 Let's first add a segment to the line, to test orthogonal lines as well.
 
-    >>> segment = Segment(l, None)
+    >>> segment = Segment(l, canvas)
     >>> _ = segment.split_segment(0)
 
     >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
@@ -339,7 +339,7 @@ This is our basis for further testing.
 
     >>> del undo_list[:]
 
-    >>> Segment(l, None).split_segment(0)      # doctest: +ELLIPSIS
+    >>> Segment(l, canvas).split_segment(0)      # doctest: +ELLIPSIS
     ([<Handle object on (5, 5)>], [<gaphas.connector.LinePort object at 0x...>])
     >>> l.handles()
     [<Handle object on (0, 0)>, <Handle object on (5, 5)>, <Handle object on (10, 10)>]

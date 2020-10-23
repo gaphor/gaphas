@@ -110,7 +110,7 @@ def create_canvas(canvas, title):
     line.matrix.translate(100, 60)
     canvas.add(line)
     line.handles()[1].pos = (30, 30)
-    segment = Segment(line, view=None)
+    segment = Segment(line, canvas)
     segment.split_segment(0)
 
     window.show_all()

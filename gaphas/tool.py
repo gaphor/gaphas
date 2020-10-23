@@ -625,7 +625,7 @@ class PlacementTool(Tool):
         new_item = self._create_item(pos)
         # Enforce matrix update, as a good matrix is required for the handle
         # positioning:
-        canvas.get_matrix_i2c(new_item, calculate=True)
+        canvas.get_matrix_i2c(new_item)
 
         self._new_item = new_item
         view.selection.set_focused_item(new_item)
@@ -743,7 +743,7 @@ class ConnectHandleTool(HandleTool):
         if sink:
             connector.connect(sink)
         else:
-            cinfo = item.canvas.get_connection(handle)
+            cinfo = self.view.canvas.get_connection(handle)
             if cinfo:
                 connector.disconnect()
 

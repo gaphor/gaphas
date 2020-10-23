@@ -75,7 +75,7 @@ class ItemInMotion:
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
-        item.canvas.request_matrix_update(item)
+        view.canvas.request_matrix_update(item)
 
     def stop_move(self):
         pass
@@ -147,7 +147,7 @@ class ItemHandleInMotion:
 
     def start_move(self, pos):
         self.last_x, self.last_y = pos
-        canvas = self.item.canvas
+        canvas = self.view.canvas
 
         cinfo = canvas.get_connection(self.handle)
         if cinfo:
@@ -225,6 +225,7 @@ class ItemConnector:
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
+        # TODO: use Item.matrix_i2c
         matrix = item.canvas.get_matrix_i2i(item, sink.item)
         pos = matrix.transform_point(*handle.pos)
         gluepos, dist = sink.port.glue(pos)

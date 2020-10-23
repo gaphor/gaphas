@@ -177,7 +177,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     def on_split_line_clicked(button):
         selection = view.selection
         if isinstance(selection.focused_item, Line):
-            segment = Segment(selection.focused_item, view)
+            segment = Segment(selection.focused_item, canvas)
             segment.split_segment(0)
             view.queue_redraw()
 
@@ -376,7 +376,7 @@ def create_canvas(c=None):
     line = MyLine()
     c.add(line)
     line.handles()[1].pos = (30, 30)
-    segment = Segment(line, view=None)
+    segment = Segment(line, c)
     segment.split_segment(0, 3)
     line.matrix.translate(30, 60)
     line.orthogonal = True
