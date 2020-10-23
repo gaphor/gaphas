@@ -29,14 +29,14 @@ class SimpleCanvas:
         self.box1.matrix.translate(100, 50)
         self.box1.width = 40
         self.box1.height = 40
-        self.box1.request_update()
+        self.canvas.request_update(self.box1)
 
         self.box2 = Box()
         self.canvas.add(self.box2)
         self.box2.matrix.translate(100, 150)
         self.box2.width = 50
         self.box2.height = 50
-        self.box2.request_update()
+        self.canvas.request_update(self.box2)
 
         self.line = Line()
         self.head = self.line.handles()[0]

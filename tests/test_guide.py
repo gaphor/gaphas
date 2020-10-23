@@ -99,7 +99,7 @@ def test_guide_item_in_motion(win):
     assert 0 == win.e1.matrix[5]
 
     win.e2.matrix.translate(40, 40)
-    win.e2.request_update()
+    win.canvas.request_update(win.e2)
     assert 40 == win.e2.matrix[4]
     assert 40 == win.e2.matrix[5]
 
@@ -134,7 +134,7 @@ def test_guide_item_in_motion_2(win):
     assert 0 == win.e1.matrix[5]
 
     win.e2.matrix.translate(40, 40)
-    win.e2.request_update()
+    win.canvas.request_update(win.e2)
     assert 40 == win.e2.matrix[4]
     assert 40 == win.e2.matrix[5]
 

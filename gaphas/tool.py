@@ -390,7 +390,7 @@ class HandleTool(Tool):
         self.ungrab_handle()
 
         if grabbed_handle and grabbed_item:
-            grabbed_item.request_update()
+            self.view.canvas.request_update(grabbed_item)
         return True
 
     def on_motion_notify(self, event):

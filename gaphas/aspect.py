@@ -193,7 +193,7 @@ class ItemHandleInMotion:
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
-        item.request_update(matrix=False)
+        view.canvas.request_update(item, matrix=False)
 
         return sink
 

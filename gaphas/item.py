@@ -89,10 +89,6 @@ class Item:
     def matrix_i2c(self) -> Matrix:
         return self._matrix_i2c
 
-    def request_update(self, update=True, matrix=True):
-        if self._canvas:
-            self._canvas.request_update(self, update=update, matrix=matrix)
-
     def pre_update(self, context):
         """Perform any changes before item update here, for example:
 
@@ -419,7 +415,7 @@ class Line(Item):
             p1.x.notify()
             p1.y.notify()
         self._set_orthogonal_constraints(cons)
-        self.request_update()
+        self.canvas.request_update(self)
 
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):

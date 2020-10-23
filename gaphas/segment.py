@@ -230,7 +230,7 @@ class SegmentHandleSelection(ItemHandleSelection):
             Segment(item, self.view).merge_segment(segment)
 
         if handle:
-            item.request_update()
+            self.view.canvas.request_update(item)
 
 
 @PaintFocused.register(Line)
