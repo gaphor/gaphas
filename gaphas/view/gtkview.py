@@ -93,14 +93,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             | Gdk.EventMask.STRUCTURE_MASK
         )
 
-        self._back_buffer = None
+        self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
         self._hadjustment: Optional[Gtk.Adjustment] = None
         self._vadjustment: Optional[Gtk.Adjustment] = None
-        self._hadjustment_handler_id = None
-        self._vadjustment_handler_id = None
-        self._hscroll_policy = None
-        self._vscroll_policy = None
+        self._hadjustment_handler_id = 0
+        self._vadjustment_handler_id = 0
+        self._hscroll_policy: Optional[Gtk.ScrollablePolicy] = None
+        self._vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
 
         self._selection = Selection()
 
@@ -458,6 +458,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 )
                 self._back_buffer_needs_resizing = False
 
+            assert self._back_buffer
             allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 
