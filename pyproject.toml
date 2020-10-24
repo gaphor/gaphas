@@ -83,6 +83,13 @@ skip_install = true
 commands = coverage erase
 """
 
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --doctest-glob='*.rst' --ignore=docs/conf.py"
+testpaths = [
+    "tests",
+    "docs",
+    ]
+
 [tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
