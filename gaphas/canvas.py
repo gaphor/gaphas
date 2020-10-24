@@ -431,10 +431,6 @@ class Canvas:
             if len(dirty_items) != len(self._dirty_items):
                 dirty_items = list(reversed(sort(self._dirty_items)))
 
-            # normalize items, which changed after constraint solving;
-            # recalculate matrices of normalized items
-            dirty_matrix_items.update(self._normalize(dirty_items))
-
             for d in dirty_matrix_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
@@ -478,40 +474,6 @@ class Canvas:
             changed.update(changed_children)
 
         return changed
-
-    def _normalize(self, items):
-        """Update handle positions of items, so the first handle is always
-        located at (0, 0).
-
-        Return those items, which matrices changed due to first handle
-        movement.
-
-        For example having an item
-
-        >>> from gaphas.item import Element
-        >>> c = Canvas()
-        >>> e = Element()
-        >>> c.add(e)
-        >>> e.min_width = e.min_height = 0
-        >>> c.update_now()
-        >>> e.handles()
-        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (10, 10)>, <Handle object on (0, 10)>]
-
-        and moving its first handle a bit
-
-        >>> e.handles()[0].pos.x += 1
-        >>> list(map(float, e.handles()[0].pos))
-        [1.0, 0.0]
-
-        After normalization
-
-        >>> c._normalize([e])          # doctest: +ELLIPSIS
-        {<gaphas.item.Element object at 0x...>}
-        >>> e.handles()
-        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
-        """
-        dirty_matrix_items = {item for item in items if item.normalize()}
-        return self.update_matrices(dirty_matrix_items)
 
     def register_view(self, view):
         """Register a view on this canvas.

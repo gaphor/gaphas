@@ -67,8 +67,8 @@ def test_line_guide(win):
 
     guides = list(Guide(win.line).vertical())
     assert 2 == len(guides)
-    assert 00.0 == guides[0]
-    assert 20.0 == guides[1]
+    assert 10.0 == guides[0]
+    assert 30.0 == guides[1]
 
 
 def test_line_guide_horizontal(win):
@@ -81,13 +81,13 @@ def test_line_guide_horizontal(win):
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)
-    assert 0.0 == guides[0]
-    assert 20.0 == guides[1]
+    assert 10.0 == guides[0]
+    assert 30.0 == guides[1]
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)
-    assert 0.0 == guides[0]
-    assert 20.0 == guides[1]
+    assert 10.0 == guides[0]
+    assert 30.0 == guides[1]
 
 
 def test_guide_item_in_motion(win):

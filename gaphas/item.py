@@ -123,39 +123,6 @@ class Item:
         """
         pass
 
-    def normalize(self):
-        """Update handle positions of the item, so the first handle is always
-        located at (0, 0).
-
-        Note that, since this method basically does some housekeeping
-        during the update phase, there's no need to keep track of the
-        changes.
-
-        Alternative implementation can also be created, e.g. set (0,
-        0) in the center of a circle or change it depending on the
-        location of a rotation point.
-
-        Returns ``True`` if some updates have been done, ``False``
-        otherwise.
-
-        See ``canvas._normalize()`` for tests.
-        """
-        updated = False
-        handles = self._handles
-        if handles:
-            x, y = list(map(float, handles[0].pos))
-            if x:
-                self.matrix.translate(x, 0)
-                updated = True
-                for h in handles:
-                    h.pos.x -= x
-            if y:
-                self.matrix.translate(0, y)
-                updated = True
-                for h in handles:
-                    h.pos.y -= y
-        return updated
-
     def draw(self, context):
         """Render the item to a canvas view. Context contains the following
         attributes:
@@ -313,23 +280,6 @@ class Element(Item):
         return float(h[SE].pos.y) - float(h[NW].pos.y)
 
     height = property(_get_height, _set_height)
-
-    def normalize(self):
-        """Normalize only NW and SE handles."""
-        updated = False
-        handles = (self._handles[NW], self._handles[SE])
-        x, y = list(map(float, handles[0].pos))
-        if x:
-            self.matrix.translate(x, 0)
-            updated = True
-            for h in handles:
-                h.pos.x -= x
-        if y:
-            self.matrix.translate(0, y)
-            updated = True
-            for h in handles:
-                h.pos.y -= y
-        return updated
 
     def point(self, pos):
         """Distance from the point (x, y) to the item.
