@@ -377,29 +377,29 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         dirty_matrix_items = self._dirty_matrix_items
 
         try:
-            for i in dirty_matrix_items:
-                if i not in self._qtree:
-                    dirty_items.add(i)
-                    continue
-
-                if i not in dirty_items:
-                    # Only matrix has changed, so calculate new bounding box
-                    # based on quadtree data (= bb in item coordinates).
-                    bounds = self._qtree.get_data(i)
-                    i2v = self.get_matrix_i2v(i).transform_point
-                    x0, y0 = i2v(bounds[0], bounds[1])
-                    x1, y1 = i2v(bounds[2], bounds[3])
-                    vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    self._qtree.add(i, vbounds.tuple(), bounds)
-
-            self.update_bounding_box(set(dirty_items))
-
+            self.update_qtree(dirty_matrix_items, dirty_items)
+            self.update_bounding_box(dirty_items)
             self.update_adjustments()
-
             self.update_back_buffer()
         finally:
             dirty_items.clear()
-            self._dirty_matrix_items.clear()
+            dirty_matrix_items.clear()
+
+    def update_qtree(self, dirty_matrix_items, dirty_items):
+        for i in dirty_matrix_items:
+            if i not in self._qtree:
+                dirty_items.add(i)
+                continue
+
+            if i not in dirty_items:
+                # Only matrix has changed, so calculate new bounding box
+                # based on quadtree data (= bb in item coordinates).
+                bounds = self._qtree.get_data(i)
+                i2v = self.get_matrix_i2v(i).transform_point
+                x0, y0 = i2v(bounds[0], bounds[1])
+                x1, y1 = i2v(bounds[2], bounds[3])
+                vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
+                self._qtree.add(i, vbounds.tuple(), bounds)
 
     def update_bounding_box(self, items):
         cr = (
