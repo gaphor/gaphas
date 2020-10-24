@@ -409,14 +409,17 @@ class Canvas:
                 yield from self._tree.get_ancestors(item)
 
         dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
+        dirty_matrix_items = set(self._dirty_matrix_items)
+        self._dirty_matrix_items.clear()
 
         try:
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
             contexts = self._pre_update_items(dirty_items)
 
-            dirty_matrix_items = set(self._dirty_matrix_items)
-            self._dirty_matrix_items.clear()
+            # keep it here, since we need up to date matrices for the solver
+            for d in dirty_matrix_items:
+                d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # solve all constraints
             self.solver.solve()
@@ -427,17 +430,6 @@ class Canvas:
             ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
 
             # item's can be marked dirty due to external constraints solving
-            if len(dirty_items) != len(self._dirty_items):
-                dirty_items = list(reversed(sort(self._dirty_items)))
-
-            # keep it here, since we need up to date matrices for the solver
-            for d in dirty_matrix_items:
-                d.matrix_i2c.set(*self.get_matrix_i2c(d))
-
-            # ensure constraints are still true after normalization
-            self.solver.solve()
-
-            # item's can be marked dirty due to normalization and solving
             if len(dirty_items) != len(self._dirty_items):
                 dirty_items = list(reversed(sort(self._dirty_items)))
 
