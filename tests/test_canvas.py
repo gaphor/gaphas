@@ -18,8 +18,6 @@ def test_update_matrices():
     i.matrix.translate(5.0, 0.0)
     ii.matrix.translate(0.0, 8.0)
 
-    c.update_matrices([i])
-
     assert c.get_matrix_i2c(i) == Matrix(1, 0, 0, 1, 5, 0)
     assert c.get_matrix_i2c(ii) == Matrix(1, 0, 0, 1, 5, 8)
 

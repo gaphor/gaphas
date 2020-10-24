@@ -1,11 +1,14 @@
 """This module contains everything to display a Canvas on a screen."""
 
+from typing import Optional, Set
+
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
-from gaphas.canvas import Context, instant_cairo_context
+from gaphas.canvas import Canvas, Context, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.position import Position
 from gaphas.tool import DefaultTool
@@ -71,11 +74,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         ),
     }
 
-    def __init__(self, canvas=None):
+    def __init__(self, canvas: Optional[Canvas] = None):
         Gtk.DrawingArea.__init__(self)
 
-        self._dirty_items = set()
-        self._dirty_matrix_items = set()
+        self._dirty_items: Set[Item] = set()
+        self._dirty_matrix_items: Set[Item] = set()
 
         View.__init__(self, canvas)
 
@@ -92,8 +95,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._back_buffer = None
         self._back_buffer_needs_resizing = True
-        self._hadjustment = None
-        self._vadjustment = None
+        self._hadjustment: Optional[Gtk.Adjustment] = None
+        self._vadjustment: Optional[Gtk.Adjustment] = None
         self._hadjustment_handler_id = None
         self._vadjustment_handler_id = None
         self._hscroll_policy = None
@@ -158,7 +161,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         super()._set_bounding_box_painter(painter)
         self.emit("painter-changed")
 
-    def _set_canvas(self, canvas):
+    def _set_canvas(self, canvas: Optional[Canvas]):
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
@@ -351,6 +354,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # Remove removed items:
         if removed_items:
             selection = self._selection
+            self._dirty_matrix_items.difference_update(removed_items)
             self._dirty_items.difference_update(removed_items)
 
             for item in removed_items:
@@ -369,14 +373,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     @AsyncIO(single=True)
     def update(self):
         """Update view status according to the items updated by the canvas."""
-
-        if not self.get_window():
+        canvas = self.canvas
+        if not self.get_window() or not canvas:
             return
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
 
         try:
+            dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
             self.update_qtree(dirty_matrix_items, dirty_items)
             self.update_bounding_box(dirty_items)
             self.update_adjustments()
@@ -384,6 +389,33 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         finally:
             dirty_items.clear()
             dirty_matrix_items.clear()
+
+    def update_matrices(self, items):
+        """Recalculate matrices of the items. Items' children matrices are
+        recalculated, too.
+
+        Return items, which matrices were recalculated.
+        """
+        canvas = self._canvas
+        if not canvas:
+            return
+
+        changed = set()
+        for item in items:
+            parent = canvas.get_parent(item)
+            if parent is not None and parent in items:
+                # item's matrix will be updated thanks to parent's matrix update
+                continue
+
+            changed.add(item)
+
+            changed_children = self.update_matrices(set(canvas.get_children(item)))
+            changed.update(changed_children)
+
+        for d in changed:
+            d.matrix_i2c.set(*canvas.get_matrix_i2c(d))
+
+        return changed
 
     def update_qtree(self, dirty_matrix_items, dirty_items):
         for i in dirty_matrix_items:

@@ -415,8 +415,7 @@ class Canvas:
             # full update (only called for items that requested a full update)
             contexts = self._pre_update_items(dirty_items)
 
-            # recalculate matrices
-            dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
+            dirty_matrix_items = set(self._dirty_matrix_items)
             self._dirty_matrix_items.clear()
 
             # solve all constraints
@@ -431,6 +430,7 @@ class Canvas:
             if len(dirty_items) != len(self._dirty_items):
                 dirty_items = list(reversed(sort(self._dirty_items)))
 
+            # keep it here, since we need up to date matrices for the solver
             for d in dirty_matrix_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
@@ -453,27 +453,6 @@ class Canvas:
         ), f"dirty: {self._dirty_items}; matrix: {self._dirty_matrix_items}"
 
         self._update_views(dirty_items, dirty_matrix_items)
-
-    def update_matrices(self, items):
-        """Recalculate matrices of the items. Items' children matrices are
-        recalculated, too.
-
-        Return items, which matrices were recalculated.
-        """
-        changed = set()
-        for item in items:
-            parent = self._tree.get_parent(item)
-            if parent is not None and parent in items:
-                # item's matrix will be updated thanks to parent's matrix
-                # update
-                continue
-
-            changed.add(item)
-
-            changed_children = self.update_matrices(set(self.get_children(item)))
-            changed.update(changed_children)
-
-        return changed
 
     def register_view(self, view):
         """Register a view on this canvas.

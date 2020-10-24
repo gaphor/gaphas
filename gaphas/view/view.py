@@ -1,6 +1,6 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
-from gaphas.canvas import Context
+from gaphas.canvas import Canvas, Context
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
@@ -18,7 +18,7 @@ class View:
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
-        self._canvas = None
+        self._canvas: Optional[Canvas] = None
         if canvas:
             self._set_canvas(canvas)
 
