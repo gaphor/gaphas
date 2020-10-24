@@ -1,4 +1,25 @@
-from gaphas.solver import Variable
+from gaphas.solver import STRONG, Variable, variable
+
+
+def test_variable_decorator():
+    class A:
+        x = variable(varname="sx", strength=STRONG)
+
+    a = A()
+
+    assert isinstance(A.x, variable)
+    assert a.x == 0
+    assert a.x.strength == STRONG
+
+
+def test_variable_decorator_value():
+    class A:
+        x = variable(varname="sx", strength=STRONG)
+
+    a = A()
+    a.x = 3
+
+    assert a.x == 3
 
 
 def test_equality():

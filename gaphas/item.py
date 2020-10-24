@@ -7,7 +7,7 @@ from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
 from gaphas.position import Position
-from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, solvable
+from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, variable
 from gaphas.state import (
     observed,
     reversible_method,
@@ -217,8 +217,8 @@ class Element(Item):
     NW +---+ NE    |   | SW +---+ SE
     """
 
-    min_width = solvable(strength=REQUIRED, varname="_min_width")
-    min_height = solvable(strength=REQUIRED, varname="_min_height")
+    min_width = variable(strength=REQUIRED, varname="_min_width")
+    min_height = variable(strength=REQUIRED, varname="_min_height")
 
     def __init__(self, width=10, height=10):
         super().__init__()

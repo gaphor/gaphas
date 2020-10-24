@@ -35,7 +35,6 @@ variables to make the constraint valid again.
 from typing import Union
 
 from gaphas.solver.constraint import Constraint, MultiConstraint
-from gaphas.solver.variable import NORMAL, Variable
 from gaphas.state import observed, reversible_pair
 
 
@@ -168,48 +167,6 @@ class Solver:
             self._marked_cons = []
         finally:
             self._solving = False
-
-
-class solvable:
-    """Easy-to-use drop Variable descriptor.
-
-    >>> class A(object):
-    ...     x = solvable(varname='_v_x')
-    ...     y = solvable(STRONG)
-    ...     def __init__(self):
-    ...         self.x = 12
-    >>> a = A()
-    >>> a.x
-    Variable(12, 20)
-    >>> a._v_x
-    Variable(12, 20)
-    >>> a.x = 3
-    >>> a.x
-    Variable(3, 20)
-    >>> a.y
-    Variable(0, 30)
-    """
-
-    def __init__(self, strength=NORMAL, varname=None):
-        self._strength = strength
-        self._varname = varname or f"_variable_{id(self)}"
-
-    def __get__(self, obj, class_=None):
-        if not obj:
-            return self
-        try:
-            return getattr(obj, self._varname)
-        except AttributeError:
-            setattr(obj, self._varname, Variable(strength=self._strength))
-            return getattr(obj, self._varname)
-
-    def __set__(self, obj, value):
-        try:
-            getattr(obj, self._varname).value = float(value)
-        except AttributeError:
-            v = Variable(strength=self._strength)
-            setattr(obj, self._varname, v)
-            v.value = value
 
 
 class JuggleError(AssertionError):
