@@ -1,6 +1,5 @@
 from typing import Tuple
 
-from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
@@ -151,7 +150,7 @@ class View:
             items = self.canvas.get_all_items()
 
         # The painter calls set_item_bounding_box() for each rendered item.
-        painter.paint(Context(cairo=cr, items=items))
+        painter.paint(items, cr)
 
     def get_matrix_i2v(self, item):
         """Get Item to View matrix for ``item``."""

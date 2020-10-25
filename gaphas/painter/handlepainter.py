@@ -1,4 +1,8 @@
+from typing import Sequence
+
 from cairo import ANTIALIAS_NONE
+
+from gaphas.item import Item
 
 
 class HandlePainter:
@@ -53,10 +57,9 @@ class HandlePainter:
             cairo.stroke()
         cairo.restore()
 
-    def paint(self, context):
+    def paint(self, items: Sequence[Item], cairo):
         view = self.view
         canvas = view.canvas
-        cairo = context.cairo
         selection = view.selection
         # Order matters here:
         for item in canvas.sort(selection.selected_items):

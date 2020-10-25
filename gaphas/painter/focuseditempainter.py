@@ -1,4 +1,7 @@
+from typing import Sequence
+
 from gaphas.aspect import PaintFocused
+from gaphas.item import Item
 
 
 class FocusedItemPainter:
@@ -9,8 +12,8 @@ class FocusedItemPainter:
         assert view
         self.view = view
 
-    def paint(self, context):
+    def paint(self, items: Sequence[Item], cairo):
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:
-            PaintFocused(item, view).paint(context)
+            PaintFocused(item, view).paint(items, cairo)

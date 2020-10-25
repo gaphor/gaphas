@@ -1,6 +1,9 @@
+from typing import Sequence
+
 from cairo import LINE_JOIN_ROUND
 
 from gaphas.canvas import Context
+from gaphas.item import Item
 
 DEBUG_DRAW_BOUNDING_BOX = False
 
@@ -51,13 +54,6 @@ class ItemPainter:
         finally:
             cairo.restore()
 
-    def draw_items(self, items, cairo):
-        """Draw the items."""
-        for item in items:
-            self.draw_item(item, cairo)
-            if DEBUG_DRAW_BOUNDING_BOX:
-                self._draw_bounds(item, cairo)
-
     def _draw_bounds(self, item, cairo):
         view = self.view
         try:
@@ -73,8 +69,12 @@ class ItemPainter:
             cairo.stroke()
             cairo.restore()
 
-    def paint(self, context):
-        cairo = context.cairo
+    def paint(self, items: Sequence[Item], cairo):
+        """Draw the items."""
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)
-        self.draw_items(context.items, cairo)
+
+        for item in items:
+            self.draw_item(item, cairo)
+            if DEBUG_DRAW_BOUNDING_BOX:
+                self._draw_bounds(item, cairo)

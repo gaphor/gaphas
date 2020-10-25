@@ -1,3 +1,9 @@
+from typing import Sequence
+
+from gaphas.canvas import Context
+from gaphas.item import Item
+
+
 class ToolPainter:
     """ToolPainter allows the Tool defined on a view to do some special
     drawing."""
@@ -6,11 +12,10 @@ class ToolPainter:
         assert view
         self.view = view
 
-    def paint(self, context):
+    def paint(self, items: Sequence[Item], cairo):
         view = self.view
         if view.tool:
-            cairo = context.cairo
             cairo.save()
             cairo.identity_matrix()
-            view.tool.draw(context)
+            view.tool.draw(Context(items=items, cairo=cairo))
             cairo.restore()

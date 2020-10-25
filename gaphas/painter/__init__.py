@@ -7,7 +7,7 @@ from gaphas.painter.painter import Painter
 from gaphas.painter.toolpainter import ToolPainter
 
 
-def DefaultPainter(view):
+def DefaultPainter(view) -> Painter:
     """Default painter, containing item, handle and tool painters."""
     return (
         PainterChain()

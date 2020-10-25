@@ -1,4 +1,7 @@
+from typing import Optional, Sequence
+
 from gaphas.geometry import Rectangle
+from gaphas.item import Item
 from gaphas.painter.itempainter import ItemPainter
 
 
@@ -9,7 +12,7 @@ class CairoBoundingBoxContext:
 
     def __init__(self, cairo):
         self._cairo = cairo
-        self._bounds = None  # a Rectangle object
+        self._bounds: Optional[Rectangle] = None  # a Rectangle object
 
     def __getattr__(self, key):
         return getattr(self._cairo, key)
@@ -90,7 +93,7 @@ class BoundingBoxPainter:
 
     draw_all = True
 
-    def __init__(self, item_painter=None, view=None):
+    def __init__(self, item_painter: ItemPainter = None, view=None):
         assert view
         self.view = view
         self.item_painter = item_painter or ItemPainter(view)
@@ -110,10 +113,7 @@ class BoundingBoxPainter:
         bounds.expand(1)
         view.set_item_bounding_box(item, bounds)
 
-    def draw_items(self, items, cairo):
+    def paint(self, items: Sequence[Item], cairo):
         """Draw the items."""
         for item in items:
             self.draw_item(item, cairo)
-
-    def paint(self, context):
-        self.draw_items(context.items, context.cairo)
