@@ -82,7 +82,6 @@ class Matrix:
                 setattr(m, name, val)
                 updated = True
         if updated:
-            print("Matrix set", self._matrix)
             self.notify()
 
     # TODO: Make reversible
