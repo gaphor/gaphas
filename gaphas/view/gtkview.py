@@ -80,8 +80,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._dirty_items: Set[Item] = set()
         self._dirty_matrix_items: Set[Item] = set()
 
-        View.__init__(self, canvas)
-
         self.set_can_focus(True)
         self.add_events(
             Gdk.EventMask.BUTTON_PRESS_MASK
@@ -103,6 +101,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
 
         self._selection = Selection()
+
+        View.__init__(self, canvas)
 
         def redraw(selection, item, signal_name):
             self.queue_redraw()
@@ -375,27 +375,24 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def update(self):
         """Update view status according to the items updated by the canvas."""
         canvas = self.canvas
-        if not self.get_window() or not canvas:
+        if not canvas:
             return
 
-        dirty_items = self._dirty_items
-        dirty_matrix_items = self._dirty_matrix_items
-
-        print("canvas update")
-        self.canvas.update_now(dirty_items, dirty_matrix_items)
-
         try:
-            dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
-            self.update_qtree(dirty_matrix_items, dirty_items)
+            dirty_items = self._dirty_items
+            dirty_matrix_items = self.all_dirty_matrix_items()
+
+            self.canvas.update_now(dirty_items, dirty_matrix_items)
+
+            self.update_qtree(dirty_items, dirty_matrix_items)
             self.update_bounding_box(dirty_items)
             self.update_adjustments()
             self.update_back_buffer()
         finally:
-            dirty_items.clear()
-            dirty_matrix_items.clear()
-        print("done with update")
+            self._dirty_items.clear()
+            self._dirty_matrix_items.clear()
 
-    def update_matrices(self, items):
+    def all_dirty_matrix_items(self):
         """Recalculate matrices of the items. Items' children matrices are
         recalculated, too.
 
@@ -405,24 +402,21 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if not canvas:
             return
 
-        changed = set()
-        for item in items:
-            parent = canvas.get_parent(item)
-            if parent is not None and parent in items:
-                # item's matrix will be updated thanks to parent's matrix update
-                continue
+        def update_matrices(items):
+            assert canvas
+            for item in items:
+                parent = canvas.get_parent(item)
+                if parent is not None and parent in items:
+                    # item's matrix will be updated thanks to parent's matrix update
+                    continue
 
-            changed.add(item)
+                yield item
 
-            changed_children = self.update_matrices(set(canvas.get_children(item)))
-            changed.update(changed_children)
+                yield from update_matrices(set(canvas.get_children(item)))
 
-        for d in changed:
-            d.matrix_i2c.set(*canvas.get_matrix_i2c(d))
+        return set(update_matrices(self._dirty_matrix_items))
 
-        return changed
-
-    def update_qtree(self, dirty_matrix_items, dirty_items):
+    def update_qtree(self, dirty_items, dirty_matrix_items):
         for i in dirty_matrix_items:
             if i not in self._qtree:
                 dirty_items.add(i)

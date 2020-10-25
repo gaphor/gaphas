@@ -380,22 +380,23 @@ class Canvas:
                 yield item
                 yield from self._tree.get_ancestors(item)
 
-        dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
-        dirty_matrix_items = set(dirty_matrix_items)
+        all_dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
 
         try:
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
-            contexts = self._pre_update_items(dirty_items)
+            contexts = self._pre_update_items(all_dirty_items)
 
             # keep it here, since we need up to date matrices for the solver
+            for d in dirty_items:
+                d.matrix_i2c.set(*self.get_matrix_i2c(d))
             for d in dirty_matrix_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # solve all constraints
             self.solver.solve()
 
-            self._post_update_items(dirty_items, contexts)
+            self._post_update_items(all_dirty_items, contexts)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
