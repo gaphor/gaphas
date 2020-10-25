@@ -371,7 +371,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.update()
 
     @AsyncIO(single=True)
-    # @nonrecursive
     def update(self):
         """Update view status according to the items updated by the canvas."""
         canvas = self.canvas
@@ -384,7 +383,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
             self.canvas.update_now(dirty_items, dirty_matrix_items)
 
-            self.update_qtree(dirty_items, dirty_matrix_items)
+            dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
             self.update_bounding_box(dirty_items)
             self.update_adjustments()
             self.update_back_buffer()
@@ -419,10 +418,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def update_qtree(self, dirty_items, dirty_matrix_items):
         for i in dirty_matrix_items:
             if i not in self._qtree:
-                dirty_items.add(i)
-                continue
-
-            if i not in dirty_items:
+                yield i
+            elif i not in dirty_items:
                 # Only matrix has changed, so calculate new bounding box
                 # based on quadtree data (= bb in item coordinates).
                 bounds = self._qtree.get_data(i)
