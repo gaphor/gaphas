@@ -1,8 +1,13 @@
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from gaphas.geometry import Rectangle
-from gaphas.item import Item
-from gaphas.painter.itempainter import ItemPainter
+
+if TYPE_CHECKING:
+    from gaphas.item import Item
+    from gaphas.painter.painter import ItemPainterType
+    from gaphas.view import View
 
 
 class CairoBoundingBoxContext:
@@ -93,14 +98,13 @@ class BoundingBoxPainter:
 
     draw_all = True
 
-    def __init__(self, item_painter: ItemPainter = None, view=None):
-        assert view
+    def __init__(self, item_painter: ItemPainterType, view: View):
+        self.item_painter = item_painter
         self.view = view
-        self.item_painter = item_painter or ItemPainter(view)
 
-    def draw_item(self, item, cairo):
+    def paint_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
-        self.item_painter.draw_item(item, cairo)
+        self.item_painter.paint_item(item, cairo)
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.
@@ -116,4 +120,4 @@ class BoundingBoxPainter:
     def paint(self, items: Sequence[Item], cairo):
         """Draw the items."""
         for item in items:
-            self.draw_item(item, cairo)
+            self.paint_item(item, cairo)

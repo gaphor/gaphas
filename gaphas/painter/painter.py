@@ -19,3 +19,12 @@ class Painter(Protocol):
     def paint(self, items: Sequence[Item], cairo):
         """Do the paint action (called from the View)."""
         pass
+
+
+class ItemPainterType(Protocol):
+    def paint_item(self, item: Item, cairo):
+        """Draw a single item."""
+
+    def paint(self, items: Sequence[Item], cairo):
+        """Do the paint action (called from the View)."""
+        pass

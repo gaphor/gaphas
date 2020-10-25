@@ -3,7 +3,7 @@
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
-from gaphas.canvas import Context, instant_cairo_context
+from gaphas.canvas import instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.matrix import Matrix
@@ -461,7 +461,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 (0, 0, allocation.width, allocation.height)
             )
 
-            self.painter.paint(Context(cairo=cr, items=items))
+            self.painter.paint(items, cr)
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 cr.save()

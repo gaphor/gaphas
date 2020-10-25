@@ -290,13 +290,12 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
 @PaintFocused.register(Item)
 class GuidePainter(ItemPaintFocused):
-    def paint(self, context):
+    def paint(self, cr):
         try:
             guides = self.view.guides
         except AttributeError:
             return
 
-        cr = context.cairo
         view = self.view
         allocation = view.get_allocation()
         w, h = allocation.width, allocation.height

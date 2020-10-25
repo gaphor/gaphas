@@ -31,7 +31,7 @@ class ItemPainter:
         assert view
         self.view = view
 
-    def draw_item(self, item, cairo):
+    def paint_item(self, item, cairo):
         view = self.view
         cairo.save()
         try:
@@ -75,6 +75,6 @@ class ItemPainter:
         cairo.set_line_join(LINE_JOIN_ROUND)
 
         for item in items:
-            self.draw_item(item, cairo)
+            self.paint_item(item, cairo)
             if DEBUG_DRAW_BOUNDING_BOX:
                 self._draw_bounds(item, cairo)

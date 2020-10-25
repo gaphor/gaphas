@@ -1,6 +1,7 @@
 from gaphas.painter.boundingboxpainter import BoundingBoxPainter
 from gaphas.painter.chain import PainterChain
 from gaphas.painter.focuseditempainter import FocusedItemPainter
+from gaphas.painter.freehand import FreeHandPainter
 from gaphas.painter.handlepainter import HandlePainter
 from gaphas.painter.itempainter import ItemPainter
 from gaphas.painter.painter import Painter

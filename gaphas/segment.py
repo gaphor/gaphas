@@ -242,11 +242,10 @@ class LineSegmentPainter(ItemPaintFocused):
     required for this feature.
     """
 
-    def paint(self, context):
+    def paint(self, cr):
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:
-            cr = context.cairo
             h = item.handles()
             for h1, h2 in zip(h[:-1], h[1:]):
                 p1, p2 = h1.pos, h2.pos

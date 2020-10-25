@@ -16,4 +16,4 @@ class FocusedItemPainter:
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:
-            PaintFocused(item, view).paint(items, cairo)
+            PaintFocused(item, view).paint(cairo)
