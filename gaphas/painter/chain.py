@@ -1,25 +1,15 @@
-from gaphas.painter.painter import Painter
-
-
-class PainterChain(Painter):
+class PainterChain:
     """Chain up a set of painters.
 
     like ToolChain.
     """
 
-    def __init__(self, view=None):
-        super().__init__(view)
+    def __init__(self):
         self._painters = []
-
-    def set_view(self, view):
-        self.view = view
-        for painter in self._painters:
-            painter.set_view(self.view)
 
     def append(self, painter):
         """Add a painter to the list of painters."""
         self._painters.append(painter)
-        painter.set_view(self.view)
         return self
 
     def prepend(self, painter):

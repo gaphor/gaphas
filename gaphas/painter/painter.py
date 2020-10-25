@@ -13,9 +13,6 @@ class Painter:
     def __init__(self, view=None):
         self.view = view
 
-    def set_view(self, view):
-        self.view = view
-
     def paint(self, context):
         """Do the paint action (called from the View)."""
         pass

@@ -95,10 +95,6 @@ class BoundingBoxPainter(Painter):
         super().__init__(view)
         self.item_painter = item_painter or ItemPainter(view)
 
-    def set_view(self, view):
-        super().set_view(view)
-        self.item_painter.set_view(view)
-
     def draw_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
         self.item_painter.draw_item(item, cairo)

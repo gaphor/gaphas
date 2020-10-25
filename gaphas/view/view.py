@@ -45,14 +45,12 @@ class View:
         Painters should implement painter.Painter.
         """
         self._painter = painter
-        painter.set_view(self)
 
     painter = property(lambda s: s._painter, _set_painter)
 
     def _set_bounding_box_painter(self, painter):
         """Set the painter to use for bounding box calculations."""
         self._bounding_box_painter = painter
-        painter.set_view(self)
 
     bounding_box_painter = property(
         lambda s: s._bounding_box_painter, _set_bounding_box_painter

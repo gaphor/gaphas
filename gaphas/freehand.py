@@ -133,14 +133,9 @@ class FreeHandCairoContext:
 
 
 class FreeHandPainter(Painter):
-    def __init__(self, subpainter, sloppiness=1.0, view=None):
+    def __init__(self, subpainter, view, sloppiness=1.0):
         self.subpainter = subpainter
         self.sloppiness = sloppiness
-        if view:
-            self.set_view(view)
-
-    def set_view(self, view):
-        self.subpainter.set_view(view)
 
     def draw_item(self, item, cairo):
         # Bounding box painter requires painting per item
