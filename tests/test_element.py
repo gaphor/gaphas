@@ -52,8 +52,7 @@ def test_resize_se(cb):
     for _ in range(count):
         h_se.pos.x += 100  # h.se.{x,y} = 10, now
         h_se.pos.y += 100
-        cb.canvas.request_update(cb.box)
-        cb.canvas.update()
+        cb.canvas.update_now((cb.box,))
 
     assert 110 * count == h_se.pos.x  # h_se changed above, should remain the same
     assert 110 * count == float(h_se.pos.y)
@@ -77,7 +76,7 @@ def test_minimal_se(cb):
     assert h_se.pos.x == h_se.pos.y == -10
 
     cb.canvas.request_update(cb.box)
-    cb.canvas.update()
+    cb.canvas.update_now((cb.box,))
 
     assert 10 == h_se.pos.x  # h_se changed above, should be 10
     assert 10 == h_se.pos.y

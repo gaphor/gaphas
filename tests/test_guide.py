@@ -58,7 +58,7 @@ def test_line_guide(win):
     win.line.handles().append(win.line._create_handle((30, 30)))
     win.line.handles().append(win.line._create_handle((40, 40)))
     win.line.orthogonal = True
-    win.canvas.update_now()
+    win.canvas.update_now((win.line,))
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)
@@ -77,7 +77,7 @@ def test_line_guide_horizontal(win):
     win.line.handles().append(win.line._create_handle((40, 40)))
     win.line.horizontal = True
     win.line.orthogonal = True
-    win.canvas.update_now()
+    win.canvas.update_now((win.line,))
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)

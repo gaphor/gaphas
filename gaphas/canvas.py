@@ -303,7 +303,7 @@ class Canvas:
         >>> c.add(i2)
         >>> i3 = item.Line()
         >>> c.add (i3)
-        >>> c.update() # ensure items are indexed
+        >>> c.update_now((i1, i2, i3)) # ensure items are indexed
         >>> s = c.sort([i2, i3, i1])
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
@@ -341,7 +341,7 @@ class Canvas:
         >>> c.add(ii, i)
         >>> len(c._dirty_items)
         0
-        >>> c.update_now()
+        >>> c.update_now((i, ii))
         >>> len(c._dirty_items)
         0
         """
@@ -351,6 +351,12 @@ class Canvas:
             self._dirty_matrix_items.add(item)
 
         self.update()
+        # if update and matrix:
+        #     self._update_views(dirty_items=(item,), dirty_matrix_items=(item,))
+        # elif update:
+        #     self._update_views(dirty_items=(item,))
+        # elif matrix:
+        #     self._update_views(dirty_matrix_items=(item,))
 
     reversible_method(request_update, reverse=request_update)
 
@@ -379,7 +385,7 @@ class Canvas:
     def update(self):
         """Update the canvas, if called from within a gtk-mainloop, the update
         job is scheduled as idle job."""
-        self.update_now()
+        self.update_now(self._dirty_items, self._dirty_matrix_items)
 
     def _pre_update_items(self, items):
         create_update_context = self._create_update_context
@@ -399,17 +405,17 @@ class Canvas:
             item.post_update(context)
 
     @nonrecursive
-    def update_now(self):
+    def update_now(self, dirty_items, dirty_matrix_items=()):
         """Perform an update of the items that requested an update."""
         sort = self.sort
 
         def dirty_items_with_ancestors():
-            for item in self._dirty_items:
+            for item in set(dirty_items):
                 yield item
                 yield from self._tree.get_ancestors(item)
 
         dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
-        dirty_matrix_items = set(self._dirty_matrix_items)
+        dirty_matrix_items = set(dirty_matrix_items)
         self._dirty_matrix_items.clear()
 
         try:
