@@ -34,7 +34,7 @@ import cairo
 
 from gaphas import matrix, solver, tree
 from gaphas.connections import Connections
-from gaphas.decorators import AsyncIO, nonrecursive
+from gaphas.decorators import nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
@@ -79,9 +79,6 @@ class Canvas:
         self._tree: tree.Tree[Item] = tree.Tree()
         self._connections = Connections(solver.Solver())
 
-        self._dirty_items = set()
-        self._dirty_matrix_items = set()
-
         self._registered_views = set()
 
     solver = property(lambda s: s._connections.solver)
@@ -115,8 +112,6 @@ class Canvas:
         item._set_canvas(None)
         self._tree.remove(item)
         self._update_views(removed_items=(item,))
-        self._dirty_items.discard(item)
-        self._dirty_matrix_items.discard(item)
 
     def remove(self, item):
         """Remove item from the canvas.
@@ -345,47 +340,18 @@ class Canvas:
         >>> len(c._dirty_items)
         0
         """
-        if update:
-            self._dirty_items.add(item)
-        if matrix:
-            self._dirty_matrix_items.add(item)
-
-        self.update()
-        # if update and matrix:
-        #     self._update_views(dirty_items=(item,), dirty_matrix_items=(item,))
-        # elif update:
-        #     self._update_views(dirty_items=(item,))
-        # elif matrix:
-        #     self._update_views(dirty_matrix_items=(item,))
+        if update and matrix:
+            self._update_views(dirty_items=(item,), dirty_matrix_items=(item,))
+        elif update:
+            self._update_views(dirty_items=(item,))
+        elif matrix:
+            self._update_views(dirty_matrix_items=(item,))
 
     reversible_method(request_update, reverse=request_update)
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""
         self.request_update(item, update=False, matrix=True)
-
-    def require_update(self):
-        """Returns ``True`` or ``False`` depending on if an update is needed.
-
-        >>> c=Canvas()
-        >>> c.require_update()
-        False
-        >>> from gaphas import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> c.require_update()
-        False
-
-        Since we're not in a GTK+ mainloop, the update is not scheduled
-        asynchronous. Therefore ``require_update()`` returns ``False``.
-        """
-        return bool(self._dirty_items)
-
-    @AsyncIO(single=True)
-    def update(self):
-        """Update the canvas, if called from within a gtk-mainloop, the update
-        job is scheduled as idle job."""
-        self.update_now(self._dirty_items, self._dirty_matrix_items)
 
     def _pre_update_items(self, items):
         create_update_context = self._create_update_context
@@ -416,7 +382,6 @@ class Canvas:
 
         dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
         dirty_matrix_items = set(dirty_matrix_items)
-        self._dirty_matrix_items.clear()
 
         try:
             # allow programmers to perform tricks and hacks before item
@@ -430,27 +395,10 @@ class Canvas:
             # solve all constraints
             self.solver.solve()
 
-            # no matrix can change during constraint solving
-            assert (
-                not self._dirty_matrix_items
-            ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
-
-            # item's can be marked dirty due to external constraints solving
-            if len(dirty_items) != len(self._dirty_items):
-                dirty_items = list(reversed(sort(self._dirty_items)))
-
-            self._dirty_items.clear()
-
             self._post_update_items(dirty_items, contexts)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
-
-        assert (
-            len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0
-        ), f"dirty: {self._dirty_items}; matrix: {self._dirty_matrix_items}"
-
-        self._update_views(dirty_items, dirty_matrix_items)
 
     def register_view(self, view):
         """Register a view on this canvas.

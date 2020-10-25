@@ -19,8 +19,6 @@ class ViewFixture:
 
         self.box = Box()
         self.canvas.add(self.box)
-        # No gtk main loop, so updates occur instantly
-        assert not self.canvas.require_update()
 
         # Process pending (expose) events, which cause the canvas to be drawn.
         while Gtk.events_pending():

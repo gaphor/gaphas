@@ -371,6 +371,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self.update()
 
     @AsyncIO(single=True)
+    # @nonrecursive
     def update(self):
         """Update view status according to the items updated by the canvas."""
         canvas = self.canvas
@@ -379,6 +380,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         dirty_items = self._dirty_items
         dirty_matrix_items = self._dirty_matrix_items
+
+        print("canvas update")
+        self.canvas.update_now(dirty_items, dirty_matrix_items)
 
         try:
             dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
@@ -389,6 +393,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         finally:
             dirty_items.clear()
             dirty_matrix_items.clear()
+        print("done with update")
 
     def update_matrices(self, items):
         """Recalculate matrices of the items. Items' children matrices are

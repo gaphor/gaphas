@@ -44,7 +44,6 @@ class SimpleCanvas:
         self.tail.pos = 100, 100
         self.canvas.add(self.line)
 
-        self.canvas.update_now((self.box1, self.box2, self.line))
         self.view = GtkView()
         self.view.canvas = self.canvas
 
