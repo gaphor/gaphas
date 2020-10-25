@@ -6,12 +6,11 @@ Each painter takes care of a layer in the canvas (such as grid, items
 and handles).
 """
 
+from typing_extensions import Protocol
 
-class Painter:
+
+class Painter(Protocol):
     """Painter interface."""
-
-    def __init__(self, view=None):
-        self.view = view
 
     def paint(self, context):
         """Do the paint action (called from the View)."""

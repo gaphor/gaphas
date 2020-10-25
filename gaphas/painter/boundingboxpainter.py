@@ -1,6 +1,5 @@
 from gaphas.geometry import Rectangle
 from gaphas.painter.itempainter import ItemPainter
-from gaphas.painter.painter import Painter
 
 
 class CairoBoundingBoxContext:
@@ -85,14 +84,15 @@ class CairoBoundingBoxContext:
         cr.show_text(utf8)
 
 
-class BoundingBoxPainter(Painter):
+class BoundingBoxPainter:
     """This specific case of an ItemPainter is used to calculate the bounding
     boxes (in canvas coordinates) for the items."""
 
     draw_all = True
 
     def __init__(self, item_painter=None, view=None):
-        super().__init__(view)
+        assert view
+        self.view = view
         self.item_painter = item_painter or ItemPainter(view)
 
     def draw_item(self, item, cairo):

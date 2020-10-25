@@ -1,10 +1,13 @@
 from gaphas.aspect import PaintFocused
-from gaphas.painter.painter import Painter
 
 
-class FocusedItemPainter(Painter):
+class FocusedItemPainter:
     """This painter allows for drawing on top of all the other layers for the
     focused item."""
+
+    def __init__(self, view):
+        assert view
+        self.view = view
 
     def paint(self, context):
         view = self.view

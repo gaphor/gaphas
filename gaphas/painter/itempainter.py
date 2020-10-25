@@ -1,7 +1,6 @@
 from cairo import LINE_JOIN_ROUND
 
 from gaphas.canvas import Context
-from gaphas.painter.painter import Painter
 
 DEBUG_DRAW_BOUNDING_BOX = False
 
@@ -21,9 +20,13 @@ class DrawContext(Context):
         super().__init__(**kwargs)
 
 
-class ItemPainter(Painter):
+class ItemPainter:
 
     draw_all = False
+
+    def __init__(self, view):
+        assert view
+        self.view = view
 
     def draw_item(self, item, cairo):
         view = self.view

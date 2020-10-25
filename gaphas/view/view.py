@@ -4,7 +4,7 @@ from gaphas.canvas import Context
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
-from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter
+from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
 from gaphas.quadtree import Quadtree
 
 
@@ -13,8 +13,10 @@ class View:
 
     def __init__(self, canvas=None):
         self._matrix = Matrix()
-        self._painter = DefaultPainter(self)
-        self._bounding_box_painter = BoundingBoxPainter(ItemPainter(self), self)
+        self._painter: Painter = DefaultPainter(self)
+        self._bounding_box_painter: Painter = BoundingBoxPainter(
+            ItemPainter(self), self
+        )
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
@@ -39,7 +41,7 @@ class View:
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
-    def _set_painter(self, painter):
+    def _set_painter(self, painter: Painter):
         """Set the painter to use.
 
         Painters should implement painter.Painter.
@@ -48,7 +50,7 @@ class View:
 
     painter = property(lambda s: s._painter, _set_painter)
 
-    def _set_bounding_box_painter(self, painter):
+    def _set_bounding_box_painter(self, painter: Painter):
         """Set the painter to use for bounding box calculations."""
         self._bounding_box_painter = painter
 

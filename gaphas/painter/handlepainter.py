@@ -1,10 +1,12 @@
 from cairo import ANTIALIAS_NONE
 
-from gaphas.painter.painter import Painter
 
-
-class HandlePainter(Painter):
+class HandlePainter:
     """Draw handles of items that are marked as selected in the view."""
+
+    def __init__(self, view):
+        assert view
+        self.view = view
 
     def _draw_handles(self, item, cairo, opacity=None, inner=False):
         """Draw handles for an item.
