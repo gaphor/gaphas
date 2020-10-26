@@ -29,25 +29,27 @@ class ViewFixture:
 
 @pytest.fixture()
 def view_fixture():
-    return ViewFixture()
+    fixture = ViewFixture()
+    yield fixture
+    fixture.window.destroy()
 
 
 def test_get_item_at_point(view_fixture):
     """Hover tool only reacts on motion-notify events."""
     view_fixture.box.width = 50
     view_fixture.box.height = 50
-    assert len(view_fixture.view._qtree._ids) == 1
-    assert view_fixture.view._qtree._bucket.bounds != (
-        0,
-        0,
-        0,
-        0,
-    ), view_fixture.view._qtree._bucket.bounds
 
     assert view_fixture.view.get_item_at_point((10, 10)) is view_fixture.box
     assert view_fixture.view.get_item_at_point((60, 10)) is None
 
-    view_fixture.window.destroy()
+
+def test_get_unselected_item_at_point(view_fixture):
+    view_fixture.box.width = 50
+    view_fixture.box.height = 50
+    view_fixture.view.selection.select_items(view_fixture.box)
+
+    assert view_fixture.view.get_item_at_point((10, 10)) is view_fixture.box
+    assert view_fixture.view.get_item_at_point((10, 10), selected=False) is None
 
 
 def test_get_handle_at_point(view_fixture):

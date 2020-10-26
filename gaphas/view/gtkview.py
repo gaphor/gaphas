@@ -240,7 +240,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         assert self._canvas
         items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
         for item in reversed(self._canvas.sort(items)):
-            if not selected and item in self.selected_items:
+            if not selected and item in self.selection.selected_items:
                 continue  # skip selected items
 
             v2i = self.get_matrix_v2i(item)
