@@ -58,7 +58,7 @@ def test_line_guide(win):
     win.line.handles().append(win.line._create_handle((30, 30)))
     win.line.handles().append(win.line._create_handle((40, 40)))
     win.line.orthogonal = True
-    win.canvas.update_now()
+    win.canvas.update_now((win.line,))
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)
@@ -67,8 +67,8 @@ def test_line_guide(win):
 
     guides = list(Guide(win.line).vertical())
     assert 2 == len(guides)
-    assert 00.0 == guides[0]
-    assert 20.0 == guides[1]
+    assert 10.0 == guides[0]
+    assert 30.0 == guides[1]
 
 
 def test_line_guide_horizontal(win):
@@ -77,17 +77,17 @@ def test_line_guide_horizontal(win):
     win.line.handles().append(win.line._create_handle((40, 40)))
     win.line.horizontal = True
     win.line.orthogonal = True
-    win.canvas.update_now()
+    win.canvas.update_now((win.line,))
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)
-    assert 0.0 == guides[0]
-    assert 20.0 == guides[1]
+    assert 10.0 == guides[0]
+    assert 30.0 == guides[1]
 
     guides = list(Guide(win.line).horizontal())
     assert 2 == len(guides)
-    assert 0.0 == guides[0]
-    assert 20.0 == guides[1]
+    assert 10.0 == guides[0]
+    assert 30.0 == guides[1]
 
 
 def test_guide_item_in_motion(win):
@@ -99,7 +99,7 @@ def test_guide_item_in_motion(win):
     assert 0 == win.e1.matrix[5]
 
     win.e2.matrix.translate(40, 40)
-    win.e2.request_update()
+    win.canvas.request_update(win.e2)
     assert 40 == win.e2.matrix[4]
     assert 40 == win.e2.matrix[5]
 
@@ -134,7 +134,7 @@ def test_guide_item_in_motion_2(win):
     assert 0 == win.e1.matrix[5]
 
     win.e2.matrix.translate(40, 40)
-    win.e2.request_update()
+    win.canvas.request_update(win.e2)
     assert 40 == win.e2.matrix[4]
     assert 40 == win.e2.matrix[5]
 

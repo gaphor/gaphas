@@ -34,7 +34,7 @@ import cairo
 
 from gaphas import matrix, solver, tree
 from gaphas.connections import Connections
-from gaphas.decorators import AsyncIO, nonrecursive
+from gaphas.decorators import nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
@@ -77,15 +77,13 @@ class Canvas:
     def __init__(self, create_update_context=default_update_context):
         self._create_update_context = create_update_context
         self._tree: tree.Tree[Item] = tree.Tree()
-        self._solver = solver.Solver()
-        self._connections = Connections(self._solver)
-
-        self._dirty_items = set()
-        self._dirty_matrix_items = set()
+        self._connections = Connections(solver.Solver())
 
         self._registered_views = set()
 
-    solver = property(lambda s: s._solver)
+    solver = property(lambda s: s._connections.solver)
+
+    connections = property(lambda s: s._connections)
 
     @observed
     def add(self, item, parent=None, index=None):
@@ -114,8 +112,6 @@ class Canvas:
         item._set_canvas(None)
         self._tree.remove(item)
         self._update_views(removed_items=(item,))
-        self._dirty_items.discard(item)
-        self._dirty_matrix_items.discard(item)
 
     def remove(self, item):
         """Remove item from the canvas.
@@ -302,7 +298,7 @@ class Canvas:
         >>> c.add(i2)
         >>> i3 = item.Line()
         >>> c.add (i3)
-        >>> c.update() # ensure items are indexed
+        >>> c.update_now((i1, i2, i3)) # ensure items are indexed
         >>> s = c.sort([i2, i3, i1])
         >>> s[0] is i1 and s[1] is i2 and s[2] is i3
         True
@@ -328,15 +324,6 @@ class Canvas:
             m = m.multiply(self.get_matrix_i2c(parent))
         return m
 
-    def get_matrix_i2i(self, from_item, to_item):
-        i2c = self.get_matrix_i2c(from_item)
-        c2i = self.get_matrix_i2c(to_item).inverse()
-        try:
-            return i2c.multiply(c2i)
-        except AttributeError:
-            # Fall back to old behaviour
-            return i2c * c2i
-
     @observed
     def request_update(self, item, update=True, matrix=True):
         """Set an update request for the item.
@@ -349,45 +336,22 @@ class Canvas:
         >>> c.add(ii, i)
         >>> len(c._dirty_items)
         0
-        >>> c.update_now()
+        >>> c.update_now((i, ii))
         >>> len(c._dirty_items)
         0
         """
-        if update:
-            self._dirty_items.add(item)
-        if matrix:
-            self._dirty_matrix_items.add(item)
-
-        self.update()
+        if update and matrix:
+            self._update_views(dirty_items=(item,), dirty_matrix_items=(item,))
+        elif update:
+            self._update_views(dirty_items=(item,))
+        elif matrix:
+            self._update_views(dirty_matrix_items=(item,))
 
     reversible_method(request_update, reverse=request_update)
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""
         self.request_update(item, update=False, matrix=True)
-
-    def require_update(self):
-        """Returns ``True`` or ``False`` depending on if an update is needed.
-
-        >>> c=Canvas()
-        >>> c.require_update()
-        False
-        >>> from gaphas import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> c.require_update()
-        False
-
-        Since we're not in a GTK+ mainloop, the update is not scheduled
-        asynchronous. Therefore ``require_update()`` returns ``False``.
-        """
-        return bool(self._dirty_items)
-
-    @AsyncIO(single=True)
-    def update(self):
-        """Update the canvas, if called from within a gtk-mainloop, the update
-        job is scheduled as idle job."""
-        self.update_now()
 
     def _pre_update_items(self, items):
         create_update_context = self._create_update_context
@@ -407,119 +371,35 @@ class Canvas:
             item.post_update(context)
 
     @nonrecursive
-    def update_now(self):
+    def update_now(self, dirty_items, dirty_matrix_items=()):
         """Perform an update of the items that requested an update."""
         sort = self.sort
 
         def dirty_items_with_ancestors():
-            for item in self._dirty_items:
+            for item in set(dirty_items):
                 yield item
                 yield from self._tree.get_ancestors(item)
 
-        dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
+        all_dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
 
         try:
             # allow programmers to perform tricks and hacks before item
             # full update (only called for items that requested a full update)
-            contexts = self._pre_update_items(dirty_items)
+            contexts = self._pre_update_items(all_dirty_items)
 
-            # recalculate matrices
-            dirty_matrix_items = self.update_matrices(self._dirty_matrix_items)
-            self._dirty_matrix_items.clear()
-
-            # solve all constraints
-            self._solver.solve()
-
-            # no matrix can change during constraint solving
-            assert (
-                not self._dirty_matrix_items
-            ), f"No matrices may have been marked dirty ({self._dirty_matrix_items})"
-
-            # item's can be marked dirty due to external constraints solving
-            if len(dirty_items) != len(self._dirty_items):
-                dirty_items = list(reversed(sort(self._dirty_items)))
-
-            # normalize items, which changed after constraint solving;
-            # recalculate matrices of normalized items
-            dirty_matrix_items.update(self._normalize(dirty_items))
-
+            # keep it here, since we need up to date matrices for the solver
+            for d in dirty_items:
+                d.matrix_i2c.set(*self.get_matrix_i2c(d))
             for d in dirty_matrix_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
-            # ensure constraints are still true after normalization
-            self._solver.solve()
+            # solve all constraints
+            self.solver.solve()
 
-            # item's can be marked dirty due to normalization and solving
-            if len(dirty_items) != len(self._dirty_items):
-                dirty_items = list(reversed(sort(self._dirty_items)))
-
-            self._dirty_items.clear()
-
-            self._post_update_items(dirty_items, contexts)
+            self._post_update_items(all_dirty_items, contexts)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
-
-        assert (
-            len(self._dirty_items) == 0 and len(self._dirty_matrix_items) == 0
-        ), f"dirty: {self._dirty_items}; matrix: {self._dirty_matrix_items}"
-
-        self._update_views(dirty_items, dirty_matrix_items)
-
-    def update_matrices(self, items):
-        """Recalculate matrices of the items. Items' children matrices are
-        recalculated, too.
-
-        Return items, which matrices were recalculated.
-        """
-        changed = set()
-        for item in items:
-            parent = self._tree.get_parent(item)
-            if parent is not None and parent in items:
-                # item's matrix will be updated thanks to parent's matrix
-                # update
-                continue
-
-            changed.add(item)
-
-            changed_children = self.update_matrices(set(self.get_children(item)))
-            changed.update(changed_children)
-
-        return changed
-
-    def _normalize(self, items):
-        """Update handle positions of items, so the first handle is always
-        located at (0, 0).
-
-        Return those items, which matrices changed due to first handle
-        movement.
-
-        For example having an item
-
-        >>> from gaphas.item import Element
-        >>> c = Canvas()
-        >>> e = Element()
-        >>> c.add(e)
-        >>> e.min_width = e.min_height = 0
-        >>> c.update_now()
-        >>> e.handles()
-        [<Handle object on (0, 0)>, <Handle object on (10, 0)>, <Handle object on (10, 10)>, <Handle object on (0, 10)>]
-
-        and moving its first handle a bit
-
-        >>> e.handles()[0].pos.x += 1
-        >>> list(map(float, e.handles()[0].pos))
-        [1.0, 0.0]
-
-        After normalization
-
-        >>> c._normalize([e])          # doctest: +ELLIPSIS
-        {<gaphas.item.Element object at 0x...>}
-        >>> e.handles()
-        [<Handle object on (0, 0)>, <Handle object on (9, 0)>, <Handle object on (9, 10)>, <Handle object on (0, 10)>]
-        """
-        dirty_matrix_items = {item for item in items if item.normalize()}
-        return self.update_matrices(dirty_matrix_items)
 
     def register_view(self, view):
         """Register a view on this canvas.

@@ -1,6 +1,6 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
-from gaphas.canvas import Context
+from gaphas.canvas import Canvas, Context
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
@@ -18,7 +18,7 @@ class View:
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
-        self._canvas = None
+        self._canvas: Optional[Canvas] = None
         if canvas:
             self._set_canvas(canvas)
 
@@ -155,8 +155,7 @@ class View:
 
     def get_matrix_i2v(self, item):
         """Get Item to View matrix for ``item``."""
-        matrix_i2c = self.canvas.get_matrix_i2c(item)
-        return matrix_i2c.multiply(self._matrix)
+        return item.matrix_i2c.multiply(self._matrix)
 
     def get_matrix_v2i(self, item):
         """Get View to Item matrix for ``item``."""

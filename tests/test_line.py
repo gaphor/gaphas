@@ -19,7 +19,7 @@ def test_orthogonal_horizontal_undo(revert_undo, undo_fixture):
     assert not line.horizontal
     assert len(canvas.solver._constraints) == 0
 
-    segment = Segment(line, None)
+    segment = Segment(line, canvas)
     segment.split_segment(0)
 
     line.orthogonal = True
@@ -48,7 +48,7 @@ def test_orthogonal_line_undo(revert_undo, undo_fixture):
     line = Line()
     canvas.add(line)
 
-    segment = Segment(line, None)
+    segment = Segment(line, canvas)
     segment.split_segment(0)
 
     # Start with no orthogonal constraints

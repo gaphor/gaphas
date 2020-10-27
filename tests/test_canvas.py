@@ -18,8 +18,6 @@ def test_update_matrices():
     i.matrix.translate(5.0, 0.0)
     ii.matrix.translate(0.0, 8.0)
 
-    c.update_matrices([i])
-
     assert c.get_matrix_i2c(i) == Matrix(1, 0, 0, 1, 5, 0)
     assert c.get_matrix_i2c(ii) == Matrix(1, 0, 0, 1, 5, 8)
 
@@ -86,7 +84,7 @@ def test_disconnect_item_with_constraint():
     c.add(b2)
     c.add(line)
 
-    cons = b1.ports()[0].constraint(c, line, line.handles()[0], b1)
+    cons = b1.ports()[0].constraint(line, line.handles()[0], b1)
 
     c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
     assert count(c.get_connections(handle=line.handles()[0])) == 1
@@ -131,7 +129,7 @@ def test_disconnect_item_with_constraint_by_deleting_element():
     c.add(b2)
     c.add(line)
 
-    cons = b1.ports()[0].constraint(c, line, line.handles()[0], b1)
+    cons = b1.ports()[0].constraint(line, line.handles()[0], b1)
 
     c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
     assert count(c.get_connections(handle=line.handles()[0])) == 1
@@ -165,14 +163,14 @@ def test_remove_connected_item():
 
     number_cons2 = len(canvas.solver.constraints)
 
-    conn = Connector(l1, l1.handles()[0])
+    conn = Connector(l1, l1.handles()[0], canvas.connections)
     sink = ConnectionSink(b1, b1.ports()[0])
 
     conn.connect(sink)
 
     assert canvas.get_connection(l1.handles()[0])
 
-    conn = Connector(l1, l1.handles()[1])
+    conn = Connector(l1, l1.handles()[1], canvas.connections)
     sink = ConnectionSink(b2, b2.ports()[0])
 
     conn.connect(sink)

@@ -1,12 +1,16 @@
 """This module contains everything to display a Canvas on a screen."""
 
+from typing import Optional, Set
+
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
-from gaphas.canvas import Context, instant_cairo_context
+from gaphas.canvas import Canvas, Context, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.item import Item
 from gaphas.matrix import Matrix
+from gaphas.position import Position
 from gaphas.tool import DefaultTool
 from gaphas.view.selection import Selection
 from gaphas.view.view import View
@@ -37,18 +41,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     # Signals: emitted after the change takes effect.
     __gsignals__ = {
-        "dropzone-changed": (
-            GObject.SignalFlags.RUN_LAST,
-            None,
-            (GObject.TYPE_PYOBJECT,),
-        ),
-        "hover-changed": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "focus-changed": (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
-        "selection-changed": (
-            GObject.SignalFlags.RUN_LAST,
-            None,
-            (GObject.TYPE_PYOBJECT,),
-        ),
         "tool-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
         "painter-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
     }
@@ -82,13 +74,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         ),
     }
 
-    def __init__(self, canvas=None):
+    def __init__(self, canvas: Optional[Canvas] = None):
         Gtk.DrawingArea.__init__(self)
 
-        self._dirty_items = set()
-        self._dirty_matrix_items = set()
-
-        View.__init__(self, canvas)
+        self._dirty_items: Set[Item] = set()
+        self._dirty_matrix_items: Set[Item] = set()
 
         self.set_can_focus(True)
         self.add_events(
@@ -101,30 +91,28 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             | Gdk.EventMask.STRUCTURE_MASK
         )
 
-        self._back_buffer = None
+        self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
-        self._hadjustment = None
-        self._vadjustment = None
-        self._hadjustment_handler_id = None
-        self._vadjustment_handler_id = None
-        self._hscroll_policy = None
-        self._vscroll_policy = None
+        self._hadjustment: Optional[Gtk.Adjustment] = None
+        self._vadjustment: Optional[Gtk.Adjustment] = None
+        self._hadjustment_handler_id = 0
+        self._vadjustment_handler_id = 0
+        self._hscroll_policy: Optional[Gtk.ScrollablePolicy] = None
+        self._vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
 
         self._selection = Selection()
-        self._selection.connect(
-            "selection-changed", self._forward_signal, "selection-changed"
-        )
-        self._selection.connect("focus-changed", self._forward_signal, "focus-changed")
-        self._selection.connect("hover-changed", self._forward_signal, "hover-changed")
-        self._selection.connect(
-            "dropzone-changed", self._forward_signal, "dropzone-changed"
-        )
+
+        View.__init__(self, canvas)
+
+        def redraw(selection, item, signal_name):
+            self.queue_redraw()
+
+        self._selection.connect("selection-changed", redraw, "selection-changed")
+        self._selection.connect("focus-changed", redraw, "focus-changed")
+        self._selection.connect("hover-changed", redraw, "hover-changed")
+        self._selection.connect("dropzone-changed", redraw, "dropzone-changed")
 
         self._set_tool(DefaultTool())
-
-    def _forward_signal(self, selection, item, signal_name):
-        self.queue_redraw()
-        self.emit(signal_name, item)
 
     def do_get_property(self, prop):
         if prop.name == "hadjustment":
@@ -173,11 +161,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         super()._set_bounding_box_painter(painter)
         self.emit("painter-changed")
 
-    def emit(self, *args, **kwargs):
-        """Delegate signal emissions to the DrawingArea (=GTK+)"""
-        Gtk.DrawingArea.emit(self, *args, **kwargs)
-
-    def _set_canvas(self, canvas):
+    def _set_canvas(self, canvas: Optional[Canvas]):
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
@@ -245,7 +229,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
             v2i = self.get_matrix_v2i(item)
             ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point((ix, iy))
+            item_distance = item.point(Position((ix, iy)))
             if item_distance is None:
                 print(f"Item distance is None for {item}")
                 continue
@@ -370,6 +354,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         # Remove removed items:
         if removed_items:
             selection = self._selection
+            self._dirty_matrix_items.difference_update(removed_items)
             self._dirty_items.difference_update(removed_items)
 
             for item in removed_items:
@@ -388,37 +373,61 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     @AsyncIO(single=True)
     def update(self):
         """Update view status according to the items updated by the canvas."""
-
-        if not self.get_window():
+        canvas = self.canvas
+        if not canvas:
             return
 
-        dirty_items = self._dirty_items
-        dirty_matrix_items = self._dirty_matrix_items
-
         try:
-            for i in dirty_matrix_items:
-                if i not in self._qtree:
-                    dirty_items.add(i)
-                    continue
+            dirty_items = self._dirty_items
+            dirty_matrix_items = self.all_dirty_matrix_items()
 
-                if i not in dirty_items:
-                    # Only matrix has changed, so calculate new bounding box
-                    # based on quadtree data (= bb in item coordinates).
-                    bounds = self._qtree.get_data(i)
-                    i2v = self.get_matrix_i2v(i).transform_point
-                    x0, y0 = i2v(bounds[0], bounds[1])
-                    x1, y1 = i2v(bounds[2], bounds[3])
-                    vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
-                    self._qtree.add(i, vbounds.tuple(), bounds)
+            self.canvas.update_now(dirty_items, dirty_matrix_items)
 
-            self.update_bounding_box(set(dirty_items))
-
+            dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
+            self.update_bounding_box(dirty_items)
             self.update_adjustments()
-
             self.update_back_buffer()
         finally:
-            dirty_items.clear()
+            self._dirty_items.clear()
             self._dirty_matrix_items.clear()
+
+    def all_dirty_matrix_items(self):
+        """Recalculate matrices of the items. Items' children matrices are
+        recalculated, too.
+
+        Return items, which matrices were recalculated.
+        """
+        canvas = self._canvas
+        if not canvas:
+            return
+
+        def update_matrices(items):
+            assert canvas
+            for item in items:
+                parent = canvas.get_parent(item)
+                if parent is not None and parent in items:
+                    # item's matrix will be updated thanks to parent's matrix update
+                    continue
+
+                yield item
+
+                yield from update_matrices(set(canvas.get_children(item)))
+
+        return set(update_matrices(self._dirty_matrix_items))
+
+    def update_qtree(self, dirty_items, dirty_matrix_items):
+        for i in dirty_matrix_items:
+            if i not in self._qtree:
+                yield i
+            elif i not in dirty_items:
+                # Only matrix has changed, so calculate new bounding box
+                # based on quadtree data (= bb in item coordinates).
+                bounds = self._qtree.get_data(i)
+                i2v = self.get_matrix_i2v(i).transform_point
+                x0, y0 = i2v(bounds[0], bounds[1])
+                x1, y1 = i2v(bounds[2], bounds[3])
+                vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
+                self._qtree.add(i, vbounds.tuple(), bounds)
 
     def update_bounding_box(self, items):
         cr = (
@@ -445,6 +454,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 )
                 self._back_buffer_needs_resizing = False
 
+            assert self._back_buffer
             allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 

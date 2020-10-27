@@ -2,6 +2,7 @@
 from math import atan2
 from typing import Optional, Tuple
 
+from gaphas.canvas import Canvas
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
@@ -14,6 +15,12 @@ from gaphas.state import (
     reversible_pair,
     reversible_property,
 )
+
+
+def matrix_i2i(from_item, to_item):
+    i2c = from_item.matrix_i2c
+    c2i = to_item.matrix_i2c.inverse()
+    return i2c.multiply(c2i)
 
 
 class Item:
@@ -35,7 +42,7 @@ class Item:
     """
 
     def __init__(self):
-        self._canvas = None
+        self._canvas: Optional[Canvas] = None
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
         self._handles = []
@@ -55,8 +62,8 @@ class Item:
         if canvas:
             self.setup_canvas()
 
-    canvas = reversible_property(
-        lambda s: s._canvas, _set_canvas, doc="Canvas owning this item"
+    reversible_method(
+        _set_canvas, _set_canvas, bind={"canvas": lambda self, canvas: self._canvas}
     )
 
     constraints = property(lambda s: s._constraints, doc="Item constraints")
@@ -66,7 +73,8 @@ class Item:
 
         This method can be used to create constraints.
         """
-        add = self.canvas.solver.add_constraint
+        assert self._canvas
+        add = self._canvas.solver.add_constraint
         for c in self._constraints:
             add(c)
 
@@ -75,9 +83,10 @@ class Item:
 
         This method can be used to dispose constraints.
         """
-        self.canvas.disconnect_item(self)
+        assert self._canvas
+        self._canvas.disconnect_item(self)
 
-        remove = self.canvas.solver.remove_constraint
+        remove = self._canvas.solver.remove_constraint
         for c in self._constraints:
             remove(c)
 
@@ -88,10 +97,6 @@ class Item:
     @property
     def matrix_i2c(self) -> Matrix:
         return self._matrix_i2c
-
-    def request_update(self, update=True, matrix=True):
-        if self._canvas:
-            self._canvas.request_update(self, update=update, matrix=matrix)
 
     def pre_update(self, context):
         """Perform any changes before item update here, for example:
@@ -117,39 +122,6 @@ class Item:
         All canvas invariants are true.
         """
         pass
-
-    def normalize(self):
-        """Update handle positions of the item, so the first handle is always
-        located at (0, 0).
-
-        Note that, since this method basically does some housekeeping
-        during the update phase, there's no need to keep track of the
-        changes.
-
-        Alternative implementation can also be created, e.g. set (0,
-        0) in the center of a circle or change it depending on the
-        location of a rotation point.
-
-        Returns ``True`` if some updates have been done, ``False``
-        otherwise.
-
-        See ``canvas._normalize()`` for tests.
-        """
-        updated = False
-        handles = self._handles
-        if handles:
-            x, y = list(map(float, handles[0].pos))
-            if x:
-                self.matrix.translate(x, 0)
-                updated = True
-                for h in handles:
-                    h.pos.x -= x
-            if y:
-                self.matrix.translate(0, y)
-                updated = True
-                for h in handles:
-                    h.pos.y -= y
-        return updated
 
     def draw(self, context):
         """Render the item to a canvas view. Context contains the following
@@ -309,23 +281,6 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
-    def normalize(self):
-        """Normalize only NW and SE handles."""
-        updated = False
-        handles = (self._handles[NW], self._handles[SE])
-        x, y = list(map(float, handles[0].pos))
-        if x:
-            self.matrix.translate(x, 0)
-            updated = True
-            for h in handles:
-                h.pos.x -= x
-        if y:
-            self.matrix.translate(0, y)
-            updated = True
-            for h in handles:
-                h.pos.y -= y
-        return updated
-
     def point(self, pos):
         """Distance from the point (x, y) to the item.
 
@@ -391,12 +346,12 @@ class Line(Item):
         is observed, so the undo system will update the contents
         properly
         """
-        if not self.canvas:
+        if not self._canvas:
             self._orthogonal_constraints = orthogonal and [None] or []
             return
 
         for c in self._orthogonal_constraints:
-            self.canvas.solver.remove_constraint(c)
+            self._canvas.solver.remove_constraint(c)
         del self._orthogonal_constraints[:]
 
         if not orthogonal:
@@ -406,7 +361,7 @@ class Line(Item):
         # if len(h) < 3:
         #    self.split_segment(0)
         eq = EqualsConstraint  # lambda a, b: a - b
-        add = self.canvas.solver.add_constraint
+        add = self._canvas.solver.add_constraint
         cons = []
         rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
@@ -419,7 +374,7 @@ class Line(Item):
             p1.x.notify()
             p1.y.notify()
         self._set_orthogonal_constraints(cons)
-        self.request_update()
+        self._canvas.request_update(self)
 
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):
@@ -483,8 +438,9 @@ class Line(Item):
     def teardown_canvas(self):
         """Remove constraints created in setup_canvas()."""
         super().teardown_canvas()
+        assert self._canvas
         for c in self._orthogonal_constraints:
-            self.canvas.solver.remove_constraint(c)
+            self._canvas.solver.remove_constraint(c)
 
     @observed
     def _reversible_insert_handle(self, index, handle):

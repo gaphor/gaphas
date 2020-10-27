@@ -2,37 +2,12 @@
 
 Aspects form intermediate items between tools and items.
 """
-import warnings
-from functools import singledispatch as real_singledispatch
+from functools import singledispatch
 
 from gi.repository import Gdk
 
-from gaphas.item import Element
-
-
-def singledispatch(func):
-    """Wrapper around singledispatch(), with an extra compatibility function so
-    code will not break when upgrading from 1.0 to 1.1."""
-    wrapped = real_singledispatch(func)
-
-    def when_type(*types):
-        if not types:
-            raise TypeError("should provide at least one type")
-        warnings.warn(
-            "when_type: is deprecated, use `register` instead",
-            category=DeprecationWarning,
-            stacklevel=2,
-        )
-
-        def wrapper_for_types(func):
-            for cls in types:
-                wrapped.register(cls, func)
-            return func
-
-        return wrapper_for_types
-
-    wrapped.when_type = when_type  # type: ignore[attr-defined]
-    return wrapped
+from gaphas.connections import Connections
+from gaphas.item import Element, matrix_i2i
 
 
 class ItemFinder:
@@ -101,7 +76,7 @@ class ItemInMotion:
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
-        item.canvas.request_matrix_update(item)
+        view.canvas.request_matrix_update(item)
 
     def stop_move(self):
         pass
@@ -173,9 +148,9 @@ class ItemHandleInMotion:
 
     def start_move(self, pos):
         self.last_x, self.last_y = pos
-        canvas = self.item.canvas
+        canvas = self.view.canvas
 
-        cinfo = canvas.get_connection(self.handle)
+        cinfo = canvas.connections.get_connection(self.handle)
         if cinfo:
             canvas.solver.remove_constraint(cinfo.constraint)
 
@@ -193,7 +168,7 @@ class ItemHandleInMotion:
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
-        item.request_update(matrix=False)
+        view.canvas.request_update(item, matrix=False)
 
         return sink
 
@@ -220,7 +195,8 @@ class ItemHandleInMotion:
         if port is not None:
             assert connectable is not None
 
-            connector = Connector(self.item, self.handle)
+            connections = self.view.canvas.connections
+            connector = Connector(self.item, self.handle, connections)
             sink = ConnectionSink(connectable, port)
 
             if connector.allow(sink):
@@ -240,9 +216,10 @@ class ItemConnector:
 
     GLUE_DISTANCE = 10  # Glue distance in view points
 
-    def __init__(self, item, handle):
+    def __init__(self, item, handle, connections: Connections):
         self.item = item
         self.handle = handle
+        self.connections = connections
 
     def allow(self, sink):
         return True
@@ -251,7 +228,7 @@ class ItemConnector:
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
-        matrix = item.canvas.get_matrix_i2i(item, sink.item)
+        matrix = matrix_i2i(item, sink.item)
         pos = matrix.transform_point(*handle.pos)
         gluepos, dist = sink.port.glue(pos)
         matrix.invert()
@@ -264,7 +241,7 @@ class ItemConnector:
         handle is reattached to another element.
         """
 
-        cinfo = self.item.canvas.get_connection(self.handle)
+        cinfo = self.connections.get_connection(self.handle)
 
         # Already connected? disconnect first.
         if cinfo:
@@ -287,19 +264,18 @@ class ItemConnector:
          callback
             Function to be called on disconnection.
         """
-        canvas = self.item.canvas
         handle = self.handle
         item = self.item
 
-        constraint = sink.port.constraint(canvas, item, handle, sink.item)
+        constraint = sink.port.constraint(item, handle, sink.item)
 
-        canvas.connect_item(
+        self.connections.connect_item(
             item, handle, sink.item, sink.port, constraint, callback=callback
         )
 
     def disconnect(self):
         """Disconnect the handle from the attached element."""
-        self.item.canvas.disconnect_item(self.item, self.handle)
+        self.connections.disconnect_item(self.item, self.handle)
 
 
 Connector = singledispatch(ItemConnector)

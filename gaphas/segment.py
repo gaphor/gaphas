@@ -12,12 +12,12 @@ from gaphas.aspect import (
     singledispatch,
 )
 from gaphas.geometry import distance_line_point, distance_point_point_fast
-from gaphas.item import Line
+from gaphas.item import Line, matrix_i2i
 
 
 @singledispatch
 class Segment:
-    def __init__(self, item, view):
+    def __init__(self, item, canvas):
         raise TypeError
 
     def split_segment(self, segment, count=2):
@@ -32,14 +32,14 @@ class Segment:
 
 @Segment.register(Line)  # type: ignore
 class LineSegment:
-    def __init__(self, item, view):
+    def __init__(self, item, canvas):
         self.item = item
-        self.view = view
+        self.canvas = canvas
 
     def split(self, pos):
         item = self.item
         handles = item.handles()
-        x, y = self.view.get_matrix_v2i(item).transform_point(*pos)
+        x, y = self.canvas.get_matrix_i2c(item).inverse().transform_point(*pos)
         for h1, h2 in zip(handles, handles[1:]):
             xp = (h1.pos.x + h2.pos.x) / 2
             yp = (h1.pos.y + h2.pos.y) / 2
@@ -147,28 +147,23 @@ class LineSegment:
             Connected item.
         """
         connected = self.item
+        canvas = self.canvas
 
         def find_port(line, handle, item):
             # port = None
             # max_dist = sys.maxint
-            canvas = item.canvas
 
-            ix, iy = canvas.get_matrix_i2i(line, item).transform_point(*handle.pos)
+            ix, iy = matrix_i2i(line, item).transform_point(*handle.pos)
 
             # find the port using item's coordinates
             sink = ConnectionSink(item, None)
             return sink.find_port((ix, iy))
 
-        if not connected.canvas:
-            # No canvas, no constraints
-            return
-
-        canvas = connected.canvas
         for cinfo in list(canvas.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
 
-            constraint = port.constraint(canvas, item, handle, connected)
+            constraint = port.constraint(item, handle, connected)
 
             cinfo = canvas.get_connection(handle)
             canvas.reconnect_item(item, handle, port, constraint=constraint)
@@ -188,11 +183,12 @@ class SegmentHandleFinder(ItemHandleFinder):
         handle = None
         if self.item is view.selection.focused_item:
             try:
-                segment = Segment(self.item, self.view)
+                segment = Segment(self.item, self.view.canvas)
             except TypeError:
                 pass
             else:
-                handle = segment.split(pos)
+                cpos = view.matrix.inverse().transform_point(*pos)
+                handle = segment.split(cpos)
 
         if not handle:
             item, handle = super().get_handle_at_point(pos)
@@ -227,10 +223,10 @@ class SegmentHandleSelection(ItemHandleSelection):
 
         if d < 2:
             assert len(self.view.canvas.solver._marked_cons) == 0
-            Segment(item, self.view).merge_segment(segment)
+            Segment(item, self.view.canvas).merge_segment(segment)
 
         if handle:
-            item.request_update()
+            self.view.canvas.request_update(item)
 
 
 @PaintFocused.register(Line)

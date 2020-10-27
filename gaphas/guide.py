@@ -253,6 +253,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
         if not sink:
             item = self.item
             view = self.view
+            canvas = view.canvas
             x, y = pos
             v2i = view.get_matrix_v2i(item)
 
@@ -277,7 +278,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
             self.queue_draw_guides()
 
-            item.request_update()
+            canvas.request_update(item)
 
     def stop_move(self):
         self.queue_draw_guides()
