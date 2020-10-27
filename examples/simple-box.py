@@ -5,7 +5,6 @@ import gi
 from examples.exampleitems import Box
 from gaphas import Canvas, GtkView
 from gaphas.item import Line
-from gaphas.painter import DefaultPainter
 
 # fmt: off
 gi.require_version("Gtk", "3.0")  # noqa: isort:skip
@@ -16,7 +15,6 @@ from gi.repository import Gtk  # noqa: isort:skip
 def create_canvas(canvas, title):
     # Setup drawing window
     view = GtkView()
-    view.painter = DefaultPainter()
     view.canvas = canvas
     window = Gtk.Window()
     window.set_title(title)

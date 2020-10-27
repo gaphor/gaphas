@@ -19,11 +19,11 @@ import gi
 from examples.exampleitems import Box, Circle, FatLine, PortoBox, Text
 from gaphas import Canvas, GtkView, View, state
 from gaphas.canvas import Context
-from gaphas.freehand import FreeHandPainter
 from gaphas.item import Line
 from gaphas.painter import (
     BoundingBoxPainter,
     FocusedItemPainter,
+    FreeHandPainter,
     HandlePainter,
     ItemPainter,
     PainterChain,
@@ -112,12 +112,14 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.painter = (
         PainterChain()
-        .append(FreeHandPainter(ItemPainter()))
-        .append(HandlePainter())
-        .append(FocusedItemPainter())
-        .append(ToolPainter())
+        .append(FreeHandPainter(ItemPainter(view)))
+        .append(HandlePainter(view))
+        .append(FocusedItemPainter(view))
+        .append(ToolPainter(view))
     )
-    view.bounding_box_painter = BoundingBoxPainter(FreeHandPainter(ItemPainter()))
+    view.bounding_box_painter = BoundingBoxPainter(
+        FreeHandPainter(ItemPainter(view)), view
+    )
     w = Gtk.Window()
     w.set_title(title)
     w.set_default_size(400, 120)
@@ -235,7 +237,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     def on_write_demo_png_clicked(button):
         svgview = View(view.canvas)
-        svgview.painter = ItemPainter()
+        svgview.painter = ItemPainter(svgview)
 
         # Update bounding boxes with a temporary CairoContext
         # (used for stuff like calculating font metrics)
@@ -263,7 +265,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     def on_write_demo_svg_clicked(button):
         svgview = View(view.canvas)
-        svgview.painter = ItemPainter()
+        svgview.painter = ItemPainter(svgview)
 
         # Update bounding boxes with a temporaly CairoContext
         # (used for stuff like calculating font metrics)

@@ -11,8 +11,10 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 """
 from math import sqrt
 from random import Random
+from typing import Sequence
 
-from gaphas.painter import Context, Painter
+from gaphas.item import Item
+from gaphas.painter.painter import ItemPainterType
 
 
 class FreeHandCairoContext:
@@ -131,23 +133,16 @@ class FreeHandCairoContext:
             self.close_path()
 
 
-class FreeHandPainter(Painter):
-    def __init__(self, subpainter, sloppiness=1.0, view=None):
+class FreeHandPainter:
+    def __init__(self, subpainter: ItemPainterType, sloppiness=1.0):
         self.subpainter = subpainter
         self.sloppiness = sloppiness
-        if view:
-            self.set_view(view)
 
-    def set_view(self, view):
-        self.subpainter.set_view(view)
+    def paint_item(self, item: Item, cairo):
+        # Bounding  painter requires painting per item
+        self.subpainter.paint_item(item, cairo)
 
-    def draw_item(self, item, cairo):
-        # Bounding box painter requires painting per item
-        self.subpainter.draw_item(item, cairo)
-
-    def paint(self, context):
-        subcontext = Context(
-            cairo=FreeHandCairoContext(context.cairo, self.sloppiness),
-            items=context.items,
+    def paint(self, items: Sequence[Item], cairo):
+        self.subpainter.paint(
+            items, FreeHandCairoContext(cairo, self.sloppiness),
         )
-        self.subpainter.paint(subcontext)

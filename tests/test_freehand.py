@@ -1,6 +1,6 @@
 import cairo
 
-from gaphas.freehand import FreeHandCairoContext
+from gaphas.painter.freehand import FreeHandCairoContext
 
 
 def test_drawing_lines():
