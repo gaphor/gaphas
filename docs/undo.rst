@@ -130,13 +130,9 @@ On the canvas only ``add()`` and ``remove()`` are monitored:
 
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
-    >>> item.canvas is canvas
-    True
     >>> undo()
     >>> canvas.get_all_items()
     []
-    >>> item.canvas is None
-    True
     >>> canvas.add(item)
     >>> del undo_list[:]
     >>> canvas.remove(item)
@@ -155,15 +151,11 @@ TODO!
 
     >>> child = Item()
     >>> canvas.add(child, parent=item)
-    >>> child.canvas is canvas
-    True
     >>> canvas.get_parent(child) is item
     True
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
     >>> undo()
-    >>> child.canvas is None
-    True
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
     >>> child in canvas.get_all_items()
@@ -173,8 +165,6 @@ Now redo the previous undo action:
 
     >>> undo_list[:] = redo_list[:]
     >>> undo()
-    >>> child.canvas is canvas
-    True
     >>> canvas.get_parent(child) is item
     True
     >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
@@ -294,7 +284,6 @@ An element has ``min_height`` and ``min_width`` properties.
     >>> canvas = Canvas()
     >>> canvas.add(e)
     >>> undo()
-    >>> e.canvas
 
 item.py: Line
 -------------
@@ -380,7 +369,6 @@ Now remove the line from the canvas:
 
 The handles are disconnected:
 
-    >>> l.canvas
     >>> canvas.get_connection(l.handles()[0])
     >>> canvas.get_connection(l.handles()[1])
 
@@ -388,8 +376,6 @@ Undoing the remove() action should put everything back in place again:
 
     >>> undo()
 
-    >>> l.canvas                                        # doctest: +ELLIPSIS
-    <gaphas.canvas.Canvas object at 0x...>
     >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
     >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
