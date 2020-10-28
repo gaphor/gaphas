@@ -17,7 +17,7 @@ import cairo
 import gi
 
 from examples.exampleitems import Box, Circle, FatLine, PortoBox, Text
-from gaphas import Canvas, GtkView, View, state
+from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
 from gaphas.item import Line
 from gaphas.painter import (
@@ -112,13 +112,13 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.painter = (
         PainterChain()
-        .append(FreeHandPainter(ItemPainter(view)))
+        .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
         .append(FocusedItemPainter(view))
         .append(ToolPainter(view))
     )
     view.bounding_box_painter = BoundingBoxPainter(
-        FreeHandPainter(ItemPainter(view)), view.bounding_box_updater
+        FreeHandPainter(ItemPainter(view.selection)), view.bounding_box_updater
     )
     w = Gtk.Window()
     w.set_title(title)
@@ -236,25 +236,26 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.png")
 
     def on_write_demo_png_clicked(button):
-        svgview = View(view.canvas)
-        svgview.painter = ItemPainter(svgview)
+        painter = ItemPainter()
 
         # Update bounding boxes with a temporary CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
-        svgview.update_bounding_box(tmpcr)
+        bounding_box = (
+            BoundingBoxPainter(painter)
+            .paint(canvas.get_all_items(), tmpcr)
+            .bounding_box
+        )
         tmpcr.show_page()
         tmpsurface.flush()
 
-        w, h = svgview.bounding_box.width, svgview.bounding_box.height
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
+        surface = cairo.ImageSurface(
+            cairo.FORMAT_ARGB32, int(bounding_box.width), int(bounding_box.height)
+        )
         cr = cairo.Context(surface)
-        svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
-        cr.save()
-        paint(svgview, cr)
-
-        cr.restore()
+        cr.translate(-bounding_box.x, -bounding_box.y)
+        painter.paint(items=view.canvas.get_all_items(), cairo=cr)
         cr.show_page()
         surface.write_to_png("demo.png")
 
@@ -264,22 +265,26 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.svg")
 
     def on_write_demo_svg_clicked(button):
-        svgview = View(view.canvas)
-        svgview.painter = ItemPainter(svgview)
+        painter = ItemPainter()
 
         # Update bounding boxes with a temporaly CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
-        svgview.update_bounding_box(tmpcr)
+        bounding_box = (
+            BoundingBoxPainter(painter)
+            .paint(canvas.get_all_items(), tmpcr)
+            .bounding_box
+        )
         tmpcr.show_page()
         tmpsurface.flush()
 
-        w, h = svgview.bounding_box.width, svgview.bounding_box.height
-        surface = cairo.SVGSurface("demo.svg", w, h)
+        surface = cairo.SVGSurface(
+            "demo.svg", int(bounding_box.width), int(bounding_box.height)
+        )
         cr = cairo.Context(surface)
-        svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
-        paint(svgview, cr)
+        cr.translate(-bounding_box.x, -bounding_box.y)
+        painter.paint(items=view.canvas.get_all_items(), cairo=cr)
         cr.show_page()
         surface.flush()
         surface.finish()

@@ -98,10 +98,21 @@ class BoundingBoxPainter:
     def __init__(
         self,
         item_painter: ItemPainterType,
-        bounding_box_updater: Callable[[Item, Rectangle], None],
+        bounding_box_updater: Optional[Callable[[Item, Rectangle], None]] = None,
     ):
         self.item_painter = item_painter
-        self.bounding_box_updater = bounding_box_updater
+        if bounding_box_updater:
+            self.bounding_box_updater = bounding_box_updater
+        else:
+            self.bounding_box = Rectangle()
+
+            def default_bounding_box_updater(item, bounds):
+                if not self.bounding_box:
+                    self.bounding_box = Rectangle(*bounds)
+                else:
+                    self.bounding_box += bounds
+
+            self.bounding_box_updater = default_bounding_box_updater
 
     def paint_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
@@ -118,7 +129,8 @@ class BoundingBoxPainter:
         bounds.expand(1)
         self.bounding_box_updater(item, bounds)
 
-    def paint(self, items: Sequence[Item], cairo):
+    def paint(self, items: Sequence[Item], cairo) -> BoundingBoxPainter:
         """Draw the items."""
         for item in items:
             self.paint_item(item, cairo)
+        return self

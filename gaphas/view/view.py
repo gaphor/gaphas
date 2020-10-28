@@ -15,7 +15,7 @@ class View:
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: Painter = BoundingBoxPainter(
-            ItemPainter(self), self.bounding_box_updater
+            ItemPainter(self.selection), self.bounding_box_updater  # type: ignore[attr-defined]
         )
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
