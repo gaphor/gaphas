@@ -39,7 +39,7 @@ class LineSegment:
     def split(self, pos):
         item = self.item
         handles = item.handles()
-        x, y = self.canvas.get_matrix_i2c(item).inverse().transform_point(*pos)
+        x, y = item.matrix_i2c.inverse().transform_point(*pos)
         for h1, h2 in zip(handles, handles[1:]):
             xp = (h1.pos.x + h2.pos.x) / 2
             yp = (h1.pos.y + h2.pos.y) / 2
