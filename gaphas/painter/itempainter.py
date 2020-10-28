@@ -5,8 +5,6 @@ from cairo import LINE_JOIN_ROUND
 from gaphas.canvas import Context
 from gaphas.item import Item
 
-DEBUG_DRAW_BOUNDING_BOX = False
-
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
 TOLERANCE = 0.8
@@ -54,21 +52,6 @@ class ItemPainter:
         finally:
             cairo.restore()
 
-    def _draw_bounds(self, item, cairo):
-        view = self.view
-        try:
-            b = view.get_item_bounding_box(item)
-        except KeyError:
-            pass  # No bounding box right now..
-        else:
-            cairo.save()
-            cairo.identity_matrix()
-            cairo.set_source_rgb(0.8, 0, 0)
-            cairo.set_line_width(1.0)
-            cairo.rectangle(*b)
-            cairo.stroke()
-            cairo.restore()
-
     def paint(self, items: Sequence[Item], cairo):
         """Draw the items."""
         cairo.set_tolerance(TOLERANCE)
@@ -76,5 +59,3 @@ class ItemPainter:
 
         for item in items:
             self.paint_item(item, cairo)
-            if DEBUG_DRAW_BOUNDING_BOX:
-                self._draw_bounds(item, cairo)

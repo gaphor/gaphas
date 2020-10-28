@@ -474,14 +474,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             self.painter.paint(items, cr)
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                cr.save()
-                cr.identity_matrix()
-                cr.set_source_rgb(0, 0.8, 0)
-                cr.set_line_width(1.0)
-                b = self.bounding_box
-                cr.rectangle(b[0], b[1], b[2], b[3])
-                cr.stroke()
-                cr.restore()
+                for item in items:
+                    try:
+                        b = self.get_item_bounding_box(item)
+                    except KeyError:
+                        pass  # No bounding box right now..
+                    else:
+                        cr.save()
+                        cr.identity_matrix()
+                        cr.set_source_rgb(0.8, 0, 0)
+                        cr.set_line_width(1.0)
+                        cr.rectangle(*b)
+                        cr.stroke()
+                        cr.restore()
 
             if DEBUG_DRAW_QUADTREE:
 
