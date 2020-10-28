@@ -16,7 +16,7 @@ from gaphas.view.selection import Selection
 from gaphas.view.view import View
 
 # Handy debug flag for drawing bounding boxes around the items.
-DEBUG_DRAW_BOUNDING_BOX = False
+DEBUG_DRAW_BOUNDING_BOX = 1
 DEBUG_DRAW_QUADTREE = False
 
 # The default cursor (use in case of a cursor reset)
@@ -436,6 +436,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             else instant_cairo_context()
         )
 
+        cr.set_matrix(
+            self.matrix.to_cairo()
+        )  # Need it, so I can size things like handles
         cr.save()
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
@@ -471,7 +474,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 (0, 0, allocation.width, allocation.height)
             )
 
+            cr.set_matrix(self.matrix.to_cairo())
+            cr.save()
             self.painter.paint(items, cr)
+            cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
                 for item in items:

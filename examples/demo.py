@@ -118,7 +118,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         .append(ToolPainter(view))
     )
     view.bounding_box_painter = BoundingBoxPainter(
-        FreeHandPainter(ItemPainter(view)), view
+        FreeHandPainter(ItemPainter(view)), view.bounding_box_updater
     )
     w = Gtk.Window()
     w.set_title(title)
@@ -368,11 +368,11 @@ def create_canvas(c=None):
     c.add(pb)
 
     ut = UnderlineText()
-    ut.matrix.translate(70, 30)
+    ut.matrix.translate(70, 130)
     c.add(ut)
 
     t = MyText("Single line")
-    t.matrix.translate(70, 70)
+    t.matrix.translate(70, 170)
     c.add(t)
 
     line = MyLine()
@@ -383,21 +383,21 @@ def create_canvas(c=None):
     line.matrix.translate(30, 60)
     line.orthogonal = True
 
-    off_y = 0
-    for align_x in (-1, 0, 1):
-        for align_y in (-1, 0, 1):
-            t = MyText(
-                f"Aligned text {align_x:d}/{align_y:d}",
-                align_x=align_x,
-                align_y=align_y,
-            )
-            t.matrix.translate(120, 200 + off_y)
-            off_y += 30
-            c.add(t)
+    # off_y = 0
+    # for align_x in (-1, 0, 1):
+    #     for align_y in (-1, 0, 1):
+    #         t = MyText(
+    #             f"Aligned text {align_x:d}/{align_y:d}",
+    #             align_x=align_x,
+    #             align_y=align_y,
+    #         )
+    #         t.matrix.translate(120, 200 + off_y)
+    #         off_y += 30
+    #         c.add(t)
 
-    t = MyText("Multiple\nlines", multiline=True)
-    t.matrix.translate(70, 100)
-    c.add(t)
+    # t = MyText("Multiple\nlines", multiline=True)
+    # t.matrix.translate(70, 100)
+    # c.add(t)
 
     return c
 

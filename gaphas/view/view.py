@@ -15,7 +15,7 @@ class View:
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: Painter = BoundingBoxPainter(
-            ItemPainter(self), self
+            ItemPainter(self), self.bounding_box_updater
         )
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
@@ -124,7 +124,7 @@ class View:
             items = self._qtree.find_inside(rect)
         return self._canvas.sort(items)
 
-    def set_item_bounding_box(self, item, bounds):
+    def bounding_box_updater(self, item, bounds):
         """Update the bounding box of the item.
 
         ``bounds`` is in view coordinates.

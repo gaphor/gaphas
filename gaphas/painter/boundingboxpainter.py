@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 from gaphas.geometry import Rectangle
-
-if TYPE_CHECKING:
-    from gaphas.item import Item
-    from gaphas.painter.painter import ItemPainterType
-    from gaphas.view import View
+from gaphas.item import Item
+from gaphas.painter.painter import ItemPainterType
 
 
 class CairoBoundingBoxContext:
@@ -94,28 +91,32 @@ class CairoBoundingBoxContext:
 
 class BoundingBoxPainter:
     """This specific case of an ItemPainter is used to calculate the bounding
-    boxes (in canvas coordinates) for the items."""
+    boxes (in cairo device coordinates) for the items."""
 
     draw_all = True
 
-    def __init__(self, item_painter: ItemPainterType, view: View):
+    def __init__(
+        self,
+        item_painter: ItemPainterType,
+        bounding_box_updater: Callable[[Item, Rectangle], None],
+    ):
         self.item_painter = item_painter
-        self.view = view
+        self.bounding_box_updater = bounding_box_updater
 
     def paint_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
         self.item_painter.paint_item(item, cairo)
+        # Bounding box is in view (cairo root) coordinates
         bounds = cairo.get_bounds()
 
         # Update bounding box with handles.
-        view = self.view
-        i2v = view.get_matrix_i2v(item).transform_point
+        i2c = item.matrix_i2c.transform_point
         for h in item.handles():
-            cx, cy = i2v(*h.pos)
+            cx, cy = cairo.user_to_device(*i2c(*h.pos))
             bounds += (cx - 5, cy - 5, 9, 9)
 
         bounds.expand(1)
-        view.set_item_bounding_box(item, bounds)
+        self.bounding_box_updater(item, bounds)
 
     def paint(self, items: Sequence[Item], cairo):
         """Draw the items."""

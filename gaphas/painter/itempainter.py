@@ -25,7 +25,7 @@ class ItemPainter:
 
     draw_all = False
 
-    def __init__(self, view):
+    def __init__(self, view=None):
         assert view
         self.view = view
 
@@ -33,8 +33,7 @@ class ItemPainter:
         view = self.view
         cairo.save()
         try:
-            cairo.set_matrix(view.matrix.to_cairo())
-            cairo.transform(view.canvas.get_matrix_i2c(item).to_cairo())
+            cairo.transform(item.matrix_i2c.to_cairo())
 
             item.draw(
                 DrawContext(
