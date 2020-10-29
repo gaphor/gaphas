@@ -9,9 +9,9 @@ from gaphas.canvas import Canvas, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.item import Item
-from gaphas.matrix import Matrix
 from gaphas.position import Position
 from gaphas.tool import DefaultTool
+from gaphas.view.scrolling import Scrolling
 from gaphas.view.selection import Selection
 from gaphas.view.view import View
 
@@ -21,6 +21,16 @@ DEBUG_DRAW_QUADTREE = False
 
 # The default cursor (use in case of a cursor reset)
 DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
+
+EVENT_MASK = (
+    Gdk.EventMask.BUTTON_PRESS_MASK
+    | Gdk.EventMask.BUTTON_RELEASE_MASK
+    | Gdk.EventMask.POINTER_MOTION_MASK
+    | Gdk.EventMask.KEY_PRESS_MASK
+    | Gdk.EventMask.KEY_RELEASE_MASK
+    | Gdk.EventMask.SCROLL_MASK
+    | Gdk.EventMask.STRUCTURE_MASK
+)
 
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
@@ -80,25 +90,20 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._dirty_items: Set[Item] = set()
         self._dirty_matrix_items: Set[Item] = set()
 
-        self.set_can_focus(True)
-        self.add_events(
-            Gdk.EventMask.BUTTON_PRESS_MASK
-            | Gdk.EventMask.BUTTON_RELEASE_MASK
-            | Gdk.EventMask.POINTER_MOTION_MASK
-            | Gdk.EventMask.KEY_PRESS_MASK
-            | Gdk.EventMask.KEY_RELEASE_MASK
-            | Gdk.EventMask.SCROLL_MASK
-            | Gdk.EventMask.STRUCTURE_MASK
-        )
-
         self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
-        self._hadjustment: Optional[Gtk.Adjustment] = None
-        self._vadjustment: Optional[Gtk.Adjustment] = None
-        self._hadjustment_handler_id = 0
-        self._vadjustment_handler_id = 0
-        self._hscroll_policy: Optional[Gtk.ScrollablePolicy] = None
-        self._vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
+
+        self.set_can_focus(True)
+        self.add_events(EVENT_MASK)
+
+        def alignment_updated(matrix):
+            assert self._canvas
+            self._matrix *= matrix  # type: ignore[operator]
+
+            # Force recalculation of the bounding boxes:
+            self.request_update((), self._canvas.get_all_items())
+
+        self._scrolling = Scrolling(alignment_updated)
 
         self._selection = Selection()
 
@@ -115,38 +120,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         self._set_tool(DefaultTool())
 
     def do_get_property(self, prop):
-        if prop.name == "hadjustment":
-            return self._hadjustment
-        elif prop.name == "vadjustment":
-            return self._vadjustment
-        elif prop.name == "hscroll-policy":
-            return self._hscroll_policy
-        elif prop.name == "vscroll-policy":
-            return self._vscroll_policy
-        else:
-            raise AttributeError(f"Unknown property {prop.name}")
+        return self._scrolling.get_property(prop)
 
     def do_set_property(self, prop, value):
-        if prop.name == "hadjustment":
-            if value is not None:
-                self._hadjustment = value
-                self._hadjustment_handler_id = self._hadjustment.connect(
-                    "value-changed", self.on_adjustment_changed
-                )
-                self.update_adjustments()
-        elif prop.name == "vadjustment":
-            if value is not None:
-                self._vadjustment = value
-                self._vadjustment_handler_id = self._vadjustment.connect(
-                    "value-changed", self.on_adjustment_changed
-                )
-                self.update_adjustments()
-        elif prop.name == "hscroll-policy":
-            self._hscroll_policy = value
-        elif prop.name == "vscroll-policy":
-            self._vscroll_policy = value
-        else:
-            raise AttributeError(f"Unknown property {prop.name}")
+        self._scrolling.set_property(prop, value)
 
     def _set_painter(self, painter):
         """Set the painter to use.
@@ -195,9 +172,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     tool = property(lambda s: s._tool, _set_tool)
 
-    hadjustment = property(lambda s: s._hadjustment)
+    hadjustment = property(lambda s: s._scrolling.hadjustment)
 
-    vadjustment = property(lambda s: s._vadjustment)
+    vadjustment = property(lambda s: s._scrolling.vadjustment)
 
     def zoom(self, factor):
         """Zoom in/out by factor ``factor``."""
@@ -279,60 +256,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 return item, h
         return None, None
 
-    @AsyncIO(single=True)
-    def update_adjustments(self, allocation=None):
-        if not allocation:
-            allocation = self.get_allocation()
-
-        aw, ah = allocation.width, allocation.height
-
-        hadjustment = self._hadjustment
-        vadjustment = self._vadjustment
-
-        # canvas limits (in view coordinates)
-        c = Rectangle(*self._qtree.soft_bounds)
-
-        # view limits
-        v = Rectangle(0, 0, aw, ah)
-
-        # union of these limits gives scrollbar limits
-        u = c if v in c else c + v
-        if hadjustment is None:
-            self._hadjustment = Gtk.Adjustment.new(
-                value=v.x,
-                lower=u.x,
-                upper=u.x1,
-                step_increment=aw // 10,
-                page_increment=aw,
-                page_size=aw,
-            )
-        else:
-            assert self._hadjustment
-            self._hadjustment.set_value(v.x)
-            self._hadjustment.set_lower(u.x)
-            self._hadjustment.set_upper(u.x1)
-            self._hadjustment.set_step_increment(aw // 10)
-            self._hadjustment.set_page_increment(aw)
-            self._hadjustment.set_page_size(aw)
-
-        if vadjustment is None:
-            self._vadjustment = Gtk.Adjustment.new(
-                value=v.y,
-                lower=u.y,
-                upper=u.y1,
-                step_increment=ah // 10,
-                page_increment=ah,
-                page_size=ah,
-            )
-        else:
-            assert self._vadjustment
-            self._vadjustment.set_value(v.y)
-            self._vadjustment.set_lower(u.y)
-            self._vadjustment.set_upper(u.y1)
-            self._vadjustment.set_step_increment(ah // 10)
-            self._vadjustment.set_page_increment(ah)
-            self._vadjustment.set_page_size(ah)
-
     def queue_redraw(self):
         """Redraw the entire view."""
         self.update_back_buffer()
@@ -383,7 +306,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
             dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
             self.update_bounding_box(dirty_items)
-            self.update_adjustments()
+            self._scrolling.update_adjustments(
+                self.get_allocation(), self._qtree.soft_bounds
+            )
             self.update_back_buffer()
         finally:
             self._dirty_items.clear()
@@ -527,7 +452,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     def do_configure_event(self, event):
         allocation = self.get_allocation()
-        self.update_adjustments(allocation)
+        self._scrolling.update_adjustments(allocation, self._qtree.soft_bounds)
         self._qtree.resize((0, 0, allocation.width, allocation.height))
         if self.get_window():
             self._back_buffer_needs_resizing = True
@@ -558,25 +483,3 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if self._tool:
             return self._tool.handle(event) and True or False
         return False
-
-    def on_adjustment_changed(self, adj):
-        """Change the transformation matrix of the view to reflect the value of
-        the x/y adjustment (scrollbar)."""
-        assert self._canvas
-
-        value = adj.get_value()
-        if value == 0.0:
-            return
-
-        # Can not use self._matrix.translate(-value , 0) here, since
-        # the translate method effectively does a m * self._matrix, which
-        # will result in the translation being multiplied by the orig. matrix
-        m = Matrix()
-        if adj is self._hadjustment:
-            m.translate(-value, 0)
-        elif adj is self._vadjustment:
-            m.translate(0, -value)
-        self._matrix *= m  # type: ignore[operator]
-
-        # Force recalculation of the bounding boxes:
-        self.request_update((), self._canvas.get_all_items())
