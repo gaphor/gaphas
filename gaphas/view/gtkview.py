@@ -179,7 +179,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if self._canvas:
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
-        self.queue_redraw()
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -205,7 +204,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         assert self._canvas
         self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
-        self.queue_redraw()
 
     def select_in_rectangle(self, rect):
         """Select all items who have their bounding box within the rectangle.
@@ -582,5 +580,3 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         # Force recalculation of the bounding boxes:
         self.request_update((), self._canvas.get_all_items())
-
-        self.queue_redraw()
