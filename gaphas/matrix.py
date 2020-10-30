@@ -20,7 +20,7 @@ class Matrix:
     """Matrix wrapper. This version sends @observed messages on state changes.
 
     >>> Matrix()
-    Matrix(1, 0, 0, 1, 0, 0)
+    Matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
     """
 
     def __init__(

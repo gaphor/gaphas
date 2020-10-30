@@ -515,9 +515,9 @@ class Line(Item):
         >>> a._handles.append(a._create_handle((30, 30)))
         >>> a.point((-1, 0))
         1.0
-        >>> f"{a.point((5, 4)):.3f}
+        >>> f"{a.point((5, 4)):.3f}"
         '2.942'
-        >>> f"{a.point((29, 29)):.3f}
+        >>> f"{a.point((29, 29)):.3f}"
         '0.784'
         """
         hpos = [h.pos for h in self._handles]
