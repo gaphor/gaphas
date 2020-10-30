@@ -110,7 +110,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: Painter = BoundingBoxPainter(
-            ItemPainter(self.selection), self.bounding_box_updater  # type: ignore[attr-defined]
+            ItemPainter(self._selection)
         )
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
@@ -213,14 +213,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         assert self._canvas
         self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
-
-    def select_in_rectangle(self, rect):
-        """Select all items who have their bounding box within the rectangle.
-
-        @rect.
-        """
-        for item in self._qtree.find_inside(rect):
-            self._selection.select_items(item)
 
     def get_items_in_rectangle(self, rect):
         """Return the items in the rectangle 'rect'.
@@ -450,19 +442,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def get_item_bounding_box(self, item):
         """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)
-
-    def bounding_box_updater(self, item, bounds):
-        """Update the bounding box of the item.
-
-        ``bounds`` is in view coordinates.
-
-        Coordinates are calculated back to item coordinates, so
-        matrix-only updates can occur.
-        """
-        v2i = self.get_matrix_v2i(item).transform_point
-        ix0, iy0 = v2i(bounds.x, bounds.y)
-        ix1, iy1 = v2i(bounds.x1, bounds.y1)
-        self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
 
     def update_bounding_box(self, items):
         """Update the bounding boxes of the canvas items for this view, in
