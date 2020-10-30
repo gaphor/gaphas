@@ -1,6 +1,6 @@
 """This module contains everything to display a Canvas on a screen."""
 
-from typing import Optional, Set
+from typing import Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -9,11 +9,13 @@ from gaphas.canvas import Canvas, instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.item import Item
+from gaphas.matrix import Matrix
+from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
 from gaphas.position import Position
+from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
 from gaphas.view.scrolling import Scrolling
 from gaphas.view.selection import Selection
-from gaphas.view.view import View
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -33,11 +35,9 @@ EVENT_MASK = (
 )
 
 
-class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
-    # NOTE: Inherit from GTK+ class first, otherwise BusErrors may occur!
+class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     """GTK+ widget for rendering a canvas.Canvas to a screen.  The view uses
-    Tools from `tool.py` to handle events and Painters from `painter.py` to
-    draw. Both are configurable.
+    Tools to handle events and Painters to draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.
@@ -107,7 +107,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         self._selection = Selection()
 
-        View.__init__(self, canvas)
+        self._matrix = Matrix()
+        self._painter: Painter = DefaultPainter(self)
+        self._bounding_box_painter: Painter = BoundingBoxPainter(
+            ItemPainter(self.selection), self.bounding_box_updater  # type: ignore[attr-defined]
+        )
+
+        self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
+
+        self._canvas: Optional[Canvas] = None
+        if canvas:
+            self._set_canvas(canvas)
 
         def redraw(selection, item, signal_name):
             self.queue_redraw()
@@ -125,33 +135,34 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
     def do_set_property(self, prop, value):
         self._scrolling.set_property(prop, value)
 
-    def _set_painter(self, painter):
-        """Set the painter to use.
+    @property
+    def matrix(self) -> Matrix:
+        """Canvas to view transformation matrix."""
+        return self._matrix
 
-        Painters should implement painter.Painter.
-        """
-        super()._set_painter(painter)
-        self.emit("painter-changed")
+    def get_matrix_i2v(self, item):
+        """Get Item to View matrix for ``item``."""
+        return item.matrix_i2c.multiply(self._matrix)
 
-    def _set_bounding_box_painter(self, painter):
-        """Set the painter to use for bounding box calculations."""
-        super()._set_bounding_box_painter(painter)
-        self.emit("painter-changed")
+    def get_matrix_v2i(self, item):
+        """Get View to Item matrix for ``item``."""
+        m = self.get_matrix_i2v(item)
+        m.invert()
+        return m
 
     def _set_canvas(self, canvas: Optional[Canvas]):
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
-        This extends the behaviour of View.canvas.
+
         The view is also registered.
         """
         if self._canvas:
             self._canvas.unregister_view(self)
             self._selection.clear()
+            self._qtree.clear()
 
         self._canvas = canvas
-
-        super()._set_canvas(canvas)
 
         if self._canvas:
             self._canvas.register_view(self)
@@ -159,7 +170,28 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
+    def _set_painter(self, painter: Painter):
+        """Set the painter to use.
+
+        Painters should implement painter.Painter.
+        """
+        self._painter = painter
+        self.emit("painter-changed")
+
+    painter = property(lambda s: s._painter, _set_painter)
+
+    def _set_bounding_box_painter(self, painter):
+        """Set the painter to use for bounding box calculations."""
+        self._bounding_box_painter = painter
+        self.emit("painter-changed")
+
+    bounding_box_painter = property(
+        lambda s: s._bounding_box_painter, _set_bounding_box_painter
+    )
+
     selection = property(lambda s: s._selection)
+
+    bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
 
     def _set_tool(self, tool):
         """Set the tool to use.
@@ -189,6 +221,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         """
         for item in self._qtree.find_inside(rect):
             self._selection.select_items(item)
+
+    def get_items_in_rectangle(self, rect):
+        """Return the items in the rectangle 'rect'.
+
+        Items are automatically sorted in canvas' processing order.
+        """
+        assert self._canvas
+        items = self._qtree.find_intersect(rect)
+        return self._canvas.sort(items)
 
     def get_item_at_point(self, pos, selected=True):
         """Return the topmost item located at ``pos`` (x, y).
@@ -255,6 +296,60 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             if h:
                 return item, h
         return None, None
+
+    def get_port_at_point(self, vpos, distance=10, exclude=None):
+        """Find item with port closest to specified position.
+
+        List of items to be ignored can be specified with `exclude`
+        parameter.
+
+        Tuple is returned
+
+        - found item
+        - closest, connectable port
+        - closest point on found port (in view coordinates)
+
+        :Parameters:
+         vpos
+            Position specified in view coordinates.
+         distance
+            Max distance from point to a port (default 10)
+         exclude
+            Set of items to ignore.
+        """
+        v2i = self.get_matrix_v2i
+        vx, vy = vpos
+
+        max_dist = distance
+        port = None
+        glue_pos = None
+        item = None
+
+        rect = (vx - distance, vy - distance, distance * 2, distance * 2)
+        items = reversed(self.get_items_in_rectangle(rect))
+        for i in items:
+            if i in exclude:
+                continue
+            for p in i.ports():
+                if not p.connectable:
+                    continue
+
+                ix, iy = v2i(i).transform_point(vx, vy)
+                pg, d = p.glue((ix, iy))
+
+                if d >= max_dist:
+                    continue
+
+                max_dist = d
+                item = i
+                port = p
+
+                # transform coordinates from connectable item space to view
+                # space
+                i2v = self.get_matrix_i2v(i).transform_point
+                glue_pos = i2v(*pg)
+
+        return item, port, glue_pos
 
     def queue_redraw(self):
         """Redraw the entire view."""
@@ -352,7 +447,26 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
                 self._qtree.add(i, vbounds.tuple(), bounds)
 
+    def get_item_bounding_box(self, item):
+        """Get the bounding box for the item, in view coordinates."""
+        return self._qtree.get_bounds(item)
+
+    def bounding_box_updater(self, item, bounds):
+        """Update the bounding box of the item.
+
+        ``bounds`` is in view coordinates.
+
+        Coordinates are calculated back to item coordinates, so
+        matrix-only updates can occur.
+        """
+        v2i = self.get_matrix_v2i(item).transform_point
+        ix0, iy0 = v2i(bounds.x, bounds.y)
+        ix1, iy1 = v2i(bounds.x1, bounds.y1)
+        self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
+
     def update_bounding_box(self, items):
+        """Update the bounding boxes of the canvas items for this view, in
+        canvas coordinates."""
         cr = (
             cairo.Context(self._back_buffer)
             if self._back_buffer
@@ -366,7 +480,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
         try:
-            super().update_bounding_box(cr, items)
+            painter = self._bounding_box_painter
+            if items is None:
+                items = self.canvas.get_all_items()
+
+            for item, bounds in painter.paint(items, cr).items():
+                v2i = self.get_matrix_v2i(item).transform_point
+                ix0, iy0 = v2i(bounds.x, bounds.y)
+                ix1, iy1 = v2i(bounds.x1, bounds.y1)
+                self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
         finally:
             cr.restore()
 
