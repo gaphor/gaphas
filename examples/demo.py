@@ -16,7 +16,7 @@ import math
 import cairo
 import gi
 
-from examples.exampleitems import Box, Circle, FatLine, PortoBox, Text
+from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
 from gaphas.item import Line
@@ -341,39 +341,28 @@ def create_canvas(c=None):
     bb.matrix.translate(10, 10)
     c.add(bb, parent=b)
 
-    fl = FatLine()
-    fl.height = 50
-    fl.matrix.translate(100, 100)
-    c.add(fl)
+    bb = Box()
+    bb.matrix.rotate(math.pi / 1.567)
+    c.add(bb, parent=b)
 
     circle = Circle()
     h1, h2 = circle.handles()
     circle.radius = 20
-    circle.matrix.translate(50, 100)
+    circle.matrix.translate(50, 160)
     c.add(circle)
 
-    # AJM: extra boxes:
-    bb = Box()
-    bb.matrix.rotate(math.pi / 1.567)
-    c.add(bb, parent=b)
-    # for i in xrange(10):
-    #     bb = Box()
-    #     print('box', bb)
-    #     bb.matrix.rotate(math.pi/4.0 * i / 10.0)
-    #     c.add(bb, parent=b)
-
-    pb = PortoBox(60, 60)
+    pb = Box(60, 60)
     pb.min_width = 40
     pb.min_height = 50
-    pb.matrix.translate(55, 55)
+    pb.matrix.translate(100, 20)
     c.add(pb)
 
     ut = UnderlineText()
-    ut.matrix.translate(70, 130)
+    ut.matrix.translate(100, 130)
     c.add(ut)
 
     t = MyText("Single line")
-    t.matrix.translate(70, 170)
+    t.matrix.translate(100, 170)
     c.add(t)
 
     line = MyLine()
@@ -381,24 +370,8 @@ def create_canvas(c=None):
     line.handles()[1].pos = (30, 30)
     segment = Segment(line, c)
     segment.split_segment(0, 3)
-    line.matrix.translate(30, 60)
+    line.matrix.translate(30, 80)
     line.orthogonal = True
-
-    # off_y = 0
-    # for align_x in (-1, 0, 1):
-    #     for align_y in (-1, 0, 1):
-    #         t = MyText(
-    #             f"Aligned text {align_x:d}/{align_y:d}",
-    #             align_x=align_x,
-    #             align_y=align_y,
-    #         )
-    #         t.matrix.translate(120, 200 + off_y)
-    #         off_y += 30
-    #         c.add(t)
-
-    # t = MyText("Multiple\nlines", multiline=True)
-    # t.matrix.translate(70, 100)
-    # c.add(t)
 
     return c
 
