@@ -19,10 +19,10 @@ class HandlePainter:
         """
         view = self.view
         cairo.save()
-        i2v = view.get_matrix_i2v(item)
         if not opacity:
             opacity = (item is view.selection.focused_item) and 0.7 or 0.4
 
+        cairo.set_antialias(ANTIALIAS_NONE)
         cairo.set_line_width(1)
 
         get_connection = view.canvas.get_connection
@@ -40,9 +40,11 @@ class HandlePainter:
             else:
                 r, g, b = 0, 0, 1
 
+            vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(*h.pos))
+
+            cairo.save()
             cairo.identity_matrix()
-            cairo.set_antialias(ANTIALIAS_NONE)
-            cairo.translate(*i2v.transform_point(*h.pos))
+            cairo.translate(vx, vy)
             cairo.rectangle(-4, -4, 8, 8)
             if inner:
                 cairo.rectangle(-3, -3, 6, 6)
@@ -55,6 +57,7 @@ class HandlePainter:
                 cairo.line_to(-2, 3)
             cairo.set_source_rgba(r / 4.0, g / 4.0, b / 4.0, opacity * 1.3)
             cairo.stroke()
+            cairo.restore()
         cairo.restore()
 
     def paint(self, items: Sequence[Item], cairo):

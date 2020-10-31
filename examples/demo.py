@@ -16,8 +16,8 @@ import math
 import cairo
 import gi
 
-from examples.exampleitems import Box, Circle, FatLine, PortoBox, Text
-from gaphas import Canvas, GtkView, View, state
+from examples.exampleitems import Box, Circle, Text
+from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
 from gaphas.item import Line
 from gaphas.painter import (
@@ -112,13 +112,13 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.painter = (
         PainterChain()
-        .append(FreeHandPainter(ItemPainter(view)))
+        .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
         .append(FocusedItemPainter(view))
         .append(ToolPainter(view))
     )
     view.bounding_box_painter = BoundingBoxPainter(
-        FreeHandPainter(ItemPainter(view)), view
+        FreeHandPainter(ItemPainter(view.selection))
     )
     w = Gtk.Window()
     w.set_title(title)
@@ -236,25 +236,24 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.png")
 
     def on_write_demo_png_clicked(button):
-        svgview = View(view.canvas)
-        svgview.painter = ItemPainter(svgview)
+        painter = ItemPainter()
 
         # Update bounding boxes with a temporary CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
-        svgview.update_bounding_box(tmpcr)
+        bounding_box = BoundingBoxPainter(painter).bounding_box(
+            canvas.get_all_items(), tmpcr
+        )
         tmpcr.show_page()
         tmpsurface.flush()
 
-        w, h = svgview.bounding_box.width, svgview.bounding_box.height
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
+        surface = cairo.ImageSurface(
+            cairo.FORMAT_ARGB32, int(bounding_box.width), int(bounding_box.height)
+        )
         cr = cairo.Context(surface)
-        svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
-        cr.save()
-        paint(svgview, cr)
-
-        cr.restore()
+        cr.translate(-bounding_box.x, -bounding_box.y)
+        painter.paint(items=view.canvas.get_all_items(), cairo=cr)
         cr.show_page()
         surface.write_to_png("demo.png")
 
@@ -264,22 +263,24 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.svg")
 
     def on_write_demo_svg_clicked(button):
-        svgview = View(view.canvas)
-        svgview.painter = ItemPainter(svgview)
+        painter = ItemPainter()
 
         # Update bounding boxes with a temporaly CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
-        svgview.update_bounding_box(tmpcr)
+        bounding_box = BoundingBoxPainter(painter).bounding_box(
+            canvas.get_all_items(), tmpcr
+        )
         tmpcr.show_page()
         tmpsurface.flush()
 
-        w, h = svgview.bounding_box.width, svgview.bounding_box.height
-        surface = cairo.SVGSurface("demo.svg", w, h)
+        surface = cairo.SVGSurface(
+            "demo.svg", int(bounding_box.width), int(bounding_box.height)
+        )
         cr = cairo.Context(surface)
-        svgview.matrix.translate(-svgview.bounding_box.x, -svgview.bounding_box.y)
-        paint(svgview, cr)
+        cr.translate(-bounding_box.x, -bounding_box.y)
+        painter.paint(items=view.canvas.get_all_items(), cairo=cr)
         cr.show_page()
         surface.flush()
         surface.finish()
@@ -340,39 +341,28 @@ def create_canvas(c=None):
     bb.matrix.translate(10, 10)
     c.add(bb, parent=b)
 
-    fl = FatLine()
-    fl.height = 50
-    fl.matrix.translate(100, 100)
-    c.add(fl)
+    bb = Box()
+    bb.matrix.rotate(math.pi / 1.567)
+    c.add(bb, parent=b)
 
     circle = Circle()
     h1, h2 = circle.handles()
     circle.radius = 20
-    circle.matrix.translate(50, 100)
+    circle.matrix.translate(50, 160)
     c.add(circle)
 
-    # AJM: extra boxes:
-    bb = Box()
-    bb.matrix.rotate(math.pi / 1.567)
-    c.add(bb, parent=b)
-    # for i in xrange(10):
-    #     bb = Box()
-    #     print('box', bb)
-    #     bb.matrix.rotate(math.pi/4.0 * i / 10.0)
-    #     c.add(bb, parent=b)
-
-    pb = PortoBox(60, 60)
+    pb = Box(60, 60)
     pb.min_width = 40
     pb.min_height = 50
-    pb.matrix.translate(55, 55)
+    pb.matrix.translate(100, 20)
     c.add(pb)
 
     ut = UnderlineText()
-    ut.matrix.translate(70, 30)
+    ut.matrix.translate(100, 130)
     c.add(ut)
 
     t = MyText("Single line")
-    t.matrix.translate(70, 70)
+    t.matrix.translate(100, 170)
     c.add(t)
 
     line = MyLine()
@@ -380,24 +370,8 @@ def create_canvas(c=None):
     line.handles()[1].pos = (30, 30)
     segment = Segment(line, c)
     segment.split_segment(0, 3)
-    line.matrix.translate(30, 60)
+    line.matrix.translate(30, 80)
     line.orthogonal = True
-
-    off_y = 0
-    for align_x in (-1, 0, 1):
-        for align_y in (-1, 0, 1):
-            t = MyText(
-                f"Aligned text {align_x:d}/{align_y:d}",
-                align_x=align_x,
-                align_y=align_y,
-            )
-            t.matrix.translate(120, 200 + off_y)
-            off_y += 30
-            c.add(t)
-
-    t = MyText("Multiple\nlines", multiline=True)
-    t.matrix.translate(70, 100)
-    c.add(t)
 
     return c
 

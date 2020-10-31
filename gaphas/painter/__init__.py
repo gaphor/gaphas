@@ -12,7 +12,7 @@ def DefaultPainter(view) -> Painter:
     """Default painter, containing item, handle and tool painters."""
     return (
         PainterChain()
-        .append(ItemPainter(view))
+        .append(ItemPainter(view.selection))
         .append(HandlePainter(view))
         .append(FocusedItemPainter(view))
         .append(ToolPainter(view))

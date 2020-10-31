@@ -1,5 +1,5 @@
 """Allow for easily adding segments to lines."""
-from cairo import ANTIALIAS_NONE, Matrix
+from cairo import ANTIALIAS_NONE
 
 from gaphas.aspect import (
     ConnectionSink,
@@ -39,7 +39,7 @@ class LineSegment:
     def split(self, pos):
         item = self.item
         handles = item.handles()
-        x, y = self.canvas.get_matrix_i2c(item).inverse().transform_point(*pos)
+        x, y = item.matrix_i2c.inverse().transform_point(*pos)
         for h1, h2 in zip(handles, handles[1:]):
             xp = (h1.pos.x + h2.pos.x) / 2
             yp = (h1.pos.y + h2.pos.y) / 2
@@ -249,10 +249,11 @@ class LineSegmentPainter(ItemPaintFocused):
                 cy = (p1.y + p2.y) / 2
                 cr.save()
                 cr.identity_matrix()
-                m = Matrix(*view.get_matrix_i2v(item))
 
                 cr.set_antialias(ANTIALIAS_NONE)
-                cr.translate(*m.transform_point(cx, cy))
+                cr.translate(
+                    *cr.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
+                )
                 cr.rectangle(-3, -3, 6, 6)
                 cr.set_source_rgba(0, 0.5, 0, 0.4)
                 cr.fill_preserve()

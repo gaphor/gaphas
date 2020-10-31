@@ -179,7 +179,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         if self._canvas:
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
-        self.queue_redraw()
 
     canvas = property(lambda s: s._canvas, _set_canvas)
 
@@ -205,7 +204,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
         assert self._canvas
         self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
-        self.queue_redraw()
 
     def select_in_rectangle(self, rect):
         """Select all items who have their bounding box within the rectangle.
@@ -436,6 +434,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
             else instant_cairo_context()
         )
 
+        cr.set_matrix(
+            self.matrix.to_cairo()
+        )  # Need it, so I can size things like handles
         cr.save()
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
@@ -471,17 +472,25 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
                 (0, 0, allocation.width, allocation.height)
             )
 
+            cr.set_matrix(self.matrix.to_cairo())
+            cr.save()
             self.painter.paint(items, cr)
+            cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                cr.save()
-                cr.identity_matrix()
-                cr.set_source_rgb(0, 0.8, 0)
-                cr.set_line_width(1.0)
-                b = self.bounding_box
-                cr.rectangle(b[0], b[1], b[2], b[3])
-                cr.stroke()
-                cr.restore()
+                for item in items:
+                    try:
+                        b = self.get_item_bounding_box(item)
+                    except KeyError:
+                        pass  # No bounding box right now..
+                    else:
+                        cr.save()
+                        cr.identity_matrix()
+                        cr.set_source_rgb(0.8, 0, 0)
+                        cr.set_line_width(1.0)
+                        cr.rectangle(*b)
+                        cr.stroke()
+                        cr.restore()
 
             if DEBUG_DRAW_QUADTREE:
 
@@ -571,5 +580,3 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable, View):
 
         # Force recalculation of the bounding boxes:
         self.request_update((), self._canvas.get_all_items())
-
-        self.queue_redraw()

@@ -4,7 +4,7 @@ import pytest
 from gaphas.canvas import Canvas
 from gaphas.item import Item
 from gaphas.segment import HandleFinder, Line, Segment, SegmentHandleFinder
-from gaphas.view import View
+from gaphas.view import GtkView
 
 
 class SegmentFixture:
@@ -12,7 +12,7 @@ class SegmentFixture:
         self.canvas = Canvas()
         self.line = Line()
         self.canvas.add(self.line)
-        self.view = View(self.canvas)
+        self.view = GtkView(self.canvas)
         self.item = Item()
 
 

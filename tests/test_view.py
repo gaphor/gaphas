@@ -6,7 +6,7 @@ from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
 from gaphas.item import Element as Box
-from gaphas.view import GtkView, View
+from gaphas.view import GtkView
 
 
 class ViewFixture:
@@ -90,14 +90,6 @@ def test_item_removal(view_fixture):
 
 def test_view_registration(view_fixture):
     canvas = Canvas()
-
-    # Simple views do not register on the canvas
-
-    view = View(canvas)
-    assert len(canvas._registered_views) == 0
-
-    box = Box()
-    canvas.add(box)
 
     # GTK view does register for updates though
 
