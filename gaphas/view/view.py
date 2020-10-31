@@ -15,7 +15,7 @@ class View:
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: Painter = BoundingBoxPainter(
-            ItemPainter(self.selection), self.bounding_box_updater  # type: ignore[attr-defined]
+            ItemPainter(self.selection)  # type: ignore[attr-defined]
         )
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
@@ -124,19 +124,6 @@ class View:
             items = self._qtree.find_inside(rect)
         return self._canvas.sort(items)
 
-    def bounding_box_updater(self, item, bounds):
-        """Update the bounding box of the item.
-
-        ``bounds`` is in view coordinates.
-
-        Coordinates are calculated back to item coordinates, so
-        matrix-only updates can occur.
-        """
-        v2i = self.get_matrix_v2i(item).transform_point
-        ix0, iy0 = v2i(bounds.x, bounds.y)
-        ix1, iy1 = v2i(bounds.x1, bounds.y1)
-        self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
-
     def get_item_bounding_box(self, item):
         """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)
@@ -150,8 +137,11 @@ class View:
         if items is None:
             items = self.canvas.get_all_items()
 
-        # The painter calls set_item_bounding_box() for each rendered item.
-        painter.paint(items, cr)
+        for item, bounds in painter.paint(items, cr).items():
+            v2i = self.get_matrix_v2i(item).transform_point
+            ix0, iy0 = v2i(bounds.x, bounds.y)
+            ix1, iy1 = v2i(bounds.x1, bounds.y1)
+            self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
 
     def get_matrix_i2v(self, item):
         """Get Item to View matrix for ``item``."""

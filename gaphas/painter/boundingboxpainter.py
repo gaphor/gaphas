@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence
+import functools
+import operator
+from typing import Dict, Optional, Sequence
 
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
@@ -96,23 +98,9 @@ class BoundingBoxPainter:
     draw_all = True
 
     def __init__(
-        self,
-        item_painter: ItemPainterType,
-        bounding_box_updater: Optional[Callable[[Item, Rectangle], None]] = None,
+        self, item_painter: ItemPainterType,
     ):
         self.item_painter = item_painter
-        if bounding_box_updater:
-            self.bounding_box_updater = bounding_box_updater
-        else:
-            self.bounding_box = Rectangle()
-
-            def default_bounding_box_updater(item, bounds):
-                if not self.bounding_box:
-                    self.bounding_box = Rectangle(*bounds)
-                else:
-                    self.bounding_box += bounds
-
-            self.bounding_box_updater = default_bounding_box_updater
 
     def paint_item(self, item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
@@ -127,10 +115,16 @@ class BoundingBoxPainter:
             bounds += (cx - 5, cy - 5, 9, 9)
 
         bounds.expand(1)
-        self.bounding_box_updater(item, bounds)
+        return bounds
 
-    def paint(self, items: Sequence[Item], cairo) -> BoundingBoxPainter:
-        """Draw the items."""
-        for item in items:
-            self.paint_item(item, cairo)
-        return self
+    def paint(self, items: Sequence[Item], cairo) -> Dict[Item, Rectangle]:
+        """Draw the items, return the bounding boxes (in cairo device
+        coordinates)."""
+        paint_item = self.paint_item
+        boxes: Dict[Item, Rectangle] = {item: paint_item(item, cairo) for item in items}
+        return boxes
+
+    def bounding_box(self, items: Sequence[Item], cairo) -> Rectangle:
+        """Get the unified bounding box of the rendered items."""
+        boxes = self.paint(items, cairo)
+        return functools.reduce(operator.add, boxes.values())

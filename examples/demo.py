@@ -118,7 +118,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         .append(ToolPainter(view))
     )
     view.bounding_box_painter = BoundingBoxPainter(
-        FreeHandPainter(ItemPainter(view.selection)), view.bounding_box_updater
+        FreeHandPainter(ItemPainter(view.selection))
     )
     w = Gtk.Window()
     w.set_title(title)
@@ -242,10 +242,8 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
-        bounding_box = (
-            BoundingBoxPainter(painter)
-            .paint(canvas.get_all_items(), tmpcr)
-            .bounding_box
+        bounding_box = BoundingBoxPainter(painter).bounding_box(
+            canvas.get_all_items(), tmpcr
         )
         tmpcr.show_page()
         tmpsurface.flush()
@@ -271,10 +269,8 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
-        bounding_box = (
-            BoundingBoxPainter(painter)
-            .paint(canvas.get_all_items(), tmpcr)
-            .bounding_box
+        bounding_box = BoundingBoxPainter(painter).bounding_box(
+            canvas.get_all_items(), tmpcr
         )
         tmpcr.show_page()
         tmpsurface.flush()
