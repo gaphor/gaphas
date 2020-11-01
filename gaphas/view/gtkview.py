@@ -237,7 +237,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             v2i = self.get_matrix_v2i(item)
             ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point(Position((ix, iy)))
+            item_distance = item.point(Position(ix, iy))
             if item_distance is None:
                 print(f"Item distance is None for {item}")
                 continue

@@ -18,8 +18,8 @@ from gaphas.position import Position
 class ItemPosition:
     def __init__(self):
         self.item = Item()
-        self.pos1 = Position((1, 2))
-        self.pos2 = Position((3, 4))
+        self.pos1 = Position(1, 2)
+        self.pos2 = Position(3, 4)
 
 
 @pytest.fixture()
@@ -29,12 +29,12 @@ def item_pos():
 
 def test_line_constraint(item_pos):
     """Test line creation constraint."""
-    line = (Position((3, 4)), Position((5, 6)))
+    line = (Position(3, 4), Position(5, 6))
     c = constraint(line=(item_pos.pos1, line))
 
     assert isinstance(c, LineConstraint)
-    assert Position((1, 2)) == c._point
-    assert (Position((3, 4)), Position((5, 6))) == c._line
+    assert Position(1, 2) == c._point
+    assert (Position(3, 4), Position(5, 6)) == c._line
 
 
 def test_horizontal_constraint(item_pos):

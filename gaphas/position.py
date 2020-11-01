@@ -5,7 +5,7 @@ from gaphas.solver import NORMAL, Constraint, Variable
 class Position:
     """A point constructed of two `Variable`'s.
 
-    >>> vp = Position((3, 5))
+    >>> vp = Position(3, 5)
     >>> vp.x, vp.y
     (Variable(3, 20), Variable(5, 20))
     >>> vp.pos
@@ -14,9 +14,9 @@ class Position:
     (Variable(3, 20), Variable(5, 20))
     """
 
-    def __init__(self, pos, strength=NORMAL):
-        self._x = Variable(pos[0], strength)
-        self._y = Variable(pos[1], strength)
+    def __init__(self, x, y, strength=NORMAL):
+        self._x = Variable(x, strength)
+        self._y = Variable(y, strength)
 
     def _set_x(self, v):
         self._x.value = v
@@ -44,7 +44,7 @@ class Position:
     def __getitem__(self, index):
         """Shorthand for returning the x(0) or y(1) component of the point.
 
-        >>> h = Position((3, 5))
+        >>> h = Position(3, 5)
         >>> h[0]
         Variable(3, 20)
         >>> h[1]
@@ -61,7 +61,7 @@ class Position:
 
 class MatrixProjection(Constraint):
     def __init__(self, pos: Position, matrix: Matrix):
-        proj_pos = Position((0, 0), pos.strength)
+        proj_pos = Position(0, 0, pos.strength)
         super().__init__(proj_pos.x, proj_pos.y, pos.x, pos.y)
 
         self._orig_pos = pos
