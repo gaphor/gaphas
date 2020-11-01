@@ -433,10 +433,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 # Only matrix has changed, so calculate new bounding box
                 # based on quadtree data (= bb in item coordinates).
                 bounds = self._qtree.get_data(i)
-                i2v = self.get_matrix_i2v(i).transform_point
-                x0, y0 = i2v(bounds[0], bounds[1])
-                x1, y1 = i2v(bounds[2], bounds[3])
-                vbounds = Rectangle(x0, y0, x1=x1, y1=y1)
+                i2v = self.get_matrix_i2v(i)
+                x, y = i2v.transform_point(bounds[0], bounds[1])
+                w, h = i2v.transform_distance(bounds[2], bounds[3])
+                vbounds = Rectangle(x, y, w, h)
                 self._qtree.add(i, vbounds.tuple(), bounds)
 
     def get_item_bounding_box(self, item):
@@ -452,9 +452,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             else instant_cairo_context()
         )
 
-        cr.set_matrix(
-            self.matrix.to_cairo()
-        )  # Need it, so I can size things like handles
+        cr.set_matrix(self.matrix.to_cairo())
         cr.save()
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
@@ -464,10 +462,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 items = self.canvas.get_all_items()
 
             for item, bounds in painter.paint(items, cr).items():
-                v2i = self.get_matrix_v2i(item).transform_point
-                ix0, iy0 = v2i(bounds.x, bounds.y)
-                ix1, iy1 = v2i(bounds.x1, bounds.y1)
-                self._qtree.add(item=item, bounds=bounds, data=(ix0, iy0, ix1, iy1))
+                v2i = self.get_matrix_v2i(item)
+                ix, iy = v2i.transform_point(bounds.x, bounds.y)
+                iw, ih = v2i.transform_distance(bounds.x1, bounds.y1)
+                self._qtree.add(item=item, bounds=bounds, data=(ix, iy, iw, ih))
         finally:
             cr.restore()
 
