@@ -1,13 +1,12 @@
 """Basic items."""
 from math import atan2
-from typing import Optional, Tuple
+from typing import Optional
 
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
-from gaphas.position import Position
 from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, variable
 from gaphas.state import (
     observed,
@@ -38,7 +37,6 @@ class Item:
     - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
-    - _constraints: list of constraints that belong to the lifecycle of this item
     """
 
     def __init__(self):
@@ -46,7 +44,6 @@ class Item:
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
         self._handles = []
-        self._constraints = []
         self._ports = []
 
     @observed
@@ -66,29 +63,11 @@ class Item:
         _set_canvas, _set_canvas, bind={"canvas": lambda self, canvas: self._canvas}
     )
 
-    constraints = property(lambda s: s._constraints, doc="Item constraints")
-
     def setup_canvas(self):
-        """Called when the canvas is set for the item.
-
-        This method can be used to create constraints.
-        """
-        assert self._canvas
-        add = self._canvas.solver.add_constraint
-        for c in self._constraints:
-            add(c)
+        """Called when the canvas is set for the item."""
 
     def teardown_canvas(self):
-        """Called when the canvas is unset for the item.
-
-        This method can be used to dispose constraints.
-        """
-        assert self._canvas
-        self._canvas.disconnect_item(self)
-
-        remove = self._canvas.solver.remove_constraint
-        for c in self._constraints:
-            remove(c)
+        """Called when the canvas is unset for the item."""
 
     @property
     def matrix(self) -> Matrix:
@@ -151,34 +130,6 @@ class Item:
         """
         pass
 
-    def constraint(
-        self,
-        horizontal: Optional[Tuple[Position, Position]] = None,
-        vertical: Optional[Tuple[Position, Position]] = None,
-        left_of: Optional[Tuple[Position, Position]] = None,
-        above: Optional[Tuple[Position, Position]] = None,
-        line: Optional[Tuple[Position, Tuple[Position, Position]]] = None,
-        delta: float = 0.0,
-        align: Optional[float] = None,
-    ):
-        """See gaphas.constraint.constraint().
-
-        :Parameters:
-         horizontal=(p1, p2)
-            Keep positions ``p1`` and ``p2`` aligned horizontally.
-         vertical=(p1, p2)
-            Keep positions ``p1`` and ``p2`` aligned vertically.
-         left_of=(p1, p2)
-            Keep position ``p1`` on the left side of position ``p2``.
-         above=(p1, p2)
-            Keep position ``p1`` above position ``p2``.
-         line=(p, l)
-            Keep position ``p`` on line ``l``.
-        """
-        cc = constraint(horizontal, vertical, left_of, above, line, delta, align)
-        self._constraints.append(cc)
-        return cc
-
 
 [NW, NE, SE, SW] = list(range(4))
 
@@ -226,9 +177,6 @@ class Element(Item):
 
         self.width = width
         self.height = height
-
-    def setup_canvas(self):
-        super().setup_canvas()
 
         # Trigger solver to honour width/height by SE handle pos
         self._handles[SE].pos.x.dirty()

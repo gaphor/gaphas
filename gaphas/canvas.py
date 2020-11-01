@@ -111,6 +111,7 @@ class Canvas:
         can restore removed items in the right order."""
         item._set_canvas(None)
         self._tree.remove(item)
+        self._connections.disconnect_item(self)
         self._update_views(removed_items=(item,))
 
     def remove(self, item):

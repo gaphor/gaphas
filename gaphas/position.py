@@ -55,6 +55,9 @@ class Position:
     def __iter__(self):
         return iter((self._x, self._y))
 
+    def __eq__(self, other):
+        return isinstance(other, Position) and self.x == other.x and self.y == other.y
+
 
 class MatrixProjection(Constraint):
     def __init__(self, pos: Position, matrix: Matrix):

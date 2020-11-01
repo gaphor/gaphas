@@ -5,16 +5,21 @@ constraints themselves.
 """
 import pytest
 
-from gaphas.constraint import EqualsConstraint, LessThanConstraint, LineConstraint
+from gaphas.constraint import (
+    EqualsConstraint,
+    LessThanConstraint,
+    LineConstraint,
+    constraint,
+)
 from gaphas.item import Item
-from gaphas.solver import Variable
+from gaphas.position import Position
 
 
 class ItemPosition:
     def __init__(self):
         self.item = Item()
-        self.pos1 = Variable(1), Variable(2)
-        self.pos2 = Variable(3), Variable(4)
+        self.pos1 = Position((1, 2))
+        self.pos2 = Position((3, 4))
 
 
 @pytest.fixture()
@@ -24,22 +29,18 @@ def item_pos():
 
 def test_line_constraint(item_pos):
     """Test line creation constraint."""
-    line = (Variable(3), Variable(4)), (Variable(5), Variable(6))
-    item_pos.item.constraint(line=(item_pos.pos1, line))
-    assert 1 == len(item_pos.item._constraints)
+    line = (Position((3, 4)), Position((5, 6)))
+    c = constraint(line=(item_pos.pos1, line))
 
-    c = item_pos.item._constraints[0]
     assert isinstance(c, LineConstraint)
-    assert (1, 2) == c._point
-    assert ((3, 4), (5, 6)) == c._line
+    assert Position((1, 2)) == c._point
+    assert (Position((3, 4)), Position((5, 6))) == c._line
 
 
 def test_horizontal_constraint(item_pos):
     """Test horizontal constraint creation."""
-    item_pos.item.constraint(horizontal=(item_pos.pos1, item_pos.pos2))
-    assert 1 == len(item_pos.item._constraints)
+    c = constraint(horizontal=(item_pos.pos1, item_pos.pos2))
 
-    c = item_pos.item._constraints[0]
     assert isinstance(c, EqualsConstraint)
     # Expect constraint on y-axis
     assert 2 == c.a
@@ -48,10 +49,8 @@ def test_horizontal_constraint(item_pos):
 
 def test_vertical_constraint(item_pos):
     """Test vertical constraint creation."""
-    item_pos.item.constraint(vertical=(item_pos.pos1, item_pos.pos2))
-    assert 1 == len(item_pos.item._constraints)
+    c = constraint(vertical=(item_pos.pos1, item_pos.pos2))
 
-    c = item_pos.item._constraints[0]
     assert isinstance(c, EqualsConstraint)
     # Expect constraint on x-axis
     assert 1 == c.a
@@ -60,10 +59,8 @@ def test_vertical_constraint(item_pos):
 
 def test_left_of_constraint(item_pos):
     """Test "less than" constraint (horizontal) creation."""
-    item_pos.item.constraint(left_of=(item_pos.pos1, item_pos.pos2))
-    assert 1 == len(item_pos.item._constraints)
+    c = constraint(left_of=(item_pos.pos1, item_pos.pos2))
 
-    c = item_pos.item._constraints[0]
     assert isinstance(c, LessThanConstraint)
     assert 1 == c.smaller
     assert 3 == c.bigger
@@ -71,10 +68,8 @@ def test_left_of_constraint(item_pos):
 
 def test_above_constraint(item_pos):
     """Test "less than" constraint (vertical) creation."""
-    item_pos.item.constraint(above=(item_pos.pos1, item_pos.pos2))
-    assert 1 == len(item_pos.item._constraints)
+    c = constraint(above=(item_pos.pos1, item_pos.pos2))
 
-    c = item_pos.item._constraints[0]
     assert isinstance(c, LessThanConstraint)
     assert 2 == c.smaller
     assert 4 == c.bigger
