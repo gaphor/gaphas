@@ -13,8 +13,8 @@ class Box(Element):
     NW +---+ NE SW +---+ SE
     """
 
-    def __init__(self, width=10, height=10):
-        super().__init__(width, height)
+    def __init__(self, connections, width=10, height=10):
+        super().__init__(connections, width, height)
 
     def draw(self, context):
         c = context.cairo

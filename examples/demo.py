@@ -71,8 +71,8 @@ class MyBox(Box):
 class MyLine(Line):
     """Line with experimental connection protocol."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, connections):
+        super().__init__(connections)
         self.fuzziness = 2
 
     def draw_head(self, context):
@@ -330,18 +330,18 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 def create_canvas(c=None):
     if not c:
         c = Canvas()
-    b = MyBox()
+    b = MyBox(c.connections)
     b.min_width = 20
     b.min_height = 30
     b.matrix.translate(20, 20)
     b.width = b.height = 40
     c.add(b)
 
-    bb = Box()
+    bb = Box(c.connections)
     bb.matrix.translate(10, 10)
     c.add(bb, parent=b)
 
-    bb = Box()
+    bb = Box(c.connections)
     bb.matrix.rotate(math.pi / 1.567)
     c.add(bb, parent=b)
 
@@ -351,7 +351,7 @@ def create_canvas(c=None):
     circle.matrix.translate(50, 160)
     c.add(circle)
 
-    pb = Box(60, 60)
+    pb = Box(c.connections, 60, 60)
     pb.min_width = 40
     pb.min_height = 50
     pb.matrix.translate(100, 20)
@@ -365,7 +365,7 @@ def create_canvas(c=None):
     t.matrix.translate(100, 170)
     c.add(t)
 
-    line = MyLine()
+    line = MyLine(c.connections)
     c.add(line)
     line.handles()[1].pos = (30, 30)
     segment = Segment(line, c)
