@@ -23,22 +23,23 @@ class SimpleCanvas:
 
     def __init__(self):
         self.canvas = Canvas()
+        self.connections = self.canvas.connections
 
-        self.box1 = Box()
+        self.box1 = Box(self.connections)
         self.canvas.add(self.box1)
         self.box1.matrix.translate(100, 50)
         self.box1.width = 40
         self.box1.height = 40
         self.canvas.request_update(self.box1)
 
-        self.box2 = Box()
+        self.box2 = Box(self.connections)
         self.canvas.add(self.box2)
         self.box2.matrix.translate(100, 150)
         self.box2.width = 50
         self.box2.height = 50
         self.canvas.request_update(self.box2)
 
-        self.line = Line()
+        self.line = Line(self.connections)
         self.head = self.line.handles()[0]
         self.tail = self.line.handles()[-1]
         self.tail.pos = 100, 100

@@ -10,7 +10,7 @@ from gaphas.item import Element as Box
 class CanvasBox:
     def __init__(self):
         self.canvas = Canvas()
-        self.box = Box()
+        self.box = Box(self.canvas.connections)
         self.handles = self.box.handles()
 
 

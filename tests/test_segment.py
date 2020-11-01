@@ -10,7 +10,7 @@ from gaphas.view import GtkView
 class SegmentFixture:
     def __init__(self):
         self.canvas = Canvas()
-        self.line = Line()
+        self.line = Line(self.canvas.connections)
         self.canvas.add(self.line)
         self.view = GtkView(self.canvas)
         self.item = Item()
@@ -33,7 +33,7 @@ def test_segment_fails_for_item(seg):
 
 def test_segment(seg):
     """Test add a new segment to a line."""
-    line = Line()
+    line = Line(seg.canvas.connections)
     seg.canvas.add(line)
     segment = Segment(line, seg.canvas)
     assert 2 == len(line.handles())
@@ -145,7 +145,7 @@ def test_ports_after_split(simple_canvas):
 def test_constraints_after_split(simple_canvas):
     """Test if constraints are recreated after line split."""
     # Connect line2 to self.line
-    line2 = Line()
+    line2 = Line(simple_canvas.connections)
     simple_canvas.canvas.add(line2)
     head = line2.handles()[0]
     simple_canvas.tool.connect(line2, head, (25, 25))
@@ -206,19 +206,19 @@ def test_orthogonal_line_split(simple_canvas):
 
 def test_params_error_exc(simple_canvas):
     """Test parameter error exceptions."""
-    line = Line()
+    line = Line(simple_canvas.connections)
     segment = Segment(line, simple_canvas.canvas)
 
     # There is only 1 segment
     with pytest.raises(ValueError):
         segment.split_segment(-1)
 
-    line = Line()
+    line = Line(simple_canvas.connections)
     segment = Segment(line, simple_canvas.canvas)
     with pytest.raises(ValueError):
         segment.split_segment(1)
 
-    line = Line()
+    line = Line(simple_canvas.connections)
     # Can't split into one or less segment :)
     segment = Segment(line, simple_canvas.canvas)
     with pytest.raises(ValueError):
@@ -264,7 +264,7 @@ def test_merge_first_single(simple_canvas):
 
 def test_constraints_after_merge(simple_canvas):
     """Test if constraints are recreated after line merge."""
-    line2 = Line()
+    line2 = Line(simple_canvas.connections)
     simple_canvas.canvas.add(line2)
     head = line2.handles()[0]
 
@@ -363,7 +363,7 @@ def test_orthogonal_line_merge(simple_canvas):
 @pytest.mark.parametrize("num_segments", [-1, 2, (0, 1), 0, 1, (0, 3)])
 def test_params_errors(simple_canvas, num_segments):
     """Test parameter error exceptions."""
-    line = Line()
+    line = Line(simple_canvas.connections)
     simple_canvas.canvas.add(line)
     segment = Segment(line, simple_canvas.canvas)
     with pytest.raises(ValueError):

@@ -2,8 +2,10 @@ import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
+from gaphas.connections import Connections
 from gaphas.guide import Guide, GuidedItemInMotion
 from gaphas.item import Element, Line
+from gaphas.solver import Solver
 from gaphas.view import GtkView
 
 
@@ -14,18 +16,23 @@ class Window:
         self.window = Gtk.Window()
         self.window.add(self.view)
         self.window.show_all()
-        self.line = Line()
+        self.line = Line(self.canvas.connections)
         self.canvas.add(self.line)
-        self.e1 = Element()
-        self.e2 = Element()
-        self.e3 = Element()
+        self.e1 = Element(self.canvas.connections)
+        self.e2 = Element(self.canvas.connections)
+        self.e3 = Element(self.canvas.connections)
 
 
-@pytest.fixture()
+@pytest.fixture
 def win():
     test_window = Window()
     yield test_window
     test_window.window.destroy()
+
+
+@pytest.fixture
+def connections(win):
+    return win.canvas.connections
 
 
 def test_find_closest(win):
@@ -33,14 +40,14 @@ def test_find_closest(win):
     set1 = [0, 10, 20]
     set2 = [2, 15, 30]
 
-    guider = GuidedItemInMotion(Element(), win.view)
+    guider = GuidedItemInMotion(Element(win.canvas.connections), win.view)
     d, closest = guider.find_closest(set1, set2)
     assert 2.0 == d
     assert [2.0] == closest
 
 
 def test_element_guide():
-    e1 = Element()
+    e1 = Element(Connections(Solver()))
     assert 10 == e1.width
     assert 10 == e1.height
     guides = Guide(e1).horizontal()

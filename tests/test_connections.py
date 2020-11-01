@@ -12,8 +12,8 @@ def connections():
 
 
 def test_reconnect_item(connections):
-    i = item.Line()
-    ii = item.Line()
+    i = item.Line(connections)
+    ii = item.Line(connections)
 
     cons1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
     cons2 = EqualsConstraint(i.handles()[0].pos.y, i.handles()[0].pos.y)
@@ -30,7 +30,7 @@ def test_reconnect_item(connections):
 
 
 def test_add_item_constraint(connections):
-    i = item.Line()
+    i = item.Line(connections)
     c1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
 
     connections.add_constraint(i, c1)
@@ -42,7 +42,7 @@ def test_add_item_constraint(connections):
 
 
 def test_remove_item_constraint(connections):
-    i = item.Line()
+    i = item.Line(connections)
     c1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
 
     connections.add_constraint(i, c1)
@@ -52,7 +52,7 @@ def test_remove_item_constraint(connections):
 
 
 def test_remove_item_constraint_when_item_is_disconnected(connections):
-    i = item.Line()
+    i = item.Line(connections)
     c1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
 
     connections.add_constraint(i, c1)

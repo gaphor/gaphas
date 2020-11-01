@@ -32,9 +32,12 @@ class Connections:
     solver = property(lambda s: s._solver)
 
     def add_constraint(self, item, constraint):
+        self._solver.add_constraint(constraint)
         self._connections.insert(item, None, None, None, constraint, None)
+        return constraint
 
     def remove_constraint(self, item, constraint):
+        self._solver.remove_constraint(constraint)
         self._connections.delete(item, None, None, None, constraint, None)
 
     @observed

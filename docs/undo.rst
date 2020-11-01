@@ -270,7 +270,9 @@ item.py: Element
 An element has ``min_height`` and ``min_width`` properties.
 
     >>> from gaphas import Element
-    >>> e = Element()
+    >>> from gaphas.connections import Connections
+    >>> from gaphas.solver import Solver
+    >>> e = Element(Connections(Solver()))
     >>> e.min_height, e.min_width
     (Variable(10, 100), Variable(10, 100))
     >>> e.min_height, e.min_width = 30, 40
@@ -293,7 +295,7 @@ A line has the following properties: ``line_width``, ``fuzziness``,
 
     >>> from gaphas import Line
     >>> from gaphas.segment import Segment
-    >>> l = Line()
+    >>> l = Line(Connections(Solver()))
 
 Let's first add a segment to the line, to test orthogonal lines as well.
 
@@ -350,7 +352,7 @@ Also creation and removal of connected lines is recorded and can be undone:
     >>> canvas.add(b0)
     >>> b1 = Item()
     >>> canvas.add(b1)
-    >>> l = Line()
+    >>> l = Line(Connections(Solver()))
     >>> canvas.add(l)
     >>> real_connect(l, l.handles()[0], b0)
     >>> real_connect(l, l.handles()[1], b1)

@@ -192,8 +192,9 @@ class Element(Item):
     min_width = variable(strength=REQUIRED, varname="_min_width")
     min_height = variable(strength=REQUIRED, varname="_min_height")
 
-    def __init__(self, width=10, height=10):
+    def __init__(self, connections, width=10, height=10):
         super().__init__()
+        self._connections = connections
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
 
         handles = self._handles
@@ -213,20 +214,18 @@ class Element(Item):
         # initialize min_x variables
         self.min_width, self.min_height = 10, 10
 
-        self.constraint(horizontal=(h_nw.pos, h_ne.pos))
-        self.constraint(horizontal=(h_sw.pos, h_se.pos))
-        self.constraint(vertical=(h_nw.pos, h_sw.pos))
-        self.constraint(vertical=(h_ne.pos, h_se.pos))
+        add = connections.add_constraint
+        add(self, constraint(horizontal=(h_nw.pos, h_ne.pos)))
+        add(self, constraint(horizontal=(h_sw.pos, h_se.pos)))
+        add(self, constraint(vertical=(h_nw.pos, h_sw.pos)))
+        add(self, constraint(vertical=(h_ne.pos, h_se.pos)))
 
         # create minimal size constraints
-        self.constraint(left_of=(h_nw.pos, h_se.pos), delta=self.min_width)
-        self.constraint(above=(h_nw.pos, h_se.pos), delta=self.min_height)
+        add(self, constraint(left_of=(h_nw.pos, h_se.pos), delta=self.min_width))
+        add(self, constraint(above=(h_nw.pos, h_se.pos), delta=self.min_height))
 
         self.width = width
         self.height = height
-
-        # TODO: constraints that calculate width and height based on handle pos
-        # self.constraints.append(EqualsConstraint(p1[1], p2[1], delta))
 
     def setup_canvas(self):
         super().setup_canvas()
@@ -315,8 +314,9 @@ class Line(Item):
     draw an arrow point).
     """
 
-    def __init__(self):
+    def __init__(self, connections):
         super().__init__()
+        self._connections = connections
         self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
         self._ports = []
         self._update_ports()
@@ -351,7 +351,7 @@ class Line(Item):
             return
 
         for c in self._orthogonal_constraints:
-            self._canvas.solver.remove_constraint(c)
+            self._connections.remove_constraint(self, c)
         del self._orthogonal_constraints[:]
 
         if not orthogonal:
@@ -361,16 +361,16 @@ class Line(Item):
         # if len(h) < 3:
         #    self.split_segment(0)
         eq = EqualsConstraint  # lambda a, b: a - b
-        add = self._canvas.solver.add_constraint
+        add = self._connections.add_constraint
         cons = []
         rest = self._horizontal and 1 or 0
         for pos, (h0, h1) in enumerate(zip(h, h[1:])):
             p0 = h0.pos
             p1 = h1.pos
             if pos % 2 == rest:  # odd
-                cons.append(add(eq(a=p0.x, b=p1.x)))
+                cons.append(add(self, eq(a=p0.x, b=p1.x)))
             else:
-                cons.append(add(eq(a=p0.y, b=p1.y)))
+                cons.append(add(self, eq(a=p0.y, b=p1.y)))
             p1.x.notify()
             p1.y.notify()
         self._set_orthogonal_constraints(cons)
@@ -426,21 +426,6 @@ class Line(Item):
         self._update_orthogonal_constraints(self.orthogonal)
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
-
-    def setup_canvas(self):
-        """Setup constraints.
-
-        In this case orthogonal.
-        """
-        super().setup_canvas()
-        self._update_orthogonal_constraints(self.orthogonal)
-
-    def teardown_canvas(self):
-        """Remove constraints created in setup_canvas()."""
-        super().teardown_canvas()
-        assert self._canvas
-        for c in self._orthogonal_constraints:
-            self._canvas.solver.remove_constraint(c)
 
     @observed
     def _reversible_insert_handle(self, index, handle):

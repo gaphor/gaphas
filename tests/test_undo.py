@@ -5,13 +5,13 @@ from gaphas.item import Line
 
 
 def test_undo_on_delete_element(revert_undo, undo_fixture):
-    b1 = Box()
-    b2 = Box()
-    line = Line()
-
     canvas = Canvas()
+    b1 = Box(canvas.connections)
+    b2 = Box(canvas.connections)
+    line = Line(canvas.connections)
+
     canvas.add(b1)
-    assert 6 == len(canvas.solver.constraints)
+    assert 12 == len(canvas.solver.constraints)
 
     canvas.add(b2)
     assert 12 == len(canvas.solver.constraints)

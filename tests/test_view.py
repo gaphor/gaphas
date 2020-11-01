@@ -17,8 +17,9 @@ class ViewFixture:
         self.window.add(self.view)
         self.window.show_all()
 
-        self.box = Box()
+        self.box = Box(self.canvas.connections)
         self.canvas.add(self.box)
+        self.connections = self.canvas.connections
 
         # Process pending (expose) events, which cause the canvas to be drawn.
         while Gtk.events_pending():
@@ -51,7 +52,7 @@ def test_get_unselected_item_at_point(view_fixture):
 
 
 def test_get_handle_at_point(view_fixture):
-    box = Box()
+    box = Box(view_fixture.connections)
     box.min_width = 20
     box.min_height = 30
     box.matrix.translate(20, 20)
@@ -64,7 +65,7 @@ def test_get_handle_at_point(view_fixture):
 
 
 def test_get_handle_at_point_at_pi_div_2(view_fixture):
-    box = Box()
+    box = Box(view_fixture.connections)
     box.min_width = 20
     box.min_height = 30
     box.matrix.translate(20, 20)
