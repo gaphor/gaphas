@@ -2,4 +2,3 @@
 
 from gaphas.view.gtkview import DEFAULT_CURSOR, GtkView
 from gaphas.view.selection import Selection
-from gaphas.view.view import View

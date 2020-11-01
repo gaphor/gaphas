@@ -16,9 +16,10 @@ class RubberbandTool(Tool):
     def on_button_release(self, event):
         self.queue_draw(self.view)
         x0, y0, x1, y1 = self.x0, self.y0, self.x1, self.y1
-        self.view.select_in_rectangle(
+        items = self.view.get_items_in_rectangle(
             (min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
         )
+        self.view.selection.select_items(*items)
         return True
 
     def on_motion_notify(self, event):

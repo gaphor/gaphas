@@ -374,7 +374,7 @@ class Line(Item):
             p1.x.notify()
             p1.y.notify()
         self._set_orthogonal_constraints(cons)
-        self._canvas.request_update(self)
+        self._canvas.request_update(self)  # == solver.solve() + post_update
 
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):
