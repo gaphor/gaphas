@@ -80,7 +80,7 @@ class Solver:
         return constraint
 
     @observed
-    def remove_constraint(self, constraint: Union[Constraint, MultiConstraint]):
+    def remove_constraint(self, constraint: Union[Constraint, MultiConstraint]) -> None:
         """Remove a constraint from the solver.
 
         >>> from gaphas.constraint import EquationConstraint
@@ -107,7 +107,7 @@ class Solver:
 
     reversible_pair(add_constraint, remove_constraint)
 
-    def request_resolve_constraint(self, c: Constraint):
+    def request_resolve_constraint(self, c: Constraint) -> None:
         """Request resolving a constraint."""
         if not self._solving:
             if c in self._marked_cons:
@@ -120,7 +120,7 @@ class Solver:
                     f"Variable juggling detected, constraint {c} resolved {self._marked_cons.count(c)} times out of {len(self._marked_cons)}"
                 )
 
-    def solve(self):
+    def solve(self) -> None:
         """
         Example:
 

@@ -8,7 +8,14 @@ from gaphas.solver import Solver
 
 @pytest.fixture
 def connections():
-    return Connections(Solver())
+    return Connections()
+
+
+def test_connections_with_custom_solver():
+    solver = Solver()
+    connections = Connections(solver)
+
+    assert connections.solver is solver
 
 
 def test_reconnect_item(connections):

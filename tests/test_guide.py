@@ -5,7 +5,6 @@ from gaphas.canvas import Canvas
 from gaphas.connections import Connections
 from gaphas.guide import Guide, GuidedItemInMotion
 from gaphas.item import Element, Line
-from gaphas.solver import Solver
 from gaphas.view import GtkView
 
 
@@ -47,7 +46,7 @@ def test_find_closest(win):
 
 
 def test_element_guide():
-    e1 = Element(Connections(Solver()))
+    e1 = Element(Connections())
     assert 10 == e1.width
     assert 10 == e1.height
     guides = Guide(e1).horizontal()

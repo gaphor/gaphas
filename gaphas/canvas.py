@@ -32,7 +32,7 @@ from typing import TYPE_CHECKING
 
 import cairo
 
-from gaphas import matrix, solver, tree
+from gaphas import matrix, tree
 from gaphas.connections import Connections
 from gaphas.decorators import nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
@@ -78,7 +78,7 @@ class Canvas:
     def __init__(self, create_update_context=default_update_context):
         self._create_update_context = create_update_context
         self._tree: tree.Tree[Item] = tree.Tree()
-        self._connections = Connections(solver.Solver())
+        self._connections = Connections()
 
         self._registered_views = set()
 
@@ -100,17 +100,14 @@ class Canvas:
         True
         """
         assert item not in self._tree.nodes, f"Adding already added node {item}"
+
         self._tree.add(item, parent, index)
-
-        item._set_canvas(self)
-
         self.request_update(item)
 
     @observed
     def _remove(self, item):
         """Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order."""
-        item._set_canvas(None)
         self._tree.remove(item)
         self._connections.disconnect_item(self)
         self._update_views(removed_items=(item,))

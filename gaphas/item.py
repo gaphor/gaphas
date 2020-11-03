@@ -1,8 +1,6 @@
 """Basic items."""
 from math import atan2
-from typing import Optional
 
-from gaphas.canvas import Canvas
 from gaphas.connector import Handle, LinePort
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
@@ -34,40 +32,15 @@ class Item:
 
     Private:
 
-    - _canvas:      canvas, which owns an item
     - _handles:     list of handles owned by an item
     - _ports:       list of ports, connectable areas of an item
     """
 
     def __init__(self):
-        self._canvas: Optional[Canvas] = None
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
         self._handles = []
         self._ports = []
-
-    @observed
-    def _set_canvas(self, canvas):
-        """Set the canvas.
-
-        Should only be called from Canvas.add and Canvas.remove().
-        """
-        assert not canvas or not self._canvas or self._canvas is canvas
-        if self._canvas:
-            self.teardown_canvas()
-        self._canvas = canvas
-        if canvas:
-            self.setup_canvas()
-
-    reversible_method(
-        _set_canvas, _set_canvas, bind={"canvas": lambda self, canvas: self._canvas}
-    )
-
-    def setup_canvas(self):
-        """Called when the canvas is set for the item."""
-
-    def teardown_canvas(self):
-        """Called when the canvas is unset for the item."""
 
     @property
     def matrix(self) -> Matrix:
@@ -294,10 +267,6 @@ class Line(Item):
         is observed, so the undo system will update the contents
         properly
         """
-        if not self._canvas:
-            self._orthogonal_constraints = orthogonal and [None] or []
-            return
-
         for c in self._orthogonal_constraints:
             self._connections.remove_constraint(self, c)
         del self._orthogonal_constraints[:]
@@ -322,7 +291,8 @@ class Line(Item):
             p1.x.notify()
             p1.y.notify()
         self._set_orthogonal_constraints(cons)
-        self._canvas.request_update(self)  # == solver.solve() + post_update
+        self._connections.solve()
+        self.post_update(None)
 
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):
