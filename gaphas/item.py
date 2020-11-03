@@ -215,6 +215,17 @@ class Element(Item):
         )
 
 
+def create_orthogonal_constraints(handles, horizontal):
+    rest = 1 if horizontal else 0
+    for pos, (h0, h1) in enumerate(zip(handles, handles[1:])):
+        p0 = h0.pos
+        p1 = h1.pos
+        if pos % 2 == rest:
+            yield EqualsConstraint(a=p0.x, b=p1.x)
+        else:
+            yield EqualsConstraint(a=p0.y, b=p1.y)
+
+
 class Line(Item):
     """A Line item.
 
@@ -274,22 +285,11 @@ class Line(Item):
         if not orthogonal:
             return
 
-        h = self._handles
-        # if len(h) < 3:
-        #    self.split_segment(0)
-        eq = EqualsConstraint  # lambda a, b: a - b
         add = self._connections.add_constraint
-        cons = []
-        rest = self._horizontal and 1 or 0
-        for pos, (h0, h1) in enumerate(zip(h, h[1:])):
-            p0 = h0.pos
-            p1 = h1.pos
-            if pos % 2 == rest:  # odd
-                cons.append(add(self, eq(a=p0.x, b=p1.x)))
-            else:
-                cons.append(add(self, eq(a=p0.y, b=p1.y)))
-            p1.x.notify()
-            p1.y.notify()
+        cons = [
+            add(self, c)
+            for c in create_orthogonal_constraints(self._handles, self._horizontal)
+        ]
         self._set_orthogonal_constraints(cons)
         self._connections.solve()
         self.post_update(None)
