@@ -27,7 +27,7 @@ class ItemPainter:
     draw_all = False
 
     def __init__(self, selection: Optional[Selection] = None):
-        self.selection = selection if selection else Selection()
+        self.selection = selection or Selection()
 
     def paint_item(self, item, cairo):
         cairo.save()
