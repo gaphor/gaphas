@@ -1,41 +1,28 @@
 """Test segment aspects for items."""
 import pytest
 
-from gaphas.canvas import Canvas
 from gaphas.item import Item
 from gaphas.segment import HandleFinder, Line, Segment, SegmentHandleFinder
-from gaphas.view import GtkView
+from gaphas.tool import ConnectHandleTool
 
 
-class SegmentFixture:
-    def __init__(self):
-        self.canvas = Canvas()
-        self.line = Line(self.canvas.connections)
-        self.canvas.add(self.line)
-        self.view = GtkView(self.canvas)
-        self.item = Item()
+@pytest.fixture
+def tool(view):
+    return ConnectHandleTool(view)
 
 
-@pytest.fixture(name="seg")
-def segment_fixture():
-    return SegmentFixture()
-
-
-def test_segment_fails_for_item(seg):
+def test_segment_fails_for_item(canvas):
     """Test if Segment aspect can be applied to Item."""
-    try:
-        Segment(seg.canvas, seg.item)
-    except TypeError:
-        pass
-    else:
-        assert False, "Should not be reached"
+    item = Item()
+    with pytest.raises(TypeError):
+        Segment(canvas, item)
 
 
-def test_segment(seg):
+def test_segment(canvas, connections):
     """Test add a new segment to a line."""
-    line = Line(seg.canvas.connections)
-    seg.canvas.add(line)
-    segment = Segment(line, seg.canvas)
+    line = Line(connections)
+    canvas.add(line)
+    segment = Segment(line, canvas)
     assert 2 == len(line.handles())
     segment.split((5, 5))
     assert 3 == len(line.handles())
@@ -44,51 +31,51 @@ def test_segment(seg):
 # Test Line Splitting
 
 
-def test_split_single(simple_canvas):
+def test_split_single(canvas, line):
     """Test single line splitting."""
     # Start with 2 handles & 1 port, after split: expect 3 handles & 2 ports
-    assert len(simple_canvas.line.handles()) == 2
-    assert len(simple_canvas.line.ports()) == 1
+    assert len(line.handles()) == 2
+    assert len(line.ports()) == 1
 
-    old_port = simple_canvas.line.ports()[0]
-    h1, h2 = simple_canvas.line.handles()
+    old_port = line.ports()[0]
+    h1, h2 = line.handles()
     assert h1.pos == old_port.start
     assert h2.pos == old_port.end
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
 
     handles, ports = segment.split_segment(0)
     handle = handles[0]
     assert 1 == len(handles)
     assert (50, 50) == handle.pos.pos
-    assert 3 == len(simple_canvas.line.handles())
-    assert 2 == len(simple_canvas.line.ports())
+    assert 3 == len(line.handles())
+    assert 2 == len(line.ports())
 
     # New handle is between old handles
-    assert handle == simple_canvas.line.handles()[1]
+    assert handle == line.handles()[1]
     # The old port is deleted
-    assert old_port not in simple_canvas.line.ports()
+    assert old_port not in line.ports()
 
     # check ports order
-    p1, p2 = simple_canvas.line.ports()
-    h1, h2, h3 = simple_canvas.line.handles()
+    p1, p2 = line.ports()
+    h1, h2, h3 = line.handles()
     assert h1.pos == p1.start
     assert h2.pos == p1.end
     assert h2.pos == p2.start
     assert h3.pos == p2.end
 
 
-def test_split_multiple(simple_canvas):
+def test_split_multiple(canvas, line):
     """Test multiple line splitting."""
-    simple_canvas.line.handles()[1].pos = (20, 16)
-    handles = simple_canvas.line.handles()
-    old_ports = simple_canvas.line.ports()[:]
+    line.handles()[1].pos = (20, 16)
+    handles = line.handles()
+    old_ports = line.ports()[:]
 
     # Start with two handles, split into 4 segments: expect 3 new handles
     assert len(handles) == 2
     assert len(old_ports) == 1
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
 
     handles, ports = segment.split_segment(0, count=4)
     assert 3 == len(handles)
@@ -98,19 +85,19 @@ def test_split_multiple(simple_canvas):
     assert (15, 12) == h3.pos.pos
 
     # New handles between old handles
-    assert 5 == len(simple_canvas.line.handles())
-    assert h1 == simple_canvas.line.handles()[1]
-    assert h2 == simple_canvas.line.handles()[2]
-    assert h3 == simple_canvas.line.handles()[3]
+    assert 5 == len(line.handles())
+    assert h1 == line.handles()[1]
+    assert h2 == line.handles()[2]
+    assert h3 == line.handles()[3]
 
-    assert 4 == len(simple_canvas.line.ports())
+    assert 4 == len(line.ports())
 
     # The old port is deleted
-    assert old_ports[0] not in simple_canvas.line.ports()
+    assert old_ports[0] not in line.ports()
 
     # Check ports order
-    p1, p2, p3, p4 = simple_canvas.line.ports()
-    h1, h2, h3, h4, h5 = simple_canvas.line.handles()
+    p1, p2, p3, p4 = line.ports()
+    h1, h2, h3, h4, h5 = line.handles()
     assert h1.pos == p1.start
     assert h2.pos == p1.end
     assert h2.pos == p2.start
@@ -121,15 +108,15 @@ def test_split_multiple(simple_canvas):
     assert h5.pos == p4.end
 
 
-def test_ports_after_split(simple_canvas):
+def test_ports_after_split(canvas, line):
     """Test ports removal after split."""
-    simple_canvas.line.handles()[1].pos = (20, 16)
+    line.handles()[1].pos = (20, 16)
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
 
     segment.split_segment(0)
-    handles = simple_canvas.line.handles()
-    old_ports = simple_canvas.line.ports()[:]
+    handles = line.handles()
+    old_ports = line.ports()[:]
 
     # Start with 3 handles and 2 ports
     assert len(handles) == 3
@@ -138,89 +125,89 @@ def test_ports_after_split(simple_canvas):
     # Split 1st segment again: 1st port should be deleted, but 2nd one should
     # remain untouched
     segment.split_segment(0)
-    assert old_ports[0] not in simple_canvas.line.ports()
-    assert old_ports[1] == simple_canvas.line.ports()[2]
+    assert old_ports[0] not in line.ports()
+    assert old_ports[1] == line.ports()[2]
 
 
-def test_constraints_after_split(simple_canvas):
+def test_constraints_after_split(canvas, connections, line, tool):
     """Test if constraints are recreated after line split."""
     # Connect line2 to self.line
-    line2 = Line(simple_canvas.connections)
-    simple_canvas.canvas.add(line2)
+    line2 = Line(connections)
+    canvas.add(line2)
     head = line2.handles()[0]
-    simple_canvas.tool.connect(line2, head, (25, 25))
-    cinfo = simple_canvas.canvas.connections.get_connection(head)
-    assert simple_canvas.line == cinfo.connected
+    tool.connect(line2, head, (25, 25))
+    cinfo = canvas.connections.get_connection(head)
+    assert line == cinfo.connected
     orig_constraint = cinfo.constraint
 
-    Segment(simple_canvas.line, simple_canvas.canvas).split_segment(0)
-    assert len(simple_canvas.line.handles()) == 3
-    h1, h2, h3 = simple_canvas.line.handles()
+    Segment(line, canvas).split_segment(0)
+    assert len(line.handles()) == 3
+    h1, h2, h3 = line.handles()
 
-    cinfo = simple_canvas.canvas.connections.get_connection(head)
+    cinfo = canvas.connections.get_connection(head)
     assert cinfo.constraint != orig_constraint
 
 
-def test_split_undo(simple_canvas, revert_undo, undo_fixture):
+def test_split_undo(canvas, line, revert_undo, undo_fixture):
     """Test line splitting undo."""
-    simple_canvas.line.handles()[1].pos = (20, 0)
+    line.handles()[1].pos = (20, 0)
 
     # We start with two handles and one port, after split 3 handles and
     # 2 ports are expected
-    assert len(simple_canvas.line.handles()) == 2
-    assert len(simple_canvas.line.ports()) == 1
+    assert len(line.handles()) == 2
+    assert len(line.ports()) == 1
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
     segment.split_segment(0)
-    assert len(simple_canvas.line.handles()) == 3
-    assert len(simple_canvas.line.ports()) == 2
+    assert len(line.handles()) == 3
+    assert len(line.ports()) == 2
 
     # After undo, 2 handles and 1 port are expected again
     undo_fixture[0]()  # Call Undo
-    assert 2 == len(simple_canvas.line.handles())
-    assert 1 == len(simple_canvas.line.ports())
+    assert 2 == len(line.handles())
+    assert 1 == len(line.ports())
 
 
-def test_orthogonal_line_split(simple_canvas):
+def test_orthogonal_line_split(canvas, line):
     """Test orthogonal line splitting."""
     # Start with no orthogonal constraints
-    assert len(simple_canvas.line._orthogonal_constraints) == 0
+    assert len(line._orthogonal_constraints) == 0
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
     segment.split_segment(0)
 
-    simple_canvas.line.orthogonal = True
+    line.orthogonal = True
 
     # Check orthogonal constraints
-    assert 2 == len(simple_canvas.line._orthogonal_constraints)
-    assert 3 == len(simple_canvas.line.handles())
+    assert 2 == len(line._orthogonal_constraints)
+    assert 3 == len(line.handles())
 
-    Segment(simple_canvas.line, simple_canvas.canvas).split_segment(0)
+    Segment(line, canvas).split_segment(0)
 
     # 3 handles and 2 ports are expected
     # 2 constraints keep the self.line orthogonal
-    assert 3 == len(simple_canvas.line._orthogonal_constraints)
-    assert 4 == len(simple_canvas.line.handles())
-    assert 3 == len(simple_canvas.line.ports())
+    assert 3 == len(line._orthogonal_constraints)
+    assert 4 == len(line.handles())
+    assert 3 == len(line.ports())
 
 
-def test_params_error_exc(simple_canvas):
+def test_params_error_exc(canvas, connections):
     """Test parameter error exceptions."""
-    line = Line(simple_canvas.connections)
-    segment = Segment(line, simple_canvas.canvas)
+    line = Line(connections)
+    segment = Segment(line, canvas)
 
     # There is only 1 segment
     with pytest.raises(ValueError):
         segment.split_segment(-1)
 
-    line = Line(simple_canvas.connections)
-    segment = Segment(line, simple_canvas.canvas)
+    line = Line(connections)
+    segment = Segment(line, canvas)
     with pytest.raises(ValueError):
         segment.split_segment(1)
 
-    line = Line(simple_canvas.connections)
+    line = Line(connections)
     # Can't split into one or less segment :)
-    segment = Segment(line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
     with pytest.raises(ValueError):
         segment.split_segment(0, 1)
 
@@ -228,144 +215,148 @@ def test_params_error_exc(simple_canvas):
 # Test Line Merging
 
 
-def test_merge_first_single(simple_canvas):
+def test_merge_first_single(line, canvas, view):
     """Test single line merging starting from 1st segment."""
-    simple_canvas.line.handles()[1].pos = (20, 0)
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    line.handles()[1].pos = (20, 0)
+    segment = Segment(line, canvas)
     segment.split_segment(0)
 
     # We start with 3 handles and 2 ports, after merging 2 handles and 1 port
     # are expected
-    assert len(simple_canvas.line.handles()) == 3
-    assert len(simple_canvas.line.ports()) == 2
-    old_ports = simple_canvas.line.ports()[:]
+    assert len(line.handles()) == 3
+    assert len(line.ports()) == 2
+    old_ports = line.ports()[:]
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
     handles, ports = segment.merge_segment(0)
     # Deleted handles and ports
     assert 1 == len(handles)
     assert 2 == len(ports)
     # Handles and ports left after segment merging
-    assert 2 == len(simple_canvas.line.handles())
-    assert 1 == len(simple_canvas.line.ports())
+    assert 2 == len(line.handles())
+    assert 1 == len(line.ports())
 
-    assert handles[0] not in simple_canvas.line.handles()
-    assert ports[0] not in simple_canvas.line.ports()
-    assert ports[1] not in simple_canvas.line.ports()
+    assert handles[0] not in line.handles()
+    assert ports[0] not in line.ports()
+    assert ports[1] not in line.ports()
 
     # Old ports are completely removed as they are replaced by new one port
     assert old_ports == ports
 
     # Finally, created port shall span between first and last handle
-    port = simple_canvas.line.ports()[0]
+    port = line.ports()[0]
     assert (0, 0) == port.start.pos
     assert (20, 0) == port.end.pos
 
 
-def test_constraints_after_merge(simple_canvas):
+def test_constraints_after_merge(canvas, connections, line, view, tool):
     """Test if constraints are recreated after line merge."""
-    line2 = Line(simple_canvas.connections)
-    simple_canvas.canvas.add(line2)
+    line2 = Line(connections)
+    canvas.add(line2)
     head = line2.handles()[0]
 
-    simple_canvas.tool.connect(line2, head, (25, 25))
-    cinfo = simple_canvas.canvas.connections.get_connection(head)
-    assert simple_canvas.line == cinfo.connected
+    canvas.request_update(line)
+    canvas.request_update(line2)
+    view.update()
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    tool.connect(line2, head, (25, 25))
+    cinfo = connections.get_connection(head)
+    assert line == cinfo.connected
+
+    segment = Segment(line, canvas)
     segment.split_segment(0)
-    assert len(simple_canvas.line.handles()) == 3
+    assert len(line.handles()) == 3
     orig_constraint = cinfo.constraint
 
     segment.merge_segment(0)
-    assert len(simple_canvas.line.handles()) == 2
+    assert len(line.handles()) == 2
 
-    h1, h2 = simple_canvas.line.handles()
+    h1, h2 = line.handles()
     # Connection shall be reconstrained between 1st and 2nd handle
-    cinfo = simple_canvas.canvas.connections.get_connection(head)
+    cinfo = canvas.connections.get_connection(head)
     assert orig_constraint != cinfo.constraint
 
 
-def test_merge_multiple(simple_canvas):
+def test_merge_multiple(canvas, line):
     """Test multiple line merge."""
-    simple_canvas.line.handles()[1].pos = (20, 16)
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    line.handles()[1].pos = (20, 16)
+    segment = Segment(line, canvas)
     segment.split_segment(0, count=3)
 
     # Start with 4 handles and 3 ports, merge 3 segments
-    assert len(simple_canvas.line.handles()) == 4
-    assert len(simple_canvas.line.ports()) == 3
+    assert len(line.handles()) == 4
+    assert len(line.ports()) == 3
 
     handles, ports = segment.merge_segment(0, count=3)
     assert 2 == len(handles)
     assert 3 == len(ports)
-    assert 2 == len(simple_canvas.line.handles())
-    assert 1 == len(simple_canvas.line.ports())
+    assert 2 == len(line.handles())
+    assert 1 == len(line.ports())
 
-    assert not set(handles).intersection(set(simple_canvas.line.handles()))
-    assert not set(ports).intersection(set(simple_canvas.line.ports()))
+    assert not set(handles).intersection(set(line.handles()))
+    assert not set(ports).intersection(set(line.ports()))
 
     # Finally, the created port shall span between first and last handle
-    port = simple_canvas.line.ports()[0]
+    port = line.ports()[0]
     assert (0, 0) == port.start.pos
     assert (20, 16) == port.end.pos
 
 
-def test_merge_undo(simple_canvas, revert_undo, undo_fixture):
+def test_merge_undo(canvas, line, revert_undo, undo_fixture):
     """Test line merging undo."""
-    simple_canvas.line.handles()[1].pos = (20, 0)
+    line.handles()[1].pos = (20, 0)
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
 
     # Split for merging
     segment.split_segment(0)
-    assert len(simple_canvas.line.handles()) == 3
-    assert len(simple_canvas.line.ports()) == 2
+    assert len(line.handles()) == 3
+    assert len(line.ports()) == 2
 
     # Clear undo stack before merging
     del undo_fixture[2][:]
 
     # Merge with empty undo stack
     segment.merge_segment(0)
-    assert len(simple_canvas.line.handles()) == 2
-    assert len(simple_canvas.line.ports()) == 1
+    assert len(line.handles()) == 2
+    assert len(line.ports()) == 1
 
     # After merge undo, 3 handles and 2 ports are expected again
     undo_fixture[0]()  # Undo
-    assert 3 == len(simple_canvas.line.handles())
-    assert 2 == len(simple_canvas.line.ports())
+    assert 3 == len(line.handles())
+    assert 2 == len(line.ports())
 
 
-def test_orthogonal_line_merge(simple_canvas):
+def test_orthogonal_line_merge(canvas, connections, line):
     """Test orthogonal line merging."""
-    assert 12 == len(simple_canvas.canvas.solver._constraints)
+    assert 0 == len(connections.solver._constraints)
 
-    simple_canvas.line.handles()[-1].pos = 100, 100
+    line.handles()[-1].pos = 100, 100
 
-    segment = Segment(simple_canvas.line, simple_canvas.canvas)
+    segment = Segment(line, canvas)
     # Prepare the self.line for merging
     segment.split_segment(0)
     segment.split_segment(0)
-    simple_canvas.line.orthogonal = True
+    line.orthogonal = True
 
-    assert 6 + 6 + 3 == len(simple_canvas.canvas.solver._constraints)
-    assert 4 == len(simple_canvas.line.handles())
-    assert 3 == len(simple_canvas.line.ports())
+    assert 3 == len(connections.solver._constraints)
+    assert 4 == len(line.handles())
+    assert 3 == len(line.ports())
 
     # Test the merging
     segment.merge_segment(0)
 
-    assert 6 + 6 + 2 == len(simple_canvas.canvas.solver._constraints)
-    assert 3 == len(simple_canvas.line.handles())
-    assert 2 == len(simple_canvas.line.ports())
+    assert 2 == len(connections.solver._constraints)
+    assert 3 == len(line.handles())
+    assert 2 == len(line.ports())
 
 
 @pytest.mark.parametrize("num_segments", [-1, 2, (0, 1), 0, 1, (0, 3)])
-def test_params_errors(simple_canvas, num_segments):
+def test_params_errors(canvas, connections, num_segments):
     """Test parameter error exceptions."""
-    line = Line(simple_canvas.connections)
-    simple_canvas.canvas.add(line)
-    segment = Segment(line, simple_canvas.canvas)
+    line = Line(connections)
+    canvas.add(line)
+    segment = Segment(line, canvas)
     with pytest.raises(ValueError):
         if isinstance(num_segments, tuple):
             segment.split_segment(0)
@@ -378,6 +369,6 @@ def test_params_errors(simple_canvas, num_segments):
             segment.merge_segment(num_segments)
 
 
-def test_handle_finder(seg):
-    finder = HandleFinder(seg.line, seg.view)
+def test_handle_finder(line, view):
+    finder = HandleFinder(line, view)
     assert type(finder) is SegmentHandleFinder, type(finder)

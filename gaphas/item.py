@@ -259,6 +259,10 @@ class Line(Item):
         self._horizontal = False
         self._head_angle = self._tail_angle = 0
 
+    head = property(lambda s: s._handles[0])
+
+    tail = property(lambda s: s._handles[-1])
+
     @observed
     def _set_line_width(self, line_width):
         self._line_width = line_width
