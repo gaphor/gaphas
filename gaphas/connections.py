@@ -27,7 +27,7 @@ class ConnectionError(Exception):
 
 class Connections:
     def __init__(self, solver: Optional[Solver] = None):
-        self._solver = solver if solver else Solver()
+        self._solver = solver or Solver()
         self._connections = table.Table(Connection, list(range(4)))
 
     solver = property(lambda s: s._solver)
