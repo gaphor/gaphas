@@ -8,7 +8,7 @@ Getting Connection Information
 ==============================
 To get connected item to a handle::
 
-    c = canvas.get_connection(handle)
+    c = canvas.connections.get_connection(handle)
     if c is not None:
         print c.connected
         print c.port
@@ -126,7 +126,7 @@ class Canvas:
         """
         for child in reversed(self.get_children(item)):
             self.remove(child)
-        self.remove_connections_to_item(item)
+        self._connections.remove_connections_to_item(item)
         self._remove(item)
 
     reversible_pair(
@@ -256,34 +256,6 @@ class Canvas:
         [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
         """
         return self._tree.get_all_children(item)
-
-    def connect_item(
-        self, item, handle, connected, port, constraint=None, callback=None
-    ):
-        self._connections.connect_item(
-            item, handle, connected, port, constraint, callback
-        )
-
-    def disconnect_item(self, item, handle=None):
-        self._connections.disconnect_item(item, handle)
-
-    def remove_connections_to_item(self, item):
-        self._connections.remove_connections_to_item(item)
-
-    def reconnect_item(self, item, handle, port=None, constraint=None):
-        """Update an existing connection.
-
-        This is used to provide a new constraint to the connection.
-        ``item`` and ``handle`` are the keys to the to-be-updated
-        connection.
-        """
-        self._connections.reconnect_item(item, handle, port, constraint)
-
-    def get_connection(self, handle):
-        return self._connections.get_connection(handle)
-
-    def get_connections(self, item=None, handle=None, connected=None, port=None):
-        return self._connections.get_connections(item, handle, connected, port)
 
     def sort(self, items):
         """Sort a list of items in the order in which they are traversed in the

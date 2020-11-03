@@ -44,13 +44,13 @@ def test_connect_item():
     c.add(b2)
     c.add(line)
 
-    c.connect_item(line, line.handles()[0], b1, b1.ports()[0])
-    assert count(c.get_connections(handle=line.handles()[0])) == 1
+    c.connections.connect_item(line, line.handles()[0], b1, b1.ports()[0])
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 1
 
     # Add the same
     with pytest.raises(ConnectionError):
-        c.connect_item(line, line.handles()[0], b1, b1.ports()[0])
-    assert count(c.get_connections(handle=line.handles()[0])) == 1
+        c.connections.connect_item(line, line.handles()[0], b1, b1.ports()[0])
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 1
 
 
 def test_disconnect_item_with_callback():
@@ -67,11 +67,13 @@ def test_disconnect_item_with_callback():
     def callback():
         events.append("called")
 
-    c.connect_item(line, line.handles()[0], b1, b1.ports()[0], callback=callback)
-    assert count(c.get_connections(handle=line.handles()[0])) == 1
+    c.connections.connect_item(
+        line, line.handles()[0], b1, b1.ports()[0], callback=callback
+    )
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 1
 
-    c.disconnect_item(line, line.handles()[0])
-    assert count(c.get_connections(handle=line.handles()[0])) == 0
+    c.connections.disconnect_item(line, line.handles()[0])
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 0
     assert events == ["called"]
 
 
@@ -86,13 +88,15 @@ def test_disconnect_item_with_constraint():
 
     cons = b1.ports()[0].constraint(line, line.handles()[0], b1)
 
-    c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
-    assert count(c.get_connections(handle=line.handles()[0])) == 1
+    c.connections.connect_item(
+        line, line.handles()[0], b1, b1.ports()[0], constraint=cons
+    )
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 1
 
     assert len(c.solver.constraints) == 13
 
-    c.disconnect_item(line, line.handles()[0])
-    assert count(c.get_connections(handle=line.handles()[0])) == 0
+    c.connections.disconnect_item(line, line.handles()[0])
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 0
 
     assert len(c.solver.constraints) == 12
 
@@ -111,12 +115,14 @@ def test_disconnect_item_by_deleting_element():
     def callback():
         events.append("called")
 
-    c.connect_item(line, line.handles()[0], b1, b1.ports()[0], callback=callback)
-    assert count(c.get_connections(handle=line.handles()[0])) == 1
+    c.connections.connect_item(
+        line, line.handles()[0], b1, b1.ports()[0], callback=callback
+    )
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 1
 
     c.remove(b1)
 
-    assert count(c.get_connections(handle=line.handles()[0])) == 0
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 0
     assert events == ["called"]
 
 
@@ -131,15 +137,17 @@ def test_disconnect_item_with_constraint_by_deleting_element():
 
     cons = b1.ports()[0].constraint(line, line.handles()[0], b1)
 
-    c.connect_item(line, line.handles()[0], b1, b1.ports()[0], constraint=cons)
-    assert count(c.get_connections(handle=line.handles()[0])) == 1
+    c.connections.connect_item(
+        line, line.handles()[0], b1, b1.ports()[0], constraint=cons
+    )
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 1
 
     ncons = len(c.solver.constraints)
     assert ncons == 13
 
     c.remove(b1)
 
-    assert count(c.get_connections(handle=line.handles()[0])) == 0
+    assert count(c.connections.get_connections(handle=line.handles()[0])) == 0
 
     assert 6 == len(c.solver.constraints)
 
@@ -168,14 +176,14 @@ def test_remove_connected_item():
 
     conn.connect(sink)
 
-    assert canvas.get_connection(l1.handles()[0])
+    assert canvas.connections.get_connection(l1.handles()[0])
 
     conn = Connector(l1, l1.handles()[1], canvas.connections)
     sink = ConnectionSink(b2, b2.ports()[0])
 
     conn.connect(sink)
 
-    assert canvas.get_connection(l1.handles()[1])
+    assert canvas.connections.get_connection(l1.handles()[1])
 
     assert number_cons2 + 2 == len(canvas.solver.constraints)
 

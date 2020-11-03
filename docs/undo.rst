@@ -346,7 +346,7 @@ Also creation and removal of connected lines is recorded and can be undone:
     >>> def real_connect(hitem, handle, item):
     ...     def real_disconnect():
     ...         pass
-    ...     canvas.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
+    ...     canvas.connections.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
     >>> b0 = Item()
     >>> canvas.add(b0)
     >>> b1 = Item()
@@ -355,9 +355,9 @@ Also creation and removal of connected lines is recorded and can be undone:
     >>> canvas.add(l)
     >>> real_connect(l, l.handles()[0], b0)
     >>> real_connect(l, l.handles()[1], b1)
-    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
-    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
 
 Clear already collected undo data:
@@ -370,16 +370,16 @@ Now remove the line from the canvas:
 
 The handles are disconnected:
 
-    >>> canvas.get_connection(l.handles()[0])
-    >>> canvas.get_connection(l.handles()[1])
+    >>> canvas.connections.get_connection(l.handles()[0])
+    >>> canvas.connections.get_connection(l.handles()[1])
 
 Undoing the remove() action should put everything back in place again:
 
     >>> undo()
 
-    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
-    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
 
 

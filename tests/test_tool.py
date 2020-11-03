@@ -65,7 +65,7 @@ def test_connect(simple_canvas):
     """Test connection to an item."""
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (120, 50))
-    cinfo = simple_canvas.canvas.get_connection(head)
+    cinfo = simple_canvas.canvas.connections.get_connection(head)
     assert cinfo is not None
     assert simple_canvas.box1 == cinfo.connected
     assert cinfo.port is simple_canvas.box1.ports()[0], f"port {cinfo.port}"
@@ -74,7 +74,7 @@ def test_connect(simple_canvas):
 
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (90, 50))
-    cinfo2 = simple_canvas.canvas.get_connection(head)
+    cinfo2 = simple_canvas.canvas.connections.get_connection(head)
     assert cinfo is not cinfo2, cinfo2
     assert cinfo2 is None, cinfo2
 
@@ -83,7 +83,7 @@ def test_reconnect_another(simple_canvas):
     """Test reconnection to another item."""
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (120, 50))
-    cinfo = simple_canvas.canvas.get_connection(head)
+    cinfo = simple_canvas.canvas.connections.get_connection(head)
     assert cinfo is not None
     item = cinfo.connected
     port = cinfo.port
@@ -96,7 +96,7 @@ def test_reconnect_another(simple_canvas):
     # Connect to box2, handle's connected item and connection data should
     # differ
     simple_canvas.tool.connect(line, head, (120, 150))
-    cinfo = simple_canvas.canvas.get_connection(head)
+    cinfo = simple_canvas.canvas.connections.get_connection(head)
     assert cinfo is not None
     assert simple_canvas.box2 == cinfo.connected
     assert simple_canvas.box2.ports()[0] == cinfo.port
@@ -110,7 +110,7 @@ def test_reconnect_same(simple_canvas):
     """Test reconnection to same item."""
     line, head = simple_canvas.line, simple_canvas.head
     simple_canvas.tool.connect(line, head, (120, 50))
-    cinfo = simple_canvas.canvas.get_connection(head)
+    cinfo = simple_canvas.canvas.connections.get_connection(head)
     assert cinfo is not None
     item = cinfo.connected
     constraint = cinfo.constraint
@@ -121,7 +121,7 @@ def test_reconnect_same(simple_canvas):
     # Connect to box1 again, handle's connected item and port should be the
     # same but connection constraint will differ
     simple_canvas.tool.connect(line, head, (120, 50))
-    cinfo = simple_canvas.canvas.get_connection(head)
+    cinfo = simple_canvas.canvas.connections.get_connection(head)
     assert cinfo is not None
     assert simple_canvas.box1 == cinfo.connected
     assert simple_canvas.box1.ports()[0] == cinfo.port

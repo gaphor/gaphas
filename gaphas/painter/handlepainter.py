@@ -25,7 +25,7 @@ class HandlePainter:
         cairo.set_antialias(ANTIALIAS_NONE)
         cairo.set_line_width(1)
 
-        get_connection = view.canvas.get_connection
+        get_connection = view.canvas.connections.get_connection
         for h in item.handles():
             if not h.visible:
                 continue
