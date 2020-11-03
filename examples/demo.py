@@ -53,7 +53,7 @@ def factory(view, cls):
     """Simple canvas item factory."""
 
     def wrapper():
-        item = cls()
+        item = cls(view.canvas.connections)
         view.canvas.add(item)
         return item
 
