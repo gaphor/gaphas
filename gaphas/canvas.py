@@ -39,6 +39,7 @@ from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
     from gaphas.item import Item
+    from gaphas.view.model import View
 
 
 class Context:
@@ -402,7 +403,7 @@ class Canvas:
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
 
-    def register_view(self, view):
+    def register_view(self, view: View):
         """Register a view on this canvas.
 
         This method is called when setting a canvas on a view and should
@@ -410,7 +411,7 @@ class Canvas:
         """
         self._registered_views.add(view)
 
-    def unregister_view(self, view):
+    def unregister_view(self, view: View):
         """Unregister a view on this canvas.
 
         This method is called when setting a canvas on a view and should

@@ -1,11 +1,12 @@
 """This module contains everything to display a Canvas on a screen."""
+from __future__ import annotations
 
 from typing import Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
-from gaphas.canvas import Canvas, instant_cairo_context
+from gaphas.canvas import instant_cairo_context
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.item import Item
@@ -14,6 +15,7 @@ from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Pain
 from gaphas.position import Position
 from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
+from gaphas.view.model import Model
 from gaphas.view.scrolling import Scrolling
 from gaphas.view.selection import Selection
 
@@ -84,7 +86,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         ),
     }
 
-    def __init__(self, canvas: Optional[Canvas] = None):
+    def __init__(self, canvas: Optional[Model] = None):
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
@@ -115,7 +117,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
-        self._canvas: Optional[Canvas] = None
+        self._canvas: Optional[Model] = None
         if canvas:
             self._set_canvas(canvas)
 
@@ -150,7 +152,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         m.invert()
         return m
 
-    def _set_canvas(self, canvas: Optional[Canvas]):
+    def _set_canvas(self, canvas: Optional[Model]):
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
