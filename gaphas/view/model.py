@@ -1,42 +1,43 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional, Reversible, Sequence
+from typing import Iterable, Optional, Reversible, Sequence, TypeVar
 
 from typing_extensions import Protocol
 
-from gaphas.item import Item
+T = TypeVar("T")
+T_ct = TypeVar("T_ct", contravariant=True)
 
 
-class Model(Protocol):
-    def get_all_items(self) -> Iterable[Item]:
+class Model(Protocol[T]):
+    def get_all_items(self) -> Iterable[T]:
         ...
 
-    def get_parent(self, item: Item) -> Optional[Item]:
+    def get_parent(self, item: T) -> Optional[T]:
         ...
 
-    def get_children(self, item: Item) -> Iterable[Item]:
+    def get_children(self, item: T) -> Iterable[T]:
         ...
 
-    def sort(self, items: Sequence[Item]) -> Reversible[Item]:
+    def sort(self, items: Sequence[T]) -> Reversible[T]:
         ...
 
     def update_now(
-        self, dirty_items: Sequence[Item], dirty_matrix_items: Sequence[Item]
-    ):
+        self, dirty_items: Sequence[T], dirty_matrix_items: Sequence[T]
+    ) -> None:
         ...
 
-    def register_view(self, view: View):
+    def register_view(self, view: View[T]) -> None:
         ...
 
-    def unregister_view(self, view: View):
+    def unregister_view(self, view: View[T]) -> None:
         ...
 
 
-class View(Protocol):
+class View(Protocol[T_ct]):
     def request_update(
         self,
-        items: Sequence[Item],
-        matrix_only_items: Sequence[Item],
-        removed_items: Sequence[Item],
-    ):
+        items: Sequence[T_ct],
+        matrix_only_items: Sequence[T_ct],
+        removed_items: Sequence[T_ct],
+    ) -> None:
         ...
