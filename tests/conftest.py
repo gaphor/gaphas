@@ -63,6 +63,37 @@ def simple_canvas():
     return SimpleCanvas()
 
 
+@pytest.fixture
+def canvas():
+    return Canvas()
+
+
+@pytest.fixture
+def connections(canvas):
+    return canvas.connections
+
+
+@pytest.fixture
+def view(canvas):
+    return GtkView(canvas)
+
+
+@pytest.fixture
+def window(view):
+    window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
+    window.add(view)
+    window.show_all()
+    yield window
+    window.destroy()
+
+
+@pytest.fixture
+def box(canvas, connections):
+    box = Box(connections)
+    canvas.add(box)
+    return box
+
+
 @pytest.fixture(scope="module")
 def undo_fixture():
     undo_list = []  # type: ignore[var-annotated]

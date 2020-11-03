@@ -9,87 +9,67 @@ from gaphas.item import Element as Box
 from gaphas.view import GtkView
 
 
-class ViewFixture:
-    def __init__(self):
-        self.canvas = Canvas()
-        self.view = GtkView(self.canvas)
-        self.window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
-        self.window.add(self.view)
-        self.window.show_all()
-
-        self.box = Box(self.canvas.connections)
-        self.canvas.add(self.box)
-        self.connections = self.canvas.connections
-
-        # Process pending (expose) events, which cause the canvas to be drawn.
-        while Gtk.events_pending():
-            Gtk.main_iteration()
+@pytest.fixture(autouse=True)
+def main_loop(window, box):
+    while Gtk.events_pending():
+        Gtk.main_iteration()
 
 
-@pytest.fixture()
-def view_fixture():
-    fixture = ViewFixture()
-    yield fixture
-    fixture.window.destroy()
-
-
-def test_get_item_at_point(view_fixture):
+def test_get_item_at_point(view, box):
     """Hover tool only reacts on motion-notify events."""
-    view_fixture.box.width = 50
-    view_fixture.box.height = 50
+    box.width = 50
+    box.height = 50
 
-    assert view_fixture.view.get_item_at_point((10, 10)) is view_fixture.box
-    assert view_fixture.view.get_item_at_point((60, 10)) is None
-
-
-def test_get_unselected_item_at_point(view_fixture):
-    view_fixture.box.width = 50
-    view_fixture.box.height = 50
-    view_fixture.view.selection.select_items(view_fixture.box)
-
-    assert view_fixture.view.get_item_at_point((10, 10)) is view_fixture.box
-    assert view_fixture.view.get_item_at_point((10, 10), selected=False) is None
+    assert view.get_item_at_point((10, 10)) is box
+    assert view.get_item_at_point((60, 10)) is None
 
 
-def test_get_handle_at_point(view_fixture):
-    box = Box(view_fixture.connections)
+def test_get_unselected_item_at_point(view, box):
+    box.width = 50
+    box.height = 50
+    view.selection.select_items(box)
+
+    assert view.get_item_at_point((10, 10)) is box
+    assert view.get_item_at_point((10, 10), selected=False) is None
+
+
+def test_get_handle_at_point(view, canvas, connections):
+    box = Box(connections)
     box.min_width = 20
     box.min_height = 30
     box.matrix.translate(20, 20)
     box.matrix.rotate(math.pi / 1.5)
-    view_fixture.canvas.add(box)
+    canvas.add(box)
 
-    i, h = view_fixture.view.get_handle_at_point((20, 20))
+    i, h = view.get_handle_at_point((20, 20))
     assert i is box
     assert h is box.handles()[0]
 
 
-def test_get_handle_at_point_at_pi_div_2(view_fixture):
-    box = Box(view_fixture.connections)
+def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
+    box = Box(connections)
     box.min_width = 20
     box.min_height = 30
     box.matrix.translate(20, 20)
     box.matrix.rotate(math.pi / 2)
-    view_fixture.canvas.add(box)
+    canvas.add(box)
 
-    i, h = view_fixture.view.get_handle_at_point((20, 20))
+    i, h = view.get_handle_at_point((20, 20))
     assert i is box
     assert h is box.handles()[0]
 
 
-def test_item_removal(view_fixture):
-    assert len(view_fixture.canvas.get_all_items()) == len(view_fixture.view._qtree)
+def test_item_removal(view, canvas, box):
+    assert len(canvas.get_all_items()) == len(view._qtree)
 
-    view_fixture.view.selection.set_focused_item(view_fixture.box)
-    view_fixture.canvas.remove(view_fixture.box)
+    view.selection.set_focused_item(box)
+    canvas.remove(box)
 
-    assert len(view_fixture.canvas.get_all_items()) == 0
-    assert len(view_fixture.view._qtree) == 0
-
-    view_fixture.window.destroy()
+    assert len(canvas.get_all_items()) == 0
+    assert len(view._qtree) == 0
 
 
-def test_view_registration(view_fixture):
+def test_view_registration():
     canvas = Canvas()
 
     # GTK view does register for updates though
@@ -108,14 +88,14 @@ def test_view_registration(view_fixture):
     assert len(canvas._registered_views) == 1
 
 
-def test_view_registration_2(view_fixture):
+def test_view_registration_2(view, canvas, window):
     """Test view registration and destroy when view is destroyed."""
-    assert len(view_fixture.canvas._registered_views) == 1
-    assert view_fixture.view in view_fixture.canvas._registered_views
+    assert len(canvas._registered_views) == 1
+    assert view in canvas._registered_views
 
-    view_fixture.window.destroy()
+    window.destroy()
 
-    assert len(view_fixture.canvas._registered_views) == 0
+    assert len(canvas._registered_views) == 0
 
 
 @pytest.fixture()
