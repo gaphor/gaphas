@@ -27,7 +27,7 @@ class ItemPainter:
     draw_all = False
 
     def __init__(self, selection: Optional[Selection] = None):
-        self.selection = selection
+        self.selection = selection or Selection()
 
     def paint_item(self, item, cairo):
         cairo.save()
@@ -35,18 +35,13 @@ class ItemPainter:
             cairo.transform(item.matrix_i2c.to_cairo())
 
             selection = self.selection
-            if not selection:
-                selection = Selection()
             item.draw(
                 DrawContext(
-                    painter=self,
                     cairo=cairo,
-                    _item=item,
                     selected=(item in selection.selected_items),
                     focused=(item is selection.focused_item),
                     hovered=(item is selection.hovered_item),
                     dropzone=(item is selection.dropzone_item),
-                    draw_all=self.draw_all,
                 )
             )
 

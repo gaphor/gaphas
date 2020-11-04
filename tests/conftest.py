@@ -5,7 +5,6 @@ from gaphas import state
 from gaphas.canvas import Canvas
 from gaphas.item import Element as Box
 from gaphas.item import Line
-from gaphas.tool import ConnectHandleTool
 from gaphas.view import GtkView
 
 # fmt: off
@@ -14,52 +13,47 @@ from gi.repository import Gtk  # noqa: isort:skip
 # fmt: on
 
 
-class SimpleCanvas:
-    """Creates a test canvas object.
-
-    Adds a view, canvas, and handle connection tool to a test case. Two
-    boxes and a line are added to the canvas as well.
-    """
-
-    def __init__(self):
-        self.canvas = Canvas()
-
-        self.box1 = Box()
-        self.canvas.add(self.box1)
-        self.box1.matrix.translate(100, 50)
-        self.box1.width = 40
-        self.box1.height = 40
-        self.canvas.request_update(self.box1)
-
-        self.box2 = Box()
-        self.canvas.add(self.box2)
-        self.box2.matrix.translate(100, 150)
-        self.box2.width = 50
-        self.box2.height = 50
-        self.canvas.request_update(self.box2)
-
-        self.line = Line()
-        self.head = self.line.handles()[0]
-        self.tail = self.line.handles()[-1]
-        self.tail.pos = 100, 100
-        self.canvas.add(self.line)
-
-        self.view = GtkView()
-        self.view.canvas = self.canvas
-
-        self.win = Gtk.Window()
-        self.win.add(self.view)
-        self.view.show()
-        self.view.update()
-        self.win.show()
-
-        self.tool = ConnectHandleTool(self.view)
+@pytest.fixture
+def canvas():
+    return Canvas()
 
 
-@pytest.fixture()
-def simple_canvas():
-    """Creates a `SimpleCanvas`."""
-    return SimpleCanvas()
+@pytest.fixture
+def connections(canvas):
+    return canvas.connections
+
+
+@pytest.fixture
+def view(canvas):
+    view = GtkView(canvas)
+    # resize, like when a widget is configured
+    view._qtree.resize((0, 0, 400, 400))
+    view.update()
+    return view
+
+
+@pytest.fixture
+def window(view):
+    window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
+    window.add(view)
+    window.show_all()
+    yield window
+    window.destroy()
+
+
+@pytest.fixture
+def box(canvas, connections):
+    box = Box(connections)
+    canvas.add(box)
+    return box
+
+
+@pytest.fixture
+def line(canvas, connections):
+    line = Line(connections)
+    line.tail.pos = 100, 100
+    canvas.add(line)
+    return line
 
 
 @pytest.fixture(scope="module")

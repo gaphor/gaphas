@@ -159,14 +159,14 @@ class LineSegment:
             sink = ConnectionSink(item, None)
             return sink.find_port((ix, iy))
 
-        for cinfo in list(canvas.get_connections(connected=connected)):
+        for cinfo in list(canvas.connections.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
 
             constraint = port.constraint(item, handle, connected)
 
-            cinfo = canvas.get_connection(handle)
-            canvas.reconnect_item(item, handle, port, constraint=constraint)
+            cinfo = canvas.connections.get_connection(handle)
+            canvas.connections.reconnect_item(item, handle, port, constraint=constraint)
 
 
 @HandleFinder.register(Line)

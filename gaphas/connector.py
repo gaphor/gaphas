@@ -24,7 +24,7 @@ class Handle:
     """
 
     def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
-        self._pos = Position(pos, strength)
+        self._pos = Position(pos[0], pos[1], strength)
         self._connectable = connectable
         self._movable = movable
         self._visible = True

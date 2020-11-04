@@ -36,7 +36,7 @@ def create_canvas(canvas, title):
     canvas.add(b2)
 
     # Draw gaphas line
-    line = Line()
+    line = Line(canvas.connections)
     line.matrix.translate(100, 60)
     canvas.add(line)
     line.handles()[1].pos = (30, 30)

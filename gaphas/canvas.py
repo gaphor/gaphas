@@ -8,7 +8,7 @@ Getting Connection Information
 ==============================
 To get connected item to a handle::
 
-    c = canvas.get_connection(handle)
+    c = canvas.connections.get_connection(handle)
     if c is not None:
         print c.connected
         print c.port
@@ -32,13 +32,14 @@ from typing import TYPE_CHECKING
 
 import cairo
 
-from gaphas import matrix, solver, tree
+from gaphas import matrix, tree
 from gaphas.connections import Connections
 from gaphas.decorators import nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
     from gaphas.item import Item
+    from gaphas.view.model import View
 
 
 class Context:
@@ -77,7 +78,7 @@ class Canvas:
     def __init__(self, create_update_context=default_update_context):
         self._create_update_context = create_update_context
         self._tree: tree.Tree[Item] = tree.Tree()
-        self._connections = Connections(solver.Solver())
+        self._connections = Connections()
 
         self._registered_views = set()
 
@@ -99,18 +100,16 @@ class Canvas:
         True
         """
         assert item not in self._tree.nodes, f"Adding already added node {item}"
+
         self._tree.add(item, parent, index)
-
-        item._set_canvas(self)
-
         self.request_update(item)
 
     @observed
     def _remove(self, item):
         """Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order."""
-        item._set_canvas(None)
         self._tree.remove(item)
+        self._connections.disconnect_item(self)
         self._update_views(removed_items=(item,))
 
     def remove(self, item):
@@ -127,7 +126,7 @@ class Canvas:
         """
         for child in reversed(self.get_children(item)):
             self.remove(child)
-        self.remove_connections_to_item(item)
+        self._connections.remove_connections_to_item(item)
         self._remove(item)
 
     reversible_pair(
@@ -258,34 +257,6 @@ class Canvas:
         """
         return self._tree.get_all_children(item)
 
-    def connect_item(
-        self, item, handle, connected, port, constraint=None, callback=None
-    ):
-        self._connections.connect_item(
-            item, handle, connected, port, constraint, callback
-        )
-
-    def disconnect_item(self, item, handle=None):
-        self._connections.disconnect_item(item, handle)
-
-    def remove_connections_to_item(self, item):
-        self._connections.remove_connections_to_item(item)
-
-    def reconnect_item(self, item, handle, port=None, constraint=None):
-        """Update an existing connection.
-
-        This is used to provide a new constraint to the connection.
-        ``item`` and ``handle`` are the keys to the to-be-updated
-        connection.
-        """
-        self._connections.reconnect_item(item, handle, port, constraint)
-
-    def get_connection(self, handle):
-        return self._connections.get_connection(handle)
-
-    def get_connections(self, item=None, handle=None, connected=None, port=None):
-        return self._connections.get_connections(item, handle, connected, port)
-
     def sort(self, items):
         """Sort a list of items in the order in which they are traversed in the
         canvas (Depth first).
@@ -401,7 +372,7 @@ class Canvas:
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
 
-    def register_view(self, view):
+    def register_view(self, view: View):
         """Register a view on this canvas.
 
         This method is called when setting a canvas on a view and should
@@ -409,7 +380,7 @@ class Canvas:
         """
         self._registered_views.add(view)
 
-    def unregister_view(self, view):
+    def unregister_view(self, view: View):
         """Unregister a view on this canvas.
 
         This method is called when setting a canvas on a view and should

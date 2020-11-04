@@ -12,13 +12,13 @@ def solver():
 
 @pytest.mark.parametrize("position", [(0, 0), (1, 2)])
 def test_position(position):
-    pos = Position(position)
+    pos = Position(*position)
     assert position[0] == pos.x
     assert position[1] == pos.y
 
 
 def test_matrix_projection_exposes_variables():
-    proj = MatrixProjection(Position((0, 0)), Matrix())
+    proj = MatrixProjection(Position(0, 0), Matrix())
 
     assert isinstance(proj.x, Variable)
     assert isinstance(proj.y, Variable)
@@ -33,7 +33,7 @@ def test_matrix_projection_exposes_variables():
     ],
 )
 def test_projection_updates_when_original_is_changed(solver, position, matrix, result):
-    pos = Position((0, 0))
+    pos = Position(0, 0)
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
     solver.solve()
@@ -55,7 +55,7 @@ def test_projection_updates_when_original_is_changed(solver, position, matrix, r
     ],
 )
 def test_original_updates_when_projection_is_changed(solver, position, matrix, result):
-    pos = Position((0, 0))
+    pos = Position(0, 0)
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
     solver.solve()
@@ -71,7 +71,7 @@ def test_original_updates_when_projection_is_changed(solver, position, matrix, r
 
 
 def test_projection_updates_when_matrix_is_changed(solver):
-    pos = Position((0, 0))
+    pos = Position(0, 0)
     matrix = Matrix()
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
@@ -85,7 +85,7 @@ def test_projection_updates_when_matrix_is_changed(solver):
 
 
 def test_matrix_projection_sets_handlers_just_in_time():
-    pos = Position((0, 0))
+    pos = Position(0, 0)
     matrix = Matrix()
     proj = MatrixProjection(pos, matrix)
 

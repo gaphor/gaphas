@@ -1,6 +1,7 @@
 """This module contains a connections manager."""
 
 from collections import namedtuple
+from typing import Optional
 
 from gaphas import table
 from gaphas.solver import Solver
@@ -25,11 +26,23 @@ class ConnectionError(Exception):
 
 
 class Connections:
-    def __init__(self, solver: Solver):
-        self._solver = solver
+    def __init__(self, solver: Optional[Solver] = None):
+        self._solver = solver or Solver()
         self._connections = table.Table(Connection, list(range(4)))
 
     solver = property(lambda s: s._solver)
+
+    def solve(self):
+        self._solver.solve()
+
+    def add_constraint(self, item, constraint):
+        self._solver.add_constraint(constraint)
+        self._connections.insert(item, None, None, None, constraint, None)
+        return constraint
+
+    def remove_constraint(self, item, constraint):
+        self._solver.remove_constraint(constraint)
+        self._connections.delete(item, None, None, None, constraint, None)
 
     @observed
     def connect_item(
@@ -151,8 +164,7 @@ class Connections:
     def get_connection(self, handle):
         """Get connection information for specified handle.
 
-        >>> from gaphas.solver import Solver
-        >>> c = Connections(Solver())
+        >>> c = Connections()
         >>> from gaphas.item import Line
         >>> line = Line()
         >>> from gaphas import item
@@ -177,8 +189,7 @@ class Connections:
         that are connected). If ``item`` is connected to itself it
         will also appear in the list.
 
-        >>> from gaphas.solver import Solver
-        >>> c = Connections(Solver())
+        >>> c = Connections()
         >>> from gaphas import item
         >>> i = item.Line()
         >>> ii = item.Line()

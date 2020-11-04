@@ -270,7 +270,8 @@ item.py: Element
 An element has ``min_height`` and ``min_width`` properties.
 
     >>> from gaphas import Element
-    >>> e = Element()
+    >>> from gaphas.connections import Connections
+    >>> e = Element(Connections())
     >>> e.min_height, e.min_width
     (Variable(10, 100), Variable(10, 100))
     >>> e.min_height, e.min_width = 30, 40
@@ -293,7 +294,7 @@ A line has the following properties: ``line_width``, ``fuzziness``,
 
     >>> from gaphas import Line
     >>> from gaphas.segment import Segment
-    >>> l = Line()
+    >>> l = Line(Connections())
 
 Let's first add a segment to the line, to test orthogonal lines as well.
 
@@ -345,18 +346,18 @@ Also creation and removal of connected lines is recorded and can be undone:
     >>> def real_connect(hitem, handle, item):
     ...     def real_disconnect():
     ...         pass
-    ...     canvas.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
+    ...     canvas.connections.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
     >>> b0 = Item()
     >>> canvas.add(b0)
     >>> b1 = Item()
     >>> canvas.add(b1)
-    >>> l = Line()
+    >>> l = Line(Connections())
     >>> canvas.add(l)
     >>> real_connect(l, l.handles()[0], b0)
     >>> real_connect(l, l.handles()[1], b1)
-    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
-    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
 
 Clear already collected undo data:
@@ -369,16 +370,16 @@ Now remove the line from the canvas:
 
 The handles are disconnected:
 
-    >>> canvas.get_connection(l.handles()[0])
-    >>> canvas.get_connection(l.handles()[1])
+    >>> canvas.connections.get_connection(l.handles()[0])
+    >>> canvas.connections.get_connection(l.handles()[1])
 
 Undoing the remove() action should put everything back in place again:
 
     >>> undo()
 
-    >>> canvas.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[0])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
-    >>> canvas.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
+    >>> canvas.connections.get_connection(l.handles()[1])      # doctest: +ELLIPSIS
     Connection(item=<gaphas.item.Line object at 0x...>)
 
 

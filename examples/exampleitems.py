@@ -13,8 +13,8 @@ class Box(Element):
     NW +---+ NE SW +---+ SE
     """
 
-    def __init__(self, width=10, height=10):
-        super().__init__(width, height)
+    def __init__(self, connections, width=10, height=10):
+        super().__init__(connections, width, height)
 
     def draw(self, context):
         c = context.cairo
@@ -57,6 +57,8 @@ class Circle(Item):
     def __init__(self):
         super().__init__()
         self._handles.extend((Handle(), Handle()))
+        h1, h2 = self._handles
+        h1.movable = False
 
     def _set_radius(self, r):
         h1, h2 = self._handles
@@ -69,11 +71,6 @@ class Circle(Item):
         return ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2) ** 0.5
 
     radius = property(_get_radius, _set_radius)
-
-    def setup_canvas(self):
-        super().setup_canvas()
-        h1, h2 = self._handles
-        h1.movable = False
 
     def point(self, pos):
         h1, _ = self._handles
