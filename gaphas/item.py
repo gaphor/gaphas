@@ -296,8 +296,6 @@ class Line(Item):
             for c in create_orthogonal_constraints(self._handles, self._horizontal)
         ]
         self._set_orthogonal_constraints(cons)
-        self._connections.solve()
-        self.post_update(None)
 
     @observed
     def _set_orthogonal_constraints(self, orthogonal_constraints):

@@ -93,6 +93,7 @@ class LineSegment:
 
         self._recreate_constraints()
 
+        self.canvas.request_update(item)
         handles = item.handles()[segment + 1 : segment + count]
         ports = item.ports()[segment : segment + count - 1]
         return handles, ports
@@ -136,6 +137,7 @@ class LineSegment:
         item._update_orthogonal_constraints(item.orthogonal)
 
         self._recreate_constraints()
+        self.canvas.request_update(item)
 
         return deleted_handles, deleted_ports
 
