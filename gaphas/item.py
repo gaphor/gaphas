@@ -36,7 +36,8 @@ class Item:
     - _ports:       list of ports, connectable areas of an item
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)  # type: ignore[call-arg]
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
         self._handles = []
@@ -116,8 +117,8 @@ class Element(Item):
     min_width = variable(strength=REQUIRED, varname="_min_width")
     min_height = variable(strength=REQUIRED, varname="_min_height")
 
-    def __init__(self, connections, width=10, height=10):
-        super().__init__()
+    def __init__(self, connections, width=10, height=10, **kwargs):
+        super().__init__(**kwargs)
         self._connections = connections
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
 
@@ -246,8 +247,8 @@ class Line(Item):
     draw an arrow point).
     """
 
-    def __init__(self, connections):
-        super().__init__()
+    def __init__(self, connections, **kwargs):
+        super().__init__(**kwargs)
         self._connections = connections
         self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
         self._ports = []
