@@ -49,7 +49,7 @@ class Text(Item):
         else:
             text_align(cr, 0, 0, self.text, self.align_x, self.align_y)
 
-    def point(self, pos):
+    def point(self, x, y):
         return 0
 
 
@@ -72,10 +72,9 @@ class Circle(Item):
 
     radius = property(_get_radius, _set_radius)
 
-    def point(self, pos):
+    def point(self, x, y):
         h1, _ = self._handles
         p1 = h1.pos
-        x, y = pos
         dist = ((x - p1.x) ** 2 + (y - p1.y) ** 2) ** 0.5
         return dist - self.radius
 

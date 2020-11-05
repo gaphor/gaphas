@@ -1,7 +1,9 @@
 """Basic items."""
 from math import atan2
+from typing import Sequence
 
-from gaphas.connector import Handle, LinePort
+from gaphas.canvas import Context
+from gaphas.connector import Handle, LinePort, Port
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
@@ -26,9 +28,6 @@ class Item:
     Attributes:
 
     - matrix: item's transformation matrix
-    - canvas: canvas, which owns an item
-    - constraints: list of item constraints, automatically registered
-      when the item is added to a canvas; may be extended in subclasses
 
     Private:
 
@@ -51,11 +50,12 @@ class Item:
     def matrix_i2c(self) -> Matrix:
         return self._matrix_i2c
 
-    def pre_update(self, context):
+    def pre_update(self, context: Context):
         """Perform any changes before item update here, for example:
 
         - change matrix
         - move handles
+        - determine size
 
         Gaphas does not guarantee that any canvas invariant is valid
         at this point (i.e. constraints are not solved, first handle
@@ -63,7 +63,7 @@ class Item:
         """
         pass
 
-    def post_update(self, context):
+    def post_update(self, context: Context):
         """Method called after item update.
 
         If some variables should be used during drawing or in another
@@ -76,28 +76,25 @@ class Item:
         """
         pass
 
-    def draw(self, context):
+    def draw(self, context: Context):
         """Render the item to a canvas view. Context contains the following
         attributes:
 
         - cairo: the Cairo Context use this one to draw
-        - view: the view that is to be rendered to
         - selected, focused, hovered, dropzone: view state of items
           (True/False)
-        - draw_all: a request to draw everything, for bounding box
-          calculations
         """
         pass
 
-    def handles(self):
+    def handles(self) -> Sequence[Handle]:
         """Return a list of handles owned by the item."""
         return self._handles
 
-    def ports(self):
+    def ports(self) -> Sequence[Port]:
         """Return list of ports."""
         return self._ports
 
-    def point(self, pos):
+    def point(self, x: float, y: float):
         """Get the distance from a point (``x``, ``y``) to the item.
 
         ``x`` and ``y`` are in item coordinates.
@@ -202,17 +199,17 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
-    def point(self, pos):
+    def point(self, x, y):
         """Distance from the point (x, y) to the item.
 
         >>> e = Element()
-        >>> e.point((20, 10))
+        >>> e.point(20, 10)
         10.0
         """
         h = self._handles
         pnw, pse = h[NW].pos, h[SE].pos
         return distance_rectangle_point(
-            list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), pos
+            list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), (x, y)
         )
 
 
@@ -414,22 +411,22 @@ class Line(Item):
         p1, p0 = h1.pos, h0.pos
         self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
 
-    def point(self, pos):
+    def point(self, x, y):
         """
         >>> a = Line()
         >>> a.handles()[1].pos = 25, 5
         >>> a._handles.append(a._create_handle((30, 30)))
-        >>> a.point((-1, 0))
+        >>> a.point(-1, 0)
         1.0
-        >>> f"{a.point((5, 4)):.3f}"
+        >>> f"{a.point(5, 4):.3f}"
         '2.942'
-        >>> f"{a.point((29, 29)):.3f}"
+        >>> f"{a.point(29, 29):.3f}"
         '0.784'
         """
         hpos = [h.pos for h in self._handles]
 
         distance, _point = min(
-            map(distance_line_point, hpos[:-1], hpos[1:], [pos] * (len(hpos) - 1))
+            map(distance_line_point, hpos[:-1], hpos[1:], [(x, y)] * (len(hpos) - 1))
         )
         return max(0, distance - self.fuzziness)
 

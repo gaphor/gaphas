@@ -12,7 +12,6 @@ from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
-from gaphas.position import Position
 from gaphas.quadtree import Quadtree
 from gaphas.tool import DefaultTool
 from gaphas.view.model import Model
@@ -239,7 +238,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             v2i = self.get_matrix_v2i(item)
             ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point(Position(ix, iy))
+            item_distance = item.point(ix, iy)
             if item_distance is None:
                 print(f"Item distance is None for {item}")
                 continue
