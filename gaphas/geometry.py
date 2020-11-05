@@ -66,8 +66,7 @@ class Rectangle:
     def _set_x1(self, x1):
         """"""
         width = x1 - self.x
-        if width < 0:
-            width = 0
+        width = max(width, 0)
         self.width = width
 
     x1 = property(lambda s: s.x + s.width, _set_x1)
@@ -75,8 +74,7 @@ class Rectangle:
     def _set_y1(self, y1):
         """"""
         height = y1 - self.y
-        if height < 0:
-            height = 0
+        height = max(height, 0)
         self.height = height
 
     y1 = property(lambda s: s.y + s.height, _set_y1)
