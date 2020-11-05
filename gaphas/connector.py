@@ -24,6 +24,17 @@ class Handle:
     """
 
     def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
+        """
+        Initialize the window.
+
+        Args:
+            self: (todo): write your description
+            pos: (int): write your description
+            strength: (float): write your description
+            NORMAL: (todo): write your description
+            connectable: (todo): write your description
+            movable: (todo): write your description
+        """
         self._pos = Position(pos[0], pos[1], strength)
         self._connectable = connectable
         self._movable = movable
@@ -44,23 +55,50 @@ class Handle:
 
     @observed
     def _set_connectable(self, connectable):
+        """
+        Set the connection to the connection.
+
+        Args:
+            self: (todo): write your description
+            connectable: (todo): write your description
+        """
         self._connectable = connectable
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
     @observed
     def _set_movable(self, movable):
+        """
+        Sets the movable.
+
+        Args:
+            self: (todo): write your description
+            movable: (str): write your description
+        """
         self._movable = movable
 
     movable = reversible_property(lambda s: s._movable, _set_movable)
 
     @observed
     def _set_visible(self, visible):
+        """
+        Sets the visible visible visible visible visible visible visible to the inputed. : parameter.
+
+        Args:
+            self: (todo): write your description
+            visible: (todo): write your description
+        """
         self._visible = visible
 
     visible = reversible_property(lambda s: s._visible, _set_visible)
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
 
     __repr__ = __str__
@@ -73,12 +111,25 @@ class Port:
     """
 
     def __init__(self):
+        """
+        Initialize the connection.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__()
 
         self._connectable = True
 
     @observed
     def _set_connectable(self, connectable):
+        """
+        Set the connection to the connection.
+
+        Args:
+            self: (todo): write your description
+            connectable: (todo): write your description
+        """
         self._connectable = connectable
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
@@ -96,6 +147,14 @@ class LinePort(Port):
     """Port defined as a line between two handles."""
 
     def __init__(self, start, end):
+        """
+        Initialize start of the start and end.
+
+        Args:
+            self: (todo): write your description
+            start: (int): write your description
+            end: (int): write your description
+        """
         super().__init__()
 
         self.start = start
@@ -128,6 +187,13 @@ class PointPort(Port):
     """Port defined as a point."""
 
     def __init__(self, point: Position):
+        """
+        Initialize a point.
+
+        Args:
+            self: (todo): write your description
+            point: (todo): write your description
+        """
         super().__init__()
         self.point = point
 

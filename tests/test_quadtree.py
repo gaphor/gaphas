@@ -5,6 +5,11 @@ from gaphas.quadtree import Quadtree
 
 @pytest.fixture()
 def qtree():
+    """
+    Create a quadtree.
+
+    Args:
+    """
     qtree: Quadtree[str, None] = Quadtree((0, 0, 100, 100))
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
@@ -13,6 +18,12 @@ def qtree():
 
 
 def test_lookups(qtree):
+    """
+    Perform intersections of two trees.
+
+    Args:
+        qtree: (todo): write your description
+    """
     for i in range(100, 10):
         for j in range(100, 10):
             assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
@@ -21,6 +32,12 @@ def test_lookups(qtree):
 
 
 def test_with_rectangles(qtree):
+    """
+    Finds all rectangles in the given rectangle.
+
+    Args:
+        qtree: (todo): write your description
+    """
     assert len(qtree._ids) == 100, len(qtree._ids)
 
     for i in range(100, 10):
@@ -31,6 +48,12 @@ def test_with_rectangles(qtree):
 
 
 def test_moving_items(qtree):
+    """
+    Test for bucket items.
+
+    Args:
+        qtree: (todo): write your description
+    """
     qtree.capacity = 10
     assert len(qtree._ids) == 100, len(qtree._ids)
     assert qtree._bucket._buckets, qtree._bucket._buckets
@@ -81,11 +104,23 @@ def test_get_data(qtree):
 
 
 def test_clipped_bounds(qtree):
+    """
+    Test the bounds of the bounds is_clipped bounds.
+
+    Args:
+        qtree: (todo): write your description
+    """
     qtree.add(item=1, bounds=(-100, -100, 120, 120))
     assert (0, 0, 20, 20) == qtree.get_clipped_bounds(item=1)
 
 
 def test_resize_will_not_find_items_outside_bounds(qtree):
+    """
+    Resize items in items in - place.
+
+    Args:
+        qtree: (todo): write your description
+    """
     assert len(qtree.find_inside((0, 0, 100, 100))) == 100
 
     qtree.resize((0, 0, 19, 19))
@@ -93,6 +128,13 @@ def test_resize_will_not_find_items_outside_bounds(qtree):
 
 
 def test_dump_quadtree(qtree, capsys):
+    """
+    Dump quadtree to the quadtree.
+
+    Args:
+        qtree: (todo): write your description
+        capsys: (todo): write your description
+    """
     qtree.dump()
     captured = capsys.readouterr()
 

@@ -8,6 +8,11 @@ from gaphas.item import Item
 
 @pytest.fixture()
 def item():
+    """
+    Returns the item associated with the given item.
+
+    Args:
+    """
     return Item()
 
 

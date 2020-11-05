@@ -8,6 +8,13 @@ class TextEditTool(Tool):
     position."""
 
     def __init__(self, view=None):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         super().__init__(view)
 
     def on_double_click(self, event):
@@ -39,10 +46,28 @@ class TextEditTool(Tool):
         return True
 
     def _on_key_press_event(self, widget, event, buffer):
+        """
+        Handle key press event is clicked.
+
+        Args:
+            self: (todo): write your description
+            widget: (todo): write your description
+            event: (todo): write your description
+            buffer: (todo): write your description
+        """
         # if event.keyval == Gdk.KEY_Return:
         #     widget.get_toplevel().destroy()
         if event.get_keyval()[1] == Gdk.KEY_Escape:
             widget.get_toplevel().destroy()
 
     def _on_focus_out_event(self, widget, event, buffer):
+        """
+        Reimplemented focus is clicked widget.
+
+        Args:
+            self: (todo): write your description
+            widget: (todo): write your description
+            event: (todo): write your description
+            buffer: (todo): write your description
+        """
         widget.destroy()

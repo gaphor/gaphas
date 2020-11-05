@@ -19,6 +19,12 @@ class DrawContext(Context):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the class.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__(**kwargs)
 
 
@@ -27,9 +33,24 @@ class ItemPainter:
     draw_all = False
 
     def __init__(self, selection: Optional[Selection] = None):
+        """
+        Set the selection.
+
+        Args:
+            self: (todo): write your description
+            selection: (str): write your description
+        """
         self.selection = selection or Selection()
 
     def paint_item(self, item, cairo):
+        """
+        Paint the given item.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            cairo: (todo): write your description
+        """
         cairo.save()
         try:
             cairo.transform(item.matrix_i2c.to_cairo())

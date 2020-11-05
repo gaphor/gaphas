@@ -13,6 +13,12 @@ class Tree(Generic[T]):
     """
 
     def __init__(self):
+        """
+        Initialize the children
+
+        Args:
+            self: (todo): write your description
+        """
         # List of nodes in the tree, sorted in the order they ought to be
         # rendered
         self._nodes: List[T] = []
@@ -143,6 +149,13 @@ class Tree(Generic[T]):
             parent = self.get_parent(parent)
 
     def order(self, items):
+        """
+        Return the set of items.
+
+        Args:
+            self: (todo): write your description
+            items: (todo): write your description
+        """
         items_set = set(items)
         return [n for n in self._nodes if n in items_set]
 
@@ -199,6 +212,13 @@ class Tree(Generic[T]):
         self._children[node] = []
 
     def _remove(self, node):
+        """
+        Remove the given node from the graph.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         # Remove from parent item
         self.get_siblings(node).remove(node)
         # Remove data entries:

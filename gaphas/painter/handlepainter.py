@@ -9,6 +9,13 @@ class HandlePainter:
     """Draw handles of items that are marked as selected in the view."""
 
     def __init__(self, view):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         assert view
         self.view = view
 
@@ -61,6 +68,14 @@ class HandlePainter:
         cairo.restore()
 
     def paint(self, items: Sequence[Item], cairo):
+        """
+        Paint the given items.
+
+        Args:
+            self: (todo): write your description
+            items: (todo): write your description
+            cairo: (todo): write your description
+        """
         view = self.view
         canvas = view.canvas
         selection = view.selection

@@ -11,6 +11,13 @@ from gaphas.view import GtkView
 
 @pytest.fixture(autouse=True)
 def main_loop(window, box):
+    """
+    Main function.
+
+    Args:
+        window: (int): write your description
+        box: (int): write your description
+    """
     while Gtk.events_pending():
         Gtk.main_iteration()
 
@@ -25,6 +32,13 @@ def test_get_item_at_point(view, box):
 
 
 def test_get_unselected_item_at_point(view, box):
+    """
+    Get the selected item was selected by the given box.
+
+    Args:
+        view: (todo): write your description
+        box: (str): write your description
+    """
     box.width = 50
     box.height = 50
     view.selection.select_items(box)
@@ -34,6 +48,14 @@ def test_get_unselected_item_at_point(view, box):
 
 
 def test_get_handle_at_point(view, canvas, connections):
+    """
+    Return a point at the given canvas.
+
+    Args:
+        view: (todo): write your description
+        canvas: (todo): write your description
+        connections: (todo): write your description
+    """
     box = Box(connections)
     box.min_width = 20
     box.min_height = 30
@@ -47,6 +69,14 @@ def test_get_handle_at_point(view, canvas, connections):
 
 
 def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
+    """
+    Return the height at the given height.
+
+    Args:
+        view: (todo): write your description
+        canvas: (todo): write your description
+        connections: (todo): write your description
+    """
     box = Box(connections)
     box.min_width = 20
     box.min_height = 30
@@ -60,6 +90,14 @@ def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
 
 
 def test_item_removal(view, canvas, box):
+    """
+    Called when the item is clicked.
+
+    Args:
+        view: (todo): write your description
+        canvas: (todo): write your description
+        box: (todo): write your description
+    """
     assert len(canvas.get_all_items()) == len(view._qtree)
 
     view.selection.set_focused_item(box)
@@ -70,6 +108,11 @@ def test_item_removal(view, canvas, box):
 
 
 def test_view_registration():
+    """
+    Test to make a gtk. gtk.
+
+    Args:
+    """
     canvas = Canvas()
 
     # GTK view does register for updates though
@@ -100,6 +143,11 @@ def test_view_registration_2(view, canvas, window):
 
 @pytest.fixture()
 def sc_view():
+    """
+    Creates a gtk. view.
+
+    Args:
+    """
     sc = Gtk.ScrolledWindow()
     view = GtkView(Canvas())
     sc.add(view)
@@ -107,6 +155,12 @@ def sc_view():
 
 
 def test_scroll_adjustments_signal(sc_view):
+    """
+    Test whether the value of the view.
+
+    Args:
+        sc_view: (array): write your description
+    """
     assert sc_view[0].hadjustment
     assert sc_view[0].vadjustment
     assert sc_view[0].hadjustment.get_value() == 0.0
@@ -124,5 +178,11 @@ def test_scroll_adjustments_signal(sc_view):
 
 
 def test_scroll_adjustments(sc_view):
+    """
+    Scroll the number of the dimensions.
+
+    Args:
+        sc_view: (todo): write your description
+    """
     assert sc_view[1].get_hadjustment() is sc_view[0].hadjustment
     assert sc_view[1].get_vadjustment() is sc_view[0].vadjustment

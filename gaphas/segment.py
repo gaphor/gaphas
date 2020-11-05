@@ -18,25 +18,71 @@ from gaphas.item import Line, matrix_i2i
 @singledispatch
 class Segment:
     def __init__(self, item, canvas):
+        """
+        Initialize item.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            canvas: (todo): write your description
+        """
         raise TypeError
 
     def split_segment(self, segment, count=2):
+        """
+        Split segments into two segments.
+
+        Args:
+            self: (todo): write your description
+            segment: (str): write your description
+            count: (int): write your description
+        """
         ...
 
     def split(self, pos):
+        """
+        Returns the position at pos.
+
+        Args:
+            self: (todo): write your description
+            pos: (dict): write your description
+        """
         ...
 
     def merge_segment(self, segment, count=2):
+        """
+        Merge segments.
+
+        Args:
+            self: (todo): write your description
+            segment: (todo): write your description
+            count: (int): write your description
+        """
         ...
 
 
 @Segment.register(Line)  # type: ignore
 class LineSegment:
     def __init__(self, item, canvas):
+        """
+        Create a canvas.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            canvas: (todo): write your description
+        """
         self.item = item
         self.canvas = canvas
 
     def split(self, pos):
+        """
+        Split the segment at pos.
+
+        Args:
+            self: (todo): write your description
+            pos: (dict): write your description
+        """
         item = self.item
         handles = item.handles()
         x, y = item.matrix_i2c.inverse().transform_point(*pos)
@@ -70,6 +116,13 @@ class LineSegment:
             raise ValueError("Incorrect count of segments")
 
         def do_split(segment, count):
+            """
+            Splits the split.
+
+            Args:
+                segment: (int): write your description
+                count: (int): write your description
+            """
             handles = item.handles()
             p0 = handles[segment].pos
             p1 = handles[segment + 1].pos
@@ -152,6 +205,14 @@ class LineSegment:
         canvas = self.canvas
 
         def find_port(line, handle, item):
+            """
+            Find a port
+
+            Args:
+                line: (str): write your description
+                handle: (todo): write your description
+                item: (todo): write your description
+            """
             # port = None
             # max_dist = sys.maxint
 
@@ -180,6 +241,13 @@ class SegmentHandleFinder(ItemHandleFinder):
     """
 
     def get_handle_at_point(self, pos):
+        """
+        Return the handle at pos
+
+        Args:
+            self: (todo): write your description
+            pos: (str): write your description
+        """
         view = self.view
         item = view.selection.hovered_item
         handle = None
@@ -203,6 +271,12 @@ class SegmentHandleSelection(ItemHandleSelection):
     released."""
 
     def unselect(self):
+        """
+        Unselects the given segment.
+
+        Args:
+            self: (todo): write your description
+        """
         item = self.item
         handle = self.handle
         handles = item.handles()
@@ -241,6 +315,13 @@ class LineSegmentPainter(ItemPaintFocused):
     """
 
     def paint(self, cr):
+        """
+        Paint a cron image.
+
+        Args:
+            self: (todo): write your description
+            cr: (todo): write your description
+        """
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:

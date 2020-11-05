@@ -18,6 +18,13 @@ class ItemGuide:
     """Get edges on an item, on which we can align the items."""
 
     def __init__(self, item):
+        """
+        Initialize item
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+        """
         self.item = item
 
     def horizontal(self):
@@ -37,10 +44,22 @@ class ElementGuide(ItemGuide):
     """Guide to align Element items."""
 
     def horizontal(self):
+        """
+        The horizontal horizontal horizontal height.
+
+        Args:
+            self: (todo): write your description
+        """
         y = self.item.height
         return (0, y / 2, y)
 
     def vertical(self):
+        """
+        Returns the vertical vertical width.
+
+        Args:
+            self: (todo): write your description
+        """
         x = self.item.width
         return (0, x / 2, x)
 
@@ -50,6 +69,12 @@ class LineGuide(ItemGuide):
     """Guide for orthogonal lines."""
 
     def horizontal(self):
+        """
+        Iterate horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal.
+
+        Args:
+            self: (todo): write your description
+        """
         line = self.item
         if line.orthogonal:
             if line.horizontal:
@@ -62,6 +87,12 @@ class LineGuide(ItemGuide):
                         yield h.pos.y
 
     def vertical(self):
+        """
+        Return an iterator over vertical vertical vertical lines.
+
+        Args:
+            self: (todo): write your description
+        """
         line = self.item
         if line.orthogonal:
             if line.horizontal:
@@ -76,13 +107,33 @@ class LineGuide(ItemGuide):
 
 class Guides:
     def __init__(self, v, h):
+        """
+        Initialize a new variable
+
+        Args:
+            self: (todo): write your description
+            v: (int): write your description
+            h: (int): write your description
+        """
         self.v = v
         self.h = h
 
     def vertical(self):
+        """
+        Returns the vertical part of this node.
+
+        Args:
+            self: (todo): write your description
+        """
         return self.v
 
     def horizontal(self):
+        """
+        The horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal.
+
+        Args:
+            self: (todo): write your description
+        """
         return self.h
 
 
@@ -95,6 +146,16 @@ class GuideMixin:
     view: GtkView
 
     def find_vertical_guides(self, item_vedges, pdx, height, excluded_items):
+        """
+        Finds the vertical vertices for the vertical item.
+
+        Args:
+            self: (todo): write your description
+            item_vedges: (todo): write your description
+            pdx: (todo): write your description
+            height: (int): write your description
+            excluded_items: (todo): write your description
+        """
         view = self.view
         i2v = self.view.get_matrix_i2v
         margin = self.MARGIN
@@ -118,6 +179,16 @@ class GuideMixin:
         return dx, edges_x
 
     def find_horizontal_guides(self, item_hedges, pdy, width, excluded_items):
+        """
+        Find horizontal item_horides finder item_items.
+
+        Args:
+            self: (todo): write your description
+            item_hedges: (int): write your description
+            pdy: (todo): write your description
+            width: (int): write your description
+            excluded_items: (todo): write your description
+        """
         view = self.view
         i2v = self.view.get_matrix_i2v
         margin = self.MARGIN
@@ -153,6 +224,12 @@ class GuideMixin:
         return excluded_items
 
     def get_view_dimensions(self):
+        """
+        Returns the dimensions of the view.
+
+        Args:
+            self: (todo): write your description
+        """
         try:
             allocation = self.view.get_allocation()
         except AttributeError:
@@ -160,6 +237,12 @@ class GuideMixin:
         return allocation.width, allocation.height
 
     def queue_draw_guides(self):
+        """
+        Queue all the tiles in the figure.
+
+        Args:
+            self: (todo): write your description
+        """
         view = self.view
         try:
             guides = view.guides
@@ -174,6 +257,14 @@ class GuideMixin:
             view.queue_redraw()
 
     def find_closest(self, item_edges, edges):
+        """
+        Find closest item in the closest item.
+
+        Args:
+            self: (todo): write your description
+            item_edges: (todo): write your description
+            edges: (list): write your description
+        """
         delta = 0
         min_d = 1000
         closest = []
@@ -198,6 +289,13 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
     location."""
 
     def move(self, pos):
+        """
+        Moves the view.
+
+        Args:
+            self: (todo): write your description
+            pos: (int): write your description
+        """
         item = self.item
         view = self.view
 
@@ -230,6 +328,12 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
         return sink
 
     def stop_move(self):
+        """
+        Stops the figure.
+
+        Args:
+            self: (todo): write your description
+        """
         self.queue_draw_guides()
         try:
             del self.view.guides
@@ -247,6 +351,13 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
     """
 
     def move(self, pos):
+        """
+        Called when the : meth :. wx.
+
+        Args:
+            self: (todo): write your description
+            pos: (int): write your description
+        """
 
         sink = super().move(pos)
 
@@ -281,6 +392,12 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             canvas.request_update(item)
 
     def stop_move(self):
+        """
+        Stops the figure.
+
+        Args:
+            self: (todo): write your description
+        """
         self.queue_draw_guides()
         try:
             del self.view.guides
@@ -292,6 +409,13 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 @PaintFocused.register(Item)
 class GuidePainter(ItemPaintFocused):
     def paint(self, cr):
+        """
+        Paint the image.
+
+        Args:
+            self: (todo): write your description
+            cr: (todo): write your description
+        """
         try:
             guides = self.view.guides
         except AttributeError:

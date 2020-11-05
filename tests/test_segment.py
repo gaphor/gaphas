@@ -8,6 +8,12 @@ from gaphas.tool import ConnectHandleTool
 
 @pytest.fixture
 def tool(view):
+    """
+    Decorator that returns a view of the current.
+
+    Args:
+        view: (todo): write your description
+    """
     return ConnectHandleTool(view)
 
 
@@ -370,5 +376,12 @@ def test_params_errors(canvas, connections, num_segments):
 
 
 def test_handle_finder(line, view):
+    """
+    Test that a test.
+
+    Args:
+        line: (str): write your description
+        view: (todo): write your description
+    """
     finder = HandleFinder(line, view)
     assert type(finder) is SegmentHandleFinder, type(finder)

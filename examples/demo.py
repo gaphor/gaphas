@@ -45,6 +45,12 @@ undo_list = []
 
 
 def undo_handler(event):
+    """
+    Set the event handler for the event.
+
+    Args:
+        event: (todo): write your description
+    """
     global undo_list
     undo_list.append(event)
 
@@ -53,6 +59,11 @@ def factory(view, cls):
     """Simple canvas item factory."""
 
     def wrapper():
+        """
+        Creates the view that will be used for the view.
+
+        Args:
+        """
         item = cls(view.canvas.connections)
         view.canvas.add(item)
         return item
@@ -61,6 +72,13 @@ def factory(view, cls):
 
 
 def paint(view, cr):
+    """
+    Paint the view.
+
+    Args:
+        view: (todo): write your description
+        cr: (todo): write your description
+    """
     view.painter.paint(Context(cairo=cr, items=view.canvas.get_all_items(), area=None))
 
 
@@ -72,10 +90,24 @@ class MyLine(Line):
     """Line with experimental connection protocol."""
 
     def __init__(self, connections):
+        """
+        Initialize the connection.
+
+        Args:
+            self: (todo): write your description
+            connections: (todo): write your description
+        """
         super().__init__(connections)
         self.fuzziness = 2
 
     def draw_head(self, context):
+        """
+        Draws a head.
+
+        Args:
+            self: (todo): write your description
+            context: (dict): write your description
+        """
         cr = context.cairo
         cr.move_to(0, 0)
         cr.line_to(10, 10)
@@ -84,6 +116,13 @@ class MyLine(Line):
         cr.move_to(0, 0)
 
     def draw_tail(self, context):
+        """
+        Draws a tail.
+
+        Args:
+            self: (todo): write your description
+            context: (dict): write your description
+        """
         cr = context.cairo
         cr.line_to(0, 0)
         cr.line_to(10, 10)
@@ -94,6 +133,13 @@ class MyText(Text):
     """Text with experimental connection protocol."""
 
     def draw(self, context):
+        """
+        Draws the context.
+
+        Args:
+            self: (todo): write your description
+            context: (dict): write your description
+        """
         Text.draw(self, context)
         cr = context.cairo
         w, h = text_extents(cr, self.text, multiline=self.multiline)
@@ -104,11 +150,26 @@ class MyText(Text):
 
 class UnderlineText(Text):
     def draw(self, context):
+        """
+        Draws :: context
+
+        Args:
+            self: (todo): write your description
+            context: (dict): write your description
+        """
         cr = context.cairo
         text_underline(cr, 0, 0, "Some text(y)")
 
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
+    """
+    Function creates a new gtk.
+
+    Args:
+        canvas: (todo): write your description
+        title: (str): write your description
+        zoom: (str): write your description
+    """
     view = GtkView()
     view.painter = (
         PainterChain()
@@ -140,6 +201,13 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Add box")
 
     def on_add_box_clicked(button, view):
+        """
+        Called when a button clicked.
+
+        Args:
+            button: (todo): write your description
+            view: (todo): write your description
+        """
         # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
         view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(), 2))
 
@@ -149,6 +217,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Add line")
 
     def on_add_line_clicked(button):
+        """
+        Add a button clicked on button.
+
+        Args:
+            button: (todo): write your description
+        """
         view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
 
     b.connect("clicked", on_add_line_clicked)
@@ -159,6 +233,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Zoom in")
 
     def on_zoom_in_clicked(button):
+        """
+        Zoom on_in_in_in_in_in_in_in_in_in_in_in_in_in_
+
+        Args:
+            button: (todo): write your description
+        """
         view.zoom(1.2)
 
     b.connect("clicked", on_zoom_in_clicked)
@@ -167,6 +247,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Zoom out")
 
     def on_zoom_out_clicked(button):
+        """
+        Zoom out to zoom button.
+
+        Args:
+            button: (todo): write your description
+        """
         view.zoom(1 / 1.2)
 
     b.connect("clicked", on_zoom_out_clicked)
@@ -177,6 +263,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Split line")
 
     def on_split_line_clicked(button):
+        """
+        Split selected button clicked on the selected
+
+        Args:
+            button: (str): write your description
+        """
         selection = view.selection
         if isinstance(selection.focused_item, Line):
             segment = Segment(selection.focused_item, canvas)
@@ -189,6 +281,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Delete focused")
 
     def on_delete_focused_clicked(button):
+        """
+        Delete the selected item.
+
+        Args:
+            button: (todo): write your description
+        """
         if view.selection.focused_item:
             canvas.remove(view.selection.focused_item)
 
@@ -199,6 +297,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.ToggleButton.new_with_label("Record")
 
     def on_toggled(button):
+        """
+        Handle the selected button.
+
+        Args:
+            button: (todo): write your description
+        """
         global undo_list
         if button.get_active():
             print("start recording")
@@ -214,6 +318,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Play back")
 
     def on_play_back_clicked(self):
+        """
+        Undo for back button clicked.
+
+        Args:
+            self: (todo): write your description
+        """
         global undo_list
         apply_me = list(undo_list)
         del undo_list[:]
@@ -236,6 +346,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.png")
 
     def on_write_demo_png_clicked(button):
+        """
+        Write png to png.
+
+        Args:
+            button: (todo): write your description
+        """
         painter = ItemPainter()
 
         # Update bounding boxes with a temporary CairoContext
@@ -263,6 +379,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.svg")
 
     def on_write_demo_svg_clicked(button):
+        """
+        Callback for write button write_write button.
+
+        Args:
+            button: (todo): write your description
+        """
         painter = ItemPainter()
 
         # Update bounding boxes with a temporaly CairoContext
@@ -291,6 +413,13 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Dump QTree")
 
     def on_dump_qtree_clicked(button, li):
+        """
+        Trigdump on button is_clicked.
+
+        Args:
+            button: (todo): write your description
+            li: (todo): write your description
+        """
         view._qtree.dump()
 
     b.connect("clicked", on_dump_qtree_clicked, [0])
@@ -299,6 +428,13 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Reattach (in place)")
 
     def on_reattach_clicked(button, li):
+        """
+        Called when a button is clicked.
+
+        Args:
+            button: (todo): write your description
+            li: (todo): write your description
+        """
         view.canvas = None
         view.canvas = canvas
 
@@ -320,6 +456,14 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     w.connect("destroy", Gtk.main_quit)
 
     def handle_changed(view, item, what):
+        """
+        Called when an item is changed.
+
+        Args:
+            view: (todo): write your description
+            item: (todo): write your description
+            what: (todo): write your description
+        """
         print(what, "changed: ", item)
 
     view.selection.connect("focus-changed", handle_changed, "focus")
@@ -328,6 +472,12 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
 
 def create_canvas(c=None):
+    """
+    Creates a canvas
+
+    Args:
+        c: (todo): write your description
+    """
     if not c:
         c = Canvas()
     b = MyBox(c.connections)
@@ -377,12 +527,23 @@ def create_canvas(c=None):
 
 
 def main():
+    """
+    Main function.
+
+    Args:
+    """
     # State handling (a.k.a. undo handlers)
 
     # First, activate the revert handler:
     state.observers.add(state.revert_handler)
 
     def print_handler(event):
+        """
+        Prints a handler
+
+        Args:
+            event: (todo): write your description
+        """
         print("event:", event)
 
     c = Canvas()

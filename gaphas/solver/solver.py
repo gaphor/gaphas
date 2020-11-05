@@ -45,6 +45,12 @@ class Solver:
     """
 
     def __init__(self):
+        """
+        Init all constraints.
+
+        Args:
+            self: (todo): write your description
+        """
         # a dict of constraint -> name/variable mappings
         self._constraints = set()
         self._marked_cons = []

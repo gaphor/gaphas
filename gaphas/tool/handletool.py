@@ -12,6 +12,13 @@ class HandleTool(Tool):
     """
 
     def __init__(self, view=None):
+        """
+        Initialize the underlying view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         super().__init__(view)
         self.grabbed_handle = None
         self.grabbed_item = None
@@ -155,6 +162,13 @@ class ConnectHandleTool(HandleTool):
                 connector.disconnect()
 
     def on_button_release(self, event):
+        """
+        Reimplement qt method.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         item = self.grabbed_item
         handle = self.grabbed_handle
         try:

@@ -56,9 +56,23 @@ class Context:
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the object.
+
+        Args:
+            self: (todo): write your description
+        """
         self.__dict__.update(**kwargs)
 
     def __setattr__(self, key, value):
+        """
+        Sets an attribute of a key.
+
+        Args:
+            self: (todo): write your description
+            key: (str): write your description
+            value: (todo): write your description
+        """
         raise AttributeError("context is not writable")
 
 
@@ -69,6 +83,14 @@ def instant_cairo_context():
 
 
 def default_update_context(item, cairo=instant_cairo_context()):
+    """
+    Return an existing context.
+
+    Args:
+        item: (todo): write your description
+        cairo: (todo): write your description
+        instant_cairo_context: (todo): write your description
+    """
     return Context(cairo=cairo)
 
 
@@ -76,6 +98,14 @@ class Canvas:
     """Container class for items."""
 
     def __init__(self, create_update_context=default_update_context):
+        """
+        Initialize the tree.
+
+        Args:
+            self: (todo): write your description
+            create_update_context: (todo): write your description
+            default_update_context: (todo): write your description
+        """
         self._create_update_context = create_update_context
         self._tree: tree.Tree[Item] = tree.Tree()
         self._connections = Connections()
@@ -325,6 +355,13 @@ class Canvas:
         self.request_update(item, update=False, matrix=True)
 
     def _pre_update_items(self, items):
+        """
+        Create a dict of items dictionary.
+
+        Args:
+            self: (todo): write your description
+            items: (todo): write your description
+        """
         create_update_context = self._create_update_context
         contexts = {}
         for item in items:
@@ -334,6 +371,14 @@ class Canvas:
         return contexts
 
     def _post_update_items(self, items, contexts):
+        """
+        Updates the list.
+
+        Args:
+            self: (todo): write your description
+            items: (todo): write your description
+            contexts: (dict): write your description
+        """
         create_update_context = self._create_update_context
         for item in items:
             context = contexts.get(item)
@@ -347,6 +392,11 @@ class Canvas:
         sort = self.sort
 
         def dirty_items_with_ancestors():
+            """
+            Return an iterator over all ancestors of this tree.
+
+            Args:
+            """
             for item in set(dirty_items):
                 yield item
                 yield from self._tree.get_ancestors(item)

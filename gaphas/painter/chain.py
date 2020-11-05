@@ -13,6 +13,12 @@ class PainterChain:
     """
 
     def __init__(self):
+        """
+        Initialize the list of modules.
+
+        Args:
+            self: (todo): write your description
+        """
         self._painters: List[Painter] = []
 
     def append(self, painter: Painter) -> PainterChain:

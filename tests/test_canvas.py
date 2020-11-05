@@ -23,6 +23,11 @@ def test_update_matrices():
 
 
 def test_reparent():
+    """
+    Test if two connections.
+
+    Args:
+    """
     c = Canvas()
     b1 = Box(c.connections)
     b2 = Box(c.connections)
@@ -32,10 +37,21 @@ def test_reparent():
 
 
 def count(i):
+    """
+    Return the number of items in a list.
+
+    Args:
+        i: (todo): write your description
+    """
     return len(list(i))
 
 
 def test_connect_item():
+    """
+    Test for connections between two connections.
+
+    Args:
+    """
     c = Canvas()
     b1 = Box(c.connections)
     b2 = Box(c.connections)
@@ -54,6 +70,11 @@ def test_connect_item():
 
 
 def test_disconnect_item_with_callback():
+    """
+    Disconnect lines from the callback.
+
+    Args:
+    """
     c = Canvas()
     b1 = Box(c.connections)
     b2 = Box(c.connections)
@@ -65,6 +86,11 @@ def test_disconnect_item_with_callback():
     events = []
 
     def callback():
+        """
+        Add a callback.
+
+        Args:
+        """
         events.append("called")
 
     c.connections.connect_item(
@@ -78,6 +104,11 @@ def test_disconnect_item_with_callback():
 
 
 def test_disconnect_item_with_constraint():
+    """
+    Disconnect a constraint to a constraint.
+
+    Args:
+    """
     c = Canvas()
     b1 = Box(c.connections)
     b2 = Box(c.connections)
@@ -102,6 +133,11 @@ def test_disconnect_item_with_constraint():
 
 
 def test_disconnect_item_by_deleting_element():
+    """
+    Disconnect callback : param callback : : return :
+
+    Args:
+    """
     c = Canvas()
     b1 = Box(c.connections)
     b2 = Box(c.connections)
@@ -113,6 +149,11 @@ def test_disconnect_item_by_deleting_element():
     events = []
 
     def callback():
+        """
+        Add a callback.
+
+        Args:
+        """
         events.append("called")
 
     c.connections.connect_item(
@@ -127,6 +168,11 @@ def test_disconnect_item_by_deleting_element():
 
 
 def test_disconnect_item_with_constraint_by_deleting_element():
+    """
+    Disconnect a constraint is removed
+
+    Args:
+    """
     c = Canvas()
     b1 = Box(c.connections)
     b2 = Box(c.connections)

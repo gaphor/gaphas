@@ -53,6 +53,11 @@ def observed(func):
     """
 
     def wrapper(*args, **kwargs):
+        """
+        Decorator that returns an asynchronous coroutine.
+
+        Args:
+        """
         acquired = mutex.acquire(False)
         try:
             if acquired:
@@ -243,6 +248,12 @@ def saveapply(func, kw):
 
 
 def getargnames(func):
+    """
+    Get the names of the given function.
+
+    Args:
+        func: (todo): write your description
+    """
     while hasattr(func, "__wrapped__"):
         func = func.__wrapped__
     spec = _getargspec(func)

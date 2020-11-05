@@ -6,6 +6,11 @@ from gaphas.solver import REQUIRED, JuggleError, Solver, Variable
 
 
 def test_weakest_list_order():
+    """
+    Constructs a constraint order.
+
+    Args:
+    """
     solver = Solver()
     a = Variable(1, 30)
     b = Variable(2, 10)
@@ -30,6 +35,11 @@ def test_weakest_list_order():
 
 
 def test_minimal_size_constraint():
+    """
+    Test if the constraint is a constraint.
+
+    Args:
+    """
     solver = Solver()
     v1 = Variable(0)
     v2 = Variable(10)
@@ -72,6 +82,11 @@ def test_minimal_size_constraint():
 
 
 def test_juggle_error_is_raised_when_constraints_can_not_be_resolved():
+    """
+    Test if a constraint is_juggle.
+
+    Args:
+    """
     solver = Solver()
     a = Variable()
     b = Variable()

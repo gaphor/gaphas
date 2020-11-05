@@ -95,6 +95,13 @@ EPSILON = 1e-6
 
 
 def _update(variable, value):
+    """
+    Update a variable with new value.
+
+    Args:
+        variable: (str): write your description
+        value: (todo): write your description
+    """
     if abs(variable.value - value) > EPSILON:
         variable.value = value
 
@@ -118,12 +125,28 @@ class EqualsConstraint(Constraint):
     """
 
     def __init__(self, a=None, b=None, delta=0.0):
+        """
+        Initialize the matrix
+
+        Args:
+            self: (todo): write your description
+            a: (int): write your description
+            b: (int): write your description
+            delta: (float): write your description
+        """
         super().__init__(a, b, delta)
         self.a = a
         self.b = b
         self.delta = delta
 
     def solve_for(self, var):
+        """
+        Solves a b.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         assert var in (self.a, self.b, self.delta)
 
         _update(
@@ -159,12 +182,28 @@ class CenterConstraint(Constraint):
     """
 
     def __init__(self, a=None, b=None, center=None):
+        """
+        Initialize the image.
+
+        Args:
+            self: (todo): write your description
+            a: (int): write your description
+            b: (int): write your description
+            center: (list): write your description
+        """
         super().__init__(a, b, center)
         self.a = a
         self.b = b
         self.center = center
 
     def solve_for(self, var):
+        """
+        Solves a b and b.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         assert var in (self.a, self.b, self.center)
 
         v = (self.a.value + self.b.value) / 2.0
@@ -197,12 +236,28 @@ class LessThanConstraint(Constraint):
     """
 
     def __init__(self, smaller=None, bigger=None, delta=0.0):
+        """
+        Initialize a bigger.
+
+        Args:
+            self: (todo): write your description
+            smaller: (todo): write your description
+            bigger: (todo): write your description
+            delta: (float): write your description
+        """
         super().__init__(smaller, bigger, delta)
         self.smaller = smaller
         self.bigger = bigger
         self.delta = delta
 
     def solve_for(self, var):
+        """
+        Solve the given variable.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         if self.smaller.value > self.bigger.value - self.delta:
             if var is self.smaller:
                 self.bigger.value = self.smaller.value + self.delta
@@ -238,6 +293,13 @@ class EquationConstraint(Constraint):
     """
 
     def __init__(self, f, **args):
+        """
+        Initialize f ( f ).
+
+        Args:
+            self: (todo): write your description
+            f: (int): write your description
+        """
         super().__init__(*list(args.values()))
         self._f = f
         self._args: Dict[str, Optional[Variable]] = {}
@@ -248,6 +310,12 @@ class EquationConstraint(Constraint):
         self._set(**args)
 
     def __repr__(self):
+        """
+        Return a human - readable representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         argstring = ", ".join(
             [f"{arg}={value}" for (arg, value) in list(self._args.items())]
         )
@@ -375,6 +443,15 @@ class BalanceConstraint(Constraint):
     """
 
     def __init__(self, band=None, v=None, balance=None):
+        """
+        Initialize the band.
+
+        Args:
+            self: (todo): write your description
+            band: (str): write your description
+            v: (int): write your description
+            balance: (str): write your description
+        """
         super().__init__(band[0], band[1], v)
         self.band = band
         self.balance = balance
@@ -384,11 +461,24 @@ class BalanceConstraint(Constraint):
             self.update_balance()
 
     def update_balance(self):
+        """
+        Update balance of balance
+
+        Args:
+            self: (todo): write your description
+        """
         b1, b2 = self.band
         w = b2 - b1
         self.balance = (self.v - b1) / w if w != 0 else 0
 
     def solve_for(self, var):
+        """
+        Solve the given value.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         b1, b2 = self.band
         w = b2.value - b1.value
         value = b1.value + w * self.balance
@@ -404,6 +494,14 @@ class LineConstraint(Constraint):
     """
 
     def __init__(self, line, point):
+        """
+        Initialize a point
+
+        Args:
+            self: (todo): write your description
+            line: (str): write your description
+            point: (todo): write your description
+        """
         super().__init__(
             line[0][0], line[0][1], line[1][0], line[1][1], point[0], point[1]
         )
@@ -443,6 +541,13 @@ class LineConstraint(Constraint):
             self.ratio_y = 0.0
 
     def solve_for(self, var=None):
+        """
+        Solve the given variable.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         self._solve()
 
     def _solve(self):
@@ -482,6 +587,14 @@ class PositionConstraint(Constraint):
     """
 
     def __init__(self, origin, point):
+        """
+        Initialize origin.
+
+        Args:
+            self: (todo): write your description
+            origin: (todo): write your description
+            point: (todo): write your description
+        """
         super().__init__(origin[0], origin[1], point[0], point[1])
 
         self._origin = origin
@@ -522,6 +635,16 @@ class LineAlignConstraint(Constraint):
     """
 
     def __init__(self, line, point, align=0.5, delta=0.0):
+        """
+        Initialize the actor.
+
+        Args:
+            self: (todo): write your description
+            line: (str): write your description
+            point: (todo): write your description
+            align: (bool): write your description
+            delta: (float): write your description
+        """
         super().__init__(
             line[0][0], line[0][1], line[1][0], line[1][1], point[0], point[1]
         )
@@ -532,6 +655,13 @@ class LineAlignConstraint(Constraint):
         self._delta = delta
 
     def solve_for(self, var=None):
+        """
+        Solve the adf problem.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         sx, sy = self._line[0]
         ex, ey = self._line[1]
         px, py = self._point

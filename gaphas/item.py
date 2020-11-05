@@ -15,6 +15,13 @@ from gaphas.state import (
 
 
 def matrix_i2i(from_item, to_item):
+    """
+    Convert a 2d matrix to a 2d matrix.
+
+    Args:
+        from_item: (todo): write your description
+        to_item: (todo): write your description
+    """
     i2c = from_item.matrix_i2c
     c2i = to_item.matrix_i2c.inverse()
     return i2c.multiply(c2i)
@@ -37,6 +44,12 @@ class Item:
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the matrix.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__(**kwargs)  # type: ignore[call-arg]
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
@@ -45,10 +58,22 @@ class Item:
 
     @property
     def matrix(self) -> Matrix:
+        """
+        Return the matrix.
+
+        Args:
+            self: (todo): write your description
+        """
         return self._matrix
 
     @property
     def matrix_i2c(self) -> Matrix:
+        """
+        Return the rotation matrix of this matrix.
+
+        Args:
+            self: (todo): write your description
+        """
         return self._matrix_i2c
 
     def pre_update(self, context):
@@ -118,6 +143,15 @@ class Element(Item):
     min_height = variable(strength=REQUIRED, varname="_min_height")
 
     def __init__(self, connections, width=10, height=10, **kwargs):
+        """
+        Initializes connection pool.
+
+        Args:
+            self: (todo): write your description
+            connections: (todo): write your description
+            width: (int): write your description
+            height: (int): write your description
+        """
         super().__init__(**kwargs)
         self._connections = connections
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
@@ -217,6 +251,13 @@ class Element(Item):
 
 
 def create_orthogonal_constraints(handles, horizontal):
+    """
+    Generate constraint constraints.
+
+    Args:
+        handles: (todo): write your description
+        horizontal: (str): write your description
+    """
     rest = 1 if horizontal else 0
     for pos, (h0, h1) in enumerate(zip(handles, handles[1:])):
         p0 = h0.pos
@@ -248,6 +289,13 @@ class Line(Item):
     """
 
     def __init__(self, connections, **kwargs):
+        """
+        Initiate the connection.
+
+        Args:
+            self: (todo): write your description
+            connections: (todo): write your description
+        """
         super().__init__(**kwargs)
         self._connections = connections
         self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
@@ -266,12 +314,26 @@ class Line(Item):
 
     @observed
     def _set_line_width(self, line_width):
+        """
+        Sets the line width.
+
+        Args:
+            self: (todo): write your description
+            line_width: (float): write your description
+        """
         self._line_width = line_width
 
     line_width = reversible_property(lambda s: s._line_width, _set_line_width)
 
     @observed
     def _set_fuzziness(self, fuzziness):
+        """
+        Èi̇·iness.
+
+        Args:
+            self: (todo): write your description
+            fuzziness: (todo): write your description
+        """
         self._fuzziness = fuzziness
 
     fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
@@ -326,6 +388,13 @@ class Line(Item):
 
     @observed
     def _inner_set_horizontal(self, horizontal):
+        """
+        Sets the currently active horizontal horizontal horizontal widget.
+
+        Args:
+            self: (todo): write your description
+            horizontal: (todo): write your description
+        """
         self._horizontal = horizontal
 
     reversible_method(
@@ -350,10 +419,25 @@ class Line(Item):
 
     @observed
     def _reversible_insert_handle(self, index, handle):
+        """
+        Inserts a handle.
+
+        Args:
+            self: (todo): write your description
+            index: (todo): write your description
+            handle: (todo): write your description
+        """
         self._handles.insert(index, handle)
 
     @observed
     def _reversible_remove_handle(self, handle):
+        """
+        Remove a handle.
+
+        Args:
+            self: (todo): write your description
+            handle: (todo): write your description
+        """
         self._handles.remove(handle)
 
     reversible_pair(
@@ -364,10 +448,25 @@ class Line(Item):
 
     @observed
     def _reversible_insert_port(self, index, port):
+        """
+        Reversible : class : param index : the index of the port.
+
+        Args:
+            self: (todo): write your description
+            index: (str): write your description
+            port: (int): write your description
+        """
         self._ports.insert(index, port)
 
     @observed
     def _reversible_remove_port(self, port):
+        """
+        Removes a port from the list.
+
+        Args:
+            self: (todo): write your description
+            port: (int): write your description
+        """
         self._ports.remove(port)
 
     reversible_pair(
@@ -377,9 +476,26 @@ class Line(Item):
     )
 
     def _create_handle(self, pos, strength=WEAK):
+        """
+        Creates a handle.
+
+        Args:
+            self: (todo): write your description
+            pos: (str): write your description
+            strength: (int): write your description
+            WEAK: (str): write your description
+        """
         return Handle(pos, strength=strength)
 
     def _create_port(self, p1, p2):
+        """
+        Create a new port
+
+        Args:
+            self: (todo): write your description
+            p1: (todo): write your description
+            p2: (todo): write your description
+        """
         return LinePort(p1, p2)
 
     def _update_ports(self):
@@ -448,6 +564,14 @@ class Line(Item):
         """
 
         def draw_line_end(pos, angle, draw):
+            """
+            Draws a line on the current position.
+
+            Args:
+                pos: (int): write your description
+                angle: (todo): write your description
+                draw: (todo): write your description
+            """
             cr = context.cairo
             cr.save()
             try:

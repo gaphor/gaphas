@@ -38,6 +38,18 @@ class Rectangle:
     """
 
     def __init__(self, x=0, y=0, width=None, height=None, x1=0, y1=0):
+        """
+        Initialize a rectangle.
+
+        Args:
+            self: (todo): write your description
+            x: (int): write your description
+            y: (int): write your description
+            width: (int): write your description
+            height: (int): write your description
+            x1: (int): write your description
+            y1: (int): write your description
+        """
         if width is None:
             self.x = min(x, x1)
             self.width = abs(x1 - x)
@@ -119,6 +131,13 @@ class Rectangle:
         return self.width > 0 and self.height > 0
 
     def __eq__(self, other):
+        """
+        Determine if other is equal false otherwise.
+
+        Args:
+            self: (todo): write your description
+            other: (todo): write your description
+        """
         return (
             (isinstance(self, type(other)))
             and self.x == other.x

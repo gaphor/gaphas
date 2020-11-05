@@ -27,20 +27,49 @@ class ConnectionError(Exception):
 
 class Connections:
     def __init__(self, solver: Optional[Solver] = None):
+        """
+        Initialize the connection.
+
+        Args:
+            self: (todo): write your description
+            solver: (todo): write your description
+        """
         self._solver = solver or Solver()
         self._connections = table.Table(Connection, list(range(4)))
 
     solver = property(lambda s: s._solver)
 
     def solve(self):
+        """
+        Solve the given solver.
+
+        Args:
+            self: (array): write your description
+        """
         self._solver.solve()
 
     def add_constraint(self, item, constraint):
+        """
+        Add a constraint to the constraint.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            constraint: (str): write your description
+        """
         self._solver.add_constraint(constraint)
         self._connections.insert(item, None, None, None, constraint, None)
         return constraint
 
     def remove_constraint(self, item, constraint):
+        """
+        Remove a constraint
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            constraint: (list): write your description
+        """
         self._solver.remove_constraint(constraint)
         self._connections.delete(item, None, None, None, constraint, None)
 

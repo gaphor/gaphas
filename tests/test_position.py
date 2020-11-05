@@ -7,17 +7,33 @@ from gaphas.solver import Solver, Variable
 
 @pytest.fixture
 def solver():
+    """
+    Return a solver object.
+
+    Args:
+    """
     return Solver()
 
 
 @pytest.mark.parametrize("position", [(0, 0), (1, 2)])
 def test_position(position):
+    """
+    Return the position of the cursor.
+
+    Args:
+        position: (int): write your description
+    """
     pos = Position(*position)
     assert position[0] == pos.x
     assert position[1] == pos.y
 
 
 def test_matrix_projection_exposes_variables():
+    """
+    R project projection of the : math_project matrix ).
+
+    Args:
+    """
     proj = MatrixProjection(Position(0, 0), Matrix())
 
     assert isinstance(proj.x, Variable)
@@ -33,6 +49,15 @@ def test_matrix_projection_exposes_variables():
     ],
 )
 def test_projection_updates_when_original_is_changed(solver, position, matrix, result):
+    """
+    Solve the test projection between two projection.
+
+    Args:
+        solver: (todo): write your description
+        position: (int): write your description
+        matrix: (todo): write your description
+        result: (todo): write your description
+    """
     pos = Position(0, 0)
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
@@ -55,6 +80,15 @@ def test_projection_updates_when_original_is_changed(solver, position, matrix, r
     ],
 )
 def test_original_updates_when_projection_is_changed(solver, position, matrix, result):
+    """
+    Solve the original projection.
+
+    Args:
+        solver: (todo): write your description
+        position: (int): write your description
+        matrix: (todo): write your description
+        result: (todo): write your description
+    """
     pos = Position(0, 0)
     proj = MatrixProjection(pos, matrix)
     solver.add_constraint(proj)
@@ -71,6 +105,12 @@ def test_original_updates_when_projection_is_changed(solver, position, matrix, r
 
 
 def test_projection_updates_when_matrix_is_changed(solver):
+    """
+    Solve the projection matrix on the projection.
+
+    Args:
+        solver: (todo): write your description
+    """
     pos = Position(0, 0)
     matrix = Matrix()
     proj = MatrixProjection(pos, matrix)
@@ -85,11 +125,22 @@ def test_projection_updates_when_matrix_is_changed(solver):
 
 
 def test_matrix_projection_sets_handlers_just_in_time():
+    """
+    Test if the projection matrix to project projection projection.
+
+    Args:
+    """
     pos = Position(0, 0)
     matrix = Matrix()
     proj = MatrixProjection(pos, matrix)
 
     def handler(c):
+        """
+        Decorator to register a handler.
+
+        Args:
+            c: (todo): write your description
+        """
         pass
 
     assert not matrix._handlers

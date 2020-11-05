@@ -11,6 +11,13 @@ class Scrolling:
     """Contains Gtk.Adjustment and related code."""
 
     def __init__(self, scrolling_updated):
+        """
+        Initialize the gtk3 handler.
+
+        Args:
+            self: (todo): write your description
+            scrolling_updated: (todo): write your description
+        """
         self._scrolling_updated = scrolling_updated
         self.hadjustment: Optional[Gtk.Adjustment] = None
         self.vadjustment: Optional[Gtk.Adjustment] = None
@@ -20,6 +27,13 @@ class Scrolling:
         self._vadjustment_handler_id = 0
 
     def get_property(self, prop):
+        """
+        Retrieves property of a property.
+
+        Args:
+            self: (todo): write your description
+            prop: (str): write your description
+        """
         if prop.name == "hadjustment":
             return self.hadjustment
         elif prop.name == "vadjustment":
@@ -32,6 +46,14 @@ class Scrolling:
             raise AttributeError(f"Unknown property {prop.name}")
 
     def set_property(self, prop, value):
+        """
+        Set the property of the actor.
+
+        Args:
+            self: (todo): write your description
+            prop: (todo): write your description
+            value: (todo): write your description
+        """
         if prop.name == "hadjustment":
             if value is not None:
                 self.hadjustment = value
@@ -55,6 +77,14 @@ class Scrolling:
 
     @AsyncIO(single=True)
     def update_adjustments(self, allocation, bounds):
+        """
+        Updates all adjustments in the region.
+
+        Args:
+            self: (todo): write your description
+            allocation: (str): write your description
+            bounds: (todo): write your description
+        """
         aw, ah = allocation.width, allocation.height
 
         # canvas limits (in view coordinates)

@@ -5,9 +5,23 @@ from gaphas.state import _reverse, observed, reversible_pair
 
 class SList:
     def __init__(self):
+        """
+        Initialize the list
+
+        Args:
+            self: (todo): write your description
+        """
         self.list = []
 
     def add(self, node, before=None):
+        """
+        Add a new node to the list.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+            before: (todo): write your description
+        """
         if before:
             self.list.insert(self.list.index(before), node)
         else:
@@ -17,6 +31,13 @@ class SList:
 
     @observed
     def remove(self, node):
+        """
+        Removes the node from the list.
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+        """
         self.list.remove(self.list.index(node))
 
 

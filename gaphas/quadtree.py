@@ -328,6 +328,13 @@ class QuadtreeBucket(Generic[T]):
         self.items.clear()
 
     def dump(self, indent=""):
+        """
+        Dump all the items.
+
+        Args:
+            self: (todo): write your description
+            indent: (int): write your description
+        """
         print(indent, self, self.bounds)
         indent += "   "
         for item, bounds in sorted(self.items.items(), key=lambda items: items[1]):

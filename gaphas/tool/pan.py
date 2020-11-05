@@ -18,11 +18,25 @@ class PanTool(Tool):
     """
 
     def __init__(self, view=None):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         super().__init__(view)
         self.x0, self.y0 = 0, 0
         self.speed = 10
 
     def on_button_press(self, event):
+        """
+        Handle keyboard press press events.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         if event.get_state()[1] & PAN_MASK != PAN_VALUE:
             return False
         if event.get_button()[1] == 2:
@@ -30,10 +44,24 @@ class PanTool(Tool):
             return True
 
     def on_button_release(self, event):
+        """
+        Determines if the mouse press.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         self.x0, self.y0 = event.get_coords()[1:]
         return True
 
     def on_motion_notify(self, event):
+        """
+        Called when the mouse press.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         if event.get_state()[1] & Gdk.ModifierType.BUTTON2_MASK:
             view = self.view
             self.x1, self.y1 = event.get_coords()[1:]
@@ -47,6 +75,13 @@ class PanTool(Tool):
             return True
 
     def on_scroll(self, event):
+        """
+        Called when a scroll event.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         # Ensure no modifiers
         if event.get_state()[1] & PAN_MASK != PAN_VALUE:
             return False

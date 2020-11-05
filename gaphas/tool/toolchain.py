@@ -18,11 +18,25 @@ class ToolChain(Tool):
     """
 
     def __init__(self, view=None):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         super().__init__(view)
         self._tools = []
         self._grabbed_tool = None
 
     def set_view(self, view):
+        """
+        Sets the underlying view
+
+        Args:
+            self: (todo): write your description
+            view: (todo): write your description
+        """
         self.view = view
         for tool in self._tools:
             tool.set_view(self.view)
@@ -37,6 +51,13 @@ class ToolChain(Tool):
         return self
 
     def grab(self, tool):
+        """
+        Grab a tool.
+
+        Args:
+            self: (todo): write your description
+            tool: (todo): write your description
+        """
         if not self._grabbed_tool:
             if DEBUG_TOOL_CHAIN:
                 print("Grab tool", tool)
@@ -46,6 +67,13 @@ class ToolChain(Tool):
             self._grabbed_tool = tool
 
     def ungrab(self, tool):
+        """
+        Called when a tool is clicked.
+
+        Args:
+            self: (todo): write your description
+            tool: (todo): write your description
+        """
         if self._grabbed_tool is tool:
             if DEBUG_TOOL_CHAIN:
                 print("UNgrab tool", self._grabbed_tool)
@@ -91,5 +119,12 @@ class ToolChain(Tool):
                     return rt
 
     def draw(self, context):
+        """
+        Draw the tool
+
+        Args:
+            self: (todo): write your description
+            context: (dict): write your description
+        """
         if self._grabbed_tool:
             self._grabbed_tool.draw(context)

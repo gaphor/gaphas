@@ -13,6 +13,13 @@ from gi.repository import Gtk  # noqa: isort:skip
 
 
 def create_canvas(canvas, title):
+    """
+    Create a canvas
+
+    Args:
+        canvas: (todo): write your description
+        title: (str): write your description
+    """
     # Setup drawing window
     view = GtkView()
     view.canvas = canvas

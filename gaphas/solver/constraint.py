@@ -32,22 +32,53 @@ class Constraint:
         return self._variables
 
     def add_handler(self, handler: Callable[[Constraint], None]):
+        """
+        Add a new handler.
+
+        Args:
+            self: (todo): write your description
+            handler: (todo): write your description
+            Callable: (todo): write your description
+            Constraint: (todo): write your description
+        """
         if not self._handlers:
             for v in self._variables:
                 v.add_handler(self._propagate)
         self._handlers.add(handler)
 
     def remove_handler(self, handler: Callable[[Constraint], None]):
+        """
+        Removes a previously registered handler.
+
+        Args:
+            self: (todo): write your description
+            handler: (todo): write your description
+            Callable: (str): write your description
+            Constraint: (todo): write your description
+        """
         self._handlers.discard(handler)
         if not self._handlers:
             for v in self._variables:
                 v.remove_handler(self._propagate)
 
     def notify(self):
+        """
+        Call all registered handlers.
+
+        Args:
+            self: (todo): write your description
+        """
         for handler in self._handlers:
             handler(self)
 
     def _propagate(self, variable):
+        """
+        Propagate the variable.
+
+        Args:
+            self: (todo): write your description
+            variable: (str): write your description
+        """
         self.mark_dirty(variable)
         self.notify()
 
@@ -97,16 +128,47 @@ class MultiConstraint:
     """A constraint constaining constraints."""
 
     def __init__(self, *constraints: Constraint):
+        """
+        Initialize the constraints.
+
+        Args:
+            self: (todo): write your description
+            constraints: (dict): write your description
+        """
         self._constraints = constraints
 
     def add_handler(self, handler: Callable[[Constraint], None]):
+        """
+        Add a new handler.
+
+        Args:
+            self: (todo): write your description
+            handler: (todo): write your description
+            Callable: (todo): write your description
+            Constraint: (todo): write your description
+        """
         for c in self._constraints:
             c.add_handler(handler)
 
     def remove_handler(self, handler: Callable[[Constraint], None]):
+        """
+        Removes a previously registered handler.
+
+        Args:
+            self: (todo): write your description
+            handler: (todo): write your description
+            Callable: (str): write your description
+            Constraint: (todo): write your description
+        """
         for c in self._constraints:
             c.remove_handler(handler)
 
     def solve(self):
+        """
+        Solve all constraints.
+
+        Args:
+            self: (array): write your description
+        """
         for c in self._constraints:
             c.solve()

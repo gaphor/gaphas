@@ -5,6 +5,13 @@ from gaphas.item import Line
 
 
 def test_undo_on_delete_element(revert_undo, undo_fixture):
+    """
+    Test for the last vehicle.
+
+    Args:
+        revert_undo: (str): write your description
+        undo_fixture: (str): write your description
+    """
     canvas = Canvas()
     b1 = Box(canvas.connections)
     b2 = Box(canvas.connections)

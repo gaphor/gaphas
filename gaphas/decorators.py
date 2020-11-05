@@ -93,11 +93,29 @@ class AsyncIO:
     """
 
     def __init__(self, single=False, timeout=0, priority=GLib.PRIORITY_DEFAULT):
+        """
+        Initialize the connection.
+
+        Args:
+            self: (todo): write your description
+            single: (float): write your description
+            timeout: (int): write your description
+            priority: (todo): write your description
+            GLib: (str): write your description
+            PRIORITY_DEFAULT: (todo): write your description
+        """
         self.single = single
         self.timeout = timeout
         self.priority = priority
 
     def source(self, func):
+        """
+        Decor function.
+
+        Args:
+            self: (todo): write your description
+            func: (todo): write your description
+        """
         timeout = self.timeout
         s = GLib.Timeout(timeout) if timeout > 0 else GLib.Idle()
         s.set_callback(func)
@@ -105,15 +123,33 @@ class AsyncIO:
         return s
 
     def __call__(self, func):
+        """
+        Wrap a function to call.
+
+        Args:
+            self: (todo): write your description
+            func: (todo): write your description
+        """
         async_id = f"_async_id_{func.__name__}"
 
         def wrapper(*args, **kwargs):
+            """
+            Wrap a function async.
+
+            Args:
+            """
             # execute directly if we're not in the main loop
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
 
                 def async_wrapper(*aargs):
+                    """
+                    Wrap a function asynchronously.
+
+                    Args:
+                        aargs: (todo): write your description
+                    """
                     if DEBUG_ASYNC:
                         print("async:", func, args, kwargs)
                     func(*args, **kwargs)
@@ -128,6 +164,12 @@ class AsyncIO:
                 except AttributeError:
 
                     def async_wrapper(*aargs):
+                        """
+                        Decorator for async wrapper.
+
+                        Args:
+                            aargs: (todo): write your description
+                        """
                         if DEBUG_ASYNC:
                             print("async:", func, args, kwargs)
                         try:
@@ -184,10 +226,29 @@ class recursive:
     """
 
     def __init__(self, limit=10000):
+        """
+        Initialize a new limit.
+
+        Args:
+            self: (todo): write your description
+            limit: (int): write your description
+        """
         self.limit = limit
 
     def __call__(self, func):
+        """
+        Decorator for a function call.
+
+        Args:
+            self: (todo): write your description
+            func: (todo): write your description
+        """
         def wrapper(*args, **kwargs):
+            """
+            Decorator that wraps the function.
+
+            Args:
+            """
             try:
                 func._recursion_level += 1
             except AttributeError:

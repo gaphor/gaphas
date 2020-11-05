@@ -4,6 +4,11 @@ from gaphas.painter.freehand import FreeHandCairoContext
 
 
 def test_drawing_lines():
+    """
+    Draws lines on the image.
+
+    Args:
+    """
     surface = cairo.SVGSurface("freehand-drawing-lines.svg", 100, 100)
     cr = FreeHandCairoContext(cairo.Context(surface))
     cr.set_line_width(2)
@@ -16,6 +21,11 @@ def test_drawing_lines():
 
 
 def test_drawing_rectangle():
+    """
+    Draws a rectangle on the image.
+
+    Args:
+    """
     surface = cairo.SVGSurface("freehand-drawing-rectangle.svg", 100, 100)
     cr = FreeHandCairoContext(cairo.Context(surface))
     cr.set_line_width(2)

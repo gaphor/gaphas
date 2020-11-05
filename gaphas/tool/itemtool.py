@@ -14,11 +14,25 @@ class ItemTool(Tool):
     """
 
     def __init__(self, view=None, buttons=(1,)):
+        """
+        Initializes the view to the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+            buttons: (todo): write your description
+        """
         super().__init__(view)
         self._buttons = buttons
         self._movable_items = set()
 
     def get_item(self):
+        """
+        Get the currently selected item
+
+        Args:
+            self: (todo): write your description
+        """
         return self.view.selection.hovered_item
 
     def movable_items(self):
@@ -35,6 +49,13 @@ class ItemTool(Tool):
                 yield InMotion(item, view)
 
     def on_button_press(self, event):
+        """
+        Called when the user press event.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         # TODO: make keys configurable
         view = self.view
         item = self.get_item()
@@ -65,6 +86,13 @@ class ItemTool(Tool):
             return True
 
     def on_button_release(self, event):
+        """
+        Reimplement qt method.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         if event.get_button()[1] not in self._buttons:
             return False
         for inmotion in self._movable_items:

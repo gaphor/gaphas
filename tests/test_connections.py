@@ -8,10 +8,20 @@ from gaphas.solver import Solver
 
 @pytest.fixture
 def connections():
+    """
+    Return a list of all connections.
+
+    Args:
+    """
     return Connections()
 
 
 def test_connections_with_custom_solver():
+    """
+    Create a set of the given connections.
+
+    Args:
+    """
     solver = Solver()
     connections = Connections(solver)
 
@@ -19,6 +29,12 @@ def test_connections_with_custom_solver():
 
 
 def test_reconnect_item(connections):
+    """
+    Test for a connection isochrone.
+
+    Args:
+        connections: (todo): write your description
+    """
     i = item.Line(connections)
     ii = item.Line(connections)
 
@@ -37,6 +53,12 @@ def test_reconnect_item(connections):
 
 
 def test_add_item_constraint(connections):
+    """
+    Add constraint constraint.
+
+    Args:
+        connections: (todo): write your description
+    """
     i = item.Line(connections)
     c1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
 
@@ -49,6 +71,12 @@ def test_add_item_constraint(connections):
 
 
 def test_remove_item_constraint(connections):
+    """
+    Remove constraint from the constraint constraint.
+
+    Args:
+        connections: (todo): write your description
+    """
     i = item.Line(connections)
     c1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
 
@@ -59,6 +87,12 @@ def test_remove_item_constraint(connections):
 
 
 def test_remove_item_constraint_when_item_is_disconnected(connections):
+    """
+    Removes constraint constraint.
+
+    Args:
+        connections: (todo): write your description
+    """
     i = item.Line(connections)
     c1 = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
 

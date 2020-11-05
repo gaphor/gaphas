@@ -46,9 +46,23 @@ class Tool:
     FORCE_UNGRAB_EVENTS = (Gdk.EventType._2BUTTON_PRESS, Gdk.EventType._3BUTTON_PRESS)
 
     def __init__(self, view=None):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         self.view = view
 
     def set_view(self, view):
+        """
+        Assigns that view
+
+        Args:
+            self: (todo): write your description
+            view: (todo): write your description
+        """
         self.view = view
 
     def _dispatch(self, event):
@@ -68,6 +82,13 @@ class Tool:
         return False
 
     def handle(self, event):
+        """
+        Dispatch an event.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         return self._dispatch(event)
 
     def draw(self, context):

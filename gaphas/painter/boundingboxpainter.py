@@ -15,10 +15,24 @@ class CairoBoundingBoxContext:
     involved can be calculated."""
 
     def __init__(self, cairo):
+        """
+        Set the bounding box.
+
+        Args:
+            self: (todo): write your description
+            cairo: (todo): write your description
+        """
         self._cairo = cairo
         self._bounds: Optional[Rectangle] = None  # a Rectangle object
 
     def __getattr__(self, key):
+        """
+        Returns the value of a given key.
+
+        Args:
+            self: (todo): write your description
+            key: (str): write your description
+        """
         return getattr(self._cairo, key)
 
     def get_bounds(self):
@@ -26,6 +40,13 @@ class CairoBoundingBoxContext:
         return self._bounds or Rectangle()
 
     def _update_bounds(self, bounds):
+        """
+        Update the bounds for the bounds.
+
+        Args:
+            self: (todo): write your description
+            bounds: (todo): write your description
+        """
         if bounds:
             if not self._bounds:
                 self._bounds = bounds
@@ -100,9 +121,24 @@ class BoundingBoxPainter:
     def __init__(
         self, item_painter: ItemPainterType,
     ):
+        """
+        Initializes the item_painter.
+
+        Args:
+            self: (todo): write your description
+            item_painter: (str): write your description
+        """
         self.item_painter = item_painter
 
     def paint_item(self, item, cairo):
+        """
+        Paint the item.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            cairo: (todo): write your description
+        """
         cairo = CairoBoundingBoxContext(cairo)
         self.item_painter.paint_item(item, cairo)
         # Bounding box is in view (cairo root) coordinates

@@ -14,9 +14,23 @@ class ItemFinder:
     """Find an item on the canvas."""
 
     def __init__(self, view):
+        """
+        Initialize the view
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         self.view = view
 
     def get_item_at_point(self, pos):
+        """
+        Return the item at the given position
+
+        Args:
+            self: (todo): write your description
+            pos: (str): write your description
+        """
         item, handle = self.view.get_handle_at_point(pos)
         return item or self.view.get_item_at_point(pos)
 
@@ -32,6 +46,14 @@ class ItemSelection:
     """
 
     def __init__(self, item, view):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            view: (bool): write your description
+        """
         self.item = item
         self.view = view
 
@@ -40,6 +62,12 @@ class ItemSelection:
         self.view.selection.set_focused_item(self.item)
 
     def unselect(self):
+        """
+        Unselects the given selection.
+
+        Args:
+            self: (todo): write your description
+        """
         self.view.selection.set_focused_item(None)
         self.view.selection.unselect_item(self.item)
 
@@ -54,11 +82,26 @@ class ItemInMotion:
     """
 
     def __init__(self, item, view):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            view: (bool): write your description
+        """
         self.item = item
         self.view = view
         self.last_x, self.last_y = None, None
 
     def start_move(self, pos):
+        """
+        Move the cursor.
+
+        Args:
+            self: (todo): write your description
+            pos: (int): write your description
+        """
         self.last_x, self.last_y = pos
 
     def move(self, pos):
@@ -79,6 +122,12 @@ class ItemInMotion:
         view.canvas.request_matrix_update(item)
 
     def stop_move(self):
+        """
+        Stop the move.
+
+        Args:
+            self: (todo): write your description
+        """
         pass
 
 
@@ -89,10 +138,25 @@ class ItemHandleFinder:
     """Deals with the task of finding handles."""
 
     def __init__(self, item, view):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            view: (bool): write your description
+        """
         self.item = item
         self.view = view
 
     def get_handle_at_point(self, pos):
+        """
+        Get the handle at pos
+
+        Args:
+            self: (todo): write your description
+            pos: (str): write your description
+        """
         return self.view.get_handle_at_point(pos)
 
 
@@ -103,14 +167,35 @@ class ItemHandleSelection:
     """Deal with selection of the handle."""
 
     def __init__(self, item, handle, view):
+        """
+        Add a new item.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            handle: (todo): write your description
+            view: (bool): write your description
+        """
         self.item = item
         self.handle = handle
         self.view = view
 
     def select(self):
+        """
+        Selects the next item.
+
+        Args:
+            self: (todo): write your description
+        """
         pass
 
     def unselect(self):
+        """
+        Unselect the next item.
+
+        Args:
+            self: (todo): write your description
+        """
         pass
 
 
@@ -122,6 +207,12 @@ class ElementHandleSelection(ItemHandleSelection):
     CURSORS = ("nw-resize", "ne-resize", "se-resize", "sw-resize")
 
     def select(self):
+        """
+        Selects the currently selected window.
+
+        Args:
+            self: (todo): write your description
+        """
         index = self.item.handles().index(self.handle)
         if index < 4:
             display = self.view.get_display()
@@ -129,6 +220,12 @@ class ElementHandleSelection(ItemHandleSelection):
             self.view.get_window().set_cursor(cursor)
 
     def unselect(self):
+        """
+        Unselect a : class : class.
+
+        Args:
+            self: (todo): write your description
+        """
         from .view import DEFAULT_CURSOR
 
         cursor = Gdk.Cursor(DEFAULT_CURSOR)
@@ -141,12 +238,28 @@ class ItemHandleInMotion:
     GLUE_DISTANCE = 10
 
     def __init__(self, item, handle, view):
+        """
+        Initialize the item.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            handle: (todo): write your description
+            view: (bool): write your description
+        """
         self.item = item
         self.handle = handle
         self.view = view
         self.last_x, self.last_y = None, None
 
     def start_move(self, pos):
+        """
+        Start a new canvas
+
+        Args:
+            self: (todo): write your description
+            pos: (int): write your description
+        """
         self.last_x, self.last_y = pos
         canvas = self.view.canvas
 
@@ -155,6 +268,13 @@ class ItemHandleInMotion:
             canvas.solver.remove_constraint(cinfo.constraint)
 
     def move(self, pos):
+        """
+        Translates the item.
+
+        Args:
+            self: (todo): write your description
+            pos: (int): write your description
+        """
         item = self.item
         view = self.view
 
@@ -173,6 +293,12 @@ class ItemHandleInMotion:
         return sink
 
     def stop_move(self):
+        """
+        Stop the move.
+
+        Args:
+            self: (todo): write your description
+        """
         pass
 
     def glue(self, pos, distance=GLUE_DISTANCE):
@@ -217,11 +343,27 @@ class ItemConnector:
     GLUE_DISTANCE = 10  # Glue distance in view points
 
     def __init__(self, item, handle, connections: Connections):
+        """
+        Initialize the connection.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            handle: (todo): write your description
+            connections: (todo): write your description
+        """
         self.item = item
         self.handle = handle
         self.connections = connections
 
     def allow(self, sink):
+        """
+        Allow the given sink.
+
+        Args:
+            self: (todo): write your description
+            sink: (todo): write your description
+        """
         return True
 
     def glue(self, sink):
@@ -289,6 +431,14 @@ class ItemConnectionSink:
     """
 
     def __init__(self, item, port):
+        """
+        Initialize a new port.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            port: (int): write your description
+        """
         self.item = item
         self.port = port
 
@@ -322,10 +472,25 @@ class ItemPaintFocused:
     hovered (see gaphas.painter.FocusedItemPainter)"""
 
     def __init__(self, item, view):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            view: (bool): write your description
+        """
         self.item = item
         self.view = view
 
     def paint(self, cairo):
+        """
+        Paint a set of the given cairo.
+
+        Args:
+            self: (todo): write your description
+            cairo: (todo): write your description
+        """
         pass
 
 

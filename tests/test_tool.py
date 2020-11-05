@@ -10,6 +10,13 @@ Event = Context
 
 @pytest.fixture
 def box1(canvas, connections):
+    """
+    Adds a box1 box to the canvas.
+
+    Args:
+        canvas: (todo): write your description
+        connections: (todo): write your description
+    """
     box1 = Box(connections)
     canvas.add(box1)
     box1.matrix.translate(100, 50)
@@ -21,6 +28,13 @@ def box1(canvas, connections):
 
 @pytest.fixture
 def box2(canvas, connections):
+    """
+    Convert a box.
+
+    Args:
+        canvas: (todo): write your description
+        connections: (todo): write your description
+    """
     box2 = Box(connections)
     canvas.add(box2)
     box2.matrix.translate(100, 150)
@@ -32,6 +46,12 @@ def box2(canvas, connections):
 
 @pytest.fixture
 def tool(view):
+    """
+    Decorator that returns a view of the current.
+
+    Args:
+        view: (todo): write your description
+    """
     return ConnectHandleTool(view)
 
 
@@ -75,10 +95,22 @@ def test_glue_no_port_no_can_glue(line, view):
 
     class Tool(ConnectHandleTool):
         def __init__(self, *args):
+            """
+            Initialize the callable.
+
+            Args:
+                self: (todo): write your description
+            """
             super().__init__(*args)
             self._calls = 0
 
         def can_glue(self, *args):
+            """
+            Takes a glue can be displayed.
+
+            Args:
+                self: (todo): write your description
+            """
             self._calls += 1
 
     tool = Tool(view)

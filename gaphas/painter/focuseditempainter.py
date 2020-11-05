@@ -9,10 +9,25 @@ class FocusedItemPainter:
     focused item."""
 
     def __init__(self, view):
+        """
+        Initialize the view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         assert view
         self.view = view
 
     def paint(self, items: Sequence[Item], cairo):
+        """
+        Paint the given item.
+
+        Args:
+            self: (todo): write your description
+            items: (todo): write your description
+            cairo: (todo): write your description
+        """
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:

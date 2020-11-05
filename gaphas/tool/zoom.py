@@ -19,11 +19,25 @@ class ZoomTool(Tool):
     """
 
     def __init__(self, view=None):
+        """
+        Initialize the underlying view.
+
+        Args:
+            self: (todo): write your description
+            view: (bool): write your description
+        """
         super().__init__(view)
         self.x0, self.y0 = 0, 0
         self.lastdiff = 0
 
     def on_button_press(self, event):
+        """
+        Handle keyboard press press events.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         if (
             event.get_button()[1] == 2
             and event.get_state()[1] & ZOOM_MASK == ZOOM_VALUE
@@ -35,10 +49,24 @@ class ZoomTool(Tool):
             return True
 
     def on_button_release(self, event):
+        """
+        Return true if the keyboard button.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         self.lastdiff = 0
         return True
 
     def on_motion_notify(self, event):
+        """
+        Notify motion event handler
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         if (
             event.get_state()[1] & ZOOM_MASK != ZOOM_VALUE
             or not event.get_state()[1] & Gdk.ModifierType.BUTTON2_MASK
@@ -68,6 +96,13 @@ class ZoomTool(Tool):
         return True
 
     def on_scroll(self, event):
+        """
+        Callback for scroll event.
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         if event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK:
             view = self.view
             sx = view._matrix[0]

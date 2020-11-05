@@ -72,11 +72,21 @@ def test_delta_below_zero():
 
 @pytest.fixture()
 def pos1():
+    """
+    Return the position of two lists.
+
+    Args:
+    """
     return Position(1, 2)
 
 
 @pytest.fixture
 def pos2():
+    """
+    Return the position of the position.
+
+    Args:
+    """
     return Position(3, 4)
 
 

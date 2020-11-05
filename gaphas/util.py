@@ -29,6 +29,15 @@ def text_extents(cr, text, font=None, multiline=False, padding=1):
 
 
 def text_center(cr, x, y, text):
+    """
+    Draw a text center
+
+    Args:
+        cr: (todo): write your description
+        x: (todo): write your description
+        y: (todo): write your description
+        text: (str): write your description
+    """
     text_align(cr, x, y, text, align_x=0, align_y=0)
 
 

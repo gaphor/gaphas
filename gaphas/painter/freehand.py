@@ -35,9 +35,24 @@ class FreeHandCairoContext:
         self.sloppiness = sloppiness  # In range 0.0 .. 2.0
 
     def __getattr__(self, key):
+        """
+        Return the value from the cache.
+
+        Args:
+            self: (todo): write your description
+            key: (str): write your description
+        """
         return getattr(self.cr, key)
 
     def line_to(self, x, y):
+        """
+        Draw a line on a line.
+
+        Args:
+            self: (todo): write your description
+            x: (todo): write your description
+            y: (todo): write your description
+        """
         cr = self.cr
         sloppiness = self.sloppiness
         from_x, from_y = cr.get_current_point()
@@ -87,11 +102,31 @@ class FreeHandCairoContext:
         cr.curve_to(control1_x, control1_y, control2_x, control2_y, to_x, to_y)
 
     def rel_line_to(self, dx, dy):
+        """
+        Relative relative point
+
+        Args:
+            self: (todo): write your description
+            dx: (todo): write your description
+            dy: (todo): write your description
+        """
         cr = self.cr
         from_x, from_y = cr.get_current_point()
         self.line_to(from_x + dx, from_y + dy)
 
     def curve_to(self, x1, y1, x2, y2, x3, y3):
+        """
+        Convenience function x1 and b.
+
+        Args:
+            self: (todo): write your description
+            x1: (todo): write your description
+            y1: (todo): write your description
+            x2: (todo): write your description
+            y2: (todo): write your description
+            x3: (todo): write your description
+            y3: (todo): write your description
+        """
         cr = self.cr
         from_x, from_y = cr.get_current_point()
 
@@ -109,6 +144,18 @@ class FreeHandCairoContext:
         cr.curve_to(c1_x, c1_y, c2_x, c2_y, x3, y3)
 
     def rel_curve_to(self, dx1, dy1, dx2, dy2, dx3, dy3):
+        """
+        : param dx_curve.
+
+        Args:
+            self: (todo): write your description
+            dx1: (todo): write your description
+            dy1: (todo): write your description
+            dx2: (todo): write your description
+            dy2: (todo): write your description
+            dx3: (todo): write your description
+            dy3: (todo): write your description
+        """
         cr = self.cr
         from_x, from_y = cr.get_current_point()
         self.curve_to(
@@ -121,6 +168,16 @@ class FreeHandCairoContext:
         )
 
     def rectangle(self, x, y, width, height):
+        """
+        Draws a rectangle on the screen.
+
+        Args:
+            self: (todo): write your description
+            x: (todo): write your description
+            y: (todo): write your description
+            width: (int): write your description
+            height: (todo): write your description
+        """
         x1 = x + width
         y1 = y + height
         self.move_to(x, y)
@@ -135,14 +192,38 @@ class FreeHandCairoContext:
 
 class FreeHandPainter:
     def __init__(self, subpainter: ItemPainterType, sloppiness=1.0):
+        """
+        Initializes the subpainter.
+
+        Args:
+            self: (todo): write your description
+            subpainter: (todo): write your description
+            sloppiness: (todo): write your description
+        """
         self.subpainter = subpainter
         self.sloppiness = sloppiness
 
     def paint_item(self, item: Item, cairo):
+        """
+        Paints the given item.
+
+        Args:
+            self: (todo): write your description
+            item: (todo): write your description
+            cairo: (todo): write your description
+        """
         # Bounding  painter requires painting per item
         self.subpainter.paint_item(item, cairo)
 
     def paint(self, items: Sequence[Item], cairo):
+        """
+        Paint the given item.
+
+        Args:
+            self: (todo): write your description
+            items: (todo): write your description
+            cairo: (todo): write your description
+        """
         self.subpainter.paint(
             items, FreeHandCairoContext(cairo, self.sloppiness),
         )

@@ -5,6 +5,11 @@ from gaphas.tree import Tree
 
 @pytest.fixture()
 def tree_fixture():
+    """
+    Return a tree
+
+    Args:
+    """
     node = ["n0", "n1", "n2", "n3", "n4", "n5", "n6", "n7"]
     return Tree(), node
 
@@ -51,6 +56,12 @@ def test_add(tree_fixture):
 
 
 def test_add_on_index(tree_fixture):
+    """
+    Test if the given tree is on the given tree.
+
+    Args:
+        tree_fixture: (str): write your description
+    """
     tree = tree_fixture[0]
     n = tree_fixture[1]
     tree.add(n[1])
@@ -92,6 +103,12 @@ def test_remove(tree_fixture):
 
 
 def test_siblings(tree_fixture):
+    """
+    Test if the siblings of the tree.
+
+    Args:
+        tree_fixture: (str): write your description
+    """
     tree = tree_fixture[0]
     n = tree_fixture[1]
     tree.add(n[1])
@@ -122,6 +139,12 @@ def test_siblings(tree_fixture):
 
 
 def test_reparent(tree_fixture):
+    """
+    Perform a tree_fixture.
+
+    Args:
+        tree_fixture: (str): write your description
+    """
     tree = tree_fixture[0]
     n = tree_fixture[1]
     tree.add(n[1])

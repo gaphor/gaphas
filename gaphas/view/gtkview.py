@@ -87,6 +87,16 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     }
 
     def __init__(self, canvas: Optional[Model[Item]] = None):
+        """
+        Initialize the window.
+
+        Args:
+            self: (todo): write your description
+            canvas: (todo): write your description
+            Optional: (todo): write your description
+            Model: (todo): write your description
+            Item: (todo): write your description
+        """
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
@@ -99,6 +109,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.add_events(EVENT_MASK)
 
         def alignment_updated(matrix):
+            """
+            Called when all matrix.
+
+            Args:
+                matrix: (array): write your description
+            """
             assert self._canvas
             self._matrix *= matrix  # type: ignore[operator]
 
@@ -122,6 +138,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._set_canvas(canvas)
 
         def redraw(selection, item, signal_name):
+            """
+            Redraw the given item.
+
+            Args:
+                selection: (str): write your description
+                item: (todo): write your description
+                signal_name: (str): write your description
+            """
             self.queue_redraw()
 
         self._selection.connect("selection-changed", redraw, "selection-changed")
@@ -132,9 +156,24 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._set_tool(DefaultTool())
 
     def do_get_property(self, prop):
+        """
+        Get the value of a property.
+
+        Args:
+            self: (todo): write your description
+            prop: (str): write your description
+        """
         return self._scrolling.get_property(prop)
 
     def do_set_property(self, prop, value):
+        """
+        Set the value of a property on the given object.
+
+        Args:
+            self: (todo): write your description
+            prop: (todo): write your description
+            value: (todo): write your description
+        """
         self._scrolling.set_property(prop, value)
 
     @property
@@ -414,6 +453,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             return
 
         def update_matrices(items):
+            """
+            Update the list of matrices.
+
+            Args:
+                items: (todo): write your description
+            """
             assert canvas
             for item in items:
                 parent = canvas.get_parent(item)
@@ -428,6 +473,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return set(update_matrices(self._dirty_matrix_items))
 
     def update_qtree(self, dirty_items, dirty_matrix_items):
+        """
+        Update the quaternion.
+
+        Args:
+            self: (todo): write your description
+            dirty_items: (str): write your description
+            dirty_matrix_items: (str): write your description
+        """
         for i in dirty_matrix_items:
             if i not in self._qtree:
                 yield i
@@ -473,6 +526,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @AsyncIO(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self):
+        """
+        Updates back back off the buffer.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.canvas and self.get_window():
             if not self._back_buffer or self._back_buffer_needs_resizing:
                 allocation = self.get_allocation()
@@ -521,6 +580,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             if DEBUG_DRAW_QUADTREE:
 
                 def draw_qtree_bucket(bucket):
+                    """
+                    Draw a qtree tree.
+
+                    Args:
+                        bucket: (str): write your description
+                    """
                     cr.rectangle(*bucket.bounds)
                     cr.stroke()
                     for b in bucket._buckets:
@@ -533,6 +598,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self.get_window().invalidate_rect(allocation, True)
 
     def do_realize(self):
+        """
+        Called when the canvas is the canvas
+
+        Args:
+            self: (todo): write your description
+        """
         Gtk.DrawingArea.do_realize(self)
 
         if self._canvas:
@@ -541,6 +612,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self.request_update(self._canvas.get_all_items())
 
     def do_unrealize(self):
+        """
+        Unrealize the gtk tree.
+
+        Args:
+            self: (todo): write your description
+        """
         if self._canvas:
             self._canvas.unregister_view(self)
 
@@ -552,6 +629,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         Gtk.DrawingArea.do_unrealize(self)
 
     def do_configure_event(self, event):
+        """
+        Configure the main window
+
+        Args:
+            self: (todo): write your description
+            event: (todo): write your description
+        """
         allocation = self.get_allocation()
         self._scrolling.update_adjustments(allocation, self._qtree.soft_bounds)
         self._qtree.resize((0, 0, allocation.width, allocation.height))

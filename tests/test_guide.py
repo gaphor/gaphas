@@ -7,6 +7,13 @@ from gaphas.item import Element, Line
 
 @pytest.fixture
 def line(canvas, connections):
+    """
+    Adds a line to the canvas.
+
+    Args:
+        canvas: (array): write your description
+        connections: (todo): write your description
+    """
     line = Line(connections)
     canvas.add(line)
     return line
@@ -24,6 +31,11 @@ def test_find_closest(view, connections):
 
 
 def test_element_guide():
+    """
+    Computes the element of the element.
+
+    Args:
+    """
     e1 = Element(Connections())
     assert 10 == e1.width
     assert 10 == e1.height
@@ -38,6 +50,13 @@ def test_element_guide():
 
 
 def test_line_guide(line, canvas):
+    """
+    Test for a line in the line.
+
+    Args:
+        line: (todo): write your description
+        canvas: (todo): write your description
+    """
     line.handles().append(line._create_handle((20, 20)))
     line.handles().append(line._create_handle((30, 30)))
     line.handles().append(line._create_handle((40, 40)))
@@ -56,6 +75,13 @@ def test_line_guide(line, canvas):
 
 
 def test_line_guide_horizontal(line, canvas):
+    """
+    Test for horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal horizontal.
+
+    Args:
+        line: (todo): write your description
+        canvas: (todo): write your description
+    """
     line.handles().append(line._create_handle((20, 20)))
     line.handles().append(line._create_handle((30, 30)))
     line.handles().append(line._create_handle((40, 40)))
@@ -75,6 +101,14 @@ def test_line_guide_horizontal(line, canvas):
 
 
 def test_guide_item_in_motion(connections, canvas, view):
+    """
+    Test for the item in the canvas.
+
+    Args:
+        connections: (todo): write your description
+        canvas: (todo): write your description
+        view: (todo): write your description
+    """
     e1 = Element(connections)
     e2 = Element(connections)
     e3 = Element(connections)
@@ -108,6 +142,14 @@ def test_guide_item_in_motion(connections, canvas, view):
 
 
 def test_guide_item_in_motion_2(connections, canvas, view):
+    """
+    Test for the item in the canvas.
+
+    Args:
+        connections: (todo): write your description
+        canvas: (todo): write your description
+        view: (todo): write your description
+    """
     e1 = Element(connections)
     e2 = Element(connections)
     e3 = Element(connections)

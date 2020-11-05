@@ -38,10 +38,27 @@ class variable:
     """
 
     def __init__(self, strength=NORMAL, varname=None):
+        """
+        Initialize the calculation.
+
+        Args:
+            self: (todo): write your description
+            strength: (float): write your description
+            NORMAL: (todo): write your description
+            varname: (str): write your description
+        """
         self._strength = strength
         self._varname = varname or f"_variable_{id(self)}"
 
     def __get__(self, obj, class_=None):
+        """
+        Return the variable.
+
+        Args:
+            self: (todo): write your description
+            obj: (todo): write your description
+            class_: (todo): write your description
+        """
         if not obj:
             return self
         try:
@@ -51,6 +68,14 @@ class variable:
             return getattr(obj, self._varname)
 
     def __set__(self, obj, value):
+        """
+        Set variable value.
+
+        Args:
+            self: (todo): write your description
+            obj: (todo): write your description
+            value: (todo): write your description
+        """
         try:
             getattr(obj, self._varname).value = float(value)
         except AttributeError:
@@ -70,22 +95,62 @@ class Variable:
     """
 
     def __init__(self, value: SupportsFloat = 0.0, strength: int = NORMAL):
+        """
+        Initializes all variables.
+
+        Args:
+            self: (todo): write your description
+            value: (todo): write your description
+            strength: (float): write your description
+            NORMAL: (todo): write your description
+        """
         self._value = float(value)
         self._strength = strength
         self._handlers: Set[Callable[[Variable], None]] = set()
 
     def add_handler(self, handler: Callable[[Variable], None]):
+        """
+        Add a new handler.
+
+        Args:
+            self: (todo): write your description
+            handler: (todo): write your description
+            Callable: (todo): write your description
+            Variable: (todo): write your description
+        """
         self._handlers.add(handler)
 
     def remove_handler(self, handler: Callable[[Variable], None]):
+        """
+        Removes a handler from the event.
+
+        Args:
+            self: (todo): write your description
+            handler: (todo): write your description
+            Callable: (str): write your description
+            Variable: (str): write your description
+        """
         self._handlers.discard(handler)
 
     def notify(self):
+        """
+        Call all registered handlers.
+
+        Args:
+            self: (todo): write your description
+        """
         for handler in self._handlers:
             handler(self)
 
     @observed
     def _set_strength(self, strength):
+        """
+        Sets the dimensions.
+
+        Args:
+            self: (todo): write your description
+            strength: (int): write your description
+        """
         self._strength = strength
 
     strength = reversible_property(lambda s: s._strength, _set_strength)
@@ -102,6 +167,13 @@ class Variable:
 
     @observed
     def set_value(self, value):
+        """
+        Set the value
+
+        Args:
+            self: (todo): write your description
+            value: (todo): write your description
+        """
         oldval = self._value
         if abs(oldval - value) > EPSILON:
             self._value = float(value)
@@ -110,11 +182,23 @@ class Variable:
     value = reversible_property(lambda s: s._value, set_value)
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return f"Variable({self._value:g}, {self._strength:d})"
 
     __repr__ = __str__
 
     def __float__(self):
+        """
+        Returns the float value as float
+
+        Args:
+            self: (todo): write your description
+        """
         return float(self._value)
 
     def __eq__(self, other):

@@ -15,6 +15,12 @@ def test_creation_with_size(canvas, box):
 
 
 def test_box_handle_order(box):
+    """
+    Test if a box.
+
+    Args:
+        box: (todo): write your description
+    """
     h_nw, h_ne, h_se, h_sw = box.handles()
     assert h_nw is box.handles()[NW]
     assert h_ne is box.handles()[NE]
@@ -24,6 +30,14 @@ def test_box_handle_order(box):
 
 @pytest.mark.parametrize("count", [1, 2, 10, 99])
 def test_resize_by_dragging_se_handle(canvas, box, count):
+    """
+    Resize the segment of the given box.
+
+    Args:
+        canvas: (todo): write your description
+        box: (todo): write your description
+        count: (int): write your description
+    """
     h_nw, h_ne, h_se, h_sw = box.handles()
 
     for _ in range(count):
