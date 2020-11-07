@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Reversible, Sequence, TypeVar
 
-from typing_extensions import Protocol
+from typing_extensions import Protocol, runtime_checkable
 
 T = TypeVar("T")
 T_ct = TypeVar("T_ct", contravariant=True)
 
 
+@runtime_checkable
 class Model(Protocol[T]):
     def get_all_items(self) -> Iterable[T]:
         ...
@@ -33,6 +34,7 @@ class Model(Protocol[T]):
         ...
 
 
+@runtime_checkable
 class View(Protocol[T_ct]):
     def request_update(
         self,

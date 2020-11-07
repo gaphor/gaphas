@@ -5,6 +5,11 @@ from gaphas.connections import ConnectionError
 from gaphas.item import Element as Box
 from gaphas.item import Line
 from gaphas.matrix import Matrix
+from gaphas.view.model import Model
+
+
+def test_canvas_is_a_view_model(canvas):
+    assert isinstance(canvas, Model)
 
 
 def test_update_matrices():
