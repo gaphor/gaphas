@@ -1,12 +1,13 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set, Tuple
+from typing import Collection, Iterable, Optional, Set, Tuple, Union
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import instant_cairo_context
+from gaphas.connector import Handle, Port
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.item import Item
@@ -141,17 +142,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Canvas to view transformation matrix."""
         return self._matrix
 
-    def get_matrix_i2v(self, item):
+    def get_matrix_i2v(self, item: Item) -> Matrix:
         """Get Item to View matrix for ``item``."""
         return item.matrix_i2c.multiply(self._matrix)
 
-    def get_matrix_v2i(self, item):
+    def get_matrix_v2i(self, item: Item) -> Matrix:
         """Get View to Item matrix for ``item``."""
         m = self.get_matrix_i2v(item)
         m.invert()
         return m
 
-    def _set_canvas(self, canvas: Optional[Model[Item]]):
+    def _set_canvas(self, canvas: Optional[Model[Item]]) -> None:
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.
@@ -209,7 +210,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     vadjustment = property(lambda s: s._scrolling.vadjustment)
 
-    def zoom(self, factor):
+    def zoom(self, factor: float) -> None:
         """Zoom in/out by factor ``factor``."""
         assert self._canvas
         self.matrix.scale(factor, factor)
@@ -224,7 +225,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         items = self._qtree.find_intersect(rect)
         return self._canvas.sort(items)
 
-    def get_item_at_point(self, pos, selected=True):
+    def get_item_at_point(self, pos, selected=True) -> Optional[Item]:
         """Return the topmost item located at ``pos`` (x, y).
 
         Parameters:
@@ -246,7 +247,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 return item
         return None
 
-    def get_handle_at_point(self, pos, distance=6):
+    def get_handle_at_point(
+        self, pos, distance=6
+    ) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
         """Look for a handle at ``pos`` and return the tuple (item, handle)."""
 
         def find(item):
@@ -292,7 +295,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 return item, h
         return None, None
 
-    def get_port_at_point(self, vpos, distance=10, exclude=None):
+    def get_port_at_point(
+        self, vpos, distance=10, exclude=None
+    ) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
         """Find item with port closest to specified position.
 
         List of items to be ignored can be specified with `exclude`
@@ -321,8 +326,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         item = None
 
         rect = (vx - distance, vy - distance, distance * 2, distance * 2)
-        items = reversed(list(self.get_items_in_rectangle(rect)))
-        for i in items:
+        for i in reversed(list(self.get_items_in_rectangle(rect))):
             if i in exclude:
                 continue
             for p in i.ports():
@@ -343,14 +347,22 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 # space
                 i2v = self.get_matrix_i2v(i).transform_point
                 glue_pos = i2v(*pg)
+        return item, port, glue_pos  # type: ignore[return-value]
 
-        return item, port, glue_pos
+    def get_item_bounding_box(self, item: Item):
+        """Get the bounding box for the item, in view coordinates."""
+        return self._qtree.get_bounds(item)
 
     def queue_redraw(self):
         """Redraw the entire view."""
         self.update_back_buffer()
 
-    def request_update(self, items, matrix_only_items=(), removed_items=()):
+    def request_update(
+        self,
+        items: Iterable[Item],
+        matrix_only_items: Iterable[Item] = (),
+        removed_items: Iterable[Item] = (),
+    ) -> None:
         """Request update for items.
 
         Items will get a full update treatment, while
@@ -382,7 +394,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.update()
 
     @AsyncIO(single=True)
-    def update(self):
+    def update(self) -> None:
         """Update view status according to the items updated by the canvas."""
         canvas = self.canvas
         if not canvas:
@@ -428,7 +440,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         return set(update_matrices(self._dirty_matrix_items))
 
-    def update_qtree(self, dirty_items, dirty_matrix_items):
+    def update_qtree(
+        self, dirty_items: Collection[Item], dirty_matrix_items: Iterable[Item]
+    ):
         for i in dirty_matrix_items:
             if i not in self._qtree:
                 yield i
@@ -441,10 +455,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 w, h = i2v.transform_distance(bounds[2], bounds[3])
                 vbounds = Rectangle(x, y, w, h)
                 self._qtree.add(i, vbounds.tuple(), bounds)
-
-    def get_item_bounding_box(self, item):
-        """Get the bounding box for the item, in view coordinates."""
-        return self._qtree.get_bounds(item)
 
     def update_bounding_box(self, items: Collection[Item]):
         """Update the bounding boxes of the canvas items for this view, in
