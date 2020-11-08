@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Collection, Optional
 
 from cairo import LINE_JOIN_ROUND
 
@@ -48,7 +48,7 @@ class ItemPainter:
         finally:
             cairo.restore()
 
-    def paint(self, items: Sequence[Item], cairo):
+    def paint(self, items: Collection[Item], cairo):
         """Draw the items."""
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)

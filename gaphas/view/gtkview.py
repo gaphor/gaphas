@@ -1,7 +1,7 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set, Tuple
+from typing import Collection, Iterable, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -446,7 +446,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)
 
-    def update_bounding_box(self, items):
+    def update_bounding_box(self, items: Collection[Item]):
         """Update the bounding boxes of the canvas items for this view, in
         canvas coordinates."""
         cr = (
@@ -462,7 +462,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         try:
             painter = self._bounding_box_painter
             if items is None:
-                items = self.canvas.get_all_items()
+                items = list(self.canvas.get_all_items())
 
             for item, bounds in painter.paint(items, cr).items():
                 v2i = self.get_matrix_v2i(item)

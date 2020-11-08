@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Collection
 
 from cairo import ANTIALIAS_NONE
 
@@ -60,7 +60,7 @@ class HandlePainter:
             cairo.restore()
         cairo.restore()
 
-    def paint(self, items: Sequence[Item], cairo):
+    def paint(self, items: Collection[Item], cairo):
         view = self.view
         canvas = view.canvas
         selection = view.selection

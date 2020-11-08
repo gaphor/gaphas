@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Collection
 
 from gaphas.aspect import PaintFocused
 from gaphas.item import Item
@@ -12,7 +12,7 @@ class FocusedItemPainter:
         assert view
         self.view = view
 
-    def paint(self, items: Sequence[Item], cairo):
+    def paint(self, items: Collection[Item], cairo):
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:

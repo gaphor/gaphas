@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import Dict, Optional, Sequence
+from typing import Collection, Dict, Optional
 
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
@@ -117,14 +117,14 @@ class BoundingBoxPainter:
         bounds.expand(1)
         return bounds
 
-    def paint(self, items: Sequence[Item], cairo) -> Dict[Item, Rectangle]:
+    def paint(self, items: Collection[Item], cairo) -> Dict[Item, Rectangle]:
         """Draw the items, return the bounding boxes (in cairo device
         coordinates)."""
         paint_item = self.paint_item
         boxes: Dict[Item, Rectangle] = {item: paint_item(item, cairo) for item in items}
         return boxes
 
-    def bounding_box(self, items: Sequence[Item], cairo) -> Rectangle:
+    def bounding_box(self, items: Collection[Item], cairo) -> Rectangle:
         """Get the unified bounding box of the rendered items."""
         boxes = self.paint(items, cairo)
         return functools.reduce(operator.add, boxes.values())

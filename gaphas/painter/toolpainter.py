@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Collection
 
 from gaphas.canvas import Context
 from gaphas.item import Item
@@ -12,7 +12,7 @@ class ToolPainter:
         assert view
         self.view = view
 
-    def paint(self, items: Sequence[Item], cairo):
+    def paint(self, items: Collection[Item], cairo):
         view = self.view
         if view.tool:
             cairo.save()
