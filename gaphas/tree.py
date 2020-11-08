@@ -1,5 +1,5 @@
 """Simple class containing the tree structure for the canvas items."""
-from typing import Dict, Generic, List, TypeVar, Union
+from typing import Dict, Generic, Iterable, List, Optional, Sequence, TypeVar, Union
 
 T = TypeVar("T")
 
@@ -23,9 +23,11 @@ class Tree(Generic[T]):
         # For easy and fast lookups, also maintain a child -> parent mapping
         self._parents: Dict[T, T] = {}
 
-    nodes = property(lambda s: list(s._nodes))
+    @property
+    def nodes(self) -> Sequence[T]:
+        return list(self._nodes)
 
-    def get_parent(self, node):
+    def get_parent(self, node) -> Optional[T]:
         """Return the parent item of ``node``.
 
         >>> tree = Tree()
@@ -36,7 +38,7 @@ class Tree(Generic[T]):
         """
         return self._parents.get(node)
 
-    def get_children(self, node):
+    def get_children(self, node) -> Iterable[T]:
         """Return all child objects of ``node``.
 
         >>> tree = Tree()
@@ -142,9 +144,9 @@ class Tree(Generic[T]):
             yield parent
             parent = self.get_parent(parent)
 
-    def order(self, items):
+    def order(self, items) -> Iterable[T]:
         items_set = set(items)
-        return [n for n in self._nodes if n in items_set]
+        return (n for n in self._nodes if n in items_set)
 
     def _add_to_nodes(self, node, parent, index=None):
         """Helper method to place nodes on the right location in the nodes list

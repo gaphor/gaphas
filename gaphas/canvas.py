@@ -28,7 +28,7 @@ To get connecting items (i.e. all lines connected to a class)::
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Optional
 
 import cairo
 
@@ -124,7 +124,7 @@ class Canvas:
         []
         >>> i._canvas
         """
-        for child in reversed(self.get_children(item)):
+        for child in reversed(list(self.get_children(item))):
             self.remove(child)
         self._connections.remove_connections_to_item(item)
         self._remove(item)
@@ -152,7 +152,7 @@ class Canvas:
         },
     )
 
-    def get_all_items(self):
+    def get_all_items(self) -> Iterable[Item]:
         """Get a list of all items.
 
         >>> c = Canvas()
@@ -164,7 +164,7 @@ class Canvas:
         >>> c.get_all_items() # doctest: +ELLIPSIS
         [<gaphas.item.Item ...>]
         """
-        return self._tree.nodes
+        return iter(self._tree.nodes)
 
     def get_root_items(self):
         """Return the root items of the canvas.
@@ -182,7 +182,7 @@ class Canvas:
         """
         return self._tree.get_children(None)
 
-    def get_parent(self, item):
+    def get_parent(self, item) -> Optional[Item]:
         """See `tree.Tree.get_parent()`.
 
         >>> c = Canvas()
@@ -217,7 +217,7 @@ class Canvas:
         """
         return self._tree.get_ancestors(item)
 
-    def get_children(self, item):
+    def get_children(self, item) -> Iterable[Item]:
         """See `tree.Tree.get_children()`.
 
         >>> c = Canvas()
@@ -257,7 +257,7 @@ class Canvas:
         """
         return self._tree.get_all_children(item)
 
-    def sort(self, items):
+    def sort(self, items) -> Iterable[Item]:
         """Sort a list of items in the order in which they are traversed in the
         canvas (Depth first).
 
@@ -351,7 +351,7 @@ class Canvas:
                 yield item
                 yield from self._tree.get_ancestors(item)
 
-        all_dirty_items = list(reversed(sort(dirty_items_with_ancestors())))
+        all_dirty_items = reversed(list(sort(dirty_items_with_ancestors())))
 
         try:
             # allow programmers to perform tricks and hacks before item

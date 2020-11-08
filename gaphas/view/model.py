@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional, Reversible, Sequence, TypeVar
+from typing import Iterable, Optional, Sequence, TypeVar
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -19,7 +19,7 @@ class Model(Protocol[T]):
     def get_children(self, item: T) -> Iterable[T]:
         ...
 
-    def sort(self, items: Sequence[T]) -> Reversible[T]:
+    def sort(self, items: Sequence[T]) -> Iterable[T]:
         ...
 
     def update_now(

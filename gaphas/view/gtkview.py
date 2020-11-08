@@ -1,7 +1,7 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Optional, Set, Tuple
+from typing import Iterable, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -215,7 +215,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
 
-    def get_items_in_rectangle(self, rect):
+    def get_items_in_rectangle(self, rect) -> Iterable[Item]:
         """Return the items in the rectangle 'rect'.
 
         Items are automatically sorted in canvas' processing order.
@@ -232,7 +232,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """
         assert self._canvas
         items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
-        for item in reversed(self._canvas.sort(items)):
+        for item in reversed(list(self._canvas.sort(items))):
             if not selected and item in self.selection.selected_items:
                 continue  # skip selected items
 
@@ -279,8 +279,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         # Last try all items, checking the bounding box first
         x, y = pos
         items = reversed(
-            self.get_items_in_rectangle(
-                (x - distance, y - distance, distance * 2, distance * 2)
+            list(
+                self.get_items_in_rectangle(
+                    (x - distance, y - distance, distance * 2, distance * 2)
+                )
             )
         )
 
@@ -319,7 +321,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         item = None
 
         rect = (vx - distance, vy - distance, distance * 2, distance * 2)
-        items = reversed(self.get_items_in_rectangle(rect))
+        items = reversed(list(self.get_items_in_rectangle(rect)))
         for i in items:
             if i in exclude:
                 continue

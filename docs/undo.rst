@@ -113,7 +113,7 @@ canvas.py: Canvas
 
     >>> from gaphas import Canvas, Item
     >>> canvas = Canvas()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> item = Item()
     >>> canvas.add(item)
@@ -128,18 +128,18 @@ The ``request_update()`` method is observed:
 
 On the canvas only ``add()`` and ``remove()`` are monitored:
 
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> canvas.add(item)
     >>> del undo_list[:]
     >>> canvas.remove(item)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
     >>> undo_list
     []
@@ -153,10 +153,10 @@ TODO!
     >>> canvas.add(child, parent=item)
     >>> canvas.get_parent(child) is item
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
     >>> child in canvas.get_all_items()
     False
@@ -167,7 +167,7 @@ Now redo the previous undo action:
     >>> undo()
     >>> canvas.get_parent(child) is item
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
 
 Remove also works when items are removed recursively (an item and it's
@@ -175,14 +175,14 @@ children):
 
     >>> child = Item()
     >>> canvas.add(child, parent=item)
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
     >>> del undo_list[:]
     >>> canvas.remove(item)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
     >>> canvas.get_children(item)			# doctest: +ELLIPSIS
     [<gaphas.item.Item object at 0x...>]
@@ -204,23 +204,23 @@ As well as the reparent() method:
     >>> canvas.add(ni3, parent=ni1)
     >>> ni4 = NameItem('d')
     >>> canvas.add(ni4, parent=ni3)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <c>, <d>, <b>]
     >>> del undo_list[:]
     >>> canvas.reparent(ni3, parent=ni2)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <b>, <c>, <d>]
     >>> len(undo_list)
     1
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <c>, <d>, <b>]
 
 Redo should work too:
 
     >>> undo_list[:] = redo_list[:]
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <b>, <c>, <d>]
 
 
