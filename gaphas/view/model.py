@@ -1,45 +1,44 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional, Sequence, TypeVar
+from typing import Collection, Iterable, Optional
 
 from typing_extensions import Protocol, runtime_checkable
 
-T = TypeVar("T")
-T_ct = TypeVar("T_ct", contravariant=True)
+from gaphas.item import Item
 
 
 @runtime_checkable
-class Model(Protocol[T]):
-    def get_all_items(self) -> Iterable[T]:
+class View(Protocol):
+    def request_update(
+        self,
+        items: Collection[Item],
+        matrix_only_items: Collection[Item],
+        removed_items: Collection[Item],
+    ) -> None:
         ...
 
-    def get_parent(self, item: T) -> Optional[T]:
+
+@runtime_checkable
+class Model(Protocol):
+    def get_all_items(self) -> Iterable[Item]:
         ...
 
-    def get_children(self, item: T) -> Iterable[T]:
+    def get_parent(self, item: Item) -> Optional[Item]:
         ...
 
-    def sort(self, items: Sequence[T]) -> Iterable[T]:
+    def get_children(self, item: Item) -> Iterable[Item]:
+        ...
+
+    def sort(self, items: Collection[Item]) -> Iterable[Item]:
         ...
 
     def update_now(
-        self, dirty_items: Sequence[T], dirty_matrix_items: Sequence[T]
+        self, dirty_items: Collection[Item], dirty_matrix_items: Collection[Item]
     ) -> None:
         ...
 
-    def register_view(self, view: View[T]) -> None:
+    def register_view(self, view: View) -> None:
         ...
 
-    def unregister_view(self, view: View[T]) -> None:
-        ...
-
-
-@runtime_checkable
-class View(Protocol[T_ct]):
-    def request_update(
-        self,
-        items: Sequence[T_ct],
-        matrix_only_items: Sequence[T_ct],
-        removed_items: Sequence[T_ct],
-    ) -> None:
+    def unregister_view(self, view: View) -> None:
         ...

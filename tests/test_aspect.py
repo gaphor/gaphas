@@ -3,12 +3,12 @@
 import pytest
 
 from gaphas.aspect import InMotion, Selection
-from gaphas.item import Item
+from gaphas.item import Element
 
 
 @pytest.fixture()
-def item():
-    return Item()
+def item(connections):
+    return Element(connections)
 
 
 def test_selection_select(canvas, view, item):

@@ -1,6 +1,6 @@
 """Basic items."""
 from math import atan2
-from typing import Sequence
+from typing import Protocol, Sequence
 
 from gaphas.canvas import Context
 from gaphas.connector import Handle, LinePort, Port
@@ -16,31 +16,48 @@ from gaphas.state import (
 )
 
 
+class Item(Protocol):
+    @property
+    def matrix(self) -> Matrix:
+        ...
+
+    @property
+    def matrix_i2c(self) -> Matrix:
+        ...
+
+    def handles(self) -> Sequence[Handle]:
+        """Return a list of handles owned by the item."""
+
+    def ports(self) -> Sequence[Port]:
+        """Return list of ports."""
+
+    def point(self, x: float, y: float) -> float:
+        """Get the distance from a point (``x``, ``y``) to the item.
+
+        ``x`` and ``y`` are in item coordinates.
+        """
+
+    def draw(self, context: Context):
+        """Render the item to a canvas view. Context contains the following
+        attributes:
+
+        - cairo: the Cairo Context use this one to draw
+        - selected, focused, hovered, dropzone: view state of items
+          (True/False)
+        """
+
+
 def matrix_i2i(from_item, to_item):
     i2c = from_item.matrix_i2c
     c2i = to_item.matrix_i2c.inverse()
     return i2c.multiply(c2i)
 
 
-class Item:
-    """Base class (or interface) for items on a canvas.Canvas.
-
-    Attributes:
-
-    - matrix: item's transformation matrix
-
-    Private:
-
-    - _handles:     list of handles owned by an item
-    - _ports:       list of ports, connectable areas of an item
-    """
-
+class Matrices:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)  # type: ignore[call-arg]
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
-        self._handles = []
-        self._ports = []
 
     @property
     def matrix(self) -> Matrix:
@@ -50,6 +67,8 @@ class Item:
     def matrix_i2c(self) -> Matrix:
         return self._matrix_i2c
 
+
+class Updateable:
     def pre_update(self, context: Context):
         """Perform any changes before item update here, for example:
 
@@ -76,36 +95,11 @@ class Item:
         """
         pass
 
-    def draw(self, context: Context):
-        """Render the item to a canvas view. Context contains the following
-        attributes:
-
-        - cairo: the Cairo Context use this one to draw
-        - selected, focused, hovered, dropzone: view state of items
-          (True/False)
-        """
-        pass
-
-    def handles(self) -> Sequence[Handle]:
-        """Return a list of handles owned by the item."""
-        return self._handles
-
-    def ports(self) -> Sequence[Port]:
-        """Return list of ports."""
-        return self._ports
-
-    def point(self, x: float, y: float):
-        """Get the distance from a point (``x``, ``y``) to the item.
-
-        ``x`` and ``y`` are in item coordinates.
-        """
-        pass
-
 
 [NW, NE, SE, SW] = list(range(4))
 
 
-class Element(Item):
+class Element(Matrices, Updateable):
     """An Element has 4 handles (for a start)::
 
     NW +---+ NE    |   | SW +---+ SE
@@ -199,6 +193,14 @@ class Element(Item):
 
     height = property(_get_height, _set_height)
 
+    def handles(self) -> Sequence[Handle]:
+        """Return a list of handles owned by the item."""
+        return self._handles
+
+    def ports(self) -> Sequence[Port]:
+        """Return list of ports."""
+        return self._ports
+
     def point(self, x, y):
         """Distance from the point (x, y) to the item.
 
@@ -212,6 +214,9 @@ class Element(Item):
             list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), (x, y)
         )
 
+    def draw(self, context: Context):
+        pass
+
 
 def create_orthogonal_constraints(handles, horizontal):
     rest = 1 if horizontal else 0
@@ -224,7 +229,7 @@ def create_orthogonal_constraints(handles, horizontal):
             yield EqualsConstraint(a=p0.y, b=p1.y)
 
 
-class Line(Item):
+class Line(Matrices, Updateable):
     """A Line item.
 
     Properties:
@@ -410,6 +415,14 @@ class Line(Item):
         h1, h0 = self._handles[-2:]
         p1, p0 = h1.pos, h0.pos
         self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
+
+    def handles(self) -> Sequence[Handle]:
+        """Return a list of handles owned by the item."""
+        return self._handles
+
+    def ports(self) -> Sequence[Port]:
+        """Return list of ports."""
+        return self._ports
 
     def point(self, x, y):
         """

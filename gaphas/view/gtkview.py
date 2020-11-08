@@ -86,7 +86,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         ),
     }
 
-    def __init__(self, canvas: Optional[Model[Item]] = None):
+    def __init__(self, canvas: Optional[Model] = None):
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
@@ -117,7 +117,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
-        self._canvas: Optional[Model[Item]] = None
+        self._canvas: Optional[Model] = None
         if canvas:
             self._set_canvas(canvas)
 
@@ -152,7 +152,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         m.invert()
         return m
 
-    def _set_canvas(self, canvas: Optional[Model[Item]]) -> None:
+    def _set_canvas(self, canvas: Optional[Model]) -> None:
         """
         Use view.canvas = my_canvas to set the canvas to be rendered
         in the view.

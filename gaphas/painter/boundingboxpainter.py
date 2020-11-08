@@ -102,7 +102,7 @@ class BoundingBoxPainter:
     ):
         self.item_painter = item_painter
 
-    def paint_item(self, item, cairo):
+    def paint_item(self, item: Item, cairo):
         cairo = CairoBoundingBoxContext(cairo)
         self.item_painter.paint_item(item, cairo)
         # Bounding box is in view (cairo root) coordinates
