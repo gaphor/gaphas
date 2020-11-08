@@ -99,9 +99,13 @@ class MatrixProjection(Constraint):
 
     def solve_for(self, var):
         if var is self._orig_pos.x or var is self._orig_pos.y:
-            self._orig_pos.x, self._orig_pos.y = self.matrix.inverse().transform_point(*self._proj_pos)  # type: ignore[misc]
+            self._orig_pos.x, self._orig_pos.y = self.matrix.inverse().transform_point(
+                *self._proj_pos
+            )
         else:
-            self._proj_pos.x, self._proj_pos.y = self.matrix.transform_point(*self._orig_pos)  # type: ignore[misc]
+            self._proj_pos.x, self._proj_pos.y = self.matrix.transform_point(
+                *self._orig_pos
+            )
 
     def _on_matrix_changed(self, matrix):
         self.mark_dirty(self._orig_pos.x)
