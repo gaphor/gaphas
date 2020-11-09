@@ -1,7 +1,13 @@
+from typing import Optional, Tuple
+
 from gi.repository import Gdk
 
 from gaphas.aspect import Connector, HandleFinder, HandleInMotion, HandleSelection
+from gaphas.connector import Handle
+from gaphas.item import Item
 from gaphas.tool.tool import Tool
+
+Pos = Tuple[float, float]
 
 
 class HandleTool(Tool):
@@ -13,11 +19,11 @@ class HandleTool(Tool):
 
     def __init__(self, view=None):
         super().__init__(view)
-        self.grabbed_handle = None
-        self.grabbed_item = None
-        self.motion_handle = None
+        self.grabbed_handle: Optional[Handle] = None
+        self.grabbed_item: Optional[Item] = None
+        self.motion_handle: Optional[Handle] = None
 
-    def grab_handle(self, item, handle):
+    def grab_handle(self, item: Item, handle: Handle):
         """Grab a specific handle.
 
         This can be used from the PlacementTool to set the state of the
@@ -119,7 +125,7 @@ class ConnectHandleTool(HandleTool):
     item's port.
     """
 
-    def glue(self, item, handle, vpos):
+    def glue(self, item: Item, handle: Handle, vpos: Pos):
         """Perform a small glue action to ensure the handle is at a proper
         location for connecting."""
         if self.motion_handle:
@@ -127,7 +133,7 @@ class ConnectHandleTool(HandleTool):
         else:
             return HandleInMotion(item, handle, self.view).glue(vpos)
 
-    def connect(self, item, handle, vpos):
+    def connect(self, item: Item, handle: Handle, vpos: Pos):
         """Connect a handle of a item to connectable item.
 
         Connectable item is found by `ConnectHandleTool.glue` method.
@@ -158,7 +164,7 @@ class ConnectHandleTool(HandleTool):
         item = self.grabbed_item
         handle = self.grabbed_handle
         try:
-            if handle and handle.connectable:
+            if item and handle and handle.connectable:
                 pos = event.get_coords()[1:]
                 self.connect(item, handle, pos)
         finally:
