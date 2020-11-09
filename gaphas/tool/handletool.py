@@ -17,11 +17,11 @@ class HandleTool(Tool):
     item (see `ConnectHandleTool`).
     """
 
-    def __init__(self, view=None):
+    def __init__(self, view):
         super().__init__(view)
         self.grabbed_handle: Optional[Handle] = None
         self.grabbed_item: Optional[Item] = None
-        self.motion_handle: Optional[Handle] = None
+        self.motion_handle = None
 
     def grab_handle(self, item: Item, handle: Handle):
         """Grab a specific handle.

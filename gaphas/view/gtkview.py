@@ -14,7 +14,6 @@ from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
 from gaphas.quadtree import Quadtree
-from gaphas.tool import DefaultTool
 from gaphas.view.model import Model
 from gaphas.view.scrolling import Scrolling
 from gaphas.view.selection import Selection
@@ -114,6 +113,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._bounding_box_painter: Painter = BoundingBoxPainter(
             ItemPainter(self._selection)
         )
+        self._tool = None
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
@@ -128,8 +128,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._selection.connect("focus-changed", redraw, "focus-changed")
         self._selection.connect("hover-changed", redraw, "hover-changed")
         self._selection.connect("dropzone-changed", redraw, "dropzone-changed")
-
-        self._set_tool(DefaultTool())
 
     def do_get_property(self, prop):
         return self._scrolling.get_property(prop)
@@ -201,7 +199,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         Tools should implement tool.Tool.
         """
         self._tool = tool
-        tool.set_view(self)
         self.emit("tool-changed")
 
     tool = property(lambda s: s._tool, _set_tool)
@@ -587,7 +584,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         return False
 
-    def do_event(self, event):
+    def do_event(self, event: Gdk.Event):
         """Handle GDK events.
 
         Events are delegated to a `tool.Tool`.

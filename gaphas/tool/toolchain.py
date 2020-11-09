@@ -17,15 +17,10 @@ class ToolChain(Tool):
     states.
     """
 
-    def __init__(self, view=None):
+    def __init__(self, view):
         super().__init__(view)
         self._tools = []
         self._grabbed_tool = None
-
-    def set_view(self, view):
-        self.view = view
-        for tool in self._tools:
-            tool.set_view(self.view)
 
     def append(self, tool):
         """Append a tool to the chain.

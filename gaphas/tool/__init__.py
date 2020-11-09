@@ -41,15 +41,15 @@ from gaphas.tool.toolchain import ToolChain
 from gaphas.tool.zoom import ZoomTool
 
 
-def DefaultTool(view=None):
+def DefaultTool(view):
     """The default tool chain build from HoverTool, ItemTool and HandleTool."""
     return (
         ToolChain(view)
-        .append(HoverTool())
-        .append(ConnectHandleTool())
-        .append(PanTool())
-        .append(ZoomTool())
-        .append(ItemTool())
-        .append(TextEditTool())
-        .append(RubberbandTool())
+        .append(HoverTool(view))
+        .append(ConnectHandleTool(view))
+        .append(PanTool(view))
+        .append(ZoomTool(view))
+        .append(ItemTool(view))
+        .append(TextEditTool(view))
+        .append(RubberbandTool(view))
     )

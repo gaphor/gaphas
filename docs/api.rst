@@ -339,7 +339,7 @@ Tool for placing items on the Canvas.
 .. code-block: python
 
     def on_clicked(button):
-        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(), 1))
+        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool, 1))
 
 Class: ``gaphas.aspects.ItemFinder``
 ------

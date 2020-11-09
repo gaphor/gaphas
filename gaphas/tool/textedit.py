@@ -7,7 +7,7 @@ class TextEditTool(Tool):
     """Demo of a text edit tool (just displays a text edit box at the cursor
     position."""
 
-    def __init__(self, view=None):
+    def __init__(self, view):
         super().__init__(view)
 
     def on_double_click(self, event):

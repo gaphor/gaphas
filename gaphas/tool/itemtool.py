@@ -13,7 +13,7 @@ class ItemTool(Tool):
     The roles used are Selection (select, unselect) and InMotion (move).
     """
 
-    def __init__(self, view=None, buttons=(1,)):
+    def __init__(self, view, buttons=(1,)):
         super().__init__(view)
         self._buttons = buttons
         self._movable_items = set()

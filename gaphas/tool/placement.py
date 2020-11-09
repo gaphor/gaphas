@@ -5,8 +5,7 @@ class PlacementTool(Tool):
     def __init__(self, view, factory, handle_tool, handle_index):
         super().__init__(view)
         self._factory = factory
-        self.handle_tool = handle_tool
-        handle_tool.set_view(view)
+        self.handle_tool = handle_tool(view)
         self._handle_index = handle_index
         self._new_item = None
         self.grabbed_handle = None
