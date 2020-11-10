@@ -2,12 +2,20 @@
 
 Aspects form intermediate items between tools and items.
 """
+from __future__ import annotations
+
 from functools import singledispatch
+from typing import Tuple
 
 from gi.repository import Gdk
+from typing_extensions import Protocol
 
 from gaphas.connections import Connections
-from gaphas.item import Element, matrix_i2i
+from gaphas.connector import Handle, Port
+from gaphas.item import Element, Item, matrix_i2i
+from gaphas.view import GtkView, Selection
+
+Pos = Tuple[float, float]
 
 
 class ItemFinder:
@@ -16,7 +24,7 @@ class ItemFinder:
     def __init__(self, view):
         self.view = view
 
-    def get_item_at_point(self, pos):
+    def get_item_at_point(self, pos: Pos):
         item, handle = self.view.get_handle_at_point(pos)
         return item or self.view.get_item_at_point(pos)
 
@@ -24,27 +32,27 @@ class ItemFinder:
 Finder = singledispatch(ItemFinder)
 
 
-class ItemSelection:
+class ItemSelector:
     """A role for items. When dealing with selection.
 
     Behaviour can be overridden by applying the @aspect decorator to a
     subclass.
     """
 
-    def __init__(self, item, view):
+    def __init__(self, item: Item, selection: Selection):
         self.item = item
-        self.view = view
+        self.selection = selection
 
     def select(self):
         """Set selection on the view."""
-        self.view.selection.set_focused_item(self.item)
+        self.selection.set_focused_item(self.item)
 
     def unselect(self):
-        self.view.selection.set_focused_item(None)
-        self.view.selection.unselect_item(self.item)
+        self.selection.set_focused_item(None)
+        self.selection.unselect_item(self.item)
 
 
-Selection = singledispatch(ItemSelection)
+Selector = singledispatch(ItemSelector)
 
 
 class ItemInMotion:
@@ -53,15 +61,17 @@ class ItemInMotion:
     In this case the item is moved.
     """
 
-    def __init__(self, item, view):
+    last_x: float
+    last_y: float
+
+    def __init__(self, item: Item, view: GtkView):
         self.item = item
         self.view = view
-        self.last_x, self.last_y = None, None
 
-    def start_move(self, pos):
+    def start_move(self, pos: Pos):
         self.last_x, self.last_y = pos
 
-    def move(self, pos):
+    def move(self, pos: Pos):
         """Move the item.
 
         x and y are in view coordinates.
@@ -88,11 +98,11 @@ InMotion = singledispatch(ItemInMotion)
 class ItemHandleFinder:
     """Deals with the task of finding handles."""
 
-    def __init__(self, item, view):
+    def __init__(self, item: Item, view: GtkView):
         self.item = item
         self.view = view
 
-    def get_handle_at_point(self, pos):
+    def get_handle_at_point(self, pos: Pos):
         return self.view.get_handle_at_point(pos)
 
 
@@ -102,7 +112,7 @@ HandleFinder = singledispatch(ItemHandleFinder)
 class ItemHandleSelection:
     """Deal with selection of the handle."""
 
-    def __init__(self, item, handle, view):
+    def __init__(self, item: Item, handle: Handle, view: GtkView):
         self.item = item
         self.handle = handle
         self.view = view
@@ -140,13 +150,15 @@ class ItemHandleInMotion:
 
     GLUE_DISTANCE = 10
 
-    def __init__(self, item, handle, view):
+    last_x: float
+    last_y: float
+
+    def __init__(self, item: Item, handle: Handle, view: GtkView):
         self.item = item
         self.handle = handle
         self.view = view
-        self.last_x, self.last_y = None, None
 
-    def start_move(self, pos):
+    def start_move(self, pos: Pos):
         self.last_x, self.last_y = pos
         canvas = self.view.canvas
 
@@ -154,7 +166,7 @@ class ItemHandleInMotion:
         if cinfo:
             canvas.solver.remove_constraint(cinfo.constraint)
 
-    def move(self, pos):
+    def move(self, pos: Pos):
         item = self.item
         view = self.view
 
@@ -175,7 +187,7 @@ class ItemHandleInMotion:
     def stop_move(self):
         pass
 
-    def glue(self, pos, distance=GLUE_DISTANCE):
+    def glue(self, pos: Pos, distance=GLUE_DISTANCE):
         """Glue to an item near a specific point.
 
         Returns a ConnectionSink or None.
@@ -192,9 +204,7 @@ class ItemHandleInMotion:
         )
 
         # check if item and found item can be connected on closest port
-        if port is not None:
-            assert connectable is not None
-
+        if connectable and port and glue_pos:
             connections = self.view.canvas.connections
             connector = Connector(self.item, self.handle, connections)
             sink = ConnectionSink(connectable, port)
@@ -216,15 +226,15 @@ class ItemConnector:
 
     GLUE_DISTANCE = 10  # Glue distance in view points
 
-    def __init__(self, item, handle, connections: Connections):
+    def __init__(self, item: Item, handle: Handle, connections: Connections):
         self.item = item
         self.handle = handle
         self.connections = connections
 
-    def allow(self, sink):
+    def allow(self, sink: ConnectionSinkType):
         return True
 
-    def glue(self, sink):
+    def glue(self, sink: ConnectionSinkType):
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
@@ -234,7 +244,7 @@ class ItemConnector:
         matrix.invert()
         handle.pos = matrix.transform_point(*gluepos)
 
-    def connect(self, sink):
+    def connect(self, sink: ConnectionSinkType):
         """Connect the handle to a sink (item, port).
 
         Note that connect() also takes care of disconnecting in case a
@@ -254,7 +264,7 @@ class ItemConnector:
 
         self.connect_handle(sink)
 
-    def connect_handle(self, sink, callback=None):
+    def connect_handle(self, sink: ConnectionSinkType, callback=None):
         """Create constraint between handle of a line and port of connectable
         item.
 
@@ -281,6 +291,17 @@ class ItemConnector:
 Connector = singledispatch(ItemConnector)
 
 
+class ConnectionSinkType(Protocol):
+    item: Item
+    port: Port
+
+    def __init__(self, item: Item, port: Port):
+        ...
+
+    def find_port(self, pos):
+        ...
+
+
 class ItemConnectionSink:
     """Makes an item a sink.
 
@@ -288,7 +309,7 @@ class ItemConnectionSink:
     connectable item or port.
     """
 
-    def __init__(self, item, port):
+    def __init__(self, item: Item, port: Port):
         self.item = item
         self.port = port
 
@@ -321,7 +342,7 @@ class ItemPaintFocused:
     """Paints on top of all items, just for the focused item and only when it's
     hovered (see gaphas.painter.FocusedItemPainter)"""
 
-    def __init__(self, item, view):
+    def __init__(self, item: Item, view: GtkView):
         self.item = item
         self.view = view
 
