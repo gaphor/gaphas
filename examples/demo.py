@@ -142,7 +142,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     def on_add_box_clicked(button, view):
         # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
-        view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool, 2))
+        view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(view), 2))
 
     b.connect("clicked", on_add_box_clicked, view)
     v.add(b)
@@ -150,7 +150,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Add line")
 
     def on_add_line_clicked(button):
-        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool, 1))
+        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
 
     b.connect("clicked", on_add_line_clicked)
     v.add(b)

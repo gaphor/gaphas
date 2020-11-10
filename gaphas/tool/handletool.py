@@ -1,13 +1,32 @@
 from typing import Optional, Tuple
 
 from gi.repository import Gdk
+from typing_extensions import Protocol
 
 from gaphas.aspect import Connector, HandleFinder, HandleInMotion, HandleSelection
 from gaphas.connector import Handle
 from gaphas.item import Item
 from gaphas.tool.tool import Tool
+from gaphas.view import GtkView
 
 Pos = Tuple[float, float]
+
+
+class HandleInMotionType(Protocol):
+    def __init__(self, item: Item, handle: Handle, view: GtkView):
+        ...
+
+    def start_move(self, pos: Pos):
+        ...
+
+    def move(self, pos: Pos):
+        ...
+
+    def stop_move(self):
+        ...
+
+    def glue(self, pos: Pos, distance: float = 0):
+        ...
 
 
 class HandleTool(Tool):
@@ -21,7 +40,7 @@ class HandleTool(Tool):
         super().__init__(view)
         self.grabbed_handle: Optional[Handle] = None
         self.grabbed_item: Optional[Item] = None
-        self.motion_handle = None
+        self.motion_handle: Optional[HandleInMotionType] = None
 
     def grab_handle(self, item: Item, handle: Handle):
         """Grab a specific handle.

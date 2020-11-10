@@ -1,16 +1,35 @@
+from typing import Callable
+
+from typing_extensions import Protocol
+
+from gaphas.connector import Handle
+from gaphas.item import Item
 from gaphas.tool.tool import Tool
+from gaphas.view import GtkView
+
+FactoryType = Callable[..., Item]  # type: ignore[misc]
+
+
+class HandleToolType(Protocol):
+    def grab_handle(self, new_item: Item, handle: Handle):
+        ...
 
 
 class PlacementTool(Tool):
-    def __init__(self, view, factory, handle_tool, handle_index):
+    def __init__(
+        self,
+        view: GtkView,
+        factory: FactoryType,
+        handle_tool: HandleToolType,
+        handle_index: int,
+    ):
         super().__init__(view)
         self._factory = factory
-        self.handle_tool = handle_tool(view)
+        self.handle_tool = handle_tool
         self._handle_index = handle_index
         self._new_item = None
         self.grabbed_handle = None
 
-    # handle_tool = property(lambda s: s._handle_tool, doc="Handle tool")
     handle_index = property(
         lambda s: s._handle_index, doc="Index of handle to be used by handle_tool"
     )

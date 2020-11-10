@@ -1,7 +1,28 @@
+from typing import Set, Tuple
+
 from gi.repository import Gdk
+from typing_extensions import Protocol
 
 from gaphas.aspect import InMotion, Selection
+from gaphas.item import Item
 from gaphas.tool.tool import Tool
+from gaphas.view import GtkView
+
+Pos = Tuple[float, float]
+
+
+class InMotionType(Protocol):
+    def __init__(self, item: Item, view: GtkView):
+        ...
+
+    def start_move(self, pos: Pos):
+        ...
+
+    def move(self, pos: Pos):
+        ...
+
+    def stop_move(self):
+        ...
 
 
 class ItemTool(Tool):
@@ -16,7 +37,7 @@ class ItemTool(Tool):
     def __init__(self, view, buttons=(1,)):
         super().__init__(view)
         self._buttons = buttons
-        self._movable_items = set()
+        self._movable_items: Set[InMotionType] = set()
 
     def get_item(self):
         return self.view.selection.hovered_item
