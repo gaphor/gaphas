@@ -1,15 +1,14 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set, Tuple, Union
+from typing import Collection, Iterable, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import instant_cairo_context
-from gaphas.connector import Handle
 from gaphas.decorators import AsyncIO
-from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
@@ -243,54 +242,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             if item_distance < 0.5:
                 return item
         return None
-
-    def get_handle_at_point(
-        self, pos, distance=6
-    ) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
-        """Look for a handle at ``pos`` and return the tuple (item, handle)."""
-
-        def find(item):
-            """Find item's handle at pos."""
-            v2i = self.get_matrix_v2i(item)
-            d = distance_point_point_fast(v2i.transform_distance(0, distance))
-            x, y = v2i.transform_point(*pos)
-
-            for h in item.handles():
-                if not h.movable:
-                    continue
-                hx, hy = h.pos
-                if -d < (hx - x) < d and -d < (hy - y) < d:
-                    return h
-
-        selection = self._selection
-
-        # The focused item is the preferred item for handle grabbing
-        if selection.focused_item:
-            h = find(selection.focused_item)
-            if h:
-                return selection.focused_item, h
-
-        # then try hovered item
-        if selection.hovered_item:
-            h = find(selection.hovered_item)
-            if h:
-                return selection.hovered_item, h
-
-        # Last try all items, checking the bounding box first
-        x, y = pos
-        items = reversed(
-            list(
-                self.get_items_in_rectangle(
-                    (x - distance, y - distance, distance * 2, distance * 2)
-                )
-            )
-        )
-
-        for item in items:
-            h = find(item)
-            if h:
-                return item, h
-        return None, None
 
     def get_item_bounding_box(self, item: Item):
         """Get the bounding box for the item, in view coordinates."""

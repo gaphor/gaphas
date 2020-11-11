@@ -1,11 +1,9 @@
 """Test cases for the View class."""
-import math
 
 import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
-from gaphas.item import Element as Box
 from gaphas.view import GtkView
 
 
@@ -31,32 +29,6 @@ def test_get_unselected_item_at_point(view, box):
 
     assert view.get_item_at_point((10, 10)) is box
     assert view.get_item_at_point((10, 10), selected=False) is None
-
-
-def test_get_handle_at_point(view, canvas, connections):
-    box = Box(connections)
-    box.min_width = 20
-    box.min_height = 30
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 1.5)
-    canvas.add(box)
-
-    i, h = view.get_handle_at_point((20, 20))
-    assert i is box
-    assert h is box.handles()[0]
-
-
-def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
-    box = Box(connections)
-    box.min_width = 20
-    box.min_height = 30
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 2)
-    canvas.add(box)
-
-    i, h = view.get_handle_at_point((20, 20))
-    assert i is box
-    assert h is box.handles()[0]
 
 
 def test_item_removal(view, canvas, box):
