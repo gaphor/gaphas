@@ -5,7 +5,7 @@ Aspects form intermediate items between tools and items.
 from __future__ import annotations
 
 from functools import singledispatch
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 from gi.repository import Gdk
 from typing_extensions import Protocol
@@ -13,7 +13,9 @@ from typing_extensions import Protocol
 from gaphas.connections import Connections
 from gaphas.connector import Handle, Port
 from gaphas.item import Element, Item, matrix_i2i
-from gaphas.view import GtkView, Selection
+
+if TYPE_CHECKING:
+    from gaphas.view import GtkView, Selection
 
 Pos = Tuple[float, float]
 
