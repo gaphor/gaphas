@@ -5,7 +5,7 @@ Aspects form intermediate items between tools and items.
 from __future__ import annotations
 
 from functools import singledispatch
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Union
 
 from gi.repository import Gdk
 from typing_extensions import Protocol
@@ -201,8 +201,8 @@ class ItemHandleInMotion:
         if not handle.connectable:
             return None
 
-        connectable, port, glue_pos = view.get_port_at_point(
-            pos, distance=distance, exclude=(item,)
+        connectable, port, glue_pos = get_port_at_point(
+            view, pos, distance=distance, exclude=(item,)
         )
 
         # check if item and found item can be connected on closest port
@@ -221,6 +221,61 @@ class ItemHandleInMotion:
 
 
 HandleInMotion = singledispatch(ItemHandleInMotion)
+
+
+def get_port_at_point(
+    view, vpos, distance=10, exclude=None
+) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
+    """Find item with port closest to specified position.
+
+    List of items to be ignored can be specified with `exclude`
+    parameter.
+
+    Tuple is returned
+
+    - found item
+    - closest, connectable port
+    - closest point on found port (in view coordinates)
+
+    :Parameters:
+        vpos
+        Position specified in view coordinates.
+        distance
+        Max distance from point to a port (default 10)
+        exclude
+        Set of items to ignore.
+    """
+    v2i = view.get_matrix_v2i
+    vx, vy = vpos
+
+    max_dist = distance
+    port = None
+    glue_pos = None
+    item = None
+
+    rect = (vx - distance, vy - distance, distance * 2, distance * 2)
+    for i in reversed(list(view.get_items_in_rectangle(rect))):
+        if i in exclude:
+            continue
+        for p in i.ports():
+            if not p.connectable:
+                continue
+
+            ix, iy = v2i(i).transform_point(vx, vy)
+            pg, d = p.glue((ix, iy))
+
+            if d >= max_dist:
+                continue
+
+            max_dist = d
+            item = i
+            port = p
+
+            # transform coordinates from connectable item space to view
+            # space
+            i2v = view.get_matrix_i2v(i).transform_point
+            glue_pos = i2v(*pg)
+    return item, port, glue_pos  # type: ignore[return-value]
 
 
 class ItemConnector:

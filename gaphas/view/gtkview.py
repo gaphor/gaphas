@@ -7,7 +7,7 @@ import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import instant_cairo_context
-from gaphas.connector import Handle, Port
+from gaphas.connector import Handle
 from gaphas.decorators import AsyncIO
 from gaphas.geometry import Rectangle, distance_point_point_fast
 from gaphas.item import Item
@@ -291,60 +291,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             if h:
                 return item, h
         return None, None
-
-    def get_port_at_point(
-        self, vpos, distance=10, exclude=None
-    ) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
-        """Find item with port closest to specified position.
-
-        List of items to be ignored can be specified with `exclude`
-        parameter.
-
-        Tuple is returned
-
-        - found item
-        - closest, connectable port
-        - closest point on found port (in view coordinates)
-
-        :Parameters:
-         vpos
-            Position specified in view coordinates.
-         distance
-            Max distance from point to a port (default 10)
-         exclude
-            Set of items to ignore.
-        """
-        v2i = self.get_matrix_v2i
-        vx, vy = vpos
-
-        max_dist = distance
-        port = None
-        glue_pos = None
-        item = None
-
-        rect = (vx - distance, vy - distance, distance * 2, distance * 2)
-        for i in reversed(list(self.get_items_in_rectangle(rect))):
-            if i in exclude:
-                continue
-            for p in i.ports():
-                if not p.connectable:
-                    continue
-
-                ix, iy = v2i(i).transform_point(vx, vy)
-                pg, d = p.glue((ix, iy))
-
-                if d >= max_dist:
-                    continue
-
-                max_dist = d
-                item = i
-                port = p
-
-                # transform coordinates from connectable item space to view
-                # space
-                i2v = self.get_matrix_i2v(i).transform_point
-                glue_pos = i2v(*pg)
-        return item, port, glue_pos  # type: ignore[return-value]
 
     def get_item_bounding_box(self, item: Item):
         """Get the bounding box for the item, in view coordinates."""
