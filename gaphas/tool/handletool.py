@@ -126,10 +126,12 @@ class HandleTool(Tool):
             handle = self.grabbed_handle
             pos = event.get_coords()[1:]
 
-            if not self.motion_handle:
+            if self.motion_handle:
+                self.motion_handle.move(pos)
+            else:
                 self.motion_handle = HandleInMotion(item, handle, self.view)
+                assert self.motion_handle
                 self.motion_handle.start_move(pos)
-            self.motion_handle.move(pos)
 
             return True
 

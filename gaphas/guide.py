@@ -1,16 +1,10 @@
 """Module implements guides when moving items and handles around."""
-from functools import reduce
+from functools import reduce, singledispatch
 
-from gaphas.aspect import (
-    HandleInMotion,
-    InMotion,
-    ItemHandleInMotion,
-    ItemInMotion,
-    ItemPaintFocused,
-    PaintFocused,
-    singledispatch,
-)
+from gaphas.aspect.handleinmotion import HandleInMotion, ItemHandleInMotion
+from gaphas.aspect.inmotion import InMotion, ItemInMotion
 from gaphas.item import Element, Item, Line
+from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
 from gaphas.view import GtkView
 
 
