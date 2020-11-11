@@ -1,3 +1,4 @@
+import logging
 from functools import singledispatch
 from typing import Optional, Tuple, Union
 
@@ -6,6 +7,8 @@ from gaphas.geometry import distance_point_point_fast
 from gaphas.item import Item
 from gaphas.types import Pos
 from gaphas.view import GtkView
+
+log = logging.getLogger(__name__)
 
 
 class ItemFinder:
@@ -40,7 +43,7 @@ def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
         ix, iy = v2i.transform_point(*pos)
         item_distance = item.point(ix, iy)
         if item_distance is None:
-            print(f"Item distance is None for {item}")
+            log.warning("Item distance is None for %s", item)
             continue
         if item_distance < 0.5:
             return item

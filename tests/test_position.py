@@ -64,8 +64,6 @@ def test_original_updates_when_projection_is_changed(solver, position, matrix, r
 
     solver.solve()
 
-    print(pos)
-    print(proj.x, proj.y)
     assert pos.x == result[0]
     assert pos.y == result[1]
 
