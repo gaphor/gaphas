@@ -17,7 +17,7 @@ class PanTool(Tool):
     Trumps the ZoomTool, so should be placed later in the ToolChain.
     """
 
-    def __init__(self, view=None):
+    def __init__(self, view):
         super().__init__(view)
         self.x0, self.y0 = 0, 0
         self.speed = 10

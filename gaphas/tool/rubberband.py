@@ -4,7 +4,7 @@ from gaphas.tool.tool import Tool
 
 
 class RubberbandTool(Tool):
-    def __init__(self, view=None):
+    def __init__(self, view):
         super().__init__(view)
         self.x0, self.y0, self.x1, self.y1 = 0, 0, 0, 0
 

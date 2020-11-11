@@ -1,5 +1,7 @@
 from gi.repository import Gdk
 
+from gaphas.view import GtkView
+
 
 class Tool:
     """Base class for a tool. This class A word on click events:
@@ -45,13 +47,10 @@ class Tool:
     # Those events force the tool to release the grabbed tool.
     FORCE_UNGRAB_EVENTS = (Gdk.EventType._2BUTTON_PRESS, Gdk.EventType._3BUTTON_PRESS)
 
-    def __init__(self, view=None):
+    def __init__(self, view: GtkView):
         self.view = view
 
-    def set_view(self, view):
-        self.view = view
-
-    def _dispatch(self, event):
+    def _dispatch(self, event: Gdk.Event):
         """Deal with the event.
 
         The event is dispatched to a specific handler for the event
@@ -67,7 +66,7 @@ class Tool:
                 return bool(h(event))
         return False
 
-    def handle(self, event):
+    def handle(self, event: Gdk.Event):
         return self._dispatch(event)
 
     def draw(self, context):

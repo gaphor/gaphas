@@ -105,7 +105,7 @@ class GuideMixin:
 
         try:
             guides = list(
-                map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+                map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)  # type: ignore[arg-type]
             )
         except TypeError:
             guides = []
@@ -128,7 +128,7 @@ class GuideMixin:
 
         try:
             guides = list(
-                map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+                map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)  # type: ignore[arg-type]
             )
         except TypeError:
             guides = []

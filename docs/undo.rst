@@ -111,36 +111,37 @@ Again, rotate does not result in an exact match, but it's close enough.
 canvas.py: Canvas
 -----------------
 
-    >>> from gaphas import Canvas, Item
+    >>> from gaphas import Canvas
+    >>> from examples.exampleitems import Circle
     >>> canvas = Canvas()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
-    >>> item = Item()
+    >>> item = Circle()
     >>> canvas.add(item)
 
 The ``request_update()`` method is observed:
 
     >>> len(undo_list)
-    1
+    2
     >>> canvas.request_update(item)
     >>> len(undo_list)
-    2
+    3
 
 On the canvas only ``add()`` and ``remove()`` are monitored:
 
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>]
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> canvas.add(item)
     >>> del undo_list[:]
     >>> canvas.remove(item)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>]
     >>> undo_list
     []
 
@@ -149,15 +150,15 @@ Parent-child relationships are restored as well:
 TODO!
 
 
-    >>> child = Item()
+    >>> child = Circle()
     >>> canvas.add(child, parent=item)
     >>> canvas.get_parent(child) is item
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>, <examples.exampleitems.Circle object at 0x...>]
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>]
     >>> child in canvas.get_all_items()
     False
 
@@ -167,33 +168,36 @@ Now redo the previous undo action:
     >>> undo()
     >>> canvas.get_parent(child) is item
     True
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>, <examples.exampleitems.Circle object at 0x...>]
 
 Remove also works when items are removed recursively (an item and it's
 children):
 
-    >>> child = Item()
+    >>> child = Circle()
     >>> canvas.add(child, parent=item)
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>, <examples.exampleitems.Circle object at 0x...>]
     >>> del undo_list[:]
     >>> canvas.remove(item)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     []
     >>> undo()
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>, <examples.exampleitems.Circle object at 0x...>]
     >>> canvas.get_children(item)			# doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>]
+    [<examples.exampleitems.Circle object at 0x...>]
 
 As well as the reparent() method:
 
     >>> canvas = Canvas()
-    >>> class NameItem(Item):
+    >>> class NameItem:
     ...     def __init__(self, name):
     ...         super(NameItem, self).__init__()
     ...         self.name = name
+    ...     def handles(self): return []
+    ...     def ports(self): return []
+    ...     def point(self, x, y): return 0
     ...     def __repr__(self):
     ...         return '<%s>' % self.name
     >>> ni1 = NameItem('a')
@@ -204,23 +208,23 @@ As well as the reparent() method:
     >>> canvas.add(ni3, parent=ni1)
     >>> ni4 = NameItem('d')
     >>> canvas.add(ni4, parent=ni3)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <c>, <d>, <b>]
     >>> del undo_list[:]
     >>> canvas.reparent(ni3, parent=ni2)
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <b>, <c>, <d>]
     >>> len(undo_list)
     1
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <c>, <d>, <b>]
 
 Redo should work too:
 
     >>> undo_list[:] = redo_list[:]
     >>> undo()
-    >>> canvas.get_all_items()
+    >>> list(canvas.get_all_items())
     [<a>, <b>, <c>, <d>]
 
 
@@ -347,9 +351,9 @@ Also creation and removal of connected lines is recorded and can be undone:
     ...     def real_disconnect():
     ...         pass
     ...     canvas.connections.connect_item(hitem, handle, item, port=None, constraint=None, callback=real_disconnect)
-    >>> b0 = Item()
+    >>> b0 = Circle()
     >>> canvas.add(b0)
-    >>> b1 = Item()
+    >>> b1 = Circle()
     >>> canvas.add(b1)
     >>> l = Line(Connections())
     >>> canvas.add(l)

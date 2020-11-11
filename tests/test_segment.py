@@ -1,7 +1,7 @@
 """Test segment aspects for items."""
 import pytest
 
-from gaphas.item import Item
+from gaphas.item import Element
 from gaphas.segment import HandleFinder, Line, Segment, SegmentHandleFinder
 from gaphas.tool import ConnectHandleTool
 
@@ -11,15 +11,13 @@ def tool(view):
     return ConnectHandleTool(view)
 
 
-def test_segment_fails_for_item(canvas):
-    """Test if Segment aspect can be applied to Item."""
-    item = Item()
+def test_segment_fails_for_element(canvas, connections):
+    item = Element(connections)
     with pytest.raises(TypeError):
         Segment(canvas, item)
 
 
-def test_segment(canvas, connections):
-    """Test add a new segment to a line."""
+def test_add_segment_to_line(canvas, connections):
     line = Line(connections)
     canvas.add(line)
     segment = Segment(line, canvas)
@@ -32,7 +30,6 @@ def test_segment(canvas, connections):
 
 
 def test_split_single(canvas, line):
-    """Test single line splitting."""
     # Start with 2 handles & 1 port, after split: expect 3 handles & 2 ports
     assert len(line.handles()) == 2
     assert len(line.ports()) == 1

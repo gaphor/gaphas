@@ -11,7 +11,7 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 """
 from math import sqrt
 from random import Random
-from typing import Sequence
+from typing import Collection
 
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
@@ -142,7 +142,7 @@ class FreeHandPainter:
         # Bounding  painter requires painting per item
         self.subpainter.paint_item(item, cairo)
 
-    def paint(self, items: Sequence[Item], cairo):
+    def paint(self, items: Collection[Item], cairo):
         self.subpainter.paint(
             items, FreeHandCairoContext(cairo, self.sloppiness),
         )

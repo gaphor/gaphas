@@ -3,7 +3,7 @@
 These items are used in various tests.
 """
 from gaphas.connector import Handle
-from gaphas.item import NW, Element, Item
+from gaphas.item import NW, Element, Matrices, Updateable
 from gaphas.util import path_ellipse, text_align, text_multiline
 
 
@@ -29,7 +29,7 @@ class Box(Element):
         c.stroke()
 
 
-class Text(Item):
+class Text(Matrices, Updateable):
     """Simple item showing some text on the canvas."""
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
@@ -40,6 +40,15 @@ class Text(Item):
         self.align_x = align_x
         self.align_y = align_y
 
+    def handles(self):
+        return []
+
+    def ports(self):
+        return []
+
+    def point(self, x, y):
+        return 0
+
     def draw(self, context):
         cr = context.cairo
         if self.multiline:
@@ -49,14 +58,11 @@ class Text(Item):
         else:
             text_align(cr, 0, 0, self.text, self.align_x, self.align_y)
 
-    def point(self, x, y):
-        return 0
 
-
-class Circle(Item):
+class Circle(Matrices, Updateable):
     def __init__(self):
         super().__init__()
-        self._handles.extend((Handle(), Handle()))
+        self._handles = [Handle(), Handle()]
         h1, h2 = self._handles
         h1.movable = False
 
@@ -71,6 +77,12 @@ class Circle(Item):
         return ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2) ** 0.5
 
     radius = property(_get_radius, _set_radius)
+
+    def handles(self):
+        return self._handles
+
+    def ports(self):
+        return []
 
     def point(self, x, y):
         h1, _ = self._handles

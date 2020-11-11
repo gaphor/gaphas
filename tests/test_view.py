@@ -60,12 +60,12 @@ def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
 
 
 def test_item_removal(view, canvas, box):
-    assert len(canvas.get_all_items()) == len(view._qtree)
+    assert len(list(canvas.get_all_items())) == len(view._qtree)
 
     view.selection.set_focused_item(box)
     canvas.remove(box)
 
-    assert len(canvas.get_all_items()) == 0
+    assert len(list(canvas.get_all_items())) == 0
     assert len(view._qtree) == 0
 
 

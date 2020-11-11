@@ -23,9 +23,9 @@ The observer simply dispatches the function called (as ``<function ..>``, not as
 Let's start with creating a Canvas instance and some items:
 
     >>> from gaphas.canvas import Canvas
-    >>> from gaphas.item import Item
+    >>> from examples.exampleitems import Circle
     >>> canvas = Canvas()
-    >>> item1, item2 = Item(), Item()
+    >>> item1, item2 = Circle(), Circle()
 
 For this demonstration let's use the Canvas class (which contains an add/remove
 method pair).
@@ -36,11 +36,11 @@ It works (see how the add method automatically schedules the item for update):
     ...     print('event handled', event)
     >>> state.observers.add(handler)
     >>> canvas.add(item1)                              # doctest: +ELLIPSIS
-    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at ...>, <gaphas.item.Item object at ...>), {})
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at ...>, <examples.exampleitems.Circle object at ...>), {})
     >>> canvas.add(item2, parent=item1)                # doctest: +ELLIPSIS
-    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at ...>, <gaphas.item.Item object at ...>), {'parent': <gaphas.item.Item object at ...>})
-    >>> canvas.get_all_items()                         # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>, <gaphas.item.Item object at 0x...>]
+    event handled (<function Canvas.add at ...>, (<gaphas.canvas.Canvas object at ...>, <examples.exampleitems.Circle object at ...>), {'parent': <examples.exampleitems.Circle object at ...>})
+    >>> list(canvas.get_all_items())                   # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>, <examples.exampleitems.Circle object at 0x...>]
 
 Note that the handler is invoked before the actual call is made. This is
 important if you want to store the (old) state for an undo mechanism.
@@ -52,9 +52,9 @@ Therefore some careful crafting of methods may be necessary in order to get the
 right effect (items should be removed in the right order, child first):
 
     >>> canvas.remove(item1)                           # doctest: +ELLIPSIS
-    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
-    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <gaphas.item.Item object at 0x...>), {})
-    >>> canvas.get_all_items()
+    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <examples.exampleitems.Circle object at 0x...>), {})
+    event handled (<function Canvas._remove at ...>, (<gaphas.canvas.Canvas object at 0x...>, <examples.exampleitems.Circle object at 0x...>), {})
+    >>> list(canvas.get_all_items())
     []
 
 The ``@observed`` decorator can also be applied to properties, as is done in
@@ -126,10 +126,11 @@ Handlers for the reverse events should be registered on the subscribers list:
 
 After that, signals can be received of undoable (reverse-)events:
 
-    >>> canvas.add(Item())                              # doctest: +ELLIPSIS
-    event handler (<function Canvas._remove at ...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <gaphas.item.Item object at 0x...>})
-    >>> canvas.get_all_items()                          # doctest: +ELLIPSIS
-    [<gaphas.item.Item object at 0x...>]
+    >>> canvas.add(Circle())                              # doctest: +ELLIPSIS
+    event handler (<function Handle._set_movable at ...>, {'self': <Handle object on (Variable(0, 20), Variable(0, 20))>, 'movable': True})
+    event handler (<function Canvas._remove at ...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <examples.exampleitems.Circle object at 0x...>})
+    >>> list(canvas.get_all_items())                    # doctest: +ELLIPSIS
+    [<examples.exampleitems.Circle object at 0x...>]
 
 As you can see this event is constructed of only two parameters: the function
 that does the inverse operation of ``add()`` and the arguments that should be
@@ -139,8 +140,8 @@ The inverse operation is easiest performed by the function ``saveapply()``. Of
 course an inverse operation is emitting a change event too:
 
     >>> state.saveapply(*events.pop())                  # doctest: +ELLIPSIS
-    event handler (<function Canvas.add at 0x...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <gaphas.item.Item object at 0x...>, 'parent': None, 'index': 0})
-    >>> canvas.get_all_items()
+    event handler (<function Canvas.add at 0x...>, {'self': <gaphas.canvas.Canvas object at 0x...>, 'item': <examples.exampleitems.Circle object at 0x...>, 'parent': None, 'index': 0})
+    >>> list(canvas.get_all_items())
     []
 
 Just handling method pairs is one thing. Handling properties (descriptors) in
