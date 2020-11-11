@@ -1,10 +1,11 @@
 from functools import singledispatch
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 from gaphas.connector import Handle
 from gaphas.geometry import distance_point_point_fast
 from gaphas.item import Item
 from gaphas.types import Pos
+from gaphas.view import GtkView
 
 
 class ItemFinder:
@@ -15,14 +16,39 @@ class ItemFinder:
 
     def get_item_at_point(self, pos: Pos):
         item, handle = handle_at_point(self.view, pos)
-        return item or self.view.get_item_at_point(pos)
+        return item or item_at_point(self.view, pos)
 
 
 Finder = singledispatch(ItemFinder)
 
 
+def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
+    """Return the topmost item located at ``pos`` (x, y).
+
+    Parameters:
+        - selected: if False returns first non-selected item
+    """
+    canvas = view.canvas
+    assert canvas
+    items = view.get_items_in_rectangle((pos[0], pos[1], 1, 1))
+    item: Item
+    for item in reversed(list(items)):
+        if not selected and item in view.selection.selected_items:
+            continue  # skip selected items
+
+        v2i = view.get_matrix_v2i(item)
+        ix, iy = v2i.transform_point(*pos)
+        item_distance = item.point(ix, iy)
+        if item_distance is None:
+            print(f"Item distance is None for {item}")
+            continue
+        if item_distance < 0.5:
+            return item
+    return None
+
+
 def handle_at_point(
-    view, pos, distance=6
+    view: GtkView, pos: Pos, distance=6
 ) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
     """Look for a handle at ``pos`` and return the tuple (item, handle)."""
 

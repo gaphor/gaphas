@@ -221,28 +221,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         items = self._qtree.find_intersect(rect)
         return self._canvas.sort(items)
 
-    def get_item_at_point(self, pos, selected=True) -> Optional[Item]:
-        """Return the topmost item located at ``pos`` (x, y).
-
-        Parameters:
-         - selected: if False returns first non-selected item
-        """
-        assert self._canvas
-        items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
-        for item in reversed(list(self._canvas.sort(items))):
-            if not selected and item in self.selection.selected_items:
-                continue  # skip selected items
-
-            v2i = self.get_matrix_v2i(item)
-            ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point(ix, iy)
-            if item_distance is None:
-                print(f"Item distance is None for {item}")
-                continue
-            if item_distance < 0.5:
-                return item
-        return None
-
     def get_item_bounding_box(self, item: Item):
         """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)

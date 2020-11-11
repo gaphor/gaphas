@@ -13,24 +13,6 @@ def main_loop(window, box):
         Gtk.main_iteration()
 
 
-def test_get_item_at_point(view, box):
-    """Hover tool only reacts on motion-notify events."""
-    box.width = 50
-    box.height = 50
-
-    assert view.get_item_at_point((10, 10)) is box
-    assert view.get_item_at_point((60, 10)) is None
-
-
-def test_get_unselected_item_at_point(view, box):
-    box.width = 50
-    box.height = 50
-    view.selection.select_items(box)
-
-    assert view.get_item_at_point((10, 10)) is box
-    assert view.get_item_at_point((10, 10), selected=False) is None
-
-
 def test_item_removal(view, canvas, box):
     assert len(list(canvas.get_all_items())) == len(view._qtree)
 
