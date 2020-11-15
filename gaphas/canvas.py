@@ -351,7 +351,7 @@ class Canvas:
                 yield item
                 yield from self._tree.get_ancestors(item)
 
-        all_dirty_items = reversed(list(sort(dirty_items_with_ancestors())))
+        all_dirty_items = list(reversed(list(sort(dirty_items_with_ancestors()))))
 
         try:
             # allow programmers to perform tricks and hacks before item
