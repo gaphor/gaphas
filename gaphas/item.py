@@ -1,6 +1,6 @@
 """Basic items."""
 from math import atan2
-from typing import Protocol, Sequence
+from typing import Protocol, Sequence, runtime_checkable
 
 from gaphas.canvas import Context
 from gaphas.connector import Handle, LinePort, Port
@@ -16,6 +16,7 @@ from gaphas.state import (
 )
 
 
+@runtime_checkable
 class Item(Protocol):
     @property
     def matrix(self) -> Matrix:

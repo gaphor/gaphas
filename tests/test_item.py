@@ -4,7 +4,7 @@ The test check functionality of `Item.constraint` method, not
 constraints themselves.
 """
 
-from gaphas.item import Element, Line
+from gaphas.item import Element, Item, Line
 
 
 class Custom:
@@ -30,3 +30,15 @@ def test_can_pass_arbitrary_arguments_to_a_line(connections):
 
     assert t.custom == "custom"
     assert t._connections is connections
+
+
+def test_element_implements_item_protocol(connections):
+    element = Element(connections)
+
+    assert isinstance(element, Item)
+
+
+def test_line_implements_item_protocol(connections):
+    line = Line(connections)
+
+    assert isinstance(line, Item)
