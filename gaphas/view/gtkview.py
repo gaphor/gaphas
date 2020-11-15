@@ -400,10 +400,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         try:
             dirty_items = self._dirty_items
             dirty_matrix_items = self.all_dirty_matrix_items()
+            dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
 
             self.canvas.update_now(dirty_items, dirty_matrix_items)
 
-            dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
             self.update_bounding_box(dirty_items)
             self._scrolling.update_adjustments(
                 self.get_allocation(), self._qtree.soft_bounds
