@@ -62,7 +62,7 @@ class ItemHandleInMotion:
         if not handle.connectable:
             return None
 
-        connectable, port, glue_pos = get_port_at_point(
+        connectable, port, glue_pos = port_at_point(
             view, pos, distance=distance, exclude=(item,)
         )
 
@@ -84,7 +84,7 @@ class ItemHandleInMotion:
 HandleInMotion = singledispatch(ItemHandleInMotion)
 
 
-def get_port_at_point(
+def port_at_point(
     view, vpos, distance=10, exclude=None
 ) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
     """Find item with port closest to specified position.
