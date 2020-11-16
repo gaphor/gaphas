@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class ItemFinder:
     """Find an item on the canvas."""
 
-    def __init__(self, view):
+    def __init__(self, view: GtkView):
         self.view = view
 
     def get_item_at_point(self, pos: Pos):
@@ -31,11 +31,8 @@ def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
     Parameters:
         - selected: if False returns first non-selected item
     """
-    canvas = view.canvas
-    assert canvas
-    items = view.get_items_in_rectangle((pos[0], pos[1], 1, 1))
     item: Item
-    for item in reversed(list(items)):
+    for item in reversed(list(view.get_items_in_rectangle((pos[0], pos[1], 1, 1)))):
         if not selected and item in view.selection.selected_items:
             continue  # skip selected items
 

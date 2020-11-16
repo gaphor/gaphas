@@ -1,4 +1,4 @@
-from typing import Set, Tuple
+from typing import Set
 
 from gi.repository import Gdk
 from typing_extensions import Protocol
@@ -6,9 +6,8 @@ from typing_extensions import Protocol
 from gaphas.aspect import InMotion, Selector
 from gaphas.item import Item
 from gaphas.tool.tool import Tool
+from gaphas.types import Pos
 from gaphas.view import GtkView
-
-Pos = Tuple[float, float]
 
 
 class InMotionType(Protocol):

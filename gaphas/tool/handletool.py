@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from gi.repository import Gdk
 from typing_extensions import Protocol
@@ -7,9 +7,8 @@ from gaphas.aspect import Connector, HandleFinder, HandleInMotion, HandleSelecti
 from gaphas.connector import Handle
 from gaphas.item import Item
 from gaphas.tool.tool import Tool
+from gaphas.types import Pos
 from gaphas.view import GtkView
-
-Pos = Tuple[float, float]
 
 
 class HandleInMotionType(Protocol):
