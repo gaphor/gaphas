@@ -1,15 +1,14 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set, Tuple, Union
+from typing import Collection, Iterable, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import instant_cairo_context
-from gaphas.connector import Handle, Port
 from gaphas.decorators import AsyncIO
-from gaphas.geometry import Rectangle, distance_point_point_fast
+from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
@@ -221,130 +220,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         assert self._canvas
         items = self._qtree.find_intersect(rect)
         return self._canvas.sort(items)
-
-    def get_item_at_point(self, pos, selected=True) -> Optional[Item]:
-        """Return the topmost item located at ``pos`` (x, y).
-
-        Parameters:
-         - selected: if False returns first non-selected item
-        """
-        assert self._canvas
-        items = self._qtree.find_intersect((pos[0], pos[1], 1, 1))
-        for item in reversed(list(self._canvas.sort(items))):
-            if not selected and item in self.selection.selected_items:
-                continue  # skip selected items
-
-            v2i = self.get_matrix_v2i(item)
-            ix, iy = v2i.transform_point(*pos)
-            item_distance = item.point(ix, iy)
-            if item_distance is None:
-                print(f"Item distance is None for {item}")
-                continue
-            if item_distance < 0.5:
-                return item
-        return None
-
-    def get_handle_at_point(
-        self, pos, distance=6
-    ) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
-        """Look for a handle at ``pos`` and return the tuple (item, handle)."""
-
-        def find(item):
-            """Find item's handle at pos."""
-            v2i = self.get_matrix_v2i(item)
-            d = distance_point_point_fast(v2i.transform_distance(0, distance))
-            x, y = v2i.transform_point(*pos)
-
-            for h in item.handles():
-                if not h.movable:
-                    continue
-                hx, hy = h.pos
-                if -d < (hx - x) < d and -d < (hy - y) < d:
-                    return h
-
-        selection = self._selection
-
-        # The focused item is the preferred item for handle grabbing
-        if selection.focused_item:
-            h = find(selection.focused_item)
-            if h:
-                return selection.focused_item, h
-
-        # then try hovered item
-        if selection.hovered_item:
-            h = find(selection.hovered_item)
-            if h:
-                return selection.hovered_item, h
-
-        # Last try all items, checking the bounding box first
-        x, y = pos
-        items = reversed(
-            list(
-                self.get_items_in_rectangle(
-                    (x - distance, y - distance, distance * 2, distance * 2)
-                )
-            )
-        )
-
-        for item in items:
-            h = find(item)
-            if h:
-                return item, h
-        return None, None
-
-    def get_port_at_point(
-        self, vpos, distance=10, exclude=None
-    ) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
-        """Find item with port closest to specified position.
-
-        List of items to be ignored can be specified with `exclude`
-        parameter.
-
-        Tuple is returned
-
-        - found item
-        - closest, connectable port
-        - closest point on found port (in view coordinates)
-
-        :Parameters:
-         vpos
-            Position specified in view coordinates.
-         distance
-            Max distance from point to a port (default 10)
-         exclude
-            Set of items to ignore.
-        """
-        v2i = self.get_matrix_v2i
-        vx, vy = vpos
-
-        max_dist = distance
-        port = None
-        glue_pos = None
-        item = None
-
-        rect = (vx - distance, vy - distance, distance * 2, distance * 2)
-        for i in reversed(list(self.get_items_in_rectangle(rect))):
-            if i in exclude:
-                continue
-            for p in i.ports():
-                if not p.connectable:
-                    continue
-
-                ix, iy = v2i(i).transform_point(vx, vy)
-                pg, d = p.glue((ix, iy))
-
-                if d >= max_dist:
-                    continue
-
-                max_dist = d
-                item = i
-                port = p
-
-                # transform coordinates from connectable item space to view
-                # space
-                i2v = self.get_matrix_i2v(i).transform_point
-                glue_pos = i2v(*pg)
-        return item, port, glue_pos  # type: ignore[return-value]
 
     def get_item_bounding_box(self, item: Item):
         """Get the bounding box for the item, in view coordinates."""

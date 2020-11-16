@@ -1,11 +1,13 @@
+import logging
+
 from gi.repository import Gdk
 
 from gaphas.canvas import Context
 from gaphas.tool.tool import Tool
 
-DEBUG_TOOL_CHAIN = False
-
 Event = Context
+
+log = logging.getLogger(__name__)
 
 
 class ToolChain(Tool):
@@ -33,8 +35,7 @@ class ToolChain(Tool):
 
     def grab(self, tool):
         if not self._grabbed_tool:
-            if DEBUG_TOOL_CHAIN:
-                print("Grab tool", tool)
+            log.debug("Grab tool %s", tool)
             # Send grab event
             event = Event(type=Tool.GRAB)
             tool.handle(event)
@@ -42,8 +43,7 @@ class ToolChain(Tool):
 
     def ungrab(self, tool):
         if self._grabbed_tool is tool:
-            if DEBUG_TOOL_CHAIN:
-                print("UNgrab tool", self._grabbed_tool)
+            log.debug("UNgrab tool %s", self._grabbed_tool)
             # Send ungrab event
             event = Event(type=Tool.UNGRAB)
             tool.handle(event)
@@ -76,8 +76,7 @@ class ToolChain(Tool):
                     self.ungrab(self._grabbed_tool)
         else:
             for tool in self._tools:
-                if DEBUG_TOOL_CHAIN:
-                    print("tool", tool)
+                log.debug("tool %s", tool)
                 rt = tool.handle(event)
                 if rt:
                     if event.type == Gdk.EventType.BUTTON_PRESS:

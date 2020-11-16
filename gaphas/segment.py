@@ -1,18 +1,14 @@
 """Allow for easily adding segments to lines."""
+from functools import singledispatch
+
 from cairo import ANTIALIAS_NONE
 
-from gaphas.aspect import (
-    ConnectionSink,
-    HandleFinder,
-    HandleSelection,
-    ItemHandleFinder,
-    ItemHandleSelection,
-    ItemPaintFocused,
-    PaintFocused,
-    singledispatch,
-)
+from gaphas.aspect.connector import ConnectionSink
+from gaphas.aspect.handlefinder import HandleFinder, ItemHandleFinder
+from gaphas.aspect.handleselector import HandleSelection, ItemHandleSelection
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
+from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
 
 
 @singledispatch

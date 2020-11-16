@@ -1,11 +1,9 @@
 """Test cases for the View class."""
-import math
 
 import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
-from gaphas.item import Element as Box
 from gaphas.view import GtkView
 
 
@@ -13,50 +11,6 @@ from gaphas.view import GtkView
 def main_loop(window, box):
     while Gtk.events_pending():
         Gtk.main_iteration()
-
-
-def test_get_item_at_point(view, box):
-    """Hover tool only reacts on motion-notify events."""
-    box.width = 50
-    box.height = 50
-
-    assert view.get_item_at_point((10, 10)) is box
-    assert view.get_item_at_point((60, 10)) is None
-
-
-def test_get_unselected_item_at_point(view, box):
-    box.width = 50
-    box.height = 50
-    view.selection.select_items(box)
-
-    assert view.get_item_at_point((10, 10)) is box
-    assert view.get_item_at_point((10, 10), selected=False) is None
-
-
-def test_get_handle_at_point(view, canvas, connections):
-    box = Box(connections)
-    box.min_width = 20
-    box.min_height = 30
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 1.5)
-    canvas.add(box)
-
-    i, h = view.get_handle_at_point((20, 20))
-    assert i is box
-    assert h is box.handles()[0]
-
-
-def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
-    box = Box(connections)
-    box.min_width = 20
-    box.min_height = 30
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 2)
-    canvas.add(box)
-
-    i, h = view.get_handle_at_point((20, 20))
-    assert i is box
-    assert h is box.handles()[0]
 
 
 def test_item_removal(view, canvas, box):

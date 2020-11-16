@@ -1,4 +1,5 @@
 """Custom decorators."""
+import logging
 import threading
 
 import gi
@@ -8,7 +9,7 @@ gi.require_version("Gtk", "3.0")  # noqa: isort:skip
 from gi.repository import GLib, Gtk  # noqa: isort:skip
 # fmt: on
 
-DEBUG_ASYNC = False
+log = logging.getLogger(__name__)
 
 
 class AsyncIO:
@@ -114,8 +115,7 @@ class AsyncIO:
             elif not self.single:
 
                 def async_wrapper(*aargs):
-                    if DEBUG_ASYNC:
-                        print("async:", func, args, kwargs)
+                    log.debug("async: %s %s %s", func, args, kwargs)
                     func(*args, **kwargs)
 
                 self.source(async_wrapper).attach()
@@ -128,8 +128,7 @@ class AsyncIO:
                 except AttributeError:
 
                     def async_wrapper(*aargs):
-                        if DEBUG_ASYNC:
-                            print("async:", func, args, kwargs)
+                        log.debug("async: %s %s %s", func, args, kwargs)
                         try:
                             func(*args, **kwargs)
                         finally:

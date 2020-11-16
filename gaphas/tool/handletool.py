@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from gi.repository import Gdk
 from typing_extensions import Protocol
@@ -7,9 +7,8 @@ from gaphas.aspect import Connector, HandleFinder, HandleInMotion, HandleSelecti
 from gaphas.connector import Handle
 from gaphas.item import Item
 from gaphas.tool.tool import Tool
+from gaphas.types import Pos
 from gaphas.view import GtkView
-
-Pos = Tuple[float, float]
 
 
 class HandleInMotionType(Protocol):
@@ -126,10 +125,12 @@ class HandleTool(Tool):
             handle = self.grabbed_handle
             pos = event.get_coords()[1:]
 
-            if not self.motion_handle:
+            if self.motion_handle:
+                self.motion_handle.move(pos)
+            else:
                 self.motion_handle = HandleInMotion(item, handle, self.view)
+                assert self.motion_handle
                 self.motion_handle.start_move(pos)
-            self.motion_handle.move(pos)
 
             return True
 
