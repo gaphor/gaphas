@@ -186,7 +186,7 @@ class GuideMixin:
             return 0, ()
 
 
-@InMotion.register(Item)
+@InMotion.register(Element)
 class GuidedItemInMotion(GuideMixin, ItemInMotion):
     """Move the item, lock position on any element that's located at the same
     location."""
@@ -232,7 +232,7 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
             pass
 
 
-@HandleInMotion.register(Item)
+@HandleInMotion.register(Element)
 class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
     """Move a handle and lock the position of other elements.
 
@@ -283,7 +283,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             pass
 
 
-@PaintFocused.register(Item)
+@PaintFocused.register(Element)
 class GuidePainter(ItemPaintFocused):
     def paint(self, cr):
         try:

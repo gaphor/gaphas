@@ -16,6 +16,7 @@ import math
 import cairo
 import gi
 
+import gaphas.guide  # noqa
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
