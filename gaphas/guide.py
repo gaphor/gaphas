@@ -1,10 +1,10 @@
 """Module implements guides when moving items and handles around."""
 from functools import reduce, singledispatch
+from typing import Collection
 
 from gaphas.aspect.handleinmotion import HandleInMotion, ItemHandleInMotion
 from gaphas.aspect.inmotion import InMotion, ItemInMotion
 from gaphas.item import Element, Item, Line
-from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
 from gaphas.view import GtkView
 
 
@@ -283,29 +283,38 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             pass
 
 
-@PaintFocused.register(Element)
-class GuidePainter(ItemPaintFocused):
-    def paint(self, cr):
+class GuidePainter:
+    """Paint guides for the focused item."""
+
+    def __init__(self, view: GtkView):
+        self.view = view
+
+    def paint(self, items: Collection[Item], cairo):
+        view = self.view
         try:
-            guides = self.view.guides
+            guides = view.guides
         except AttributeError:
             return
+        else:
+            item = view.selection.hovered_item
+            if item and item is view.selection.focused_item:
+                self.paint_guides(guides, cairo)
 
-        view = self.view
-        allocation = view.get_allocation()
+    def paint_guides(self, guides: Guides, cairo):
+        allocation = self.view.get_allocation()
         w, h = allocation.width, allocation.height
 
-        cr.save()
+        cairo.save()
         try:
-            cr.set_line_width(1)
-            cr.set_source_rgba(0.0, 0.0, 1.0, 0.6)
+            cairo.set_line_width(1)
+            cairo.set_source_rgba(0.0, 0.0, 1.0, 0.6)
             for g in guides.vertical():
-                cr.move_to(g, 0)
-                cr.line_to(g, h)
-                cr.stroke()
+                cairo.move_to(g, 0)
+                cairo.line_to(g, h)
+                cairo.stroke()
             for g in guides.horizontal():
-                cr.move_to(0, g)
-                cr.line_to(w, g)
-                cr.stroke()
+                cairo.move_to(0, g)
+                cairo.line_to(w, g)
+                cairo.stroke()
         finally:
-            cr.restore()
+            cairo.restore()

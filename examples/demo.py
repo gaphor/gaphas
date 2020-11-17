@@ -16,21 +16,20 @@ import math
 import cairo
 import gi
 
-import gaphas.guide  # noqa
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
+from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
     BoundingBoxPainter,
-    FocusedItemPainter,
     FreeHandPainter,
     HandlePainter,
     ItemPainter,
     PainterChain,
     ToolPainter,
 )
-from gaphas.segment import Segment
+from gaphas.segment import Segment, SegmentPainter
 from gaphas.tool import DefaultTool, HandleTool, PlacementTool
 from gaphas.util import text_extents, text_underline
 
@@ -116,7 +115,8 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         PainterChain()
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
-        .append(FocusedItemPainter(view))
+        .append(GuidePainter(view))
+        .append(SegmentPainter(view))
         .append(ToolPainter(view))
     )
     view.bounding_box_painter = BoundingBoxPainter(

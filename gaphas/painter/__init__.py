@@ -1,6 +1,5 @@
 from gaphas.painter.boundingboxpainter import BoundingBoxPainter
 from gaphas.painter.chain import PainterChain
-from gaphas.painter.focuseditempainter import FocusedItemPainter
 from gaphas.painter.freehand import FreeHandPainter
 from gaphas.painter.handlepainter import HandlePainter
 from gaphas.painter.itempainter import ItemPainter
@@ -14,6 +13,5 @@ def DefaultPainter(view) -> Painter:
         PainterChain()
         .append(ItemPainter(view.selection))
         .append(HandlePainter(view))
-        .append(FocusedItemPainter(view))
         .append(ToolPainter(view))
     )

@@ -1,5 +1,6 @@
 """Allow for easily adding segments to lines."""
 from functools import singledispatch
+from typing import Collection
 
 from cairo import ANTIALIAS_NONE
 
@@ -7,8 +8,8 @@ from gaphas.aspect.connector import ConnectionSink
 from gaphas.aspect.handlefinder import HandleFinder, ItemHandleFinder
 from gaphas.aspect.handleselector import HandleSelection, ItemHandleSelection
 from gaphas.geometry import distance_line_point, distance_point_point_fast
-from gaphas.item import Line, matrix_i2i
-from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
+from gaphas.item import Item, Line, matrix_i2i
+from gaphas.view import GtkView
 
 
 @singledispatch
@@ -227,8 +228,7 @@ class SegmentHandleSelection(ItemHandleSelection):
             self.view.canvas.request_update(item)
 
 
-@PaintFocused.register(Line)
-class LineSegmentPainter(ItemPaintFocused):
+class SegmentPainter:
     """This painter draws pseudo-handles on gaphas.item.Line objects. Each line
     can be split by dragging those points, which will result in a new handle.
 
@@ -236,7 +236,16 @@ class LineSegmentPainter(ItemPaintFocused):
     required for this feature.
     """
 
-    def paint(self, cr):
+    def __init__(self, view: GtkView):
+        self.view = view
+
+    def paint(self, items: Collection[Item], cairo):
+        view = self.view
+        item = view.selection.hovered_item
+        if isinstance(item, Line) and item is view.selection.focused_item:
+            self.paint_segments(cairo)
+
+    def paint_segments(self, cairo):
         view = self.view
         item = view.selection.hovered_item
         if item and item is view.selection.focused_item:
@@ -245,17 +254,17 @@ class LineSegmentPainter(ItemPaintFocused):
                 p1, p2 = h1.pos, h2.pos
                 cx = (p1.x + p2.x) / 2
                 cy = (p1.y + p2.y) / 2
-                cr.save()
-                cr.identity_matrix()
+                cairo.save()
+                cairo.identity_matrix()
 
-                cr.set_antialias(ANTIALIAS_NONE)
-                cr.translate(
-                    *cr.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
+                cairo.set_antialias(ANTIALIAS_NONE)
+                cairo.translate(
+                    *cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
                 )
-                cr.rectangle(-3, -3, 6, 6)
-                cr.set_source_rgba(0, 0.5, 0, 0.4)
-                cr.fill_preserve()
-                cr.set_source_rgba(0.25, 0.25, 0.25, 0.6)
-                cr.set_line_width(1)
-                cr.stroke()
-                cr.restore()
+                cairo.rectangle(-3, -3, 6, 6)
+                cairo.set_source_rgba(0, 0.5, 0, 0.4)
+                cairo.fill_preserve()
+                cairo.set_source_rgba(0.25, 0.25, 0.25, 0.6)
+                cairo.set_line_width(1)
+                cairo.stroke()
+                cairo.restore()
