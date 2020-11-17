@@ -58,6 +58,9 @@ class Position:
     def __eq__(self, other):
         return isinstance(other, Position) and self.x == other.x and self.y == other.y
 
+    def __lt__(self, other):
+        return self[0] < other[0] and self[1] < other[1]
+
 
 class MatrixProjection(Constraint):
     def __init__(self, pos: Position, matrix: Matrix):

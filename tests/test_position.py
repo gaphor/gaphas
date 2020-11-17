@@ -17,6 +17,12 @@ def test_position(position):
     assert position[1] == pos.y
 
 
+def test_position_can_compare_with_tuple():
+    pos = Position(3, 3)
+
+    assert pos < (4, 4)
+
+
 def test_matrix_projection_exposes_variables():
     proj = MatrixProjection(Position(0, 0), Matrix())
 
