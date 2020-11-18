@@ -274,10 +274,7 @@ Used to chain tools together. For example, chain a HoverTool, HandleTool, and Se
     (ToolChain(view)
     .append(HoverTool())
     .append(ConnectHandleTool())
-    .append(PanTool())
-    .append(ZoomTool())
     .append(ItemTool())
-    .append(TextEditTool())
     .append(RubberbandTool())
     )
 

@@ -61,8 +61,6 @@ Gaphas contains a set of default tools. Each tool is meant to deal with a specia
   If no handle or item is selected a rubberband selection is started.
 :PanTool and ZoomTool:
   Handy tools for moving the canvas around and zooming in and out. Convenience functionality, basically.
-:TextEditTool:
-  An experimental tool for editing onscreen text.
 
 All tools mentioned above are linked in a ``ToolChain``. Only one tool can deal with a use event.
 
@@ -112,4 +110,3 @@ Big changes from Gaphas 0.4 tool include:
 
 .. [#] as opposed to versions < 0.5, where tools could be shared among multiple views.
 .. [#] not the AOP term. The term aspect is coming from a paper by Dick Riehe: The Tools and Materials metaphore <url...>.
-

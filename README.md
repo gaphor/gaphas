@@ -196,8 +196,6 @@ To make it easy, a DefaultTool has been defined which is a ToolChain instance wi
 
 - ItemTool - Selects items and enables dragging items around.
 
-- TextEditTool - A demo tool that features a text edit pop-up.
-
 - RubberbandTool - Invoked when the mouse button is pressed on a section of the view where no items or handles are present. It allows the user to select items using a "rubber band" selection box.
 
 ### Interaction
@@ -462,7 +460,6 @@ Used to chain tools together. For example, chain a HoverTool, HandleTool, and Se
 .append(PanTool())
 .append(ZoomTool())
 .append(ItemTool())
-.append(TextEditTool())
 .append(RubberbandTool())
 )
 ```
