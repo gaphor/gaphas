@@ -94,7 +94,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._back_buffer_needs_resizing = True
 
         self.set_can_focus(True)
-        self.add_events(EVENT_MASK)
+        # self.add_events(EVENT_MASK)
 
         def alignment_updated(matrix):
             assert self._canvas
@@ -459,11 +459,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         return False
 
-    def do_event(self, event: Gdk.Event):
-        """Handle GDK events.
+    # def do_event(self, event: Gdk.Event):
+    #     """Handle GDK events.
 
-        Events are delegated to a `tool.Tool`.
-        """
-        if self._tool:
-            return self._tool.handle(event) and True or False
-        return False
+    #     Events are delegated to a `tool.Tool`.
+    #     """
+    #     if self._tool:
+    #         return self._tool.handle(event) and True or False
+    #     return False

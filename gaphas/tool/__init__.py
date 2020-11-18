@@ -38,7 +38,7 @@ from gaphas.tool.rubberband import RubberbandTool
 from gaphas.tool.textedit import TextEditTool
 from gaphas.tool.tool import Tool
 from gaphas.tool.toolchain import ToolChain
-from gaphas.tool.zoom import ZoomTool
+from gaphas.tool.zoom import zoom_tool
 
 
 def DefaultTool(view):
@@ -48,7 +48,6 @@ def DefaultTool(view):
         .append(HoverTool(view))
         .append(ConnectHandleTool(view))
         .append(PanTool(view))
-        .append(ZoomTool(view))
         .append(ItemTool(view))
         .append(TextEditTool(view))
         .append(RubberbandTool(view))
