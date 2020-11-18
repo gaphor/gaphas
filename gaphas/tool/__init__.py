@@ -32,7 +32,7 @@ Tools can handle events in different ways
 from gaphas.tool.handletool import ConnectHandleTool, HandleTool
 from gaphas.tool.hover import HoverTool
 from gaphas.tool.itemtool import ItemTool
-from gaphas.tool.pan import PanTool
+from gaphas.tool.pan import pan_tool
 from gaphas.tool.placement import PlacementTool
 from gaphas.tool.rubberband import RubberbandTool
 from gaphas.tool.textedit import TextEditTool
@@ -47,7 +47,6 @@ def DefaultTool(view):
         ToolChain(view)
         .append(HoverTool(view))
         .append(ConnectHandleTool(view))
-        .append(PanTool(view))
         .append(ItemTool(view))
         .append(TextEditTool(view))
         .append(RubberbandTool(view))

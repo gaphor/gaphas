@@ -31,8 +31,7 @@ from gaphas.painter import (
     ToolPainter,
 )
 from gaphas.segment import Segment
-from gaphas.tool import DefaultTool, HandleTool, PlacementTool
-from gaphas.tool.zoom import zoom_tool
+from gaphas.tool import DefaultTool, HandleTool, PlacementTool, pan_tool, zoom_tool
 from gaphas.util import text_extents, text_underline
 
 # fmt: off
@@ -113,6 +112,7 @@ class UnderlineText(Text):
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.tool = DefaultTool(view)
+    view.pan_tool = pan_tool(view)
     view.zoom_tool = zoom_tool(view)
 
     view.painter = (
