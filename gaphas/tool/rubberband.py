@@ -2,6 +2,8 @@ from gi.repository import Gdk
 
 from gaphas.tool.tool import Tool
 
+# Do click/move/release, like item and handle tool
+
 
 class RubberbandTool(Tool):
     def __init__(self, view):

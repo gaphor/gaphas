@@ -10,6 +10,8 @@ from gaphas.tool.tool import Tool
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
+# Also click/move/release, like Item tool and rubberband tool
+
 
 class HandleInMotionType(Protocol):
     def __init__(self, item: Item, handle: Handle, view: GtkView):
