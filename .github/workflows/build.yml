@@ -2,6 +2,8 @@ name: build
 
 on:
   push:
+  release:
+    types: [created, edited, published, prereleased]
 
 env:
   POETRY_VERSION: 1.0.10
@@ -53,3 +55,14 @@ jobs:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
           coverageCommand: coverage xml
+      - name: Build
+        run: poetry build
+      - name: Upload Assets (release only)
+        uses: AButler/upload-release-assets@v2.0
+        if: github.event_name == 'release'
+        with:
+          files: "dist/*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to PyPI (release only)
+        if: github.event_name == 'release'
+        run: poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
