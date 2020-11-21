@@ -36,7 +36,7 @@ from gaphas.tool import (
     HandleTool,
     PlacementTool,
     hover_tool,
-    pan_tool,
+    scroll_tool,
     zoom_tool,
 )
 from gaphas.util import text_extents, text_underline
@@ -120,7 +120,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.tool = DefaultTool(view)
     view.hover_tool = hover_tool(view)
-    view.pan_tool = pan_tool(view)
+    view.scroll_tool = scroll_tool(view)
     view.zoom_tool = zoom_tool(view)
 
     view.painter = (

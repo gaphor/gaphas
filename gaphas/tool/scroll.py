@@ -9,7 +9,7 @@ def on_scroll(controller, dx, dy, speed, view):
     view.request_update((), view.canvas.get_all_items())
 
 
-def pan_tool(view: GtkView, speed=5):
+def scroll_tool(view: GtkView, speed=5):
     ctrl = Gtk.EventControllerScroll.new(
         view,
         Gtk.EventControllerScrollFlags.BOTH_AXES

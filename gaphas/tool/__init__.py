@@ -32,9 +32,9 @@ Tools can handle events in different ways
 from gaphas.tool.handletool import ConnectHandleTool, HandleTool
 from gaphas.tool.hover import hover_tool
 from gaphas.tool.itemtool import ItemTool
-from gaphas.tool.pan import pan_tool
 from gaphas.tool.placement import PlacementTool
 from gaphas.tool.rubberband import RubberbandTool
+from gaphas.tool.scroll import scroll_tool
 from gaphas.tool.tool import Tool
 from gaphas.tool.toolchain import ToolChain
 from gaphas.tool.zoom import zoom_tool
@@ -43,8 +43,7 @@ from gaphas.tool.zoom import zoom_tool
 def DefaultTool(view):
     """The default tool chain build from HoverTool, ItemTool and HandleTool."""
     return (
-        ToolChain(view)
-        .append(ConnectHandleTool(view))
-        .append(ItemTool(view))
-        .append(RubberbandTool(view))
+        ToolChain(view).append(ConnectHandleTool(view))
+        # .append(ItemTool(view))
+        # .append(RubberbandTool(view))
     )

@@ -1,10 +1,10 @@
 from gi.repository import Gtk
 
-from gaphas.tool.pan import on_scroll, pan_tool
+from gaphas.tool.scroll import on_scroll, scroll_tool
 
 
-def test_pan_tool_returns_a_controller(view):
-    tool = pan_tool(view)
+def test_scroll_tool_returns_a_controller(view):
+    tool = scroll_tool(view)
 
     assert isinstance(tool, Gtk.EventController)
 
