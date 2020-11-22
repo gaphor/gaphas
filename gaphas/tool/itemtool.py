@@ -2,6 +2,7 @@ from gi.repository import Gdk, Gtk
 from typing_extensions import Protocol
 
 from gaphas.aspect import Move
+from gaphas.aspect.finder import handle_at_point, item_at_point
 from gaphas.canvas import ancestors
 from gaphas.item import Item
 from gaphas.types import Pos
@@ -24,10 +25,18 @@ class MoveType(Protocol):
         ...
 
 
-def on_drag_begin(gesture, start_x, start_y, selection):
+class DragState:
+    def __init__(self):
+        self.moving_items = set()
+        self.moving_item = None
+        self.moving_handle = None
+
+
+def on_drag_begin(gesture, start_x, start_y, view, drag_state):
+    selection = view.selection
     event = gesture.get_last_event(None)
     modifiers = event.get_state()[1]
-    item = selection.hovered_item
+    item, handle = find_item_and_handle_at_point(view, (start_x, start_y))
 
     # Deselect all items unless CTRL or SHIFT is pressed
     # or the item is already selected.
@@ -37,6 +46,9 @@ def on_drag_begin(gesture, start_x, start_y, selection):
     ):
         selection.unselect_all()
 
+    if handle:
+        drag_state.moving_handle = handle
+        drag_state.moving_item = item
     if item:
         if (
             selection.hovered_item in selection.selected_items
@@ -47,9 +59,9 @@ def on_drag_begin(gesture, start_x, start_y, selection):
             selection.set_focused_item(item)
 
 
-class DragState:
-    def __init__(self):
-        self.moving_items = set()
+def find_item_and_handle_at_point(view: GtkView, pos: Pos):
+    item, handle = handle_at_point(view, pos)
+    return item or item_at_point(view, pos), handle
 
 
 def moving_items(view):
@@ -83,7 +95,7 @@ def on_drag_end(gesture, offset_x, offset_y, view, drag_state):
 def item_tool(view):
     gesture = Gtk.GestureDrag.new(view)
     drag_state = DragState()
-    gesture.connect("drag-begin", on_drag_begin, view.selection)
+    gesture.connect("drag-begin", on_drag_begin, view)
     gesture.connect("drag-update", on_drag_update, view, drag_state)
     gesture.connect("drag-end", on_drag_end, view, drag_state)
     return gesture

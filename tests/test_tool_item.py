@@ -1,7 +1,6 @@
 from gi.repository import Gtk
 
-from gaphas.tool.itemtool import item_tool, on_drag_begin
-from gaphas.view import Selection
+from gaphas.tool.itemtool import DragState, item_tool, on_drag_begin
 
 
 class MockEvent:
@@ -28,10 +27,10 @@ def test_should_create_a_gesture(view):
 
 def test_select__hovered_item_on_click(view, box):
     gesture = MockGesture()
-    selection = Selection()
+    drag_state = DragState()
+    selection = view.selection
 
-    selection.set_hovered_item(box)
-    on_drag_begin(gesture, 0, 0, selection)
+    on_drag_begin(gesture, 0, 0, view, drag_state)
 
     assert box is selection.focused_item
     assert box in selection.selected_items
