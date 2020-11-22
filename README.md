@@ -382,7 +382,6 @@ view.painter = (
     .append(FreeHandPainter(ItemPainter()))
     .append(HandlePainter())
     .append(FocusedItemPainter())
-    .append(ToolPainter())
 )
 ```
 
@@ -434,10 +433,6 @@ view.bounding_box_painter = BoundingBoxPainter(ItemPainter())
 #### Class: `gaphas.painter.HandlePainter`
 
 Draw handles of items that are marked as selected in the view.
-
-#### Class: `gaphas.painter.ToolPainter`
-
-Allows the Tool defined on a view to conduct drawing.
 
 #### Class: `gaphas.painter.FocusedItemPainter`
 

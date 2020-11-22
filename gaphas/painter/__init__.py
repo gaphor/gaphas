@@ -5,7 +5,6 @@ from gaphas.painter.freehand import FreeHandPainter
 from gaphas.painter.handlepainter import HandlePainter
 from gaphas.painter.itempainter import ItemPainter
 from gaphas.painter.painter import Painter
-from gaphas.painter.toolpainter import ToolPainter
 
 
 def DefaultPainter(view) -> Painter:
@@ -15,5 +14,4 @@ def DefaultPainter(view) -> Painter:
         .append(ItemPainter(view.selection))
         .append(HandlePainter(view))
         .append(FocusedItemPainter(view))
-        .append(ToolPainter(view))
     )

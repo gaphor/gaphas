@@ -190,7 +190,6 @@ Chain up a set of painters.
         .append(FreeHandPainter(ItemPainter()))
         .append(HandlePainter())
         .append(FocusedItemPainter())
-        .append(ToolPainter())
     )
 
 Class: ``gaphas.painter.DrawContext``
@@ -247,11 +246,6 @@ Class: ``gaphas.painter.HandlePainter``
 ------
 
 Draw handles of items that are marked as selected in the view.
-
-Class: ``gaphas.painter.ToolPainter``
-------
-
-Allows the Tool defined on a view to conduct drawing.
 
 Class: ``gaphas.painter.FocusedItemPainter``
 ------
