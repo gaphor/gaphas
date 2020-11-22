@@ -1,7 +1,7 @@
 """Module implements guides when moving items and handles around."""
 from functools import reduce, singledispatch
 
-from gaphas.aspect.handleinmotion import HandleInMotion, ItemHandleInMotion
+from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
 from gaphas.aspect.move import ItemMove, Move
 from gaphas.item import Element, Item, Line
 from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
@@ -232,8 +232,8 @@ class GuidedItemInMotion(GuideMixin, ItemMove):
             pass
 
 
-@HandleInMotion.register(Element)
-class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
+@HandleMove.register(Element)
+class GuidedItemHandleInMotion(GuideMixin, ItemHandleMove):
     """Move a handle and lock the position of other elements.
 
     Locks the position of another element that's located at the same

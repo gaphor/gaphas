@@ -8,7 +8,7 @@ from gaphas.types import Pos
 from gaphas.view import GtkView
 
 
-class ItemHandleInMotion:
+class ItemHandleMove:
     """Move a handle (role is applied to the handle)"""
 
     GLUE_DISTANCE = 10
@@ -81,7 +81,7 @@ class ItemHandleInMotion:
         return None
 
 
-HandleInMotion = singledispatch(ItemHandleInMotion)
+HandleMove = singledispatch(ItemHandleMove)
 
 
 def port_at_point(

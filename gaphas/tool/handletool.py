@@ -3,7 +3,7 @@ from typing import Optional
 from gi.repository import Gdk
 from typing_extensions import Protocol
 
-from gaphas.aspect import Connector, HandleFinder, HandleInMotion, HandleSelection
+from gaphas.aspect import Connector, HandleFinder, HandleMove, HandleSelection
 from gaphas.connector import Handle
 from gaphas.item import Item
 from gaphas.tool.tool import Tool
@@ -130,7 +130,7 @@ class HandleTool(Tool):
             if self.motion_handle:
                 self.motion_handle.move(pos)
             else:
-                self.motion_handle = HandleInMotion(item, handle, self.view)
+                self.motion_handle = HandleMove(item, handle, self.view)
                 assert self.motion_handle
                 self.motion_handle.start_move(pos)
 
@@ -153,7 +153,7 @@ class ConnectHandleTool(HandleTool):
         if self.motion_handle:
             return self.motion_handle.glue(vpos)
         else:
-            return HandleInMotion(item, handle, self.view).glue(vpos)
+            return HandleMove(item, handle, self.view).glue(vpos)
 
     def connect(self, item: Item, handle: Handle, vpos: Pos):
         """Connect a handle of a item to connectable item.
