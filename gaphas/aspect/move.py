@@ -5,7 +5,7 @@ from gaphas.types import Pos
 from gaphas.view import GtkView
 
 
-class ItemInMotion:
+class ItemMove:
     """Aspect for dealing with motion on an item.
 
     In this case the item is moved.
@@ -42,4 +42,4 @@ class ItemInMotion:
         pass
 
 
-InMotion = singledispatch(ItemInMotion)
+Move = singledispatch(ItemMove)

@@ -36,6 +36,7 @@ from gaphas.tool import (
     HandleTool,
     PlacementTool,
     hover_tool,
+    item_tool,
     scroll_tool,
     zoom_tool,
 )
@@ -120,6 +121,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
     view.tool = DefaultTool(view)
     view.hover_tool = hover_tool(view)
+    view.item_tool = item_tool(view)
     view.scroll_tool = scroll_tool(view)
     view.zoom_tool = zoom_tool(view)
 

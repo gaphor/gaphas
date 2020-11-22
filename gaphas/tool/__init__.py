@@ -31,7 +31,7 @@ Tools can handle events in different ways
 """
 from gaphas.tool.handletool import ConnectHandleTool, HandleTool
 from gaphas.tool.hover import hover_tool
-from gaphas.tool.itemtool import ItemTool
+from gaphas.tool.itemtool import item_tool
 from gaphas.tool.placement import PlacementTool
 from gaphas.tool.rubberband import RubberbandTool
 from gaphas.tool.scroll import scroll_tool

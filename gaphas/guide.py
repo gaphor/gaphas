@@ -2,7 +2,7 @@
 from functools import reduce, singledispatch
 
 from gaphas.aspect.handleinmotion import HandleInMotion, ItemHandleInMotion
-from gaphas.aspect.inmotion import InMotion, ItemInMotion
+from gaphas.aspect.move import ItemMove, Move
 from gaphas.item import Element, Item, Line
 from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
 from gaphas.view import GtkView
@@ -186,8 +186,8 @@ class GuideMixin:
             return 0, ()
 
 
-@InMotion.register(Element)
-class GuidedItemInMotion(GuideMixin, ItemInMotion):
+@Move.register(Element)
+class GuidedItemInMotion(GuideMixin, ItemMove):
     """Move the item, lock position on any element that's located at the same
     location."""
 

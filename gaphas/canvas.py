@@ -197,26 +197,6 @@ class Canvas:
         """
         return self._tree.get_parent(item)
 
-    def get_ancestors(self, item):
-        """See `tree.Tree.get_ancestors()`.
-
-        >>> c = Canvas()
-        >>> from gaphas import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> ii = item.Item()
-        >>> c.add(ii, i)
-        >>> iii = item.Item()
-        >>> c.add(iii, ii)
-        >>> list(c.get_ancestors(i))
-        []
-        >>> list(c.get_ancestors(ii)) # doctest: +ELLIPSIS
-        [<gaphas.item.Item ...>]
-        >>> list(c.get_ancestors(iii)) # doctest: +ELLIPSIS
-        [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
-        """
-        return self._tree.get_ancestors(item)
-
     def get_children(self, item) -> Iterable[Item]:
         """See `tree.Tree.get_children()`.
 
@@ -392,6 +372,13 @@ class Canvas:
         """Send an update notification to all registered views."""
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
+
+
+def ancestors(canvas, item):
+    parent = canvas.get_parent(item)
+    while parent:
+        yield parent
+        parent = canvas.get_parent(parent)
 
 
 # Additional tests in @observed methods

@@ -20,7 +20,6 @@ class ItemSelector:
         self.selection.set_focused_item(self.item)
 
     def unselect(self):
-        self.selection.set_focused_item(None)
         self.selection.unselect_item(self.item)
 
 
