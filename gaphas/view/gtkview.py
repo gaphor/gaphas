@@ -212,13 +212,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
 
-    def get_items_in_rectangle(self, rect) -> Iterable[Item]:
+    def get_items_in_rectangle(self, rect, contain=False) -> Iterable[Item]:
         """Return the items in the rectangle 'rect'.
 
         Items are automatically sorted in canvas' processing order.
         """
         assert self._canvas
-        items = self._qtree.find_intersect(rect)
+        items = (
+            self._qtree.find_inside(rect)
+            if contain
+            else self._qtree.find_intersect(rect)
+        )
         return self._canvas.sort(items)
 
     def get_item_bounding_box(self, item: Item):

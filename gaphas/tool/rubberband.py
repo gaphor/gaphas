@@ -44,7 +44,7 @@ def on_drag_end(gesture, offset_x, offset_y, view, rubberband_state):
     x1 = x0 + offset_x
     y1 = y0 + offset_y
     items = view.get_items_in_rectangle(
-        (min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
+        (min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0)), contain=True
     )
     view.selection.select_items(*items)
     rubberband_state.reset()
