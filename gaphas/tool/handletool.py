@@ -23,7 +23,7 @@ class HandleInMotionType(Protocol):
     def move(self, pos: Pos):
         ...
 
-    def stop_move(self):
+    def stop_move(self, pos):
         ...
 
     def glue(self, pos: Pos, distance: float = 0):
@@ -104,7 +104,7 @@ class HandleTool(Tool):
         grabbed_handle, grabbed_item = self.grabbed_handle, self.grabbed_item
 
         if self.motion_handle:
-            self.motion_handle.stop_move()
+            self.motion_handle.stop_move(event.get_coords()[1:])
             self.motion_handle = None
 
         self.ungrab_handle()

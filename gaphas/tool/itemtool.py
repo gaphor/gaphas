@@ -21,7 +21,7 @@ class MoveType(Protocol):
     def move(self, pos: Pos):
         ...
 
-    def stop_move(self):
+    def stop_move(self, pos: Pos):
         ...
 
 
@@ -92,9 +92,10 @@ def on_drag_update(gesture, offset_x, offset_y, view, drag_state):
 
 
 def on_drag_end(gesture, offset_x, offset_y, view, drag_state):
+    _, x, y = gesture.get_start_point()
     for moving in drag_state.moving:
-        moving.stop_move()
-    drag_state.moving.clear()
+        moving.stop_move((x + offset_x, y + offset_y))
+    drag_state.moving = set()
 
 
 def item_tool(view):

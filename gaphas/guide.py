@@ -223,7 +223,7 @@ class GuidedItemInMotion(GuideMixin, ItemMove):
 
         return sink
 
-    def stop_move(self):
+    def stop_move(self, pos):
         self.queue_draw_guides()
         try:
             del self.view.guides
@@ -274,7 +274,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleMove):
 
             canvas.request_update(item)
 
-    def stop_move(self):
+    def stop_move(self, pos):
         self.queue_draw_guides()
         try:
             del self.view.guides

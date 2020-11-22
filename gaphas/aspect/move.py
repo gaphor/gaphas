@@ -38,7 +38,7 @@ class ItemMove:
         item.matrix.translate(dx, dy)
         view.canvas.request_matrix_update(item)
 
-    def stop_move(self):
+    def stop_move(self, pos):
         pass
 
 

@@ -47,7 +47,7 @@ class ItemHandleMove:
 
         return sink
 
-    def stop_move(self):
+    def stop_move(self, pos):
         pass
 
     def glue(self, pos: Pos, distance=GLUE_DISTANCE):
