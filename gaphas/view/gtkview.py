@@ -349,7 +349,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             for item, bounds in painter.paint(items, cr).items():
                 v2i = self.get_matrix_v2i(item)
                 ix, iy = v2i.transform_point(bounds.x, bounds.y)
-                iw, ih = v2i.transform_distance(bounds.x1, bounds.y1)
+                iw, ih = v2i.transform_distance(bounds.width, bounds.height)
                 self._qtree.add(item=item, bounds=bounds, data=(ix, iy, iw, ih))
         finally:
             cr.restore()
@@ -387,7 +387,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                for item in items:
+                for item in self.get_items_in_rectangle(
+                    (0, 0, allocation.width, allocation.height)
+                ):
                     try:
                         b = self.get_item_bounding_box(item)
                     except KeyError:

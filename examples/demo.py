@@ -47,8 +47,6 @@ gi.require_version("Gtk", "3.0")  # noqa: isort:skip
 from gi.repository import Gtk  # noqa: isort:skip
 # fmt: on
 
-# painter.DEBUG_DRAW_BOUNDING_BOX = True
-
 # Global undo list
 undo_list = []
 
