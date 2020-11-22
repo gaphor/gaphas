@@ -27,9 +27,10 @@ class RubberbandPainter:
 
 
 def on_drag_begin(gesture, start_x, start_y, view, rubberband_state):
-    rubberband_state.x0 = rubberband_state.x1 = start_x
-    rubberband_state.y0 = rubberband_state.y1 = start_y
-    gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+    if gesture.set_state(Gtk.EventSequenceState.CLAIMED):
+        rubberband_state.x0 = rubberband_state.x1 = start_x
+        rubberband_state.y0 = rubberband_state.y1 = start_y
+        print("rubberband", gesture.get_sequences())
 
 
 def on_drag_update(gesture, offset_x, offset_y, view, rubberband_state):

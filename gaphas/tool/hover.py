@@ -4,10 +4,11 @@ from gaphas.aspect.finder import handle_at_point, item_at_point
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
+# TODO: Should only do the hover trick if the event (sequence) is not taken yet
+
 
 def hover_tool(view: GtkView):
     ctrl = Gtk.EventControllerMotion.new(view)
-    # ctrl.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     ctrl.connect("motion", on_motion, view)
     return ctrl
 

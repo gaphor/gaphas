@@ -5,6 +5,8 @@ from gaphas.item import Item
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
+# Used by Segment code
+
 
 class ItemHandleFinder:
     """Deals with the task of finding handles."""

@@ -30,15 +30,7 @@ from gaphas.painter import (
     PainterChain,
 )
 from gaphas.segment import Segment
-from gaphas.tool import (
-    DefaultTool,
-    PlacementTool,
-    hover_tool,
-    item_tool,
-    scroll_tool,
-    zoom_tool,
-)
-from gaphas.tool.handletool import HandleTool
+from gaphas.tool import hover_tool, item_tool, placement_tool, scroll_tool, zoom_tool
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
 
@@ -117,14 +109,13 @@ class UnderlineText(Text):
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
-    view.tool = DefaultTool(view)
-    view.hover_tool = hover_tool(view)
     view.item_tool = item_tool(view)
     view.scroll_tool = scroll_tool(view)
     view.zoom_tool = zoom_tool(view)
 
     rubberband_state = RubberbandState()
     view.rubberband_tool = rubberband_tool(view, rubberband_state)
+    view.hover_tool = hover_tool(view)
 
     view.painter = (
         PainterChain()
@@ -156,9 +147,14 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Add box")
 
+    def unset_placement_tool(gesture, offset_x, offset_y):
+        del view.placement_tool
+
     def on_add_box_clicked(button, view):
         # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
-        view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(view), 2))
+        # view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(view), 2))
+        view.placement_tool = placement_tool(view, factory(view, MyBox), 2)
+        view.placement_tool.connect("drag-end", unset_placement_tool)
 
     b.connect("clicked", on_add_box_clicked, view)
     v.add(b)
@@ -166,7 +162,9 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Add line")
 
     def on_add_line_clicked(button):
-        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
+        # view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
+        view.placement_tool = placement_tool(view, factory(view, MyLine), 1)
+        view.placement_tool.connect("drag-end", unset_placement_tool)
 
     b.connect("clicked", on_add_line_clicked)
     v.add(b)

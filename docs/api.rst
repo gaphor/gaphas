@@ -299,13 +299,8 @@ Tool for placing items on the Canvas.
 
 - view (``gaphas.view.View``): The view to use for the tool.
 - factory (factory object): A Canvas item factory for creating new items.
-- handle_tool (``gaphas.tools.HandleTool``): The handle tool to use.
 - handle_index (int): The index of the handle to be used by the handle tool.
 
-.. code-block: python
-
-    def on_clicked(button):
-        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
 
 Class: ``gaphas.aspects.ItemFinder``
 ------
