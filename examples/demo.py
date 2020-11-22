@@ -28,7 +28,6 @@ from gaphas.painter import (
     HandlePainter,
     ItemPainter,
     PainterChain,
-    ToolPainter,
 )
 from gaphas.segment import Segment
 from gaphas.tool import (
@@ -40,6 +39,7 @@ from gaphas.tool import (
     zoom_tool,
 )
 from gaphas.tool.handletool import HandleTool
+from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
 
 # fmt: off
@@ -125,12 +125,15 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view.scroll_tool = scroll_tool(view)
     view.zoom_tool = zoom_tool(view)
 
+    rubberband_state = RubberbandState()
+    view.rubberband_tool = rubberband_tool(view, rubberband_state)
+
     view.painter = (
         PainterChain()
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
         .append(FocusedItemPainter(view))
-        .append(ToolPainter(view))
+        .append(RubberbandPainter(rubberband_state))
     )
     view.bounding_box_painter = BoundingBoxPainter(
         FreeHandPainter(ItemPainter(view.selection))

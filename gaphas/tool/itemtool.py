@@ -58,6 +58,7 @@ def on_drag_begin(gesture, start_x, start_y, view, drag_state):
         return
 
     selection.set_focused_item(item)
+    gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
     if handle:
         drag_state.moving = {HandleMove(item, handle, view)}

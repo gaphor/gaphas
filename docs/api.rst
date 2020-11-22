@@ -260,70 +260,45 @@ Used to draw on top of all the other layers for the focused item.
 
 ### Tools
 
-Interacting with the Canvas is done through tools. Tools tell _what_ has to be done (like moving). To make an element move aspects are defined. Aspects tell how the behaviour has to be performed.
+Interacting with the View is done through tools.
+Tools tell _what_ has to be done (like moving).
+To make an element move aspects are defined.
+Aspects tell how the behaviour has to be performed.
 
-Class: ``gaphas.tools.ToolChain``
-------
-
-Used to chain tools together. For example, chain a HoverTool, HandleTool, and SelectionTool in order to combine their functionality in to a new tool.
-
-- view (``gaphas.view.View``): The view to use for the tool chain.
-
-.. code-block: python
-
-    (ToolChain(view)
-    .append(HoverTool())
-    .append(ConnectHandleTool())
-    .append(ItemTool())
-    .append(RubberbandTool())
-    )
-
-Class: ``gaphas.tools.HoverTool``
+Class: ``gaphas.tool.hover_tool``
 ------
 
 Makes the item under the mouse cursor the hovered item.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.ItemTool``
+Class: ``gaphas.toolitem_tool``
 ------
 
-Does selection and dragging of items.
+Does selection and dragging of items and handles.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.HandleTool``
-------
-
-Tool to move handles around.
-
-- view (``gaphas.view.View``): The view to use for the tool; default is None.
-
-Class: ``gaphas.tools.RubberbandTool``
+Class: ``gaphas.tool.rubberband_tool``
 ------
 
 Allows the user to drag a "rubber band" for selecting items in an area.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.PanTool``
+Class: ``gaphas.tool.pan_tool``
 ------
 
 Captures drag events with the middle mouse button and uses them to translate the Canvas within the view.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.ZoomTool``
+Class: ``gaphas.tool.zoom_tool``
 ------
-
-Tool for zooming using two different user inputs:
-
-1. Ctrl + middle-mouse dragging in the up and down direction
-2. Ctrl + mouse-wheel
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.PlacementTool``
+Class: ``gaphas.tool.placement_tool``
 ------
 
 Tool for placing items on the Canvas.
