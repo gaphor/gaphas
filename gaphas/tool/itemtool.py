@@ -86,13 +86,13 @@ def moving_items(view):
             yield Move(item, view)
 
 
-def on_drag_update(gesture, offset_x, offset_y, view, drag_state):
+def on_drag_update(gesture, offset_x, offset_y, drag_state):
     _, x, y = gesture.get_start_point()
     for moving in drag_state.moving:
         moving.move((x + offset_x, y + offset_y))
 
 
-def on_drag_end(gesture, offset_x, offset_y, view, drag_state):
+def on_drag_end(gesture, offset_x, offset_y, drag_state):
     _, x, y = gesture.get_start_point()
     for moving in drag_state.moving:
         moving.stop_move((x + offset_x, y + offset_y))
@@ -103,6 +103,6 @@ def item_tool(view):
     gesture = Gtk.GestureDrag.new(view)
     drag_state = DragState()
     gesture.connect("drag-begin", on_drag_begin, view, drag_state)
-    gesture.connect("drag-update", on_drag_update, view, drag_state)
-    gesture.connect("drag-end", on_drag_end, view, drag_state)
+    gesture.connect("drag-update", on_drag_update, drag_state)
+    gesture.connect("drag-end", on_drag_end, drag_state)
     return gesture

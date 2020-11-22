@@ -28,7 +28,7 @@ def test_should_create_a_gesture(view):
     assert isinstance(tool, Gtk.Gesture)
 
 
-def test_select_item_on_click(view, box):
+def test_select_item_on_click(view, box, window):
     gesture = MockGesture()
     drag_state = DragState()
     selection = view.selection
@@ -39,7 +39,7 @@ def test_select_item_on_click(view, box):
     assert box in selection.selected_items
 
 
-def test_start_move_handle_on_click(view, box):
+def test_start_move_handle_on_click(view, box, window):
     gesture = MockGesture()
     drag_state = DragState()
 
