@@ -1,10 +1,9 @@
 """Module implements guides when moving items and handles around."""
 from functools import reduce, singledispatch
 
-from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
+from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
 from gaphas.aspect.move import ItemMove, Move
 from gaphas.item import Element, Item, Line
-from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
 from gaphas.view import GtkView
 
 
@@ -187,7 +186,7 @@ class GuideMixin:
 
 
 @Move.register(Element)
-class GuidedItemInMotion(GuideMixin, ItemMove):
+class GuidedItemMove(GuideMixin, ItemMove):
     """Move the item, lock position on any element that's located at the same
     location."""
 
@@ -233,7 +232,7 @@ class GuidedItemInMotion(GuideMixin, ItemMove):
 
 
 @HandleMove.register(Element)
-class GuidedItemHandleInMotion(GuideMixin, ItemHandleMove):
+class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
     """Move a handle and lock the position of other elements.
 
     Locks the position of another element that's located at the same
@@ -275,6 +274,7 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleMove):
             canvas.request_update(item)
 
     def stop_move(self, pos):
+        super().stop_move(pos)
         self.queue_draw_guides()
         try:
             del self.view.guides
@@ -283,9 +283,11 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleMove):
             pass
 
 
-@PaintFocused.register(Element)
-class GuidePainter(ItemPaintFocused):
-    def paint(self, cr):
+class GuidePainter:
+    def __init__(self, view: GtkView):
+        self.view = view
+
+    def paint(self, _items, cr):
         try:
             guides = self.view.guides
         except AttributeError:

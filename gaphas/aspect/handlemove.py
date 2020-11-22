@@ -1,11 +1,13 @@
 from functools import singledispatch
 from typing import Tuple, Union
 
+from gi.repository import Gdk
+
 from gaphas.aspect.connector import ConnectionSink, Connector
 from gaphas.connector import Handle, Port
-from gaphas.item import Item
+from gaphas.item import Element, Item
 from gaphas.types import Pos
-from gaphas.view import GtkView
+from gaphas.view import DEFAULT_CURSOR, GtkView
 
 
 class ItemHandleMove:
@@ -108,6 +110,30 @@ class ItemHandleMove:
 
 
 HandleMove = singledispatch(ItemHandleMove)
+
+
+@HandleMove.register(Element)
+class ElementHandleMove(ItemHandleMove):
+    CURSORS = ("nw-resize", "ne-resize", "se-resize", "sw-resize")
+
+    def start_move(self, pos: Pos):
+        super().start_move(pos)
+        self.set_cursor()
+
+    def stop_move(self, pos):
+        self.reset_cursor()
+        super().stop_move(pos)
+
+    def set_cursor(self):
+        index = self.item.handles().index(self.handle)
+        if index < 4:
+            display = self.view.get_display()
+            cursor = Gdk.Cursor.new_from_name(display, self.CURSORS[index])
+            self.view.get_window().set_cursor(cursor)
+
+    def reset_cursor(self):
+        cursor = Gdk.Cursor(DEFAULT_CURSOR)
+        self.view.get_window().set_cursor(cursor)
 
 
 def port_at_point(

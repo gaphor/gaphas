@@ -16,10 +16,10 @@ import math
 import cairo
 import gi
 
-import gaphas.guide  # noqa
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
+from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
     BoundingBoxPainter,
@@ -133,6 +133,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
         .append(FocusedItemPainter(view))
+        .append(GuidePainter(view))
         .append(RubberbandPainter(rubberband_state))
     )
     view.bounding_box_painter = BoundingBoxPainter(
