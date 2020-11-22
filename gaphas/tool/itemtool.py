@@ -1,7 +1,7 @@
 from gi.repository import Gdk, Gtk
 from typing_extensions import Protocol
 
-from gaphas.aspect import Move
+from gaphas.aspect import HandleMove, Move
 from gaphas.aspect.finder import handle_at_point, item_at_point
 from gaphas.canvas import ancestors
 from gaphas.item import Item
@@ -27,9 +27,7 @@ class MoveType(Protocol):
 
 class DragState:
     def __init__(self):
-        self.moving_items = set()
-        self.moving_item = None
-        self.moving_handle = None
+        self.moving = set()
 
 
 def on_drag_begin(gesture, start_x, start_y, view, drag_state):
@@ -46,17 +44,28 @@ def on_drag_begin(gesture, start_x, start_y, view, drag_state):
     ):
         selection.unselect_all()
 
+    if not item:
+        gesture.set_state(Gtk.EventSequenceState.DENIED)
+        return
+
+    if (
+        not handle
+        and item in selection.selected_items
+        and modifiers & Gdk.ModifierType.CONTROL_MASK
+    ):
+        selection.unselect_item(item)
+        gesture.set_state(Gtk.EventSequenceState.DENIED)
+        return
+
+    selection.set_focused_item(item)
+
     if handle:
-        drag_state.moving_handle = handle
-        drag_state.moving_item = item
-    if item:
-        if (
-            selection.hovered_item in selection.selected_items
-            and modifiers & Gdk.ModifierType.CONTROL_MASK
-        ):
-            selection.unselect_item(item)
-        else:
-            selection.set_focused_item(item)
+        drag_state.moving = {HandleMove(item, handle, view)}
+    else:
+        drag_state.moving = set(moving_items(view))
+
+    for moving in drag_state.moving:
+        moving.start_move((start_x, start_y))
 
 
 def find_item_and_handle_at_point(view: GtkView, pos: Pos):
@@ -77,25 +86,21 @@ def moving_items(view):
 
 
 def on_drag_update(gesture, offset_x, offset_y, view, drag_state):
-    if not drag_state.moving_items:
-        drag_state.moving_items = set(moving_items(view))
-        for moving in drag_state.moving_items:
-            moving.start_move((offset_x, offset_y))
-    else:
-        for moving in drag_state.moving_items:
-            moving.move((offset_x, offset_y))
+    _, x, y = gesture.get_start_point()
+    for moving in drag_state.moving:
+        moving.move((x + offset_x, y + offset_y))
 
 
 def on_drag_end(gesture, offset_x, offset_y, view, drag_state):
-    for moving in drag_state.moving_items:
+    for moving in drag_state.moving:
         moving.stop_move()
-    drag_state.moving_items.clear()
+    drag_state.moving.clear()
 
 
 def item_tool(view):
     gesture = Gtk.GestureDrag.new(view)
     drag_state = DragState()
-    gesture.connect("drag-begin", on_drag_begin, view)
+    gesture.connect("drag-begin", on_drag_begin, view, drag_state)
     gesture.connect("drag-update", on_drag_update, view, drag_state)
     gesture.connect("drag-end", on_drag_end, view, drag_state)
     return gesture

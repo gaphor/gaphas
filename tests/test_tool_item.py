@@ -18,6 +18,9 @@ class MockGesture:
     def get_last_event(self, _sequence):
         return self._event
 
+    def set_state(self, _state):
+        pass
+
 
 def test_should_create_a_gesture(view):
     tool = item_tool(view)
@@ -25,7 +28,7 @@ def test_should_create_a_gesture(view):
     assert isinstance(tool, Gtk.Gesture)
 
 
-def test_select__hovered_item_on_click(view, box):
+def test_select_item_on_click(view, box):
     gesture = MockGesture()
     drag_state = DragState()
     selection = view.selection
@@ -34,3 +37,14 @@ def test_select__hovered_item_on_click(view, box):
 
     assert box is selection.focused_item
     assert box in selection.selected_items
+
+
+def test_start_move_handle_on_click(view, box):
+    gesture = MockGesture()
+    drag_state = DragState()
+
+    on_drag_begin(gesture, 0, 0, view, drag_state)
+
+    assert drag_state.moving
+    assert next(iter(drag_state.moving)).item is box
+    assert next(iter(drag_state.moving)).handle is box.handles()[0]
