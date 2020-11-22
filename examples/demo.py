@@ -33,13 +33,13 @@ from gaphas.painter import (
 from gaphas.segment import Segment
 from gaphas.tool import (
     DefaultTool,
-    HandleTool,
     PlacementTool,
     hover_tool,
     item_tool,
     scroll_tool,
     zoom_tool,
 )
+from gaphas.tool.handletool import HandleTool
 from gaphas.util import text_extents, text_underline
 
 # fmt: off

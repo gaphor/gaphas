@@ -39,16 +39,14 @@ class ItemHandleMove:
 
         self.handle.pos = (x, y)
 
-        sink = self.glue(pos)
+        self.glue(pos)
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
         view.canvas.request_update(item, matrix=False)
 
-        return sink
-
     def stop_move(self, pos):
-        pass
+        self.connect(pos)
 
     def glue(self, pos: Pos, distance=GLUE_DISTANCE):
         """Glue to an item near a specific point.
@@ -79,6 +77,34 @@ class ItemHandleMove:
                 handle.pos = v2i(*glue_pos)
                 return sink
         return None
+
+    def connect(self, pos: Pos):
+        """Connect a handle of a item to connectable item.
+
+        Connectable item is found by `ConnectHandleTool.glue` method.
+
+        :Parameters:
+         item
+            Connecting item.
+         handle
+            Handle of connecting item.
+         pos
+            Position to connect to (or near at least)
+        """
+        handle = self.handle
+        connections = self.view.canvas.connections
+        connector = Connector(self.item, handle, connections)
+
+        # find connectable item and its port
+        sink = self.glue(pos)
+
+        # no new connectable item, then diconnect and exit
+        if sink:
+            connector.connect(sink)
+        else:
+            cinfo = connections.get_connection(handle)
+            if cinfo:
+                connector.disconnect()
 
 
 HandleMove = singledispatch(ItemHandleMove)
