@@ -34,14 +34,4 @@ from gaphas.tool.itemtool import item_tool
 from gaphas.tool.placement import placement_tool
 from gaphas.tool.rubberband import rubberband_tool
 from gaphas.tool.scroll import scroll_tool
-from gaphas.tool.tool import Tool
-from gaphas.tool.toolchain import ToolChain
 from gaphas.tool.zoom import zoom_tool
-
-
-def DefaultTool(view):
-    """The default tool chain build from HoverTool, ItemTool and HandleTool."""
-    return (
-        ToolChain(view)
-        # .append(RubberbandTool(view))
-    )
