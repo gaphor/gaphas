@@ -112,7 +112,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._bounding_box_painter: Painter = BoundingBoxPainter(
             ItemPainter(self._selection)
         )
-        self._tool = None
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
@@ -191,16 +190,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     selection = property(lambda s: s._selection)
 
     bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
-
-    def _set_tool(self, tool):
-        """Set the tool to use.
-
-        Tools should implement tool.Tool.
-        """
-        self._tool = tool
-        self.emit("tool-changed")
-
-    tool = property(lambda s: s._tool, _set_tool)
 
     hadjustment = property(lambda s: s._scrolling.hadjustment)
 
@@ -463,13 +452,4 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         cr.set_source_surface(self._back_buffer, 0, 0)
         cr.paint()
 
-        return False
-
-    def do_event(self, event: Gdk.Event):
-        """Handle GDK events.
-
-        Events are delegated to a `tool.Tool`.
-        """
-        if self._tool:
-            return self._tool.handle(event) and True or False
         return False
