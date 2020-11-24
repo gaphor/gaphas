@@ -1,5 +1,4 @@
 import logging
-from functools import singledispatch
 from typing import Optional, Tuple, Union
 
 from gaphas.connector import Handle
@@ -9,20 +8,6 @@ from gaphas.types import Pos
 from gaphas.view import GtkView
 
 log = logging.getLogger(__name__)
-
-
-class ItemFinder:
-    """Find an item on the canvas."""
-
-    def __init__(self, view: GtkView):
-        self.view = view
-
-    def get_item_at_point(self, pos: Pos):
-        item, handle = handle_at_point(self.view, pos)
-        return item or item_at_point(self.view, pos)
-
-
-Finder = singledispatch(ItemFinder)
 
 
 def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
