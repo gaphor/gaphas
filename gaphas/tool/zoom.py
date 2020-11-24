@@ -10,18 +10,33 @@ class ZoomData:
     sy: float
 
 
-def on_begin(gesture: Gtk.GestureZoom, sequence, zoom_data, view):
+def zoom_tool(view: GtkView):
+    """Create a zoom tool as a Gtk.Gesture.
+
+    Note: we need to keep a reference to this gesture, or else it will be destroyed.
+    """
+    zoom_data = ZoomData
+    gesture = Gtk.GestureZoom.new(view)
+    gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+    gesture.connect("begin", on_begin, zoom_data)
+    gesture.connect("scale-changed", on_scale_changed, zoom_data)
+    return gesture
+
+
+def on_begin(gesture: Gtk.GestureZoom, sequence, zoom_data):
     _, zoom_data.x0, zoom_data.y0 = gesture.get_point(sequence)
+    view = gesture.get_widget()
     zoom_data.sx = view.matrix[0]
     zoom_data.sy = view.matrix[3]
 
 
-def on_scale_changed(gesture: Gtk.GestureZoom, scale, zoom_data, view):
+def on_scale_changed(gesture: Gtk.GestureZoom, scale, zoom_data):
     if zoom_data.sx * scale < 0.2:
         scale = 0.2 / zoom_data.sx
     elif zoom_data.sx * scale > 20.0:
         scale = 20.0 / zoom_data.sx
 
+    view = gesture.get_widget()
     m = view.matrix
     sx = m[0]
     sy = m[3]
@@ -33,16 +48,3 @@ def on_scale_changed(gesture: Gtk.GestureZoom, scale, zoom_data, view):
     m.scale(dsx, dsy)
     m.translate(+ox, +oy)
     view.request_update((), view.canvas.get_all_items())
-
-
-def zoom_tool(view: GtkView):
-    """Create a zoom tool as a Gtk.Gesture.
-
-    Note: we need to keep a reference to this gesture, or else it will be destroyed.
-    """
-    zoom_data = ZoomData
-    gesture = Gtk.GestureZoom.new(view)
-    gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-    gesture.connect("begin", on_begin, zoom_data, view)
-    gesture.connect("scale-changed", on_scale_changed, zoom_data, view)
-    return gesture

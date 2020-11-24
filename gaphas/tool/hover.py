@@ -9,11 +9,13 @@ from gaphas.view import GtkView
 
 def hover_tool(view: GtkView):
     ctrl = Gtk.EventControllerMotion.new(view)
-    ctrl.connect("motion", on_motion, view)
+    ctrl.connect("motion", on_motion)
     return ctrl
 
 
-def on_motion(ctrl, x, y, view):
+def on_motion(ctrl, x, y):
+    # TODO: Check for claimed controller
+    view = ctrl.get_widget()
     view.selection.set_hovered_item(find_item_at_point(view, (x, y)))
 
 

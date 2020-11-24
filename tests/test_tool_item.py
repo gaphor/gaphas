@@ -12,8 +12,12 @@ class MockEvent:
 
 
 class MockGesture:
-    def __init__(self, event=MockEvent()):
+    def __init__(self, view, event=MockEvent()):
+        self._view = view
         self._event = event
+
+    def get_widget(self):
+        return self._view
 
     def get_last_event(self, _sequence):
         return self._event
@@ -29,21 +33,21 @@ def test_should_create_a_gesture(view):
 
 
 def test_select_item_on_click(view, box, window):
-    gesture = MockGesture()
+    tool = MockGesture(view)
     drag_state = DragState()
     selection = view.selection
 
-    on_drag_begin(gesture, 0, 0, view, drag_state)
+    on_drag_begin(tool, 0, 0, drag_state)
 
     assert box is selection.focused_item
     assert box in selection.selected_items
 
 
 def test_start_move_handle_on_click(view, box, window):
-    gesture = MockGesture()
+    tool = MockGesture(view)
     drag_state = DragState()
 
-    on_drag_begin(gesture, 0, 0, view, drag_state)
+    on_drag_begin(tool, 0, 0, drag_state)
 
     assert drag_state.moving
     assert next(iter(drag_state.moving)).item is box

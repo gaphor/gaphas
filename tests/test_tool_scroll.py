@@ -10,8 +10,9 @@ def test_scroll_tool_returns_a_controller(view):
 
 
 def test_offset_changes(view):
+    tool = scroll_tool(view)
 
-    on_scroll(None, 10, 10, 1, view)
+    on_scroll(tool, 10, 10, 1)
 
     assert view.matrix[4] == -10
     assert view.matrix[5] == -10

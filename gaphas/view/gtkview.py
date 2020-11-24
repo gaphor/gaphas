@@ -1,7 +1,7 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set, Tuple
+from typing import Collection, Iterable, List, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -92,6 +92,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
+
+        self._controllers: List[Gtk.EventController] = []
 
         self.set_can_focus(True)
         self.add_events(EVENT_MASK)
@@ -194,6 +196,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     hadjustment = property(lambda s: s._scrolling.hadjustment)
 
     vadjustment = property(lambda s: s._scrolling.vadjustment)
+
+    def add_controller(self, controller: Gtk.EventController):
+        if controller not in self._controllers:
+            self._controllers.insert(0, controller)
+
+    def remove_controller(self, controller: Gtk.EventController):
+        if controller in self._controllers:
+            self._controllers.remove(controller)
 
     def zoom(self, factor: float) -> None:
         """Zoom in/out by factor ``factor``."""

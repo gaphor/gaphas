@@ -25,12 +25,22 @@ class MoveType(Protocol):
         ...
 
 
+def item_tool(view):
+    gesture = Gtk.GestureDrag.new(view)
+    drag_state = DragState()
+    gesture.connect("drag-begin", on_drag_begin, drag_state)
+    gesture.connect("drag-update", on_drag_update, drag_state)
+    gesture.connect("drag-end", on_drag_end, drag_state)
+    return gesture
+
+
 class DragState:
     def __init__(self):
         self.moving = set()
 
 
-def on_drag_begin(gesture, start_x, start_y, view, drag_state):
+def on_drag_begin(gesture, start_x, start_y, drag_state):
+    view = gesture.get_widget()
     selection = view.selection
     event = gesture.get_last_event(None)
     modifiers = event.get_state()[1]
@@ -97,12 +107,3 @@ def on_drag_end(gesture, offset_x, offset_y, drag_state):
     for moving in drag_state.moving:
         moving.stop_move((x + offset_x, y + offset_y))
     drag_state.moving = set()
-
-
-def item_tool(view):
-    gesture = Gtk.GestureDrag.new(view)
-    drag_state = DragState()
-    gesture.connect("drag-begin", on_drag_begin, view, drag_state)
-    gesture.connect("drag-update", on_drag_update, drag_state)
-    gesture.connect("drag-end", on_drag_end, drag_state)
-    return gesture

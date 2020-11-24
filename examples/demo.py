@@ -109,13 +109,13 @@ class UnderlineText(Text):
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
-    view.item_tool = item_tool(view)
-    view.scroll_tool = scroll_tool(view)
-    view.zoom_tool = zoom_tool(view)
+    view.add_controller(item_tool(view))
+    view.add_controller(scroll_tool(view))
+    view.add_controller(zoom_tool(view))
 
     rubberband_state = RubberbandState()
-    view.rubberband_tool = rubberband_tool(view, rubberband_state)
-    view.hover_tool = hover_tool(view)
+    view.add_controller(rubberband_tool(view, rubberband_state))
+    view.add_controller(hover_tool(view))
 
     view.painter = (
         PainterChain()
