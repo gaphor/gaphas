@@ -1,7 +1,7 @@
 """This module contains everything to display a Canvas on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, List, Optional, Set, Tuple
+from typing import Collection, Iterable, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -93,7 +93,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
 
-        self._controllers: List[Gtk.EventController] = []
+        self._controllers: Set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
         self.add_events(EVENT_MASK)
@@ -197,13 +197,34 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     vadjustment = property(lambda s: s._scrolling.vadjustment)
 
-    def add_controller(self, controller: Gtk.EventController):
-        if controller not in self._controllers:
-            self._controllers.insert(0, controller)
+    def add_controller(self, *controllers: Gtk.EventController):
+        """Add a controller.
+
+        A convenience method, so you have a place to store the event
+        controllers. Events controllers are linked to a widget (in GTK3)
+        on creation time, so calling this method is not necessary.
+        """
+        self._controllers.update(controllers)
 
     def remove_controller(self, controller: Gtk.EventController):
+        """Remove a controller.
+
+        The event controller's propagation phase is set to
+        `Gtk.PropagationPhase.NONE` to ensure it's not invoked
+        anymore.
+
+        NB. The controller is only really removed from the widget when it's destroyed!
+            This is a Gtk3 limitation.
+        """
         if controller in self._controllers:
-            self._controllers.remove(controller)
+            controller.set_propagation_phase(Gtk.PropagationPhase.NONE)
+            self._controllers.discard(controller)
+            return True
+        return False
+
+    def remove_all_controllers(self):
+        for controller in set(self._controllers):
+            self.remove_controller(controller)
 
     def zoom(self, factor: float) -> None:
         """Zoom in/out by factor ``factor``."""

@@ -107,15 +107,28 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
-def apply_tool_set(view):
+def apply_default_tool_set(view):
+    view.remove_all_controllers()
+    view.add_controller(hover_tool(view))
     view.add_controller(item_tool(view))
     view.add_controller(scroll_tool(view))
     view.add_controller(zoom_tool(view))
 
     rubberband_state = RubberbandState()
     view.add_controller(rubberband_tool(view, rubberband_state))
-    view.add_controller(hover_tool(view))
     return rubberband_state
+
+
+def apply_placement_tool_set(view, item_type, handle_index):
+    def unset_placement_tool(gesture, offset_x, offset_y):
+        apply_default_tool_set(view)
+
+    view.remove_all_controllers()
+    tool = placement_tool(view, factory(view, item_type), handle_index)
+    tool.connect("drag-end", unset_placement_tool)
+    view.add_controller(scroll_tool(view))
+    view.add_controller(zoom_tool(view))
+    view.add_controller(tool)
 
 
 def apply_painters(view, rubberband_state):
@@ -134,7 +147,7 @@ def apply_painters(view, rubberband_state):
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
-    rubberband_state = apply_tool_set(view)
+    rubberband_state = apply_default_tool_set(view)
     apply_painters(view, rubberband_state)
 
     w = Gtk.Window()
@@ -156,24 +169,16 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Add box")
 
-    def unset_placement_tool(gesture, offset_x, offset_y):
-        del view.placement_tool
+    def on_add_box_clicked(button):
+        apply_placement_tool_set(view, MyBox, 2)
 
-    def on_add_box_clicked(button, view):
-        # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
-        # view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(view), 2))
-        view.placement_tool = placement_tool(view, factory(view, MyBox), 2)
-        view.placement_tool.connect("drag-end", unset_placement_tool)
-
-    b.connect("clicked", on_add_box_clicked, view)
+    b.connect("clicked", on_add_box_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Add line")
 
     def on_add_line_clicked(button):
-        # view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
-        view.placement_tool = placement_tool(view, factory(view, MyLine), 1)
-        view.placement_tool.connect("drag-end", unset_placement_tool)
+        apply_placement_tool_set(view, MyLine, -1)
 
     b.connect("clicked", on_add_line_clicked)
     v.add(b)

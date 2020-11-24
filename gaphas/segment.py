@@ -126,6 +126,7 @@ class LineSegment:
         # deleted handle
         p1 = item.handles()[segment].pos
         p2 = item.handles()[segment + 1].pos
+        # TODO: clean up. DIRTY!!
         port = item._create_port(p1, p2)
         item._reversible_insert_port(segment, port)
 
