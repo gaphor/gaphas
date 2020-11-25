@@ -6,9 +6,12 @@ from cairo import ANTIALIAS_NONE
 from gaphas.aspect.connector import ConnectionSink
 from gaphas.aspect.handlefinder import HandleFinder, ItemHandleFinder
 from gaphas.aspect.handleselector import HandleSelection, ItemHandleSelection
+from gaphas.canvas import Canvas
+from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
-from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
+from gaphas.solver import WEAK
+from gaphas.view import Selection
 
 
 @singledispatch
@@ -28,7 +31,7 @@ class Segment:
 
 @Segment.register(Line)  # type: ignore
 class LineSegment:
-    def __init__(self, item, canvas):
+    def __init__(self, item: Line, canvas: Canvas):
         self.item = item
         self.canvas = canvas
 
@@ -70,14 +73,14 @@ class LineSegment:
             p0 = handles[segment].pos
             p1 = handles[segment + 1].pos
             dx, dy = p1.x - p0.x, p1.y - p0.y
-            new_h = item._create_handle((p0.x + dx / count, p0.y + dy / count))
-            item._reversible_insert_handle(segment + 1, new_h)
+            new_h = Handle((p0.x + dx / count, p0.y + dy / count), strength=WEAK)
+            item.insert_handle(segment + 1, new_h)
 
-            p0 = item._create_port(p0, new_h.pos)
-            p1 = item._create_port(new_h.pos, p1)
-            item._reversible_remove_port(item.ports()[segment])
-            item._reversible_insert_port(segment, p0)
-            item._reversible_insert_port(segment + 1, p1)
+            p0 = LinePort(p0, new_h.pos)
+            p1 = LinePort(new_h.pos, p1)
+            item.remove_port(item.ports()[segment])
+            item.insert_port(segment, p0)
+            item.insert_port(segment + 1, p1)
 
             if count > 2:
                 do_split(segment + 1, count - 1)
@@ -85,9 +88,9 @@ class LineSegment:
         do_split(segment, count)
 
         # force orthogonal constraints to be recreated
-        item._update_orthogonal_constraints(item.orthogonal)
+        item.update_orthogonal_constraints(item.orthogonal)
 
-        self._recreate_constraints()
+        self.recreate_constraints()
 
         self.canvas.request_update(item)
         handles = item.handles()[segment + 1 : segment + count]
@@ -118,27 +121,26 @@ class LineSegment:
         deleted_handles = item.handles()[segment + 1 : segment + count]
         deleted_ports = item.ports()[segment : segment + count]
         for h in deleted_handles:
-            item._reversible_remove_handle(h)
+            item.remove_handle(h)
         for p in deleted_ports:
-            item._reversible_remove_port(p)
+            item.remove_port(p)
 
         # create new port, which replaces old ports destroyed due to
         # deleted handle
         p1 = item.handles()[segment].pos
         p2 = item.handles()[segment + 1].pos
-        # TODO: clean up. DIRTY!!
-        port = item._create_port(p1, p2)
-        item._reversible_insert_port(segment, port)
+        port = LinePort(p1, p2)
+        item.insert_port(segment, port)
 
         # force orthogonal constraints to be recreated
-        item._update_orthogonal_constraints(item.orthogonal)
+        item.update_orthogonal_constraints(item.orthogonal)
 
-        self._recreate_constraints()
+        self.recreate_constraints()
         self.canvas.request_update(item)
 
         return deleted_handles, deleted_ports
 
-    def _recreate_constraints(self):
+    def recreate_constraints(self):
         """Create connection constraints between connecting lines and an item.
 
         :Parameters:
@@ -228,8 +230,7 @@ class SegmentHandleSelection(ItemHandleSelection):
             self.view.canvas.request_update(item)
 
 
-@PaintFocused.register(Line)
-class LineSegmentPainter(ItemPaintFocused):
+class LineSegmentPainter:
     """This painter draws pseudo-handles on gaphas.item.Line objects. Each line
     can be split by dragging those points, which will result in a new handle.
 
@@ -237,26 +238,29 @@ class LineSegmentPainter(ItemPaintFocused):
     required for this feature.
     """
 
-    def paint(self, cr):
-        view = self.view
-        item = view.selection.hovered_item
-        if item and item is view.selection.focused_item:
+    def __init__(self, selection: Selection):
+        self.selection = selection
+
+    def paint(self, _items, cairo):
+        selection = self.selection
+        item = selection.hovered_item
+        if isinstance(item, Line) and item is selection.focused_item:
             h = item.handles()
             for h1, h2 in zip(h[:-1], h[1:]):
                 p1, p2 = h1.pos, h2.pos
                 cx = (p1.x + p2.x) / 2
                 cy = (p1.y + p2.y) / 2
-                cr.save()
-                cr.identity_matrix()
+                cairo.save()
+                cairo.identity_matrix()
 
-                cr.set_antialias(ANTIALIAS_NONE)
-                cr.translate(
-                    *cr.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
+                cairo.set_antialias(ANTIALIAS_NONE)
+                cairo.translate(
+                    *cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
                 )
-                cr.rectangle(-3, -3, 6, 6)
-                cr.set_source_rgba(0, 0.5, 0, 0.4)
-                cr.fill_preserve()
-                cr.set_source_rgba(0.25, 0.25, 0.25, 0.6)
-                cr.set_line_width(1)
-                cr.stroke()
-                cr.restore()
+                cairo.rectangle(-3, -3, 6, 6)
+                cairo.set_source_rgba(0, 0.5, 0, 0.4)
+                cairo.fill_preserve()
+                cairo.set_source_rgba(0.25, 0.25, 0.25, 0.6)
+                cairo.set_line_width(1)
+                cairo.stroke()
+                cairo.restore()

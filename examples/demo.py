@@ -29,7 +29,7 @@ from gaphas.painter import (
     ItemPainter,
     PainterChain,
 )
-from gaphas.segment import Segment
+from gaphas.segment import LineSegmentPainter, Segment
 from gaphas.tool import hover_tool, item_tool, placement_tool, scroll_tool, zoom_tool
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
@@ -136,6 +136,7 @@ def apply_painters(view, rubberband_state):
         PainterChain()
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
+        .append(LineSegmentPainter(view.selection))
         .append(FocusedItemPainter(view))
         .append(GuidePainter(view))
         .append(RubberbandPainter(rubberband_state))

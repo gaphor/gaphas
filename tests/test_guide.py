@@ -1,8 +1,10 @@
 import pytest
 
 from gaphas.connections import Connections
+from gaphas.connector import Handle
 from gaphas.guide import Guide, GuidedItemMove
 from gaphas.item import Element, Line
+from gaphas.solver import WEAK
 
 
 @pytest.fixture
@@ -38,9 +40,9 @@ def test_element_guide():
 
 
 def test_line_guide(line, canvas):
-    line.handles().append(line._create_handle((20, 20)))
-    line.handles().append(line._create_handle((30, 30)))
-    line.handles().append(line._create_handle((40, 40)))
+    line.handles().append(Handle((20, 20), strength=WEAK))
+    line.handles().append(Handle((30, 30), strength=WEAK))
+    line.handles().append(Handle((40, 40), strength=WEAK))
     line.orthogonal = True
     canvas.update_now((line,))
 
@@ -56,9 +58,9 @@ def test_line_guide(line, canvas):
 
 
 def test_line_guide_horizontal(line, canvas):
-    line.handles().append(line._create_handle((20, 20)))
-    line.handles().append(line._create_handle((30, 30)))
-    line.handles().append(line._create_handle((40, 40)))
+    line.handles().append(Handle((20, 20)))
+    line.handles().append(Handle((30, 30)))
+    line.handles().append(Handle((40, 40)))
     line.horizontal = True
     line.orthogonal = True
     canvas.update_now((line,))
