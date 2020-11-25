@@ -1,16 +1,19 @@
 """Allow for easily adding segments to lines."""
 from functools import singledispatch
+from typing import Optional
 
 from cairo import ANTIALIAS_NONE
+from gi.repository import Gtk
 
 from gaphas.aspect.connector import ConnectionSink
-from gaphas.aspect.handlefinder import HandleFinder, ItemHandleFinder
-from gaphas.aspect.handleselector import HandleSelection, ItemHandleSelection
+from gaphas.aspect.finder import item_at_point
+from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
 from gaphas.solver import WEAK
+from gaphas.tool.itemtool import MoveType
 from gaphas.view import Selection
 
 
@@ -170,64 +173,96 @@ class LineSegment:
             canvas.connections.reconnect_item(item, handle, port, constraint=constraint)
 
 
-@HandleFinder.register(Line)
-class SegmentHandleFinder(ItemHandleFinder):
-    """Find a handle on a line.
+class SegmentState:
+    moving: Optional[MoveType]
 
-    Creates a new handle if the mouse is located between two handles.
-    The position aligns with the points drawn by the SegmentPainter.
-    """
+    def __init__(self):
+        self.reset()
 
-    def get_handle_at_point(self, pos):
-        view = self.view
-        item = view.selection.hovered_item
-        handle = None
-        if self.item is view.selection.focused_item:
-            try:
-                segment = Segment(self.item, self.view.canvas)
-            except TypeError:
-                pass
-            else:
-                cpos = view.matrix.inverse().transform_point(*pos)
-                handle = segment.split(cpos)
-
-        if not handle:
-            item, handle = super().get_handle_at_point(pos)
-        return item, handle
+    def reset(self):
+        self.moving = None
 
 
-@HandleSelection.register(Line)
-class SegmentHandleSelection(ItemHandleSelection):
-    """In addition to the default behaviour, merge segments if the handle is
-    released."""
+def segment_tool(view):
+    gesture = Gtk.GestureDrag.new(view)
+    segment_state = SegmentState()
+    gesture.connect("drag-begin", on_drag_begin, segment_state)
+    gesture.connect("drag-update", on_drag_update, segment_state)
+    gesture.connect("drag-end", on_drag_end, segment_state)
+    return gesture
 
-    def unselect(self):
-        item = self.item
-        handle = self.handle
-        handles = item.handles()
 
-        # don't merge using first or last handle
-        if handles[0] is handle or handles[-1] is handle:
-            return True
+def on_drag_begin(gesture, start_x, start_y, segment_state):
+    view = gesture.get_widget()
+    pos = (start_x, start_y)
+    item = item_at_point(view, pos)
+    handle = item and maybe_split_segment(view, item, pos)
+    if handle:
+        segment_state.moving = HandleMove(item, handle, view)
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+    else:
+        gesture.set_state(Gtk.EventSequenceState.DENIED)
 
-        handle_index = handles.index(handle)
-        segment = handle_index - 1
 
-        # cannot merge starting from last segment
-        if segment == len(item.ports()) - 1:
-            segment = -1
-        assert segment >= 0 and segment < len(item.ports()) - 1
+def on_drag_update(gesture, offset_x, offset_y, segment_state):
+    _, x, y = gesture.get_start_point()
+    segment_state.moving.move((x + offset_x, y + offset_y))
 
-        before = handles[handle_index - 1]
-        after = handles[handle_index + 1]
-        d, p = distance_line_point(before.pos, after.pos, handle.pos)
 
-        if d < 2:
-            assert len(self.view.canvas.solver._marked_cons) == 0
-            Segment(item, self.view.canvas).merge_segment(segment)
+def on_drag_end(gesture, offset_x, offset_y, segment_state):
+    if not segment_state.moving:
+        return
 
-        if handle:
-            self.view.canvas.request_update(item)
+    _, x, y = gesture.get_start_point()
+    segment_state.moving.stop_move((x + offset_x, y + offset_y))
+    segment_state.reset()
+
+
+@HandleMove.register(Line)
+class LineHandleMove(ItemHandleMove):
+    def stop_move(self, pos):
+        super().start_move(pos)
+        maybe_merge_segments(self.view, self.item, self.handle)
+
+
+def maybe_split_segment(view, item, pos):
+    item = view.selection.hovered_item
+    handle = None
+    if item is view.selection.focused_item:
+        try:
+            segment = Segment(item, view.canvas)
+        except TypeError:
+            pass
+        else:
+            cpos = view.matrix.inverse().transform_point(*pos)
+            handle = segment.split(cpos)
+    return handle
+
+
+def maybe_merge_segments(view, item, handle):
+    handles = item.handles()
+
+    # don't merge using first or last handle
+    if handles[0] is handle or handles[-1] is handle:
+        return True
+
+    handle_index = handles.index(handle)
+    segment = handle_index - 1
+
+    # cannot merge starting from last segment
+    if segment == len(item.ports()) - 1:
+        segment = -1
+    assert segment >= 0 and segment < len(item.ports()) - 1
+
+    before = handles[handle_index - 1]
+    after = handles[handle_index + 1]
+    d, p = distance_line_point(before.pos, after.pos, handle.pos)
+
+    if d < 2:
+        Segment(item, view.canvas).merge_segment(segment)
+
+    if handle:
+        view.canvas.request_update(item)
 
 
 class LineSegmentPainter:

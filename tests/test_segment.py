@@ -3,7 +3,7 @@ import pytest
 
 from gaphas.aspect import HandleMove
 from gaphas.item import Element
-from gaphas.segment import HandleFinder, Line, Segment, SegmentHandleFinder
+from gaphas.segment import Line, Segment
 
 
 def test_segment_fails_for_element(canvas, connections):
@@ -359,8 +359,3 @@ def test_params_errors(canvas, connections, num_segments):
         else:
             segment.split_segment(0)
             segment.merge_segment(num_segments)
-
-
-def test_handle_finder(line, view):
-    finder = HandleFinder(line, view)
-    assert type(finder) is SegmentHandleFinder, type(finder)
