@@ -381,7 +381,6 @@ view.painter = (
     PainterChain()
     .append(FreeHandPainter(ItemPainter()))
     .append(HandlePainter())
-    .append(FocusedItemPainter())
 )
 ```
 
@@ -433,10 +432,6 @@ view.bounding_box_painter = BoundingBoxPainter(ItemPainter())
 #### Class: `gaphas.painter.HandlePainter`
 
 Draw handles of items that are marked as selected in the view.
-
-#### Class: `gaphas.painter.FocusedItemPainter`
-
-Used to draw on top of all the other layers for the focused item.
 
 ### Tools
 
@@ -576,14 +571,6 @@ Makes an item a sink, which is another item that an item's handle is connected t
 
 - item (`gaphas.item.Item`): The item to look for ports on.
 - port (`gaphas.connector.Port`): The port to use as the sink.
-
-#### Class: `gaphas.aspects.ItemPaintFocused`
-
-Paints on top of all items, just for the focused item and only when it's hovered (see
- `gaphas.painter.FocusedItemPainter`).
-
-- item (`gaphas.item.Item`): The focused item.
-- view (`gaphas.view.View`): The view to paint with.
 
 ### Extended Behaviour
 

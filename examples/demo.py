@@ -23,7 +23,6 @@ from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
     BoundingBoxPainter,
-    FocusedItemPainter,
     FreeHandPainter,
     HandlePainter,
     ItemPainter,
@@ -137,7 +136,6 @@ def apply_painters(view, rubberband_state):
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
         .append(LineSegmentPainter(view.selection))
-        .append(FocusedItemPainter(view))
         .append(GuidePainter(view))
         .append(RubberbandPainter(rubberband_state))
     )
