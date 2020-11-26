@@ -106,6 +106,14 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
+def rubberband_state(view):
+    try:
+        return view.rubberband_state
+    except AttributeError:
+        view.rubberband_state = RubberbandState()
+        return view.rubberband_state
+
+
 def apply_default_tool_set(view):
     view.remove_all_controllers()
     view.add_controller(segment_tool(view))
@@ -113,8 +121,7 @@ def apply_default_tool_set(view):
     view.add_controller(scroll_tool(view))
     view.add_controller(zoom_tool(view))
 
-    rubberband_state = RubberbandState()
-    view.add_controller(rubberband_tool(view, rubberband_state))
+    view.add_controller(rubberband_tool(view, rubberband_state(view)))
     view.add_controller(hover_tool(view))
     return rubberband_state
 
@@ -131,14 +138,14 @@ def apply_placement_tool_set(view, item_type, handle_index):
     view.add_controller(tool)
 
 
-def apply_painters(view, rubberband_state):
+def apply_painters(view):
     view.painter = (
         PainterChain()
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
         .append(LineSegmentPainter(view.selection))
         .append(GuidePainter(view))
-        .append(RubberbandPainter(rubberband_state))
+        .append(RubberbandPainter(rubberband_state(view)))
     )
     view.bounding_box_painter = BoundingBoxPainter(
         FreeHandPainter(ItemPainter(view.selection))
@@ -147,8 +154,9 @@ def apply_painters(view, rubberband_state):
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view = GtkView()
-    rubberband_state = apply_default_tool_set(view)
-    apply_painters(view, rubberband_state)
+
+    apply_default_tool_set(view)
+    apply_painters(view)
 
     w = Gtk.Window()
     w.set_title(title)
