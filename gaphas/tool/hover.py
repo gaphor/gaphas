@@ -1,6 +1,6 @@
 from gi.repository import Gtk
 
-from gaphas.aspect.finder import handle_at_point, item_at_point
+from gaphas.tool.itemtool import handle_at_point, item_at_point
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
