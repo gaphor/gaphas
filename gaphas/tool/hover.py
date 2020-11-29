@@ -12,7 +12,6 @@ def hover_tool(view: GtkView):
 
 
 def on_motion(ctrl, x, y):
-    # TODO: Check for claimed controller
     view = ctrl.get_widget()
     view.selection.set_hovered_item(find_item_at_point(view, (x, y)))
 

@@ -117,6 +117,8 @@ def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:
+        - view: a view
+        - pos: Position, in view coordinates
         - selected: if False returns first non-selected item
     """
     item: Item
