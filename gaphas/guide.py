@@ -3,6 +3,7 @@ from functools import reduce, singledispatch
 
 from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
 from gaphas.aspect.move import ItemMove, Move
+from gaphas.canvas import all_children
 from gaphas.item import Element, Item, Line
 from gaphas.view import GtkView
 
@@ -140,7 +141,7 @@ class GuideMixin:
         item = self.item
         view = self.view
 
-        excluded_items = set(view.canvas.get_all_children(item))
+        excluded_items = set(all_children(view.canvas, item))
         excluded_items.add(item)
         excluded_items.update(view.selection.selected_items)
         return excluded_items
