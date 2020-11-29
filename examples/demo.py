@@ -16,30 +16,27 @@ import math
 import cairo
 import gi
 
-import gaphas.guide  # noqa
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
 from gaphas.canvas import Context
+from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
     BoundingBoxPainter,
-    FocusedItemPainter,
     FreeHandPainter,
     HandlePainter,
     ItemPainter,
     PainterChain,
-    ToolPainter,
 )
-from gaphas.segment import Segment
-from gaphas.tool import DefaultTool, HandleTool, PlacementTool
+from gaphas.segment import LineSegmentPainter, Segment, segment_tool
+from gaphas.tool import hover_tool, item_tool, placement_tool, scroll_tool, zoom_tool
+from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
 
 # fmt: off
 gi.require_version("Gtk", "3.0")  # noqa: isort:skip
 from gi.repository import Gtk  # noqa: isort:skip
 # fmt: on
-
-# painter.DEBUG_DRAW_BOUNDING_BOX = True
 
 # Global undo list
 undo_list = []
@@ -109,19 +106,58 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
-def create_window(canvas, title, zoom=1.0):  # noqa too complex
-    view = GtkView()
-    view.tool = DefaultTool(view)
+def rubberband_state(view):
+    try:
+        return view.rubberband_state
+    except AttributeError:
+        view.rubberband_state = RubberbandState()
+        return view.rubberband_state
+
+
+def apply_default_tool_set(view):
+    view.remove_all_controllers()
+    view.add_controller(segment_tool(view))
+    view.add_controller(item_tool(view))
+    view.add_controller(scroll_tool(view))
+    view.add_controller(zoom_tool(view))
+
+    view.add_controller(rubberband_tool(view, rubberband_state(view)))
+    view.add_controller(hover_tool(view))
+    return rubberband_state
+
+
+def apply_placement_tool_set(view, item_type, handle_index):
+    def unset_placement_tool(gesture, offset_x, offset_y):
+        apply_default_tool_set(view)
+
+    view.remove_all_controllers()
+    tool = placement_tool(view, factory(view, item_type), handle_index)
+    tool.connect("drag-end", unset_placement_tool)
+    view.add_controller(scroll_tool(view))
+    view.add_controller(zoom_tool(view))
+    view.add_controller(tool)
+
+
+def apply_painters(view):
     view.painter = (
         PainterChain()
         .append(FreeHandPainter(ItemPainter(view.selection)))
         .append(HandlePainter(view))
-        .append(FocusedItemPainter(view))
-        .append(ToolPainter(view))
+        .append(LineSegmentPainter(view.selection))
+        .append(GuidePainter(view))
+        .append(RubberbandPainter(rubberband_state(view)))
     )
     view.bounding_box_painter = BoundingBoxPainter(
         FreeHandPainter(ItemPainter(view.selection))
     )
+
+
+def create_window(canvas, title, zoom=1.0):  # noqa too complex
+    view = GtkView()
+
+    apply_default_tool_set(view)
+    apply_painters(view)
+
     w = Gtk.Window()
     w.set_title(title)
     w.set_default_size(400, 120)
@@ -141,17 +177,16 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Add box")
 
-    def on_add_box_clicked(button, view):
-        # view.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.CROSSHAIR))
-        view.tool.grab(PlacementTool(view, factory(view, MyBox), HandleTool(view), 2))
+    def on_add_box_clicked(button):
+        apply_placement_tool_set(view, MyBox, 2)
 
-    b.connect("clicked", on_add_box_clicked, view)
+    b.connect("clicked", on_add_box_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Add line")
 
     def on_add_line_clicked(button):
-        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
+        apply_placement_tool_set(view, MyLine, -1)
 
     b.connect("clicked", on_add_line_clicked)
     v.add(b)

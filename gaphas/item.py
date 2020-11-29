@@ -7,7 +7,7 @@ from gaphas.connector import Handle, LinePort, Port
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
-from gaphas.solver import REQUIRED, VERY_STRONG, WEAK, variable
+from gaphas.solver import REQUIRED, VERY_STRONG, variable
 from gaphas.state import (
     observed,
     reversible_method,
@@ -279,7 +279,7 @@ class Line(Matrices, Updateable):
 
     fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
 
-    def _update_orthogonal_constraints(self, orthogonal):
+    def update_orthogonal_constraints(self, orthogonal):
         """Update the constraints required to maintain the orthogonal line.
 
         The actual constraints attribute (``_orthogonal_constraints``)
@@ -321,7 +321,7 @@ class Line(Matrices, Updateable):
         """
         if orthogonal and len(self.handles()) < 3:
             raise ValueError("Can't set orthogonal line with less than 3 handles")
-        self._update_orthogonal_constraints(orthogonal)
+        self.update_orthogonal_constraints(orthogonal)
 
     orthogonal = reversible_property(
         lambda s: bool(s._orthogonal_constraints), _set_orthogonal
@@ -347,43 +347,37 @@ class Line(Matrices, Updateable):
         False
         """
         self._inner_set_horizontal(horizontal)
-        self._update_orthogonal_constraints(self.orthogonal)
+        self.update_orthogonal_constraints(self.orthogonal)
 
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
     @observed
-    def _reversible_insert_handle(self, index, handle):
+    def insert_handle(self, index, handle):
         self._handles.insert(index, handle)
 
     @observed
-    def _reversible_remove_handle(self, handle):
+    def remove_handle(self, handle):
         self._handles.remove(handle)
 
     reversible_pair(
-        _reversible_insert_handle,
-        _reversible_remove_handle,
+        insert_handle,
+        remove_handle,
         bind1={"index": lambda self, handle: self._handles.index(handle)},
     )
 
     @observed
-    def _reversible_insert_port(self, index, port):
+    def insert_port(self, index, port):
         self._ports.insert(index, port)
 
     @observed
-    def _reversible_remove_port(self, port):
+    def remove_port(self, port):
         self._ports.remove(port)
 
     reversible_pair(
-        _reversible_insert_port,
-        _reversible_remove_port,
+        insert_port,
+        remove_port,
         bind1={"index": lambda self, port: self._ports.index(port)},
     )
-
-    def _create_handle(self, pos, strength=WEAK):
-        return Handle(pos, strength=strength)
-
-    def _create_port(self, p1, p2):
-        return LinePort(p1, p2)
 
     def _update_ports(self):
         """Update line ports.
@@ -395,7 +389,7 @@ class Line(Matrices, Updateable):
         self._ports = []
         handles = self._handles
         for h1, h2 in zip(handles[:-1], handles[1:]):
-            self._ports.append(self._create_port(h1.pos, h2.pos))
+            self._ports.append(LinePort(h1.pos, h2.pos))
 
     def opposite(self, handle):
         """Given the handle of one end of the line, return the other end."""

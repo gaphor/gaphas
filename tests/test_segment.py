@@ -1,14 +1,9 @@
 """Test segment aspects for items."""
 import pytest
 
+from gaphas.aspect import HandleMove
 from gaphas.item import Element
-from gaphas.segment import HandleFinder, Line, Segment, SegmentHandleFinder
-from gaphas.tool import ConnectHandleTool
-
-
-@pytest.fixture
-def tool(view):
-    return ConnectHandleTool(view)
+from gaphas.segment import Line, Segment
 
 
 def test_segment_fails_for_element(canvas, connections):
@@ -126,13 +121,13 @@ def test_ports_after_split(canvas, line):
     assert old_ports[1] == line.ports()[2]
 
 
-def test_constraints_after_split(canvas, connections, line, tool):
+def test_constraints_after_split(canvas, connections, line, view):
     """Test if constraints are recreated after line split."""
     # Connect line2 to self.line
     line2 = Line(connections)
     canvas.add(line2)
     head = line2.handles()[0]
-    tool.connect(line2, head, (25, 25))
+    HandleMove(line2, head, view).connect((25, 25))
     cinfo = canvas.connections.get_connection(head)
     assert line == cinfo.connected
     orig_constraint = cinfo.constraint
@@ -246,7 +241,7 @@ def test_merge_first_single(line, canvas, view):
     assert (20, 0) == port.end.pos
 
 
-def test_constraints_after_merge(canvas, connections, line, view, tool):
+def test_constraints_after_merge(canvas, connections, line, view):
     """Test if constraints are recreated after line merge."""
     line2 = Line(connections)
     canvas.add(line2)
@@ -256,7 +251,7 @@ def test_constraints_after_merge(canvas, connections, line, view, tool):
     canvas.request_update(line2)
     view.update()
 
-    tool.connect(line2, head, (25, 25))
+    HandleMove(line2, head, view).connect((25, 25))
     cinfo = connections.get_connection(head)
     assert line == cinfo.connected
 
@@ -364,8 +359,3 @@ def test_params_errors(canvas, connections, num_segments):
         else:
             segment.split_segment(0)
             segment.merge_segment(num_segments)
-
-
-def test_handle_finder(line, view):
-    finder = HandleFinder(line, view)
-    assert type(finder) is SegmentHandleFinder, type(finder)

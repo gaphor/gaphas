@@ -29,27 +29,9 @@ Tools can handle events in different ways
 - event can be ignored
 - tool can handle the event (obviously)
 """
-from gaphas.tool.handletool import ConnectHandleTool, HandleTool
-from gaphas.tool.hover import HoverTool
-from gaphas.tool.itemtool import ItemTool
-from gaphas.tool.pan import PanTool
-from gaphas.tool.placement import PlacementTool
-from gaphas.tool.rubberband import RubberbandTool
-from gaphas.tool.textedit import TextEditTool
-from gaphas.tool.tool import Tool
-from gaphas.tool.toolchain import ToolChain
-from gaphas.tool.zoom import ZoomTool
-
-
-def DefaultTool(view):
-    """The default tool chain build from HoverTool, ItemTool and HandleTool."""
-    return (
-        ToolChain(view)
-        .append(HoverTool(view))
-        .append(ConnectHandleTool(view))
-        .append(PanTool(view))
-        .append(ZoomTool(view))
-        .append(ItemTool(view))
-        .append(TextEditTool(view))
-        .append(RubberbandTool(view))
-    )
+from gaphas.tool.hover import hover_tool
+from gaphas.tool.itemtool import item_tool
+from gaphas.tool.placement import placement_tool
+from gaphas.tool.rubberband import rubberband_tool
+from gaphas.tool.scroll import scroll_tool
+from gaphas.tool.zoom import zoom_tool

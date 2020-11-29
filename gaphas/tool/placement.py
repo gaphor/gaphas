@@ -1,71 +1,54 @@
-from typing import Callable
+from typing import Callable, Optional
 
-from typing_extensions import Protocol
+from gi.repository import Gtk
 
-from gaphas.connector import Handle
+from gaphas.aspect import HandleMove
 from gaphas.item import Item
-from gaphas.tool.tool import Tool
+from gaphas.tool.itemtool import MoveType
 from gaphas.view import GtkView
 
 FactoryType = Callable[..., Item]  # type: ignore[misc]
 
 
-class HandleToolType(Protocol):
-    def grab_handle(self, new_item: Item, handle: Handle):
-        ...
+def placement_tool(view: GtkView, factory: FactoryType, handle_index: int):
+    gesture = Gtk.GestureDrag.new(view)
+    placement_state = PlacementState(factory, handle_index)
+    gesture.connect("drag-begin", on_drag_begin, placement_state)
+    gesture.connect("drag-update", on_drag_update, placement_state)
+    gesture.connect("drag-end", on_drag_end, placement_state)
+    return gesture
 
 
-class PlacementTool(Tool):
-    def __init__(
-        self,
-        view: GtkView,
-        factory: FactoryType,
-        handle_tool: HandleToolType,
-        handle_index: int,
-    ):
-        super().__init__(view)
-        self._factory = factory
-        self.handle_tool = handle_tool
-        self._handle_index = handle_index
-        self._new_item = None
-        self.grabbed_handle = None
+class PlacementState:
+    def __init__(self, factory: FactoryType, handle_index: int):
+        self.factory = factory
+        self.handle_index = handle_index
+        self.moving: Optional[MoveType] = None
 
-    handle_index = property(
-        lambda s: s._handle_index, doc="Index of handle to be used by handle_tool"
-    )
-    new_item = property(lambda s: s._new_item, doc="The newly created item")
 
-    def on_button_press(self, event):
-        view = self.view
-        pos = event.get_coords()[1:]
-        new_item = self._create_item(pos)
+def on_drag_begin(gesture, start_x, start_y, placement_state):
+    view = gesture.get_widget()
+    item = placement_state.factory()
+    x, y = view.get_matrix_v2i(item).transform_point(start_x, start_y)
+    item.matrix.translate(x, y)
+    view.selection.unselect_all()
+    view.selection.set_focused_item(item)
 
-        self._new_item = new_item
-        view.selection.set_focused_item(new_item)
+    gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
-        h = new_item.handles()[self._handle_index]
-        if h.movable:
-            self.handle_tool.grab_handle(new_item, h)
-            self.grabbed_handle = h
-        return True
+    handle = item.handles()[placement_state.handle_index]
+    if handle.movable:
+        placement_state.moving = HandleMove(item, handle, view)
+        placement_state.moving.start_move((start_x, start_y))
 
-    def _create_item(self, pos, **kw):
-        view = self.view
-        item = self._factory(**kw)
-        x, y = view.get_matrix_v2i(item).transform_point(*pos)
-        item.matrix.translate(x, y)
-        return item
 
-    def on_button_release(self, event):
-        if self.grabbed_handle:
-            self.handle_tool.on_button_release(event)
-            self.grabbed_handle = None
-        self._new_item = None
-        return True
+def on_drag_update(gesture, offset_x, offset_y, placement_state):
+    if placement_state.moving:
+        _, x, y = gesture.get_start_point()
+        placement_state.moving.move((x + offset_x, y + offset_y))
 
-    def on_motion_notify(self, event):
-        if self.grabbed_handle:
-            return self.handle_tool.on_motion_notify(event)
-        else:
-            # act as if the event is handled if we have a new item
-            return bool(self._new_item)
+
+def on_drag_end(gesture, offset_x, offset_y, placement_state):
+    if placement_state.moving:
+        _, x, y = gesture.get_start_point()
+        placement_state.moving.stop_move((x + offset_x, y + offset_y))

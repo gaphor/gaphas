@@ -3518,7 +3518,7 @@
 </reflist>
 </appliedStereotype>
 <name>
-<val>InMotion</val>
+<val>Move</val>
 </name>
 <package>
 <ref refid="DCE:F4284EF0-B332-11DA-87F3-00306EB655C9"/>
@@ -3611,7 +3611,7 @@
 </reflist>
 </clientDependency>
 <name>
-<val>HandleInMotion</val>
+<val>HandleMove</val>
 </name>
 <package>
 <ref refid="DCE:F4284EF0-B332-11DA-87F3-00306EB655C9"/>

@@ -1,11 +1,21 @@
-from gaphas.aspect import Finder
-from gaphas.tool.tool import Tool
+from gi.repository import Gtk
+
+from gaphas.tool.itemtool import handle_at_point, item_at_point
+from gaphas.types import Pos
+from gaphas.view import GtkView
 
 
-class HoverTool(Tool):
-    """Make the item under the mouse cursor the "hovered item"."""
+def hover_tool(view: GtkView):
+    ctrl = Gtk.EventControllerMotion.new(view)
+    ctrl.connect("motion", on_motion)
+    return ctrl
 
-    def on_motion_notify(self, event):
-        view = self.view
-        pos = event.get_coords()[1:]
-        view.selection.set_hovered_item(Finder(view).get_item_at_point(pos))
+
+def on_motion(ctrl, x, y):
+    view = ctrl.get_widget()
+    view.selection.set_hovered_item(find_item_at_point(view, (x, y)))
+
+
+def find_item_at_point(view: GtkView, pos: Pos):
+    item, handle = handle_at_point(view, pos)
+    return item or item_at_point(view, pos)

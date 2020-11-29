@@ -31,6 +31,7 @@ import logging
 from typing import TYPE_CHECKING, Iterable, Optional
 
 import cairo
+from typing_extensions import Protocol
 
 from gaphas import matrix, tree
 from gaphas.connections import Connections
@@ -197,26 +198,6 @@ class Canvas:
         """
         return self._tree.get_parent(item)
 
-    def get_ancestors(self, item):
-        """See `tree.Tree.get_ancestors()`.
-
-        >>> c = Canvas()
-        >>> from gaphas import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> ii = item.Item()
-        >>> c.add(ii, i)
-        >>> iii = item.Item()
-        >>> c.add(iii, ii)
-        >>> list(c.get_ancestors(i))
-        []
-        >>> list(c.get_ancestors(ii)) # doctest: +ELLIPSIS
-        [<gaphas.item.Item ...>]
-        >>> list(c.get_ancestors(iii)) # doctest: +ELLIPSIS
-        [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
-        """
-        return self._tree.get_ancestors(item)
-
     def get_children(self, item) -> Iterable[Item]:
         """See `tree.Tree.get_children()`.
 
@@ -236,26 +217,6 @@ class Canvas:
         [<gaphas.item.Item ...>]
         """
         return self._tree.get_children(item)
-
-    def get_all_children(self, item):
-        """See `tree.Tree.get_all_children()`.
-
-        >>> c = Canvas()
-        >>> from gaphas import item
-        >>> i = item.Item()
-        >>> c.add(i)
-        >>> ii = item.Item()
-        >>> c.add(ii, i)
-        >>> iii = item.Item()
-        >>> c.add(iii, ii)
-        >>> list(c.get_all_children(iii))
-        []
-        >>> list(c.get_all_children(ii)) # doctest: +ELLIPSIS
-        [<gaphas.item.Item ...>]
-        >>> list(c.get_all_children(i)) # doctest: +ELLIPSIS
-        [<gaphas.item.Item ...>, <gaphas.item.Item ...>]
-        """
-        return self._tree.get_all_children(item)
 
     def sort(self, items) -> Iterable[Item]:
         """Sort a list of items in the order in which they are traversed in the
@@ -392,6 +353,28 @@ class Canvas:
         """Send an update notification to all registered views."""
         for v in self._registered_views:
             v.request_update(dirty_items, dirty_matrix_items, removed_items)
+
+
+class Traversable(Protocol):
+    def get_parent(self, item: Item) -> Optional[Item]:
+        ...
+
+    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
+        ...
+
+
+def ancestors(canvas: Traversable, item: Item) -> Iterable[Optional[Item]]:
+    parent = canvas.get_parent(item)
+    while parent:
+        yield parent
+        parent = canvas.get_parent(parent)
+
+
+def all_children(canvas: Traversable, item: Optional[Item]) -> Iterable[Item]:
+    children = canvas.get_children(item)
+    for child in children:
+        yield child
+        yield from all_children(canvas, child)
 
 
 # Additional tests in @observed methods

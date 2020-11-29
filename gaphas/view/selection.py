@@ -58,6 +58,8 @@ class Selection(GObject.Object):
                 self.emit("selection-changed", self._selected_items)
 
     def unselect_item(self, item):
+        if item is self._focused_item:
+            self.set_focused_item(None)
         if item in self._selected_items:
             self._selected_items.discard(item)
             self.emit("selection-changed", self._selected_items)

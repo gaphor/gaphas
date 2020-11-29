@@ -1,8 +1,10 @@
 import pytest
 
 from gaphas.connections import Connections
-from gaphas.guide import Guide, GuidedItemInMotion
+from gaphas.connector import Handle
+from gaphas.guide import Guide, GuidedItemMove
 from gaphas.item import Element, Line
+from gaphas.solver import WEAK
 
 
 @pytest.fixture
@@ -17,7 +19,7 @@ def test_find_closest(view, connections):
     set1 = [0, 10, 20]
     set2 = [2, 15, 30]
 
-    guider = GuidedItemInMotion(Element(connections), view)
+    guider = GuidedItemMove(Element(connections), view)
     d, closest = guider.find_closest(set1, set2)
     assert 2.0 == d
     assert [2.0] == closest
@@ -38,9 +40,9 @@ def test_element_guide():
 
 
 def test_line_guide(line, canvas):
-    line.handles().append(line._create_handle((20, 20)))
-    line.handles().append(line._create_handle((30, 30)))
-    line.handles().append(line._create_handle((40, 40)))
+    line.handles().append(Handle((20, 20), strength=WEAK))
+    line.handles().append(Handle((30, 30), strength=WEAK))
+    line.handles().append(Handle((40, 40), strength=WEAK))
     line.orthogonal = True
     canvas.update_now((line,))
 
@@ -56,9 +58,9 @@ def test_line_guide(line, canvas):
 
 
 def test_line_guide_horizontal(line, canvas):
-    line.handles().append(line._create_handle((20, 20)))
-    line.handles().append(line._create_handle((30, 30)))
-    line.handles().append(line._create_handle((40, 40)))
+    line.handles().append(Handle((20, 20)))
+    line.handles().append(Handle((30, 30)))
+    line.handles().append(Handle((40, 40)))
     line.horizontal = True
     line.orthogonal = True
     canvas.update_now((line,))
@@ -74,7 +76,7 @@ def test_line_guide_horizontal(line, canvas):
     assert 30.0 == guides[1]
 
 
-def test_guide_item_in_motion(connections, canvas, view):
+def test_guide_item_in_motion(connections, canvas, view, window):
     e1 = Element(connections)
     e2 = Element(connections)
     e3 = Element(connections)
@@ -90,7 +92,7 @@ def test_guide_item_in_motion(connections, canvas, view):
     assert 40 == e2.matrix[4]
     assert 40 == e2.matrix[5]
 
-    guider = GuidedItemInMotion(e3, view)
+    guider = GuidedItemMove(e3, view)
 
     guider.start_move((0, 0))
     assert 0 == e3.matrix[4]
@@ -123,7 +125,7 @@ def test_guide_item_in_motion_2(connections, canvas, view):
     assert 40 == e2.matrix[4]
     assert 40 == e2.matrix[5]
 
-    guider = GuidedItemInMotion(e3, view)
+    guider = GuidedItemMove(e3, view)
 
     guider.start_move((3, 3))
     assert 0 == e3.matrix[4]

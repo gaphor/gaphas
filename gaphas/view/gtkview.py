@@ -93,6 +93,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
 
+        self._controllers: Set[Gtk.EventController] = set()
+
         self.set_can_focus(True)
         self.add_events(EVENT_MASK)
 
@@ -112,7 +114,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._bounding_box_painter: Painter = BoundingBoxPainter(
             ItemPainter(self._selection)
         )
-        self._tool = None
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
@@ -192,19 +193,38 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
 
-    def _set_tool(self, tool):
-        """Set the tool to use.
-
-        Tools should implement tool.Tool.
-        """
-        self._tool = tool
-        self.emit("tool-changed")
-
-    tool = property(lambda s: s._tool, _set_tool)
-
     hadjustment = property(lambda s: s._scrolling.hadjustment)
 
     vadjustment = property(lambda s: s._scrolling.vadjustment)
+
+    def add_controller(self, *controllers: Gtk.EventController):
+        """Add a controller.
+
+        A convenience method, so you have a place to store the event
+        controllers. Events controllers are linked to a widget (in GTK3)
+        on creation time, so calling this method is not necessary.
+        """
+        self._controllers.update(controllers)
+
+    def remove_controller(self, controller: Gtk.EventController):
+        """Remove a controller.
+
+        The event controller's propagation phase is set to
+        `Gtk.PropagationPhase.NONE` to ensure it's not invoked
+        anymore.
+
+        NB. The controller is only really removed from the widget when it's destroyed!
+            This is a Gtk3 limitation.
+        """
+        if controller in self._controllers:
+            controller.set_propagation_phase(Gtk.PropagationPhase.NONE)
+            self._controllers.discard(controller)
+            return True
+        return False
+
+    def remove_all_controllers(self):
+        for controller in set(self._controllers):
+            self.remove_controller(controller)
 
     def zoom(self, factor: float) -> None:
         """Zoom in/out by factor ``factor``."""
@@ -212,13 +232,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.matrix.scale(factor, factor)
         self.request_update((), self._canvas.get_all_items())
 
-    def get_items_in_rectangle(self, rect) -> Iterable[Item]:
+    def get_items_in_rectangle(self, rect, contain=False) -> Iterable[Item]:
         """Return the items in the rectangle 'rect'.
 
         Items are automatically sorted in canvas' processing order.
         """
         assert self._canvas
-        items = self._qtree.find_intersect(rect)
+        items = (
+            self._qtree.find_inside(rect)
+            if contain
+            else self._qtree.find_intersect(rect)
+        )
         return self._canvas.sort(items)
 
     def get_item_bounding_box(self, item: Item):
@@ -349,7 +373,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             for item, bounds in painter.paint(items, cr).items():
                 v2i = self.get_matrix_v2i(item)
                 ix, iy = v2i.transform_point(bounds.x, bounds.y)
-                iw, ih = v2i.transform_distance(bounds.x1, bounds.y1)
+                iw, ih = v2i.transform_distance(bounds.width, bounds.height)
                 self._qtree.add(item=item, bounds=bounds, data=(ix, iy, iw, ih))
         finally:
             cr.restore()
@@ -387,7 +411,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                for item in items:
+                for item in self.get_items_in_rectangle(
+                    (0, 0, allocation.width, allocation.height)
+                ):
                     try:
                         b = self.get_item_bounding_box(item)
                     except KeyError:
@@ -457,13 +483,4 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         cr.set_source_surface(self._back_buffer, 0, 0)
         cr.paint()
 
-        return False
-
-    def do_event(self, event: Gdk.Event):
-        """Handle GDK events.
-
-        Events are delegated to a `tool.Tool`.
-        """
-        if self._tool:
-            return self._tool.handle(event) and True or False
         return False

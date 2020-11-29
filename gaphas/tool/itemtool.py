@@ -1,16 +1,21 @@
-from typing import Set
+import logging
+from typing import Optional, Tuple, Union
 
-from gi.repository import Gdk
+from gi.repository import Gdk, Gtk
 from typing_extensions import Protocol
 
-from gaphas.aspect import InMotion, Selector
+from gaphas.aspect import HandleMove, Move
+from gaphas.canvas import ancestors
+from gaphas.connector import Handle
+from gaphas.geometry import distance_point_point_fast
 from gaphas.item import Item
-from gaphas.tool.tool import Tool
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
+log = logging.getLogger(__name__)
 
-class InMotionType(Protocol):
+
+class MoveType(Protocol):
     def __init__(self, item: Item, view: GtkView):
         ...
 
@@ -20,91 +25,162 @@ class InMotionType(Protocol):
     def move(self, pos: Pos):
         ...
 
-    def stop_move(self):
+    def stop_move(self, pos: Pos):
         ...
 
 
-class ItemTool(Tool):
-    """ItemTool does selection and dragging of items. On a button click, the
-    currently "hovered item" is selected. If CTRL or SHIFT are pressed, already
-    selected items remain selected. The last selected item gets the focus (e.g.
-    receives key press events).
+def item_tool(view):
+    gesture = Gtk.GestureDrag.new(view)
+    drag_state = DragState()
+    gesture.connect("drag-begin", on_drag_begin, drag_state)
+    gesture.connect("drag-update", on_drag_update, drag_state)
+    gesture.connect("drag-end", on_drag_end, drag_state)
+    return gesture
 
-    The roles used are Selector (select, unselect) and InMotion (move).
+
+class DragState:
+    def __init__(self):
+        self.moving = set()
+
+
+def on_drag_begin(gesture, start_x, start_y, drag_state):
+    view = gesture.get_widget()
+    selection = view.selection
+    event = gesture.get_last_event(None)
+    modifiers = event.get_state()[1]
+    item, handle = find_item_and_handle_at_point(view, (start_x, start_y))
+
+    # Deselect all items unless CTRL or SHIFT is pressed
+    # or the item is already selected.
+    if not (
+        modifiers & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
+        or item in selection.selected_items
+    ):
+        selection.unselect_all()
+
+    if not item:
+        gesture.set_state(Gtk.EventSequenceState.DENIED)
+        return
+
+    if (
+        not handle
+        and item in selection.selected_items
+        and modifiers & Gdk.ModifierType.CONTROL_MASK
+    ):
+        selection.unselect_item(item)
+        gesture.set_state(Gtk.EventSequenceState.DENIED)
+        return
+
+    selection.set_focused_item(item)
+    gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+
+    if handle:
+        drag_state.moving = {HandleMove(item, handle, view)}
+    else:
+        drag_state.moving = set(moving_items(view))
+
+    for moving in drag_state.moving:
+        moving.start_move((start_x, start_y))
+
+
+def find_item_and_handle_at_point(view: GtkView, pos: Pos):
+    item, handle = handle_at_point(view, pos)
+    return item or item_at_point(view, pos), handle
+
+
+def moving_items(view):
+    """Filter the items that should eventually be moved.
+
+    Returns Move aspects for the items.
     """
+    selected_items = set(view.selection.selected_items)
+    for item in selected_items:
+        # Do not move subitems of selected items
+        if not set(ancestors(view.canvas, item)).intersection(selected_items):
+            yield Move(item, view)
 
-    def __init__(self, view, buttons=(1,)):
-        super().__init__(view)
-        self._buttons = buttons
-        self._movable_items: Set[InMotionType] = set()
 
-    def get_item(self):
-        return self.view.selection.hovered_item
+def on_drag_update(gesture, offset_x, offset_y, drag_state):
+    _, x, y = gesture.get_start_point()
+    for moving in drag_state.moving:
+        moving.move((x + offset_x, y + offset_y))
 
-    def movable_items(self):
-        """Filter the items that should eventually be moved.
 
-        Returns InMotion aspects for the items.
-        """
-        view = self.view
-        get_ancestors = view.canvas.get_ancestors
-        selected_items = set(view.selection.selected_items)
-        for item in selected_items:
-            # Do not move subitems of selected items
-            if not set(get_ancestors(item)).intersection(selected_items):
-                yield InMotion(item, view)
+def on_drag_end(gesture, offset_x, offset_y, drag_state):
+    _, x, y = gesture.get_start_point()
+    for moving in drag_state.moving:
+        moving.stop_move((x + offset_x, y + offset_y))
+    drag_state.moving = set()
 
-    def on_button_press(self, event):
-        # TODO: make keys configurable
-        view = self.view
-        item = self.get_item()
 
-        if event.get_button()[1] not in self._buttons:
-            return False
+def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
+    """Return the topmost item located at ``pos`` (x, y).
 
-        # Deselect all items unless CTRL or SHIFT is pressed
-        # or the item is already selected.
-        if not (
-            event.get_state()[1]
-            & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK)
-            or item in view.selection.selected_items
-        ):
-            view.selection.unselect_all()
+    Parameters:
+        - view: a view
+        - pos: Position, in view coordinates
+        - selected: if False returns first non-selected item
+    """
+    item: Item
+    for item in reversed(list(view.get_items_in_rectangle((pos[0], pos[1], 1, 1)))):
+        if not selected and item in view.selection.selected_items:
+            continue  # skip selected items
 
-        if item:
-            if (
-                view.selection.hovered_item in view.selection.selected_items
-                and event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK
-            ):
-                selection = Selector(item, view.selection)
-                selection.unselect()
-            else:
-                selection = Selector(item, view.selection)
-                selection.select()
-                self._movable_items.clear()
-            return True
+        v2i = view.get_matrix_v2i(item)
+        ix, iy = v2i.transform_point(*pos)
+        item_distance = item.point(ix, iy)
+        if item_distance is None:
+            log.warning("Item distance is None for %s", item)
+            continue
+        if item_distance < 0.5:
+            return item
+    return None
 
-    def on_button_release(self, event):
-        if event.get_button()[1] not in self._buttons:
-            return False
-        for inmotion in self._movable_items:
-            inmotion.stop_move()
-        self._movable_items.clear()
-        return True
 
-    def on_motion_notify(self, event):
-        """Normally do nothing.
+def handle_at_point(
+    view: GtkView, pos: Pos, distance=6
+) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
+    """Look for a handle at ``pos`` and return the tuple (item, handle)."""
 
-        If a button is pressed move the items around.
-        """
-        if event.get_state()[1] & Gdk.EventMask.BUTTON_PRESS_MASK:
+    def find(item):
+        """Find item's handle at pos."""
+        v2i = view.get_matrix_v2i(item)
+        d = distance_point_point_fast(v2i.transform_distance(0, distance))
+        x, y = v2i.transform_point(*pos)
 
-            if not self._movable_items:
-                self._movable_items = set(self.movable_items())
-                for inmotion in self._movable_items:
-                    inmotion.start_move(event.get_coords()[1:])
+        for h in item.handles():
+            if not h.movable:
+                continue
+            hx, hy = h.pos
+            if -d < (hx - x) < d and -d < (hy - y) < d:
+                return h
 
-            for inmotion in self._movable_items:
-                inmotion.move(event.get_coords()[1:])
+    selection = view.selection
 
-            return True
+    # The focused item is the preferred item for handle grabbing
+    if selection.focused_item:
+        h = find(selection.focused_item)
+        if h:
+            return selection.focused_item, h
+
+    # then try hovered item
+    if selection.hovered_item:
+        h = find(selection.hovered_item)
+        if h:
+            return selection.hovered_item, h
+
+    # Last try all items, checking the bounding box first
+    x, y = pos
+    items = reversed(
+        list(
+            view.get_items_in_rectangle(
+                (x - distance, y - distance, distance * 2, distance * 2)
+            )
+        )
+    )
+
+    for item in items:
+        h = find(item)
+        if h:
+            return item, h
+    return None, None

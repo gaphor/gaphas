@@ -1,10 +1,10 @@
 """Module implements guides when moving items and handles around."""
 from functools import reduce, singledispatch
 
-from gaphas.aspect.handleinmotion import HandleInMotion, ItemHandleInMotion
-from gaphas.aspect.inmotion import InMotion, ItemInMotion
+from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
+from gaphas.aspect.move import ItemMove, Move
+from gaphas.canvas import all_children
 from gaphas.item import Element, Item, Line
-from gaphas.painter.focuseditempainter import ItemPaintFocused, PaintFocused
 from gaphas.view import GtkView
 
 
@@ -141,7 +141,7 @@ class GuideMixin:
         item = self.item
         view = self.view
 
-        excluded_items = set(view.canvas.get_all_children(item))
+        excluded_items = set(all_children(view.canvas, item))
         excluded_items.add(item)
         excluded_items.update(view.selection.selected_items)
         return excluded_items
@@ -186,8 +186,8 @@ class GuideMixin:
             return 0, ()
 
 
-@InMotion.register(Element)
-class GuidedItemInMotion(GuideMixin, ItemInMotion):
+@Move.register(Element)
+class GuidedItemMove(GuideMixin, ItemMove):
     """Move the item, lock position on any element that's located at the same
     location."""
 
@@ -223,7 +223,7 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
 
         return sink
 
-    def stop_move(self):
+    def stop_move(self, pos):
         self.queue_draw_guides()
         try:
             del self.view.guides
@@ -232,8 +232,8 @@ class GuidedItemInMotion(GuideMixin, ItemInMotion):
             pass
 
 
-@HandleInMotion.register(Element)
-class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
+@HandleMove.register(Element)
+class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
     """Move a handle and lock the position of other elements.
 
     Locks the position of another element that's located at the same
@@ -274,7 +274,8 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
 
             canvas.request_update(item)
 
-    def stop_move(self):
+    def stop_move(self, pos):
+        super().stop_move(pos)
         self.queue_draw_guides()
         try:
             del self.view.guides
@@ -283,9 +284,11 @@ class GuidedItemHandleInMotion(GuideMixin, ItemHandleInMotion):
             pass
 
 
-@PaintFocused.register(Element)
-class GuidePainter(ItemPaintFocused):
-    def paint(self, cr):
+class GuidePainter:
+    def __init__(self, view: GtkView):
+        self.view = view
+
+    def paint(self, _items, cr):
         try:
             guides = self.view.guides
         except AttributeError:

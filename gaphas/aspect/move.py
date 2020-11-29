@@ -5,7 +5,7 @@ from gaphas.types import Pos
 from gaphas.view import GtkView
 
 
-class ItemInMotion:
+class ItemMove:
     """Aspect for dealing with motion on an item.
 
     In this case the item is moved.
@@ -38,8 +38,8 @@ class ItemInMotion:
         item.matrix.translate(dx, dy)
         view.canvas.request_matrix_update(item)
 
-    def stop_move(self):
+    def stop_move(self, pos):
         pass
 
 
-InMotion = singledispatch(ItemInMotion)
+Move = singledispatch(ItemMove)

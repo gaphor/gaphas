@@ -189,8 +189,6 @@ Chain up a set of painters.
         PainterChain()
         .append(FreeHandPainter(ItemPainter()))
         .append(HandlePainter())
-        .append(FocusedItemPainter())
-        .append(ToolPainter())
     )
 
 Class: ``gaphas.painter.DrawContext``
@@ -248,98 +246,55 @@ Class: ``gaphas.painter.HandlePainter``
 
 Draw handles of items that are marked as selected in the view.
 
-Class: ``gaphas.painter.ToolPainter``
-------
-
-Allows the Tool defined on a view to conduct drawing.
-
-Class: ``gaphas.painter.FocusedItemPainter``
-------
-
-Used to draw on top of all the other layers for the focused item.
-
 ### Tools
 
-Interacting with the Canvas is done through tools. Tools tell _what_ has to be done (like moving). To make an element move aspects are defined. Aspects tell how the behaviour has to be performed.
+Interacting with the View is done through tools.
+Tools tell _what_ has to be done (like moving).
+To make an element move aspects are defined.
+Aspects tell how the behaviour has to be performed.
 
-Class: ``gaphas.tools.ToolChain``
-------
-
-Used to chain tools together. For example, chain a HoverTool, HandleTool, and SelectionTool in order to combine their functionality in to a new tool.
-
-- view (``gaphas.view.View``): The view to use for the tool chain.
-
-.. code-block: python
-
-    (ToolChain(view)
-    .append(HoverTool())
-    .append(ConnectHandleTool())
-    .append(PanTool())
-    .append(ZoomTool())
-    .append(ItemTool())
-    .append(TextEditTool())
-    .append(RubberbandTool())
-    )
-
-Class: ``gaphas.tools.HoverTool``
+Class: ``gaphas.tool.hover_tool``
 ------
 
 Makes the item under the mouse cursor the hovered item.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.ItemTool``
+Class: ``gaphas.toolitem_tool``
 ------
 
-Does selection and dragging of items.
+Does selection and dragging of items and handles.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.HandleTool``
-------
-
-Tool to move handles around.
-
-- view (``gaphas.view.View``): The view to use for the tool; default is None.
-
-Class: ``gaphas.tools.RubberbandTool``
+Class: ``gaphas.tool.rubberband_tool``
 ------
 
 Allows the user to drag a "rubber band" for selecting items in an area.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.PanTool``
+Class: ``gaphas.tool.pan_tool``
 ------
 
 Captures drag events with the middle mouse button and uses them to translate the Canvas within the view.
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.ZoomTool``
+Class: ``gaphas.tool.zoom_tool``
 ------
-
-Tool for zooming using two different user inputs:
-
-1. Ctrl + middle-mouse dragging in the up and down direction
-2. Ctrl + mouse-wheel
 
 - view (``gaphas.view.View``): The view to use for the tool; default is None.
 
-Class: ``gaphas.tools.PlacementTool``
+Class: ``gaphas.tool.placement_tool``
 ------
 
 Tool for placing items on the Canvas.
 
 - view (``gaphas.view.View``): The view to use for the tool.
 - factory (factory object): A Canvas item factory for creating new items.
-- handle_tool (``gaphas.tools.HandleTool``): The handle tool to use.
 - handle_index (int): The index of the handle to be used by the handle tool.
 
-.. code-block: python
-
-    def on_clicked(button):
-        view.tool.grab(PlacementTool(view, factory(view, MyLine), HandleTool(view), 1))
 
 Class: ``gaphas.aspects.ItemFinder``
 ------
@@ -413,15 +368,6 @@ Makes an item a sink, which is another item that an item's handle is connected t
 
 - item (``gaphas.item.Item``): The item to look for ports on.
 - port (``gaphas.connector.Port``): The port to use as the sink.
-
-Class: ``gaphas.aspects.ItemPaintFocused``
-------
-
-Paints on top of all items, just for the focused item and only when it's hovered (see
- ``gaphas.painter.FocusedItemPainter``).
-
-- item (``gaphas.item.Item``): The focused item.
-- view (``gaphas.view.View``): The view to paint with.
 
 ### Extended Behaviour
 

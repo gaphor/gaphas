@@ -80,3 +80,30 @@ def test_scroll_adjustments_signal(sc_view):
 def test_scroll_adjustments(sc_view):
     assert sc_view[1].get_hadjustment() is sc_view[0].hadjustment
     assert sc_view[1].get_vadjustment() is sc_view[0].vadjustment
+
+
+def test_will_not_remove_lone_controller(view):
+    ctrl = Gtk.EventControllerMotion.new(view)
+
+    removed = view.remove_controller(ctrl)
+
+    assert not removed
+
+
+def test_can_add_and_remove_controller(view):
+    ctrl = Gtk.EventControllerMotion.new(view)
+    view.add_controller(ctrl)
+
+    removed = view.remove_controller(ctrl)
+
+    assert removed
+    assert ctrl.get_propagation_phase() == Gtk.PropagationPhase.NONE
+
+
+def test_can_remove_all_controllers(view):
+    ctrl = Gtk.EventControllerMotion.new(view)
+    view.add_controller(ctrl)
+
+    view.remove_all_controllers()
+
+    assert ctrl.get_propagation_phase() == Gtk.PropagationPhase.NONE
