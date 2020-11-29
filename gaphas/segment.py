@@ -284,13 +284,11 @@ class LineSegmentPainter:
                 p1, p2 = h1.pos, h2.pos
                 cx = (p1.x + p2.x) / 2
                 cy = (p1.y + p2.y) / 2
+                vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
                 cairo.save()
-                cairo.identity_matrix()
-
                 cairo.set_antialias(ANTIALIAS_NONE)
-                cairo.translate(
-                    *cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
-                )
+                cairo.identity_matrix()
+                cairo.translate(vx, vy)
                 cairo.rectangle(-3, -3, 6, 6)
                 cairo.set_source_rgba(0, 0.5, 0, 0.4)
                 cairo.fill_preserve()
