@@ -114,7 +114,7 @@ license = ["editdistance"]
 
 [[package]]
 name = "importlib-metadata"
-version = "2.1.0"
+version = "2.1.1"
 description = "Read metadata from Python packages"
 category = "main"
 optional = false
@@ -492,8 +492,8 @@ identify = [
     {file = "identify-1.5.10.tar.gz", hash = "sha256:943cd299ac7f5715fcb3f684e2fc1594c1e0f22a90d15398e5888143bd4144b5"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-2.1.0-py2.py3-none-any.whl", hash = "sha256:030f3b1bdb823ecbe4a9659e14cc861ce5af403fe99863bae173ec5fe00ab132"},
-    {file = "importlib_metadata-2.1.0.tar.gz", hash = "sha256:caeee3603f5dcf567864d1be9b839b0bcfdf1383e3e7be33ce2dead8144ff19c"},
+    {file = "importlib_metadata-2.1.1-py2.py3-none-any.whl", hash = "sha256:c2d6341ff566f609e89a2acb2db190e5e1d23d5409d6cc8d2fe34d72443876d4"},
+    {file = "importlib_metadata-2.1.1.tar.gz", hash = "sha256:b8de9eff2b35fb037368f28a7df1df4e6436f578fa74423505b6c6a778d5b5dd"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
