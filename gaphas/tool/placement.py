@@ -7,7 +7,7 @@ from gaphas.item import Item
 from gaphas.tool.itemtool import MoveType
 from gaphas.view import GtkView
 
-FactoryType = Callable[..., Item]  # type: ignore[misc]
+FactoryType = Callable[[], Item]
 
 
 def placement_tool(view: GtkView, factory: FactoryType, handle_index: int):
