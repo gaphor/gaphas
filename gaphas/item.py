@@ -210,10 +210,9 @@ class Element(Matrices, Updateable):
         10.0
         """
         h = self._handles
-        pnw, pse = h[NW].pos, h[SE].pos
-        return distance_rectangle_point(
-            list(map(float, (pnw.x, pnw.y, pse.x, pse.y))), (x, y)
-        )
+        x0, y0 = h[NW].pos
+        x1, y1 = h[SE].pos
+        return distance_rectangle_point((x0, y0, x1 - x0, y1 - y0), (x, y))
 
     def draw(self, context: Context):
         pass

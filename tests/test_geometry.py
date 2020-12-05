@@ -13,6 +13,10 @@ def test_distance_point_in_rectangle():
     assert distance_rectangle_point((0, 0, 2, 2), (1, 1)) == 0
 
 
+def test_distance_with_negative_numbers_in_rectangle():
+    assert distance_rectangle_point((-50, -100, 100, 100), (-17, -65)) == 0
+
+
 def test_point_on_rectangle():
     assert point_on_rectangle((2, 2, 2, 2), (0, 0)) == (2, 2)
     assert point_on_rectangle((2, 2, 2, 2), (3, 0)) == (3, 2)
