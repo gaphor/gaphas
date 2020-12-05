@@ -58,10 +58,10 @@ jobs:
         run: poetry build
       - name: Upload Assets (release only)
         uses: AButler/upload-release-assets@v2.0
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' && matrix.python-version == '3.8'
         with:
           files: "dist/*"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to PyPI (release only)
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' && matrix.python-version == '3.8'
         run: poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
