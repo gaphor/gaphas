@@ -1,5 +1,5 @@
-Quadtree implementation
-=======================
+Quadtree
+########
 
 In order to find items and handles fast on a 2D surface, a geometric structure is required.
 
@@ -63,17 +63,11 @@ The screen is divided into four equal quadrants. The first quadrant has many ite
 References
 ~~~~~~~~~~
 
-(Roids)
-http://roids.slowchop.com/roids/browser/trunk/src/quadtree.py
-
-(???)
-http://mu.arete.cc/pcr/syntax/quadtree/1/quadtree.py
-
 (!PyGame)
 http://www.pygame.org/wiki/QuadTree?parent=CookBook
 
 (PythonCAD)
-http://www.koders.com/python/fidB93B4D02B1C4E9F90F351736873DF6BE4D8D5783.aspx
+https://sourceforge.net/p/pythoncad/code/ci/master/tree/PythonCAD/Generic/quadtree.py
 
 .. _Quadtrees: http://en.wikipedia.org/wiki/Quadtree
 .. _R-trees: http://en.wikipedia.org/wiki/R-tree

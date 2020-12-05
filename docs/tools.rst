@@ -8,6 +8,7 @@ Tools are registered on the ``View``. They have some internal state (e.g. when a
 where a mouse button was pressed). Therefore tools can not be reused by
 different views [#]_.
 
+Tools are simply `Gtk.EventController` instances.
 For a certain action to happen multiple user events are used. For example a
 click is a combination of a button press and button release event (only talking
 mouse clicks now). In most cases also some movement is done. A sequence of a
@@ -37,36 +38,26 @@ To organize the event sequences and keep some order in what the user is doing To
 
 Gaphas contains a set of default tools. Each tool is meant to deal with a special part of the view. A list of responsibilities is also defined here:
 
-:HoverTool:
+:hover tool:
   First thing a user wants to know is if the mouse cursor is over an item. The ``HoverTool`` makes that explicit.
   - Find a handle or item, if found, mark it as the ``hovered_item``
-:HandleTool and ConnectHandleTool:
-  Handles are an important means to interact with items. They are used to
-  resize element, move lines and (in case of ``ConnectHandleTool``) establish
-  connections between items. Handles are rendered on top of items so it makes
-  sense to deal with them before you deal with items.
-
-  - On click: find a handle, if found become the grabbed tool and set focus on the selected item. Deselected current selection based on modifier keys.
-  - On motion: move the handle
-  - On release: release grab and release the handle
-
-:ItemTool:
+:item tool:
   Items are the elements that are actually providing any (visual) meaning to the diagram. ItemTool deals with moving them around. The tool makes sure the right subset of selected elements are moved (e.g. you don't want to move a nested item if its parent item is already moved, this gives funny visual effects)
 
-  - On click: find an item, if found become the grabbed tool and set the item as focused. Some extra behaviour regarding multiple select is also done here.
+  - On click: find an item, if found become the grabbed tool and set the item as focused. If a used clicked on a handle position that is taken into account
   - On motion: move the selected items (only the ones that have no selected parent items)
   - On release: release grab and release item
 
-:RubberBandTool:
-  If no handle or item is selected a rubberband selection is started.
-:PanTool and ZoomTool:
-  Handy tools for moving the canvas around and zooming in and out. Convenience functionality, basically.
+  The item tool invokes the `Move` aspect, or the `HandleMove` aspect in case a handle is being grabbed.
 
-All tools mentioned above are linked in a ``ToolChain``. Only one tool can deal with a use event.
+:rubberband tool:
+  If no handle or item is selected a rubberband selection is started.
+:scroll and zoom tool:
+  Handy tools for moving the canvas around and zooming in and out. Convenience functionality, basically.
 
 There is one more tool, that has not been mentioned yet:
 
-:PlacementTool:
+:placement tool:
   A special tool to use for placing new items on the screen.
 
 As said, tools define *what* has to happen, they don't say how. Take for example finding a handle: on a normal element (a box or something) that would mean find the handle in one of the corners. On a line, however, that may also mean a not-yet existing handle in the middle of a line segment (there is a functionality that splits the line segment).
@@ -88,25 +79,12 @@ The advantage is that more complex behaviour can be composed. Since the
 decision on what should happen is done in the tool, the aspect which is then
 used to work on the item ensures a certain behaviour is performed.
 
-.. image:: tools.png
-   :width: 700
-
 The diagram above shows the relation between tools and their aspects. Note that
 tools that delegate their behaviour to aspects have more than one aspects. The
 reason is that there are different concerns involved in defining what the tools
 should do. Typically ``ItemTool`` will be selecting the actual item and takes
 care of moving it around as well. ``HandleTool`` does similar things for
 handles.
-
-
-
-Big changes from Gaphas 0.4 tool include:
-
- * Tools can contain state and should be used for one view only.
- * Grabbing is done automatically for press-move-release event sequence.
- * The _What_ is separated from the _How_, leaving less tools and less
-   overhead (like finding the item under the mouse pointer).
-
 
 .. [#] as opposed to versions < 0.5, where tools could be shared among multiple views.
 .. [#] not the AOP term. The term aspect is coming from a paper by Dick Riehe: The Tools and Materials metaphore <url...>.

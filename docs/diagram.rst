@@ -30,9 +30,5 @@ Tools
 
 Several tools_ are used to make the overall user experience complete.
 
-.. image:: tools.png
-   :width: 532
-
-
 .. _quadtree: quadtree.html
 .. _tools: tools.html
