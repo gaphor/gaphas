@@ -530,7 +530,7 @@ Rectangle object which can be added (union), substituted (intersection), and poi
     rect = Rectangle(1, 1, 5, 5)
 
 
-Decorator: ``@AsyncIO``
+Decorator: ``@g_async``
 ----------
 
 Schedule an idle handler at a given priority.
@@ -541,7 +541,7 @@ Schedule an idle handler at a given priority.
 
 .. code-block:: python
 
-    @AsyncIO(single=True, timeout=60)
+    @g_async(single=True, timeout=60)
     def c2(self):
         print('idle-c2', GLib.main_depth())
 

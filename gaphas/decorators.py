@@ -12,7 +12,7 @@ from gi.repository import GLib, Gtk  # noqa: isort:skip
 log = logging.getLogger(__name__)
 
 
-class AsyncIO:
+class g_async:
     """Instead of calling the function, schedule an idle handler at a given
     priority. This requires the async'ed method to be called from within the
     GTK main loop. Otherwise the method is executed directly.
@@ -26,14 +26,14 @@ class AsyncIO:
 
     async just works on functions (as long as ``single=False``):
 
-    >>> a = AsyncIO()(lambda: 'Hi')
+    >>> a = g_async()(lambda: 'Hi')
     >>> a()
     'Hi'
 
     Simple method:
 
     >>> class A(object):
-    ...     @AsyncIO(single=False, priority=GLib.PRIORITY_HIGH)
+    ...     @g_async(single=False, priority=GLib.PRIORITY_HIGH)
     ...     def a(self):
     ...         print('idle-a', GLib.main_depth())
 
@@ -41,17 +41,17 @@ class AsyncIO:
     scheduled once).
 
     >>> class B(object):
-    ...     @AsyncIO(single=True)
+    ...     @g_async(single=True)
     ...     def b(self):
     ...         print('idle-b', GLib.main_depth())
 
     Also a timeout property can be provided:
 
     >>> class C(object):
-    ...     @AsyncIO(timeout=50)
+    ...     @g_async(timeout=50)
     ...     def c1(self):
     ...         print('idle-c1', GLib.main_depth())
-    ...     @AsyncIO(single=True, timeout=60)
+    ...     @g_async(single=True, timeout=60)
     ...     def c2(self):
     ...         print('idle-c2', GLib.main_depth())
 

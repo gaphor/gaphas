@@ -2,7 +2,7 @@ from typing import Optional
 
 from gi.repository import Gtk
 
-from gaphas.decorators import AsyncIO
+from gaphas.decorators import g_async
 from gaphas.geometry import Rectangle
 from gaphas.matrix import Matrix
 
@@ -53,7 +53,7 @@ class Scrolling:
         else:
             raise AttributeError(f"Unknown property {prop.name}")
 
-    @AsyncIO(single=True)
+    @g_async(single=True)
     def update_adjustments(self, allocation, bounds):
         aw, ah = allocation.width, allocation.height
 

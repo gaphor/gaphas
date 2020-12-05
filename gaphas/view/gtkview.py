@@ -7,7 +7,7 @@ import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import instant_cairo_context
-from gaphas.decorators import AsyncIO
+from gaphas.decorators import g_async
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
@@ -289,7 +289,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self.update()
 
-    @AsyncIO(single=True)
+    @g_async(single=True)
     def update(self) -> None:
         """Update view status according to the items updated by the canvas."""
         canvas = self.canvas
@@ -378,7 +378,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         finally:
             cr.restore()
 
-    @AsyncIO(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
+    @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self):
         if self.canvas and self.get_window():
             if not self._back_buffer or self._back_buffer_needs_resizing:
