@@ -36,3 +36,21 @@ def test_resize_by_dragging_se_handle(canvas, box, count):
 
     assert 100 * count + 10 == float(h_ne.pos.x)
     assert 100 * count + 10 == float(h_sw.pos.y)
+
+
+def test_point(box):
+    box.handles()[SE].pos = (100, 100)
+
+    assert box.point(50, 50) == 0
+
+
+def test_point_with_moved_nw_handle(box):
+    box.handles()[NW].pos = (-100, -100)
+
+    assert box.point(-50, -50) == 0
+
+
+def test_point_outside_box(box):
+    box.handles()[SE].pos = (10, 10)
+
+    assert box.point(10, 50) == 40
