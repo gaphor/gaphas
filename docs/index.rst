@@ -33,7 +33,7 @@ Table of Contents
 
 .. toctree::
    :caption: The basics
-   :maxdepth: 2
+   :maxdepth: 1
 
    diagram
    tools
@@ -43,7 +43,7 @@ Table of Contents
 
 .. toctree::
    :caption: Advanced
-   :maxdepth: 2
+   :maxdepth: 1
 
    guide
    segment
@@ -61,10 +61,6 @@ Table of Contents
    quadtree
    table
    tree
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. _Cairo: https://cairographics.org
 .. _Model-View-Controller: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller
