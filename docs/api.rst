@@ -27,10 +27,6 @@ One of Gaphas' USP is it's the way it handles connections and the constraint sol
    :maxdepth: 1
 
    api/matrix
-   api/quadtree
-   api/solver
-   api/tree
-   api/table
    api/geometry
    api/decorators
 
