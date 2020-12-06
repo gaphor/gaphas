@@ -84,7 +84,7 @@ exclude_patterns = [
 pygments_style = None
 
 autodoc_member_order = "bysource"
-autodoc_mock_imports = ["gi"]
+autodoc_mock_imports = ["cairo", "gi"]
 
 # -- Options for HTML output -------------------------------------------------
 
