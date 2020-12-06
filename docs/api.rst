@@ -6,6 +6,7 @@ API reference
    :caption: View
    :maxdepth: 1
 
+   api/protocols
    api/view
    api/painters
    api/tools
@@ -17,8 +18,7 @@ The central part for Gaphas is the View. That's the class that ensures stuff is 
    :maxdepth: 1
 
    api/connections
-   api/solver
-   api/position
+   api/variable
 
 One of Gaphas' USP is it's the way it handles connections and the constraint solver.
 
@@ -28,6 +28,7 @@ One of Gaphas' USP is it's the way it handles connections and the constraint sol
 
    api/matrix
    api/quadtree
+   api/solver
    api/tree
    api/table
    api/geometry

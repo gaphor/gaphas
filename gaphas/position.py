@@ -21,20 +21,20 @@ class Position:
     def _set_x(self, v):
         self._x.value = v
 
-    x = property(lambda s: s._x, _set_x)
+    x = property(lambda s: s._x, _set_x, doc="Position.x")
 
     def _set_y(self, v):
         self._y.value = v
 
-    y = property(lambda s: s._y, _set_y)
+    y = property(lambda s: s._y, _set_y, doc="Position.y")
 
-    strength = property(lambda s: s._x.strength)
+    strength = property(lambda s: s._x.strength, doc="Strength.")
 
     def _set_pos(self, pos):
         """Set handle position (Item coordinates)."""
         self._x.value, self._y.value = pos
 
-    pos = property(lambda s: (s._x, s._y), _set_pos)
+    pos = property(lambda s: (s._x, s._y), _set_pos, doc="The position.")
 
     def __str__(self):
         return f"<{self.__class__.__name__} object on ({self._x}, {self._y})>"
@@ -73,11 +73,13 @@ class MatrixProjection(Constraint):
         self.solve_for(self._proj_pos.x)
 
     def add_handler(self, handler):
+        """Add a callback handler."""
         if not self._handlers:
             self.matrix.add_handler(self._on_matrix_changed)
         super().add_handler(handler)
 
     def remove_handler(self, handler):
+        """Remove a previously assigned handler."""
         super().remove_handler(handler)
         if not self._handlers:
             self.matrix.remove_handler(self._on_matrix_changed)
@@ -88,9 +90,13 @@ class MatrixProjection(Constraint):
     def _set_y(self, y):
         self._proj_pos.y = y
 
-    pos = property(lambda s: s._proj_pos)
-    x = property(lambda s: s._proj_pos.x, _set_x)
-    y = property(lambda s: s._proj_pos.y, _set_y)
+    pos = property(lambda s: s._proj_pos, doc="The projected position")
+    x = property(
+        lambda s: s._proj_pos.x, _set_x, doc="The projected position's ``x`` part."
+    )
+    y = property(
+        lambda s: s._proj_pos.y, _set_y, doc="The projected position's ``y`` part."
+    )
 
     def mark_dirty(self, var):
         if var is self._orig_pos.x or var is self._orig_pos.y:

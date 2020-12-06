@@ -19,8 +19,8 @@ Above rules are constraints, which need to be applied to a rectangular
 item. The rules can be satisfied (constraints can be solved) using
 `constraint solver <http://en.wikipedia.org/wiki/Constraint_satisfaction_problem>`_.
 
-Gaphas implements its own constraint solver (`gaphas.solver` module).
-Items can be constrained using APIs defined in `Canvas` and `Item` classes.
+Gaphas implements its own constraint solver (`gaphas.solver.Solver`).
+Items can be constrained using APIs defined in `Connection` class.
 
 Constraints API
 ---------------
@@ -38,13 +38,6 @@ positions, i.e.
 If this API does not provide some constraint declaration, then one can
 fallback to `Canvas` class constraint API.
 
-Examples
---------
-Item API
-^^^^^^^^
-Canvas API
-^^^^^^^^^^
-
 Further Reading
 ---------------
 Theory and examples related to constraint solving
@@ -59,4 +52,3 @@ There are other projects providing constraint solvers
 - http://minion.sourceforge.net/
 - http://labix.org/python-constraint
 - http://www.cs.washington.edu/research/constraints/cassowary/
-

@@ -62,11 +62,13 @@ class variable:
 class Variable:
     """Representation of a variable in the constraint solver.
 
-    Each Variable has a @value and a @strength. In a constraint the weakest
+    Each Variable has a ``value`` and a ``strength``. In a constraint the weakest
     variables are changed.
 
     You can even do some calculating with it. The Variable always represents a
     float variable.
+
+    The ``variable`` decorator can be used to easily define variables in classes.
     """
 
     def __init__(self, value: SupportsFloat = 0.0, strength: int = NORMAL):
@@ -75,12 +77,15 @@ class Variable:
         self._handlers: Set[Callable[[Variable], None]] = set()
 
     def add_handler(self, handler: Callable[[Variable], None]):
+        """Add a handler, to be invoked when the value changes."""
         self._handlers.add(handler)
 
     def remove_handler(self, handler: Callable[[Variable], None]):
+        """Remove a handler."""
         self._handlers.discard(handler)
 
     def notify(self):
+        """Notify all handlers."""
         for handler in self._handlers:
             handler(self)
 
@@ -88,11 +93,12 @@ class Variable:
     def _set_strength(self, strength):
         self._strength = strength
 
-    strength = reversible_property(lambda s: s._strength, _set_strength)
+    strength = reversible_property(
+        lambda s: s._strength, _set_strength, doc="Strength."
+    )
 
     def dirty(self):
-        """Mark the variable dirty in both the constraint solver and attached
-        constraints.
+        """Mark the variable dirty in all attached constraints.
 
         Variables are marked dirty also during constraints solving to
         solve all dependent constraints, i.e. two equals constraints

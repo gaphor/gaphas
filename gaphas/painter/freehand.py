@@ -22,15 +22,6 @@ class FreeHandCairoContext:
     KAPPA = 0.5522847498
 
     def __init__(self, cr, sloppiness=0.5):
-        """Create context with given sloppiness. Range [0..2.0] gives
-        acceptable results.
-
-        * Draftsman: 0.0
-        * Artist: 0.25
-        * Cartoonist: 0.5
-        * Child: 1.0
-        * Drunk: 2.0
-        """
         self.cr = cr
         self.sloppiness = sloppiness  # In range 0.0 .. 2.0
 
@@ -134,7 +125,19 @@ class FreeHandCairoContext:
 
 
 class FreeHandPainter:
-    def __init__(self, subpainter: ItemPainterType, sloppiness=1.0):
+    """This painter is a wrapper for an Item painter. The Cairo context is
+    modified to allow for a sloppy, hand written drawing style.
+
+    Range [0..2.0] gives acceptable results.
+
+    * Draftsman: 0.0
+    * Artist: 0.25
+    * Cartoonist: 0.5
+    * Child: 1.0
+    * Drunk: 2.0
+    """
+
+    def __init__(self, subpainter: ItemPainterType, sloppiness=0.5):
         self.subpainter = subpainter
         self.sloppiness = sloppiness
 

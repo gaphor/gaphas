@@ -7,10 +7,7 @@ from gaphas.painter.painter import Painter
 
 
 class PainterChain:
-    """Chain up a set of painters.
-
-    like ToolChain.
-    """
+    """Chain up a set of painters."""
 
     def __init__(self):
         self._painters: List[Painter] = []

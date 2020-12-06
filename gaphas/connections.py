@@ -26,21 +26,28 @@ class ConnectionError(Exception):
 
 
 class Connections:
+    """Manage connections and constraints."""
+
     def __init__(self, solver: Optional[Solver] = None):
         self._solver = solver or Solver()
         self._connections = table.Table(Connection, list(range(4)))
 
-    solver = property(lambda s: s._solver)
+    solver = property(
+        lambda s: s._solver, doc="The solver used by this connections instance"
+    )
 
     def solve(self):
+        """Solve all constraints."""
         self._solver.solve()
 
     def add_constraint(self, item, constraint):
+        """Add a "simple" constraint for an item."""
         self._solver.add_constraint(constraint)
         self._connections.insert(item, None, None, None, constraint, None)
         return constraint
 
     def remove_constraint(self, item, constraint):
+        """Remove an item specific constraint."""
         self._solver.remove_constraint(constraint)
         self._connections.delete(item, None, None, None, constraint, None)
 
@@ -51,25 +58,19 @@ class Connections:
         """Create a connection between two items. The connection is registered
         and the constraint is added to the constraint solver.
 
-        The pair (item, handle) should be unique and not yet connected.
+        The pair ``(item, handle)`` should be unique and not yet connected.
 
         The callback is invoked when the connection is broken.
 
-        :Parameters:
-         item
-            Connecting item (i.e. a line).
-         handle
-            Handle of connecting item.
-         connected
-            Connected item (i.e. a box).
-         port
-            Port of connected item.
-         constraint
-            Constraint to keep the connection in place.
-         callback
-            Function to be called on disconnection.
+        Args:
+          item (Item): Connecting item (i.e. a line).
+          handle (Handle): Handle of connecting item.
+          connected (Item): Connected item (i.e. a box).
+          port (Port): Port of connected item.
+          constraint (Constraint): Constraint to keep the connection in place.
+          callback (() -> None): Function to be called on disconnection.
 
-        ConnectionError is raised in case handle is already registered
+        ``ConnectionError`` is raised in case handle is already registered
         on a connection.
         """
         if self.get_connection(handle):

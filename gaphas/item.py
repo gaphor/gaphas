@@ -18,32 +18,39 @@ from gaphas.state import (
 
 @runtime_checkable
 class Item(Protocol):
+    """This protocol should be implemented by model items.
+
+    All items that are rendered on a view.
+    """
+
     @property
     def matrix(self) -> Matrix:
-        ...
+        """The "local", item-to-parent matrix."""
 
     @property
     def matrix_i2c(self) -> Matrix:
-        ...
+        """Matrix from item to toplevel."""
 
     def handles(self) -> Sequence[Handle]:
         """Return a list of handles owned by the item."""
 
     def ports(self) -> Sequence[Port]:
-        """Return list of ports."""
+        """Return list of ports owned by the item."""
 
     def point(self, x: float, y: float) -> float:
         """Get the distance from a point (``x``, ``y``) to the item.
 
         ``x`` and ``y`` are in item coordinates.
+
+        A distance of 0 means the point is on the item.
         """
 
     def draw(self, context: Context):
         """Render the item to a canvas view. Context contains the following
         attributes:
 
-        - cairo: the Cairo Context use this one to draw
-        - selected, focused, hovered, dropzone: view state of items
+        * `cairo`: the Cairo Context use this one to draw
+        * `selected`, `focused`, `hovered`, `dropzone`: view state of items
           (True/False)
         """
 

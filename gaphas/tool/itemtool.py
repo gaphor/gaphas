@@ -29,7 +29,8 @@ class MoveType(Protocol):
         ...
 
 
-def item_tool(view):
+def item_tool(view: GtkView):
+    """Handle item movement and movement of handles."""
     gesture = Gtk.GestureDrag.new(view)
     drag_state = DragState()
     gesture.connect("drag-begin", on_drag_begin, drag_state)

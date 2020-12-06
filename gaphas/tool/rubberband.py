@@ -10,6 +10,12 @@ class RubberbandState:
 
 
 class RubberbandPainter:
+    """The rubberband painter should be used in conjunction with the rubberband
+    tool.
+
+    ``RubberbandState`` should be shared between the two.
+    """
+
     def __init__(self, rubberband_state):
         self.rubberband_state = rubberband_state
 
@@ -27,6 +33,10 @@ class RubberbandPainter:
 
 
 def rubberband_tool(view, rubberband_state):
+    """Rubberband selection tool.
+
+    Should be used in conjunction with ``RubberbandPainter``.
+    """
     gesture = Gtk.GestureDrag.new(view)
     gesture.connect("drag-begin", on_drag_begin, rubberband_state)
     gesture.connect("drag-update", on_drag_update, rubberband_state)
