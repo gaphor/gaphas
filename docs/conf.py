@@ -77,6 +77,7 @@ exclude_patterns = [
     ".DS_Store",
     "constraints.rst",
     "comparison.rst",
+    "undo_tests.rst",
     "requirements.txt",
 ]
 
