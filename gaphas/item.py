@@ -1,6 +1,8 @@
 """Basic items."""
 from math import atan2
-from typing import Protocol, Sequence, runtime_checkable
+from typing import Sequence
+
+from typing_extensions import Protocol, runtime_checkable
 
 from gaphas.canvas import Context
 from gaphas.connector import Handle, LinePort, Port

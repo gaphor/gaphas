@@ -389,10 +389,10 @@ solver.py: Variable
 Variable's strength and value properties are observed:
 
     >>> from gaphas.solver import Variable
-    >>> v = Variable(strength=100)
+    >>> v = Variable()
     >>> v.value = 10
     >>> v
-    Variable(10, 100)
+    Variable(10, 20)
     >>> undo()
     >>> v
     Variable(0, 20)
