@@ -87,4 +87,4 @@ care of moving it around as well. ``HandleTool`` does similar things for
 handles.
 
 .. [#] as opposed to versions < 0.5, where tools could be shared among multiple views.
-.. [#] not the AOP term. The term aspect is coming from a paper by Dick Riehe: The Tools and Materials metaphore <url...>.
+.. [#] not the AOP term. The term aspect is coming from a paper by Dirk Riehe: The Tools and Materials metaphore https://wiki.c2.com/?ToolsAndMaterialsMetaphor..>.

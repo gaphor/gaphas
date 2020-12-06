@@ -24,25 +24,16 @@ DEBUG_DRAW_QUADTREE = False
 # The default cursor (use in case of a cursor reset)
 DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
 
-EVENT_MASK = (
-    Gdk.EventMask.BUTTON_PRESS_MASK
-    | Gdk.EventMask.BUTTON_RELEASE_MASK
-    | Gdk.EventMask.POINTER_MOTION_MASK
-    | Gdk.EventMask.KEY_PRESS_MASK
-    | Gdk.EventMask.KEY_RELEASE_MASK
-    | Gdk.EventMask.SCROLL_MASK
-    | Gdk.EventMask.STRUCTURE_MASK
-)
-
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
-    """GTK+ widget for rendering a canvas.Canvas to a screen.  The view uses
-    Tools to handle events and Painters to draw. Both are configurable.
+    """GTK+ widget for rendering a gaphas.view.model.Model to a screen.  The
+    view uses Tools to handle events and Painters to draw. Both are
+    configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.
 
-    This view registers itself on the canvas, so it will receive
+    This view registers itself on the model, so it will receive
     update events.
     """
 
@@ -96,7 +87,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._controllers: Set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
-        self.add_events(EVENT_MASK)
+        self.add_events(
+            Gdk.EventMask.BUTTON_PRESS_MASK
+            | Gdk.EventMask.BUTTON_RELEASE_MASK
+            | Gdk.EventMask.POINTER_MOTION_MASK
+            | Gdk.EventMask.KEY_PRESS_MASK
+            | Gdk.EventMask.KEY_RELEASE_MASK
+            | Gdk.EventMask.SCROLL_MASK
+            | Gdk.EventMask.STRUCTURE_MASK
+        )
 
         def alignment_updated(matrix):
             assert self._canvas
@@ -151,12 +150,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return m
 
     def _set_canvas(self, canvas: Optional[Model]) -> None:
-        """
-        Use view.canvas = my_canvas to set the canvas to be rendered
-        in the view.
-
-        The view is also registered.
-        """
         if self._canvas:
             self._canvas.unregister_view(self)
             self._selection.clear()
@@ -168,7 +161,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._canvas.register_view(self)
             self.request_update(self._canvas.get_all_items())
 
-    canvas = property(lambda s: s._canvas, _set_canvas)
+    canvas = property(lambda s: s._canvas, _set_canvas, doc="The model.")
 
     def _set_painter(self, painter: Painter):
         """Set the painter to use.
@@ -178,7 +171,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._painter = painter
         self.emit("painter-changed")
 
-    painter = property(lambda s: s._painter, _set_painter)
+    painter = property(
+        lambda s: s._painter, _set_painter, doc="Painter for drawing the view."
+    )
 
     def _set_bounding_box_painter(self, painter):
         """Set the painter to use for bounding box calculations."""
@@ -186,16 +181,29 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.emit("painter-changed")
 
     bounding_box_painter = property(
-        lambda s: s._bounding_box_painter, _set_bounding_box_painter
+        lambda s: s._bounding_box_painter,
+        _set_bounding_box_painter,
+        doc="Special painter for calculating item bounding boxes.",
     )
 
-    selection = property(lambda s: s._selection)
+    selection = property(
+        lambda s: s._selection, doc="Selected, focused and hovered items."
+    )
 
-    bounding_box = property(lambda s: Rectangle(*s._qtree.soft_bounds))
+    bounding_box = property(
+        lambda s: Rectangle(*s._qtree.soft_bounds),
+        doc="The bounding box of the complete view, relative to the view port.",
+    )
 
-    hadjustment = property(lambda s: s._scrolling.hadjustment)
+    hadjustment = property(
+        lambda s: s._scrolling.hadjustment,
+        doc="Gtk adjustment object for use with a scrollbar.",
+    )
 
-    vadjustment = property(lambda s: s._scrolling.vadjustment)
+    vadjustment = property(
+        lambda s: s._scrolling.vadjustment,
+        doc="Gtk adjustment object for use with a scrollbar.",
+    )
 
     def add_controller(self, *controllers: Gtk.EventController):
         """Add a controller.
@@ -223,6 +231,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return False
 
     def remove_all_controllers(self):
+        """Remove all registered controllers."""
         for controller in set(self._controllers):
             self.remove_controller(controller)
 
@@ -291,7 +300,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @g_async(single=True)
     def update(self) -> None:
-        """Update view status according to the items updated by the canvas."""
+        """Update view status according to the items updated in the model."""
         canvas = self.canvas
         if not canvas:
             return
@@ -473,7 +482,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return False
 
     def do_draw(self, cr):
-        """Render canvas to the screen."""
         if not self._canvas:
             return
 

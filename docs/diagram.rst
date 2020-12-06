@@ -14,8 +14,6 @@ One-oh-one:
    Objects placed on a Canvas. Items can draw themselves, but not act on user events
 :doc:`api/solver`
    A constraint solver. Nice to have when you want to connect items together in a generic way.
-:doc:`api/view`
-   Base class that renders content (`paint()`). The view is responsible for the calculation of bounding boxes. This information is stored in a quadtree_ data structure for fast access.
 :doc:`api/gtkview`
    A view to be used in GTK+ applications. This view class is interactive. Interaction with users is handled by Tools.
 :doc:`api/painters`
@@ -30,5 +28,4 @@ Tools
 
 Several tools_ are used to make the overall user experience complete.
 
-.. _quadtree: quadtree.html
 .. _tools: tools.html
