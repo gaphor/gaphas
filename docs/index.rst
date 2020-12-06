@@ -1,5 +1,5 @@
 Gaphas 3 Documentation
-====================
+======================
 
 .. important:: This documentation is in the process of being updated for Gaphas 3.0.
 
