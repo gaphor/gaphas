@@ -229,7 +229,7 @@ def maybe_split_segment(view, item, pos):
     handle = None
     if item is view.selection.focused_item:
         try:
-            segment = Segment(item, view.canvas)
+            segment = Segment(item, view.model)
         except TypeError:
             pass
         else:
@@ -258,10 +258,10 @@ def maybe_merge_segments(view, item, handle):
     d, p = distance_line_point(before.pos, after.pos, handle.pos)
 
     if d < 2:
-        Segment(item, view.canvas).merge_segment(segment)
+        Segment(item, view.model).merge_segment(segment)
 
     if handle:
-        view.canvas.request_update(item)
+        view.model.request_update(item)
 
 
 class LineSegmentPainter:

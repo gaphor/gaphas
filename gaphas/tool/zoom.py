@@ -47,4 +47,4 @@ def on_scale_changed(gesture: Gtk.GestureZoom, scale, zoom_data):
     m.translate(-ox, -oy)
     m.scale(dsx, dsy)
     m.translate(+ox, +oy)
-    view.request_update((), view.canvas.get_all_items())
+    view.request_update((), view.model.get_all_items())

@@ -1,4 +1,4 @@
-"""This module contains everything to display a Canvas on a screen."""
+"""This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
 from typing import Collection, Iterable, Optional, Set, Tuple
@@ -136,7 +136,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @property
     def matrix(self) -> Matrix:
-        """Canvas to view transformation matrix."""
+        """Model root to view transformation matrix."""
         return self._matrix
 
     def get_matrix_i2v(self, item: Item) -> Matrix:
@@ -161,7 +161,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._model.register_view(self)
             self.request_update(self._model.get_all_items())
 
-    canvas = property(lambda s: s._model, _set_model, doc="The model.")
+    model = property(lambda s: s._model, _set_model, doc="The model.")
 
     def _set_painter(self, painter: Painter):
         """Set the painter to use.
@@ -244,7 +244,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def get_items_in_rectangle(self, rect, contain=False) -> Iterable[Item]:
         """Return the items in the rectangle 'rect'.
 
-        Items are automatically sorted in canvas' processing order.
+        Items are automatically sorted in model's processing order.
         """
         assert self._model
         items = (
@@ -301,8 +301,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     @g_async(single=True)
     def update(self) -> None:
         """Update view status according to the items updated in the model."""
-        canvas = self.canvas
-        if not canvas:
+        model = self._model
+        if not model:
             return
 
         try:
@@ -310,7 +310,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             dirty_matrix_items = self.all_dirty_matrix_items()
             dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
 
-            self.canvas.update_now(dirty_items, dirty_matrix_items)
+            model.update_now(dirty_items, dirty_matrix_items)
 
             self.update_bounding_box(dirty_items)
             self._scrolling.update_adjustments(
@@ -327,21 +327,21 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         Return items, which matrices were recalculated.
         """
-        canvas = self._model
-        if not canvas:
+        model = self._model
+        if not model:
             return
 
         def update_matrices(items):
-            assert canvas
+            assert model
             for item in items:
-                parent = canvas.get_parent(item)
+                parent = model.get_parent(item)
                 if parent is not None and parent in items:
                     # item's matrix will be updated thanks to parent's matrix update
                     continue
 
                 yield item
 
-                yield from update_matrices(set(canvas.get_children(item)))
+                yield from update_matrices(set(model.get_children(item)))
 
         return set(update_matrices(self._dirty_matrix_items))
 
@@ -362,8 +362,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self._qtree.add(i, vbounds.tuple(), bounds)
 
     def update_bounding_box(self, items: Collection[Item]):
-        """Update the bounding boxes of the canvas items for this view, in
-        canvas coordinates."""
+        """Update the bounding boxes of the model items for this view, in model
+        coordinates."""
         cr = (
             cairo.Context(self._back_buffer)
             if self._back_buffer
@@ -377,7 +377,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         try:
             painter = self._bounding_box_painter
             if items is None:
-                items = list(self.canvas.get_all_items())
+                items = list(self.model.get_all_items())
 
             for item, bounds in painter.paint(items, cr).items():
                 v2i = self.get_matrix_v2i(item)
@@ -389,7 +389,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self):
-        if self.canvas and self.get_window():
+        if self.model and self.get_window():
             if not self._back_buffer or self._back_buffer_needs_resizing:
                 allocation = self.get_allocation()
                 self._back_buffer = self.get_window().create_similar_surface(

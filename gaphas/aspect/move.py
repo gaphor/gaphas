@@ -36,7 +36,7 @@ class ItemMove:
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
-        view.canvas.request_matrix_update(item)
+        view.model.request_matrix_update(item)
 
     def stop_move(self, pos):
         pass

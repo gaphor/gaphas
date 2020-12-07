@@ -97,7 +97,7 @@ def moving_items(view):
     selected_items = set(view.selection.selected_items)
     for item in selected_items:
         # Do not move subitems of selected items
-        if not set(ancestors(view.canvas, item)).intersection(selected_items):
+        if not set(ancestors(view.model, item)).intersection(selected_items):
             yield Move(item, view)
 
 

@@ -51,15 +51,15 @@ def factory(view, cls):
     """Simple canvas item factory."""
 
     def wrapper():
-        item = cls(view.canvas.connections)
-        view.canvas.add(item)
+        item = cls(view.model.connections)
+        view.model.add(item)
         return item
 
     return wrapper
 
 
 def paint(view, cr):
-    view.painter.paint(Context(cairo=cr, items=view.canvas.get_all_items(), area=None))
+    view.painter.paint(Context(cairo=cr, items=view.model.get_all_items(), area=None))
 
 
 class MyBox(Box):
@@ -290,7 +290,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         )
         cr = cairo.Context(surface)
         cr.translate(-bounding_box.x, -bounding_box.y)
-        painter.paint(items=view.canvas.get_all_items(), cairo=cr)
+        painter.paint(items=view.model.get_all_items(), cairo=cr)
         cr.show_page()
         surface.write_to_png("demo.png")
 
@@ -317,7 +317,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         )
         cr = cairo.Context(surface)
         cr.translate(-bounding_box.x, -bounding_box.y)
-        painter.paint(items=view.canvas.get_all_items(), cairo=cr)
+        painter.paint(items=view.model.get_all_items(), cairo=cr)
         cr.show_page()
         surface.flush()
         surface.finish()
@@ -336,15 +336,15 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Reattach (in place)")
 
     def on_reattach_clicked(button, li):
-        view.canvas = None
-        view.canvas = canvas
+        view.model = None
+        view.model = canvas
 
     b.connect("clicked", on_reattach_clicked, [0])
     v.add(b)
 
     # Add the actual View:
 
-    view.canvas = canvas
+    view.model = canvas
     view.zoom(zoom)
     view.set_size_request(150, 120)
     s = Gtk.ScrolledWindow.new()

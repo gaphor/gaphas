@@ -35,10 +35,10 @@ def test_view_registration():
     window.add(view)
     window.show_all()
 
-    view.canvas = None
+    view.model = None
     assert len(canvas._registered_views) == 0
 
-    view.canvas = canvas
+    view.model = canvas
     assert len(canvas._registered_views) == 1
 
 

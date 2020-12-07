@@ -15,7 +15,7 @@ from gi.repository import Gtk  # noqa: isort:skip
 def create_canvas(canvas, title):
     # Setup drawing window
     view = GtkView()
-    view.canvas = canvas
+    view.model = canvas
     window = Gtk.Window()
     window.set_title(title)
     window.set_default_size(400, 400)

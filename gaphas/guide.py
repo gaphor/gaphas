@@ -141,7 +141,7 @@ class GuideMixin:
         item = self.item
         view = self.view
 
-        excluded_items = set(all_children(view.canvas, item))
+        excluded_items = set(all_children(view.model, item))
         excluded_items.add(item)
         excluded_items.update(view.selection.selected_items)
         return excluded_items
@@ -247,7 +247,7 @@ class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
         if not sink:
             item = self.item
             view = self.view
-            canvas = view.canvas
+            canvas = view.model
             x, y = pos
             v2i = view.get_matrix_v2i(item)
 
