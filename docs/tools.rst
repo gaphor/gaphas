@@ -79,12 +79,5 @@ The advantage is that more complex behaviour can be composed. Since the
 decision on what should happen is done in the tool, the aspect which is then
 used to work on the item ensures a certain behaviour is performed.
 
-The diagram above shows the relation between tools and their aspects. Note that
-tools that delegate their behaviour to aspects have more than one aspects. The
-reason is that there are different concerns involved in defining what the tools
-should do. Typically ``ItemTool`` will be selecting the actual item and takes
-care of moving it around as well. ``HandleTool`` does similar things for
-handles.
-
 .. [#] as opposed to versions < 0.5, where tools could be shared among multiple views.
 .. [#] not the AOP term. The term aspect is coming from a paper by Dirk Riehe: The Tools and Materials metaphore https://wiki.c2.com/?ToolsAndMaterialsMetaphor..>.

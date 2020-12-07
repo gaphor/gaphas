@@ -165,37 +165,3 @@ def nonrecursive(func):
                 m.release()
 
     return wrapper
-
-
-class recursive:
-    """This decorator limits the recursion for a specific function.
-
-    >>> class A(object):
-    ...    def __init__(self): self.r = 0
-    ...    @recursive(10)
-    ...    def a(self, x=0):
-    ...        self.r += 1
-    ...        self.a()
-    >>> a = A()
-    >>> a.a()
-    >>> a.r
-    10
-    """
-
-    def __init__(self, limit=10000):
-        self.limit = limit
-
-    def __call__(self, func):
-        def wrapper(*args, **kwargs):
-            try:
-                func._recursion_level += 1
-            except AttributeError:
-                # _recursion_level not present
-                func._recursion_level = 0
-            if func._recursion_level < self.limit:
-                try:
-                    return func(*args, **kwargs)
-                finally:
-                    func._recursion_level -= 1
-
-        return wrapper
