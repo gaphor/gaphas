@@ -75,7 +75,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         ),
     }
 
-    def __init__(self, canvas: Optional[Model] = None):
+    def __init__(self, model: Optional[Model] = None):
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
@@ -98,11 +98,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         )
 
         def alignment_updated(matrix):
-            assert self._canvas
+            assert self._model
             self._matrix *= matrix  # type: ignore[operator]
 
             # Force recalculation of the bounding boxes:
-            self.request_update((), self._canvas.get_all_items())
+            self.request_update((), self._model.get_all_items())
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -116,9 +116,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
-        self._canvas: Optional[Model] = None
-        if canvas:
-            self._set_canvas(canvas)
+        self._model: Optional[Model] = None
+        if model:
+            self._set_model(model)
 
         def redraw(selection, item, signal_name):
             self.queue_redraw()
@@ -149,19 +149,19 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         m.invert()
         return m
 
-    def _set_canvas(self, canvas: Optional[Model]) -> None:
-        if self._canvas:
-            self._canvas.unregister_view(self)
+    def _set_model(self, model: Optional[Model]) -> None:
+        if self._model:
+            self._model.unregister_view(self)
             self._selection.clear()
             self._qtree.clear()
 
-        self._canvas = canvas
+        self._model = model
 
-        if self._canvas:
-            self._canvas.register_view(self)
-            self.request_update(self._canvas.get_all_items())
+        if self._model:
+            self._model.register_view(self)
+            self.request_update(self._model.get_all_items())
 
-    canvas = property(lambda s: s._canvas, _set_canvas, doc="The model.")
+    canvas = property(lambda s: s._model, _set_model, doc="The model.")
 
     def _set_painter(self, painter: Painter):
         """Set the painter to use.
@@ -237,22 +237,22 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def zoom(self, factor: float) -> None:
         """Zoom in/out by factor ``factor``."""
-        assert self._canvas
+        assert self._model
         self.matrix.scale(factor, factor)
-        self.request_update((), self._canvas.get_all_items())
+        self.request_update((), self._model.get_all_items())
 
     def get_items_in_rectangle(self, rect, contain=False) -> Iterable[Item]:
         """Return the items in the rectangle 'rect'.
 
         Items are automatically sorted in canvas' processing order.
         """
-        assert self._canvas
+        assert self._model
         items = (
             self._qtree.find_inside(rect)
             if contain
             else self._qtree.find_intersect(rect)
         )
-        return self._canvas.sort(items)
+        return self._model.sort(items)
 
     def get_item_bounding_box(self, item: Item):
         """Get the bounding box for the item, in view coordinates."""
@@ -327,7 +327,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         Return items, which matrices were recalculated.
         """
-        canvas = self._canvas
+        canvas = self._model
         if not canvas:
             return
 
@@ -453,14 +453,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def do_realize(self):
         Gtk.DrawingArea.do_realize(self)
 
-        if self._canvas:
+        if self._model:
             # Ensure updates are propagated
-            self._canvas.register_view(self)
-            self.request_update(self._canvas.get_all_items())
+            self._model.register_view(self)
+            self.request_update(self._model.get_all_items())
 
     def do_unrealize(self):
-        if self._canvas:
-            self._canvas.unregister_view(self)
+        if self._model:
+            self._model.unregister_view(self)
 
         self._qtree.clear()
 
@@ -482,7 +482,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return False
 
     def do_draw(self, cr):
-        if not self._canvas:
+        if not self._model:
             return
 
         if not self._back_buffer:
