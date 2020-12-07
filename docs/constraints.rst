@@ -20,11 +20,11 @@ item. The rules can be satisfied (constraints can be solved) using
 `constraint solver <http://en.wikipedia.org/wiki/Constraint_satisfaction_problem>`_.
 
 Gaphas implements its own constraint solver (`gaphas.solver.Solver`).
-Items can be constrained using APIs defined in `Connection` class.
+Items can be constrained using APIs defined in `Connections` class.
 
 Constraints API
 ---------------
-The `Canvas` class constraints API supports adding a constraint to
+The `Connections` class' constraints API supports adding a constraint to
 constraint solver.  Instance of a constraint has to be created and then
 added using `Canvas.add_constraint` method. For example, it allows to
 declare that two variables should be equal.
