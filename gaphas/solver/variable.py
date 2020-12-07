@@ -89,13 +89,7 @@ class Variable:
         for handler in self._handlers:
             handler(self)
 
-    @observed
-    def _set_strength(self, strength):
-        self._strength = strength
-
-    strength = reversible_property(
-        lambda s: s._strength, _set_strength, doc="Strength."
-    )
+    strength = property(lambda s: s._strength, doc="Strength.")
 
     def dirty(self):
         """Mark the variable dirty in all attached constraints.
