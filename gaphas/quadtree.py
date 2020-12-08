@@ -92,7 +92,9 @@ class Quadtree(Generic[T, D]):
         # Easy lookup item->(bounds, data, clipped bounds)
         self._ids: Dict[T, Tuple[Bounds, Optional[D], Bounds]] = {}
 
-    bounds = property(lambda s: s._bucket.bounds)
+    @property
+    def bounds(self) -> Bounds:
+        return self._bucket.bounds
 
     def resize(self, bounds: Bounds) -> None:
         """Resize the tree.

@@ -157,7 +157,15 @@ class Element(Matrices, Updateable):
         self._handles[SE].pos.x.dirty()
         self._handles[SE].pos.y.dirty()
 
-    def _set_width(self, width):
+    @property
+    def width(self):
+        """Width of the box, calculated as the distance from the left and right
+        handle."""
+        h = self._handles
+        return float(h[SE].pos.x) - float(h[NW].pos.x)
+
+    @width.setter
+    def width(self, width):
         """
         >>> b=Element()
         >>> b.width = 20
@@ -171,15 +179,14 @@ class Element(Matrices, Updateable):
         h = self._handles
         h[SE].pos.x = h[NW].pos.x + width
 
-    def _get_width(self):
-        """Width of the box, calculated as the distance from the left and right
-        handle."""
+    @property
+    def height(self):
+        """Height."""
         h = self._handles
-        return float(h[SE].pos.x) - float(h[NW].pos.x)
+        return float(h[SE].pos.y) - float(h[NW].pos.y)
 
-    width = property(_get_width, _set_width)
-
-    def _set_height(self, height):
+    @height.setter
+    def height(self, height):
         """
         >>> b=Element()
         >>> b.height = 20
@@ -195,13 +202,6 @@ class Element(Matrices, Updateable):
         """
         h = self._handles
         h[SE].pos.y = h[NW].pos.y + height
-
-    def _get_height(self):
-        """Height."""
-        h = self._handles
-        return float(h[SE].pos.y) - float(h[NW].pos.y)
-
-    height = property(_get_height, _set_height)
 
     def handles(self) -> Sequence[Handle]:
         """Return a list of handles owned by the item."""
@@ -271,9 +271,13 @@ class Line(Matrices, Updateable):
         self._horizontal = False
         self._head_angle = self._tail_angle = 0
 
-    head = property(lambda s: s._handles[0])
+    @property
+    def head(self) -> Handle:
+        return self._handles[0]
 
-    tail = property(lambda s: s._handles[-1])
+    @property
+    def tail(self) -> Handle:
+        return self._handles[-1]
 
     @observed
     def _set_line_width(self, line_width):

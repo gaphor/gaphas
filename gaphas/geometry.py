@@ -6,7 +6,7 @@ intersections).
 A point is represented as a tuple `(x, y)`.
 """
 from math import sqrt
-from typing import Tuple
+from typing import Optional, Tuple
 
 
 class Rectangle:
@@ -37,7 +37,15 @@ class Rectangle:
     Rectangle(-5, 3, 10, 2)
     """
 
-    def __init__(self, x=0, y=0, width=None, height=None, x1=0, y1=0):
+    def __init__(
+        self,
+        x: float = 0,
+        y: float = 0,
+        width: Optional[float] = None,
+        height: Optional[float] = None,
+        x1: float = 0,
+        y1: float = 0,
+    ):
         if width is None:
             self.x = min(x, x1)
             self.width = abs(x1 - x)
@@ -51,23 +59,27 @@ class Rectangle:
             self.y = y
             self.height = height
 
-    def _set_x1(self, x1):
-        """"""
+    @property
+    def x1(self) -> float:
+        return self.x + self.width
+
+    @x1.setter
+    def x1(self, x1):
         width = x1 - self.x
         if width < 0:
             width = 0
         self.width = width
 
-    x1 = property(lambda s: s.x + s.width, _set_x1)
+    @property
+    def y1(self) -> float:
+        return self.y + self.height
 
-    def _set_y1(self, y1):
-        """"""
+    @y1.setter
+    def y1(self, y1):
         height = y1 - self.y
         if height < 0:
             height = 0
         self.height = height
-
-    y1 = property(lambda s: s.y + s.height, _set_y1)
 
     def expand(self, delta):
         """

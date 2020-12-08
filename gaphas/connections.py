@@ -32,9 +32,10 @@ class Connections:
         self._solver = solver or Solver()
         self._connections = table.Table(Connection, list(range(4)))
 
-    solver = property(
-        lambda s: s._solver, doc="The solver used by this connections instance"
-    )
+    @property
+    def solver(self) -> Solver:
+        """The solver used by this connections instance."""
+        return self._solver
 
     def solve(self):
         """Solve all constraints."""

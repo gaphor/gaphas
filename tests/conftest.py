@@ -51,7 +51,7 @@ def box(canvas, connections):
 @pytest.fixture
 def line(canvas, connections):
     line = Line(connections)
-    line.tail.pos = 100, 100
+    line.tail.pos = (100, 100)
     canvas.add(line)
     return line
 

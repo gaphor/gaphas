@@ -5,6 +5,7 @@ from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
 from gaphas.aspect.move import ItemMove, Move
 from gaphas.canvas import all_children
 from gaphas.item import Element, Item, Line
+from gaphas.types import Pos
 from gaphas.view import GtkView
 
 
@@ -241,7 +242,7 @@ class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
     position.
     """
 
-    def move(self, pos):
+    def move(self, pos: Pos):
 
         sink = super().move(pos)
 
