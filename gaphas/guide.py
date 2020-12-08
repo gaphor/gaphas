@@ -302,6 +302,7 @@ class GuidePainter:
 
         cr.save()
         try:
+            cr.identity_matrix()
             cr.set_line_width(1)
             cr.set_source_rgba(0.0, 0.0, 1.0, 0.6)
             for g in guides.vertical():
