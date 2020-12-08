@@ -4,6 +4,7 @@ from typing import Collection, Iterable, Optional
 
 from typing_extensions import Protocol, runtime_checkable
 
+from gaphas.connections import Connections
 from gaphas.item import Item
 
 
@@ -30,6 +31,10 @@ class Model(Protocol):
     """Any class that adhere's to the Model protocol can be used as a model for
     GtkView."""
 
+    @property
+    def connections(self) -> Connections:
+        """The connections instance used for this model."""
+
     def get_all_items(self) -> Iterable[Item]:
         """Iterate over all items in the order they need to be rendered in.
 
@@ -42,12 +47,23 @@ class Model(Protocol):
         Returns ``None`` if there is no parent item.
         """
 
-    def get_children(self, item: Item) -> Iterable[Item]:
+    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
         """Iterate all direct child items of an item."""
 
     def sort(self, items: Collection[Item]) -> Iterable[Item]:
         """Sort a collection of items in the order they need to be rendered
         in."""
+
+    def request_update(
+        self, item: Item, update: bool = True, matrix: bool = True
+    ) -> None:
+        """Request update for an item.
+
+        Arguments:
+          item (Item): The item to be updated
+          update (bool): ``True`` if it needs a full update (incl. bounding box calculation)
+          matrix (bool): ``True`` if only the matrix has been updated (item has moved/resized)
+        """
 
     def update_now(
         self, dirty_items: Collection[Item], dirty_matrix_items: Collection[Item]

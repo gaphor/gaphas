@@ -140,6 +140,7 @@ class GuideMixin:
         """Get a set of items excluded from guide calculation."""
         item = self.item
         view = self.view
+        assert view.model
 
         excluded_items = set(all_children(view.model, item))
         excluded_items.add(item)
@@ -247,16 +248,16 @@ class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
         if not sink:
             item = self.item
             view = self.view
-            canvas = view.model
+            model = view.model
+            assert model
+
             x, y = pos
             v2i = view.get_matrix_v2i(item)
 
             excluded_items = self.get_excluded_items()
 
             w, h = self.get_view_dimensions()
-
             dx, edges_x = self.find_vertical_guides((x,), 0, h, excluded_items)
-
             dy, edges_y = self.find_horizontal_guides((y,), 0, w, excluded_items)
 
             newpos = x + dx, y + dy
@@ -272,7 +273,7 @@ class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
 
             self.queue_draw_guides()
 
-            canvas.request_update(item)
+            model.request_update(item)
 
     def stop_move(self, pos):
         super().stop_move(pos)

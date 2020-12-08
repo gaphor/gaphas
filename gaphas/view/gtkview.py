@@ -118,7 +118,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._model: Optional[Model] = None
         if model:
-            self._set_model(model)
+            self.model = model
 
         def redraw(selection, item, signal_name):
             self.queue_redraw()
@@ -149,7 +149,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         m.invert()
         return m
 
-    def _set_model(self, model: Optional[Model]) -> None:
+    @property
+    def model(self) -> Optional[Model]:
+        """The model."""
+        return self._model
+
+    @model.setter
+    def model(self, model: Optional[Model]) -> None:
         if self._model:
             self._model.unregister_view(self)
             self._selection.clear()
@@ -161,49 +167,45 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._model.register_view(self)
             self.request_update(self._model.get_all_items())
 
-    model = property(lambda s: s._model, _set_model, doc="The model.")
+    @property
+    def painter(self) -> Painter:
+        """Painter for drawing the view."""
+        return self._painter
 
-    def _set_painter(self, painter: Painter):
-        """Set the painter to use.
-
-        Painters should implement painter.Painter.
-        """
+    @painter.setter
+    def painter(self, painter: Painter):
         self._painter = painter
         self.emit("painter-changed")
 
-    painter = property(
-        lambda s: s._painter, _set_painter, doc="Painter for drawing the view."
-    )
+    @property
+    def bounding_box_painter(self) -> Painter:
+        """Special painter for calculating item bounding boxes."""
+        return self._bounding_box_painter
 
-    def _set_bounding_box_painter(self, painter):
-        """Set the painter to use for bounding box calculations."""
+    @bounding_box_painter.setter
+    def bounding_box_painter(self, painter: Painter):
         self._bounding_box_painter = painter
         self.emit("painter-changed")
 
-    bounding_box_painter = property(
-        lambda s: s._bounding_box_painter,
-        _set_bounding_box_painter,
-        doc="Special painter for calculating item bounding boxes.",
-    )
+    @property
+    def selection(self):
+        """Selected, focused and hovered items."""
+        return self._selection
 
-    selection = property(
-        lambda s: s._selection, doc="Selected, focused and hovered items."
-    )
+    @property
+    def bounding_box(self):
+        """The bounding box of the complete view, relative to the view port."""
+        return Rectangle(*self._qtree.soft_bounds)
 
-    bounding_box = property(
-        lambda s: Rectangle(*s._qtree.soft_bounds),
-        doc="The bounding box of the complete view, relative to the view port.",
-    )
+    @property
+    def hadjustment(self) -> Gtk.Adjustment:
+        """Gtk adjustment object for use with a scrollbar."""
+        return self._scrolling.hadjustment
 
-    hadjustment = property(
-        lambda s: s._scrolling.hadjustment,
-        doc="Gtk adjustment object for use with a scrollbar.",
-    )
-
-    vadjustment = property(
-        lambda s: s._scrolling.vadjustment,
-        doc="Gtk adjustment object for use with a scrollbar.",
-    )
+    @property
+    def vadjustment(self) -> Gtk.Adjustment:
+        """Gtk adjustment object for use with a scrollbar."""
+        return self._scrolling.vadjustment
 
     def add_controller(self, *controllers: Gtk.EventController):
         """Add a controller.
@@ -416,7 +418,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             cr.set_matrix(self.matrix.to_cairo())
             cr.save()
-            self.painter.paint(items, cr)
+            self.painter.paint(list(items), cr)
             cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:

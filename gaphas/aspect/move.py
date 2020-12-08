@@ -28,15 +28,16 @@ class ItemMove:
         """
         item = self.item
         view = self.view
-        v2i = view.get_matrix_v2i(item)
+        assert view.model
 
+        v2i = view.get_matrix_v2i(item)
         x, y = pos
         dx, dy = x - self.last_x, y - self.last_y
         dx, dy = v2i.transform_distance(dx, dy)
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
-        view.model.request_matrix_update(item)
+        view.model.request_update(item, update=False)
 
     def stop_move(self, pos):
         pass

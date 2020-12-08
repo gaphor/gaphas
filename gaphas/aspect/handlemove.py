@@ -25,15 +25,16 @@ class ItemHandleMove:
 
     def start_move(self, pos: Pos):
         self.last_x, self.last_y = pos
-        canvas = self.view.model
-
-        cinfo = canvas.connections.get_connection(self.handle)
+        model = self.view.model
+        assert model
+        cinfo = model.connections.get_connection(self.handle)
         if cinfo:
-            canvas.solver.remove_constraint(cinfo.constraint)
+            model.connections.remove_constraint(self.item, cinfo.constraint)
 
     def move(self, pos: Pos):
         item = self.item
         view = self.view
+        assert view.model
 
         v2i = view.get_matrix_v2i(item)
 
@@ -68,7 +69,9 @@ class ItemHandleMove:
 
         # check if item and found item can be connected on closest port
         if connectable and port and glue_pos:
-            connections = self.view.model.connections
+            model = self.view.model
+            assert model
+            connections = model.connections
             connector = Connector(self.item, self.handle, connections)
             sink = ConnectionSink(connectable, port)
 
@@ -94,7 +97,9 @@ class ItemHandleMove:
             Position to connect to (or near at least)
         """
         handle = self.handle
-        connections = self.view.model.connections
+        model = self.view.model
+        assert model
+        connections = model.connections
         connector = Connector(self.item, handle, connections)
 
         # find connectable item and its port

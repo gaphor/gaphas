@@ -273,6 +273,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.png")
 
     def on_write_demo_png_clicked(button):
+        assert view.model
         painter = ItemPainter()
 
         # Update bounding boxes with a temporary CairoContext
@@ -290,7 +291,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         )
         cr = cairo.Context(surface)
         cr.translate(-bounding_box.x, -bounding_box.y)
-        painter.paint(items=view.model.get_all_items(), cairo=cr)
+        painter.paint(items=list(view.model.get_all_items()), cairo=cr)
         cr.show_page()
         surface.write_to_png("demo.png")
 
@@ -300,6 +301,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b = Gtk.Button.new_with_label("Write demo.svg")
 
     def on_write_demo_svg_clicked(button):
+        assert view.model
         painter = ItemPainter()
 
         # Update bounding boxes with a temporaly CairoContext
@@ -317,7 +319,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         )
         cr = cairo.Context(surface)
         cr.translate(-bounding_box.x, -bounding_box.y)
-        painter.paint(items=view.model.get_all_items(), cairo=cr)
+        painter.paint(items=list(view.model.get_all_items()), cairo=cr)
         cr.show_page()
         surface.flush()
         surface.finish()

@@ -7,18 +7,18 @@ from gi.repository import Gtk
 
 from gaphas.aspect.connector import ConnectionSink
 from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
-from gaphas.canvas import Canvas
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
 from gaphas.solver import WEAK
 from gaphas.tool.itemtool import MoveType, item_at_point
 from gaphas.view import Selection
+from gaphas.view.model import Model
 
 
 @singledispatch
 class Segment:
-    def __init__(self, item, canvas):
+    def __init__(self, item, model):
         raise TypeError
 
     def split_segment(self, segment, count=2):
@@ -33,9 +33,9 @@ class Segment:
 
 @Segment.register(Line)  # type: ignore
 class LineSegment:
-    def __init__(self, item: Line, canvas: Canvas):
+    def __init__(self, item: Line, model: Model):
         self.item = item
-        self.canvas = canvas
+        self.model = model
 
     def split(self, pos):
         item = self.item
@@ -94,7 +94,7 @@ class LineSegment:
 
         self.recreate_constraints()
 
-        self.canvas.request_update(item)
+        self.model.request_update(item)
         handles = item.handles()[segment + 1 : segment + count]
         ports = item.ports()[segment : segment + count - 1]
         return handles, ports
@@ -138,7 +138,7 @@ class LineSegment:
         item.update_orthogonal_constraints(item.orthogonal)
 
         self.recreate_constraints()
-        self.canvas.request_update(item)
+        self.model.request_update(item)
 
         return deleted_handles, deleted_ports
 
@@ -150,7 +150,7 @@ class LineSegment:
             Connected item.
         """
         connected = self.item
-        canvas = self.canvas
+        model = self.model
 
         def find_port(line, handle, item):
             # port = None
@@ -162,14 +162,14 @@ class LineSegment:
             sink = ConnectionSink(item, None)
             return sink.find_port((ix, iy))
 
-        for cinfo in list(canvas.connections.get_connections(connected=connected)):
+        for cinfo in list(model.connections.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
             port = find_port(item, handle, connected)
 
             constraint = port.constraint(item, handle, connected)
 
-            cinfo = canvas.connections.get_connection(handle)
-            canvas.connections.reconnect_item(item, handle, port, constraint=constraint)
+            cinfo = model.connections.get_connection(handle)
+            model.connections.reconnect_item(item, handle, port, constraint=constraint)
 
 
 class SegmentState:

@@ -83,9 +83,13 @@ class Canvas:
 
         self._registered_views = set()
 
-    solver = property(lambda s: s._connections.solver)
+    @property
+    def solver(self):
+        return self._connections.solver
 
-    connections = property(lambda s: s._connections)
+    @property
+    def connections(self) -> Connections:
+        return self._connections
 
     @observed
     def add(self, item, parent=None, index=None):
@@ -257,7 +261,7 @@ class Canvas:
         return m
 
     @observed
-    def request_update(self, item, update=True, matrix=True):
+    def request_update(self, item: Item, update=True, matrix=True) -> None:
         """Set an update request for the item.
 
         >>> c = Canvas()
@@ -326,7 +330,7 @@ class Canvas:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # solve all constraints
-            self.solver.solve()
+            self._connections.solve()
 
             self._post_update_items(all_dirty_items, contexts)
 
