@@ -29,7 +29,7 @@ class ItemHandleMove:
         assert model
         cinfo = model.connections.get_connection(self.handle)
         if cinfo:
-            model.connections.remove_constraint(self.item, cinfo.constraint)
+            model.connections.solver.remove_constraint(cinfo.constraint)
 
     def move(self, pos: Pos):
         item = self.item
@@ -112,6 +112,8 @@ class ItemHandleMove:
             cinfo = connections.get_connection(handle)
             if cinfo:
                 connector.disconnect()
+
+        model.request_update(self.item)
 
 
 HandleMove = singledispatch(ItemHandleMove)
