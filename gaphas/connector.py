@@ -1,11 +1,12 @@
 """Basic connectors such as Ports and Handles."""
-from typing import Tuple, Union
+from typing import Union
 
 from gaphas.constraint import LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.position import MatrixProjection, Position
 from gaphas.solver import NORMAL, MultiConstraint
 from gaphas.state import observed, reversible_property
+from gaphas.types import SupportsFloatPos, TypedProperty
 
 
 class Handle:
@@ -29,7 +30,7 @@ class Handle:
         self._movable = movable
         self._visible = True
 
-    def _set_pos(self, pos: Union[Position, Tuple[float, float]]):
+    def _set_pos(self, pos: Union[Position, SupportsFloatPos]):
         """
         Shortcut for ``handle.pos.pos = pos``
 
@@ -40,6 +41,7 @@ class Handle:
         """
         self._pos.pos = pos
 
+    pos: TypedProperty[Position, Union[Position, SupportsFloatPos]]
     pos = property(lambda s: s._pos, _set_pos)
 
     @observed

@@ -32,7 +32,7 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
-from typing import Union
+from typing import Collection, Union
 
 from gaphas.solver.constraint import Constraint, MultiConstraint
 from gaphas.state import observed, reversible_pair
@@ -50,7 +50,9 @@ class Solver:
         self._marked_cons = []
         self._solving = False
 
-    constraints = property(lambda s: s._constraints)
+    @property
+    def constraints(self) -> Collection[Constraint]:
+        return self._constraints
 
     @observed
     def add_constraint(self, constraint: Union[Constraint, MultiConstraint]):

@@ -1,5 +1,10 @@
+from __future__ import annotations
+
+from typing import SupportsFloat, Tuple, Union
+
 from gaphas.matrix import Matrix
 from gaphas.solver import NORMAL, Constraint, Variable
+from gaphas.types import SupportsFloatPos, TypedProperty
 
 
 class Position:
@@ -18,22 +23,27 @@ class Position:
         self._x = Variable(x, strength)
         self._y = Variable(y, strength)
 
-    def _set_x(self, v):
+    def _set_x(self, v: SupportsFloat):
         self._x.value = v
 
+    x: TypedProperty[Variable, SupportsFloat]
     x = property(lambda s: s._x, _set_x, doc="Position.x")
 
-    def _set_y(self, v):
+    def _set_y(self, v: SupportsFloat):
         self._y.value = v
 
+    y: TypedProperty[Variable, SupportsFloat]
     y = property(lambda s: s._y, _set_y, doc="Position.y")
 
-    strength = property(lambda s: s._x.strength, doc="Strength.")
+    def strength(self) -> int:
+        """Strength."""
+        return self._x.strength
 
-    def _set_pos(self, pos):
+    def _set_pos(self, pos: Union[Position, SupportsFloatPos]):
         """Set handle position (Item coordinates)."""
         self._x.value, self._y.value = pos
 
+    pos: TypedProperty[Tuple[Variable, Variable], Union[Position, SupportsFloatPos]]
     pos = property(lambda s: (s._x, s._y), _set_pos, doc="The position.")
 
     def __str__(self):
@@ -84,16 +94,23 @@ class MatrixProjection(Constraint):
         if not self._handlers:
             self.matrix.remove_handler(self._on_matrix_changed)
 
+    @property
+    def pos(self) -> Position:
+        """The projected position."""
+        return self._proj_pos
+
     def _set_x(self, x):
         self._proj_pos.x = x
+
+    x: TypedProperty[Variable, SupportsFloat]
+    x = property(
+        lambda s: s._proj_pos.x, _set_x, doc="The projected position's ``x`` part."
+    )
 
     def _set_y(self, y):
         self._proj_pos.y = y
 
-    pos = property(lambda s: s._proj_pos, doc="The projected position")
-    x = property(
-        lambda s: s._proj_pos.x, _set_x, doc="The projected position's ``x`` part."
-    )
+    y: TypedProperty[Variable, SupportsFloat]
     y = property(
         lambda s: s._proj_pos.y, _set_y, doc="The projected position's ``y`` part."
     )

@@ -66,17 +66,17 @@ class Circle(Matrices, Updateable):
         h1, h2 = self._handles
         h1.movable = False
 
-    def _set_radius(self, r):
-        h1, h2 = self._handles
-        h2.pos.x = r
-        h2.pos.y = r
-
-    def _get_radius(self):
+    @property
+    def radius(self):
         h1, h2 = self._handles
         p1, p2 = h1.pos, h2.pos
         return ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2) ** 0.5
 
-    radius = property(_get_radius, _set_radius)
+    @radius.setter
+    def radius(self, r):
+        h1, h2 = self._handles
+        h2.pos.x = r
+        h2.pos.y = r
 
     def handles(self):
         return self._handles

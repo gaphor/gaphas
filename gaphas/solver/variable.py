@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable, Set, SupportsFloat
 
 from gaphas.state import observed, reversible_property
+from gaphas.types import TypedProperty
 
 # epsilon for float comparison
 # is simple abs(x - y) > EPSILON enough for canvas needs?
@@ -76,22 +77,25 @@ class Variable:
         self._strength = strength
         self._handlers: Set[Callable[[Variable], None]] = set()
 
-    def add_handler(self, handler: Callable[[Variable], None]):
+    def add_handler(self, handler: Callable[[Variable], None]) -> None:
         """Add a handler, to be invoked when the value changes."""
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[Variable], None]):
+    def remove_handler(self, handler: Callable[[Variable], None]) -> None:
         """Remove a handler."""
         self._handlers.discard(handler)
 
-    def notify(self):
+    def notify(self) -> None:
         """Notify all handlers."""
         for handler in self._handlers:
             handler(self)
 
-    strength = property(lambda s: s._strength, doc="Strength.")
+    @property
+    def strength(self) -> int:
+        """Strength."""
+        return self._strength
 
-    def dirty(self):
+    def dirty(self) -> None:
         """Mark the variable dirty in all attached constraints.
 
         Variables are marked dirty also during constraints solving to
@@ -101,12 +105,14 @@ class Variable:
         self.notify()
 
     @observed
-    def set_value(self, value):
+    def set_value(self, value: SupportsFloat) -> None:
         oldval = self._value
-        if abs(oldval - value) > EPSILON:
-            self._value = float(value)
+        v = float(value)
+        if abs(oldval - v) > EPSILON:
+            self._value = v
             self.dirty()
 
+    value: TypedProperty[float, SupportsFloat]
     value = reversible_property(lambda s: s._value, set_value)
 
     def __str__(self):

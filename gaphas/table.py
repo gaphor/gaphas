@@ -27,7 +27,9 @@ class Table:
         index: Dict[str, Dict[object, Set[object]]] = {n: {} for n in fields}
         self._index = index
 
-    columns = property(lambda s: s._type)
+    @property
+    def columns(self):
+        return self._type
 
     def insert(self, *values):
         """Add a set of values to the store.
