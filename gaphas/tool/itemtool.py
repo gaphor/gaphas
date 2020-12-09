@@ -119,7 +119,7 @@ def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
 
     Parameters:
         - view: a view
-        - pos: Position, in view coordinates
+        - pos: Position, a tuple ``(x, y)`` in view coordinates
         - selected: if False returns first non-selected item
     """
     item: Item
