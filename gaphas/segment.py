@@ -220,7 +220,7 @@ def on_drag_end(gesture, offset_x, offset_y, segment_state):
 @HandleMove.register(Line)
 class LineHandleMove(ItemHandleMove):
     def stop_move(self, pos):
-        super().start_move(pos)
+        super().stop_move(pos)
         maybe_merge_segments(self.view, self.item, self.handle)
 
 
