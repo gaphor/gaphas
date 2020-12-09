@@ -22,6 +22,18 @@ def test_variable_decorator_value():
     assert a.x == 3
 
 
+def test_variable_decorator_set_variable():
+    class A:
+        x = variable(varname="sx", strength=STRONG)
+
+    a = A()
+    v = Variable(4)
+    a.x = v
+
+    assert a.x == 4
+    assert a.x is not v
+
+
 def test_equality():
     v = Variable(3)
     w = Variable(3)

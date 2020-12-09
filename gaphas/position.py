@@ -23,6 +23,11 @@ class Position:
         self._x = Variable(x, strength)
         self._y = Variable(y, strength)
 
+    @property
+    def strength(self) -> int:
+        """Strength."""
+        return self._x.strength
+
     def _set_x(self, v: SupportsFloat):
         self._x.value = v
 
@@ -34,10 +39,6 @@ class Position:
 
     y: TypedProperty[Variable, SupportsFloat]
     y = property(lambda s: s._y, _set_y, doc="Position.y")
-
-    def strength(self) -> int:
-        """Strength."""
-        return self._x.strength
 
     def _set_pos(self, pos: Union[Position, SupportsFloatPos]):
         """Set handle position (Item coordinates)."""
