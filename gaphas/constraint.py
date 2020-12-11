@@ -31,7 +31,7 @@ import math
 from typing import Dict, Optional, Tuple
 
 from gaphas.position import Position
-from gaphas.solver import Constraint, Variable
+from gaphas.solver import BaseConstraint, Constraint, Variable
 
 log = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ def _update(variable, value):
         variable.value = value
 
 
-class EqualsConstraint(Constraint):
+class EqualsConstraint(BaseConstraint):
     """Constraint, which ensures that two arguments ``a`` and ``b`` are equal:
 
         a + delta = b
@@ -140,7 +140,7 @@ class EqualsConstraint(Constraint):
         )
 
 
-class CenterConstraint(Constraint):
+class CenterConstraint(BaseConstraint):
     """Simple Constraint, takes three arguments: 'a', 'b' and center. When
     solved, the constraint ensures 'center' is located in the middle of 'a' and
     'b'.
@@ -174,7 +174,7 @@ class CenterConstraint(Constraint):
         _update(self.center, v)
 
 
-class LessThanConstraint(Constraint):
+class LessThanConstraint(BaseConstraint):
     """Ensure ``smaller`` is less than ``bigger``. The variable that is passed
     as to-be-solved is left alone (cause it is the variable that has not been
     moved lately). Instead the other variable is solved.
@@ -219,7 +219,7 @@ class LessThanConstraint(Constraint):
 ITERLIMIT = 1000  # iteration limit
 
 
-class EquationConstraint(Constraint):
+class EquationConstraint(BaseConstraint):
     """Equation solver using attributes and introspection.
 
     Takes a function, named arg value (opt.) and returns a Constraint
@@ -349,7 +349,7 @@ class EquationConstraint(Constraint):
         return x1
 
 
-class BalanceConstraint(Constraint):
+class BalanceConstraint(BaseConstraint):
     """Ensure that a variable ``v`` is between values specified by ``band`` and
     in distance proportional from ``band[0]``.
 
@@ -398,7 +398,7 @@ class BalanceConstraint(Constraint):
         _update(var, value)
 
 
-class LineConstraint(Constraint):
+class LineConstraint(BaseConstraint):
     """Ensure a point is kept on a line.
 
     Attributes:
@@ -476,7 +476,7 @@ class LineConstraint(Constraint):
         _update(py, y)
 
 
-class PositionConstraint(Constraint):
+class PositionConstraint(BaseConstraint):
     """Ensure that point is always in origin position.
 
     Attributes:
@@ -498,7 +498,7 @@ class PositionConstraint(Constraint):
         _update(self._point[1], y)
 
 
-class LineAlignConstraint(Constraint):
+class LineAlignConstraint(BaseConstraint):
     """Ensure a point is kept on a line in position specified by align and
     padding information.
 

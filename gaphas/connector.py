@@ -100,9 +100,7 @@ class Port:
         """Get glue point on the port and distance to the port."""
         raise NotImplementedError("Glue method not implemented")
 
-    def constraint(
-        self, item: Item, handle: Handle, glue_item: Item
-    ) -> Union[Constraint, MultiConstraint]:
+    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
         """Create connection constraint between item's handle and glue item."""
         raise NotImplementedError("Constraint method not implemented")
 
@@ -131,9 +129,7 @@ class LinePort(Port):
         )
         return pl, d
 
-    def constraint(
-        self, item: Item, handle: Handle, glue_item: Item
-    ) -> Union[Constraint, MultiConstraint]:
+    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
         """Create connection line constraint between item's handle and the
         port."""
         start = MatrixProjection(self.start, glue_item.matrix_i2c)

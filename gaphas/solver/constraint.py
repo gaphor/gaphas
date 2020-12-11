@@ -2,10 +2,23 @@ from __future__ import annotations
 
 from typing import Callable, Set
 
+from typing_extensions import Protocol
+
 from gaphas.solver.variable import Variable
 
 
-class Constraint:
+class Constraint(Protocol):
+    def add_handler(self, handler: Callable[[Constraint], None]) -> None:
+        ...
+
+    def remove_handler(self, handler: Callable[[Constraint], None]) -> None:
+        ...
+
+    def solve(self) -> None:
+        ...
+
+
+class BaseConstraint:
     """Constraint base class.
 
     - variables - list of all variables

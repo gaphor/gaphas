@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import SupportsFloat, Tuple, Union
 
 from gaphas.matrix import Matrix
-from gaphas.solver import NORMAL, Constraint, Variable
+from gaphas.solver import NORMAL, BaseConstraint, Variable
 from gaphas.types import SupportsFloatPos, TypedProperty
 
 
@@ -76,7 +76,7 @@ class Position:
         return self[0] < other[0] and self[1] < other[1]
 
 
-class MatrixProjection(Constraint):
+class MatrixProjection(BaseConstraint):
     def __init__(self, pos: Position, matrix: Matrix):
         proj_pos = Position(0, 0, pos.strength)
         super().__init__(proj_pos.x, proj_pos.y, pos.x, pos.y)

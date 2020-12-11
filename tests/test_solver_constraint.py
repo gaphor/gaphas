@@ -1,6 +1,6 @@
 import pytest
 
-from gaphas.solver import Constraint, MultiConstraint, Variable
+from gaphas.solver import BaseConstraint, MultiConstraint, Variable
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def handler():
 
 def test_constraint_propagates_variable_changed(handler):
     v = Variable()
-    c = Constraint(v)
+    c = BaseConstraint(v)
     c.add_handler(handler)
 
     v.value = 3
@@ -26,7 +26,7 @@ def test_constraint_propagates_variable_changed(handler):
 
 def test_multi_constraint(handler):
     v = Variable()
-    c = Constraint(v)
+    c = BaseConstraint(v)
     m = MultiConstraint(c)
     m.add_handler(handler)
 
@@ -37,7 +37,7 @@ def test_multi_constraint(handler):
 
 def test_default_constraint_can_not_solve():
     v = Variable()
-    c = Constraint(v)
+    c = BaseConstraint(v)
 
     with pytest.raises(NotImplementedError):
         c.solve()
@@ -45,7 +45,7 @@ def test_default_constraint_can_not_solve():
 
 def test_constraint_handlers_are_set_just_in_time():
     v = Variable()
-    c = Constraint(v)
+    c = BaseConstraint(v)
 
     def handler(c):
         pass
