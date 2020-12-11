@@ -31,13 +31,13 @@ class Constraint:
         by this constraint."""
         return self._variables
 
-    def add_handler(self, handler: Callable[[Constraint], None]):
+    def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         if not self._handlers:
             for v in self._variables:
                 v.add_handler(self._propagate)
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[Constraint], None]):
+    def remove_handler(self, handler: Callable[[Constraint], None]) -> None:
         self._handlers.discard(handler)
         if not self._handlers:
             for v in self._variables:
@@ -59,7 +59,7 @@ class Constraint:
         """
         return self._weakest[0][1]
 
-    def mark_dirty(self, var: Variable):
+    def mark_dirty(self, var: Variable) -> None:
         """Mark variable v dirty and if possible move it to the end of
         Constraint.weakest list to maintain weakest variable invariants (see
         gaphas.solver module documentation)."""
@@ -99,11 +99,11 @@ class MultiConstraint:
     def __init__(self, *constraints: Constraint):
         self._constraints = constraints
 
-    def add_handler(self, handler: Callable[[Constraint], None]):
+    def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         for c in self._constraints:
             c.add_handler(handler)
 
-    def remove_handler(self, handler: Callable[[Constraint], None]):
+    def remove_handler(self, handler: Callable[[Constraint], None]) -> None:
         for c in self._constraints:
             c.remove_handler(handler)
 

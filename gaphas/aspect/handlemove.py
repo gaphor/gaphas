@@ -1,9 +1,9 @@
 from functools import singledispatch
-from typing import Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 from gi.repository import Gdk
 
-from gaphas.aspect.connector import ConnectionSink, Connector
+from gaphas.aspect.connector import ConnectionSink, ConnectionSinkType, Connector
 from gaphas.connector import Handle, Port
 from gaphas.item import Element, Item
 from gaphas.types import Pos
@@ -23,7 +23,7 @@ class ItemHandleMove:
         self.handle = handle
         self.view = view
 
-    def start_move(self, pos: Pos):
+    def start_move(self, pos: Pos) -> None:
         self.last_x, self.last_y = pos
         model = self.view.model
         assert model
@@ -31,7 +31,7 @@ class ItemHandleMove:
         if cinfo:
             model.connections.solver.remove_constraint(cinfo.constraint)
 
-    def move(self, pos: Pos):
+    def move(self, pos: Pos) -> None:
         item = self.item
         view = self.view
         assert view.model
@@ -48,10 +48,12 @@ class ItemHandleMove:
         # performed due to item normalization if required
         view.model.request_update(item, matrix=False)
 
-    def stop_move(self, pos):
+    def stop_move(self, pos: Pos) -> None:
         self.connect(pos)
 
-    def glue(self, pos: Pos, distance=GLUE_DISTANCE):
+    def glue(
+        self, pos: Pos, distance: int = GLUE_DISTANCE
+    ) -> Optional[ConnectionSinkType]:
         """Glue to an item near a specific point.
 
         Returns a ConnectionSink or None.
@@ -83,7 +85,7 @@ class ItemHandleMove:
                 return sink
         return None
 
-    def connect(self, pos: Pos):
+    def connect(self, pos: Pos) -> None:
         """Connect a handle of a item to connectable item.
 
         Connectable item is found by `ConnectHandleTool.glue` method.
@@ -123,28 +125,28 @@ HandleMove = singledispatch(ItemHandleMove)
 class ElementHandleMove(ItemHandleMove):
     CURSORS = ("nw-resize", "ne-resize", "se-resize", "sw-resize")
 
-    def start_move(self, pos: Pos):
+    def start_move(self, pos: Pos) -> None:
         super().start_move(pos)
         self.set_cursor()
 
-    def stop_move(self, pos):
+    def stop_move(self, pos: Pos) -> None:
         self.reset_cursor()
         super().stop_move(pos)
 
-    def set_cursor(self):
+    def set_cursor(self) -> None:
         index = self.item.handles().index(self.handle)
         if index < 4:
             display = self.view.get_display()
             cursor = Gdk.Cursor.new_from_name(display, self.CURSORS[index])
             self.view.get_window().set_cursor(cursor)
 
-    def reset_cursor(self):
+    def reset_cursor(self) -> None:
         cursor = Gdk.Cursor(DEFAULT_CURSOR)
         self.view.get_window().set_cursor(cursor)
 
 
 def port_at_point(
-    view, vpos, distance=10, exclude=None
+    view: GtkView, vpos: Pos, distance: float = 10, exclude: Sequence[Item] = (),
 ) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
     """Find item with port closest to specified position.
 

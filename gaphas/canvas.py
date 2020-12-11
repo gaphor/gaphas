@@ -168,7 +168,7 @@ class Canvas:
         """
         return self._tree.get_children(None)
 
-    def get_parent(self, item) -> Optional[Item]:
+    def get_parent(self, item: Item) -> Optional[Item]:
         """See `tree.Tree.get_parent()`.
 
         >>> c = Canvas()
@@ -183,7 +183,7 @@ class Canvas:
         """
         return self._tree.get_parent(item)
 
-    def get_children(self, item) -> Iterable[Item]:
+    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
         """See `tree.Tree.get_children()`.
 
         >>> c = Canvas()
@@ -203,7 +203,7 @@ class Canvas:
         """
         return self._tree.get_children(item)
 
-    def sort(self, items) -> Iterable[Item]:
+    def sort(self, items: Iterable[Item]) -> Iterable[Item]:
         """Sort a list of items in the order in which they are traversed in the
         canvas (Depth first).
 
@@ -242,7 +242,9 @@ class Canvas:
         return m
 
     @observed
-    def request_update(self, item: Item, update=True, matrix=True) -> None:
+    def request_update(
+        self, item: Item, update: bool = True, matrix: bool = True
+    ) -> None:
         """Set an update request for the item.
 
         >>> c = Canvas()
@@ -318,7 +320,7 @@ class Canvas:
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
 
-    def register_view(self, view: View):
+    def register_view(self, view: View) -> None:
         """Register a view on this canvas.
 
         This method is called when setting a canvas on a view and should
@@ -326,7 +328,7 @@ class Canvas:
         """
         self._registered_views.add(view)
 
-    def unregister_view(self, view: View):
+    def unregister_view(self, view: View) -> None:
         """Unregister a view on this canvas.
 
         This method is called when setting a canvas on a view and should

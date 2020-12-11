@@ -10,7 +10,9 @@ from gaphas.view import GtkView
 FactoryType = Callable[[], Item]
 
 
-def placement_tool(view: GtkView, factory: FactoryType, handle_index: int):
+def placement_tool(
+    view: GtkView, factory: FactoryType, handle_index: int
+) -> Gtk.GestureDrag:
     """Place a new item on the model."""
     gesture = Gtk.GestureDrag.new(view)
     placement_state = PlacementState(factory, handle_index)

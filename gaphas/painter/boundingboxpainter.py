@@ -4,6 +4,8 @@ import functools
 import operator
 from typing import Collection, Dict, Optional
 
+from cairo import Context
+
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
@@ -21,7 +23,7 @@ class CairoBoundingBoxContext:
     def __getattr__(self, key):
         return getattr(self._cairo, key)
 
-    def get_bounds(self):
+    def get_bounds(self) -> Rectangle:
         """Return the bounding box."""
         return self._bounds or Rectangle()
 
@@ -102,11 +104,11 @@ class BoundingBoxPainter:
     ):
         self.item_painter = item_painter
 
-    def paint_item(self, item: Item, cairo):
-        cairo = CairoBoundingBoxContext(cairo)
-        self.item_painter.paint_item(item, cairo)
+    def paint_item(self, item: Item, cairo: Context) -> Rectangle:
+        bbctx = CairoBoundingBoxContext(cairo)
+        self.item_painter.paint_item(item, bbctx)
         # Bounding box is in view (cairo root) coordinates
-        bounds = cairo.get_bounds()
+        bounds = bbctx.get_bounds()
 
         # Update bounding box with handles.
         i2c = item.matrix_i2c.transform_point
@@ -117,14 +119,14 @@ class BoundingBoxPainter:
         bounds.expand(1)
         return bounds
 
-    def paint(self, items: Collection[Item], cairo) -> Dict[Item, Rectangle]:
+    def paint(self, items: Collection[Item], cairo: Context) -> Dict[Item, Rectangle]:
         """Draw the items, return the bounding boxes (in cairo device
         coordinates)."""
         paint_item = self.paint_item
         boxes: Dict[Item, Rectangle] = {item: paint_item(item, cairo) for item in items}
         return boxes
 
-    def bounding_box(self, items: Collection[Item], cairo) -> Rectangle:
+    def bounding_box(self, items: Collection[Item], cairo: Context) -> Rectangle:
         """Get the unified bounding box of the rendered items."""
         boxes = self.paint(items, cairo)
         return functools.reduce(operator.add, boxes.values())

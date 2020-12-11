@@ -25,24 +25,24 @@ class Matrix:
 
     def __init__(
         self,
-        xx=1.0,
-        yx=0.0,
-        xy=0.0,
-        yy=1.0,
-        x0=0.0,
-        y0=0.0,
+        xx: float = 1.0,
+        yx: float = 0.0,
+        xy: float = 0.0,
+        yy: float = 1.0,
+        x0: float = 0.0,
+        y0: float = 0.0,
         matrix: Optional[cairo.Matrix] = None,
-    ):
+    ) -> None:
         self._matrix = matrix or cairo.Matrix(xx, yx, xy, yy, x0, y0)
         self._handlers: Set[Callable[[Matrix], None]] = set()
 
-    def add_handler(self, handler: Callable[[Matrix], None]):
+    def add_handler(self, handler: Callable[[Matrix], None]) -> None:
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[Matrix], None]):
+    def remove_handler(self, handler: Callable[[Matrix], None]) -> None:
         self._handlers.discard(handler)
 
-    def notify(self):
+    def notify(self) -> None:
         for handler in self._handlers:
             handler(self)
 
@@ -57,17 +57,25 @@ class Matrix:
         self.notify()
 
     @observed
-    def scale(self, sx, sy) -> None:
+    def scale(self, sx: float, sy: float) -> None:
         self._matrix.scale(sx, sy)
         self.notify()
 
     @observed
-    def translate(self, tx, ty) -> None:
+    def translate(self, tx: float, ty: float) -> None:
         self._matrix.translate(tx, ty)
         self.notify()
 
     @observed
-    def set(self, xx=None, yx=None, xy=None, yy=None, x0=None, y0=None) -> None:
+    def set(
+        self,
+        xx: Optional[float] = None,
+        yx: Optional[float] = None,
+        xy: Optional[float] = None,
+        yy: Optional[float] = None,
+        x0: Optional[float] = None,
+        y0: Optional[float] = None,
+    ) -> None:
         updated = False
         m = self._matrix
         for name, val in (
@@ -95,10 +103,10 @@ class Matrix:
     def multiply(self, m: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix.multiply(m._matrix))
 
-    def transform_distance(self, dx, dy) -> Tuple[float, float]:
+    def transform_distance(self, dx: float, dy: float) -> Tuple[float, float]:
         return self._matrix.transform_distance(dx, dy)  # type: ignore[no-any-return]
 
-    def transform_point(self, x, y) -> Tuple[float, float]:
+    def transform_point(self, x: float, y: float) -> Tuple[float, float]:
         return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
 
     def inverse(self) -> Matrix:

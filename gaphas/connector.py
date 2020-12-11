@@ -8,7 +8,7 @@ from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.position import MatrixProjection, Position
 from gaphas.solver import NORMAL, MultiConstraint
 from gaphas.state import observed, reversible_property
-from gaphas.types import SupportsFloatPos, TypedProperty
+from gaphas.types import Pos, SupportsFloatPos, TypedProperty
 
 if TYPE_CHECKING:
     from gaphas.item import Item
@@ -90,11 +90,13 @@ class Port:
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
-    def glue(self, pos: SupportsFloatPos) -> Tuple[Position, float]:
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port."""
         raise NotImplementedError("Glue method not implemented")
 
-    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
+    def constraint(
+        self, item: Item, handle: Handle, glue_item: Item
+    ) -> Union[Constraint, MultiConstraint]:
         """Create connection constraint between item's handle and glue item."""
         raise NotImplementedError("Constraint method not implemented")
 
@@ -108,7 +110,7 @@ class LinePort(Port):
         self.start = start
         self.end = end
 
-    def glue(self, pos):
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port.
 
         >>> p1, p2 = (0.0, 0.0), (100.0, 100.0)
@@ -118,10 +120,14 @@ class LinePort(Port):
         >>> port.glue((0, 10))
         ((5.0, 5.0), 7.0710678118654755)
         """
-        d, pl = distance_line_point(self.start, self.end, pos)
+        d, pl = distance_line_point(
+            self.start, self.end, (float(pos[0]), float(pos[1]))
+        )
         return pl, d
 
-    def constraint(self, item, handle, glue_item):
+    def constraint(
+        self, item: Item, handle: Handle, glue_item: Item
+    ) -> Union[Constraint, MultiConstraint]:
         """Create connection line constraint between item's handle and the
         port."""
         start = MatrixProjection(self.start, glue_item.matrix_i2c)
@@ -138,7 +144,7 @@ class PointPort(Port):
         super().__init__()
         self.point = point
 
-    def glue(self, pos) -> Tuple[Position, float]:
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port.
 
         >>> h = Handle((10, 10))
@@ -147,8 +153,8 @@ class PointPort(Port):
         (<Position object on (10, 10)>, 10.0)
         """
         point: Tuple[float, float] = self.point.pos  # type: ignore[assignment]
-        d = distance_point_point(point, pos)
-        return self.point, d
+        d = distance_point_point(point, (float(pos[0]), float(pos[1])))
+        return point, d
 
     def constraint(self, item, handle, glue_item):
         """Return connection position constraint between item's handle and the

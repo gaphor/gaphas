@@ -8,7 +8,7 @@ from gi.repository import Gdk, GLib, GObject, Gtk
 
 from gaphas.canvas import instant_cairo_context
 from gaphas.decorators import g_async
-from gaphas.geometry import Rectangle
+from gaphas.geometry import Rect, Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
@@ -173,7 +173,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return self._painter
 
     @painter.setter
-    def painter(self, painter: Painter):
+    def painter(self, painter: Painter) -> None:
         self._painter = painter
         self.emit("painter-changed")
 
@@ -183,7 +183,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return self._bounding_box_painter
 
     @bounding_box_painter.setter
-    def bounding_box_painter(self, painter: Painter):
+    def bounding_box_painter(self, painter: Painter) -> None:
         self._bounding_box_painter = painter
         self.emit("painter-changed")
 
@@ -207,7 +207,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Gtk adjustment object for use with a scrollbar."""
         return self._scrolling.vadjustment
 
-    def add_controller(self, *controllers: Gtk.EventController):
+    def add_controller(self, *controllers: Gtk.EventController) -> None:
         """Add a controller.
 
         A convenience method, so you have a place to store the event
@@ -216,7 +216,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """
         self._controllers.update(controllers)
 
-    def remove_controller(self, controller: Gtk.EventController):
+    def remove_controller(self, controller: Gtk.EventController) -> bool:
         """Remove a controller.
 
         The event controller's propagation phase is set to
@@ -232,7 +232,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             return True
         return False
 
-    def remove_all_controllers(self):
+    def remove_all_controllers(self) -> None:
         """Remove all registered controllers."""
         for controller in set(self._controllers):
             self.remove_controller(controller)
@@ -243,7 +243,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.matrix.scale(factor, factor)
         self.request_update((), self._model.get_all_items())
 
-    def get_items_in_rectangle(self, rect, contain=False) -> Iterable[Item]:
+    def get_items_in_rectangle(
+        self, rect: Rect, contain: bool = False
+    ) -> Iterable[Item]:
         """Return the items in the rectangle 'rect'.
 
         Items are automatically sorted in model's processing order.
@@ -256,7 +258,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         )
         return self._model.sort(items)
 
-    def get_item_bounding_box(self, item: Item):
+    def get_item_bounding_box(self, item: Item) -> Rect:
         """Get the bounding box for the item, in view coordinates."""
         return self._qtree.get_bounds(item)
 
@@ -349,7 +351,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def update_qtree(
         self, dirty_items: Collection[Item], dirty_matrix_items: Iterable[Item]
-    ):
+    ) -> Iterable[Item]:
         for i in dirty_matrix_items:
             if i not in self._qtree:
                 yield i
@@ -363,7 +365,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 vbounds = Rectangle(x, y, w, h)
                 self._qtree.add(i, vbounds.tuple(), bounds)
 
-    def update_bounding_box(self, items: Collection[Item]):
+    def update_bounding_box(self, items: Collection[Item]) -> None:
         """Update the bounding boxes of the model items for this view, in model
         coordinates."""
         cr = (
@@ -381,11 +383,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             if items is None:
                 items = list(self.model.get_all_items())
 
-            for item, bounds in painter.paint(items, cr).items():
+            items_and_bounds = painter.paint(items, cr)
+            assert items_and_bounds is not None
+            for item, bounds in items_and_bounds.items():
                 v2i = self.get_matrix_v2i(item)
                 ix, iy = v2i.transform_point(bounds.x, bounds.y)
                 iw, ih = v2i.transform_distance(bounds.width, bounds.height)
-                self._qtree.add(item=item, bounds=bounds, data=(ix, iy, iw, ih))
+                self._qtree.add(item=item, bounds=bounds.tuple(), data=(ix, iy, iw, ih))
         finally:
             cr.restore()
 

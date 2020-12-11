@@ -575,7 +575,7 @@ def intersect_line_line(
     return x, y
 
 
-Rect = Tuple[float, float, float, float]
+Rect = Tuple[float, float, float, float]  # x, y, width, height
 
 
 def rectangle_contains(inner: Rect, outer: Rect) -> bool:

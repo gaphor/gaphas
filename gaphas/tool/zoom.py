@@ -10,7 +10,7 @@ class ZoomData:
     sy: float
 
 
-def zoom_tool(view: GtkView):
+def zoom_tool(view: GtkView) -> Gtk.GestureZoom:
     """Create a zoom tool as a Gtk.Gesture.
 
     Note: we need to keep a reference to this gesture, or else it will be destroyed.
@@ -23,14 +23,16 @@ def zoom_tool(view: GtkView):
     return gesture
 
 
-def on_begin(gesture: Gtk.GestureZoom, sequence, zoom_data):
+def on_begin(gesture: Gtk.GestureZoom, sequence: None, zoom_data: ZoomData,) -> None:
     _, zoom_data.x0, zoom_data.y0 = gesture.get_point(sequence)
     view = gesture.get_widget()
     zoom_data.sx = view.matrix[0]
     zoom_data.sy = view.matrix[3]
 
 
-def on_scale_changed(gesture: Gtk.GestureZoom, scale, zoom_data):
+def on_scale_changed(
+    gesture: Gtk.GestureZoom, scale: float, zoom_data: ZoomData
+) -> None:
     if zoom_data.sx * scale < 0.2:
         scale = 0.2 / zoom_data.sx
     elif zoom_data.sx * scale > 20.0:

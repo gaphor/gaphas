@@ -1,4 +1,5 @@
 from functools import singledispatch
+from typing import Callable, Optional
 
 from typing_extensions import Protocol
 
@@ -15,7 +16,7 @@ class ConnectionSinkType(Protocol):
     def __init__(self, item: Item, port: Port):
         ...
 
-    def find_port(self, pos: Pos):
+    def find_port(self, pos: Pos) -> Optional[Port]:
         ...
 
 
@@ -29,10 +30,10 @@ class ItemConnector:
         self.handle = handle
         self.connections = connections
 
-    def allow(self, sink: ConnectionSinkType):
+    def allow(self, sink: ConnectionSinkType) -> bool:
         return True
 
-    def glue(self, sink: ConnectionSinkType):
+    def glue(self, sink: ConnectionSinkType) -> None:
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
@@ -42,7 +43,7 @@ class ItemConnector:
         matrix.invert()
         handle.pos = matrix.transform_point(*gluepos)
 
-    def connect(self, sink: ConnectionSinkType):
+    def connect(self, sink: ConnectionSinkType) -> None:
         """Connect the handle to a sink (item, port).
 
         Note that connect() also takes care of disconnecting in case a
@@ -62,7 +63,9 @@ class ItemConnector:
 
         self.connect_handle(sink)
 
-    def connect_handle(self, sink: ConnectionSinkType, callback=None):
+    def connect_handle(
+        self, sink: ConnectionSinkType, callback: Optional[Callable[[], None]] = None
+    ) -> None:
         """Create constraint between handle of a line and port of connectable
         item.
 
@@ -81,7 +84,7 @@ class ItemConnector:
             item, handle, sink.item, sink.port, constraint, callback=callback
         )
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Disconnect the handle from the attached element."""
         self.connections.disconnect_item(self.item, self.handle)
 
@@ -100,7 +103,7 @@ class ItemConnectionSink:
         self.item = item
         self.port = port
 
-    def find_port(self, pos):
+    def find_port(self, pos: Pos) -> Optional[Port]:
         """Glue to the closest item on the canvas.
 
         If the item can connect, it returns a port.

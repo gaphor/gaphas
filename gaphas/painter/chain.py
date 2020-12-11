@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Collection, List
 
+from cairo import Context
+
 from gaphas.item import Item
 from gaphas.painter.painter import Painter
 
@@ -22,7 +24,7 @@ class PainterChain:
         self._painters.insert(0, painter)
         return self
 
-    def paint(self, items: Collection[Item], cairo):
+    def paint(self, items: Collection[Item], cairo: Context) -> None:
         """See Painter.paint()."""
         for painter in self._painters:
             painter.paint(items, cairo)

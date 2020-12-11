@@ -18,10 +18,10 @@ class ItemMove:
         self.item = item
         self.view = view
 
-    def start_move(self, pos: Pos):
+    def start_move(self, pos: Pos) -> None:
         self.last_x, self.last_y = pos
 
-    def move(self, pos: Pos):
+    def move(self, pos: Pos) -> None:
         """Move the item.
 
         x and y are in view coordinates.
@@ -39,7 +39,7 @@ class ItemMove:
         item.matrix.translate(dx, dy)
         view.model.request_update(item, update=False)
 
-    def stop_move(self, pos):
+    def stop_move(self, pos: Pos) -> None:
         pass
 
 

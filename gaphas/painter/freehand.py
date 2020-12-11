@@ -13,6 +13,8 @@ from math import sqrt
 from random import Random
 from typing import Collection
 
+from cairo import Context
+
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
 
@@ -137,15 +139,15 @@ class FreeHandPainter:
     * Drunk: 2.0
     """
 
-    def __init__(self, subpainter: ItemPainterType, sloppiness=0.5):
+    def __init__(self, subpainter: ItemPainterType, sloppiness: float = 0.5):
         self.subpainter = subpainter
         self.sloppiness = sloppiness
 
-    def paint_item(self, item: Item, cairo):
+    def paint_item(self, item: Item, cairo: Context) -> None:
         # Bounding  painter requires painting per item
         self.subpainter.paint_item(item, cairo)
 
-    def paint(self, items: Collection[Item], cairo):
+    def paint(self, items: Collection[Item], cairo: Context) -> None:
         self.subpainter.paint(
             items, FreeHandCairoContext(cairo, self.sloppiness),
         )

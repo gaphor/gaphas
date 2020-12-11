@@ -1,6 +1,6 @@
 from typing import Collection, Optional
 
-from cairo import LINE_JOIN_ROUND
+from cairo import LINE_JOIN_ROUND, Context
 
 from gaphas.item import DrawContext, Item
 from gaphas.view.selection import Selection
@@ -14,10 +14,10 @@ class ItemPainter:
 
     draw_all = False
 
-    def __init__(self, selection: Optional[Selection] = None):
+    def __init__(self, selection: Optional[Selection] = None) -> None:
         self.selection = selection or Selection()
 
-    def paint_item(self, item, cairo):
+    def paint_item(self, item: Item, cairo: Context) -> None:
         cairo.save()
         try:
             cairo.transform(item.matrix_i2c.to_cairo())
@@ -36,7 +36,7 @@ class ItemPainter:
         finally:
             cairo.restore()
 
-    def paint(self, items: Collection[Item], cairo):
+    def paint(self, items: Collection[Item], cairo: Context) -> None:
         """Draw the items."""
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)

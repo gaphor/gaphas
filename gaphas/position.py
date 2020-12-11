@@ -47,6 +47,9 @@ class Position:
     pos: TypedProperty[Tuple[Variable, Variable], Union[Position, SupportsFloatPos]]
     pos = property(lambda s: (s._x, s._y), _set_pos, doc="The position.")
 
+    def tuple(self) -> Tuple[float, float]:
+        return (self._x.value, self._y.value)
+
     def __str__(self):
         return f"<{self.__class__.__name__} object on ({self._x}, {self._y})>"
 
