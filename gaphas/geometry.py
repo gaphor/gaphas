@@ -68,8 +68,7 @@ class Rectangle:
     @x1.setter
     def x1(self, x1):
         width = x1 - self.x
-        if width < 0:
-            width = 0
+        width = max(width, 0)
         self.width = width
 
     @property
@@ -79,8 +78,7 @@ class Rectangle:
     @y1.setter
     def y1(self, y1):
         height = y1 - self.y
-        if height < 0:
-            height = 0
+        height = max(height, 0)
         self.height = height
 
     def expand(self, delta):
