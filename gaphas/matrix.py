@@ -114,18 +114,12 @@ class Matrix:
         m.invert()
         return m
 
-    def to_cairo(self):
+    def to_cairo(self) -> cairo.Matrix:
         return self._matrix
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Matrix):
-            return self._matrix == other._matrix
-        else:
-            return False
-
-    def __ne__(self, other):
-        if isinstance(other, Matrix):
-            return self._matrix != other._matrix
+            return bool(self._matrix == other._matrix)
         else:
             return False
 
@@ -135,5 +129,5 @@ class Matrix:
     def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix * other._matrix)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Matrix{tuple(self._matrix)}"  # type: ignore[arg-type]

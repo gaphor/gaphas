@@ -29,7 +29,13 @@ class Handle:
     or ``function`` objects.
     """
 
-    def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
+    def __init__(
+        self,
+        pos: Pos = (0, 0),
+        strength: int = NORMAL,
+        connectable: bool = False,
+        movable: bool = True,
+    ) -> None:
         self._pos = Position(pos[0], pos[1], strength)
         self._connectable = connectable
         self._movable = movable
@@ -50,24 +56,24 @@ class Handle:
     pos = property(lambda s: s._pos, _set_pos)
 
     @observed
-    def _set_connectable(self, connectable):
+    def _set_connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
     @observed
-    def _set_movable(self, movable):
+    def _set_movable(self, movable: bool) -> None:
         self._movable = movable
 
     movable = reversible_property(lambda s: s._movable, _set_movable)
 
     @observed
-    def _set_visible(self, visible):
+    def _set_visible(self, visible: bool) -> None:
         self._visible = visible
 
     visible = reversible_property(lambda s: s._visible, _set_visible)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
 
     __repr__ = __str__
@@ -79,13 +85,13 @@ class Port:
     The Item's handle connects to a port.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._connectable = True
 
     @observed
-    def _set_connectable(self, connectable):
+    def _set_connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
@@ -104,7 +110,7 @@ class Port:
 class LinePort(Port):
     """Port defined as a line between two handles."""
 
-    def __init__(self, start, end):
+    def __init__(self, start: Position, end: Position) -> None:
         super().__init__()
 
         self.start = start
@@ -121,7 +127,7 @@ class LinePort(Port):
         ((5.0, 5.0), 7.0710678118654755)
         """
         d, pl = distance_line_point(
-            self.start, self.end, (float(pos[0]), float(pos[1]))
+            self.start.tuple(), self.end.tuple(), (float(pos[0]), float(pos[1]))
         )
         return pl, d
 
@@ -156,7 +162,9 @@ class PointPort(Port):
         d = distance_point_point(point, (float(pos[0]), float(pos[1])))
         return point, d
 
-    def constraint(self, item, handle, glue_item):
+    def constraint(
+        self, item: Item, handle: Handle, glue_item: Item
+    ) -> MultiConstraint:
         """Return connection position constraint between item's handle and the
         port."""
         origin = MatrixProjection(self.point, glue_item.matrix_i2c)

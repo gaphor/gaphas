@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection
+from typing import TYPE_CHECKING, Collection, Optional
 
 from cairo import ANTIALIAS_NONE, Context
 
@@ -17,7 +17,13 @@ class HandlePainter:
         assert view
         self.view = view
 
-    def _draw_handles(self, item, cairo, opacity=None, inner=False):
+    def _draw_handles(
+        self,
+        item: Item,
+        cairo: Context,
+        opacity: Optional[float] = None,
+        inner: bool = False,
+    ) -> None:
         """Draw handles for an item.
 
         The handles are drawn in non-antialiased mode for clarity.

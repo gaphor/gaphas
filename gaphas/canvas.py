@@ -95,7 +95,7 @@ class Canvas:
         """Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order."""
         self._tree.remove(item)
-        self._connections.disconnect_item(self)
+        self._connections.disconnect_item(item)
         self._update_views(removed_items=(item,))
 
     def remove(self, item):

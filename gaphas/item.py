@@ -1,7 +1,9 @@
 """Basic items."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from math import atan2
-from typing import List, Sequence
+from typing import TYPE_CHECKING, Iterable, List, Sequence
 
 import cairo
 from typing_extensions import Protocol, runtime_checkable
@@ -17,6 +19,9 @@ from gaphas.state import (
     reversible_pair,
     reversible_property,
 )
+
+if TYPE_CHECKING:
+    from gaphas.connections import Connections
 
 
 @dataclass(frozen=True)
@@ -74,7 +79,7 @@ def matrix_i2i(from_item: Item, to_item: Item) -> Matrix:
 
 
 class Matrices:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: object) -> None:
         super().__init__(**kwargs)  # type: ignore[call-arg]
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
@@ -133,7 +138,13 @@ class Element(Matrices, Updateable):
     min_width = variable(strength=REQUIRED, varname="_min_width")
     min_height = variable(strength=REQUIRED, varname="_min_height")
 
-    def __init__(self, connections, width=10, height=10, **kwargs):
+    def __init__(
+        self,
+        connections: Connections,
+        width: float = 10,
+        height: float = 10,
+        **kwargs: object
+    ) -> None:
         super().__init__(**kwargs)
         self._connections = connections
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
@@ -173,14 +184,14 @@ class Element(Matrices, Updateable):
         self._handles[SE].pos.y.dirty()
 
     @property
-    def width(self):
+    def width(self) -> float:
         """Width of the box, calculated as the distance from the left and right
         handle."""
         h = self._handles
         return float(h[SE].pos.x) - float(h[NW].pos.x)
 
     @width.setter
-    def width(self, width):
+    def width(self, width: float) -> None:
         """
         >>> b=Element()
         >>> b.width = 20
@@ -195,13 +206,13 @@ class Element(Matrices, Updateable):
         h[SE].pos.x = h[NW].pos.x + width
 
     @property
-    def height(self):
+    def height(self) -> float:
         """Height."""
         h = self._handles
         return float(h[SE].pos.y) - float(h[NW].pos.y)
 
     @height.setter
-    def height(self, height):
+    def height(self, height: float) -> None:
         """
         >>> b=Element()
         >>> b.height = 20
@@ -226,7 +237,7 @@ class Element(Matrices, Updateable):
         """Return list of ports."""
         return self._ports
 
-    def point(self, x, y):
+    def point(self, x: float, y: float) -> float:
         """Distance from the point (x, y) to the item.
 
         >>> e = Element()
@@ -242,7 +253,9 @@ class Element(Matrices, Updateable):
         pass
 
 
-def create_orthogonal_constraints(handles, horizontal):
+def create_orthogonal_constraints(
+    handles: Sequence[Handle], horizontal: bool
+) -> Iterable[Constraint]:
     rest = 1 if horizontal else 0
     for pos, (h0, h1) in enumerate(zip(handles, handles[1:])):
         p0 = h0.pos
@@ -273,16 +286,16 @@ class Line(Matrices, Updateable):
     draw an arrow point).
     """
 
-    def __init__(self, connections, **kwargs):
+    def __init__(self, connections: Connections, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self._connections = connections
         self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
-        self._ports = []
+        self._ports: List[Port] = []
         self._update_ports()
 
         self._line_width = 2.0
         self._fuzziness = 0.0
-        self._orthogonal_constraints = []
+        self._orthogonal_constraints: List[Constraint] = []
         self._horizontal = False
         self._head_angle = self._tail_angle = 0
 
@@ -482,7 +495,7 @@ class Line(Matrices, Updateable):
         See Item.draw(context).
         """
 
-        def draw_line_end(pos, angle, draw):
+        def draw_line_end(pos, angle, draw):  # type: ignore[no-untyped-def]
             cr = context.cairo
             cr.save()
             try:

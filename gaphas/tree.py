@@ -12,7 +12,7 @@ class Tree(Generic[T]):
     @invariant: len(self._children) == len(self._nodes) + 1
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # List of nodes in the tree, sorted in the order they ought to be
         # rendered
         self._nodes: List[T] = []
