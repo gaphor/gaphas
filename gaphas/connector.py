@@ -1,12 +1,17 @@
 """Basic connectors such as Ports and Handles."""
-from typing import Union
+from __future__ import annotations
 
-from gaphas.constraint import LineConstraint, PositionConstraint
+from typing import TYPE_CHECKING, Tuple, Union
+
+from gaphas.constraint import Constraint, LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.position import MatrixProjection, Position
 from gaphas.solver import NORMAL, MultiConstraint
 from gaphas.state import observed, reversible_property
 from gaphas.types import SupportsFloatPos, TypedProperty
+
+if TYPE_CHECKING:
+    from gaphas.item import Item
 
 
 class Handle:
@@ -30,7 +35,7 @@ class Handle:
         self._movable = movable
         self._visible = True
 
-    def _set_pos(self, pos: Union[Position, SupportsFloatPos]):
+    def _set_pos(self, pos: Union[Position, SupportsFloatPos]) -> None:
         """
         Shortcut for ``handle.pos.pos = pos``
 
@@ -85,11 +90,11 @@ class Port:
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
-    def glue(self, pos):
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Position, float]:
         """Get glue point on the port and distance to the port."""
         raise NotImplementedError("Glue method not implemented")
 
-    def constraint(self, item, handle, glue_item):
+    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
         """Create connection constraint between item's handle and glue item."""
         raise NotImplementedError("Constraint method not implemented")
 
@@ -129,11 +134,11 @@ class LinePort(Port):
 class PointPort(Port):
     """Port defined as a point."""
 
-    def __init__(self, point: Position):
+    def __init__(self, point: Position) -> None:
         super().__init__()
         self.point = point
 
-    def glue(self, pos):
+    def glue(self, pos) -> Tuple[Position, float]:
         """Get glue point on the port and distance to the port.
 
         >>> h = Handle((10, 10))
@@ -141,7 +146,8 @@ class PointPort(Port):
         >>> port.glue((10, 0))
         (<Position object on (10, 10)>, 10.0)
         """
-        d = distance_point_point(self.point, pos)
+        point: Tuple[float, float] = self.point.pos  # type: ignore[assignment]
+        d = distance_point_point(point, pos)
         return self.point, d
 
     def constraint(self, item, handle, glue_item):

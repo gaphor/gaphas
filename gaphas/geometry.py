@@ -8,6 +8,8 @@ A point is represented as a tuple `(x, y)`.
 from math import sqrt
 from typing import Optional, Tuple
 
+from gaphas.types import Pos
+
 
 class Rectangle:
     """Python Rectangle implementation. Rectangles can be added (union),
@@ -266,7 +268,7 @@ class Rectangle:
         return x >= self.x and x1 <= self.x1 and y >= self.y and y1 <= self.y1
 
 
-def distance_point_point(point1, point2=(0.0, 0.0)):
+def distance_point_point(point1: Pos, point2: Pos = (0.0, 0.0)) -> float:
     """Return the distance from point ``point1`` to ``point2``.
 
     >>> f"{distance_point_point((0,0), (1,1)):.3f}"
@@ -277,7 +279,7 @@ def distance_point_point(point1, point2=(0.0, 0.0)):
     return sqrt(dx * dx + dy * dy)
 
 
-def distance_point_point_fast(point1, point2=(0.0, 0.0)):
+def distance_point_point_fast(point1: Pos, point2: Pos = (0.0, 0.0)) -> float:
     """Return the distance from point ``point1`` to ``point2``. This version is
     faster than ``distance_point_point()``, but less precise.
 
@@ -383,7 +385,9 @@ def point_on_rectangle(rect, point, border=False):
     return px, py
 
 
-def distance_line_point(line_start, line_end, point):
+def distance_line_point(
+    line_start: Pos, line_end: Pos, point: Pos
+) -> Tuple[float, Pos]:
     """Calculate the distance of a ``point`` from a line. The line is marked by
     begin and end point ``line_start`` and ``line_end``.
 
@@ -432,7 +436,9 @@ def distance_line_point(line_start, line_end, point):
         )
 
 
-def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
+def intersect_line_line(
+    line1_start: Pos, line1_end: Pos, line2_start: Pos, line2_end: Pos
+) -> Optional[Pos]:
     """Find the point where the lines (segments) defined by ``(line1_start,
     line1_end)`` and ``(line2_start, line2_end)`` intersect.  If no
     intersection occurs, ``None`` is returned.
@@ -569,14 +575,17 @@ def intersect_line_line(line1_start, line1_end, line2_start, line2_end):
     return x, y
 
 
-def rectangle_contains(inner, outer):
+Rect = Tuple[float, float, float, float]
+
+
+def rectangle_contains(inner: Rect, outer: Rect) -> bool:
     """Returns True if ``inner`` rect is contained in ``outer`` rect."""
     ix, iy, iw, ih = inner
     ox, oy, ow, oh = outer
     return ox <= ix and oy <= iy and ox + ow >= ix + iw and oy + oh >= iy + ih
 
 
-def rectangle_intersects(recta, rectb):
+def rectangle_intersects(recta: Rect, rectb: Rect) -> bool:
     """Return True if ``recta`` and ``rectb`` intersect.
 
     >>> rectangle_intersects((5,5,20, 20), (10, 10, 1, 1))
@@ -589,7 +598,7 @@ def rectangle_intersects(recta, rectb):
     return ax <= bx + bw and ax + aw >= bx and ay <= by + bh and ay + ah >= by
 
 
-def rectangle_clip(recta, rectb):
+def rectangle_clip(recta: Rect, rectb: Rect) -> Optional[Rect]:
     """Return the clipped rectangle of ``recta`` and ``rectb``. If they do not
     intersect, ``None`` is returned.
 

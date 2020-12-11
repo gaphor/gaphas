@@ -8,7 +8,7 @@ def qtree():
     qtree: Quadtree[str, None] = Quadtree((0, 0, 100, 100))
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
-            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10))
+            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=None)
     return qtree
 
 
@@ -52,7 +52,7 @@ def test_moving_items(qtree):
 
     assert qtree.get_bounds("0x0")
     # Now move item '0x0' to the center of the first quadrant (20, 20)
-    qtree.add("0x0", (20, 20, 10, 10))
+    qtree.add("0x0", (20, 20, 10, 10), None)
     assert len(qtree._bucket.items) == 0
     assert len(qtree._bucket._buckets[0]._buckets[0].items) == 3, (
         qtree._bucket._buckets[0]._buckets[0].items
@@ -60,7 +60,7 @@ def test_moving_items(qtree):
     assert len(qtree._bucket._buckets[0].items) == 10, qtree._bucket._buckets[0].items
 
     # Now move item '0x0' to the second quadrant (70, 20)
-    qtree.add("0x0", (70, 20, 10, 10))
+    qtree.add("0x0", (70, 20, 10, 10), None)
     assert len(qtree._bucket.items) == 0
     assert len(qtree._bucket._buckets[0]._buckets[0].items) == 3, (
         qtree._bucket._buckets[0]._buckets[0].items
@@ -81,7 +81,7 @@ def test_get_data(qtree):
 
 
 def test_clipped_bounds(qtree):
-    qtree.add(item=1, bounds=(-100, -100, 120, 120))
+    qtree.add(item=1, bounds=(-100, -100, 120, 120), data=None)
     assert (0, 0, 20, 20) == qtree.get_clipped_bounds(item=1)
 
 

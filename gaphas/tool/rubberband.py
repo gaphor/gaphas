@@ -2,10 +2,10 @@ from gi.repository import Gtk
 
 
 class RubberbandState:
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self.x0 = self.y0 = self.x1 = self.y1 = 0
 
 
@@ -16,10 +16,10 @@ class RubberbandPainter:
     ``RubberbandState`` should be shared between the two.
     """
 
-    def __init__(self, rubberband_state):
+    def __init__(self, rubberband_state: RubberbandState) -> None:
         self.rubberband_state = rubberband_state
 
-    def paint(self, _items, cairo):
+    def paint(self, _items, cairo) -> None:
         data = self.rubberband_state
         x0, y0, x1, y1 = data.x0, data.y0, data.x1, data.y1
         if x0 != x1 or y0 != y1:

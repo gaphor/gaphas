@@ -27,7 +27,7 @@ class Tree(Generic[T]):
     def nodes(self) -> Sequence[T]:
         return list(self._nodes)
 
-    def get_parent(self, node) -> Optional[T]:
+    def get_parent(self, node: T) -> Optional[T]:
         """Return the parent item of ``node``.
 
         >>> tree = Tree()
@@ -38,7 +38,7 @@ class Tree(Generic[T]):
         """
         return self._parents.get(node)
 
-    def get_children(self, node) -> Iterable[T]:
+    def get_children(self, node: Optional[T]) -> Iterable[T]:
         """Return all child objects of ``node``.
 
         >>> tree = Tree()
@@ -52,7 +52,7 @@ class Tree(Generic[T]):
         """
         return self._children[node]
 
-    def get_siblings(self, node):
+    def get_siblings(self, node: T) -> List[T]:
         """Get all siblings of ``node``, including ``node``.
 
         >>> tree = Tree()
@@ -65,7 +65,7 @@ class Tree(Generic[T]):
         parent = self.get_parent(node)
         return self._children[parent]
 
-    def get_next_sibling(self, node):
+    def get_next_sibling(self, node: T) -> T:
         """Return the node on the same level after ``node``.
 
         >>> tree = Tree()
@@ -83,7 +83,7 @@ class Tree(Generic[T]):
         siblings = self._children[parent]
         return siblings[siblings.index(node) + 1]
 
-    def get_previous_sibling(self, node):
+    def get_previous_sibling(self, node: T) -> T:
         """Return the node on the same level before ``node``.
 
         >>> tree = Tree()
@@ -104,7 +104,7 @@ class Tree(Generic[T]):
             raise IndexError("list index out of range")
         return siblings[index]
 
-    def get_all_children(self, node):
+    def get_all_children(self, node: T) -> Iterable[T]:
         """Iterate all children (and children of children and so forth)
 
         >>> tree = Tree()
@@ -123,7 +123,7 @@ class Tree(Generic[T]):
             yield c
             yield from self.get_all_children(c)
 
-    def get_ancestors(self, node):
+    def get_ancestors(self, node: T) -> Iterable[T]:
         """Iterate all parents and parents of parents, etc.
 
         >>> tree = Tree()
@@ -144,17 +144,19 @@ class Tree(Generic[T]):
             yield parent
             parent = self.get_parent(parent)
 
-    def order(self, items) -> Iterable[T]:
+    def order(self, items: Iterable[T]) -> Iterable[T]:
         items_set = set(items)
         return (n for n in self._nodes if n in items_set)
 
-    def _add_to_nodes(self, node, parent, index=None):
+    def _add_to_nodes(
+        self, node: T, parent: Optional[T], index: Optional[int] = None
+    ) -> None:
         """Helper method to place nodes on the right location in the nodes list
         Called only from add() and move()"""
         nodes = self._nodes
         siblings = self._children[parent]
         try:
-            atnode = siblings[index]
+            atnode = siblings[index]  # type: ignore[index]
         except (TypeError, IndexError):
             index = len(siblings)
             # self._add_to_nodes(node, parent)
@@ -173,7 +175,9 @@ class Tree(Generic[T]):
         else:
             nodes.insert(nodes.index(atnode), node)
 
-    def _add(self, node, parent=None, index=None):
+    def _add(
+        self, node: T, parent: Optional[T] = None, index: Optional[int] = None
+    ) -> None:
         """Helper method for both add() and move()."""
         assert node not in self._nodes
 
@@ -183,7 +187,7 @@ class Tree(Generic[T]):
 
         # Fix parent-child and child-parent relationship
         try:
-            siblings.insert(index, node)
+            siblings.insert(index, node)  # type: ignore[arg-type]
         except TypeError:
             siblings.append(node)
 
@@ -191,7 +195,9 @@ class Tree(Generic[T]):
         if parent:
             self._parents[node] = parent
 
-    def add(self, node, parent=None, index=None):
+    def add(
+        self, node: T, parent: Optional[T] = None, index: Optional[int] = None
+    ) -> None:
         """Add node to the tree. parent is the parent node, which may be None
         if the item should be added to the root item.
 
@@ -200,7 +206,7 @@ class Tree(Generic[T]):
         self._add(node, parent, index)
         self._children[node] = []
 
-    def _remove(self, node):
+    def _remove(self, node: T) -> None:
         # Remove from parent item
         self.get_siblings(node).remove(node)
         # Remove data entries:
@@ -211,7 +217,7 @@ class Tree(Generic[T]):
         except KeyError:
             pass
 
-    def remove(self, node):
+    def remove(self, node: T) -> None:
         """Remove ``node`` from the tree.
 
         For usage, see the unit tests.
@@ -221,7 +227,7 @@ class Tree(Generic[T]):
             self.remove(c)
         self._remove(node)
 
-    def _reparent_nodes(self, node, parent):
+    def _reparent_nodes(self, node: T, parent: Optional[T]) -> None:
         """Helper for move().
 
         The _children and _parent trees can be left intact as far as
@@ -233,7 +239,7 @@ class Tree(Generic[T]):
         for c in self._children[node]:
             self._reparent_nodes(c, node)
 
-    def move(self, node, parent, index=None):
+    def move(self, node: T, parent: Optional[T], index: Optional[int] = None) -> None:
         """Set new parent for a ``node``. ``Parent`` can be ``None``,
         indicating it's added to the top.
 
