@@ -40,8 +40,7 @@ class FreeHandCairoContext:
         # This offset determines how sloppy the line is drawn. It depends on
         # the length, but maxes out at 20.
         offset = length / 10 * sloppiness
-        if offset > 20:
-            offset = 20
+        offset = min(offset, 20)
 
         dev_x, dev_y = cr.user_to_device(x, y)
         rand = Random((from_x, from_y, dev_x, dev_y, length, offset)).random

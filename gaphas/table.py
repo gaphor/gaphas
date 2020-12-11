@@ -34,7 +34,7 @@ class Table(Generic[T]):
         fields: Sequence[str] = columns._fields
 
         self._type: Type[T] = columns
-        self._indexes: Sequence[str] = list(fields[i] for i in indexes)
+        self._indexes: Sequence[str] = [fields[i] for i in indexes]
         self._fields: Sequence[str] = fields
 
         # create data structure, which acts as cache
