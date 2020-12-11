@@ -1,10 +1,11 @@
 """Basic items."""
+from dataclasses import dataclass
 from math import atan2
 from typing import Sequence
 
+import cairo
 from typing_extensions import Protocol, runtime_checkable
 
-from gaphas.canvas import Context
 from gaphas.connector import Handle, LinePort, Port
 from gaphas.constraint import EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
@@ -16,6 +17,15 @@ from gaphas.state import (
     reversible_pair,
     reversible_property,
 )
+
+
+@dataclass(frozen=True)
+class DrawContext:
+    cairo: cairo.Context
+    selected: bool
+    focused: bool
+    hovered: bool
+    dropzone: bool
 
 
 @runtime_checkable
@@ -47,7 +57,7 @@ class Item(Protocol):
         A distance of 0 means the point is on the item.
         """
 
-    def draw(self, context: Context):
+    def draw(self, context: DrawContext):
         """Render the item to a canvas view. Context contains the following
         attributes:
 
@@ -78,8 +88,13 @@ class Matrices:
         return self._matrix_i2c
 
 
+@dataclass(frozen=True)
+class UpdateContext:
+    cairo: cairo.Context
+
+
 class Updateable:
-    def pre_update(self, context: Context):
+    def pre_update(self, context: UpdateContext):
         """Perform any changes before item update here, for example:
 
         - change matrix
@@ -92,7 +107,7 @@ class Updateable:
         """
         pass
 
-    def post_update(self, context: Context):
+    def post_update(self, context: UpdateContext):
         """Method called after item update.
 
         If some variables should be used during drawing or in another
@@ -223,7 +238,7 @@ class Element(Matrices, Updateable):
         x1, y1 = h[SE].pos
         return distance_rectangle_point((x0, y0, x1 - x0, y1 - y0), (x, y))
 
-    def draw(self, context: Context):
+    def draw(self, context: DrawContext):
         pass
 
 
@@ -450,15 +465,15 @@ class Line(Matrices, Updateable):
         )
         return max(0, distance - self.fuzziness)
 
-    def draw_head(self, context):
+    def draw_head(self, context: DrawContext):
         """Default head drawer: move cursor to the first handle."""
         context.cairo.move_to(0, 0)
 
-    def draw_tail(self, context):
+    def draw_tail(self, context: DrawContext):
         """Default tail drawer: draw line to the last handle."""
         context.cairo.line_to(0, 0)
 
-    def draw(self, context):
+    def draw(self, context: DrawContext):
         """Draw the line itself.
 
         See Item.draw(context).

@@ -36,31 +36,12 @@ from typing_extensions import Protocol
 from gaphas import matrix, tree
 from gaphas.connections import Connections
 from gaphas.decorators import nonrecursive
+from gaphas.item import UpdateContext
 from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
     from gaphas.item import Item
     from gaphas.view.model import View
-
-
-class Context:
-    """Context used for updating and drawing items in a drawing canvas.
-
-    >>> c=Context(one=1,two='two')
-    >>> c.one
-    1
-    >>> c.two
-    'two'
-    >>> try: c.one = 2
-    ... except: 'got exc'
-    'got exc'
-    """
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(**kwargs)
-
-    def __setattr__(self, key, value):
-        raise AttributeError("context is not writable")
 
 
 def instant_cairo_context():
@@ -70,7 +51,7 @@ def instant_cairo_context():
 
 
 def default_update_context(item, cairo=instant_cairo_context()):
-    return Context(cairo=cairo)
+    return UpdateContext(cairo=cairo)
 
 
 class Canvas:
