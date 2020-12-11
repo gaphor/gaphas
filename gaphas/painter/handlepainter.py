@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Collection, Optional
 
-from cairo import ANTIALIAS_NONE, Context
+from cairo import ANTIALIAS_NONE
 
 from gaphas.item import Item
+from gaphas.types import CairoContext
 
 if TYPE_CHECKING:
     from gaphas.view import GtkView
@@ -20,7 +21,7 @@ class HandlePainter:
     def _draw_handles(
         self,
         item: Item,
-        cairo: Context,
+        cairo: CairoContext,
         opacity: Optional[float] = None,
         inner: bool = False,
     ) -> None:
@@ -73,7 +74,7 @@ class HandlePainter:
             cairo.restore()
         cairo.restore()
 
-    def paint(self, items: Collection[Item], cairo: Context) -> None:
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         view = self.view
         model = view.model
         assert model

@@ -8,27 +8,27 @@ and handles).
 
 from typing import Collection, Dict, Optional
 
-import cairo
 from typing_extensions import Protocol
 
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
+from gaphas.types import CairoContext
 
 
 class Painter(Protocol):
     """Painter interface."""
 
     def paint(
-        self, items: Collection[Item], cairo: cairo.Context
+        self, items: Collection[Item], cairo: CairoContext
     ) -> Optional[Dict[Item, Rectangle]]:
         """Do the paint action (called from the View)."""
         pass
 
 
 class ItemPainterType(Protocol):
-    def paint_item(self, item: Item, cairo: cairo.Context) -> None:
+    def paint_item(self, item: Item, cairo: CairoContext) -> None:
         """Draw a single item."""
 
-    def paint(self, items: Collection[Item], cairo: cairo.Context) -> None:
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         """Do the paint action (called from the View)."""
         pass

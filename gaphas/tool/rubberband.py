@@ -1,9 +1,9 @@
 from typing import Collection
 
-from cairo import Context
 from gi.repository import Gtk
 
 from gaphas.item import Item
+from gaphas.types import CairoContext
 
 
 class RubberbandState:
@@ -24,7 +24,7 @@ class RubberbandPainter:
     def __init__(self, rubberband_state: RubberbandState) -> None:
         self.rubberband_state = rubberband_state
 
-    def paint(self, items: Collection[Item], cairo: Context) -> None:
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         data = self.rubberband_state
         x0, y0, x1, y1 = data.x0, data.y0, data.x1, data.y1
         if x0 != x1 or y0 != y1:

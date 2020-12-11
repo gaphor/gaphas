@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from math import atan2
 from typing import TYPE_CHECKING, Iterable, List, Sequence
 
-import cairo
 from typing_extensions import Protocol, runtime_checkable
 
 from gaphas.connector import Handle, LinePort, Port
@@ -19,6 +18,7 @@ from gaphas.state import (
     reversible_pair,
     reversible_property,
 )
+from gaphas.types import CairoContext
 
 if TYPE_CHECKING:
     from gaphas.connections import Connections
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class DrawContext:
-    cairo: cairo.Context
+    cairo: CairoContext
     selected: bool
     focused: bool
     hovered: bool
@@ -66,7 +66,7 @@ class Item(Protocol):
         """Render the item to a canvas view. Context contains the following
         attributes:
 
-        * `cairo`: the Cairo Context use this one to draw
+        * `cairo`: the CairoContext use this one to draw
         * `selected`, `focused`, `hovered`, `dropzone`: view state of items
           (True/False)
         """
@@ -95,7 +95,7 @@ class Matrices:
 
 @dataclass(frozen=True)
 class UpdateContext:
-    cairo: cairo.Context
+    cairo: CairoContext
 
 
 class Updateable:

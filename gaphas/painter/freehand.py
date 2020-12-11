@@ -13,10 +13,9 @@ from math import sqrt
 from random import Random
 from typing import Collection
 
-from cairo import Context
-
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
+from gaphas.types import CairoContext
 
 
 class FreeHandCairoContext:
@@ -143,11 +142,11 @@ class FreeHandPainter:
         self.subpainter = subpainter
         self.sloppiness = sloppiness
 
-    def paint_item(self, item: Item, cairo: Context) -> None:
+    def paint_item(self, item: Item, cairo: CairoContext) -> None:
         # Bounding  painter requires painting per item
         self.subpainter.paint_item(item, cairo)
 
-    def paint(self, items: Collection[Item], cairo: Context) -> None:
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         self.subpainter.paint(
             items, FreeHandCairoContext(cairo, self.sloppiness),
         )
