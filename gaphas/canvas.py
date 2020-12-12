@@ -285,10 +285,6 @@ class Canvas:
 
     reversible_method(request_update, reverse=request_update)
 
-    def request_matrix_update(self, item):
-        """Schedule only the matrix to be updated."""
-        self.request_update(item, update=False, matrix=True)
-
     def _pre_update_items(self, items):
         create_update_context = self._create_update_context
         contexts = {}
