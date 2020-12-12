@@ -3,7 +3,7 @@
 These items are used in various tests.
 """
 from gaphas.connector import Handle
-from gaphas.item import NW, Element, Matrices, Updateable
+from gaphas.item import NW, Element, Matrices
 from gaphas.util import path_ellipse, text_align, text_multiline
 
 
@@ -29,7 +29,7 @@ class Box(Element):
         c.stroke()
 
 
-class Text(Matrices, Updateable):
+class Text(Matrices):
     """Simple item showing some text on the canvas."""
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
@@ -59,7 +59,7 @@ class Text(Matrices, Updateable):
             text_align(cr, 0, 0, self.text, self.align_x, self.align_y)
 
 
-class Circle(Matrices, Updateable):
+class Circle(Matrices):
     def __init__(self):
         super().__init__()
         self._handles = [Handle(), Handle()]
