@@ -69,15 +69,10 @@ def instant_cairo_context():
     return cairo.Context(surface)
 
 
-def default_update_context(item, cairo=instant_cairo_context()):
-    return Context(cairo=cairo)
-
-
 class Canvas:
     """Container class for items."""
 
-    def __init__(self, create_update_context=default_update_context):
-        self._create_update_context = create_update_context
+    def __init__(self):
         self._tree: tree.Tree[Item] = tree.Tree()
         self._connections = Connections()
 
@@ -285,40 +280,14 @@ class Canvas:
 
     reversible_method(request_update, reverse=request_update)
 
-    def _pre_update_items(self, items):
-        create_update_context = self._create_update_context
-        contexts = {}
-        for item in items:
-            context = create_update_context(item)
-            item.pre_update(context)
-            contexts[item] = context
-        return contexts
-
-    def _post_update_items(self, items, contexts):
-        create_update_context = self._create_update_context
-        for item in items:
-            context = contexts.get(item)
-            if not context:
-                context = create_update_context(item)
-            item.post_update(context)
+    def request_matrix_update(self, item):
+        """Schedule only the matrix to be updated."""
+        self.request_update(item, update=False, matrix=True)
 
     @nonrecursive
     def update_now(self, dirty_items, dirty_matrix_items=()):
         """Perform an update of the items that requested an update."""
-        sort = self.sort
-
-        def dirty_items_with_ancestors():
-            for item in set(dirty_items):
-                yield item
-                yield from self._tree.get_ancestors(item)
-
-        all_dirty_items = list(reversed(list(sort(dirty_items_with_ancestors()))))
-
         try:
-            # allow programmers to perform tricks and hacks before item
-            # full update (only called for items that requested a full update)
-            contexts = self._pre_update_items(all_dirty_items)
-
             # keep it here, since we need up to date matrices for the solver
             for d in dirty_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
@@ -327,8 +296,6 @@ class Canvas:
 
             # solve all constraints
             self._connections.solve()
-
-            self._post_update_items(all_dirty_items, contexts)
 
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)

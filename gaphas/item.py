@@ -1,6 +1,6 @@
 """Basic items."""
 from math import atan2
-from typing import Sequence
+from typing import List, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -78,38 +78,10 @@ class Matrices:
         return self._matrix_i2c
 
 
-class Updateable:
-    def pre_update(self, context: Context):
-        """Perform any changes before item update here, for example:
-
-        - change matrix
-        - move handles
-        - determine size
-
-        Gaphas does not guarantee that any canvas invariant is valid
-        at this point (i.e. constraints are not solved, first handle
-        is not in position (0, 0), etc).
-        """
-        pass
-
-    def post_update(self, context: Context):
-        """Method called after item update.
-
-        If some variables should be used during drawing or in another
-        update, then they should be calculated in post method.
-
-        Changing matrix or moving handles programmatically is really
-        not advised to be performed here.
-
-        All canvas invariants are true.
-        """
-        pass
-
-
 [NW, NE, SE, SW] = list(range(4))
 
 
-class Element(Matrices, Updateable):
+class Element(Matrices):
     """An Element has 4 handles (for a start)::
 
     NW +---+ NE    |   | SW +---+ SE
@@ -238,7 +210,7 @@ def create_orthogonal_constraints(handles, horizontal):
             yield EqualsConstraint(a=p0.y, b=p1.y)
 
 
-class Line(Matrices, Updateable):
+class Line(Matrices):
     """A Line item.
 
     Properties:
@@ -261,15 +233,17 @@ class Line(Matrices, Updateable):
     def __init__(self, connections, **kwargs):
         super().__init__(**kwargs)
         self._connections = connections
-        self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
-        self._ports = []
+        self._handles: List[Handle] = [
+            Handle(connectable=True),
+            Handle((10, 10), connectable=True),
+        ]
+        self._ports: List[Port] = []
         self._update_ports()
 
         self._line_width = 2
         self._fuzziness = 0
         self._orthogonal_constraints = []
         self._horizontal = False
-        self._head_angle = self._tail_angle = 0
 
     @property
     def head(self) -> Handle:
@@ -364,11 +338,11 @@ class Line(Matrices, Updateable):
     horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
 
     @observed
-    def insert_handle(self, index, handle):
+    def insert_handle(self, index: int, handle: Handle) -> None:
         self._handles.insert(index, handle)
 
     @observed
-    def remove_handle(self, handle):
+    def remove_handle(self, handle: Handle) -> None:
         self._handles.remove(handle)
 
     reversible_pair(
@@ -412,16 +386,6 @@ class Line(Matrices, Updateable):
             return handles[0]
         else:
             raise KeyError("Handle is not an end handle")
-
-    def post_update(self, context):
-        """"""
-        super().post_update(context)
-        h0, h1 = self._handles[:2]
-        p0, p1 = h0.pos, h1.pos
-        self._head_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
-        h1, h0 = self._handles[-2:]
-        p1, p0 = h1.pos, h0.pos
-        self._tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
 
     def handles(self) -> Sequence[Handle]:
         """Return a list of handles owned by the item."""
@@ -476,10 +440,19 @@ class Line(Matrices, Updateable):
 
         cr = context.cairo
         cr.set_line_width(self.line_width)
-        draw_line_end(self._handles[0].pos, self._head_angle, self.draw_head)
+
+        h0, h1 = self._handles[:2]
+        p0, p1 = h0.pos, h1.pos
+        head_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
+        draw_line_end(self._handles[0].pos, head_angle, self.draw_head)
+
         for h in self._handles[1:-1]:
             cr.line_to(*h.pos)
-        draw_line_end(self._handles[-1].pos, self._tail_angle, self.draw_tail)
+
+        h1, h0 = self._handles[-2:]
+        p1, p0 = h1.pos, h0.pos
+        tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
+        draw_line_end(self._handles[-1].pos, tail_angle, self.draw_tail)
         cr.stroke()
 
 
