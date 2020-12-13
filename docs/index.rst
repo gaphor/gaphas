@@ -61,6 +61,7 @@ Table of Contents
    quadtree
    table
    tree
+   decorators
 
 .. _Cairo: https://cairographics.org
 .. _Model-View-Controller: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller

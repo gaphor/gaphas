@@ -3,6 +3,9 @@ Painters
 
 Painters are used to draw the view.
 
+Protocols
+---------
+
 Each painter adheres to the ``Painter`` protocol.
 
 .. autoclass:: gaphas.painter.Painter
