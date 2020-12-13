@@ -1,6 +1,14 @@
 Variables and Position
 ======================
 
+The most basic class for a solvable value is ``Variable``. It acts a lot like a ``float``, which makes
+it easy to work with.
+
+Next to that there's Position, which is a coordinate ``(x, y)`` defined by two variables.
+
+To support connections between variables, a ``MatrixProjection`` class is available. It translates
+a position to a common coordinate space, baed on ``Item.matrix_i2c``. Normally, it's only ``Ports`` that
+deal with item-to-common translation of positions.
 
 .. autoclass:: gaphas.solver.Variable
    :members:
@@ -18,3 +26,6 @@ Other constants are
 
 
 .. autoclass:: gaphas.position.Position
+
+
+.. autoclass:: gaphas.position.MatrixProjection

@@ -25,6 +25,10 @@ class Handle:
     """
 
     def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
+        """Create a new handle.
+
+        Position is in item  coordinates.
+        """
         self._pos = Position(pos[0], pos[1], strength)
         self._connectable = connectable
         self._movable = movable
@@ -42,25 +46,35 @@ class Handle:
         self._pos.pos = pos
 
     pos: TypedProperty[Position, Union[Position, SupportsFloatPos]]
-    pos = property(lambda s: s._pos, _set_pos)
+    pos = property(lambda s: s._pos, _set_pos, doc="The Handle's position")
 
     @observed
     def _set_connectable(self, connectable):
         self._connectable = connectable
 
-    connectable = reversible_property(lambda s: s._connectable, _set_connectable)
+    connectable = reversible_property(
+        lambda s: s._connectable,
+        _set_connectable,
+        doc="Can this handle actually connectect to a port?",
+    )
 
     @observed
     def _set_movable(self, movable):
         self._movable = movable
 
-    movable = reversible_property(lambda s: s._movable, _set_movable)
+    movable = reversible_property(
+        lambda s: s._movable,
+        _set_movable,
+        doc="Can this handle be moved by a mouse pointer?",
+    )
 
     @observed
     def _set_visible(self, visible):
         self._visible = visible
 
-    visible = reversible_property(lambda s: s._visible, _set_visible)
+    visible = reversible_property(
+        lambda s: s._visible, _set_visible, doc="Is this handle visible to the user?"
+    )
 
     def __str__(self):
         return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
