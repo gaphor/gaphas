@@ -1,12 +1,17 @@
 """Basic connectors such as Ports and Handles."""
-from typing import Union
+from __future__ import annotations
 
-from gaphas.constraint import LineConstraint, PositionConstraint
+from typing import TYPE_CHECKING, Tuple, Union
+
+from gaphas.constraint import Constraint, LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.position import MatrixProjection, Position
 from gaphas.solver import NORMAL, MultiConstraint
 from gaphas.state import observed, reversible_property
-from gaphas.types import SupportsFloatPos, TypedProperty
+from gaphas.types import Pos, SupportsFloatPos, TypedProperty
+
+if TYPE_CHECKING:
+    from gaphas.item import Item
 
 
 class Handle:
@@ -24,7 +29,13 @@ class Handle:
     or ``function`` objects.
     """
 
-    def __init__(self, pos=(0, 0), strength=NORMAL, connectable=False, movable=True):
+    def __init__(
+        self,
+        pos: Pos = (0, 0),
+        strength: int = NORMAL,
+        connectable: bool = False,
+        movable: bool = True,
+    ) -> None:
         """Create a new handle.
 
         Position is in item  coordinates.
@@ -34,7 +45,7 @@ class Handle:
         self._movable = movable
         self._visible = True
 
-    def _set_pos(self, pos: Union[Position, SupportsFloatPos]):
+    def _set_pos(self, pos: Union[Position, SupportsFloatPos]) -> None:
         """
         Shortcut for ``handle.pos.pos = pos``
 
@@ -49,7 +60,7 @@ class Handle:
     pos = property(lambda s: s._pos, _set_pos, doc="The Handle's position")
 
     @observed
-    def _set_connectable(self, connectable):
+    def _set_connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
     connectable = reversible_property(
@@ -59,7 +70,7 @@ class Handle:
     )
 
     @observed
-    def _set_movable(self, movable):
+    def _set_movable(self, movable: bool) -> None:
         self._movable = movable
 
     movable = reversible_property(
@@ -69,14 +80,14 @@ class Handle:
     )
 
     @observed
-    def _set_visible(self, visible):
+    def _set_visible(self, visible: bool) -> None:
         self._visible = visible
 
     visible = reversible_property(
         lambda s: s._visible, _set_visible, doc="Is this handle visible to the user?"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
 
     __repr__ = __str__
@@ -88,22 +99,22 @@ class Port:
     The Item's handle connects to a port.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._connectable = True
 
     @observed
-    def _set_connectable(self, connectable):
+    def _set_connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
     connectable = reversible_property(lambda s: s._connectable, _set_connectable)
 
-    def glue(self, pos):
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port."""
         raise NotImplementedError("Glue method not implemented")
 
-    def constraint(self, item, handle, glue_item):
+    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
         """Create connection constraint between item's handle and glue item."""
         raise NotImplementedError("Constraint method not implemented")
 
@@ -111,13 +122,13 @@ class Port:
 class LinePort(Port):
     """Port defined as a line between two handles."""
 
-    def __init__(self, start, end):
+    def __init__(self, start: Position, end: Position) -> None:
         super().__init__()
 
         self.start = start
         self.end = end
 
-    def glue(self, pos):
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port.
 
         >>> p1, p2 = (0.0, 0.0), (100.0, 100.0)
@@ -127,10 +138,12 @@ class LinePort(Port):
         >>> port.glue((0, 10))
         ((5.0, 5.0), 7.0710678118654755)
         """
-        d, pl = distance_line_point(self.start, self.end, pos)
+        d, pl = distance_line_point(
+            self.start.tuple(), self.end.tuple(), (float(pos[0]), float(pos[1]))
+        )
         return pl, d
 
-    def constraint(self, item, handle, glue_item):
+    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
         """Create connection line constraint between item's handle and the
         port."""
         start = MatrixProjection(self.start, glue_item.matrix_i2c)
@@ -143,11 +156,11 @@ class LinePort(Port):
 class PointPort(Port):
     """Port defined as a point."""
 
-    def __init__(self, point: Position):
+    def __init__(self, point: Position) -> None:
         super().__init__()
         self.point = point
 
-    def glue(self, pos):
+    def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port.
 
         >>> h = Handle((10, 10))
@@ -155,10 +168,13 @@ class PointPort(Port):
         >>> port.glue((10, 0))
         (<Position object on (10, 10)>, 10.0)
         """
-        d = distance_point_point(self.point, pos)
-        return self.point, d
+        point: Tuple[float, float] = self.point.pos  # type: ignore[assignment]
+        d = distance_point_point(point, (float(pos[0]), float(pos[1])))
+        return point, d
 
-    def constraint(self, item, handle, glue_item):
+    def constraint(
+        self, item: Item, handle: Handle, glue_item: Item
+    ) -> MultiConstraint:
         """Return connection position constraint between item's handle and the
         port."""
         origin = MatrixProjection(self.point, glue_item.matrix_i2c)

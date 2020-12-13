@@ -18,7 +18,6 @@ import gi
 
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
-from gaphas.canvas import Context
 from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
@@ -56,10 +55,6 @@ def factory(view, cls):
         return item
 
     return wrapper
-
-
-def paint(view, cr):
-    view.painter.paint(Context(cairo=cr, items=view.model.get_all_items(), area=None))
 
 
 class MyBox(Box):

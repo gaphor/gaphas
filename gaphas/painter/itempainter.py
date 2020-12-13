@@ -2,8 +2,8 @@ from typing import Collection, Optional
 
 from cairo import LINE_JOIN_ROUND
 
-from gaphas.canvas import Context
-from gaphas.item import Item
+from gaphas.item import DrawContext, Item
+from gaphas.types import CairoContext
 from gaphas.view.selection import Selection
 
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
@@ -11,25 +11,14 @@ from gaphas.view.selection import Selection
 TOLERANCE = 0.8
 
 
-class DrawContext(Context):
-    """Special context for draw()'ing the item.
-
-    The draw-context contains stuff like the cairo context and
-    properties like selected and focused.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
 class ItemPainter:
 
     draw_all = False
 
-    def __init__(self, selection: Optional[Selection] = None):
+    def __init__(self, selection: Optional[Selection] = None) -> None:
         self.selection = selection or Selection()
 
-    def paint_item(self, item, cairo):
+    def paint_item(self, item: Item, cairo: CairoContext) -> None:
         cairo.save()
         try:
             cairo.transform(item.matrix_i2c.to_cairo())
@@ -48,7 +37,7 @@ class ItemPainter:
         finally:
             cairo.restore()
 
-    def paint(self, items: Collection[Item], cairo):
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         """Draw the items."""
         cairo.set_tolerance(TOLERANCE)
         cairo.set_line_join(LINE_JOIN_ROUND)

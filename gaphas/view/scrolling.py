@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from gi.repository import Gtk
 
@@ -10,7 +10,7 @@ from gaphas.matrix import Matrix
 class Scrolling:
     """Contains Gtk.Adjustment and related code."""
 
-    def __init__(self, scrolling_updated):
+    def __init__(self, scrolling_updated: Callable[[Matrix], None]) -> None:
         self._scrolling_updated = scrolling_updated
         self.hadjustment: Optional[Gtk.Adjustment] = None
         self.vadjustment: Optional[Gtk.Adjustment] = None

@@ -7,6 +7,7 @@ from typing import Collection, Dict, Optional
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
+from gaphas.types import CairoContext
 
 
 class CairoBoundingBoxContext:
@@ -14,14 +15,14 @@ class CairoBoundingBoxContext:
     ``stroke()``, ``fill()`` and a few others so the bounding box of the item
     involved can be calculated."""
 
-    def __init__(self, cairo):
-        self._cairo = cairo
+    def __init__(self, cr):
+        self.cr = cr
         self._bounds: Optional[Rectangle] = None  # a Rectangle object
 
     def __getattr__(self, key):
-        return getattr(self._cairo, key)
+        return getattr(self.cr, key)
 
-    def get_bounds(self):
+    def get_bounds(self) -> Rectangle:
         """Return the bounding box."""
         return self._bounds or Rectangle()
 
@@ -38,7 +39,7 @@ class CairoBoundingBoxContext:
         if ``line_width`` is True, the current line-width is taken into
         account.
         """
-        cr = self._cairo
+        cr = self.cr
         cr.save()
         cr.identity_matrix()
         x0, y0, x1, y1 = extents_func()
@@ -54,7 +55,7 @@ class CairoBoundingBoxContext:
 
     def fill(self, b=None):
         """Interceptor for Cairo drawing method."""
-        cr = self._cairo
+        cr = self.cr
         if not b:
             b = self._extents(cr.fill_extents)
         cr.fill()
@@ -62,12 +63,12 @@ class CairoBoundingBoxContext:
     def fill_preserve(self, b=None):
         """Interceptor for Cairo drawing method."""
         if not b:
-            cr = self._cairo
+            cr = self.cr
             b = self._extents(cr.fill_extents)
 
     def stroke(self, b=None):
         """Interceptor for Cairo drawing method."""
-        cr = self._cairo
+        cr = self.cr
         if not b:
             b = self._extents(cr.stroke_extents, line_width=True)
         cr.stroke()
@@ -75,12 +76,12 @@ class CairoBoundingBoxContext:
     def stroke_preserve(self, b=None):
         """Interceptor for Cairo drawing method."""
         if not b:
-            cr = self._cairo
+            cr = self.cr
             b = self._extents(cr.stroke_extents, line_width=True)
 
     def show_text(self, utf8, b=None):
         """Interceptor for Cairo drawing method."""
-        cr = self._cairo
+        cr = self.cr
         if not b:
             x, y = cr.get_current_point()
             e = cr.text_extents(utf8)
@@ -102,11 +103,11 @@ class BoundingBoxPainter:
     ):
         self.item_painter = item_painter
 
-    def paint_item(self, item: Item, cairo):
-        cairo = CairoBoundingBoxContext(cairo)
-        self.item_painter.paint_item(item, cairo)
+    def paint_item(self, item: Item, cairo: CairoContext) -> Rectangle:
+        bbctx = CairoBoundingBoxContext(cairo)
+        self.item_painter.paint_item(item, bbctx)
         # Bounding box is in view (cairo root) coordinates
-        bounds = cairo.get_bounds()
+        bounds = bbctx.get_bounds()
 
         # Update bounding box with handles.
         i2c = item.matrix_i2c.transform_point
@@ -117,14 +118,16 @@ class BoundingBoxPainter:
         bounds.expand(1)
         return bounds
 
-    def paint(self, items: Collection[Item], cairo) -> Dict[Item, Rectangle]:
+    def paint(
+        self, items: Collection[Item], cairo: CairoContext
+    ) -> Dict[Item, Rectangle]:
         """Draw the items, return the bounding boxes (in cairo device
         coordinates)."""
         paint_item = self.paint_item
         boxes: Dict[Item, Rectangle] = {item: paint_item(item, cairo) for item in items}
         return boxes
 
-    def bounding_box(self, items: Collection[Item], cairo) -> Rectangle:
+    def bounding_box(self, items: Collection[Item], cairo: CairoContext) -> Rectangle:
         """Get the unified bounding box of the rendered items."""
         boxes = self.paint(items, cairo)
         return functools.reduce(operator.add, boxes.values())

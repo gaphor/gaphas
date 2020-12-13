@@ -32,9 +32,9 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
-from typing import Collection, Union
+from typing import Collection, List, Set
 
-from gaphas.solver.constraint import Constraint, MultiConstraint
+from gaphas.solver.constraint import Constraint
 from gaphas.state import observed, reversible_pair
 
 
@@ -44,10 +44,10 @@ class Solver:
     A constraint should have accompanying variables.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # a dict of constraint -> name/variable mappings
-        self._constraints = set()
-        self._marked_cons = []
+        self._constraints: Set[Constraint] = set()
+        self._marked_cons: List[Constraint] = []
         self._solving = False
 
     @property
@@ -55,7 +55,7 @@ class Solver:
         return self._constraints
 
     @observed
-    def add_constraint(self, constraint: Union[Constraint, MultiConstraint]):
+    def add_constraint(self, constraint: Constraint) -> Constraint:
         """Add a constraint. The actual constraint is returned, so the
         constraint can be removed later on.
 
@@ -82,7 +82,7 @@ class Solver:
         return constraint
 
     @observed
-    def remove_constraint(self, constraint: Union[Constraint, MultiConstraint]) -> None:
+    def remove_constraint(self, constraint: Constraint) -> None:
         """Remove a constraint from the solver.
 
         >>> from gaphas.constraint import EquationConstraint

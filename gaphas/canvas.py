@@ -43,26 +43,6 @@ if TYPE_CHECKING:
     from gaphas.view.model import View
 
 
-class Context:
-    """Context used for updating and drawing items in a drawing canvas.
-
-    >>> c=Context(one=1,two='two')
-    >>> c.one
-    1
-    >>> c.two
-    'two'
-    >>> try: c.one = 2
-    ... except: 'got exc'
-    'got exc'
-    """
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(**kwargs)
-
-    def __setattr__(self, key, value):
-        raise AttributeError("context is not writable")
-
-
 def instant_cairo_context():
     """A simple Cairo context, not attached to any window."""
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
@@ -109,7 +89,7 @@ class Canvas:
         """Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order."""
         self._tree.remove(item)
-        self._connections.disconnect_item(self)
+        self._connections.disconnect_item(item)
         self._update_views(removed_items=(item,))
 
     def remove(self, item):
@@ -182,7 +162,7 @@ class Canvas:
         """
         return self._tree.get_children(None)
 
-    def get_parent(self, item) -> Optional[Item]:
+    def get_parent(self, item: Item) -> Optional[Item]:
         """See `tree.Tree.get_parent()`.
 
         >>> c = Canvas()
@@ -197,7 +177,7 @@ class Canvas:
         """
         return self._tree.get_parent(item)
 
-    def get_children(self, item) -> Iterable[Item]:
+    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
         """See `tree.Tree.get_children()`.
 
         >>> c = Canvas()
@@ -217,7 +197,7 @@ class Canvas:
         """
         return self._tree.get_children(item)
 
-    def sort(self, items) -> Iterable[Item]:
+    def sort(self, items: Iterable[Item]) -> Iterable[Item]:
         """Sort a list of items in the order in which they are traversed in the
         canvas (Depth first).
 
@@ -256,7 +236,9 @@ class Canvas:
         return m
 
     @observed
-    def request_update(self, item: Item, update=True, matrix=True) -> None:
+    def request_update(
+        self, item: Item, update: bool = True, matrix: bool = True
+    ) -> None:
         """Set an update request for the item.
 
         >>> c = Canvas()
@@ -300,7 +282,7 @@ class Canvas:
         except Exception as e:
             logging.error("Error while updating canvas", exc_info=e)
 
-    def register_view(self, view: View):
+    def register_view(self, view: View) -> None:
         """Register a view on this canvas.
 
         This method is called when setting a canvas on a view and should
@@ -308,7 +290,7 @@ class Canvas:
         """
         self._registered_views.add(view)
 
-    def unregister_view(self, view: View):
+    def unregister_view(self, view: View) -> None:
         """Unregister a view on this canvas.
 
         This method is called when setting a canvas on a view and should

@@ -2,36 +2,49 @@
 would in a database table, with indexes on the desired "columns."."""
 
 from functools import reduce
-from typing import Dict, Set
+from typing import Dict, Generic, Iterator, Sequence, Set, Tuple, Type, TypeVar
+
+from typing_extensions import Protocol, runtime_checkable
+
+T = TypeVar("T", bound=Tuple, covariant=True)
 
 
-class Table:
+@runtime_checkable
+class NamedTupleish(Protocol):
+    _fields: Tuple[str, ...]
+
+    def _make(self, *args: object) -> Tuple[object, ...]:
+        ...
+
+
+class Table(Generic[T]):
     """A Table structure with indexing.
 
     Optimized for lookups.
     """
 
-    def __init__(self, columns, indexes):
+    def __init__(self, columns: Type[T], indexes: Sequence[int]) -> None:
         """Create a new Store instance with columns and indexes:
 
         >>> from collections import namedtuple
         >>> C = namedtuple('C', "foo bar baz")
         >>> s = Table(C, (2,))
         """
-        fields = columns._fields
+        assert isinstance(columns, NamedTupleish)
+        fields: Sequence[str] = columns._fields
 
-        self._type = columns
-        self._indexes = tuple(fields[i] for i in indexes)
+        self._type: Type[T] = columns
+        self._indexes: Sequence[str] = [fields[i] for i in indexes]
+        self._fields: Sequence[str] = fields
 
         # create data structure, which acts as cache
-        index: Dict[str, Dict[object, Set[object]]] = {n: {} for n in fields}
-        self._index = index
+        self._index: Dict[str, Dict[object, Set[object]]] = {n: {} for n in fields}
 
     @property
-    def columns(self):
+    def columns(self) -> Type[T]:
         return self._type
 
-    def insert(self, *values):
+    def insert(self, *values: object) -> None:
         """Add a set of values to the store.
 
         >>> from collections import namedtuple
@@ -48,13 +61,13 @@ class Table:
         ...
         ValueError: Number of arguments doesn't match the number of columns (2 != 3)
         """
-        if len(values) != len(self._type._fields):
+        if len(values) != len(self._fields):
             raise ValueError(
-                f"Number of arguments doesn't match the number of columns ({len(values)} != {len(self._type._fields)})"
+                f"Number of arguments doesn't match the number of columns ({len(values)} != {len(self._fields)})"
             )
         # Add value to index entries
         index = self._index
-        data = self._type._make(values)
+        data = self._type._make(values)  # type: ignore[attr-defined]
         for n in self._indexes:
             v = getattr(data, n)
             if v in index[n]:
@@ -62,7 +75,7 @@ class Table:
             else:
                 index[n][v] = {data}
 
-    def delete(self, *_row, **kv):
+    def delete(self, *_row: object, **kv: object) -> None:
         """Remove value from the table. Either a complete set may be given or
         just one entry in "column=value" style.
 
@@ -100,7 +113,7 @@ class Table:
         ...
         ValueError: Should either provide a row or a query statement, not both
         """
-        fields = self._type._fields
+        fields = self._fields
         if _row and kv:
             raise ValueError(
                 "Should either provide a row or a query statement, not both"
@@ -120,7 +133,7 @@ class Table:
                     if len(index[n][v]) == 0:
                         del index[n][v]
 
-    def query(self, **kv):
+    def query(self, **kv: object) -> Iterator[T]:
         """Get rows (tuples) for each key defined. An iterator is returned.
 
         >>> from collections import namedtuple
@@ -150,7 +163,7 @@ class Table:
         """
         index = self._index
 
-        bad = set(kv.keys()) - set(self._type._fields)
+        bad = set(kv.keys()) - set(self._fields)
         if len(bad) == 1:
             raise KeyError(f"Invalid column {bad.pop()}")
         elif len(bad) > 1:

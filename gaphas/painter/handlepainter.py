@@ -1,23 +1,37 @@
-from typing import Collection
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Collection, Optional
 
 from cairo import ANTIALIAS_NONE
 
 from gaphas.item import Item
+from gaphas.types import CairoContext
+
+if TYPE_CHECKING:
+    from gaphas.view import GtkView
 
 
 class HandlePainter:
     """Draw handles of items that are marked as selected in the view."""
 
-    def __init__(self, view):
+    def __init__(self, view: GtkView) -> None:
         assert view
         self.view = view
 
-    def _draw_handles(self, item, cairo, opacity=None, inner=False):
+    def _draw_handles(
+        self,
+        item: Item,
+        cairo: CairoContext,
+        opacity: Optional[float] = None,
+        inner: bool = False,
+    ) -> None:
         """Draw handles for an item.
 
         The handles are drawn in non-antialiased mode for clarity.
         """
         view = self.view
+        model = view.model
+        assert model
         cairo.save()
         if not opacity:
             opacity = (item is view.selection.focused_item) and 0.7 or 0.4
@@ -25,7 +39,7 @@ class HandlePainter:
         cairo.set_antialias(ANTIALIAS_NONE)
         cairo.set_line_width(1)
 
-        get_connection = view.model.connections.get_connection
+        get_connection = model.connections.get_connection
         for h in item.handles():
             if not h.visible:
                 continue
@@ -60,12 +74,13 @@ class HandlePainter:
             cairo.restore()
         cairo.restore()
 
-    def paint(self, items: Collection[Item], cairo):
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         view = self.view
-        canvas = view.model
+        model = view.model
+        assert model
         selection = view.selection
         # Order matters here:
-        for item in canvas.sort(selection.selected_items):
+        for item in model.sort(selection.selected_items):
             self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
         item = selection.hovered_item

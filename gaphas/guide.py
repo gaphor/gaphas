@@ -242,7 +242,7 @@ class GuidedElementHandleMove(GuideMixin, ElementHandleMove):
     position.
     """
 
-    def move(self, pos: Pos):
+    def move(self, pos: Pos) -> None:
 
         sink = super().move(pos)
 

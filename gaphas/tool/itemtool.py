@@ -19,17 +19,17 @@ class MoveType(Protocol):
     def __init__(self, item: Item, view: GtkView):
         ...
 
-    def start_move(self, pos: Pos):
+    def start_move(self, pos: Pos) -> None:
         ...
 
-    def move(self, pos: Pos):
+    def move(self, pos: Pos) -> None:
         ...
 
-    def stop_move(self, pos: Pos):
+    def stop_move(self, pos: Pos) -> None:
         ...
 
 
-def item_tool(view: GtkView):
+def item_tool(view: GtkView) -> Gtk.GestureDrag:
     """Handle item movement and movement of handles."""
     gesture = Gtk.GestureDrag.new(view)
     drag_state = DragState()
@@ -84,7 +84,9 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
         moving.start_move((start_x, start_y))
 
 
-def find_item_and_handle_at_point(view: GtkView, pos: Pos):
+def find_item_and_handle_at_point(
+    view: GtkView, pos: Pos
+) -> Tuple[Optional[Item], Optional[Handle]]:
     item, handle = handle_at_point(view, pos)
     return item or item_at_point(view, pos), handle
 
@@ -114,7 +116,7 @@ def on_drag_end(gesture, offset_x, offset_y, drag_state):
     drag_state.moving = set()
 
 
-def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
+def item_at_point(view: GtkView, pos: Pos, selected: bool = True) -> Optional[Item]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:
@@ -139,7 +141,7 @@ def item_at_point(view: GtkView, pos: Pos, selected=True) -> Optional[Item]:
 
 
 def handle_at_point(
-    view: GtkView, pos: Pos, distance=6
+    view: GtkView, pos: Pos, distance: int = 6
 ) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
     """Look for a handle at ``pos`` and return the tuple (item, handle)."""
 

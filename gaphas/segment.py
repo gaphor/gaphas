@@ -168,7 +168,6 @@ class LineSegment:
 
             constraint = port.constraint(item, handle, connected)
 
-            cinfo = model.connections.get_connection(handle)
             model.connections.reconnect_item(item, handle, port, constraint=constraint)
 
 

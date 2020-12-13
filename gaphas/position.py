@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import SupportsFloat, Tuple, Union
 
 from gaphas.matrix import Matrix
-from gaphas.solver import NORMAL, Constraint, Variable
+from gaphas.solver import NORMAL, BaseConstraint, Variable
 from gaphas.types import SupportsFloatPos, TypedProperty
 
 
@@ -28,24 +28,27 @@ class Position:
         """Strength."""
         return self._x.strength
 
-    def _set_x(self, v: SupportsFloat):
+    def _set_x(self, v: SupportsFloat) -> None:
         self._x.value = v
 
     x: TypedProperty[Variable, SupportsFloat]
     x = property(lambda s: s._x, _set_x, doc="Position.x")
 
-    def _set_y(self, v: SupportsFloat):
+    def _set_y(self, v: SupportsFloat) -> None:
         self._y.value = v
 
     y: TypedProperty[Variable, SupportsFloat]
     y = property(lambda s: s._y, _set_y, doc="Position.y")
 
-    def _set_pos(self, pos: Union[Position, SupportsFloatPos]):
+    def _set_pos(self, pos: Union[Position, SupportsFloatPos]) -> None:
         """Set handle position (Item coordinates)."""
         self._x.value, self._y.value = pos
 
     pos: TypedProperty[Tuple[Variable, Variable], Union[Position, SupportsFloatPos]]
     pos = property(lambda s: (s._x, s._y), _set_pos, doc="The position.")
+
+    def tuple(self) -> Tuple[float, float]:
+        return (self._x.value, self._y.value)
 
     def __str__(self):
         return f"<{self.__class__.__name__} object on ({self._x}, {self._y})>"
@@ -73,7 +76,7 @@ class Position:
         return self[0] < other[0] and self[1] < other[1]
 
 
-class MatrixProjection(Constraint):
+class MatrixProjection(BaseConstraint):
     def __init__(self, pos: Position, matrix: Matrix):
         proj_pos = Position(0, 0, pos.strength)
         super().__init__(proj_pos.x, proj_pos.y, pos.x, pos.y)

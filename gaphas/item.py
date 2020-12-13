@@ -1,12 +1,14 @@
 """Basic items."""
+from __future__ import annotations
+
+from dataclasses import dataclass
 from math import atan2
-from typing import List, Sequence
+from typing import TYPE_CHECKING, Iterable, List, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
-from gaphas.canvas import Context
 from gaphas.connector import Handle, LinePort, Port
-from gaphas.constraint import EqualsConstraint, constraint
+from gaphas.constraint import Constraint, EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
 from gaphas.solver import REQUIRED, VERY_STRONG, variable
@@ -16,6 +18,19 @@ from gaphas.state import (
     reversible_pair,
     reversible_property,
 )
+from gaphas.types import CairoContext
+
+if TYPE_CHECKING:
+    from gaphas.connections import Connections
+
+
+@dataclass(frozen=True)
+class DrawContext:
+    cairo: CairoContext
+    selected: bool
+    focused: bool
+    hovered: bool
+    dropzone: bool
 
 
 @runtime_checkable
@@ -47,24 +62,24 @@ class Item(Protocol):
         A distance of 0 means the point is on the item.
         """
 
-    def draw(self, context: Context):
+    def draw(self, context: DrawContext) -> None:
         """Render the item to a canvas view. Context contains the following
         attributes:
 
-        * `cairo`: the Cairo Context use this one to draw
+        * `cairo`: the CairoContext use this one to draw
         * `selected`, `focused`, `hovered`, `dropzone`: view state of items
           (True/False)
         """
 
 
-def matrix_i2i(from_item, to_item):
+def matrix_i2i(from_item: Item, to_item: Item) -> Matrix:
     i2c = from_item.matrix_i2c
     c2i = to_item.matrix_i2c.inverse()
     return i2c.multiply(c2i)
 
 
 class Matrices:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: object) -> None:
         super().__init__(**kwargs)  # type: ignore[call-arg]
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
@@ -90,7 +105,13 @@ class Element(Matrices):
     min_width = variable(strength=REQUIRED, varname="_min_width")
     min_height = variable(strength=REQUIRED, varname="_min_height")
 
-    def __init__(self, connections, width=10, height=10, **kwargs):
+    def __init__(
+        self,
+        connections: Connections,
+        width: float = 10,
+        height: float = 10,
+        **kwargs: object
+    ) -> None:
         super().__init__(**kwargs)
         self._connections = connections
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
@@ -130,14 +151,14 @@ class Element(Matrices):
         self._handles[SE].pos.y.dirty()
 
     @property
-    def width(self):
+    def width(self) -> float:
         """Width of the box, calculated as the distance from the left and right
         handle."""
         h = self._handles
         return float(h[SE].pos.x) - float(h[NW].pos.x)
 
     @width.setter
-    def width(self, width):
+    def width(self, width: float) -> None:
         """
         >>> b=Element()
         >>> b.width = 20
@@ -152,13 +173,13 @@ class Element(Matrices):
         h[SE].pos.x = h[NW].pos.x + width
 
     @property
-    def height(self):
+    def height(self) -> float:
         """Height."""
         h = self._handles
         return float(h[SE].pos.y) - float(h[NW].pos.y)
 
     @height.setter
-    def height(self, height):
+    def height(self, height: float) -> None:
         """
         >>> b=Element()
         >>> b.height = 20
@@ -183,7 +204,7 @@ class Element(Matrices):
         """Return list of ports."""
         return self._ports
 
-    def point(self, x, y):
+    def point(self, x: float, y: float) -> float:
         """Distance from the point (x, y) to the item.
 
         >>> e = Element()
@@ -195,11 +216,13 @@ class Element(Matrices):
         x1, y1 = h[SE].pos
         return distance_rectangle_point((x0, y0, x1 - x0, y1 - y0), (x, y))
 
-    def draw(self, context: Context):
+    def draw(self, context: DrawContext) -> None:
         pass
 
 
-def create_orthogonal_constraints(handles, horizontal):
+def create_orthogonal_constraints(
+    handles: Sequence[Handle], horizontal: bool
+) -> Iterable[Constraint]:
     rest = 1 if horizontal else 0
     for pos, (h0, h1) in enumerate(zip(handles, handles[1:])):
         p0 = h0.pos
@@ -230,19 +253,16 @@ class Line(Matrices):
     draw an arrow point).
     """
 
-    def __init__(self, connections, **kwargs):
+    def __init__(self, connections: Connections, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self._connections = connections
-        self._handles: List[Handle] = [
-            Handle(connectable=True),
-            Handle((10, 10), connectable=True),
-        ]
+        self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
         self._ports: List[Port] = []
         self._update_ports()
 
-        self._line_width = 2
-        self._fuzziness = 0
-        self._orthogonal_constraints = []
+        self._line_width = 2.0
+        self._fuzziness = 0.0
+        self._orthogonal_constraints: List[Constraint] = []
         self._horizontal = False
 
     @property
@@ -254,18 +274,18 @@ class Line(Matrices):
         return self._handles[-1]
 
     @observed
-    def _set_line_width(self, line_width):
+    def _set_line_width(self, line_width: float) -> None:
         self._line_width = line_width
 
     line_width = reversible_property(lambda s: s._line_width, _set_line_width)
 
     @observed
-    def _set_fuzziness(self, fuzziness):
+    def _set_fuzziness(self, fuzziness: float) -> None:
         self._fuzziness = fuzziness
 
     fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
 
-    def update_orthogonal_constraints(self, orthogonal):
+    def update_orthogonal_constraints(self, orthogonal: bool) -> None:
         """Update the constraints required to maintain the orthogonal line.
 
         The actual constraints attribute (``_orthogonal_constraints``)
@@ -287,7 +307,9 @@ class Line(Matrices):
         self._set_orthogonal_constraints(cons)
 
     @observed
-    def _set_orthogonal_constraints(self, orthogonal_constraints):
+    def _set_orthogonal_constraints(
+        self, orthogonal_constraints: List[Constraint]
+    ) -> None:
         """Setter for the constraints maintained.
 
         Required for the undo system.
@@ -299,7 +321,7 @@ class Line(Matrices):
     )
 
     @observed
-    def _set_orthogonal(self, orthogonal):
+    def _set_orthogonal(self, orthogonal: bool) -> None:
         """
         >>> a = Line()
         >>> a.orthogonal
@@ -314,7 +336,7 @@ class Line(Matrices):
     )
 
     @observed
-    def _inner_set_horizontal(self, horizontal):
+    def _inner_set_horizontal(self, horizontal: bool) -> None:
         self._horizontal = horizontal
 
     reversible_method(
@@ -323,7 +345,7 @@ class Line(Matrices):
         {"horizontal": lambda horizontal: not horizontal},
     )
 
-    def _set_horizontal(self, horizontal):
+    def _set_horizontal(self, horizontal: bool) -> None:
         """
         >>> line = Line()
         >>> line.horizontal
@@ -352,11 +374,11 @@ class Line(Matrices):
     )
 
     @observed
-    def insert_port(self, index, port):
+    def insert_port(self, index: int, port: Port) -> None:
         self._ports.insert(index, port)
 
     @observed
-    def remove_port(self, port):
+    def remove_port(self, port: Port) -> None:
         self._ports.remove(port)
 
     reversible_pair(
@@ -365,7 +387,7 @@ class Line(Matrices):
         bind1={"index": lambda self, port: self._ports.index(port)},
     )
 
-    def _update_ports(self):
+    def _update_ports(self) -> None:
         """Update line ports.
 
         This destroys all previously created ports and should only be
@@ -377,7 +399,7 @@ class Line(Matrices):
         for h1, h2 in zip(handles[:-1], handles[1:]):
             self._ports.append(LinePort(h1.pos, h2.pos))
 
-    def opposite(self, handle):
+    def opposite(self, handle: Handle) -> Handle:
         """Given the handle of one end of the line, return the other end."""
         handles = self._handles
         if handle is handles[0]:
@@ -395,7 +417,7 @@ class Line(Matrices):
         """Return list of ports."""
         return self._ports
 
-    def point(self, x, y):
+    def point(self, x: float, y: float) -> float:
         """
         >>> a = Line()
         >>> a.handles()[1].pos = 25, 5
@@ -410,25 +432,26 @@ class Line(Matrices):
         hpos = [h.pos for h in self._handles]
 
         distance, _point = min(
-            map(distance_line_point, hpos[:-1], hpos[1:], [(x, y)] * (len(hpos) - 1))
+            map(distance_line_point, hpos[:-1], hpos[1:], [(x, y)] * (len(hpos) - 1))  # type: ignore[arg-type]
         )
-        return max(0, distance - self.fuzziness)
+        fuzziness: float = self.fuzziness
+        return max(0.0, distance - fuzziness)
 
-    def draw_head(self, context):
+    def draw_head(self, context: DrawContext) -> None:
         """Default head drawer: move cursor to the first handle."""
         context.cairo.move_to(0, 0)
 
-    def draw_tail(self, context):
+    def draw_tail(self, context: DrawContext) -> None:
         """Default tail drawer: draw line to the last handle."""
         context.cairo.line_to(0, 0)
 
-    def draw(self, context):
+    def draw(self, context: DrawContext) -> None:
         """Draw the line itself.
 
         See Item.draw(context).
         """
 
-        def draw_line_end(pos, angle, draw):
+        def draw_line_end(pos, angle, draw):  # type: ignore[no-untyped-def]
             cr = context.cairo
             cr.save()
             try:

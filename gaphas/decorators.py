@@ -9,6 +9,7 @@ gi.require_version("Gtk", "3.0")  # noqa: isort:skip
 from gi.repository import GLib, Gtk  # noqa: isort:skip
 # fmt: on
 
+
 log = logging.getLogger(__name__)
 
 
@@ -93,7 +94,12 @@ class g_async:
     it's only executed once.
     """
 
-    def __init__(self, single=False, timeout=0, priority=GLib.PRIORITY_DEFAULT):
+    def __init__(
+        self,
+        single: bool = False,
+        timeout: int = 0,
+        priority: int = GLib.PRIORITY_DEFAULT,
+    ) -> None:
         self.single = single
         self.timeout = timeout
         self.priority = priority

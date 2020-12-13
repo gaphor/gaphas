@@ -15,6 +15,7 @@ from typing import Collection
 
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
+from gaphas.types import CairoContext
 
 
 class FreeHandCairoContext:
@@ -39,8 +40,7 @@ class FreeHandCairoContext:
         # This offset determines how sloppy the line is drawn. It depends on
         # the length, but maxes out at 20.
         offset = length / 10 * sloppiness
-        if offset > 20:
-            offset = 20
+        offset = min(offset, 20)
 
         dev_x, dev_y = cr.user_to_device(x, y)
         rand = Random((from_x, from_y, dev_x, dev_y, length, offset)).random
@@ -137,15 +137,15 @@ class FreeHandPainter:
     * Drunk: 2.0
     """
 
-    def __init__(self, subpainter: ItemPainterType, sloppiness=0.5):
+    def __init__(self, subpainter: ItemPainterType, sloppiness: float = 0.5):
         self.subpainter = subpainter
         self.sloppiness = sloppiness
 
-    def paint_item(self, item: Item, cairo):
+    def paint_item(self, item: Item, cairo: CairoContext) -> None:
         # Bounding  painter requires painting per item
         self.subpainter.paint_item(item, cairo)
 
-    def paint(self, items: Collection[Item], cairo):
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         self.subpainter.paint(
             items, FreeHandCairoContext(cairo, self.sloppiness),
         )

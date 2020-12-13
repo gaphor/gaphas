@@ -302,7 +302,7 @@ Let's first add a segment to the line, to test orthogonal lines as well.
     >>> _ = segment.split_segment(0)
 
     >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
-    (2, 0, False, False)
+    (2.0, 0.0, False, False)
 
 Now change the properties:
 
@@ -317,7 +317,7 @@ And undo the changes:
 
     >>> undo()
     >>> l.line_width, l.fuzziness, l.orthogonal, l.horizontal
-    (2, 0, False, False)
+    (2.0, 0.0, False, False)
 
 In addition to those properties, line segments can be split and merged.
 

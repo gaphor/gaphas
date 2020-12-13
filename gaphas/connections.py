@@ -1,23 +1,32 @@
 """This module contains a connections manager."""
 
-from collections import namedtuple
-from typing import Optional
+from typing import Callable, Iterator, NamedTuple, Optional
 
 from gaphas import table
+from gaphas.connector import Handle, Port
+from gaphas.constraint import Constraint
+from gaphas.item import Item
 from gaphas.solver import Solver
 from gaphas.state import observed, reversible_method, reversible_pair
 
-#
-# Information about two connected items
-#
-# - item: connecting item
-# - handle: handle of connecting item (points connected item)
-# - connected: connected item
-# - port: port of connected item
-# - constraint: optional connection constraint
-# - callback: optional disconnection callback
-#
-Connection = namedtuple("Connection", "item handle connected port constraint callback")
+
+class Connection(NamedTuple):
+    """Information about two connected items.
+
+    - item: connecting item
+    - handle: handle of connecting item (points connected item)
+    - connected: connected item
+    - port: port of connected item
+    - constraint: optional connection constraint
+    - callback: optional disconnection callback
+    """
+
+    item: Item
+    handle: Handle
+    connected: Item
+    port: Port
+    constraint: Constraint
+    callback: Callable[[], None]
 
 
 class ConnectionError(Exception):
@@ -28,34 +37,42 @@ class ConnectionError(Exception):
 class Connections:
     """Manage connections and constraints."""
 
-    def __init__(self, solver: Optional[Solver] = None):
+    def __init__(self, solver: Optional[Solver] = None) -> None:
         self._solver = solver or Solver()
-        self._connections = table.Table(Connection, list(range(4)))
+        self._connections: table.Table[Connection] = table.Table(
+            Connection, tuple(range(4))
+        )
 
     @property
     def solver(self) -> Solver:
         """The solver used by this connections instance."""
         return self._solver
 
-    def solve(self):
+    def solve(self) -> None:
         """Solve all constraints."""
         self._solver.solve()
 
-    def add_constraint(self, item, constraint):
+    def add_constraint(self, item: Item, constraint: Constraint) -> Constraint:
         """Add a "simple" constraint for an item."""
         self._solver.add_constraint(constraint)
         self._connections.insert(item, None, None, None, constraint, None)
         return constraint
 
-    def remove_constraint(self, item, constraint):
+    def remove_constraint(self, item: Item, constraint: Constraint) -> None:
         """Remove an item specific constraint."""
         self._solver.remove_constraint(constraint)
         self._connections.delete(item, None, None, None, constraint, None)
 
     @observed
     def connect_item(
-        self, item, handle, connected, port, constraint=None, callback=None
-    ):
+        self,
+        item: Item,
+        handle: Handle,
+        connected: Item,
+        port: Port,
+        constraint: Optional[Constraint] = None,
+        callback: Optional[Callable[[], None]] = None,
+    ) -> None:
         """Create a connection between two items. The connection is registered
         and the constraint is added to the constraint solver.
 
@@ -84,7 +101,7 @@ class Connections:
         if constraint:
             self._solver.add_constraint(constraint)
 
-    def disconnect_item(self, item, handle=None):
+    def disconnect_item(self, item: Item, handle: Optional[Handle] = None) -> None:
         """Disconnect the connections of an item.
 
         If handle is not None, only the connection for that handle is
@@ -95,7 +112,15 @@ class Connections:
             self._disconnect_item(*cinfo)
 
     @observed
-    def _disconnect_item(self, item, handle, connected, port, constraint, callback):
+    def _disconnect_item(
+        self,
+        item: Item,
+        handle: Handle,
+        connected: Item,
+        port: Port,
+        constraint: Constraint,
+        callback: Callable[[], None],
+    ) -> None:
         """Perform the real disconnect."""
         # Same arguments as connect_item, makes reverser easy
         if constraint:
@@ -108,7 +133,7 @@ class Connections:
 
     reversible_pair(connect_item, _disconnect_item)
 
-    def remove_connections_to_item(self, item):
+    def remove_connections_to_item(self, item: Item) -> None:
         """Remove all connections (handles connected to and constraints) for a
         specific item (to and from the item).
 
@@ -124,7 +149,13 @@ class Connections:
             disconnect_item(*cinfo)
 
     @observed
-    def reconnect_item(self, item, handle, port=None, constraint=None):
+    def reconnect_item(
+        self,
+        item: Item,
+        handle: Handle,
+        port: Optional[Port] = None,
+        constraint: Optional[Constraint] = None,
+    ) -> None:
         """Update an existing connection.
 
         This is used to provide a new constraint to the connection.
@@ -163,7 +194,7 @@ class Connections:
         },
     )
 
-    def get_connection(self, handle):
+    def get_connection(self, handle: Handle) -> Optional[Connection]:
         """Get connection information for specified handle.
 
         >>> c = Connections()
@@ -183,7 +214,13 @@ class Connections:
         except StopIteration:
             return None
 
-    def get_connections(self, item=None, handle=None, connected=None, port=None):
+    def get_connections(
+        self,
+        item: Optional[Item] = None,
+        handle: Optional[Handle] = None,
+        connected: Optional[Item] = None,
+        port: Optional[Port] = None,
+    ) -> Iterator[Connection]:
         """Return an iterator of connection information.
 
         The list contains (item, handle). As a result an item may be
