@@ -32,7 +32,7 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
-from typing import Collection, List, Set
+from typing import Callable, Collection, List, Set
 
 from gaphas.solver.constraint import Constraint
 from gaphas.state import observed, reversible_pair
@@ -49,6 +49,19 @@ class Solver:
         self._constraints: Set[Constraint] = set()
         self._marked_cons: List[Constraint] = []
         self._solving = False
+        self._handlers: Set[Callable[[Constraint], None]] = set()
+
+    def add_handler(self, handler):
+        """Add a callback handler, triggered when a constraint is resolved."""
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler):
+        """Remove a previously assigned handler."""
+        self._handlers.discard(handler)
+
+    def _notify(self, constraint):
+        for handler in self._handlers:
+            handler(constraint)
 
     @property
     def constraints(self) -> Collection[Constraint]:
@@ -154,6 +167,7 @@ class Solver:
         10.0
         """
         marked_cons = self._marked_cons
+        notify = self._notify
         try:
             self._solving = True
 
@@ -164,6 +178,7 @@ class Solver:
             while n < len(marked_cons):
                 c = marked_cons[n]
                 c.solve()
+                notify(c)
                 n += 1
 
             self._marked_cons = []

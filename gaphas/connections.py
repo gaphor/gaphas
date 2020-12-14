@@ -1,6 +1,8 @@
 """This module contains a connections manager."""
 
-from typing import Callable, Iterator, NamedTuple, Optional
+from __future__ import annotations
+
+from typing import Callable, Iterator, NamedTuple, Optional, Set
 
 from gaphas import table
 from gaphas.connector import Handle, Port
@@ -40,8 +42,27 @@ class Connections:
     def __init__(self, solver: Optional[Solver] = None) -> None:
         self._solver = solver or Solver()
         self._connections: table.Table[Connection] = table.Table(
-            Connection, tuple(range(4))
+            Connection, tuple(range(5))
         )
+        self._handlers: Set[Callable[[Connection], None]] = set()
+
+        self._solver.add_handler(self._on_constraint_solved)
+
+    def add_handler(self, handler):
+        """Add a callback handler.
+
+        Handlers are triggered when a constraint has been solved.
+        """
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler):
+        """Remove a previously assigned handler."""
+        self._handlers.discard(handler)
+
+    def _on_constraint_solved(self, constraint):
+        for cinfo in self._connections.query(constraint=constraint):
+            for handler in self._handlers:
+                handler(cinfo)
 
     @property
     def solver(self) -> Solver:
@@ -107,7 +128,6 @@ class Connections:
         If handle is not None, only the connection for that handle is
         disconnected.
         """
-        # disconnect on canvas level
         for cinfo in list(self._connections.query(item=item, handle=handle)):
             self._disconnect_item(*cinfo)
 

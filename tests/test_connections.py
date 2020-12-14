@@ -66,3 +66,38 @@ def test_remove_item_constraint_when_item_is_disconnected(connections):
     connections.disconnect_item(i)
 
     assert list(connections.get_connections(item=i)) == []
+
+
+def test_notify_on_constraint_solved(connections):
+    events = []
+
+    def on_notify(cinfo):
+        events.append(cinfo)
+
+    i = item.Line(connections)
+    c = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
+    connections.add_constraint(i, c)
+
+    connections.add_handler(on_notify)
+    connections.solve()
+
+    assert events
+    assert events[0].constraint is c
+
+
+def test_connection_remove_handler(connections):
+    events = []
+
+    def on_notify(cinfo):
+        events.append(cinfo)
+
+    i = item.Line(connections)
+    c = EqualsConstraint(i.handles()[0].pos.x, i.handles()[0].pos.x)
+    connections.add_constraint(i, c)
+
+    connections.add_handler(on_notify)
+    connections.remove_handler(on_notify)
+    connections.remove_handler(on_notify)
+    connections.solve()
+
+    assert not events
