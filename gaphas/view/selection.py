@@ -52,6 +52,10 @@ class Selection:
                 self.notify()
 
     def unselect_item(self, item):
+        if item is self._hovered_item:
+            self.set_hovered_item(None)
+        if item is self._dropzone_item:
+            self.set_dropzone_item(None)
         if item is self._focused_item:
             self.set_focused_item(None)
         if item in self._selected_items:

@@ -287,13 +287,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self._qtree.remove(item)
                 selection.unselect_item(item)
 
-            if selection.focused_item in removed_items:
-                selection.set_focused_item(None)
-            if selection.hovered_item in removed_items:
-                selection.set_hovered_item(None)
-            if selection.dropzone_item in removed_items:
-                selection.set_dropzone_item(None)
-
         self.update()
 
     @g_async(single=True)
