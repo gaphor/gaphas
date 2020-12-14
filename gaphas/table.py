@@ -175,7 +175,7 @@ class Table(Generic[T]):
         elif len(bad) > 1:
             raise AttributeError(f"Columns {str(tuple(bad))} are not indexed")
 
-        r = iter([])  # type: ignore[var-annotated]
+        r: Iterator[T] = iter([])
         items = tuple((n, v) for n, v in list(kv.items()) if v is not None)
         if all(v in index[n] for n, v in items):
             rows = (index[n][v] for n, v in items)
