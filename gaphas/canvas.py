@@ -34,7 +34,7 @@ import cairo
 from typing_extensions import Protocol
 
 from gaphas import matrix, tree
-from gaphas.connections import Connections
+from gaphas.connections import Connection, Connections
 from gaphas.decorators import nonrecursive
 from gaphas.state import observed, reversible_method, reversible_pair
 
@@ -57,6 +57,7 @@ class Canvas:
         self._connections = Connections()
 
         self._registered_views = set()
+        self._connections.add_handler(self._on_constraint_solved)
 
     @property
     def solver(self):
@@ -297,6 +298,15 @@ class Canvas:
         not be called directly from user code.
         """
         self._registered_views.discard(view)
+
+    def _on_constraint_solved(self, cinfo: Connection) -> None:
+        dirty_items = set()
+        if cinfo.item:
+            dirty_items.add(cinfo.item)
+        if cinfo.connected:
+            dirty_items.add(cinfo.connected)
+        if dirty_items:
+            self._update_views(dirty_items)
 
     def _update_views(self, dirty_items=(), dirty_matrix_items=(), removed_items=()):
         """Send an update notification to all registered views."""
