@@ -120,13 +120,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if model:
             self.model = model
 
-        def redraw(selection: Selection, item: Item, signal_name: str) -> None:
-            self.queue_redraw()
-
-        self._selection.connect("selection-changed", redraw, "selection-changed")
-        self._selection.connect("focus-changed", redraw, "focus-changed")
-        self._selection.connect("hover-changed", redraw, "hover-changed")
-        self._selection.connect("dropzone-changed", redraw, "dropzone-changed")
+        self._selection.add_handler(self.queue_redraw)
 
     def do_get_property(self, prop: str) -> object:
         return self._scrolling.get_property(prop)

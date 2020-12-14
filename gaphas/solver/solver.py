@@ -51,15 +51,15 @@ class Solver:
         self._solving = False
         self._handlers: Set[Callable[[Constraint], None]] = set()
 
-    def add_handler(self, handler):
+    def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         """Add a callback handler, triggered when a constraint is resolved."""
         self._handlers.add(handler)
 
-    def remove_handler(self, handler):
+    def remove_handler(self, handler: Callable[[Constraint], None]) -> None:
         """Remove a previously assigned handler."""
         self._handlers.discard(handler)
 
-    def _notify(self, constraint):
+    def _notify(self, constraint: Constraint) -> None:
         for handler in self._handlers:
             handler(constraint)
 
