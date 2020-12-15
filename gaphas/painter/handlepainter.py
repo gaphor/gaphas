@@ -77,6 +77,6 @@ class HandlePainter:
         for item in model.sort(selection.selected_items):
             self._draw_handles(item, cairo)
         # Draw nice opaque handles when hovering an item:
-        item = selection.hovered_item
-        if item and item not in selection.selected_items:
-            self._draw_handles(item, cairo, opacity=0.25)
+        hovered = selection.hovered_item
+        if hovered and hovered not in selection.selected_items:
+            self._draw_handles(hovered, cairo, opacity=0.25)

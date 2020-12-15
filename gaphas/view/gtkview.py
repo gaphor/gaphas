@@ -258,9 +258,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         )
         return self._model.sort(items)
 
-    def get_item_bounding_box(self, item: Item) -> Rect:
+    def get_item_bounding_box(self, item: Item) -> Rectangle:
         """Get the bounding box for the item, in view coordinates."""
-        return self._qtree.get_bounds(item)
+        return Rectangle(*self._qtree.get_bounds(item))
 
     def queue_redraw(self) -> None:
         """Redraw the entire view."""
