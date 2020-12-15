@@ -40,12 +40,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     # Just defined a name to make GTK register this class.
     __gtype_name__ = "GaphasView"
 
-    # Signals: emitted after the change takes effect.
-    __gsignals__ = {
-        "tool-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
-        "painter-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
-    }
-
+    # properties required by Gtk.Scrollable
     __gproperties__ = {
         "hscroll-policy": (
             Gtk.ScrollablePolicy,
@@ -176,7 +171,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     @painter.setter
     def painter(self, painter: Painter) -> None:
         self._painter = painter
-        self.emit("painter-changed")
 
     @property
     def bounding_box_painter(self) -> Painter:
