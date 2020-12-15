@@ -19,11 +19,7 @@ class HandlePainter:
         self.view = view
 
     def _draw_handles(
-        self,
-        item: Item,
-        cairo: CairoContext,
-        opacity: Optional[float] = None,
-        inner: bool = False,
+        self, item: Item, cairo: CairoContext, opacity: Optional[float] = None,
     ) -> None:
         """Draw handles for an item.
 
@@ -60,8 +56,6 @@ class HandlePainter:
             cairo.identity_matrix()
             cairo.translate(vx, vy)
             cairo.rectangle(-4, -4, 8, 8)
-            if inner:
-                cairo.rectangle(-3, -3, 6, 6)
             cairo.set_source_rgba(r, g, b, opacity)
             cairo.fill_preserve()
             if h.connectable:
@@ -86,6 +80,3 @@ class HandlePainter:
         item = selection.hovered_item
         if item and item not in selection.selected_items:
             self._draw_handles(item, cairo, opacity=0.25)
-        item = selection.dropzone_item
-        if item and item not in selection.selected_items:
-            self._draw_handles(item, cairo, opacity=0.25, inner=True)

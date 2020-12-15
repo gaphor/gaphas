@@ -30,7 +30,6 @@ class DrawContext:
     selected: bool
     focused: bool
     hovered: bool
-    dropzone: bool
 
 
 @runtime_checkable
@@ -67,7 +66,7 @@ class Item(Protocol):
         attributes:
 
         * `cairo`: the CairoContext use this one to draw
-        * `selected`, `focused`, `hovered`, `dropzone`: view state of items
+        * `selected`, `focused`, `hovered`: view state of items
           (True/False)
         """
 

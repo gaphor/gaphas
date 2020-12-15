@@ -8,7 +8,6 @@ class Selection:
         self._selected_items = set()
         self._focused_item = None
         self._hovered_item = None
-        self._dropzone_item = None
         self._handlers: Set[Callable[[], None]] = set()
 
     def add_handler(self, handler: Callable[[], None]) -> None:
@@ -27,7 +26,6 @@ class Selection:
         self._selected_items.clear()
         self._focused_item = None
         self._hovered_item = None
-        self._dropzone_item = None
 
     @property
     def selected_items(self):
@@ -41,10 +39,6 @@ class Selection:
     def hovered_item(self):
         return self._hovered_item
 
-    @property
-    def dropzone_item(self):
-        return self._dropzone_item
-
     def select_items(self, *items):
         for item in items:
             if item not in self._selected_items:
@@ -54,8 +48,6 @@ class Selection:
     def unselect_item(self, item):
         if item is self._hovered_item:
             self.set_hovered_item(None)
-        if item is self._dropzone_item:
-            self.set_dropzone_item(None)
         if item is self._focused_item:
             self.set_focused_item(None)
         if item in self._selected_items:
@@ -73,11 +65,6 @@ class Selection:
     def set_hovered_item(self, item):
         if item is not self._hovered_item:
             self._hovered_item = item
-            self.notify()
-
-    def set_dropzone_item(self, item):
-        if item is not self._dropzone_item:
-            self._dropzone_item = item
             self.notify()
 
     def unselect_all(self):

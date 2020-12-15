@@ -30,7 +30,6 @@ class ItemPainter:
                     selected=(item in selection.selected_items),
                     focused=(item is selection.focused_item),
                     hovered=(item is selection.hovered_item),
-                    dropzone=(item is selection.dropzone_item),
                 )
             )
 
