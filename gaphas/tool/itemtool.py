@@ -72,7 +72,7 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
         gesture.set_state(Gtk.EventSequenceState.DENIED)
         return
 
-    selection.set_focused_item(item)
+    selection.focused_item = item
     gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
     if handle:

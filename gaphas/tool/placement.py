@@ -35,7 +35,7 @@ def on_drag_begin(gesture, start_x, start_y, placement_state):
     x, y = view.get_matrix_v2i(item).transform_point(start_x, start_y)
     item.matrix.translate(x, y)
     view.selection.unselect_all()
-    view.selection.set_focused_item(item)
+    view.selection.focused_item = item
 
     gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 

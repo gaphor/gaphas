@@ -17,7 +17,7 @@ def hover_tool(view: GtkView) -> Gtk.EventController:
 
 def on_motion(ctrl, x, y):
     view = ctrl.get_widget()
-    view.selection.set_hovered_item(find_item_at_point(view, (x, y)))
+    view.selection.hovered_item = find_item_at_point(view, (x, y))
 
 
 def find_item_at_point(view: GtkView, pos: Pos) -> Optional[Item]:

@@ -36,7 +36,7 @@ def test_custom_selection_setter():
 def test_item_removal(view, canvas, box):
     assert len(list(canvas.get_all_items())) == len(view._qtree)
 
-    view.selection.set_focused_item(box)
+    view.selection.focused_item = box
     canvas.remove(box)
 
     assert len(list(canvas.get_all_items())) == 0

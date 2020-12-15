@@ -1,13 +1,14 @@
-from typing import Callable, Set
+from typing import Callable, Collection, Optional, Set
+
+from gaphas.item import Item
 
 
 class Selection:
     def __init__(self):
         super().__init__()
-        # Handling selections.
-        self._selected_items = set()
-        self._focused_item = None
-        self._hovered_item = None
+        self._selected_items: Set[Item] = set()
+        self._focused_item: Optional[Item] = None
+        self._hovered_item: Optional[Item] = None
         self._handlers: Set[Callable[[], None]] = set()
 
     def add_handler(self, handler: Callable[[], None]) -> None:
@@ -26,35 +27,41 @@ class Selection:
         self._selected_items.clear()
         self._focused_item = None
         self._hovered_item = None
+        self.notify()
 
     @property
-    def selected_items(self):
+    def selected_items(self) -> Collection[Item]:
         return self._selected_items
 
-    @property
-    def focused_item(self):
-        return self._focused_item
-
-    @property
-    def hovered_item(self):
-        return self._hovered_item
-
-    def select_items(self, *items):
+    def select_items(self, *items: Item) -> None:
         for item in items:
             if item not in self._selected_items:
                 self._selected_items.add(item)
                 self.notify()
 
-    def unselect_item(self, item):
-        if item is self._hovered_item:
-            self.set_hovered_item(None)
+    def unselect_item(self, item: Item) -> None:
+        """Unselect an item.
+
+        If it's focused, it will be unfocused as well.
+        """
         if item is self._focused_item:
-            self.set_focused_item(None)
+            self._focused_item = None
         if item in self._selected_items:
             self._selected_items.discard(item)
             self.notify()
 
-    def set_focused_item(self, item):
+    def unselect_all(self) -> None:
+        """Clearing the selected_item also clears the focused_item."""
+        for item in list(self._selected_items):
+            self.unselect_item(item)
+        self.focused_item = None
+
+    @property
+    def focused_item(self) -> Optional[Item]:
+        return self._focused_item
+
+    @focused_item.setter
+    def focused_item(self, item: Optional[Item]) -> None:
         if item:
             self.select_items(item)
 
@@ -62,13 +69,12 @@ class Selection:
             self._focused_item = item
             self.notify()
 
-    def set_hovered_item(self, item):
+    @property
+    def hovered_item(self) -> Optional[Item]:
+        return self._hovered_item
+
+    @hovered_item.setter
+    def hovered_item(self, item: Optional[Item]) -> None:
         if item is not self._hovered_item:
             self._hovered_item = item
             self.notify()
-
-    def unselect_all(self):
-        """Clearing the selected_item also clears the focused_item."""
-        for item in list(self._selected_items):
-            self.unselect_item(item)
-        self.set_focused_item(None)
