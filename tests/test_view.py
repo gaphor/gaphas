@@ -4,13 +4,33 @@ import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
-from gaphas.view import GtkView
+from gaphas.view import GtkView, Selection
 
 
 @pytest.fixture(autouse=True)
 def main_loop(window, box):
     while Gtk.events_pending():
         Gtk.main_iteration()
+
+
+class CustomSelection(Selection):
+    pass
+
+
+def test_custom_selection():
+    custom_selection = CustomSelection()
+    view = GtkView(selection=custom_selection)
+
+    assert view.selection is custom_selection
+
+
+def test_custom_selection_setter():
+    custom_selection = CustomSelection()
+    view = GtkView()
+
+    view.selection = custom_selection
+
+    assert view.selection is custom_selection
 
 
 def test_item_removal(view, canvas, box):

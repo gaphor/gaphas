@@ -75,7 +75,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         ),
     }
 
-    def __init__(self, model: Optional[Model] = None):
+    def __init__(self, model: Optional[Model] = None, selection: Selection = None):
+        """Create a new view.
+
+        Args:
+            model (Model): optional model to be set on construction time.
+            selection (Selection): optional selection object, in case the default
+                selection object (hover/select/focus) is not enough.
+        """
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
@@ -106,7 +113,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._scrolling = Scrolling(alignment_updated)
 
-        self._selection = Selection()
+        self._selection = selection or Selection()
 
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
@@ -179,12 +186,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     @bounding_box_painter.setter
     def bounding_box_painter(self, painter: Painter) -> None:
         self._bounding_box_painter = painter
-        self.emit("painter-changed")
 
     @property
     def selection(self) -> Selection:
         """Selected, focused and hovered items."""
         return self._selection
+
+    @selection.setter
+    def selection(self, selection: Selection) -> None:
+        """Selected, focused and hovered items."""
+        self._selection = selection
+        self.queue_redraw()
 
     @property
     def bounding_box(self) -> Rectangle:
