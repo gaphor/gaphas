@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Callable, Set
+from typing import Callable, Collection, Set
 
-from typing_extensions import Protocol
+from typing_extensions import Protocol, runtime_checkable
 
 from gaphas.solver.variable import Variable
 
 
+@runtime_checkable
 class Constraint(Protocol):
     def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         ...
@@ -15,6 +16,13 @@ class Constraint(Protocol):
         ...
 
     def solve(self) -> None:
+        ...
+
+
+@runtime_checkable
+class ContainsConstraints(Protocol):
+    @property
+    def constraints(self) -> Collection[Constraint]:
         ...
 
 
@@ -111,6 +119,10 @@ class MultiConstraint:
 
     def __init__(self, *constraints: Constraint):
         self._constraints = constraints
+
+    @property
+    def constraints(self) -> Collection[Constraint]:
+        return self._constraints
 
     def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         for c in self._constraints:

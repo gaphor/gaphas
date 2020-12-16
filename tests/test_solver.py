@@ -2,7 +2,7 @@
 import pytest
 
 from gaphas.constraint import EqualsConstraint, EquationConstraint, LessThanConstraint
-from gaphas.solver import REQUIRED, JuggleError, Solver, Variable
+from gaphas.solver import REQUIRED, JuggleError, MultiConstraint, Solver, Variable
 
 
 def test_weakest_list_order():
@@ -84,3 +84,51 @@ def test_juggle_error_is_raised_when_constraints_can_not_be_resolved():
 
     with pytest.raises(JuggleError):
         solver.solve()
+
+
+def test_notify_for_nested_constraint():
+    events = []
+    solver = Solver()
+    a = Variable()
+    b = Variable()
+    nested = EqualsConstraint(a, b)
+    multi = MultiConstraint(nested)
+
+    solver.add_constraint(multi)
+    solver.solve()
+
+    def handler(constraint):
+        events.append(constraint)
+
+    solver.add_handler(handler)
+
+    a.value = 10
+
+    solver.solve()
+
+    assert multi in events
+    assert nested not in events
+
+
+def test_notify_for_double_nested_constraint():
+    events = []
+    solver = Solver()
+    a = Variable()
+    b = Variable()
+    nested = EqualsConstraint(a, b)
+    multi = MultiConstraint(nested)
+    outer = MultiConstraint(multi)
+
+    solver.add_constraint(outer)
+    solver.solve()
+
+    def handler(constraint):
+        events.append(constraint)
+
+    solver.add_handler(handler)
+
+    a.value = 10
+
+    solver.solve()
+
+    assert outer in events

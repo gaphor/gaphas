@@ -32,9 +32,10 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
-from typing import Callable, Collection, List, Set
+import functools
+from typing import Callable, Collection, List, Optional, Set
 
-from gaphas.solver.constraint import Constraint
+from gaphas.solver.constraint import Constraint, ContainsConstraints
 from gaphas.state import observed, reversible_pair
 
 
@@ -60,8 +61,13 @@ class Solver:
         self._handlers.discard(handler)
 
     def _notify(self, constraint: Constraint) -> None:
+        my_constraint = self._find_containing_constraint(constraint)
         for handler in self._handlers:
-            handler(constraint)
+            handler(my_constraint)
+
+    @functools.lru_cache()
+    def _find_containing_constraint(self, constraint: Constraint) -> Constraint:
+        return find_containing_constraint(constraint, self._constraints) or constraint
 
     @property
     def constraints(self) -> Collection[Constraint]:
@@ -184,6 +190,19 @@ class Solver:
             self._marked_cons = []
         finally:
             self._solving = False
+
+
+def find_containing_constraint(
+    constraint: Constraint, constraints: Collection[Constraint]
+) -> Optional[Constraint]:
+    if constraint in constraints:
+        return constraint
+
+    for cs in constraints:
+        if isinstance(cs, ContainsConstraints):
+            if find_containing_constraint(constraint, cs.constraints):
+                return find_containing_constraint(cs, constraints)
+    return None
 
 
 class JuggleError(AssertionError):
