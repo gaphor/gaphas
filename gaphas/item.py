@@ -169,7 +169,7 @@ class Element(Matrices):
         Variable(20, 40)
         """
         h = self._handles
-        h[SE].pos.x = h[NW].pos.x + width
+        h[SE].pos.x = h[NE].pos.x = h[NW].pos.x + width
 
     @property
     def height(self) -> float:
@@ -193,7 +193,7 @@ class Element(Matrices):
         Variable(2, 40)
         """
         h = self._handles
-        h[SE].pos.y = h[NW].pos.y + height
+        h[SE].pos.y = h[SW].pos.y = h[NW].pos.y + height
 
     def handles(self) -> Sequence[Handle]:
         """Return a list of handles owned by the item."""
