@@ -3,6 +3,14 @@ import pytest
 
 from gaphas.constraint import EqualsConstraint, EquationConstraint, LessThanConstraint
 from gaphas.solver import REQUIRED, JuggleError, MultiConstraint, Solver, Variable
+from gaphas.solver.constraint import Constraint, ContainsConstraints
+
+
+def test_solver_implements_constraint_protocol():
+    solver = Solver()
+
+    assert isinstance(solver, Constraint)
+    assert isinstance(solver, ContainsConstraints)
 
 
 def test_weakest_list_order():

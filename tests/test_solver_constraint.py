@@ -1,6 +1,7 @@
 import pytest
 
 from gaphas.solver import BaseConstraint, MultiConstraint, Variable
+from gaphas.solver.constraint import Constraint, ContainsConstraints
 
 
 @pytest.fixture
@@ -12,6 +13,19 @@ def handler():
 
     handler.events = events  # type: ignore[attr-defined]
     return handler
+
+
+def test_base_constraint_implements_constraint_protocol():
+    c = BaseConstraint(Variable())
+
+    assert isinstance(c, Constraint)
+
+
+def test_multi_constraint_implements_constraint_protocol():
+    c = MultiConstraint()
+
+    assert isinstance(c, Constraint)
+    assert isinstance(c, ContainsConstraints)
 
 
 def test_constraint_propagates_variable_changed(handler):
