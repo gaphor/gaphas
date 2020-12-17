@@ -22,7 +22,6 @@ This library is currently being used by [Gaphor](https://github.com/gaphor/gapho
 - [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
-- [API](#api)
 - [Contributing](#contributing)
 - [License](#license)
 
