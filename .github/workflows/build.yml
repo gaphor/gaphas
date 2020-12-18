@@ -3,7 +3,7 @@ name: build
 on:
   push:
   release:
-    types: [created, edited, published, prereleased]
+    types: [created, edited, published]
 
 env:
   POETRY_VERSION: 1.0.10
