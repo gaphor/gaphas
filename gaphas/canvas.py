@@ -261,7 +261,11 @@ class Canvas:
         elif matrix:
             self._update_views(dirty_matrix_items=(item,))
 
-    reversible_method(request_update, reverse=request_update)
+    reversible_method(
+        request_update,
+        reverse=request_update,
+        bind={"update": lambda: True, "matrix": lambda: True},
+    )
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""
