@@ -12,5 +12,4 @@ def view_focus_tool(view):
 def on_begin(gesture, sequence):
     view = gesture.get_widget()
     if not view.is_focus():
-        print("Grab me focus")
         view.grab_focus()
