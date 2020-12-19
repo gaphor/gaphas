@@ -34,4 +34,5 @@ from gaphas.tool.itemtool import item_tool
 from gaphas.tool.placement import placement_tool
 from gaphas.tool.rubberband import rubberband_tool
 from gaphas.tool.scroll import scroll_tool
+from gaphas.tool.viewfocus import view_focus_tool
 from gaphas.tool.zoom import zoom_tool

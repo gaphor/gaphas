@@ -28,7 +28,14 @@ from gaphas.painter import (
     PainterChain,
 )
 from gaphas.segment import LineSegmentPainter, Segment, segment_tool
-from gaphas.tool import hover_tool, item_tool, placement_tool, scroll_tool, zoom_tool
+from gaphas.tool import (
+    hover_tool,
+    item_tool,
+    placement_tool,
+    scroll_tool,
+    view_focus_tool,
+    zoom_tool,
+)
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
 
@@ -115,6 +122,7 @@ def apply_default_tool_set(view):
     view.add_controller(item_tool(view))
     view.add_controller(scroll_tool(view))
     view.add_controller(zoom_tool(view))
+    view.add_controller(view_focus_tool(view))
 
     view.add_controller(rubberband_tool(view, rubberband_state(view)))
     view.add_controller(hover_tool(view))
@@ -130,6 +138,7 @@ def apply_placement_tool_set(view, item_type, handle_index):
     tool.connect("drag-end", unset_placement_tool)
     view.add_controller(scroll_tool(view))
     view.add_controller(zoom_tool(view))
+    view.add_controller(view_focus_tool(view))
     view.add_controller(tool)
 
 
