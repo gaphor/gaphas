@@ -110,7 +110,7 @@ class BoundingBoxPainter:
         bounds = bbctx.get_bounds()
 
         # Update bounding box with handles.
-        i2c = item.matrix_i2c.transform_point
+        i2c = item.matrix_i2c().transform_point
         for h in item.handles():
             cx, cy = cairo.user_to_device(*i2c(*h.pos))
             bounds += (cx - 5, cy - 5, 9, 9)

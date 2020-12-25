@@ -25,19 +25,19 @@ def create_canvas(canvas, title):
 
     # Draw first gaphas box
     b1 = Box(60, 60)
-    b1.matrix.translate(10, 10)
+    b1.matrix().translate(10, 10)
     canvas.add(b1)
 
     # Draw second gaphas box
     b2 = Box(60, 60)
     b2.min_width = 40
     b2.min_height = 50
-    b2.matrix.translate(170, 170)
+    b2.matrix().translate(170, 170)
     canvas.add(b2)
 
     # Draw gaphas line
     line = Line(canvas.connections)
-    line.matrix.translate(100, 60)
+    line.matrix().translate(100, 60)
     canvas.add(line)
     line.handles()[1].pos = (30, 30)
 

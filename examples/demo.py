@@ -369,36 +369,36 @@ def create_canvas(c=None):
     b = MyBox(c.connections)
     b.min_width = 20
     b.min_height = 30
-    b.matrix.translate(20, 20)
+    b.matrix().translate(20, 20)
     b.width = b.height = 40
     c.add(b)
 
     bb = Box(c.connections)
-    bb.matrix.translate(10, 10)
+    bb.matrix().translate(10, 10)
     c.add(bb, parent=b)
 
     bb = Box(c.connections)
-    bb.matrix.rotate(math.pi / 1.567)
+    bb.matrix().rotate(math.pi / 1.567)
     c.add(bb, parent=b)
 
     circle = Circle()
     h1, h2 = circle.handles()
     circle.radius = 20
-    circle.matrix.translate(50, 160)
+    circle.matrix().translate(50, 160)
     c.add(circle)
 
     pb = Box(c.connections, 60, 60)
     pb.min_width = 40
     pb.min_height = 50
-    pb.matrix.translate(100, 20)
+    pb.matrix().translate(100, 20)
     c.add(pb)
 
     ut = UnderlineText()
-    ut.matrix.translate(100, 130)
+    ut.matrix().translate(100, 130)
     c.add(ut)
 
     t = MyText("Single line")
-    t.matrix.translate(100, 170)
+    t.matrix().translate(100, 170)
     c.add(t)
 
     line = MyLine(c.connections)
@@ -406,7 +406,7 @@ def create_canvas(c=None):
     line.handles()[1].pos = (30, 30)
     segment = Segment(line, c)
     segment.split_segment(0, 3)
-    line.matrix.translate(30, 80)
+    line.matrix().translate(30, 80)
     line.orthogonal = True
 
     return c

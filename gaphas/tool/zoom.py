@@ -26,8 +26,8 @@ def zoom_tool(view: GtkView) -> Gtk.GestureZoom:
 def on_begin(gesture: Gtk.GestureZoom, sequence: None, zoom_data: ZoomData,) -> None:
     _, zoom_data.x0, zoom_data.y0 = gesture.get_point(sequence)
     view = gesture.get_widget()
-    zoom_data.sx = view.matrix[0]
-    zoom_data.sy = view.matrix[3]
+    zoom_data.sx = view.matrix()[0]
+    zoom_data.sy = view.matrix()[3]
 
 
 def on_scale_changed(
@@ -39,7 +39,7 @@ def on_scale_changed(
         scale = 20.0 / zoom_data.sx
 
     view = gesture.get_widget()
-    m = view.matrix
+    m = view.matrix()
     sx = m[0]
     sy = m[3]
     ox = (m[4] - zoom_data.x0) / sx

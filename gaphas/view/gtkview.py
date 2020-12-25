@@ -130,14 +130,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def do_set_property(self, prop: str, value: object) -> None:
         self._scrolling.set_property(prop, value)
 
-    @property
     def matrix(self) -> Matrix:
         """Model root to view transformation matrix."""
         return self._matrix
 
     def get_matrix_i2v(self, item: Item) -> Matrix:
         """Get Item to View matrix for ``item``."""
-        return item.matrix_i2c.multiply(self._matrix)
+        return item.matrix_i2c().multiply(self._matrix)
 
     def get_matrix_v2i(self, item: Item) -> Matrix:
         """Get View to Item matrix for ``item``."""
@@ -240,7 +239,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def zoom(self, factor: float) -> None:
         """Zoom in/out by factor ``factor``."""
         assert self._model
-        self.matrix.scale(factor, factor)
+        self.matrix().scale(factor, factor)
         self.request_update((), self._model.get_all_items())
 
     def get_items_in_rectangle(
@@ -367,7 +366,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             else instant_cairo_context()
         )
 
-        cr.set_matrix(self.matrix.to_cairo())
+        cr.set_matrix(self._matrix.to_cairo())
         cr.save()
         cr.rectangle(0, 0, 0, 0)
         cr.clip()
@@ -413,7 +412,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 (0, 0, allocation.width, allocation.height)
             )
 
-            cr.set_matrix(self.matrix.to_cairo())
+            cr.set_matrix(self.matrix().to_cairo())
             cr.save()
             self.painter.paint(list(items), cr)
             cr.restore()

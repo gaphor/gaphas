@@ -229,7 +229,7 @@ class Canvas:
             present yet. Note that out-of-date matrices are not
             recalculated.
         """
-        m = item.matrix
+        m = item.matrix()
 
         parent = self._tree.get_parent(item)
         if parent is not None:
@@ -277,9 +277,9 @@ class Canvas:
         try:
             # keep it here, since we need up to date matrices for the solver
             for d in dirty_items:
-                d.matrix_i2c.set(*self.get_matrix_i2c(d))
+                d.matrix_i2c().set(*self.get_matrix_i2c(d))
             for d in dirty_matrix_items:
-                d.matrix_i2c.set(*self.get_matrix_i2c(d))
+                d.matrix_i2c().set(*self.get_matrix_i2c(d))
 
             # solve all constraints
             self._connections.solve()

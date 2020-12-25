@@ -85,8 +85,8 @@ def test_get_handle_at_point(view, canvas, connections):
     box = Box(connections)
     box.min_width = 20
     box.min_height = 30
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 1.5)
+    box.matrix().translate(20, 20)
+    box.matrix().rotate(math.pi / 1.5)
     canvas.add(box)
 
     i, h = handle_at_point(view, (20, 20))
@@ -98,8 +98,8 @@ def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
     box = Box(connections)
     box.min_width = 20
     box.min_height = 30
-    box.matrix.translate(20, 20)
-    box.matrix.rotate(math.pi / 2)
+    box.matrix().translate(20, 20)
+    box.matrix().rotate(math.pi / 2)
     canvas.add(box)
 
     i, h = handle_at_point(view, (20, 20))

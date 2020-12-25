@@ -84,29 +84,29 @@ def test_guide_item_in_motion(connections, canvas, view, window):
     canvas.add(e2)
     canvas.add(e3)
 
-    assert 0 == e1.matrix[4]
-    assert 0 == e1.matrix[5]
+    assert 0 == e1.matrix()[4]
+    assert 0 == e1.matrix()[5]
 
-    e2.matrix.translate(40, 40)
+    e2.matrix().translate(40, 40)
     canvas.request_update(e2)
-    assert 40 == e2.matrix[4]
-    assert 40 == e2.matrix[5]
+    assert 40 == e2.matrix()[4]
+    assert 40 == e2.matrix()[5]
 
     guider = GuidedItemMove(e3, view)
 
     guider.start_move((0, 0))
-    assert 0 == e3.matrix[4]
-    assert 0 == e3.matrix[5]
+    assert 0 == e3.matrix()[4]
+    assert 0 == e3.matrix()[5]
 
     # Moved back to guided lines:
     for d in range(3):
         guider.move((d, d))
-        assert 0 == e3.matrix[4]
-        assert 0 == e3.matrix[5]
+        assert 0 == e3.matrix()[4]
+        assert 0 == e3.matrix()[5]
 
     guider.move((20, 20))
-    assert 20 == e3.matrix[4]
-    assert 20 == e3.matrix[5]
+    assert 20 == e3.matrix()[4]
+    assert 20 == e3.matrix()[5]
 
 
 def test_guide_item_in_motion_2(connections, canvas, view):
@@ -117,27 +117,27 @@ def test_guide_item_in_motion_2(connections, canvas, view):
     canvas.add(e2)
     canvas.add(e3)
 
-    assert 0 == e1.matrix[4]
-    assert 0 == e1.matrix[5]
+    assert 0 == e1.matrix()[4]
+    assert 0 == e1.matrix()[5]
 
-    e2.matrix.translate(40, 40)
+    e2.matrix().translate(40, 40)
     canvas.request_update(e2)
-    assert 40 == e2.matrix[4]
-    assert 40 == e2.matrix[5]
+    assert 40 == e2.matrix()[4]
+    assert 40 == e2.matrix()[5]
 
     guider = GuidedItemMove(e3, view)
 
     guider.start_move((3, 3))
-    assert 0 == e3.matrix[4]
-    assert 0 == e3.matrix[5]
+    assert 0 == e3.matrix()[4]
+    assert 0 == e3.matrix()[5]
 
     # Moved back to guided lines:
     for y in range(4, 6):
         guider.move((3, y))
-        assert 0 == e3.matrix[4]
-        assert 0 == e3.matrix[5]
+        assert 0 == e3.matrix()[4]
+        assert 0 == e3.matrix()[5]
 
     # Take into account initial cursor offset of (3, 3)
     guider.move((20, 23))
-    assert 17 == e3.matrix[4]
-    assert 20 == e3.matrix[5]
+    assert 17 == e3.matrix()[4]
+    assert 20 == e3.matrix()[5]

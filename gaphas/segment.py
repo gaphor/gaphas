@@ -40,7 +40,7 @@ class LineSegment:
     def split(self, pos):
         item = self.item
         handles = item.handles()
-        x, y = item.matrix_i2c.inverse().transform_point(*pos)
+        x, y = item.matrix_i2c().inverse().transform_point(*pos)
         for h1, h2 in zip(handles, handles[1:]):
             xp = (h1.pos.x + h2.pos.x) / 2
             yp = (h1.pos.y + h2.pos.y) / 2
@@ -232,7 +232,7 @@ def maybe_split_segment(view, item, pos):
         except TypeError:
             pass
         else:
-            cpos = view.matrix.inverse().transform_point(*pos)
+            cpos = view.matrix().inverse().transform_point(*pos)
             handle = segment.split(cpos)
     return handle
 
@@ -283,7 +283,9 @@ class LineSegmentPainter:
                 p1, p2 = h1.pos, h2.pos
                 cx = (p1.x + p2.x) / 2
                 cy = (p1.y + p2.y) / 2
-                vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
+                vx, vy = cairo.user_to_device(
+                    *item.matrix_i2c().transform_point(cx, cy)
+                )
                 cairo.save()
                 cairo.set_antialias(ANTIALIAS_NONE)
                 cairo.identity_matrix()

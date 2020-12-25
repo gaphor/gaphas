@@ -14,5 +14,5 @@ def test_offset_changes(view):
 
     on_scroll(tool, 10, 10, 1)
 
-    assert view.matrix[4] == -10
-    assert view.matrix[5] == -10
+    assert view.matrix()[4] == -10
+    assert view.matrix()[5] == -10

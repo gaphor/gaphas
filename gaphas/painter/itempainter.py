@@ -21,7 +21,7 @@ class ItemPainter:
     def paint_item(self, item: Item, cairo: CairoContext) -> None:
         cairo.save()
         try:
-            cairo.transform(item.matrix_i2c.to_cairo())
+            cairo.transform(item.matrix_i2c().to_cairo())
 
             selection = self.selection
             item.draw(

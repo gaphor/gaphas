@@ -50,7 +50,7 @@ class HandlePainter:
             else:
                 r, g, b = 0, 0, 1
 
-            vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(*h.pos))
+            vx, vy = cairo.user_to_device(*item.matrix_i2c().transform_point(*h.pos))
 
             cairo.save()
             cairo.identity_matrix()

@@ -33,7 +33,7 @@ def on_drag_begin(gesture, start_x, start_y, placement_state):
     view = gesture.get_widget()
     item = placement_state.factory()
     x, y = view.get_matrix_v2i(item).transform_point(start_x, start_y)
-    item.matrix.translate(x, y)
+    item.matrix().translate(x, y)
     view.selection.unselect_all()
     view.selection.focused_item = item
 

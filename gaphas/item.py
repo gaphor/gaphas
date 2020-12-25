@@ -39,11 +39,9 @@ class Item(Protocol):
     All items that are rendered on a view.
     """
 
-    @property
     def matrix(self) -> Matrix:
         """The "local", item-to-parent matrix."""
 
-    @property
     def matrix_i2c(self) -> Matrix:
         """Matrix from item to toplevel."""
 
@@ -72,8 +70,8 @@ class Item(Protocol):
 
 
 def matrix_i2i(from_item: Item, to_item: Item) -> Matrix:
-    i2c = from_item.matrix_i2c
-    c2i = to_item.matrix_i2c.inverse()
+    i2c = from_item.matrix_i2c()
+    c2i = to_item.matrix_i2c().inverse()
     return i2c.multiply(c2i)
 
 
@@ -83,11 +81,9 @@ class Matrices:
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
 
-    @property
     def matrix(self) -> Matrix:
         return self._matrix
 
-    @property
     def matrix_i2c(self) -> Matrix:
         return self._matrix_i2c
 

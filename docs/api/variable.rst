@@ -7,7 +7,7 @@ it easy to work with.
 Next to that there's Position, which is a coordinate ``(x, y)`` defined by two variables.
 
 To support connections between variables, a ``MatrixProjection`` class is available. It translates
-a position to a common coordinate space, baed on ``Item.matrix_i2c``. Normally, it's only ``Ports`` that
+a position to a common coordinate space, based on ``Item.matrix_i2c()``. Normally, it's only ``Ports`` that
 deal with item-to-common translation of positions.
 
 .. autoclass:: gaphas.solver.Variable
