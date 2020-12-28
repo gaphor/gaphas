@@ -1,6 +1,6 @@
 repos:
-  - repo: https://github.com/ambv/black
-    rev: 19.10b0
+  - repo: https://github.com/psf/black
+    rev: 20.8b1
     hooks:
       - id: black
         language_version: python3
@@ -9,21 +9,21 @@ repos:
     hooks:
       - id: mypy
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.8.4
     hooks:
       - id: flake8
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.4.0
     hooks:
       - id: check-toml
       - id: check-yaml
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.4.2
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.6.4
     hooks:
       - id: isort
         additional_dependencies: [toml]
   - repo: https://github.com/myint/docformatter
-    rev: v1.3.1
+    rev: v1.4
     hooks:
       - id: docformatter
         args: [--in-place]
