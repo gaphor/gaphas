@@ -99,7 +99,8 @@ class BoundingBoxPainter:
     draw_all = True
 
     def __init__(
-        self, item_painter: ItemPainterType,
+        self,
+        item_painter: ItemPainterType,
     ):
         self.item_painter = item_painter
 
