@@ -150,7 +150,10 @@ class ElementHandleMove(ItemHandleMove):
 
 
 def port_at_point(
-    view: GtkView, vpos: Pos, distance: float = 10, exclude: Sequence[Item] = (),
+    view: GtkView,
+    vpos: Pos,
+    distance: float = 10,
+    exclude: Sequence[Item] = (),
 ) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
     """Find item with port closest to specified position.
 

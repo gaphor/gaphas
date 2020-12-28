@@ -147,5 +147,6 @@ class FreeHandPainter:
 
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         self.subpainter.paint(
-            items, FreeHandCairoContext(cairo, self.sloppiness),
+            items,
+            FreeHandCairoContext(cairo, self.sloppiness),
         )

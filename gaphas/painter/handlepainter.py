@@ -19,7 +19,10 @@ class HandlePainter:
         self.view = view
 
     def _draw_handles(
-        self, item: Item, cairo: CairoContext, opacity: Optional[float] = None,
+        self,
+        item: Item,
+        cairo: CairoContext,
+        opacity: Optional[float] = None,
     ) -> None:
         """Draw handles for an item.
 

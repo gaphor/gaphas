@@ -6,7 +6,8 @@ from gaphas.view import GtkView
 def scroll_tool(view: GtkView, speed: int = 5) -> Gtk.EventControllerScroll:
     """Scroll tool recognized 2 finger scroll gestures."""
     ctrl = Gtk.EventControllerScroll.new(
-        view, Gtk.EventControllerScrollFlags.BOTH_AXES,
+        view,
+        Gtk.EventControllerScrollFlags.BOTH_AXES,
     )
     ctrl.connect("scroll", on_scroll, speed)
     return ctrl
