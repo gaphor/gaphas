@@ -112,7 +112,6 @@ class Element(Matrices):
         **kwargs: object
     ) -> None:
         super().__init__(**kwargs)
-        self._connections = connections
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
 
         handles = self._handles
