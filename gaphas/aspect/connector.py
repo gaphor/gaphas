@@ -6,7 +6,6 @@ from typing_extensions import Protocol
 from gaphas.connections import Connections
 from gaphas.connector import Handle, Port
 from gaphas.item import Item, matrix_i2i
-from gaphas.types import Pos
 
 
 class ConnectionSinkType(Protocol):
@@ -14,9 +13,6 @@ class ConnectionSinkType(Protocol):
     port: Port
 
     def __init__(self, item: Item, port: Port):
-        ...
-
-    def find_port(self, pos: Pos) -> Optional[Port]:
         ...
 
 
@@ -102,22 +98,6 @@ class ItemConnectionSink:
     def __init__(self, item: Item, port: Port):
         self.item = item
         self.port = port
-
-    def find_port(self, pos: Pos) -> Optional[Port]:
-        """Glue to the closest item on the canvas.
-
-        If the item can connect, it returns a port.
-        """
-        port = None
-        max_dist = 10e6
-        for p in self.item.ports():
-            pg, d = p.glue(pos)
-            if d >= max_dist:
-                continue
-            port = p
-            max_dist = d
-
-        return port
 
 
 ConnectionSink = singledispatch(ItemConnectionSink)

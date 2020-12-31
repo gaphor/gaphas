@@ -5,7 +5,6 @@ from typing import Optional
 from cairo import ANTIALIAS_NONE
 from gi.repository import Gtk
 
-from gaphas.aspect.connector import ConnectionSink
 from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
@@ -153,14 +152,21 @@ class LineSegment:
         model = self.model
 
         def find_port(line, handle, item):
-            # port = None
-            # max_dist = sys.maxint
+            """Glue to the closest item on the canvas.
 
-            ix, iy = matrix_i2i(line, item).transform_point(*handle.pos)
+            If the item can connect, it returns a port.
+            """
+            pos = matrix_i2i(line, item).transform_point(*handle.pos)
+            port = None
+            max_dist = 10e6
+            for p in item.ports():
+                pg, d = p.glue(pos)
+                if d >= max_dist:
+                    continue
+                port = p
+                max_dist = d
 
-            # find the port using item's coordinates
-            sink = ConnectionSink(item, None)
-            return sink.find_port((ix, iy))
+            return port
 
         for cinfo in list(model.connections.get_connections(connected=connected)):
             item, handle = cinfo.item, cinfo.handle
