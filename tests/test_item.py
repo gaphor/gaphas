@@ -19,7 +19,6 @@ def test_can_pass_arbitrary_arguments_to_an_element(connections):
     t = Test(connections, custom="custom")
 
     assert t.custom == "custom"
-    assert t._connections is connections
 
 
 def test_can_pass_arbitrary_arguments_to_a_line(connections):

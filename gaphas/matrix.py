@@ -92,7 +92,6 @@ class Matrix:
         if updated:
             self.notify()
 
-    # TODO: Make reversible
     reversible_method(invert, invert)
     reversible_method(rotate, rotate, {"radians": lambda radians: -radians})
     reversible_method(scale, scale, {"sx": lambda sx: 1 / sx, "sy": lambda sy: 1 / sy})
