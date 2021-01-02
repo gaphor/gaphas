@@ -197,8 +197,7 @@ def port_at_point(
             item = i
             port = p
 
-            # transform coordinates from connectable item space to view
-            # space
+            # transform coordinates from connectable item space to view space
             i2v = view.get_matrix_i2v(i).transform_point
             glue_pos = i2v(*pg)
     return item, port, glue_pos  # type: ignore[return-value]
