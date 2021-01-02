@@ -15,6 +15,8 @@ import cairo
 
 from gaphas.state import observed, reversible_method
 
+MatrixTuple = Tuple[float, float, float, float, float, float]
+
 
 class Matrix:
     """Matrix wrapper. This version sends @observed messages on state changes.
@@ -34,37 +36,47 @@ class Matrix:
         matrix: Optional[cairo.Matrix] = None,
     ) -> None:
         self._matrix = matrix or cairo.Matrix(xx, yx, xy, yy, x0, y0)
-        self._handlers: Set[Callable[[Matrix], None]] = set()
+        self._handlers: Set[Callable[[Matrix, MatrixTuple], None]] = set()
 
-    def add_handler(self, handler: Callable[[Matrix], None]) -> None:
+    def add_handler(
+        self,
+        handler: Callable[[Matrix, MatrixTuple], None],
+    ) -> None:
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[Matrix], None]) -> None:
+    def remove_handler(
+        self,
+        handler: Callable[[Matrix, MatrixTuple], None],
+    ) -> None:
         self._handlers.discard(handler)
 
-    def notify(self) -> None:
+    def notify(self, old: MatrixTuple) -> None:
         for handler in self._handlers:
-            handler(self)
+            handler(self, old)
 
     @observed
     def invert(self) -> None:
+        old: MatrixTuple = self.tuple()
         self._matrix.invert()
-        self.notify()
+        self.notify(old)
 
     @observed
     def rotate(self, radians: float) -> None:
+        old: MatrixTuple = self.tuple()
         self._matrix.rotate(radians)
-        self.notify()
+        self.notify(old)
 
     @observed
     def scale(self, sx: float, sy: float) -> None:
+        old = self.tuple()
         self._matrix.scale(sx, sy)
-        self.notify()
+        self.notify(old)
 
     @observed
     def translate(self, tx: float, ty: float) -> None:
+        old: MatrixTuple = self.tuple()
         self._matrix.translate(tx, ty)
-        self.notify()
+        self.notify(old)
 
     @observed
     def set(
@@ -78,6 +90,7 @@ class Matrix:
     ) -> None:
         updated = False
         m = self._matrix
+        old = self.tuple()
         for name, val in (
             ("xx", xx),
             ("yx", yx),
@@ -90,7 +103,7 @@ class Matrix:
                 setattr(m, name, val)
                 updated = True
         if updated:
-            self.notify()
+            self.notify(old)
 
     reversible_method(invert, invert)
     reversible_method(rotate, rotate, {"radians": lambda radians: -radians})
@@ -112,6 +125,9 @@ class Matrix:
         m = Matrix(matrix=cairo.Matrix(*self._matrix))  # type: ignore[misc]
         m.invert()
         return m
+
+    def tuple(self) -> MatrixTuple:
+        return tuple(self)  # type: ignore[arg-type, assignment, return-value]
 
     def to_cairo(self) -> cairo.Matrix:
         return self._matrix

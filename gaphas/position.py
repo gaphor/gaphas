@@ -137,7 +137,7 @@ class MatrixProjection(BaseConstraint):
                 *self._orig_pos
             )
 
-    def _on_matrix_changed(self, matrix):
+    def _on_matrix_changed(self, matrix, _orig):
         self.mark_dirty(self._orig_pos.x)
         self.notify()
 
