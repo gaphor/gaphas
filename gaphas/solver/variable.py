@@ -75,20 +75,20 @@ class Variable:
     def __init__(self, value: SupportsFloat = 0.0, strength: int = NORMAL):
         self._value = float(value)
         self._strength = strength
-        self._handlers: Set[Callable[[Variable], None]] = set()
+        self._handlers: Set[Callable[[Variable, float], None]] = set()
 
-    def add_handler(self, handler: Callable[[Variable], None]) -> None:
+    def add_handler(self, handler: Callable[[Variable, float], None]) -> None:
         """Add a handler, to be invoked when the value changes."""
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[Variable], None]) -> None:
+    def remove_handler(self, handler: Callable[[Variable, float], None]) -> None:
         """Remove a handler."""
         self._handlers.discard(handler)
 
-    def notify(self) -> None:
+    def notify(self, old: float) -> None:
         """Notify all handlers."""
         for handler in self._handlers:
-            handler(self)
+            handler(self, old)
 
     @property
     def strength(self) -> int:
@@ -102,7 +102,7 @@ class Variable:
         solve all dependent constraints, i.e. two equals constraints
         between 3 variables.
         """
-        self.notify()
+        self.notify(self._value)
 
     @observed
     def set_value(self, value: SupportsFloat) -> None:
@@ -110,7 +110,7 @@ class Variable:
         v = float(value)
         if abs(oldval - v) > EPSILON:
             self._value = v
-            self.dirty()
+            self.notify(oldval)
 
     value: TypedProperty[float, SupportsFloat]
     value = reversible_property(lambda s: s._value, set_value)

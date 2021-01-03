@@ -68,7 +68,7 @@ class BaseConstraint:
         for handler in self._handlers:
             handler(self)
 
-    def _propagate(self, variable):
+    def _propagate(self, variable, _old):
         self.mark_dirty(variable)
         self.notify()
 
