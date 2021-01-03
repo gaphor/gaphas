@@ -23,6 +23,39 @@ def test_position_can_compare_with_tuple():
     assert pos < (4, 4)
 
 
+def test_position_notifies_on_x_change(handler):
+    pos = Position(3, 3)
+    pos.add_handler(handler)
+
+    pos.x = 4
+
+    assert handler.events
+    assert handler.events[0][0] is pos
+    assert handler.events[0][1] == (3.0, 3.0)
+
+
+def test_position_notifies_on_y_change(handler):
+    pos = Position(3, 3)
+    pos.add_handler(handler)
+
+    pos.y = 4
+
+    assert handler.events
+    assert handler.events[0][0] is pos
+    assert handler.events[0][1] == (3.0, 3.0)
+
+
+def test_position_notifies_on_pos_change(handler):
+    pos = Position(3, 3)
+    pos.add_handler(handler)
+
+    pos.pos = (4, 4)
+
+    assert len(handler.events) == 1
+    assert handler.events[0][0] is pos
+    assert handler.events[0][1] == (3.0, 3.0)
+
+
 def test_matrix_projection_exposes_variables():
     proj = MatrixProjection(Position(0, 0), Matrix())
 

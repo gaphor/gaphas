@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import SupportsFloat, Tuple, Union
+from typing import Callable, Set, SupportsFloat, Tuple, Union
 
 from gaphas.matrix import Matrix
 from gaphas.solver import NORMAL, BaseConstraint, Variable
-from gaphas.types import SupportsFloatPos, TypedProperty
+from gaphas.types import Pos, SupportsFloatPos, TypedProperty
 
 
 class Position:
@@ -22,6 +22,32 @@ class Position:
     def __init__(self, x, y, strength=NORMAL):
         self._x = Variable(x, strength)
         self._y = Variable(y, strength)
+        self._handlers: Set[Callable[[Position, Pos], None]] = set()
+        self._setting_pos = 0
+
+    def add_handler(self, handler: Callable[[Position, Pos], None]) -> None:
+        if not self._handlers:
+            self._x.add_handler(self._propagate_x)
+            self._y.add_handler(self._propagate_y)
+        self._handlers.add(handler)
+
+    def remove_handler(self, handler: Callable[[Position, Pos], None]) -> None:
+        self._handlers.discard(handler)
+        if not self._handlers:
+            self._x.remove_handler(self._propagate_x)
+            self._y.remove_handler(self._propagate_y)
+
+    def notify(self, oldpos: Pos) -> None:
+        for handler in self._handlers:
+            handler(self, oldpos)
+
+    def _propagate_x(self, variable, oldval):
+        if not self._setting_pos:
+            self.notify((oldval, self._y.value))
+
+    def _propagate_y(self, variable, oldval):
+        if not self._setting_pos:
+            self.notify((self._x.value, oldval))
 
     @property
     def strength(self) -> int:
@@ -42,7 +68,13 @@ class Position:
 
     def _set_pos(self, pos: Union[Position, SupportsFloatPos]) -> None:
         """Set handle position (Item coordinates)."""
-        self._x.value, self._y.value = pos
+        oldpos = (self._x.value, self._y.value)
+        self._setting_pos += 1
+        try:
+            self._x.value, self._y.value = pos
+        finally:
+            self._setting_pos -= 1
+        self.notify(oldpos)
 
     pos: TypedProperty[Tuple[Variable, Variable], Union[Position, SupportsFloatPos]]
     pos = property(lambda s: (s._x, s._y), _set_pos, doc="The position.")

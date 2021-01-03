@@ -4,17 +4,6 @@ from gaphas.solver import BaseConstraint, MultiConstraint, Variable
 from gaphas.solver.constraint import Constraint, ContainsConstraints
 
 
-@pytest.fixture
-def handler():
-    events = []
-
-    def handler(e):
-        events.append(e)
-
-    handler.events = events  # type: ignore[attr-defined]
-    return handler
-
-
 def test_base_constraint_implements_constraint_protocol():
     c = BaseConstraint(Variable())
 
@@ -35,7 +24,7 @@ def test_constraint_propagates_variable_changed(handler):
 
     v.value = 3
 
-    assert handler.events == [c]
+    assert handler.events == [(c,)]
 
 
 def test_multi_constraint(handler):
@@ -46,7 +35,7 @@ def test_multi_constraint(handler):
 
     v.value = 3
 
-    assert handler.events == [c]
+    assert handler.events == [(c,)]
 
 
 def test_default_constraint_can_not_solve():

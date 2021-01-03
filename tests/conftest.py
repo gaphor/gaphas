@@ -85,3 +85,14 @@ def revert_undo(undo_fixture):
     yield
     state.observers.remove(state.revert_handler)
     state.subscribers.remove(undo_fixture[1])
+
+
+@pytest.fixture
+def handler():
+    events = []
+
+    def handler(*args):
+        events.append(args)
+
+    handler.events = events  # type: ignore[attr-defined]
+    return handler
