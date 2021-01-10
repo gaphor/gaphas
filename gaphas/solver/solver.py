@@ -36,7 +36,6 @@ import functools
 from typing import Callable, Collection, List, Optional, Set
 
 from gaphas.solver.constraint import Constraint, ContainsConstraints
-from gaphas.state import observed, reversible_pair
 
 
 class Solver:
@@ -73,7 +72,6 @@ class Solver:
     def constraints(self) -> Collection[Constraint]:
         return self._constraints
 
-    @observed
     def add_constraint(self, constraint: Constraint) -> Constraint:
         """Add a constraint. The actual constraint is returned, so the
         constraint can be removed later on.
@@ -100,7 +98,6 @@ class Solver:
         constraint.add_handler(self.request_resolve_constraint)
         return constraint
 
-    @observed
     def remove_constraint(self, constraint: Constraint) -> None:
         """Remove a constraint from the solver.
 
@@ -125,8 +122,6 @@ class Solver:
         self._constraints.discard(constraint)
         while constraint in self._marked_cons:
             self._marked_cons.remove(constraint)
-
-    reversible_pair(add_constraint, remove_constraint)
 
     def request_resolve_constraint(self, c: Constraint) -> None:
         """Request resolving a constraint."""
