@@ -2,20 +2,32 @@
 """A simple example containing two boxes and a line."""
 import gi
 
-from examples.exampleitems import Box
-from gaphas import Canvas, GtkView
-from gaphas.item import Line
-
 # fmt: off
 gi.require_version("Gtk", "3.0")  # noqa: isort:skip
 from gi.repository import Gtk  # noqa: isort:skip
+
+from gaphas import Canvas, GtkView, Line # noqa: isort:skip
+from gaphas.tool import hover_tool, item_tool, scroll_tool, view_focus_tool, zoom_tool # noqa: isort:skip
+
+from examples.exampleitems import Box  # noqa: isort:skip
 # fmt: on
+
+
+def apply_default_tool_set(view):
+    view.remove_all_controllers()
+    view.add_controller(item_tool(view))
+    view.add_controller(scroll_tool(view))
+    view.add_controller(zoom_tool(view))
+    view.add_controller(view_focus_tool(view))
+    view.add_controller(hover_tool(view))
 
 
 def create_canvas(canvas, title):
     # Setup drawing window
     view = GtkView()
     view.model = canvas
+    apply_default_tool_set(view)
+
     window = Gtk.Window()
     window.set_title(title)
     window.set_default_size(400, 400)
@@ -24,12 +36,12 @@ def create_canvas(canvas, title):
     win_box.pack_start(view, True, True, 0)
 
     # Draw first gaphas box
-    b1 = Box(60, 60)
+    b1 = Box(canvas.connections, 60, 60)
     b1.matrix.translate(10, 10)
     canvas.add(b1)
 
     # Draw second gaphas box
-    b2 = Box(60, 60)
+    b2 = Box(canvas.connections, 60, 60)
     b2.min_width = 40
     b2.min_height = 50
     b2.matrix.translate(170, 170)
