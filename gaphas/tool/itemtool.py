@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union
 from gi.repository import Gdk, Gtk
 from typing_extensions import Protocol
 
-from gaphas.aspect import HandleMove, Move
+from gaphas.aspect import HandleMove, Move, item_at_point
 from gaphas.canvas import ancestors
 from gaphas.connector import Handle
 from gaphas.geometry import distance_point_point_fast
@@ -114,30 +114,6 @@ def on_drag_end(gesture, offset_x, offset_y, drag_state):
     for moving in drag_state.moving:
         moving.stop_move((x + offset_x, y + offset_y))
     drag_state.moving = set()
-
-
-def item_at_point(view: GtkView, pos: Pos, selected: bool = True) -> Optional[Item]:
-    """Return the topmost item located at ``pos`` (x, y).
-
-    Parameters:
-        - view: a view
-        - pos: Position, a tuple ``(x, y)`` in view coordinates
-        - selected: if False returns first non-selected item
-    """
-    item: Item
-    for item in reversed(list(view.get_items_in_rectangle((pos[0], pos[1], 1, 1)))):
-        if not selected and item in view.selection.selected_items:
-            continue  # skip selected items
-
-        v2i = view.get_matrix_v2i(item)
-        ix, iy = v2i.transform_point(*pos)
-        item_distance = item.point(ix, iy)
-        if item_distance is None:
-            log.warning("Item distance is None for %s", item)
-            continue
-        if item_distance < 0.5:
-            return item
-    return None
 
 
 def handle_at_point(

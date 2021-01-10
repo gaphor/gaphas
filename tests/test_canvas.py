@@ -177,14 +177,14 @@ def test_remove_connected_item():
     number_cons2 = len(canvas.solver.constraints)
 
     conn = Connector(l1, l1.handles()[0], canvas.connections)
-    sink = ConnectionSink(b1, b1.ports()[0])
+    sink = ConnectionSink(b1)
 
     conn.connect(sink)
 
     assert canvas.connections.get_connection(l1.handles()[0])
 
     conn = Connector(l1, l1.handles()[1], canvas.connections)
-    sink = ConnectionSink(b2, b2.ports()[0])
+    sink = ConnectionSink(b2)
 
     conn.connect(sink)
 

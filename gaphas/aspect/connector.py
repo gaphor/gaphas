@@ -1,18 +1,28 @@
 from functools import singledispatch
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from typing_extensions import Protocol
 
 from gaphas.connections import Connections
 from gaphas.connector import Handle, Port
 from gaphas.item import Item, matrix_i2i
+from gaphas.solver import Constraint
+from gaphas.types import Pos, SupportsFloatPos
 
 
 class ConnectionSinkType(Protocol):
     item: Item
-    port: Port
+    port: Optional[Port]
 
-    def __init__(self, item: Item, port: Port):
+    def __init__(self, item: Item, distance: float = 10):
+        ...
+
+    def glue(
+        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
+    ) -> Tuple[Optional[Pos], float]:
+        ...
+
+    def constraint(self, item: Item, handle: Handle) -> Constraint:
         ...
 
 
@@ -35,9 +45,10 @@ class ItemConnector:
         item = self.item
         matrix = matrix_i2i(item, sink.item)
         pos = matrix.transform_point(*handle.pos)
-        gluepos, dist = sink.port.glue(pos)
-        matrix.invert()
-        handle.pos = matrix.transform_point(*gluepos)
+        gluepos, dist = sink.glue(pos)
+        if gluepos:
+            matrix.invert()
+            handle.pos = matrix.transform_point(*gluepos)
 
     def connect(self, sink: ConnectionSinkType) -> None:
         """Connect the handle to a sink (item, port).
@@ -74,7 +85,7 @@ class ItemConnector:
         handle = self.handle
         item = self.item
 
-        constraint = sink.port.constraint(item, handle, sink.item)
+        constraint = sink.constraint(item, handle)
 
         self.connections.connect_item(
             item, handle, sink.item, sink.port, constraint, callback=callback
@@ -95,9 +106,31 @@ class ItemConnectionSink:
     connectable item or port.
     """
 
-    def __init__(self, item: Item, port: Port):
+    def __init__(self, item: Item, distance: float = 10) -> None:
         self.item = item
-        self.port = port
+        self.distance = distance
+        self.port: Optional[Port] = None
+
+    def glue(
+        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
+    ) -> Tuple[Optional[Pos], float]:
+        max_dist = self.distance
+        glue_pos = None
+        for p in self.item.ports():
+            if not p.connectable:
+                continue
+
+            g, d = p.glue(pos)
+
+            if d < max_dist:
+                max_dist = d
+                self.port = p
+                glue_pos = g
+        return glue_pos, max_dist if glue_pos else 1e4
+
+    def constraint(self, item: Item, handle: Handle) -> Constraint:
+        assert self.port, "constraint() can only be called after glue()"
+        return self.port.constraint(item, handle, self.item)
 
 
 ConnectionSink = singledispatch(ItemConnectionSink)

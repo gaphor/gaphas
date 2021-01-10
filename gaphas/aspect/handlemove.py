@@ -1,13 +1,16 @@
+import logging
 from functools import singledispatch
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence
 
 from gi.repository import Gdk
 
 from gaphas.aspect.connector import ConnectionSink, ConnectionSinkType, Connector
-from gaphas.connector import Handle, Port
+from gaphas.connector import Handle
 from gaphas.item import Element, Item
 from gaphas.types import Pos
 from gaphas.view import GtkView
+
+log = logging.getLogger(__name__)
 
 
 class ItemHandleMove:
@@ -65,17 +68,24 @@ class ItemHandleMove:
         if not handle.connectable:
             return None
 
-        connectable, port, glue_pos = port_at_point(
-            view, pos, distance=distance, exclude=(item,)
-        )
+        connectable = item_at_point(view, pos, distance=distance, exclude=(item,))
+        if not connectable:
+            return None
 
-        # check if item and found item can be connected on closest port
-        if connectable and port and glue_pos:
+        sink = ConnectionSink(connectable)
+
+        ix, iy = view.get_matrix_v2i(connectable).transform_point(*pos)
+        iglue_pos, _ = sink.glue((ix, iy))
+        if not iglue_pos:
+            return None
+
+        glue_pos = view.get_matrix_i2v(connectable).transform_point(*iglue_pos)
+
+        if glue_pos:
             model = self.view.model
             assert model
             connections = model.connections
             connector = Connector(self.item, self.handle, connections)
-            sink = ConnectionSink(connectable, port)
 
             if connector.allow(sink):
                 # transform coordinates from view space to the item
@@ -149,58 +159,31 @@ class ElementHandleMove(ItemHandleMove):
         self.view.get_window().set_cursor(self.cursor)
 
 
-def port_at_point(
+# Maybe make this an iterator? so extra checks can be done on the item
+def item_at_point(
     view: GtkView,
-    vpos: Pos,
-    distance: float = 10,
+    pos: Pos,
+    distance: float = 0.5,
     exclude: Sequence[Item] = (),
-) -> Union[Tuple[Item, Port, Tuple[float, float]], Tuple[None, None, None]]:
-    """Find item with port closest to specified position.
+) -> Optional[Item]:
+    """Return the topmost item located at ``pos`` (x, y).
 
-    List of items to be ignored can be specified with `exclude`
-    parameter.
-
-    Tuple is returned
-
-    - found item
-    - closest, connectable port
-    - closest point on found port (in view coordinates)
-
-    :Parameters:
-        vpos
-        Position specified in view coordinates.
-        distance
-        Max distance from point to a port (default 10)
-        exclude
-        Set of items to ignore.
+    Parameters:
+        - view: a view
+        - pos: Position, a tuple ``(x, y)`` in view coordinates
+        - selected: if False returns first non-selected item
     """
-    v2i = view.get_matrix_v2i
-    vx, vy = vpos
-
-    max_dist = distance
-    port = None
-    glue_pos = None
-    item = None
-
-    rect = (vx - distance, vy - distance, distance * 2, distance * 2)
-    for i in reversed(list(view.get_items_in_rectangle(rect))):
-        if i in exclude:
+    item: Item
+    for item in reversed(list(view.get_items_in_rectangle((pos[0], pos[1], 1, 1)))):
+        if item in exclude:
             continue
-        for p in i.ports():
-            if not p.connectable:
-                continue
 
-            ix, iy = v2i(i).transform_point(vx, vy)
-            pg, d = p.glue((ix, iy))
-
-            if d >= max_dist:
-                continue
-
-            max_dist = d
-            item = i
-            port = p
-
-            # transform coordinates from connectable item space to view space
-            i2v = view.get_matrix_i2v(i).transform_point
-            glue_pos = i2v(*pg)
-    return item, port, glue_pos  # type: ignore[return-value]
+        v2i = view.get_matrix_v2i(item)
+        ix, iy = v2i.transform_point(*pos)
+        item_distance = item.point(ix, iy)
+        if item_distance is None:
+            log.warning("Item distance is None for %s", item)
+            continue
+        if item_distance < distance:
+            return item
+    return None
