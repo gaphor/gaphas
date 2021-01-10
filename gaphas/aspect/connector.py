@@ -4,8 +4,9 @@ from typing import Callable, Optional, Tuple
 from typing_extensions import Protocol
 
 from gaphas.connections import Connections
-from gaphas.connector import Handle, Port
-from gaphas.item import Item, matrix_i2i
+from gaphas.connector import Handle, LinePort, Port
+from gaphas.geometry import intersect_line_line
+from gaphas.item import Element, Item, Line, matrix_i2i
 from gaphas.solver import Constraint
 from gaphas.types import Pos, SupportsFloatPos
 
@@ -39,13 +40,20 @@ class ItemConnector:
     def allow(self, sink: ConnectionSinkType) -> bool:
         return True
 
+    def secondary_handle(self) -> Optional[Handle]:
+        return None
+
     def glue(self, sink: ConnectionSinkType) -> None:
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
         matrix = matrix_i2i(item, sink.item)
         pos = matrix.transform_point(*handle.pos)
-        gluepos, dist = sink.glue(pos)
+        secondary_handle = self.secondary_handle()
+        secondary_pos = (
+            matrix.transform_point(*secondary_handle.pos) if secondary_handle else None
+        )
+        gluepos, dist = sink.glue(pos, secondary_pos)
         if gluepos:
             matrix.invert()
             handle.pos = matrix.transform_point(*gluepos)
@@ -99,6 +107,21 @@ class ItemConnector:
 Connector = singledispatch(ItemConnector)
 
 
+@Connector.register(Line)
+class LineConnector(ItemConnector):
+    def secondary_handle(self) -> Optional[Handle]:
+        item = self.item
+        handle = self.handle
+        handles = item.handles()
+        if len(handles) < 2:
+            return None
+        if handle is item.handles()[0]:
+            return handles[1]
+        if handle is item.handles()[-1]:
+            return handles[-2]
+        return None
+
+
 class ItemConnectionSink:
     """Makes an item a sink.
 
@@ -134,3 +157,24 @@ class ItemConnectionSink:
 
 
 ConnectionSink = singledispatch(ItemConnectionSink)
+
+
+@ConnectionSink.register(Element)
+class ElementConnectionSink(ItemConnectionSink):
+    def glue(
+        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
+    ) -> Tuple[Optional[Pos], float]:
+        glue_pos, dist = super().glue(pos, secondary_pos)
+        if glue_pos:
+            return glue_pos, dist
+
+        if secondary_pos:
+            for p in self.item.ports()[:4]:
+                assert isinstance(p, LinePort)
+                point_on_line = intersect_line_line(
+                    pos, secondary_pos, p.start, p.end  # type: ignore[arg-type]
+                )
+                if point_on_line:
+                    return point_on_line, 0
+
+        return None, 1e4
