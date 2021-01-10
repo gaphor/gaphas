@@ -64,6 +64,9 @@ class ItemHandleMove:
         item = self.item
         handle = self.handle
         view = self.view
+        model = view.model
+        assert model
+        connections = model.connections
 
         if not handle.connectable:
             return None
@@ -72,27 +75,12 @@ class ItemHandleMove:
         if not connectable:
             return None
 
+        connector = Connector(self.item, self.handle, connections)
         sink = ConnectionSink(connectable)
 
-        ix, iy = view.get_matrix_v2i(connectable).transform_point(*pos)
-        iglue_pos, _ = sink.glue((ix, iy))
-        if not iglue_pos:
-            return None
-
-        glue_pos = view.get_matrix_i2v(connectable).transform_point(*iglue_pos)
-
-        if glue_pos:
-            model = self.view.model
-            assert model
-            connections = model.connections
-            connector = Connector(self.item, self.handle, connections)
-
-            if connector.allow(sink):
-                # transform coordinates from view space to the item
-                # space and update position of item's handle
-                v2i = view.get_matrix_v2i(item).transform_point
-                handle.pos = v2i(*glue_pos)
-                return sink
+        if connector.allow(sink):
+            connector.glue(sink)
+            return sink
         return None
 
     def connect(self, pos: Pos) -> None:
