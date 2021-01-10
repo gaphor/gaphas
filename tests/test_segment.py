@@ -140,26 +140,6 @@ def test_constraints_after_split(canvas, connections, line, view):
     assert cinfo.constraint != orig_constraint
 
 
-def test_split_undo(canvas, line, revert_undo, undo_fixture):
-    """Test line splitting undo."""
-    line.handles()[1].pos = (20, 0)
-
-    # We start with two handles and one port, after split 3 handles and
-    # 2 ports are expected
-    assert len(line.handles()) == 2
-    assert len(line.ports()) == 1
-
-    segment = Segment(line, canvas)
-    segment.split_segment(0)
-    assert len(line.handles()) == 3
-    assert len(line.ports()) == 2
-
-    # After undo, 2 handles and 1 port are expected again
-    undo_fixture[0]()  # Call Undo
-    assert 2 == len(line.handles())
-    assert 1 == len(line.ports())
-
-
 def test_orthogonal_line_split(canvas, line):
     """Test orthogonal line splitting."""
     # Start with no orthogonal constraints
@@ -292,31 +272,6 @@ def test_merge_multiple(canvas, line):
     port = line.ports()[0]
     assert (0, 0) == port.start.pos
     assert (20, 16) == port.end.pos
-
-
-def test_merge_undo(canvas, line, revert_undo, undo_fixture):
-    """Test line merging undo."""
-    line.handles()[1].pos = (20, 0)
-
-    segment = Segment(line, canvas)
-
-    # Split for merging
-    segment.split_segment(0)
-    assert len(line.handles()) == 3
-    assert len(line.ports()) == 2
-
-    # Clear undo stack before merging
-    del undo_fixture[2][:]
-
-    # Merge with empty undo stack
-    segment.merge_segment(0)
-    assert len(line.handles()) == 2
-    assert len(line.ports()) == 1
-
-    # After merge undo, 3 handles and 2 ports are expected again
-    undo_fixture[0]()  # Undo
-    assert 3 == len(line.handles())
-    assert 2 == len(line.ports())
 
 
 def test_orthogonal_line_merge(canvas, connections, line):

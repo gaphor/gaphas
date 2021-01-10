@@ -12,12 +12,6 @@ from gaphas.constraint import Constraint, EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
 from gaphas.solver import REQUIRED, VERY_STRONG, variable
-from gaphas.state import (
-    observed,
-    reversible_method,
-    reversible_pair,
-    reversible_property,
-)
 from gaphas.types import CairoContext
 
 if TYPE_CHECKING:
@@ -271,17 +265,15 @@ class Line(Matrices):
     def tail(self) -> Handle:
         return self._handles[-1]
 
-    @observed
     def _set_line_width(self, line_width: float) -> None:
         self._line_width = line_width
 
-    line_width = reversible_property(lambda s: s._line_width, _set_line_width)
+    line_width = property(lambda s: s._line_width, _set_line_width)
 
-    @observed
     def _set_fuzziness(self, fuzziness: float) -> None:
         self._fuzziness = fuzziness
 
-    fuzziness = reversible_property(lambda s: s._fuzziness, _set_fuzziness)
+    fuzziness = property(lambda s: s._fuzziness, _set_fuzziness)
 
     def update_orthogonal_constraints(self, orthogonal: bool) -> None:
         """Update the constraints required to maintain the orthogonal line.
@@ -304,7 +296,6 @@ class Line(Matrices):
         ]
         self._set_orthogonal_constraints(cons)
 
-    @observed
     def _set_orthogonal_constraints(
         self, orthogonal_constraints: List[Constraint]
     ) -> None:
@@ -314,11 +305,6 @@ class Line(Matrices):
         """
         self._orthogonal_constraints = orthogonal_constraints
 
-    reversible_property(
-        lambda s: s._orthogonal_constraints, _set_orthogonal_constraints
-    )
-
-    @observed
     def _set_orthogonal(self, orthogonal: bool) -> None:
         """
         >>> a = Line()
@@ -329,19 +315,10 @@ class Line(Matrices):
             raise ValueError("Can't set orthogonal line with less than 3 handles")
         self.update_orthogonal_constraints(orthogonal)
 
-    orthogonal = reversible_property(
-        lambda s: bool(s._orthogonal_constraints), _set_orthogonal
-    )
+    orthogonal = property(lambda s: bool(s._orthogonal_constraints), _set_orthogonal)
 
-    @observed
     def _inner_set_horizontal(self, horizontal: bool) -> None:
         self._horizontal = horizontal
-
-    reversible_method(
-        _inner_set_horizontal,
-        _inner_set_horizontal,
-        {"horizontal": lambda horizontal: not horizontal},
-    )
 
     def _set_horizontal(self, horizontal: bool) -> None:
         """
@@ -355,35 +332,19 @@ class Line(Matrices):
         self._inner_set_horizontal(horizontal)
         self.update_orthogonal_constraints(self.orthogonal)
 
-    horizontal = reversible_property(lambda s: s._horizontal, _set_horizontal)
+    horizontal = property(lambda s: s._horizontal, _set_horizontal)
 
-    @observed
     def insert_handle(self, index: int, handle: Handle) -> None:
         self._handles.insert(index, handle)
 
-    @observed
     def remove_handle(self, handle: Handle) -> None:
         self._handles.remove(handle)
 
-    reversible_pair(
-        insert_handle,
-        remove_handle,
-        bind1={"index": lambda self, handle: self._handles.index(handle)},
-    )
-
-    @observed
     def insert_port(self, index: int, port: Port) -> None:
         self._ports.insert(index, port)
 
-    @observed
     def remove_port(self, port: Port) -> None:
         self._ports.remove(port)
-
-    reversible_pair(
-        insert_port,
-        remove_port,
-        bind1={"index": lambda self, port: self._ports.index(port)},
-    )
 
     def _update_ports(self) -> None:
         """Update line ports.

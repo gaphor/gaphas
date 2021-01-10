@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Callable, Set, SupportsFloat
 
-from gaphas.state import observed, reversible_property
 from gaphas.types import TypedProperty
 
 # epsilon for float comparison
@@ -104,7 +103,6 @@ class Variable:
         """
         self.notify(self._value)
 
-    @observed
     def set_value(self, value: SupportsFloat) -> None:
         oldval = self._value
         v = float(value)
@@ -113,7 +111,7 @@ class Variable:
             self.notify(oldval)
 
     value: TypedProperty[float, SupportsFloat]
-    value = reversible_property(lambda s: s._value, set_value)
+    value = property(lambda s: s._value, set_value)
 
     def __str__(self):
         return f"Variable({self._value:g}, {self._strength:d})"
