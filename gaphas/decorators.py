@@ -2,13 +2,7 @@
 import logging
 import threading
 
-import gi
-
-# fmt: off
-gi.require_version("Gtk", "3.0")  # noqa: isort:skip
-from gi.repository import GLib, Gtk  # noqa: isort:skip
-# fmt: on
-
+from gi.repository import GLib
 
 log = logging.getLogger(__name__)
 

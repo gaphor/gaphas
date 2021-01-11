@@ -78,7 +78,7 @@ def test_get_unselected_item_at_point(view, box):
     view.selection.select_items(box)
 
     assert item_at_point(view, (10, 10)) is box
-    assert item_at_point(view, (10, 10), selected=False) is None
+    assert item_at_point(view, (10, 10), exclude=(box,)) is None
 
 
 def test_get_handle_at_point(view, canvas, connections):

@@ -18,11 +18,11 @@ def test_undo_on_delete_element(revert_undo, undo_fixture):
 
     canvas.add(line)
 
-    sink = ConnectionSink(b1, b1.ports()[0])
+    sink = ConnectionSink(b1)
     connector = Connector(line, line.handles()[0], canvas.connections)
     connector.connect(sink)
 
-    sink = ConnectionSink(b2, b2.ports()[0])
+    sink = ConnectionSink(b2)
     connector = Connector(line, line.handles()[-1], canvas.connections)
     connector.connect(sink)
 
