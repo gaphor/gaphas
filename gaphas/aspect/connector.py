@@ -115,9 +115,9 @@ class LineConnector(ItemConnector):
         handles = item.handles()
         if len(handles) < 2:
             return None
-        if handle is item.handles()[0]:
+        if handle is handles[0]:
             return handles[1]
-        if handle is item.handles()[-1]:
+        if handle is handles[-1]:
             return handles[-2]
         return None
 
