@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# flake8: noqa E402
 """A simple demo app.
 
 It sports a small canvas and some trivial operations:
@@ -15,6 +16,11 @@ import math
 
 import cairo
 import gi
+
+# fmt: off
+gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+from gi.repository import Gtk  # noqa: isort:skip
+# fmt: on
 
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView, state
@@ -38,11 +44,6 @@ from gaphas.tool import (
 )
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
-
-# fmt: off
-gi.require_version("Gtk", "3.0")  # noqa: isort:skip
-from gi.repository import Gtk  # noqa: isort:skip
-# fmt: on
 
 # Global undo list
 undo_list = []
