@@ -36,7 +36,6 @@ from typing_extensions import Protocol
 from gaphas import matrix, tree
 from gaphas.connections import Connection, Connections
 from gaphas.decorators import nonrecursive
-from gaphas.state import observed, reversible_method, reversible_pair
 
 if TYPE_CHECKING:
     from gaphas.item import Item
@@ -67,7 +66,6 @@ class Canvas:
     def connections(self) -> Connections:
         return self._connections
 
-    @observed
     def add(self, item, parent=None, index=None):
         """Add an item to the canvas.
 
@@ -85,7 +83,6 @@ class Canvas:
         self._tree.add(item, parent, index)
         self.request_update(item)
 
-    @observed
     def _remove(self, item):
         """Remove is done in a separate, @observed, method so the undo system
         can restore removed items in the right order."""
@@ -110,28 +107,9 @@ class Canvas:
         self._connections.remove_connections_to_item(item)
         self._remove(item)
 
-    reversible_pair(
-        add,
-        _remove,
-        bind1={
-            "parent": lambda self, item: self.get_parent(item),
-            "index": lambda self, item: self._tree.get_siblings(item).index(item),
-        },
-    )
-
-    @observed
     def reparent(self, item, parent, index=None):
         """Set new parent for an item."""
         self._tree.move(item, parent, index)
-
-    reversible_method(
-        reparent,
-        reverse=reparent,
-        bind={
-            "parent": lambda self, item: self.get_parent(item),
-            "index": lambda self, item: self._tree.get_siblings(item).index(item),
-        },
-    )
 
     def get_all_items(self) -> Iterable[Item]:
         """Get a list of all items.
@@ -236,7 +214,6 @@ class Canvas:
             m = m.multiply(self.get_matrix_i2c(parent))
         return m
 
-    @observed
     def request_update(
         self, item: Item, update: bool = True, matrix: bool = True
     ) -> None:
@@ -260,12 +237,6 @@ class Canvas:
             self._update_views(dirty_items=(item,))
         elif matrix:
             self._update_views(dirty_matrix_items=(item,))
-
-    reversible_method(
-        request_update,
-        reverse=request_update,
-        bind={"update": lambda: True, "matrix": lambda: True},
-    )
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""

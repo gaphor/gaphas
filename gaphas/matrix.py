@@ -4,7 +4,7 @@ correct properties on gaphas' modules.
 Matrix
 ------
 Small utility class wrapping cairo.Matrix. The `Matrix` class adds
-state preservation capabilities.
+state notification capabilities.
 """
 
 from __future__ import annotations
@@ -13,13 +13,11 @@ from typing import Callable, Optional, Set, Tuple
 
 import cairo
 
-from gaphas.state import observed, reversible_method
-
 MatrixTuple = Tuple[float, float, float, float, float, float]
 
 
 class Matrix:
-    """Matrix wrapper. This version sends @observed messages on state changes.
+    """Matrix wrapper.
 
     >>> Matrix()
     Matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
@@ -54,31 +52,26 @@ class Matrix:
         for handler in self._handlers:
             handler(self, old)
 
-    @observed
     def invert(self) -> None:
         old: MatrixTuple = self.tuple()
         self._matrix.invert()
         self.notify(old)
 
-    @observed
     def rotate(self, radians: float) -> None:
         old: MatrixTuple = self.tuple()
         self._matrix.rotate(radians)
         self.notify(old)
 
-    @observed
     def scale(self, sx: float, sy: float) -> None:
         old = self.tuple()
         self._matrix.scale(sx, sy)
         self.notify(old)
 
-    @observed
     def translate(self, tx: float, ty: float) -> None:
         old: MatrixTuple = self.tuple()
         self._matrix.translate(tx, ty)
         self.notify(old)
 
-    @observed
     def set(
         self,
         xx: Optional[float] = None,
@@ -104,13 +97,6 @@ class Matrix:
                 updated = True
         if updated:
             self.notify(old)
-
-    reversible_method(invert, invert)
-    reversible_method(rotate, rotate, {"radians": lambda radians: -radians})
-    reversible_method(scale, scale, {"sx": lambda sx: 1 / sx, "sy": lambda sy: 1 / sy})
-    reversible_method(
-        translate, translate, {"tx": lambda tx: -tx, "ty": lambda ty: -ty}
-    )
 
     def multiply(self, m: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix.multiply(m._matrix))

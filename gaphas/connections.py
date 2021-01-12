@@ -9,7 +9,6 @@ from gaphas.connector import Handle, Port
 from gaphas.constraint import Constraint
 from gaphas.item import Item
 from gaphas.solver import Solver
-from gaphas.state import observed, reversible_method, reversible_pair
 
 
 class Connection(NamedTuple):
@@ -84,13 +83,12 @@ class Connections:
         self._solver.remove_constraint(constraint)
         self._connections.delete(item, None, None, None, constraint, None)
 
-    @observed
     def connect_item(
         self,
         item: Item,
         handle: Handle,
         connected: Item,
-        port: Port,
+        port: Optional[Port],
         constraint: Optional[Constraint] = None,
         callback: Optional[Callable[[], None]] = None,
     ) -> None:
@@ -131,7 +129,6 @@ class Connections:
         for cinfo in list(self._connections.query(item=item, handle=handle)):
             self._disconnect_item(*cinfo)
 
-    @observed
     def _disconnect_item(
         self,
         item: Item,
@@ -151,8 +148,6 @@ class Connections:
 
         self._connections.delete(item, handle, connected, port, constraint, callback)
 
-    reversible_pair(connect_item, _disconnect_item)
-
     def remove_connections_to_item(self, item: Item) -> None:
         """Remove all connections (handles connected to and constraints) for a
         specific item (to and from the item).
@@ -168,7 +163,6 @@ class Connections:
         for cinfo in list(self._connections.query(connected=item)):
             disconnect_item(*cinfo)
 
-    @observed
     def reconnect_item(
         self,
         item: Item,
@@ -202,17 +196,6 @@ class Connections:
         )
         if constraint:
             self._solver.add_constraint(constraint)
-
-    reversible_method(
-        reconnect_item,
-        reverse=reconnect_item,
-        bind={
-            "port": lambda self, item, handle: self.get_connection(handle).port,
-            "constraint": lambda self, item, handle: self.get_connection(
-                handle
-            ).constraint,
-        },
-    )
 
     def get_connection(self, handle: Handle) -> Optional[Connection]:
         """Get connection information for specified handle.

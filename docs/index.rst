@@ -39,7 +39,6 @@ Table of Contents
    tools
    connectors
    solver
-   state
 
 .. toctree::
    :caption: Advanced

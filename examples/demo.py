@@ -8,8 +8,6 @@ It sports a small canvas and some trivial operations:
  - Zoom in/out
  - Split a line segment
  - Delete focused item
- - Record state changes
- - Play back state changes (= undo !) With visual updates
  - Exports to SVG and PNG
 """
 import math
@@ -23,7 +21,7 @@ from gi.repository import Gtk  # noqa: isort:skip
 # fmt: on
 
 from examples.exampleitems import Box, Circle, Text
-from gaphas import Canvas, GtkView, state
+from gaphas import Canvas, GtkView
 from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
@@ -237,42 +235,6 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     b.connect("clicked", on_delete_focused_clicked)
     v.add(b)
 
-    v.add(Gtk.Label.new("State:"))
-    b = Gtk.ToggleButton.new_with_label("Record")
-
-    def on_toggled(button):
-        global undo_list
-        if button.get_active():
-            print("start recording")
-            del undo_list[:]
-            state.subscribers.add(undo_handler)
-        else:
-            print("stop recording")
-            state.subscribers.remove(undo_handler)
-
-    b.connect("toggled", on_toggled)
-    v.add(b)
-
-    b = Gtk.Button.new_with_label("Play back")
-
-    def on_play_back_clicked(self):
-        global undo_list
-        apply_me = list(undo_list)
-        del undo_list[:]
-        print("Actions on the undo stack:", len(apply_me))
-        apply_me.reverse()
-        saveapply = state.saveapply
-        for event in apply_me:
-            print("Undo: invoking", event)
-            saveapply(*event)
-            print("New undo stack size:", len(undo_list))
-            # Visualize each event:
-            # while Gtk.events_pending():
-            #    Gtk.main_iteration()
-
-    b.connect("clicked", on_play_back_clicked)
-    v.add(b)
-
     v.add(Gtk.Label.new("Export:"))
 
     b = Gtk.Button.new_with_label("Write demo.png")
@@ -416,9 +378,6 @@ def create_canvas(c=None):
 def main():
     # State handling (a.k.a. undo handlers)
 
-    # First, activate the revert handler:
-    state.observers.add(state.revert_handler)
-
     def print_handler(event):
         print("event:", event)
 
@@ -427,8 +386,6 @@ def main():
     create_window(c, "View created before")
 
     create_canvas(c)
-
-    # state.subscribers.add(print_handler)
 
     # Start the main application
 

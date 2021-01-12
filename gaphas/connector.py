@@ -7,7 +7,6 @@ from gaphas.constraint import Constraint, LineConstraint, PositionConstraint
 from gaphas.geometry import distance_line_point, distance_point_point
 from gaphas.position import MatrixProjection, Position
 from gaphas.solver import NORMAL, MultiConstraint
-from gaphas.state import observed, reversible_property
 from gaphas.types import Pos, SupportsFloatPos, TypedProperty
 
 if TYPE_CHECKING:
@@ -59,31 +58,28 @@ class Handle:
     pos: TypedProperty[Position, Union[Position, SupportsFloatPos]]
     pos = property(lambda s: s._pos, _set_pos, doc="The Handle's position")
 
-    @observed
     def _set_connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
-    connectable = reversible_property(
+    connectable = property(
         lambda s: s._connectable,
         _set_connectable,
         doc="Can this handle actually connectect to a port?",
     )
 
-    @observed
     def _set_movable(self, movable: bool) -> None:
         self._movable = movable
 
-    movable = reversible_property(
+    movable = property(
         lambda s: s._movable,
         _set_movable,
         doc="Can this handle be moved by a mouse pointer?",
     )
 
-    @observed
     def _set_visible(self, visible: bool) -> None:
         self._visible = visible
 
-    visible = reversible_property(
+    visible = property(
         lambda s: s._visible, _set_visible, doc="Is this handle visible to the user?"
     )
 
@@ -104,11 +100,10 @@ class Port:
 
         self._connectable = True
 
-    @observed
     def _set_connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
-    connectable = reversible_property(lambda s: s._connectable, _set_connectable)
+    connectable = property(lambda s: s._connectable, _set_connectable)
 
     def glue(self, pos: SupportsFloatPos) -> Tuple[Pos, float]:
         """Get glue point on the port and distance to the port."""
