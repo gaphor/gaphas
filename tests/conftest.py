@@ -1,15 +1,10 @@
-import gi
 import pytest
+from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
 from gaphas.item import Element as Box
 from gaphas.item import Line
 from gaphas.view import GtkView
-
-# fmt: off
-gi.require_version("Gtk", "3.0")  # noqa: isort:skip
-from gi.repository import Gtk  # noqa: isort:skip
-# fmt: on
 
 
 @pytest.fixture
