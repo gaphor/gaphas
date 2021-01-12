@@ -88,7 +88,7 @@ class Connections:
         item: Item,
         handle: Handle,
         connected: Item,
-        port: Port,
+        port: Optional[Port],
         constraint: Optional[Constraint] = None,
         callback: Optional[Callable[[], None]] = None,
     ) -> None:
