@@ -162,12 +162,14 @@ def item_at_point(
         - selected: if False returns first non-selected item
     """
     item: Item
-    for item in reversed(list(view.get_items_in_rectangle((pos[0], pos[1], 1, 1)))):
+    vx, vy = pos
+    rect = (vx - distance, vy - distance, distance * 2, distance * 2)
+    for item in reversed(list(view.get_items_in_rectangle(rect))):
         if item in exclude:
             continue
 
         v2i = view.get_matrix_v2i(item)
-        ix, iy = v2i.transform_point(*pos)
+        ix, iy = v2i.transform_point(vx, vy)
         item_distance = item.point(ix, iy)
         if item_distance is None:
             log.warning("Item distance is None for %s", item)
