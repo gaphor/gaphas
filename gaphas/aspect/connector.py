@@ -37,6 +37,9 @@ class ItemConnector:
         self.handle = handle
         self.connections = connections
 
+    def allow(self, sink):
+        return True
+
     def secondary_handle(self) -> Optional[Handle]:
         return None
 
@@ -51,7 +54,7 @@ class ItemConnector:
             matrix.transform_point(*secondary_handle.pos) if secondary_handle else None
         )
         glue_pos = sink.glue(pos, secondary_pos)
-        if glue_pos:
+        if glue_pos and self.allow(sink):
             matrix.invert()
             new_pos = matrix.transform_point(*glue_pos)
             handle.pos = new_pos
