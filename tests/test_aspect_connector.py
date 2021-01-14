@@ -24,7 +24,7 @@ def element(connections):
 )
 def test_element_glue_on_border(element, pos, expected_glue_pos):
     sink = ConnectionSink(element)
-    glue_pos, dist = sink.glue(pos)
+    glue_pos = sink.glue(pos)
 
     assert glue_pos == expected_glue_pos
 
@@ -43,6 +43,6 @@ def test_element_glue_on_border_with_secondary_position(
 ):
     pos = (50, 50)
     sink = ConnectionSink(element)
-    glue_pos, dist = sink.glue(pos, secondary_pos=secondary_pos)
+    glue_pos = sink.glue(pos, secondary_pos=secondary_pos)
 
     assert glue_pos == expected_glue_pos
