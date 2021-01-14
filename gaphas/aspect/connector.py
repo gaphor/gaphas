@@ -1,5 +1,5 @@
 from functools import singledispatch
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional
 
 from typing_extensions import Protocol
 
@@ -20,7 +20,7 @@ class ConnectionSinkType(Protocol):
 
     def glue(
         self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
-    ) -> Tuple[Optional[Pos], float]:
+    ) -> Optional[Pos]:
         ...
 
     def constraint(self, item: Item, handle: Handle) -> Constraint:
@@ -50,10 +50,10 @@ class ItemConnector:
         secondary_pos = (
             matrix.transform_point(*secondary_handle.pos) if secondary_handle else None
         )
-        gluepos, dist = sink.glue(pos, secondary_pos)
-        if gluepos:
+        glue_pos = sink.glue(pos, secondary_pos)
+        if glue_pos:
             matrix.invert()
-            new_pos = matrix.transform_point(*gluepos)
+            new_pos = matrix.transform_point(*glue_pos)
             handle.pos = new_pos
             return new_pos
         return None
@@ -134,7 +134,7 @@ class ItemConnectionSink:
 
     def glue(
         self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
-    ) -> Tuple[Optional[Pos], float]:
+    ) -> Optional[Pos]:
         max_dist = self.distance
         glue_pos = None
         for p in self.item.ports():
@@ -147,7 +147,7 @@ class ItemConnectionSink:
                 max_dist = d
                 self.port = p
                 glue_pos = g
-        return glue_pos, max_dist if glue_pos else 1e4
+        return glue_pos
 
     def constraint(self, item: Item, handle: Handle) -> Constraint:
         assert self.port, "constraint() can only be called after glue()"
@@ -161,10 +161,10 @@ ConnectionSink = singledispatch(ItemConnectionSink)
 class ElementConnectionSink(ItemConnectionSink):
     def glue(
         self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
-    ) -> Tuple[Optional[Pos], float]:
-        glue_pos, dist = super().glue(pos, secondary_pos)
+    ) -> Optional[Pos]:
+        glue_pos = super().glue(pos, secondary_pos)
         if glue_pos:
-            return glue_pos, dist
+            return glue_pos
 
         if secondary_pos:
             for p in self.item.ports()[:4]:
@@ -173,6 +173,6 @@ class ElementConnectionSink(ItemConnectionSink):
                     pos, secondary_pos, p.start, p.end  # type: ignore[arg-type]
                 )
                 if point_on_line:
-                    return point_on_line, 0
+                    return point_on_line
 
-        return None, 1e4
+        return None
