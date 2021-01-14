@@ -37,13 +37,10 @@ class ItemConnector:
         self.handle = handle
         self.connections = connections
 
-    def allow(self, sink: ConnectionSinkType) -> bool:
-        return True
-
     def secondary_handle(self) -> Optional[Handle]:
         return None
 
-    def glue(self, sink: ConnectionSinkType) -> None:
+    def glue(self, sink: ConnectionSinkType) -> Optional[Pos]:
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
@@ -56,7 +53,10 @@ class ItemConnector:
         gluepos, dist = sink.glue(pos, secondary_pos)
         if gluepos:
             matrix.invert()
-            handle.pos = matrix.transform_point(*gluepos)
+            new_pos = matrix.transform_point(*gluepos)
+            handle.pos = new_pos
+            return new_pos
+        return None
 
     def connect(self, sink: ConnectionSinkType) -> None:
         """Connect the handle to a sink (item, port).
@@ -71,10 +71,8 @@ class ItemConnector:
         if cinfo:
             self.disconnect()
 
-        if not self.allow(sink):
+        if not self.glue(sink):
             return
-
-        self.glue(sink)
 
         self.connect_handle(sink)
 

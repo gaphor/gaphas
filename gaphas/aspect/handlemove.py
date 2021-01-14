@@ -78,9 +78,9 @@ class ItemHandleMove:
         connector = Connector(self.item, self.handle, connections)
         sink = ConnectionSink(connectable)
 
-        if connector.allow(sink):
-            connector.glue(sink)
+        if connector.glue(sink):
             return sink
+
         return None
 
     def connect(self, pos: Pos) -> None:
