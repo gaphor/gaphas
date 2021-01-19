@@ -37,7 +37,7 @@ typing-extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2"
-pytest-cov = "^2.10"
+pytest-cov = "^2.11"
 pytest-runner = "^5.1"
 black = { version = "^20.8b1", python = "^3.7" }
 pre-commit = "^2.9"
