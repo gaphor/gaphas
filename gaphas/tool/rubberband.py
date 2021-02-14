@@ -28,6 +28,7 @@ class RubberbandPainter:
         data = self.rubberband_state
         x0, y0, x1, y1 = data.x0, data.y0, data.x1, data.y1
         if x0 != x1 or y0 != y1:
+            cairo.identity_matrix()
             cairo.rectangle(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
             cairo.set_source_rgba(0.9, 0.9, 0.9, 0.3)
             cairo.fill_preserve()
