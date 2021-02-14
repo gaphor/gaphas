@@ -32,12 +32,14 @@ class ElementGuide(ItemGuide):
     """Guide to align Element items."""
 
     def horizontal(self):
-        y = self.item.height
-        return (0, y / 2, y)
+        y = self.item.handles()[0].pos.y
+        h = self.item.height
+        return (y, y + h / 2, y + h)
 
     def vertical(self):
-        x = self.item.width
-        return (0, x / 2, x)
+        x = self.item.handles()[0].pos.x
+        w = self.item.width
+        return (x, x + w / 2, x + w)
 
 
 @Guide.register(Line)
