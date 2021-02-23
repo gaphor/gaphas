@@ -22,7 +22,11 @@ DEBUG_DRAW_BOUNDING_BOX = False
 DEBUG_DRAW_QUADTREE = False
 
 # The default cursor (use in case of a cursor reset)
-DEFAULT_CURSOR = Gdk.CursorType.LEFT_PTR
+DEFAULT_CURSOR = (
+    Gdk.CursorType.LEFT_PTR
+    if Gtk.get_major_version() == 3
+    else Gdk.Cursor.new_from_name("default")
+)
 
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
@@ -89,15 +93,16 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._controllers: Set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
-        self.add_events(
-            Gdk.EventMask.BUTTON_PRESS_MASK
-            | Gdk.EventMask.BUTTON_RELEASE_MASK
-            | Gdk.EventMask.POINTER_MOTION_MASK
-            | Gdk.EventMask.KEY_PRESS_MASK
-            | Gdk.EventMask.KEY_RELEASE_MASK
-            | Gdk.EventMask.SCROLL_MASK
-            | Gdk.EventMask.STRUCTURE_MASK
-        )
+        if Gtk.get_major_version() == 3:
+            self.add_events(
+                Gdk.EventMask.BUTTON_PRESS_MASK
+                | Gdk.EventMask.BUTTON_RELEASE_MASK
+                | Gdk.EventMask.POINTER_MOTION_MASK
+                | Gdk.EventMask.KEY_PRESS_MASK
+                | Gdk.EventMask.KEY_RELEASE_MASK
+                | Gdk.EventMask.SCROLL_MASK
+                | Gdk.EventMask.STRUCTURE_MASK
+            )
 
         def alignment_updated(matrix: Matrix) -> None:
             assert self._model
@@ -214,6 +219,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         controllers. Events controllers are linked to a widget (in GTK3)
         on creation time, so calling this method is not necessary.
         """
+        if Gtk.get_major_version() != 3:
+            for controller in controllers:
+                super().add_controller(controller)
         self._controllers.update(controllers)
 
     def remove_controller(self, controller: Gtk.EventController) -> bool:
@@ -226,6 +234,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         NB. The controller is only really removed from the widget when it's destroyed!
             This is a Gtk3 limitation.
         """
+        if Gtk.get_major_version() != 3:
+            super().remove_controller(controller)
         if controller in self._controllers:
             controller.set_propagation_phase(Gtk.PropagationPhase.NONE)
             self._controllers.discard(controller)
@@ -388,6 +398,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:
+        if Gtk.get_major_version() == 4:
+            return
         if self.model and self.get_window():
             if not self._back_buffer or self._back_buffer_needs_resizing:
                 allocation = self.get_allocation()
