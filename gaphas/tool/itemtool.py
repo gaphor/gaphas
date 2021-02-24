@@ -51,8 +51,11 @@ class DragState:
 def on_drag_begin(gesture, start_x, start_y, drag_state):
     view = gesture.get_widget()
     selection = view.selection
-    event = gesture.get_last_event(None)
-    modifiers = event.get_state()[1]
+    modifiers = (
+        gesture.get_last_event(None).get_state()[1]
+        if Gtk.get_major_version() == 3
+        else gesture.get_current_event_state()
+    )
     item, handle = find_item_and_handle_at_point(view, (start_x, start_y))
 
     # Deselect all items unless CTRL or SHIFT is pressed
