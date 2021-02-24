@@ -31,6 +31,9 @@ class MockGesture:
     def get_last_event(self, _sequence):
         return self._event
 
+    def get_current_event_state(self):
+        return self._event.get_state()[1]
+
     def set_state(self, _state):
         pass
 

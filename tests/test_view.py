@@ -67,6 +67,7 @@ def test_view_registration():
     assert len(canvas._registered_views) == 1
 
 
+@pytest.mark.skipif(Gtk.get_major_version() != 3, reason="Works only for GTK+ 3")
 def test_view_registration_2(view, canvas, window):
     """Test view registration and destroy when view is destroyed."""
     assert len(canvas._registered_views) == 1
@@ -85,6 +86,7 @@ def sc_view():
     return view, sc
 
 
+@pytest.mark.skipif(Gtk.get_major_version() != 3, reason="Works only for GTK+ 3")
 def test_scroll_adjustments_signal(sc_view):
     assert sc_view[0].hadjustment
     assert sc_view[0].vadjustment
