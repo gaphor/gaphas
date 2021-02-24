@@ -103,6 +103,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 | Gdk.EventMask.SCROLL_MASK
                 | Gdk.EventMask.STRUCTURE_MASK
             )
+        else:
+            self.set_draw_func(GtkView.do_draw)
+            self.connect_after("resize", GtkView.on_resize)
 
         def alignment_updated(matrix: Matrix) -> None:
             assert self._model
@@ -320,8 +323,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             model.update_now(dirty_items, dirty_matrix_items)
 
             self.update_bounding_box(dirty_items)
+            allocation = self.get_allocation()
             self._scrolling.update_adjustments(
-                self.get_allocation(), self._qtree.soft_bounds
+                allocation.width, allocation.height, self._qtree.soft_bounds
             )
             self.update_back_buffer()
         finally:
@@ -398,18 +402,23 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:
-        if Gtk.get_major_version() == 4:
-            return
-        if self.model and self.get_window():
+        if Gtk.get_major_version() == 3:
+            surface = self.get_window()
+        else:
+            surface = self.get_native() and self.get_native().get_surface()
+
+        if self.model and surface:
+            allocation = self.get_allocation()
+            width = allocation.width
+            height = allocation.height
+
             if not self._back_buffer or self._back_buffer_needs_resizing:
-                allocation = self.get_allocation()
-                self._back_buffer = self.get_window().create_similar_surface(
-                    cairo.Content.COLOR_ALPHA, allocation.width, allocation.height
+                self._back_buffer = surface.create_similar_surface(
+                    cairo.Content.COLOR_ALPHA, width, height
                 )
                 self._back_buffer_needs_resizing = False
 
             assert self._back_buffer
-            allocation = self.get_allocation()
             cr = cairo.Context(self._back_buffer)
 
             cr.save()
@@ -417,13 +426,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             cr.paint()
             cr.restore()
 
-            Gtk.render_background(
-                self.get_style_context(), cr, 0, 0, allocation.width, allocation.height
-            )
+            Gtk.render_background(self.get_style_context(), cr, 0, 0, width, height)
 
-            items = self.get_items_in_rectangle(
-                (0, 0, allocation.width, allocation.height)
-            )
+            items = self.get_items_in_rectangle((0, 0, width, height))
 
             cr.set_matrix(self.matrix.to_cairo())
             cr.save()
@@ -431,9 +436,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                for item in self.get_items_in_rectangle(
-                    (0, 0, allocation.width, allocation.height)
-                ):
+                for item in self.get_items_in_rectangle((0, 0, width, height)):
                     try:
                         b = self.get_item_bounding_box(item)
                     except KeyError:
@@ -459,7 +462,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 cr.set_line_width(1.0)
                 draw_qtree_bucket(self._qtree._bucket)
 
-            self.get_window().invalidate_rect(allocation, True)
+            if Gtk.get_major_version() == 3:
+                self.get_window().invalidate_rect(allocation, True)
+            else:
+                self.queue_draw()
 
     def do_realize(self) -> None:
         Gtk.DrawingArea.do_realize(self)
@@ -481,18 +487,22 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         Gtk.DrawingArea.do_unrealize(self)
 
     def do_configure_event(self, event: Gdk.EventConfigure) -> bool:
+        # GTK+ 3 only
         allocation = self.get_allocation()
-        self._scrolling.update_adjustments(allocation, self._qtree.soft_bounds)
-        self._qtree.resize((0, 0, allocation.width, allocation.height))
-        if self.get_window():
+        self.on_resize(allocation.width, allocation.height)
+
+        return False
+
+    def on_resize(self, width: int, height: int) -> None:
+        self._qtree.resize((0, 0, width, height))
+        self._scrolling.update_adjustments(width, height, self._qtree.soft_bounds)
+        if self.get_realized():
             self._back_buffer_needs_resizing = True
             self.update_back_buffer()
         else:
             self._back_buffer = None
 
-        return False
-
-    def do_draw(self, cr: cairo.Context) -> bool:
+    def do_draw(self, cr: cairo.Context, width: int = 0, height: int = 0) -> bool:
         if not self._model:
             return False
 

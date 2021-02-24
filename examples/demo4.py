@@ -16,8 +16,8 @@ import cairo
 import gi
 
 # fmt: off
-gi.require_version("Gtk", "3.0")  # noqa: isort:skip
-from gi.repository import Gtk  # noqa: isort:skip
+gi.require_version("Gtk", "4.0")  # noqa: isort:skip
+from gi.repository import GLib, Gtk  # noqa: isort:skip
 # fmt: on
 
 from examples.exampleitems import Box, Circle, Text
@@ -164,19 +164,16 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     w = Gtk.Window()
     w.set_title(title)
     w.set_default_size(400, 120)
-    h = Gtk.HBox()
-    w.add(h)
+    h = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
+    w.set_child(h)
 
     # VBox contains buttons that can be used to manipulate the canvas:
-    v = Gtk.VBox()
-    v.set_property("border-width", 3)
-    v.set_property("spacing", 2)
+    v = Gtk.Box.new(Gtk.Orientation.VERTICAL, 6)
     f = Gtk.Frame()
-    f.set_property("border-width", 1)
-    f.add(v)
-    h.pack_start(f, False, True, 0)
+    f.set_child(v)
+    h.prepend(f)
 
-    v.add(Gtk.Label.new("Item placement:"))
+    v.append(Gtk.Label.new("Item placement:"))
 
     b = Gtk.Button.new_with_label("Add box")
 
@@ -184,7 +181,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         apply_placement_tool_set(view, MyBox, 2)
 
     b.connect("clicked", on_add_box_clicked)
-    v.add(b)
+    v.append(b)
 
     b = Gtk.Button.new_with_label("Add line")
 
@@ -192,9 +189,9 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         apply_placement_tool_set(view, MyLine, -1)
 
     b.connect("clicked", on_add_line_clicked)
-    v.add(b)
+    v.append(b)
 
-    v.add(Gtk.Label.new("Zooming:"))
+    v.append(Gtk.Label.new("Zooming:"))
 
     b = Gtk.Button.new_with_label("Zoom in")
 
@@ -202,7 +199,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         view.zoom(1.2)
 
     b.connect("clicked", on_zoom_in_clicked)
-    v.add(b)
+    v.append(b)
 
     b = Gtk.Button.new_with_label("Zoom out")
 
@@ -210,9 +207,9 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         view.zoom(1 / 1.2)
 
     b.connect("clicked", on_zoom_out_clicked)
-    v.add(b)
+    v.append(b)
 
-    v.add(Gtk.Label.new("Misc:"))
+    v.append(Gtk.Label.new("Misc:"))
 
     b = Gtk.Button.new_with_label("Split line")
 
@@ -224,7 +221,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
             view.queue_redraw()
 
     b.connect("clicked", on_split_line_clicked)
-    v.add(b)
+    v.append(b)
 
     b = Gtk.Button.new_with_label("Delete focused")
 
@@ -233,9 +230,9 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
             canvas.remove(view.selection.focused_item)
 
     b.connect("clicked", on_delete_focused_clicked)
-    v.add(b)
+    v.append(b)
 
-    v.add(Gtk.Label.new("Export:"))
+    v.append(Gtk.Label.new("Export:"))
 
     b = Gtk.Button.new_with_label("Write demo.png")
 
@@ -263,7 +260,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         surface.write_to_png("demo.png")
 
     b.connect("clicked", on_write_demo_png_clicked)
-    v.add(b)
+    v.append(b)
 
     b = Gtk.Button.new_with_label("Write demo.svg")
 
@@ -292,7 +289,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         surface.finish()
 
     b.connect("clicked", on_write_demo_svg_clicked)
-    v.add(b)
+    v.append(b)
 
     b = Gtk.Button.new_with_label("Dump QTree")
 
@@ -300,7 +297,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         view._qtree.dump()
 
     b.connect("clicked", on_dump_qtree_clicked, [0])
-    v.add(b)
+    v.append(b)
 
     b = Gtk.Button.new_with_label("Reattach (in place)")
 
@@ -309,7 +306,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         view.model = canvas
 
     b.connect("clicked", on_reattach_clicked, [0])
-    v.add(b)
+    v.append(b)
 
     # Add the actual View:
 
@@ -318,12 +315,14 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view.set_size_request(150, 120)
     s = Gtk.ScrolledWindow.new()
     s.set_hexpand(True)
-    s.add(view)
-    h.add(s)
+    s.set_child(view)
+    h.append(s)
 
-    w.show_all()
+    w.show()
 
-    w.connect("destroy", Gtk.main_quit)
+    w.connect("destroy", lambda w: app.quit())
+
+    return w
 
 
 def create_canvas(c=None):
@@ -375,23 +374,22 @@ def create_canvas(c=None):
     return c
 
 
+app = Gtk.Application.new("org.gaphor.gaphas.Demo", 0)
+
+
 def main():
-    # State handling (a.k.a. undo handlers)
+    def activate(app):
+        c = Canvas()
 
-    def print_handler(event):
-        print("event:", event)
+        win1 = create_window(c, "View created before")
+        app.add_window(win1)
+        create_canvas(c)
+        win2 = create_window(c, "View created after")
+        app.add_window(win2)
 
-    c = Canvas()
+    app.connect("activate", activate)
 
-    create_window(c, "View created before")
-
-    create_canvas(c)
-
-    # Start the main application
-
-    create_window(c, "View created after")
-
-    Gtk.main()
+    app.run()
 
 
 if __name__ == "__main__":

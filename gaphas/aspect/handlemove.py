@@ -149,7 +149,9 @@ class ElementHandleMove(ItemHandleMove):
                 self.view.set_cursor(cursor)
 
     def reset_cursor(self) -> None:
-        self.view.get_window().set_cursor(self.cursor)
+        self.view.get_window().set_cursor(
+            self.cursor
+        ) if Gtk.get_major_version() == 3 else self.view.set_cursor(self.cursor)
 
 
 # Maybe make this an iterator? so extra checks can be done on the item
