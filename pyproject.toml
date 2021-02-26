@@ -31,7 +31,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-PyGObject = { git= "https://gitlab.gnome.org/GNOME/pygobject.git" }
+PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
 typing-extensions = "^3.7.4"
 
