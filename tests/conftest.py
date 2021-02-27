@@ -28,9 +28,13 @@ def view(canvas):
 
 @pytest.fixture
 def window(view):
-    window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
-    window.add(view)
-    window.show_all()
+    if Gtk.get_major_version() == 3:
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
+        window.add(view)
+        window.show_all()
+    else:
+        window = Gtk.Window.new()
+        window.set_child(view)
     yield window
     window.destroy()
 

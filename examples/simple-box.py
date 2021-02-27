@@ -3,7 +3,7 @@
 import gi
 
 # fmt: off
-gi.require_version("Gtk", "3.0")  # noqa: isort:skip
+gi.require_version("Gtk", "4.0")  # noqa: isort:skip
 from gi.repository import Gtk  # noqa: isort:skip
 
 from gaphas import Canvas, GtkView, Line # noqa: isort:skip

@@ -1,0 +1,15 @@
+FROM fedora:33
+
+ENV TEST_GTK_VERSION "4.0"
+
+RUN yum install -y gcc gtk4 cairo-devel cairo-gobject-devel gobject-introspection-devel python3-devel python3-pip xorg-x11-server-Xvfb
+RUN pip3 install -U poetry pytest
+
+WORKDIR /work
+
+COPY . /work/
+
+RUN poetry install
+# Override PyGObject with the master version
+RUN poetry run pip install -U https://gitlab.gnome.org/GNOME/pygobject/-/archive/master/pygobject-master.tar.gz
+RUN poetry run xvfb-run pytest --cov=gaphas

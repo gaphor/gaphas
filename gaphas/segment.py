@@ -188,7 +188,11 @@ class SegmentState:
 
 
 def segment_tool(view):
-    gesture = Gtk.GestureDrag.new(view)
+    gesture = (
+        Gtk.GestureDrag.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.GestureDrag.new()
+    )
     segment_state = SegmentState()
     gesture.connect("drag-begin", on_drag_begin, segment_state)
     gesture.connect("drag-update", on_drag_update, segment_state)

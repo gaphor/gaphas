@@ -10,7 +10,11 @@ from gaphas.view import GtkView
 
 def hover_tool(view: GtkView) -> Gtk.EventController:
     """Highlight the currenly hovered item."""
-    ctrl = Gtk.EventControllerMotion.new(view)
+    ctrl = (
+        Gtk.EventControllerMotion.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.EventControllerMotion.new()
+    )
     ctrl.connect("motion", on_motion)
     return ctrl
 

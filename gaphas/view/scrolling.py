@@ -54,14 +54,12 @@ class Scrolling:
             raise AttributeError(f"Unknown property {prop.name}")
 
     @g_async(single=True)
-    def update_adjustments(self, allocation, bounds):
-        aw, ah = allocation.width, allocation.height
-
+    def update_adjustments(self, width, height, bounds):
         # canvas limits (in view coordinates)
         c = Rectangle(*bounds)
 
         # view limits
-        v = Rectangle(0, 0, aw, ah)
+        v = Rectangle(0, 0, width, height)
 
         # union of these limits gives scrollbar limits
         u = c if v in c else c + v
@@ -70,34 +68,34 @@ class Scrolling:
                 value=v.x,
                 lower=u.x,
                 upper=u.x1,
-                step_increment=aw // 10,
-                page_increment=aw,
-                page_size=aw,
+                step_increment=width // 10,
+                page_increment=width,
+                page_size=width,
             )
         else:
             self.hadjustment.set_value(v.x)
             self.hadjustment.set_lower(u.x)
             self.hadjustment.set_upper(u.x1)
-            self.hadjustment.set_step_increment(aw // 10)
-            self.hadjustment.set_page_increment(aw)
-            self.hadjustment.set_page_size(aw)
+            self.hadjustment.set_step_increment(width // 10)
+            self.hadjustment.set_page_increment(width)
+            self.hadjustment.set_page_size(width)
 
         if not self.vadjustment:
             self.vadjustment = Gtk.Adjustment.new(
                 value=v.y,
                 lower=u.y,
                 upper=u.y1,
-                step_increment=ah // 10,
-                page_increment=ah,
-                page_size=ah,
+                step_increment=height // 10,
+                page_increment=height,
+                page_size=height,
             )
         else:
             self.vadjustment.set_value(v.y)
             self.vadjustment.set_lower(u.y)
             self.vadjustment.set_upper(u.y1)
-            self.vadjustment.set_step_increment(ah // 10)
-            self.vadjustment.set_page_increment(ah)
-            self.vadjustment.set_page_size(ah)
+            self.vadjustment.set_step_increment(height // 10)
+            self.vadjustment.set_page_increment(height)
+            self.vadjustment.set_page_size(height)
 
     def on_adjustment_changed(self, adj):
         """Change the transformation matrix of the view to reflect the value of

@@ -11,6 +11,7 @@ def test_scroll_tool_returns_a_controller(view):
 
 def test_offset_changes(view):
     tool = scroll_tool(view)
+    view.add_controller(tool)
 
     on_scroll(tool, 10, 10, 1)
 

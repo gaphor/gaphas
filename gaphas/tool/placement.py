@@ -14,7 +14,11 @@ def placement_tool(
     view: GtkView, factory: FactoryType, handle_index: int
 ) -> Gtk.GestureDrag:
     """Place a new item on the model."""
-    gesture = Gtk.GestureDrag.new(view)
+    gesture = (
+        Gtk.GestureDrag.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.GestureDrag.new()
+    )
     placement_state = PlacementState(factory, handle_index)
     gesture.connect("drag-begin", on_drag_begin, placement_state)
     gesture.connect("drag-update", on_drag_update, placement_state)
