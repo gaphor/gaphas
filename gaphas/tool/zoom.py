@@ -16,7 +16,11 @@ def zoom_tool(view: GtkView) -> Gtk.GestureZoom:
     Note: we need to keep a reference to this gesture, or else it will be destroyed.
     """
     zoom_data = ZoomData()
-    gesture = Gtk.GestureZoom.new(view)
+    gesture = (
+        Gtk.GestureZoom.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.GestureZoom.new()
+    )
     gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     gesture.connect("begin", on_begin, zoom_data)
     gesture.connect("scale-changed", on_scale_changed, zoom_data)

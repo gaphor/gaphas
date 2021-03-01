@@ -1,7 +1,7 @@
 """Test cases for the View class."""
 
 import pytest
-from gi.repository import Gtk
+from gi.repository import GLib, Gtk
 
 from gaphas.canvas import Canvas
 from gaphas.view import GtkView, Selection
@@ -9,8 +9,9 @@ from gaphas.view import GtkView, Selection
 
 @pytest.fixture(autouse=True)
 def main_loop(window, box):
-    while Gtk.events_pending():
-        Gtk.main_iteration()
+    ctx = GLib.main_context_default()
+    while ctx.pending():
+        ctx.iteration()
 
 
 class CustomSelection(Selection):
@@ -51,9 +52,13 @@ def test_view_registration():
     view = GtkView(canvas)
     assert len(canvas._registered_views) == 1
 
-    window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
-    window.add(view)
-    window.show_all()
+    if Gtk.get_major_version() == 3:
+        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
+        window.add(view)
+        window.show_all()
+    else:
+        window = Gtk.Window.new()
+        window.set_child(view)
 
     view.model = None
     assert len(canvas._registered_views) == 0
@@ -62,6 +67,7 @@ def test_view_registration():
     assert len(canvas._registered_views) == 1
 
 
+@pytest.mark.skipif(Gtk.get_major_version() != 3, reason="Works only for GTK+ 3")
 def test_view_registration_2(view, canvas, window):
     """Test view registration and destroy when view is destroyed."""
     assert len(canvas._registered_views) == 1
@@ -76,10 +82,11 @@ def test_view_registration_2(view, canvas, window):
 def sc_view():
     sc = Gtk.ScrolledWindow()
     view = GtkView(Canvas())
-    sc.add(view)
+    sc.add(view) if Gtk.get_major_version() == 3 else sc.set_child(view)
     return view, sc
 
 
+@pytest.mark.skipif(Gtk.get_major_version() != 3, reason="Works only for GTK+ 3")
 def test_scroll_adjustments_signal(sc_view):
     assert sc_view[0].hadjustment
     assert sc_view[0].vadjustment
@@ -103,7 +110,11 @@ def test_scroll_adjustments(sc_view):
 
 
 def test_will_not_remove_lone_controller(view):
-    ctrl = Gtk.EventControllerMotion.new(view)
+    ctrl = (
+        Gtk.EventControllerMotion.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.EventControllerMotion.new()
+    )
 
     removed = view.remove_controller(ctrl)
 
@@ -111,7 +122,11 @@ def test_will_not_remove_lone_controller(view):
 
 
 def test_can_add_and_remove_controller(view):
-    ctrl = Gtk.EventControllerMotion.new(view)
+    ctrl = (
+        Gtk.EventControllerMotion.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.EventControllerMotion.new()
+    )
     view.add_controller(ctrl)
 
     removed = view.remove_controller(ctrl)
@@ -121,7 +136,11 @@ def test_can_add_and_remove_controller(view):
 
 
 def test_can_remove_all_controllers(view):
-    ctrl = Gtk.EventControllerMotion.new(view)
+    ctrl = (
+        Gtk.EventControllerMotion.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.EventControllerMotion.new()
+    )
     view.add_controller(ctrl)
 
     view.remove_all_controllers()
