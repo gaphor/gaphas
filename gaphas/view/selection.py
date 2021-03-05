@@ -78,3 +78,6 @@ class Selection:
         if item is not self._hovered_item:
             self._hovered_item = item
             self.notify()
+
+    # removed_items
+    # updated_items

@@ -37,7 +37,7 @@ class ItemMove:
         self.last_x, self.last_y = x, y
 
         item.matrix.translate(dx, dy)
-        view.model.request_update(item, update=False)
+        view.model.request_update(item, full=False)
 
     def stop_move(self, pos: Pos) -> None:
         pass

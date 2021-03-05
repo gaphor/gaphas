@@ -49,7 +49,7 @@ class ItemHandleMove:
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
-        view.model.request_update(item, matrix=False)
+        view.model.request_update(item)
 
     def stop_move(self, pos: Pos) -> None:
         self.connect(pos)
