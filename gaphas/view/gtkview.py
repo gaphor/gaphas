@@ -6,12 +6,12 @@ from typing import Collection, Iterable, Optional, Set, Tuple
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
-from gaphas.canvas import instant_cairo_context
 from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
-from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
+from gaphas.painter import DefaultPainter, ItemPainter
+from gaphas.painter.painter import ItemPainterType, Painter
 from gaphas.quadtree import Quadtree, QuadtreeBucket
 from gaphas.view.model import Model
 from gaphas.view.scrolling import Scrolling
@@ -120,9 +120,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
-        self._bounding_box_painter: Painter = BoundingBoxPainter(
-            ItemPainter(self._selection)
-        )
+        self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
@@ -181,12 +179,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._painter = painter
 
     @property
-    def bounding_box_painter(self) -> Painter:
+    def bounding_box_painter(self) -> ItemPainterType:
         """Special painter for calculating item bounding boxes."""
         return self._bounding_box_painter
 
     @bounding_box_painter.setter
-    def bounding_box_painter(self, painter: Painter) -> None:
+    def bounding_box_painter(self, painter: ItemPainterType) -> None:
         self._bounding_box_painter = painter
 
     @property
@@ -375,30 +373,20 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def update_bounding_box(self, items: Collection[Item]) -> None:
         """Update the bounding boxes of the model items for this view, in model
         coordinates."""
-        cr = (
-            cairo.Context(self._back_buffer)
-            if self._back_buffer
-            else instant_cairo_context()
-        )
+        painter = self._bounding_box_painter
+        if items is None:
+            items = list(self.model.get_all_items())
 
-        cr.set_matrix(self.matrix.to_cairo())
-        cr.save()
-        cr.rectangle(0, 0, 0, 0)
-        cr.clip()
-        try:
-            painter = self._bounding_box_painter
-            if items is None:
-                items = list(self.model.get_all_items())
+        for item in items:
+            surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
+            cr = cairo.Context(surface)
+            painter.paint_item(item, cr)
+            bounds = Rectangle(*surface.ink_extents())
 
-            items_and_bounds = painter.paint(items, cr)
-            assert items_and_bounds is not None
-            for item, bounds in items_and_bounds.items():
-                v2i = self.get_matrix_v2i(item)
-                ix, iy = v2i.transform_point(bounds.x, bounds.y)
-                iw, ih = v2i.transform_distance(bounds.width, bounds.height)
-                self._qtree.add(item=item, bounds=bounds.tuple(), data=(ix, iy, iw, ih))
-        finally:
-            cr.restore()
+            v2i = self.get_matrix_v2i(item)
+            ix, iy = v2i.transform_point(bounds.x, bounds.y)
+            iw, ih = v2i.transform_distance(bounds.width, bounds.height)
+            self._qtree.add(item=item, bounds=bounds.tuple(), data=(ix, iy, iw, ih))
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:

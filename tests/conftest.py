@@ -2,9 +2,16 @@ import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
-from gaphas.item import Element as Box
-from gaphas.item import Line
+from gaphas.item import Element, Line
 from gaphas.view import GtkView
+
+
+class Box(Element):
+    def draw(self, context):
+        cr = context.cairo
+        top_left = self.handles()[0].pos
+        cr.rectangle(top_left.x, top_left.y, self.width, self.height)
+        cr.stroke()
 
 
 @pytest.fixture
@@ -20,7 +27,7 @@ def connections(canvas):
 @pytest.fixture
 def view(canvas):
     view = GtkView(canvas)
-    # resize, like when a widget is configured
+    # resize, as if a widget is configured
     view._qtree.resize((0, 0, 400, 400))
     view.update()
     return view

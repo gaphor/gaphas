@@ -2,7 +2,6 @@ import math
 
 from gi.repository import Gtk
 
-from gaphas.item import Element as Box
 from gaphas.tool.itemtool import (
     DragState,
     handle_at_point,
@@ -10,6 +9,7 @@ from gaphas.tool.itemtool import (
     item_tool,
     on_drag_begin,
 )
+from tests.conftest import Box
 
 
 class MockEvent:
@@ -70,6 +70,7 @@ def test_get_item_at_point(view, box):
     """Hover tool only reacts on motion-notify events."""
     box.width = 50
     box.height = 50
+    view.request_update((box,))
 
     assert item_at_point(view, (10, 10)) is box
     assert item_at_point(view, (60, 10)) is None
