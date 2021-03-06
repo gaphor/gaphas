@@ -1,7 +1,7 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set, Tuple
+from typing import Collection, Iterable, Optional, Set
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -122,7 +122,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
 
-        self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
+        self._qtree: Quadtree[Item, cairo.Surface] = Quadtree()
 
         self._model: Optional[Model] = None
         if model:
@@ -277,6 +277,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Redraw the entire view."""
         self.update_back_buffer()
 
+    def rendered_item(self, item: Item) -> cairo.Surface:
+        """Items are already rendered when their bounding box is calculated.
+
+        The rendered result is cached, so renderers can use it to
+        quickly draw rendered items.
+        """
+        return self._qtree.get_data(item)
+
     def request_update(
         self,
         items: Iterable[Item],
@@ -316,7 +324,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         try:
             dirty_items = self._dirty_items
             dirty_matrix_items = self.all_dirty_matrix_items()
-            dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
+            dirty_items.update(dirty_matrix_items)
 
             model.update_now(dirty_items, dirty_matrix_items)
 
@@ -354,22 +362,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         return set(update_matrices(self._dirty_matrix_items))
 
-    def update_qtree(
-        self, dirty_items: Collection[Item], dirty_matrix_items: Iterable[Item]
-    ) -> Iterable[Item]:
-        for i in dirty_matrix_items:
-            if i not in self._qtree:
-                yield i
-            elif i not in dirty_items:
-                # Only matrix has changed, so calculate new bounding box
-                # based on quadtree data (= bb in item coordinates).
-                bounds = self._qtree.get_data(i)
-                i2v = self.get_matrix_i2v(i)
-                x, y = i2v.transform_point(bounds[0], bounds[1])
-                w, h = i2v.transform_distance(bounds[2], bounds[3])
-                vbounds = Rectangle(x, y, w, h)
-                self._qtree.add(i, vbounds.tuple(), bounds)
-
     def update_bounding_box(self, items: Collection[Item]) -> None:
         """Update the bounding boxes of the model items for this view, in model
         coordinates."""
@@ -383,10 +375,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             painter.paint_item(item, cr)
             bounds = Rectangle(*surface.ink_extents())
 
-            v2i = self.get_matrix_v2i(item)
-            ix, iy = v2i.transform_point(bounds.x, bounds.y)
-            iw, ih = v2i.transform_distance(bounds.width, bounds.height)
-            self._qtree.add(item=item, bounds=bounds.tuple(), data=(ix, iy, iw, ih))
+            c2v = self._matrix
+            x, y = c2v.transform_point(bounds[0], bounds[1])
+            w, h = c2v.transform_distance(bounds[2], bounds[3])
+            vbounds = Rectangle(x, y, w, h)
+
+            self._qtree.add(item=item, bounds=vbounds.tuple(), data=surface)
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:

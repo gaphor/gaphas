@@ -137,16 +137,16 @@ class FreeHandPainter:
     * Drunk: 2.0
     """
 
-    def __init__(self, subpainter: ItemPainterType, sloppiness: float = 0.5):
-        self.subpainter = subpainter
+    def __init__(self, item_painter: ItemPainterType, sloppiness: float = 0.5):
+        self.item_painter = item_painter
         self.sloppiness = sloppiness
 
     def paint_item(self, item: Item, cairo: CairoContext) -> None:
         # Bounding  painter requires painting per item
-        self.subpainter.paint_item(item, cairo)
+        self.item_painter.paint_item(item, FreeHandCairoContext(cairo, self.sloppiness))
 
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
-        self.subpainter.paint(
+        self.item_painter.paint(
             items,
             FreeHandCairoContext(cairo, self.sloppiness),
         )
