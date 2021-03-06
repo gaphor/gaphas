@@ -195,7 +195,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def selection(self, selection: Selection) -> None:
         """Selected, focused and hovered items."""
         self._selection = selection
-        self.queue_redraw()
+        if self._model:
+            self.request_update(self._model.get_all_items())
 
     @property
     def bounding_box(self) -> Rectangle:
@@ -271,10 +272,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def get_item_bounding_box(self, item: Item) -> Rectangle:
         """Get the bounding box for the item, in view coordinates."""
         return Rectangle(*self._qtree.get_bounds(item))
-
-    def queue_redraw(self) -> None:
-        """Redraw the entire view."""
-        self.update_back_buffer()
 
     def rendered_item(self, item: Item) -> cairo.Surface:
         """Items are already rendered when their bounding box is calculated.

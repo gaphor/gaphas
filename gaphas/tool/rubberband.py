@@ -64,7 +64,7 @@ def on_drag_update(gesture, offset_x, offset_y, rubberband_state):
     rubberband_state.x1 = rubberband_state.x0 + offset_x
     rubberband_state.y1 = rubberband_state.y0 + offset_y
     view = gesture.get_widget()
-    view.queue_redraw()
+    view.update_back_buffer()
 
 
 def on_drag_end(gesture, offset_x, offset_y, rubberband_state):
@@ -78,4 +78,4 @@ def on_drag_end(gesture, offset_x, offset_y, rubberband_state):
     )
     view.selection.select_items(*items)
     rubberband_state.reset()
-    view.queue_redraw()
+    view.update_back_buffer()
