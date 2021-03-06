@@ -62,9 +62,7 @@ class Model(Protocol):
           full (bool): ``True`` if it needs a full update (incl. bounding box calculation)
         """
 
-    def update_now(
-        self, dirty_items: Collection[Item], dirty_matrix_items: Collection[Item]
-    ) -> None:
+    def update_now(self, dirty_items: Collection[Item]) -> None:
         """This method is called during the update process.
 
         It will allow the model to do some additional updating of it's

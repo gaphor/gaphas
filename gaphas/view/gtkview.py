@@ -85,7 +85,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
-        self._dirty_matrix_items: Set[Item] = set()
 
         self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
@@ -112,7 +111,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._matrix *= matrix  # type: ignore[operator]
 
             # Force recalculation of the bounding boxes:
-            self.request_update((), self._model.get_all_items())
+            self.request_update(self._model.get_all_items())
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -252,7 +251,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Zoom in/out by factor ``factor``."""
         assert self._model
         self.matrix.scale(factor, factor)
-        self.request_update((), self._model.get_all_items())
+        self.request_update(self._model.get_all_items())
 
     def get_items_in_rectangle(
         self, rect: Rect, contain: bool = False
@@ -288,24 +287,14 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def request_update(
         self,
         items: Iterable[Item],
-        matrix_only_items: Iterable[Item] = (),
         removed_items: Iterable[Item] = (),
     ) -> None:
-        """Request update for items.
-
-        Items will get a full update treatment, while
-        ``matrix_only_items`` will only have their bounding box
-        recalculated.
-        """
+        """Request update for items."""
         if items:
             self._dirty_items.update(items)
-        if matrix_only_items:
-            self._dirty_matrix_items.update(matrix_only_items)
 
-        # Remove removed items:
         if removed_items:
             selection = self._selection
-            self._dirty_matrix_items.difference_update(removed_items)
             self._dirty_items.difference_update(removed_items)
 
             for item in removed_items:
@@ -322,11 +311,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             return
 
         try:
-            dirty_items = self._dirty_items
-            dirty_matrix_items = self.all_dirty_matrix_items()
-            dirty_items.update(dirty_matrix_items)
-
-            model.update_now(dirty_items, dirty_matrix_items)
+            dirty_items = self.all_dirty_items()
+            model.update_now(dirty_items)
 
             self.update_bounding_box(dirty_items)
             allocation = self.get_allocation()
@@ -336,9 +322,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self.update_back_buffer()
         finally:
             self._dirty_items.clear()
-            self._dirty_matrix_items.clear()
 
-    def all_dirty_matrix_items(self) -> Set[Item]:
+    def all_dirty_items(self) -> Set[Item]:
         """Recalculate matrices of the items. Items' children matrices are
         recalculated, too.
 
@@ -348,7 +333,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if not model:
             return set()
 
-        def update_matrices(items: Iterable[Item]) -> Iterable[Item]:
+        def iterate_items(items: Iterable[Item]) -> Iterable[Item]:
             assert model
             for item in items:
                 parent = model.get_parent(item)
@@ -358,9 +343,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
                 yield item
 
-                yield from update_matrices(set(model.get_children(item)))
+                yield from iterate_items(set(model.get_children(item)))
 
-        return set(update_matrices(self._dirty_matrix_items))
+        return set(iterate_items(self._dirty_items))
 
     def update_bounding_box(self, items: Collection[Item]) -> None:
         """Update the bounding boxes of the model items for this view, in model
@@ -464,7 +449,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._qtree.clear()
 
         self._dirty_items.clear()
-        self._dirty_matrix_items.clear()
 
         Gtk.DrawingArea.do_unrealize(self)
 

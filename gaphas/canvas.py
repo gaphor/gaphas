@@ -229,23 +229,18 @@ class Canvas:
         >>> len(c._dirty_items)
         0
         """
-        if full:
-            self._update_views(dirty_items=(item,))
-        else:
-            self._update_views(dirty_matrix_items=(item,))
+        self._update_views(dirty_items=(item,))
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""
         self.request_update(item, full=False)
 
     @nonrecursive
-    def update_now(self, dirty_items, dirty_matrix_items=()):
+    def update_now(self, dirty_items):
         """Perform an update of the items that requested an update."""
         try:
             # keep it here, since we need up to date matrices for the solver
             for d in dirty_items:
-                d.matrix_i2c.set(*self.get_matrix_i2c(d))
-            for d in dirty_matrix_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # solve all constraints
@@ -279,10 +274,10 @@ class Canvas:
         if dirty_items:
             self._update_views(dirty_items)
 
-    def _update_views(self, dirty_items=(), dirty_matrix_items=(), removed_items=()):
+    def _update_views(self, dirty_items=(), removed_items=()):
         """Send an update notification to all registered views."""
         for v in self._registered_views:
-            v.request_update(dirty_items, dirty_matrix_items, removed_items)
+            v.request_update(dirty_items, removed_items)
 
 
 class Traversable(Protocol):
