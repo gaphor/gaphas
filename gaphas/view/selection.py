@@ -9,25 +9,25 @@ class Selection:
         self._selected_items: Set[Item] = set()
         self._focused_item: Optional[Item] = None
         self._hovered_item: Optional[Item] = None
-        self._handlers: Set[Callable[[], None]] = set()
+        self._handlers: Set[Callable[[Optional[Item]], None]] = set()
 
-    def add_handler(self, handler: Callable[[], None]) -> None:
+    def add_handler(self, handler: Callable[[Optional[Item]], None]) -> None:
         """Add a callback handler, triggered when a constraint is resolved."""
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[], None]) -> None:
+    def remove_handler(self, handler: Callable[[Optional[Item]], None]) -> None:
         """Remove a previously assigned handler."""
         self._handlers.discard(handler)
 
-    def notify(self) -> None:
+    def notify(self, item: Optional[Item]) -> None:
         for handler in self._handlers:
-            handler()
+            handler(item)
 
     def clear(self):
         self._selected_items.clear()
         self._focused_item = None
         self._hovered_item = None
-        self.notify()
+        self.notify(None)
 
     @property
     def selected_items(self) -> Collection[Item]:
@@ -37,7 +37,7 @@ class Selection:
         for item in items:
             if item not in self._selected_items:
                 self._selected_items.add(item)
-                self.notify()
+                self.notify(item)
 
     def unselect_item(self, item: Item) -> None:
         """Unselect an item.
@@ -48,7 +48,7 @@ class Selection:
             self._focused_item = None
         if item in self._selected_items:
             self._selected_items.discard(item)
-            self.notify()
+            self.notify(item)
 
     def unselect_all(self) -> None:
         """Clearing the selected_item also clears the focused_item."""
@@ -67,7 +67,7 @@ class Selection:
 
         if item is not self._focused_item:
             self._focused_item = item
-            self.notify()
+            self.notify(item)
 
     @property
     def hovered_item(self) -> Optional[Item]:
@@ -77,7 +77,4 @@ class Selection:
     def hovered_item(self, item: Optional[Item]) -> None:
         if item is not self._hovered_item:
             self._hovered_item = item
-            self.notify()
-
-    # removed_items
-    # updated_items
+            self.notify(item)

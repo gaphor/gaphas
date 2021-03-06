@@ -127,7 +127,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if model:
             self.model = model
 
-        self._selection.add_handler(self.queue_redraw)
+        self._selection.add_handler(self.on_selection_update)
 
     def do_get_property(self, prop: str) -> object:
         return self._scrolling.get_property(prop)
@@ -458,6 +458,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.on_resize(allocation.width, allocation.height)
 
         return False
+
+    def on_selection_update(self, item: Optional[Item]) -> None:
+        if self._model:
+            if item is None:
+                self.request_update(self._model.get_all_items())
+            elif item in self._model.get_all_items():
+                self.request_update((item,))
 
     def on_resize(self, width: int, height: int) -> None:
         self._qtree.resize((0, 0, width, height))
