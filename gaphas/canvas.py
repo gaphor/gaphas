@@ -214,7 +214,7 @@ class Canvas:
             m = m.multiply(self.get_matrix_i2c(parent))
         return m
 
-    def request_update(self, item: Item, full: bool = True) -> None:
+    def request_update(self, item: Item) -> None:
         """Set an update request for the item.
 
         >>> c = Canvas()
@@ -233,7 +233,7 @@ class Canvas:
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""
-        self.request_update(item, full=False)
+        self.request_update(item)
 
     @nonrecursive
     def update_now(self, dirty_items):
