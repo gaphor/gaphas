@@ -92,8 +92,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._controllers: Set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
-        self.set_double_buffered(False)
-        self.set_app_paintable(True)
         if Gtk.get_major_version() == 3:
             self.add_events(
                 Gdk.EventMask.BUTTON_PRESS_MASK
@@ -104,6 +102,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 | Gdk.EventMask.SCROLL_MASK
                 | Gdk.EventMask.STRUCTURE_MASK
             )
+            self.set_double_buffered(False)
+            self.set_app_paintable(True)
         else:
             self.set_draw_func(GtkView.do_draw)
             self.connect_after("resize", GtkView.on_resize)
