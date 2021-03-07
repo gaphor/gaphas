@@ -16,6 +16,10 @@ class RenderedItemPainter:
 
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         for item in items:
-            surface = self.view.rendered_item(item)
+            surface, extents = self.view.rendered_item(item)
+            cairo.save()
+            cairo.rectangle(*extents)  # type: ignore[misc]
+            cairo.clip()
             cairo.set_source_surface(surface)  # type: ignore[attr-defined]
             cairo.paint()
+            cairo.restore()

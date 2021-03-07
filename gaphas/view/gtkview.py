@@ -1,7 +1,7 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set
+from typing import Collection, Iterable, Optional, Set, Tuple
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -92,6 +92,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._controllers: Set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
+        self.set_double_buffered(False)
+        self.set_app_paintable(True)
         if Gtk.get_major_version() == 3:
             self.add_events(
                 Gdk.EventMask.BUTTON_PRESS_MASK
@@ -121,7 +123,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
 
-        self._qtree: Quadtree[Item, cairo.Surface] = Quadtree()
+        self._qtree: Quadtree[Item, cairo.RecordingSurface] = Quadtree()
 
         self._model: Optional[Model] = None
         if model:
@@ -273,13 +275,16 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Get the bounding box for the item, in view coordinates."""
         return Rectangle(*self._qtree.get_bounds(item))
 
-    def rendered_item(self, item: Item) -> cairo.Surface:
+    def rendered_item(self, item: Item) -> Tuple[cairo.Surface, Rectangle]:
         """Items are already rendered when their bounding box is calculated.
 
         The rendered result is cached, so renderers can use it to
         quickly draw rendered items.
+
+        Returns: the rendered surface and it's bounding box, in canvas coordinates.
         """
-        return self._qtree.get_data(item)
+        surface: cairo.RecordingSurface = self._qtree.get_data(item)
+        return surface, Rectangle(*surface.ink_extents())
 
     def request_update(
         self,
@@ -355,11 +360,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
             cr = cairo.Context(surface)
             painter.paint_item(item, cr)
-            bounds = Rectangle(*surface.ink_extents())
+            x, y, w, h = surface.ink_extents()
 
             c2v = self._matrix
-            x, y = c2v.transform_point(bounds[0], bounds[1])
-            w, h = c2v.transform_distance(bounds[2], bounds[3])
+            x, y = c2v.transform_point(x, y)
+            w, h = c2v.transform_distance(w, h)
             vbounds = Rectangle(x, y, w, h)
 
             self._qtree.add(item=item, bounds=vbounds.tuple(), data=surface)
