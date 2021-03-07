@@ -123,7 +123,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
 
-        self._qtree: Quadtree[Item, cairo.RecordingSurface] = Quadtree()
+        self._qtree: Quadtree[
+            Item, Tuple[cairo.Surface, Tuple[float, float, float, float]]
+        ] = Quadtree()
 
         self._model: Optional[Model] = None
         if model:
@@ -283,8 +285,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         Returns: the rendered surface and it's bounding box, in canvas coordinates.
         """
-        surface: cairo.RecordingSurface = self._qtree.get_data(item)
-        return surface, Rectangle(*surface.ink_extents())
+        surface, (x, y, w, h) = self._qtree.get_data(item)
+        return surface, Rectangle(x, y, w, h)
 
     def request_update(
         self,
@@ -363,11 +365,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             x, y, w, h = surface.ink_extents()
 
             c2v = self._matrix
-            x, y = c2v.transform_point(x, y)
-            w, h = c2v.transform_distance(w, h)
-            vbounds = Rectangle(x, y, w, h)
+            vx, vy = c2v.transform_point(x, y)
+            vw, vh = c2v.transform_distance(w, h)
 
-            self._qtree.add(item=item, bounds=vbounds.tuple(), data=surface)
+            self._qtree.add(
+                item=item, bounds=(vx, vy, vw, vh), data=(surface, (x, y, w, h))
+            )
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:
