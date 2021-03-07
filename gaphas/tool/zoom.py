@@ -57,4 +57,3 @@ def on_scale_changed(
     m.translate(-ox, -oy)
     m.scale(dsx, dsy)
     m.translate(+ox, +oy)
-    view.request_update(view.model.get_all_items())

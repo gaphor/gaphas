@@ -130,5 +130,9 @@ class Matrix:
     def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix * other._matrix)
 
+    def __imul__(self, other: Matrix) -> Matrix:
+        self._matrix *= other._matrix
+        return self
+
     def __repr__(self) -> str:
         return f"Matrix{tuple(self._matrix)}"  # type: ignore[arg-type]
