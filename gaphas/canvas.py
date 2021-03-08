@@ -267,10 +267,13 @@ class Canvas:
 
     def _on_constraint_solved(self, cinfo: Connection) -> None:
         dirty_items = set()
-        if cinfo.item:
-            dirty_items.add(cinfo.item)
-        if cinfo.connected:
-            dirty_items.add(cinfo.connected)
+        known_items = set(self._tree.nodes)
+        item = cinfo.item
+        if item and item in known_items:
+            dirty_items.add(item)
+        connected = cinfo.connected
+        if connected and connected in known_items:
+            dirty_items.add(connected)
         if dirty_items:
             self._update_views(dirty_items)
 
