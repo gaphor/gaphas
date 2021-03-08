@@ -304,7 +304,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self._qtree.remove(item)
                 selection.unselect_item(item)
 
-        self.update()
+        if items or removed_items:
+            self.update()
 
     @g_async(single=True)
     def update(self) -> None:
@@ -313,25 +314,20 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if not model:
             return
 
-        try:
-            dirty_items = self.all_dirty_items()
-            model.update_now(dirty_items)
+        dirty_items = self.all_dirty_items()
+        model.update_now(dirty_items)
 
-            self.update_bounding_box(dirty_items)
-            allocation = self.get_allocation()
-            self._scrolling.update_adjustments(
-                allocation.width, allocation.height, self._qtree.soft_bounds
-            )
-            self.update_back_buffer()
-        finally:
-            self._dirty_items.clear()
+        dirty_items |= self.all_dirty_items()
+        self.update_bounding_box(dirty_items)
+
+        allocation = self.get_allocation()
+        self._scrolling.update_adjustments(
+            allocation.width, allocation.height, self._qtree.soft_bounds
+        )
+        self.update_back_buffer()
 
     def all_dirty_items(self) -> Set[Item]:
-        """Recalculate matrices of the items. Items' children matrices are
-        recalculated, too.
-
-        Return items, which matrices were recalculated.
-        """
+        """Return all dirty items, clearing the marked items."""
         model = self._model
         if not model:
             return set()
@@ -348,7 +344,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
                 yield from iterate_items(set(model.get_children(item)))
 
-        return set(iterate_items(self._dirty_items))
+        dirty_items = set(iterate_items(self._dirty_items))
+        self._dirty_items.clear()
+        return dirty_items
 
     def update_bounding_box(self, items: Collection[Item]) -> None:
         """Update the bounding boxes of the model items for this view, in model
