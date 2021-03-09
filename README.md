@@ -10,7 +10,7 @@
 
 > Gaphas is the diagramming widget library for Python.
 
-![Gaphas Demo](docs/images/gaphas-demo.gif)
+![Gaphas Demo](https://raw.githubusercontent.com/gaphor/gaphas/master/docs/images/gaphas-demo.gif)
 
 Gaphas is a library that provides the user interface component (widget) for drawing diagrams. Diagrams can be drawn to screen and then easily exported to a variety of formats, including SVG and PDF. Want to build an app with chart-like diagrams? Then Gaphas is for you! Use this library to build a tree, network, flowchart, or other diagrams.
 
