@@ -314,3 +314,16 @@ def test_params_errors(canvas, connections, num_segments):
         else:
             segment.split_segment(0)
             segment.merge_segment(num_segments)
+
+
+def test_merge_orthogonal_line(canvas, connections):
+    line = Line(connections)
+    canvas.add(line)
+    Segment(line, canvas).split_segment(0)
+    line.orthogonal = True
+
+    line.handles()[2].pos = (100, 0)
+    line.handles()[1].pos = (100, 0)
+
+    with pytest.raises(ValueError):
+        Segment(line, canvas).merge_segment(1)

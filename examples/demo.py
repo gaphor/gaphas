@@ -117,8 +117,8 @@ def rubberband_state(view):
 
 def apply_default_tool_set(view):
     view.remove_all_controllers()
-    view.add_controller(segment_tool(view))
     view.add_controller(item_tool(view))
+    view.add_controller(segment_tool(view))
     view.add_controller(scroll_tool(view))
     view.add_controller(zoom_tool(view))
     view.add_controller(view_focus_tool(view))

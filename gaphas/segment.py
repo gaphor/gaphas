@@ -112,7 +112,9 @@ class LineSegment:
         """
         item = self.item
         if len(item.ports()) < 2:
-            raise ValueError("Cannot merge item with one segment")
+            raise ValueError("Cannot merge line with one segment")
+        if item.orthogonal and len(item.ports()) < 1 + count:
+            raise ValueError("Cannot merge orthogonal line to one segment")
         if segment < 0 or segment >= len(item.ports()):
             raise ValueError("Incorrect segment")
         if count < 2 or segment + count > len(item.ports()):
@@ -213,17 +215,16 @@ def on_drag_begin(gesture, start_x, start_y, segment_state):
 
 
 def on_drag_update(gesture, offset_x, offset_y, segment_state):
-    _, x, y = gesture.get_start_point()
-    segment_state.moving.move((x + offset_x, y + offset_y))
+    if segment_state.moving:
+        _, x, y = gesture.get_start_point()
+        segment_state.moving.move((x + offset_x, y + offset_y))
 
 
 def on_drag_end(gesture, offset_x, offset_y, segment_state):
-    if not segment_state.moving:
-        return
-
-    _, x, y = gesture.get_start_point()
-    segment_state.moving.stop_move((x + offset_x, y + offset_y))
-    segment_state.reset()
+    if segment_state.moving:
+        _, x, y = gesture.get_start_point()
+        segment_state.moving.stop_move((x + offset_x, y + offset_y))
+        segment_state.reset()
 
 
 @HandleMove.register(Line)
@@ -252,8 +253,9 @@ def maybe_merge_segments(view, item, handle):
 
     # don't merge using first or last handle
     if handles[0] is handle or handles[-1] is handle:
-        return True
+        return
 
+    # ensure at least three handles
     handle_index = handles.index(handle)
     segment = handle_index - 1
 
@@ -266,11 +268,16 @@ def maybe_merge_segments(view, item, handle):
     after = handles[handle_index + 1]
     d, p = distance_line_point(before.pos, after.pos, handle.pos)
 
-    if d < 2:
-        Segment(item, view.model).merge_segment(segment)
+    if d > 2:
+        return
 
-    if handle:
-        view.model.request_update(item)
+    try:
+        Segment(item, view.model).merge_segment(segment)
+    except ValueError:
+        pass
+    else:
+        if handle:
+            view.model.request_update(item)
 
 
 class LineSegmentPainter:
