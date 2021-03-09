@@ -123,6 +123,13 @@ def on_drag_end(gesture, offset_x, offset_y, drag_state):
     drag_state.moving = set()
 
 
+def order_handles(handles):
+    if handles:
+        yield handles[0]
+        yield handles[-1]
+        yield from handles[1:-1]
+
+
 def handle_at_point(
     view: GtkView, pos: Pos, distance: int = 6
 ) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
@@ -134,7 +141,7 @@ def handle_at_point(
         d = distance_point_point_fast(v2i.transform_distance(0, distance))
         x, y = v2i.transform_point(*pos)
 
-        for h in item.handles():
+        for h in order_handles(item.handles()):
             if not h.movable:
                 continue
             hx, hy = h.pos
