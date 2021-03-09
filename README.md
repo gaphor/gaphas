@@ -17,7 +17,7 @@ Gaphas is a library that provides the user interface component (widget) for draw
 This library is currently being used by [Gaphor](https://github.com/gaphor/gaphor) for UML drawing,
 [RAFCON](https://github.com/DLR-RM/RAFCON) for state-machine based robot control, and [ASCEND](http://ascend4.org/) for solving mathematical models.
 
-## :bookmark_tabs: Table of Contents
+## 📑 Table of Contents
 
 - [Background](#background)
 - [Install](#install)
@@ -25,7 +25,7 @@ This library is currently being used by [Gaphor](https://github.com/gaphor/gapho
 - [Contributing](#contributing)
 - [License](#license)
 
-## :scroll: Background
+## 📜 Background
 
 Gaphas was built to provide the foundational diagramming portions of [Gaphor](https://github.com/gaphor/gaphor). Since Gaphor is built on GTK and Cairo, [PyGObject](https://pygobject.readthedocs.io/) provides access to the GUI toolkit and [PyCairo](https://pycairo.readthedocs.io/) to the 2D graphics library. However, there wasn't a project that abstracted these technologies to easily create a diagramming tool. Hence, Gaphas was created as a library to allow others to create a diagramming tool using GTK and Cairo.
 
@@ -51,7 +51,7 @@ The main portions of the library include:
 Gaphas contains default implementations for `Canvas` and `Item`s. There are protocols in place
 to allow you to make your own canvas.
 
-## :floppy_disk: Install
+## 💾 Install
 
 To install Gaphas, simply use pip:
 
@@ -73,11 +73,11 @@ $ pip install poetry
 $ poetry install
 ```
 
-## :flashlight: Usage
+## 🔦 Usage
 
 API docs and tutorials can be found on [Read the Docs](https://gaphas.readthedocs.io).
 
-## :heart: Contributing
+## ♥ Contributing
 
 Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
 
@@ -99,9 +99,9 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 
 See [the contributing file](CONTRIBUTING.md)!
 
-## :copyright: License
+## © License
 
-Copyright (C) Arjan Molenaar and Dan Yeaw
+Copyright © Arjan Molenaar and Dan Yeaw
 
 Licensed under the [Apache License 2.0](LICENSE).
 
