@@ -6,7 +6,7 @@ on:
     types: [created, published]
 
 env:
-  POETRY_VERSION: 1.0.10
+  POETRY_VERSION: 1.1.5
 
 jobs:
   lint:
