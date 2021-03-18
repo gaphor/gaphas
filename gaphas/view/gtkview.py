@@ -6,12 +6,12 @@ from typing import Collection, Iterable, Optional, Set, Tuple
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
-from gaphas.canvas import instant_cairo_context
 from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
-from gaphas.painter import BoundingBoxPainter, DefaultPainter, ItemPainter, Painter
+from gaphas.painter import DefaultPainter, ItemPainter
+from gaphas.painter.painter import ItemPainterType, Painter
 from gaphas.quadtree import Quadtree, QuadtreeBucket
 from gaphas.view.model import Model
 from gaphas.view.scrolling import Scrolling
@@ -85,7 +85,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         Gtk.DrawingArea.__init__(self)
 
         self._dirty_items: Set[Item] = set()
-        self._dirty_matrix_items: Set[Item] = set()
 
         self._back_buffer: Optional[cairo.Surface] = None
         self._back_buffer_needs_resizing = True
@@ -103,16 +102,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 | Gdk.EventMask.SCROLL_MASK
                 | Gdk.EventMask.STRUCTURE_MASK
             )
+            self.set_double_buffered(False)
+            self.set_app_paintable(True)
         else:
             self.set_draw_func(GtkView.do_draw)
             self.connect_after("resize", GtkView.on_resize)
 
         def alignment_updated(matrix: Matrix) -> None:
-            assert self._model
-            self._matrix *= matrix  # type: ignore[operator]
-
-            # Force recalculation of the bounding boxes:
-            self.request_update((), self._model.get_all_items())
+            if self._model:
+                self._matrix *= matrix  # type: ignore[misc]
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -120,9 +118,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
-        self._bounding_box_painter: Painter = BoundingBoxPainter(
-            ItemPainter(self._selection)
-        )
+        self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
+        self._matrix_changed = False
 
         self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
 
@@ -130,7 +127,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if model:
             self.model = model
 
-        self._selection.add_handler(self.queue_redraw)
+        self._selection.add_handler(self.on_selection_update)
+        self._matrix.add_handler(self.on_matrix_update)
 
     def do_get_property(self, prop: str) -> object:
         return self._scrolling.get_property(prop)
@@ -181,12 +179,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._painter = painter
 
     @property
-    def bounding_box_painter(self) -> Painter:
+    def bounding_box_painter(self) -> ItemPainterType:
         """Special painter for calculating item bounding boxes."""
         return self._bounding_box_painter
 
     @bounding_box_painter.setter
-    def bounding_box_painter(self, painter: Painter) -> None:
+    def bounding_box_painter(self, painter: ItemPainterType) -> None:
         self._bounding_box_painter = painter
 
     @property
@@ -198,7 +196,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def selection(self, selection: Selection) -> None:
         """Selected, focused and hovered items."""
         self._selection = selection
-        self.queue_redraw()
+        if self._model:
+            self.request_update(self._model.get_all_items())
 
     @property
     def bounding_box(self) -> Rectangle:
@@ -254,7 +253,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Zoom in/out by factor ``factor``."""
         assert self._model
         self.matrix.scale(factor, factor)
-        self.request_update((), self._model.get_all_items())
+        self.request_update(self._model.get_all_items())
 
     def get_items_in_rectangle(
         self, rect: Rect, contain: bool = False
@@ -275,38 +274,25 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Get the bounding box for the item, in view coordinates."""
         return Rectangle(*self._qtree.get_bounds(item))
 
-    def queue_redraw(self) -> None:
-        """Redraw the entire view."""
-        self.update_back_buffer()
-
     def request_update(
         self,
         items: Iterable[Item],
-        matrix_only_items: Iterable[Item] = (),
         removed_items: Iterable[Item] = (),
     ) -> None:
-        """Request update for items.
-
-        Items will get a full update treatment, while
-        ``matrix_only_items`` will only have their bounding box
-        recalculated.
-        """
+        """Request update for items."""
         if items:
             self._dirty_items.update(items)
-        if matrix_only_items:
-            self._dirty_matrix_items.update(matrix_only_items)
 
-        # Remove removed items:
         if removed_items:
             selection = self._selection
-            self._dirty_matrix_items.difference_update(removed_items)
             self._dirty_items.difference_update(removed_items)
 
             for item in removed_items:
                 self._qtree.remove(item)
                 selection.unselect_item(item)
 
-        self.update()
+        if items or removed_items:
+            self.update()
 
     @g_async(single=True)
     def update(self) -> None:
@@ -315,34 +301,25 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if not model:
             return
 
-        try:
-            dirty_items = self._dirty_items
-            dirty_matrix_items = self.all_dirty_matrix_items()
-            dirty_items.update(self.update_qtree(dirty_items, dirty_matrix_items))
+        dirty_items = self.all_dirty_items()
+        model.update_now(dirty_items)
 
-            model.update_now(dirty_items, dirty_matrix_items)
+        dirty_items |= self.all_dirty_items()
+        self.update_bounding_box(dirty_items)
 
-            self.update_bounding_box(dirty_items)
-            allocation = self.get_allocation()
-            self._scrolling.update_adjustments(
-                allocation.width, allocation.height, self._qtree.soft_bounds
-            )
-            self.update_back_buffer()
-        finally:
-            self._dirty_items.clear()
-            self._dirty_matrix_items.clear()
+        allocation = self.get_allocation()
+        self._scrolling.update_adjustments(
+            allocation.width, allocation.height, self._qtree.soft_bounds
+        )
+        self.update_back_buffer()
 
-    def all_dirty_matrix_items(self) -> Set[Item]:
-        """Recalculate matrices of the items. Items' children matrices are
-        recalculated, too.
-
-        Return items, which matrices were recalculated.
-        """
+    def all_dirty_items(self) -> Set[Item]:
+        """Return all dirty items, clearing the marked items."""
         model = self._model
         if not model:
             return set()
 
-        def update_matrices(items: Iterable[Item]) -> Iterable[Item]:
+        def iterate_items(items: Iterable[Item]) -> Iterable[Item]:
             assert model
             for item in items:
                 parent = model.get_parent(item)
@@ -352,53 +329,37 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
                 yield item
 
-                yield from update_matrices(set(model.get_children(item)))
+                yield from iterate_items(set(model.get_children(item)))
 
-        return set(update_matrices(self._dirty_matrix_items))
-
-    def update_qtree(
-        self, dirty_items: Collection[Item], dirty_matrix_items: Iterable[Item]
-    ) -> Iterable[Item]:
-        for i in dirty_matrix_items:
-            if i not in self._qtree:
-                yield i
-            elif i not in dirty_items:
-                # Only matrix has changed, so calculate new bounding box
-                # based on quadtree data (= bb in item coordinates).
-                bounds = self._qtree.get_data(i)
-                i2v = self.get_matrix_i2v(i)
-                x, y = i2v.transform_point(bounds[0], bounds[1])
-                w, h = i2v.transform_distance(bounds[2], bounds[3])
-                vbounds = Rectangle(x, y, w, h)
-                self._qtree.add(i, vbounds.tuple(), bounds)
+        dirty_items = set(iterate_items(self._dirty_items))
+        self._dirty_items.clear()
+        return dirty_items
 
     def update_bounding_box(self, items: Collection[Item]) -> None:
         """Update the bounding boxes of the model items for this view, in model
         coordinates."""
-        cr = (
-            cairo.Context(self._back_buffer)
-            if self._back_buffer
-            else instant_cairo_context()
-        )
+        painter = self._bounding_box_painter
+        qtree = self._qtree
+        c2v = self._matrix
+        for item in items:
+            surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
+            cr = cairo.Context(surface)
+            painter.paint_item(item, cr)
+            x, y, w, h = surface.ink_extents()
 
-        cr.set_matrix(self.matrix.to_cairo())
-        cr.save()
-        cr.rectangle(0, 0, 0, 0)
-        cr.clip()
-        try:
-            painter = self._bounding_box_painter
-            if items is None:
-                items = list(self.model.get_all_items())
+            vx, vy = c2v.transform_point(x, y)
+            vw, vh = c2v.transform_distance(w, h)
 
-            items_and_bounds = painter.paint(items, cr)
-            assert items_and_bounds is not None
-            for item, bounds in items_and_bounds.items():
-                v2i = self.get_matrix_v2i(item)
-                ix, iy = v2i.transform_point(bounds.x, bounds.y)
-                iw, ih = v2i.transform_distance(bounds.width, bounds.height)
-                self._qtree.add(item=item, bounds=bounds.tuple(), data=(ix, iy, iw, ih))
-        finally:
-            cr.restore()
+            qtree.add(item=item, bounds=(vx, vy, vw, vh), data=(x, y, w, h))
+
+        if self._matrix_changed and self._model:
+            for item in self._model.get_all_items():
+                if item not in items:
+                    bounds = self._qtree.get_data(item)
+                    x, y = c2v.transform_point(bounds[0], bounds[1])
+                    w, h = c2v.transform_distance(bounds[2], bounds[3])
+                    qtree.add(item=item, bounds=(x, y, w, h), data=bounds)
+            self._matrix_changed = False
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:
@@ -482,7 +443,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._qtree.clear()
 
         self._dirty_items.clear()
-        self._dirty_matrix_items.clear()
 
         Gtk.DrawingArea.do_unrealize(self)
 
@@ -492,6 +452,18 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.on_resize(allocation.width, allocation.height)
 
         return False
+
+    def on_selection_update(self, item: Optional[Item]) -> None:
+        if self._model:
+            if item is None:
+                self.request_update(self._model.get_all_items())
+            elif item in self._model.get_all_items():
+                self.request_update((item,))
+
+    def on_matrix_update(self, matrix, old_matrix_values):
+        if not self._matrix_changed:
+            self._matrix_changed = True
+            self.update()
 
     def on_resize(self, width: int, height: int) -> None:
         self._qtree.resize((0, 0, width, height))

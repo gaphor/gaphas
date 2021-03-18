@@ -214,9 +214,7 @@ class Canvas:
             m = m.multiply(self.get_matrix_i2c(parent))
         return m
 
-    def request_update(
-        self, item: Item, update: bool = True, matrix: bool = True
-    ) -> None:
+    def request_update(self, item: Item) -> None:
         """Set an update request for the item.
 
         >>> c = Canvas()
@@ -231,25 +229,18 @@ class Canvas:
         >>> len(c._dirty_items)
         0
         """
-        if update and matrix:
-            self._update_views(dirty_items=(item,), dirty_matrix_items=(item,))
-        elif update:
-            self._update_views(dirty_items=(item,))
-        elif matrix:
-            self._update_views(dirty_matrix_items=(item,))
+        self._update_views(dirty_items=(item,))
 
     def request_matrix_update(self, item):
         """Schedule only the matrix to be updated."""
-        self.request_update(item, update=False, matrix=True)
+        self.request_update(item)
 
     @nonrecursive
-    def update_now(self, dirty_items, dirty_matrix_items=()):
+    def update_now(self, dirty_items):
         """Perform an update of the items that requested an update."""
         try:
             # keep it here, since we need up to date matrices for the solver
             for d in dirty_items:
-                d.matrix_i2c.set(*self.get_matrix_i2c(d))
-            for d in dirty_matrix_items:
                 d.matrix_i2c.set(*self.get_matrix_i2c(d))
 
             # solve all constraints
@@ -276,17 +267,20 @@ class Canvas:
 
     def _on_constraint_solved(self, cinfo: Connection) -> None:
         dirty_items = set()
-        if cinfo.item:
-            dirty_items.add(cinfo.item)
-        if cinfo.connected:
-            dirty_items.add(cinfo.connected)
+        known_items = set(self._tree.nodes)
+        item = cinfo.item
+        if item and item in known_items:
+            dirty_items.add(item)
+        connected = cinfo.connected
+        if connected and connected in known_items:
+            dirty_items.add(connected)
         if dirty_items:
             self._update_views(dirty_items)
 
-    def _update_views(self, dirty_items=(), dirty_matrix_items=(), removed_items=()):
+    def _update_views(self, dirty_items=(), removed_items=()):
         """Send an update notification to all registered views."""
         for v in self._registered_views:
-            v.request_update(dirty_items, dirty_matrix_items, removed_items)
+            v.request_update(dirty_items, removed_items)
 
 
 class Traversable(Protocol):

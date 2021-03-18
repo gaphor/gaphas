@@ -21,4 +21,3 @@ def on_scroll(controller, dx, dy, speed):
     view = controller.get_widget()
     m = view.matrix
     m.translate(-dx * speed, -dy * speed)
-    view.request_update((), view.model.get_all_items())

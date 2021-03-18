@@ -142,17 +142,16 @@ def apply_placement_tool_set(view, item_type, handle_index):
 
 
 def apply_painters(view):
+    painter = FreeHandPainter(ItemPainter(view.selection))
     view.painter = (
         PainterChain()
-        .append(FreeHandPainter(ItemPainter(view.selection)))
+        .append(painter)
         .append(HandlePainter(view))
         .append(LineSegmentPainter(view.selection))
         .append(GuidePainter(view))
         .append(RubberbandPainter(rubberband_state(view)))
     )
-    view.bounding_box_painter = BoundingBoxPainter(
-        FreeHandPainter(ItemPainter(view.selection))
-    )
+    view.bounding_box_painter = painter
 
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
@@ -218,7 +217,6 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         if isinstance(selection.focused_item, Line):
             segment = Segment(selection.focused_item, canvas)
             segment.split_segment(0)
-            view.queue_redraw()
 
     b.connect("clicked", on_split_line_clicked)
     v.append(b)

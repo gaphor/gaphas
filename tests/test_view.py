@@ -83,6 +83,7 @@ def sc_view():
     sc = Gtk.ScrolledWindow()
     view = GtkView(Canvas())
     sc.add(view) if Gtk.get_major_version() == 3 else sc.set_child(view)
+    view.update()
     return view, sc
 
 

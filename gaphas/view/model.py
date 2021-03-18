@@ -54,20 +54,14 @@ class Model(Protocol):
         """Sort a collection of items in the order they need to be rendered
         in."""
 
-    def request_update(
-        self, item: Item, update: bool = True, matrix: bool = True
-    ) -> None:
+    def request_update(self, item: Item) -> None:
         """Request update for an item.
 
         Arguments:
           item (Item): The item to be updated
-          update (bool): ``True`` if it needs a full update (incl. bounding box calculation)
-          matrix (bool): ``True`` if only the matrix has been updated (item has moved/resized)
         """
 
-    def update_now(
-        self, dirty_items: Collection[Item], dirty_matrix_items: Collection[Item]
-    ) -> None:
+    def update_now(self, dirty_items: Collection[Item]) -> None:
         """This method is called during the update process.
 
         It will allow the model to do some additional updating of it's

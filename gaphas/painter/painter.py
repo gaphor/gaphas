@@ -6,11 +6,10 @@ Each painter takes care of a layer in the canvas (such as grid, items
 and handles).
 """
 
-from typing import Collection, Dict, Optional
+from typing import Collection
 
 from typing_extensions import Protocol
 
-from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.types import CairoContext
 
@@ -18,9 +17,7 @@ from gaphas.types import CairoContext
 class Painter(Protocol):
     """Painter interface."""
 
-    def paint(
-        self, items: Collection[Item], cairo: CairoContext
-    ) -> Optional[Dict[Item, Rectangle]]:
+    def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         """Do the paint action (called from the View)."""
         pass
 
