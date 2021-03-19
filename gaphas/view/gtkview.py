@@ -102,7 +102,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 | Gdk.EventMask.SCROLL_MASK
                 | Gdk.EventMask.STRUCTURE_MASK
             )
-            self.set_double_buffered(False)
             self.set_app_paintable(True)
         else:
             self.set_draw_func(GtkView.do_draw)
