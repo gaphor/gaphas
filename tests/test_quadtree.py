@@ -92,6 +92,14 @@ def test_resize_will_not_find_items_outside_bounds(qtree):
     assert len(qtree.find_inside((0, 0, 100, 100))) == 4
 
 
+def test_many_items_on_same_position():
+    capacity = 10
+    qtree: Quadtree[int, None] = Quadtree((0, 0, 0, 0), capacity=10)
+
+    for i in range(0, capacity + 2):
+        qtree.add(item=i, bounds=(0, 0, 10, 10), data=None)
+
+
 def test_dump_quadtree(qtree, capsys):
     qtree.dump()
     captured = capsys.readouterr()

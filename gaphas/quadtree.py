@@ -260,25 +260,30 @@ class QuadtreeBucket(Generic[T]):
         this bucket, not some sub-bucket.
         """
         assert rectangle_contains(bounds, self.bounds)
-        # create new subnodes if threshold is reached
-        if not self._buckets and len(self.items) >= self.capacity:
-            x, y, w, h = self.bounds
-            rw, rh = w / 2.0, h / 2.0
-            cx, cy = x + rw, y + rh
-            self._buckets = [
-                QuadtreeBucket((x, y, rw, rh), self.capacity),
-                QuadtreeBucket((cx, y, rw, rh), self.capacity),
-                QuadtreeBucket((x, cy, rw, rh), self.capacity),
-                QuadtreeBucket((cx, cy, rw, rh), self.capacity),
-            ]
-            # Add items to subnodes
-            items = list(self.items.items())
-            self.items.clear()
-            for i, b in items:
-                self.find_bucket(b).add(i, b)
-            self.find_bucket(bounds).add(item, bounds)
-        else:
+
+        if self._buckets or len(self.items) < self.capacity:
             self.items[item] = bounds
+            return
+
+        x, y, w, h = self.bounds
+        rw, rh = w / 2.0, h / 2.0
+        if w == rw and h == rh:
+            self.items[item] = bounds
+            return
+
+        cx, cy = x + rw, y + rh
+        self._buckets = [
+            QuadtreeBucket((x, y, rw, rh), self.capacity),
+            QuadtreeBucket((cx, y, rw, rh), self.capacity),
+            QuadtreeBucket((x, cy, rw, rh), self.capacity),
+            QuadtreeBucket((cx, cy, rw, rh), self.capacity),
+        ]
+
+        items = list(self.items.items())
+        self.items.clear()
+        for i, b in items:
+            self.find_bucket(b).add(i, b)
+        self.find_bucket(bounds).add(item, bounds)
 
     def remove(self, item: T) -> None:
         """Remove an item from the quadtree bucket.
