@@ -1,5 +1,6 @@
 import time
 
+import cairo
 from gi.repository import Gtk
 
 from gaphas import Canvas, Element, GtkView
@@ -72,6 +73,19 @@ def perf_update_back_buffer(rounds, canvas, view):
             view.update_back_buffer()
 
 
+def perf_draw(rounds, canvas, view):
+    view.update()
+    width = view.get_allocation().width
+    height = view.get_allocation().height
+    surface = view.get_window().create_similar_surface(
+        cairo.Content.COLOR_ALPHA, width, height
+    )
+    ctx = cairo.Context(surface)
+    with timer("draw"):
+        for i in range(rounds):
+            view.do_draw(ctx)
+
+
 if __name__ == "__main__":
     boxes = 5
     rounds = 200
@@ -79,3 +93,4 @@ if __name__ == "__main__":
     perf_update(rounds, *setup_canvas_and_view(boxes))
     perf_bounding_box_speed(rounds, *setup_canvas_and_view(boxes))
     perf_update_back_buffer(rounds, *setup_canvas_and_view(boxes))
+    perf_draw(rounds, *setup_canvas_and_view(boxes))
