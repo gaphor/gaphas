@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from gaphas.painter.boundingboxpainter import BoundingBoxPainter
 from gaphas.painter.chain import PainterChain
 from gaphas.painter.freehand import FreeHandPainter
 from gaphas.painter.handlepainter import HandlePainter

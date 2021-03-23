@@ -6,11 +6,13 @@ from typing import Collection, Iterable, Optional, Set, Tuple
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
 
+from gaphas.canvas import instant_cairo_context
 from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
 from gaphas.painter import DefaultPainter, ItemPainter
+from gaphas.painter.boundingboxpainter import CairoBoundingBoxContext
 from gaphas.painter.painter import ItemPainterType, Painter
 from gaphas.quadtree import Quadtree, QuadtreeBucket
 from gaphas.view.model import Model
@@ -340,16 +342,20 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         painter = self._bounding_box_painter
         qtree = self._qtree
         c2v = self._matrix
+        cr = (
+            cairo.Context(self._back_buffer)
+            if self._back_buffer
+            else instant_cairo_context()
+        )
+
         for item in items:
-            surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
-            cr = cairo.Context(surface)
-            painter.paint_item(item, cr)
-            x, y, w, h = surface.ink_extents()
-
-            vx, vy = c2v.transform_point(x, y)
-            vw, vh = c2v.transform_distance(w, h)
-
-            qtree.add(item=item, bounds=(vx, vy, vw, vh), data=(x, y, w, h))
+            bbctx = CairoBoundingBoxContext(cr)
+            painter.paint_item(item, bbctx)
+            bb = bbctx.get_bounds()
+            v2i = self.get_matrix_v2i(item)
+            ix, iy = v2i.transform_point(bb.x, bb.y)
+            iw, ih = v2i.transform_distance(bb.width, bb.height)
+            self._qtree.add(item=item, bounds=bb.tuple(), data=(ix, iy, iw, ih))
 
         if self._matrix_changed and self._model:
             for item in self._model.get_all_items():
