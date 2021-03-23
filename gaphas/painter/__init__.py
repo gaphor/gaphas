@@ -8,6 +8,7 @@ from gaphas.painter.freehand import FreeHandPainter
 from gaphas.painter.handlepainter import HandlePainter
 from gaphas.painter.itempainter import ItemPainter
 from gaphas.painter.painter import Painter
+from gaphas.painter.rendereditempainter import RenderedItemPainter
 
 if TYPE_CHECKING:
     from gaphas.view import GtkView

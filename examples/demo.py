@@ -30,6 +30,7 @@ from gaphas.painter import (
     HandlePainter,
     ItemPainter,
     PainterChain,
+    RenderedItemPainter,
 )
 from gaphas.segment import LineSegmentPainter, Segment, segment_tool
 from gaphas.tool import (
@@ -142,16 +143,15 @@ def apply_placement_tool_set(view, item_type, handle_index):
 
 
 def apply_painters(view):
-    painter = FreeHandPainter(ItemPainter(view.selection))
     view.painter = (
         PainterChain()
-        .append(painter)
+        .append(RenderedItemPainter(view))
         .append(HandlePainter(view))
         .append(LineSegmentPainter(view.selection))
         .append(GuidePainter(view))
         .append(RubberbandPainter(rubberband_state(view)))
     )
-    view.bounding_box_painter = painter
+    view.bounding_box_painter = FreeHandPainter(ItemPainter(view.selection))
 
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
