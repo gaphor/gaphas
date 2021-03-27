@@ -18,6 +18,8 @@ class Scrolling:
         self.vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
         self._hadjustment_handler_id = 0
         self._vadjustment_handler_id = 0
+        self._last_hvalue = 0.0
+        self._last_vvalue = 0.0
 
     def get_property(self, prop):
         if prop.name == "hadjustment":
@@ -64,7 +66,7 @@ class Scrolling:
         # union of these limits gives scrollbar limits
         u = c if v in c else c + v
         if not self.hadjustment:
-            self._hadjustment = Gtk.Adjustment.new(
+            self.hadjustment = Gtk.Adjustment.new(
                 value=v.x,
                 lower=u.x,
                 upper=u.x1,
@@ -97,6 +99,9 @@ class Scrolling:
             self.vadjustment.set_page_increment(height)
             self.vadjustment.set_page_size(height)
 
+        self._last_hvalue = v.x
+        self._last_vvalue = v.y
+
     def on_adjustment_changed(self, adj):
         """Change the transformation matrix of the view to reflect the value of
         the x/y adjustment (scrollbar)."""
@@ -104,13 +109,12 @@ class Scrolling:
         if value == 0.0:
             return
 
-        # Can not use self._matrix.translate(-value , 0) here, since
-        # the translate method effectively does a m * self._matrix, which
-        # will result in the translation being multiplied by the orig. matrix
         m = Matrix()
         if adj is self.hadjustment:
-            m.translate(-value, 0)
+            m.translate(self._last_hvalue - value, 0)
+            self._last_hvalue = value
         elif adj is self.vadjustment:
-            m.translate(0, -value)
+            m.translate(0, self._last_vvalue - value)
+            self._last_vvalue = value
 
         self._scrolling_updated(m)
