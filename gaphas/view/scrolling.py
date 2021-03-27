@@ -69,19 +69,7 @@ class Scrolling:
 
         # union of these limits gives scrollbar limits
         u = c if v in c else c + v
-        if not self.hadjustment:
-            self.hadjustment = Gtk.Adjustment.new(
-                value=v.x,
-                lower=u.x,
-                upper=u.x1,
-                step_increment=width // 10,
-                page_increment=width,
-                page_size=width,
-            )
-            self._hadjustment_handler_id = self.hadjustment.connect(
-                "value-changed", self.on_adjustment_changed
-            )
-        else:
+        if self.hadjustment:
             self.hadjustment.set_value(v.x)
             self.hadjustment.set_lower(u.x)
             self.hadjustment.set_upper(u.x1)
@@ -89,19 +77,7 @@ class Scrolling:
             self.hadjustment.set_page_increment(width)
             self.hadjustment.set_page_size(width)
 
-        if not self.vadjustment:
-            self.vadjustment = Gtk.Adjustment.new(
-                value=v.y,
-                lower=u.y,
-                upper=u.y1,
-                step_increment=height // 10,
-                page_increment=height,
-                page_size=height,
-            )
-            self._vadjustment_handler_id = self.vadjustment.connect(
-                "value-changed", self.on_adjustment_changed
-            )
-        else:
+        if self.vadjustment:
             self.vadjustment.set_value(v.y)
             self.vadjustment.set_lower(u.y)
             self.vadjustment.set_upper(u.y1)
