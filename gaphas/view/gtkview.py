@@ -213,6 +213,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """Gtk adjustment object for use with a scrollbar."""
         return self._scrolling.vadjustment
 
+    def clamp_item(self, item):
+        """Update adjustments so the item is located inside the view port."""
+        x, y, w, h = self._qtree.get_bounds(item)
+        self.hadjustment.clamp_page(x, x + w)
+        self.vadjustment.clamp_page(y, y + h)
+
     def add_controller(self, *controllers: Gtk.EventController) -> None:
         """Add a controller.
 
