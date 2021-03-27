@@ -59,6 +59,10 @@ class Scrolling:
     def update_adjustments(self, width, height, bounds):
         # canvas limits (in view coordinates)
         c = Rectangle(*bounds)
+        c.x -= width * 0.7
+        c.width += width * 1.4
+        c.y -= height * 0.7
+        c.height += height * 1.4
 
         # view limits
         v = Rectangle(0, 0, width, height)
