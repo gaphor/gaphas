@@ -33,6 +33,16 @@ def view(canvas):
     return view
 
 
+@pytest.fixture()
+def scrolled_window(view):
+    scrolled_window = Gtk.ScrolledWindow()
+    scrolled_window.add(
+        view
+    ) if Gtk.get_major_version() == 3 else scrolled_window.set_child(view)
+    view.update()
+    return scrolled_window
+
+
 @pytest.fixture
 def window(view):
     if Gtk.get_major_version() == 3:

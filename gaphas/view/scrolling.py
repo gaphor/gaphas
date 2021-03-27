@@ -37,14 +37,14 @@ class Scrolling:
         if prop.name == "hadjustment":
             if value is not None:
                 self.hadjustment = value
-                self.hadjustment_handler_id = self.hadjustment.connect(
+                self._hadjustment_handler_id = self.hadjustment.connect(
                     "value-changed", self.on_adjustment_changed
                 )
                 self._scrolling_updated(Matrix())
         elif prop.name == "vadjustment":
             if value is not None:
                 self.vadjustment = value
-                self.vadjustment_handler_id = self.vadjustment.connect(
+                self._vadjustment_handler_id = self.vadjustment.connect(
                     "value-changed", self.on_adjustment_changed
                 )
                 self._scrolling_updated(Matrix())
@@ -78,6 +78,9 @@ class Scrolling:
                 page_increment=width,
                 page_size=width,
             )
+            self._hadjustment_handler_id = self.hadjustment.connect(
+                "value-changed", self.on_adjustment_changed
+            )
         else:
             self.hadjustment.set_value(v.x)
             self.hadjustment.set_lower(u.x)
@@ -94,6 +97,9 @@ class Scrolling:
                 step_increment=height // 10,
                 page_increment=height,
                 page_size=height,
+            )
+            self._vadjustment_handler_id = self.vadjustment.connect(
+                "value-changed", self.on_adjustment_changed
             )
         else:
             self.vadjustment.set_value(v.y)

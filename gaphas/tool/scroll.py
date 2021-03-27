@@ -19,5 +19,5 @@ def scroll_tool(view: GtkView, speed: int = 5) -> Gtk.EventControllerScroll:
 
 def on_scroll(controller, dx, dy, speed):
     view = controller.get_widget()
-    view.hadjustment.set_value(view.hadjustment.get_value() - dx * speed)
-    view.vadjustment.set_value(view.vadjustment.get_value() - dy * speed)
+    view.hadjustment.set_value(dx * speed - view.hadjustment.get_value())
+    view.vadjustment.set_value(dy * speed - view.vadjustment.get_value())
