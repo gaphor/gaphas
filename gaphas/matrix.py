@@ -131,7 +131,9 @@ class Matrix:
         return Matrix(matrix=self._matrix * other._matrix)
 
     def __imul__(self, other: Matrix) -> Matrix:
+        old: MatrixTuple = self.tuple()
         self._matrix *= other._matrix
+        self.notify(old)
         return self
 
     def __repr__(self) -> str:
