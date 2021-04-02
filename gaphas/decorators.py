@@ -29,7 +29,7 @@ class g_async:
         self,
         single: bool = False,
         timeout: int = 0,
-        priority: int = GLib.PRIORITY_DEFAULT,
+        priority: int = GLib.PRIORITY_DEFAULT_IDLE,
     ) -> None:
         self.single = single
         self.timeout = timeout
