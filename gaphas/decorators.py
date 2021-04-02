@@ -51,6 +51,7 @@ class g_async:
                 def async_wrapper(*_args):
                     log.debug("async: %s %s %s", func, args, kwargs)
                     func(*args, **kwargs)
+                    return GLib.SOURCE_REMOVE
 
                 self.source(async_wrapper).attach()
             else:
@@ -67,7 +68,7 @@ class g_async:
                         func(*args, **kwargs)
                     finally:
                         delattr(holder, source_attr)
-                    return False
+                    return GLib.SOURCE_REMOVE
 
                 source = self.source(async_wrapper)
                 setattr(holder, source_attr, source)
