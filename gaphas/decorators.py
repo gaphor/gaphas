@@ -18,6 +18,11 @@ class g_async:
 
     Calling the async function from outside the gtk main loop will
     yield immediate execution.
+
+    A function can also be a generator. The generator will be fully executed.
+    If run in the main loop, an empty iterator will be returned.
+    A generator is "single" by default. Because of the nature of generators
+    the first invocation will run till completion.
     """
 
     def __init__(
@@ -39,6 +44,7 @@ class g_async:
 
     def __call__(self, func):
         is_method = inspect.getfullargspec(func).args[:1] == ["self"]
+        is_generator = inspect.isgeneratorfunction(func)
         source_attr = f"__g_async__{func.__name__}"
 
         @functools.wraps(func)
@@ -46,15 +52,28 @@ class g_async:
             # execute directly if we're not in the main loop
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
-            elif not self.single:
+            elif is_generator:
+                # We can only run one generator at a time
+                holder = args[0] if is_method else func
+                source = getattr(holder, source_attr, 0)
+                if source:
+                    return
+
+                iterator = func(*args, **kwargs)
 
                 def async_wrapper(*_args):
-                    log.debug("async: %s %s %s", func, args, kwargs)
-                    func(*args, **kwargs)
-                    return GLib.SOURCE_REMOVE
+                    try:
+                        next(iterator)
+                    except Exception:
+                        delattr(holder, source_attr)
+                        return GLib.SOURCE_REMOVE
+                    return GLib.SOURCE_CONTINUE
 
-                self.source(async_wrapper).attach()
-            else:
+                source = self.source(async_wrapper)
+                setattr(holder, source_attr, source)
+                source.attach()
+                return ()
+            elif self.single:
                 # Idle handlers should be registered per instance
                 holder = args[0] if is_method else func
                 source = getattr(holder, source_attr, 0)
@@ -73,6 +92,14 @@ class g_async:
                 source = self.source(async_wrapper)
                 setattr(holder, source_attr, source)
                 source.attach()
+            else:
+
+                def async_wrapper(*_args):
+                    log.debug("async: %s %s %s", func, args, kwargs)
+                    func(*args, **kwargs)
+                    return GLib.SOURCE_REMOVE
+
+                self.source(async_wrapper).attach()
 
         return wrapper
 

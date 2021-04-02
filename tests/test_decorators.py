@@ -23,6 +23,13 @@ def timeout_function(list, token):
     list.append(token)
 
 
+@g_async()
+def generator_function(list, tokens):
+    for token in tokens:
+        list.append(token)
+        yield
+
+
 class Obj(list):
     @g_async(single=True)
     def single_method(self, token):
@@ -60,6 +67,15 @@ def test_function_is_called_when_not_in_main_loop():
     async_function(called, "called")
 
     assert "called" in called
+
+
+def test_generator_is_called_when_not_in_main_loop():
+    called: List[str] = []
+
+    for _ in generator_function(called, ["one", "two"]):
+        pass
+
+    assert called == ["one", "two"]
 
 
 @in_main_context
@@ -134,3 +150,29 @@ def test_timeout_function():
     iteration()
 
     assert called == ["second", "first"]
+
+
+def test_run_generator_to_completion():
+    called: List[str] = []
+
+    @in_main_context
+    def fn():
+        for _ in generator_function(called, ["one", "two", "three"]):
+            pass
+
+    fn()
+
+    assert called == ["one", "two", "three"]
+
+
+def test_run_first_generator_to_completion():
+    called: List[str] = []
+
+    @in_main_context
+    def fn():
+        generator_function(called, ["one", "two", "three"])
+        generator_function(called, ["four", "five"])
+
+    fn()
+
+    assert called == ["one", "two", "three"]
