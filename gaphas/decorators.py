@@ -78,8 +78,7 @@ class g_async:
                 holder = args[0] if is_method else func
                 source = getattr(holder, source_attr, 0)
                 if source:
-                    source.destroy()
-                    delattr(holder, source_attr)
+                    return
 
                 def async_wrapper(*_args):
                     log.debug("async: %s %s %s", func, args, kwargs)

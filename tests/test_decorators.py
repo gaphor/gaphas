@@ -112,9 +112,9 @@ def test_single_function_is_called_once():
 
     fn()
 
-    assert "first" not in called
+    assert "first" in called
     assert "second" not in called
-    assert "third" in called
+    assert "third" not in called
 
 
 def test_single_method_is_called_once_per_instance():
