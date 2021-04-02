@@ -1,4 +1,6 @@
 """Custom decorators."""
+import functools
+import inspect
 import logging
 import threading
 
@@ -12,80 +14,10 @@ class g_async:
     priority. This requires the async'ed method to be called from within the
     GTK main loop. Otherwise the method is executed directly.
 
-    Note:
-        the current implementation of async single mode only works for
-        methods, not functions.
+    If a function's first argument is "self", it's considered a method.
 
     Calling the async function from outside the gtk main loop will
-    yield immediate execution:
-
-    async just works on functions (as long as ``single=False``):
-
-    >>> a = g_async()(lambda: 'Hi')
-    >>> a()
-    'Hi'
-
-    Simple method:
-
-    >>> class A(object):
-    ...     @g_async(single=False, priority=GLib.PRIORITY_HIGH)
-    ...     def a(self):
-    ...         print('idle-a', GLib.main_depth())
-
-    Methods can also set single mode to True (the method is only
-    scheduled once).
-
-    >>> class B(object):
-    ...     @g_async(single=True)
-    ...     def b(self):
-    ...         print('idle-b', GLib.main_depth())
-
-    Also a timeout property can be provided:
-
-    >>> class C(object):
-    ...     @g_async(timeout=50)
-    ...     def c1(self):
-    ...         print('idle-c1', GLib.main_depth())
-    ...     @g_async(single=True, timeout=60)
-    ...     def c2(self):
-    ...         print('idle-c2', GLib.main_depth())
-
-    This is a helper function used to test classes A and B from within
-    the GTK+ main loop:
-
-    >>> def delayed():
-    ...     print("before")
-    ...     a = A()
-    ...     b = B()
-    ...     c = C()
-    ...     c.c1()
-    ...     c.c1()
-    ...     c.c2()
-    ...     c.c2()
-    ...     a.a()
-    ...     b.b()
-    ...     a.a()
-    ...     b.b()
-    ...     a.a()
-    ...     b.b()
-    ...     print("after")
-    ...     GLib.timeout_add(100, Gtk.main_quit)
-    >>> GLib.timeout_add(1, delayed) > 0 # timeout id may vary
-    True
-    >>> from gi.repository import Gtk
-    >>> Gtk.main()
-    before
-    after
-    idle-a 1
-    idle-a 1
-    idle-a 1
-    idle-b 1
-    idle-c1 1
-    idle-c1 1
-    idle-c2 1
-
-    As you can see, although ``b.b()`` has been called three times,
-    it's only executed once.
+    yield immediate execution.
     """
 
     def __init__(
@@ -106,36 +38,40 @@ class g_async:
         return s
 
     def __call__(self, func):
-        async_id = f"_async_id_{func.__name__}"
+        is_method = inspect.getfullargspec(func).args[:1] == ["self"]
+        source_attr = f"__g_async__{func.__name__}"
 
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # execute directly if we're not in the main loop
             if GLib.main_depth() == 0:
                 return func(*args, **kwargs)
             elif not self.single:
 
-                def async_wrapper(*aargs):
+                def async_wrapper(*_args):
                     log.debug("async: %s %s %s", func, args, kwargs)
                     func(*args, **kwargs)
 
                 self.source(async_wrapper).attach()
             else:
                 # Idle handlers should be registered per instance
-                holder = args[0]
-                try:
-                    if getattr(holder, async_id):
-                        return
-                except AttributeError:
+                holder = args[0] if is_method else func
+                source = getattr(holder, source_attr, 0)
+                if source:
+                    source.destroy()
+                    delattr(holder, source_attr)
 
-                    def async_wrapper(*aargs):
-                        log.debug("async: %s %s %s", func, args, kwargs)
-                        try:
-                            func(*args, **kwargs)
-                        finally:
-                            delattr(holder, async_id)
-                        return False
+                def async_wrapper(*_args):
+                    log.debug("async: %s %s %s", func, args, kwargs)
+                    try:
+                        func(*args, **kwargs)
+                    finally:
+                        delattr(holder, source_attr)
+                    return False
 
-                    setattr(holder, async_id, self.source(async_wrapper).attach())
+                source = self.source(async_wrapper)
+                setattr(holder, source_attr, source)
+                source.attach()
 
         return wrapper
 

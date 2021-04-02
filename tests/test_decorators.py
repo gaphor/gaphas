@@ -2,14 +2,15 @@ import functools
 import time
 from typing import List
 
+import pytest
 from gi.repository import GLib
 
 from gaphas.decorators import g_async
 
 
 @g_async()
-def async_function(list, token):
-    list.append(token)
+def async_function(self, token):
+    self.append(token)
 
 
 @g_async(single=True)
@@ -20,6 +21,17 @@ def single_function(list, token):
 @g_async(timeout=10)
 def timeout_function(list, token):
     list.append(token)
+
+
+class Obj(list):
+    @g_async(single=True)
+    def single_method(self, token):
+        self.append(token)
+
+
+@pytest.fixture
+def obj():
+    return Obj()
 
 
 def iteration():
@@ -84,9 +96,26 @@ def test_single_function_is_called_once():
 
     fn()
 
-    assert "first" in called
+    assert "first" not in called
     assert "second" not in called
-    assert "third" not in called
+    assert "third" in called
+
+
+def test_single_method_is_called_once_per_instance():
+    first = Obj()
+    second = Obj()
+
+    @in_main_context
+    def fn():
+        first.single_method("first")
+        second.single_method("second")
+
+    fn()
+
+    assert "first" in first
+    assert "second" in second
+    assert "first" not in second
+    assert "second" not in first
 
 
 def test_timeout_function():
