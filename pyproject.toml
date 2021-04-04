@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "gaphas"
-version = "3.1.2"
+version = "3.1.4"
 description="Gaphas is a GTK+ based diagramming widget"
 authors = [
     "Arjan J. Molenaar <gaphor@gmail.com>",
