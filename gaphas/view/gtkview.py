@@ -104,6 +104,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             )
             self.set_app_paintable(True)
         else:
+            self.set_focusable(True)
             self.set_draw_func(GtkView.do_draw)
             self.connect_after("resize", GtkView.on_resize)
 
