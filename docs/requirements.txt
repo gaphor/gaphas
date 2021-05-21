@@ -3,5 +3,5 @@ docutils==0.16
 Pygments==2.9.0
 sphinx-rtd-theme==0.5.2
 sphinxcontrib-websupport==1.2.4
-tomlkit==0.7.1
+tomlkit==0.7.2
 typing_extensions==3.10.0.0
