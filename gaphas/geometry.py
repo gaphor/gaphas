@@ -370,18 +370,10 @@ def point_on_rectangle(rect: Rect, point: Point, border: bool = False) -> Point:
         y_inside = True
 
     if x_inside and y_inside:
-        # Find point on side closest to the point
         if min(abs(rx - px), abs(rx + rw - px)) > min(abs(ry - py), abs(ry + rh - py)):
-            if py < ry + rh / 2.0:
-                py = ry
-            else:
-                py = ry + rh
+            py = ry if py < ry + rh / 2.0 else ry + rh
         else:
-            if px < rx + rw / 2.0:
-                px = rx
-            else:
-                px = rx + rw
-
+            px = rx if px < rx + rw / 2.0 else rx + rw
     return px, py
 
 
