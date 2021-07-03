@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional
+from typing import Collection, Iterable
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -41,13 +41,13 @@ class Model(Protocol):
         Normally that will be depth-first.
         """
 
-    def get_parent(self, item: Item) -> Optional[Item]:
+    def get_parent(self, item: Item) -> Item | None:
         """Get the parent item of an item.
 
         Returns ``None`` if there is no parent item.
         """
 
-    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
+    def get_children(self, item: Item | None) -> Iterable[Item]:
         """Iterate all direct child items of an item."""
 
     def sort(self, items: Collection[Item]) -> Iterable[Item]:

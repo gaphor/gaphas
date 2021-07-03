@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Optional
+from typing import TYPE_CHECKING, Collection
 
 from cairo import ANTIALIAS_NONE
 
@@ -22,7 +22,7 @@ class HandlePainter:
         self,
         item: Item,
         cairo: CairoContext,
-        opacity: Optional[float] = None,
+        opacity: float | None = None,
     ) -> None:
         """Draw handles for an item.
 

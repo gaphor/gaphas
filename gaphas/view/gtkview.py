@@ -1,7 +1,7 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable, Optional, Set, Tuple
+from typing import Collection, Iterable
 
 import cairo
 from gi.repository import Gdk, GLib, GObject, Gtk
@@ -74,7 +74,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         ),
     }
 
-    def __init__(self, model: Optional[Model] = None, selection: Selection = None):
+    def __init__(self, model: Model | None = None, selection: Selection = None):
         """Create a new view.
 
         Args:
@@ -84,12 +84,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         """
         Gtk.DrawingArea.__init__(self)
 
-        self._dirty_items: Set[Item] = set()
+        self._dirty_items: set[Item] = set()
 
-        self._back_buffer: Optional[cairo.Surface] = None
+        self._back_buffer: cairo.Surface | None = None
         self._back_buffer_needs_resizing = True
 
-        self._controllers: Set[Gtk.EventController] = set()
+        self._controllers: set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
         if Gtk.get_major_version() == 3:
@@ -121,9 +121,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
         self._matrix_changed = False
 
-        self._qtree: Quadtree[Item, Tuple[float, float, float, float]] = Quadtree()
+        self._qtree: Quadtree[Item, tuple[float, float, float, float]] = Quadtree()
 
-        self._model: Optional[Model] = None
+        self._model: Model | None = None
         if model:
             self.model = model
 
@@ -152,12 +152,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         return m
 
     @property
-    def model(self) -> Optional[Model]:
+    def model(self) -> Model | None:
         """The model."""
         return self._model
 
     @model.setter
-    def model(self, model: Optional[Model]) -> None:
+    def model(self, model: Model | None) -> None:
         if self._model:
             self._model.unregister_view(self)
             self._selection.clear()
@@ -319,7 +319,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         )
         self.update_back_buffer()
 
-    def all_dirty_items(self) -> Set[Item]:
+    def all_dirty_items(self) -> set[Item]:
         """Return all dirty items, clearing the marked items."""
         model = self._model
         if not model:
@@ -459,7 +459,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         return False
 
-    def on_selection_update(self, item: Optional[Item]) -> None:
+    def on_selection_update(self, item: Item | None) -> None:
         if self._model:
             if item is None:
                 self.request_update(self._model.get_all_items())

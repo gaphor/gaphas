@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Collection, Set
+from typing import Callable, Collection
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -45,7 +45,7 @@ class BaseConstraint:
         strength = min(v.strength for v in self._variables)
         # manage weakest based on id, so variables are uniquely identifyable
         self._weakest = [(id(v), v) for v in self._variables if v.strength == strength]
-        self._handlers: Set[Callable[[Constraint], None]] = set()
+        self._handlers: set[Callable[[Constraint], None]] = set()
 
     def variables(self):
         """Return an iterator which iterates over the variables that are held

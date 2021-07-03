@@ -8,7 +8,7 @@ A point is represented as a tuple `(x, y)`.
 from __future__ import annotations
 
 from math import sqrt
-from typing import Iterable, Optional, Tuple, Union
+from typing import Iterable, Tuple
 
 Point = Tuple[float, float]  # x, y
 Rect = Tuple[float, float, float, float]  # x, y, width, height
@@ -46,8 +46,8 @@ class Rectangle:
         self,
         x: float = 0,
         y: float = 0,
-        width: Optional[float] = None,
-        height: Optional[float] = None,
+        width: float | None = None,
+        height: float | None = None,
         x1: float = 0,
         y1: float = 0,
     ):
@@ -96,7 +96,7 @@ class Rectangle:
         self.width += delta * 2
         self.height += delta * 2
 
-    def tuple(self) -> Tuple[float, float, float, float]:
+    def tuple(self) -> tuple[float, float, float, float]:
         """A type safe version of `tuple(rectangle)`."""
         return (self.x, self.y, self.width, self.height)
 
@@ -142,7 +142,7 @@ class Rectangle:
             and self.height == self.height
         )
 
-    def __add__(self, obj: Union[Rectangle, Rect]) -> Rectangle:
+    def __add__(self, obj: Rectangle | Rect) -> Rectangle:
         """Create a new Rectangle is the union of the current rectangle with
         another Rectangle, tuple `(x,y)` or tuple `(x, y, width, height)`.
 
@@ -156,7 +156,7 @@ class Rectangle:
         """
         return Rectangle(self.x, self.y, self.width, self.height).__iadd__(obj)
 
-    def __iadd__(self, obj: Union[Rectangle, Rect]) -> Rectangle:
+    def __iadd__(self, obj: Rectangle | Rect) -> Rectangle:
         """
         >>> r = Rectangle()
         >>> r += Rectangle(5, 7, 20, 25)
@@ -185,7 +185,7 @@ class Rectangle:
             self.x, self.y, self.width, self.height = x, y, width, height
         return self
 
-    def __sub__(self, obj: Union[Rectangle, Rect]) -> Rectangle:
+    def __sub__(self, obj: Rectangle | Rect) -> Rectangle:
         """Create a new Rectangle is the union of the current rectangle with
         another Rectangle or tuple (x, y, width, height).
 
@@ -197,7 +197,7 @@ class Rectangle:
         """
         return Rectangle(self.x, self.y, self.width, self.height).__isub__(obj)
 
-    def __isub__(self, obj: Union[Rectangle, Rect]) -> Rectangle:
+    def __isub__(self, obj: Rectangle | Rect) -> Rectangle:
         """
         >>> r = Rectangle()
         >>> r -= Rectangle(5, 7, 20, 25)
@@ -228,7 +228,7 @@ class Rectangle:
 
         return self
 
-    def __contains__(self, obj: Union[Rectangle, Rect, Point]) -> bool:
+    def __contains__(self, obj: Rectangle | Rect | Point) -> bool:
         """Check if a point `(x, y)` in inside rectangle `(x, y, width,
         height)` or if a rectangle instance is inside with the rectangle.
 
@@ -387,7 +387,7 @@ def point_on_rectangle(rect: Rect, point: Point, border: bool = False) -> Point:
 
 def distance_line_point(
     line_start: Point, line_end: Point, point: Point
-) -> Tuple[float, Point]:
+) -> tuple[float, Point]:
     """Calculate the distance of a ``point`` from a line. The line is marked by
     begin and end point ``line_start`` and ``line_end``.
 
@@ -438,7 +438,7 @@ def distance_line_point(
 
 def intersect_line_line(
     line1_start: Point, line1_end: Point, line2_start: Point, line2_end: Point
-) -> Optional[Point]:
+) -> Point | None:
     """Find the point where the lines (segments) defined by ``(line1_start,
     line1_end)`` and ``(line2_start, line2_end)`` intersect.  If no
     intersection occurs, ``None`` is returned.
@@ -595,7 +595,7 @@ def rectangle_intersects(recta: Rect, rectb: Rect) -> bool:
     return ax <= bx + bw and ax + aw >= bx and ay <= by + bh and ay + ah >= by
 
 
-def rectangle_clip(recta: Rect, rectb: Rect) -> Optional[Rect]:
+def rectangle_clip(recta: Rect, rectb: Rect) -> Rect | None:
     """Return the clipped rectangle of ``recta`` and ``rectb``. If they do not
     intersect, ``None`` is returned.
 

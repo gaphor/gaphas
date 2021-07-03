@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterator, NamedTuple, Optional, Set
+from typing import Callable, Iterator, NamedTuple
 
 from gaphas import table
 from gaphas.connector import Handle, Port
@@ -38,12 +38,12 @@ class ConnectionError(Exception):
 class Connections:
     """Manage connections and constraints."""
 
-    def __init__(self, solver: Optional[Solver] = None) -> None:
+    def __init__(self, solver: Solver | None = None) -> None:
         self._solver = solver or Solver()
         self._connections: table.Table[Connection] = table.Table(
             Connection, tuple(range(5))
         )
-        self._handlers: Set[Callable[[Connection], None]] = set()
+        self._handlers: set[Callable[[Connection], None]] = set()
 
         self._solver.add_handler(self._on_constraint_solved)
 
@@ -88,9 +88,9 @@ class Connections:
         item: Item,
         handle: Handle,
         connected: Item,
-        port: Optional[Port],
-        constraint: Optional[Constraint] = None,
-        callback: Optional[Callable[[], None]] = None,
+        port: Port | None,
+        constraint: Constraint | None = None,
+        callback: Callable[[], None] | None = None,
     ) -> None:
         """Create a connection between two items. The connection is registered
         and the constraint is added to the constraint solver.
@@ -120,7 +120,7 @@ class Connections:
         if constraint:
             self._solver.add_constraint(constraint)
 
-    def disconnect_item(self, item: Item, handle: Optional[Handle] = None) -> None:
+    def disconnect_item(self, item: Item, handle: Handle | None = None) -> None:
         """Disconnect the connections of an item.
 
         If handle is not None, only the connection for that handle is
@@ -167,8 +167,8 @@ class Connections:
         self,
         item: Item,
         handle: Handle,
-        port: Optional[Port] = None,
-        constraint: Optional[Constraint] = None,
+        port: Port | None = None,
+        constraint: Constraint | None = None,
     ) -> None:
         """Update an existing connection.
 
@@ -197,7 +197,7 @@ class Connections:
         if constraint:
             self._solver.add_constraint(constraint)
 
-    def get_connection(self, handle: Handle) -> Optional[Connection]:
+    def get_connection(self, handle: Handle) -> Connection | None:
         """Get connection information for specified handle.
 
         >>> c = Connections()
@@ -219,10 +219,10 @@ class Connections:
 
     def get_connections(
         self,
-        item: Optional[Item] = None,
-        handle: Optional[Handle] = None,
-        connected: Optional[Item] = None,
-        port: Optional[Port] = None,
+        item: Item | None = None,
+        handle: Handle | None = None,
+        connected: Item | None = None,
+        port: Port | None = None,
     ) -> Iterator[Connection]:
         """Return an iterator of connection information.
 

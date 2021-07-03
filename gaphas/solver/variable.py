@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Set, SupportsFloat
+from typing import Callable, SupportsFloat
 
 from gaphas.types import TypedProperty
 
@@ -74,7 +74,7 @@ class Variable:
     def __init__(self, value: SupportsFloat = 0.0, strength: int = NORMAL):
         self._value = float(value)
         self._strength = strength
-        self._handlers: Set[Callable[[Variable, float], None]] = set()
+        self._handlers: set[Callable[[Variable, float], None]] = set()
 
     def add_handler(self, handler: Callable[[Variable, float], None]) -> None:
         """Add a handler, to be invoked when the value changes."""
