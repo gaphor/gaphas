@@ -28,7 +28,7 @@ To get connecting items (i.e. all lines connected to a class)::
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterable, Optional
+from typing import TYPE_CHECKING, Iterable
 
 import cairo
 from typing_extensions import Protocol

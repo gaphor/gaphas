@@ -20,13 +20,7 @@ as a Q-tree. All forms of Quadtrees share some common features:
 from __future__ import annotations
 
 import operator
-from typing import (
-    Callable,
-    Generic,
-    Iterable,
-    Tuple,
-    TypeVar,
-)
+from typing import Callable, Generic, Iterable, Tuple, TypeVar
 
 from gaphas.geometry import rectangle_clip, rectangle_contains, rectangle_intersects
 

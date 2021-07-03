@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import atan2
-from typing import TYPE_CHECKING, Iterable, List, Sequence
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
