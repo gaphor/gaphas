@@ -61,13 +61,11 @@ class HandlePainter:
             cairo.rectangle(-4, -4, 8, 8)
             cairo.set_source_rgba(r, g, b, opacity)
             cairo.fill_preserve()
-            if h.connectable:
-                cairo.move_to(-2, -2)
-                cairo.line_to(2, 3)
-                cairo.move_to(2, -2)
-                cairo.line_to(-2, 3)
             cairo.set_source_rgba(r / 4.0, g / 4.0, b / 4.0, opacity * 1.3)
             cairo.stroke()
+            if h.connectable:
+                cairo.rectangle(-2, -2, 4 ,4)
+                cairo.fill()
             cairo.restore()
         cairo.restore()
 
