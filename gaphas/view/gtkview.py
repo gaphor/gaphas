@@ -28,6 +28,10 @@ DEFAULT_CURSOR = (
     else Gdk.Cursor.new_from_name("default")
 )
 
+# The tolerance for Cairo. Bigger values increase speed and reduce accuracy
+# (default: 0.1)
+PAINT_TOLERANCE = 0.8
+BOUNDING_BOX_TOLERANCE = 1.0
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     """GTK+ widget for rendering a gaphas.view.model.Model to a screen.  The
@@ -350,6 +354,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         for item in items:
             surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
             cr = cairo.Context(surface)
+            cr.set_tolerance(BOUNDING_BOX_TOLERANCE)
+
             painter.paint_item(item, cr)
             x, y, w, h = surface.ink_extents()
 
@@ -399,6 +405,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             cr.set_matrix(self.matrix.to_cairo())
             cr.save()
+            cr.set_tolerance(PAINT_TOLERANCE)
             self.painter.paint(list(items), cr)
             cr.restore()
 

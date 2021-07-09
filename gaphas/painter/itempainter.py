@@ -6,14 +6,8 @@ from gaphas.item import DrawContext, Item
 from gaphas.types import CairoContext
 from gaphas.view.selection import Selection
 
-# The tolerance for Cairo. Bigger values increase speed and reduce accuracy
-# (default: 0.1)
-TOLERANCE = 0.8
-
 
 class ItemPainter:
-
-    draw_all = False
 
     def __init__(self, selection: Optional[Selection] = None) -> None:
         self.selection = selection or Selection()
@@ -21,6 +15,7 @@ class ItemPainter:
     def paint_item(self, item: Item, cairo: CairoContext) -> None:
         cairo.save()
         try:
+            cairo.set_line_join(LINE_JOIN_ROUND)
             cairo.transform(item.matrix_i2c.to_cairo())
 
             selection = self.selection
@@ -38,8 +33,6 @@ class ItemPainter:
 
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         """Draw the items."""
-        cairo.set_tolerance(TOLERANCE)
-        cairo.set_line_join(LINE_JOIN_ROUND)
 
         for item in items:
             self.paint_item(item, cairo)
