@@ -33,6 +33,7 @@ DEFAULT_CURSOR = (
 PAINT_TOLERANCE = 0.8
 BOUNDING_BOX_TOLERANCE = 1.0
 
+
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     """GTK+ widget for rendering a gaphas.view.model.Model to a screen.  The
     view uses Tools to handle events and Painters to draw. Both are

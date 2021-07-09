@@ -8,7 +8,6 @@ from gaphas.view.selection import Selection
 
 
 class ItemPainter:
-
     def __init__(self, selection: Optional[Selection] = None) -> None:
         self.selection = selection or Selection()
 
