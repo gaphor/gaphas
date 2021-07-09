@@ -64,7 +64,7 @@ class HandlePainter:
             cairo.set_source_rgba(r / 4.0, g / 4.0, b / 4.0, opacity * 1.3)
             cairo.stroke()
             if h.connectable:
-                cairo.rectangle(-2, -2, 4 ,4)
+                cairo.rectangle(-2, -2, 4, 4)
                 cairo.fill()
             cairo.restore()
         cairo.restore()

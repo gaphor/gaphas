@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Collection
+from typing import Callable, Collection, Hashable
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -8,7 +8,7 @@ from gaphas.solver.variable import Variable
 
 
 @runtime_checkable
-class Constraint(Protocol):
+class Constraint(Protocol, Hashable):
     def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         ...
 
