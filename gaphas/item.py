@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import atan2
-from typing import TYPE_CHECKING, Iterable, List, Sequence
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -249,12 +249,12 @@ class Line(Matrices):
         super().__init__(**kwargs)
         self._connections = connections
         self._handles = [Handle(connectable=True), Handle((10, 10), connectable=True)]
-        self._ports: List[Port] = []
+        self._ports: list[Port] = []
         self._update_ports()
 
         self._line_width = 2.0
         self._fuzziness = 0.0
-        self._orthogonal_constraints: List[Constraint] = []
+        self._orthogonal_constraints: list[Constraint] = []
         self._horizontal = False
 
     @property
@@ -297,7 +297,7 @@ class Line(Matrices):
         self._set_orthogonal_constraints(cons)
 
     def _set_orthogonal_constraints(
-        self, orthogonal_constraints: List[Constraint]
+        self, orthogonal_constraints: list[Constraint]
     ) -> None:
         """Setter for the constraints maintained.
 

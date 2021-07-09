@@ -9,7 +9,7 @@ state notification capabilities.
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Set, Tuple
+from typing import Callable, Tuple
 
 import cairo
 
@@ -31,10 +31,10 @@ class Matrix:
         yy: float = 1.0,
         x0: float = 0.0,
         y0: float = 0.0,
-        matrix: Optional[cairo.Matrix] = None,
+        matrix: cairo.Matrix | None = None,
     ) -> None:
         self._matrix = matrix or cairo.Matrix(xx, yx, xy, yy, x0, y0)
-        self._handlers: Set[Callable[[Matrix, MatrixTuple], None]] = set()
+        self._handlers: set[Callable[[Matrix, MatrixTuple], None]] = set()
 
     def add_handler(
         self,
@@ -74,12 +74,12 @@ class Matrix:
 
     def set(
         self,
-        xx: Optional[float] = None,
-        yx: Optional[float] = None,
-        xy: Optional[float] = None,
-        yy: Optional[float] = None,
-        x0: Optional[float] = None,
-        y0: Optional[float] = None,
+        xx: float | None = None,
+        yx: float | None = None,
+        xy: float | None = None,
+        yy: float | None = None,
+        x0: float | None = None,
+        y0: float | None = None,
     ) -> None:
         updated = False
         m = self._matrix
@@ -101,10 +101,10 @@ class Matrix:
     def multiply(self, m: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix.multiply(m._matrix))
 
-    def transform_distance(self, dx: float, dy: float) -> Tuple[float, float]:
+    def transform_distance(self, dx: float, dy: float) -> tuple[float, float]:
         return self._matrix.transform_distance(dx, dy)  # type: ignore[no-any-return]
 
-    def transform_point(self, x: float, y: float) -> Tuple[float, float]:
+    def transform_point(self, x: float, y: float) -> tuple[float, float]:
         return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
 
     def inverse(self) -> Matrix:

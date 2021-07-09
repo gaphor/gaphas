@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Collection, List
+from typing import Collection
 
 from gaphas.item import Item
 from gaphas.painter.painter import Painter
@@ -11,7 +11,7 @@ class PainterChain:
     """Chain up a set of painters."""
 
     def __init__(self) -> None:
-        self._painters: List[Painter] = []
+        self._painters: list[Painter] = []
 
     def append(self, painter: Painter) -> PainterChain:
         """Add a painter to the list of painters."""

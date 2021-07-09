@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Set, SupportsFloat, Tuple, Union
+from typing import Callable, SupportsFloat
 
 from gaphas.matrix import Matrix
 from gaphas.solver import NORMAL, BaseConstraint, Variable
@@ -22,7 +22,7 @@ class Position:
     def __init__(self, x, y, strength=NORMAL):
         self._x = Variable(x, strength)
         self._y = Variable(y, strength)
-        self._handlers: Set[Callable[[Position, Pos], None]] = set()
+        self._handlers: set[Callable[[Position, Pos], None]] = set()
         self._setting_pos = 0
 
     def add_handler(self, handler: Callable[[Position, Pos], None]) -> None:
@@ -66,7 +66,7 @@ class Position:
     y: TypedProperty[Variable, SupportsFloat]
     y = property(lambda s: s._y, _set_y, doc="Position.y")
 
-    def _set_pos(self, pos: Union[Position, SupportsFloatPos]) -> None:
+    def _set_pos(self, pos: Position | SupportsFloatPos) -> None:
         """Set handle position (Item coordinates)."""
         oldpos = (self._x.value, self._y.value)
         self._setting_pos += 1
@@ -76,10 +76,10 @@ class Position:
             self._setting_pos -= 1
         self.notify(oldpos)
 
-    pos: TypedProperty[Tuple[Variable, Variable], Union[Position, SupportsFloatPos]]
+    pos: TypedProperty[tuple[Variable, Variable], Position | SupportsFloatPos]
     pos = property(lambda s: (s._x, s._y), _set_pos, doc="The position.")
 
-    def tuple(self) -> Tuple[float, float]:
+    def tuple(self) -> tuple[float, float]:
         return (self._x.value, self._y.value)
 
     def __str__(self):

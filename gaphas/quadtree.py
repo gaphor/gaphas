@@ -20,17 +20,7 @@ as a Q-tree. All forms of Quadtrees share some common features:
 from __future__ import annotations
 
 import operator
-from typing import (
-    Callable,
-    Dict,
-    Generic,
-    Iterable,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    TypeVar,
-)
+from typing import Callable, Generic, Iterable, Tuple, TypeVar
 
 from gaphas.geometry import rectangle_clip, rectangle_contains, rectangle_intersects
 
@@ -100,7 +90,7 @@ class Quadtree(Generic[T, D]):
         self._bucket: QuadtreeBucket[T] = QuadtreeBucket(bounds, capacity)
 
         # Easy lookup item->(bounds, data, clipped bounds)
-        self._ids: Dict[T, Tuple[Bounds, D, Optional[Bounds]]] = {}
+        self._ids: dict[T, tuple[Bounds, D, Bounds | None]] = {}
 
     @property
     def bounds(self) -> Bounds:
@@ -206,7 +196,7 @@ class Quadtree(Generic[T, D]):
         """Return the data for the given item, None if no data was provided."""
         return self._ids[item][1]
 
-    def get_clipped_bounds(self, item: T) -> Optional[Bounds]:
+    def get_clipped_bounds(self, item: T) -> Bounds | None:
         """Return the bounding box for the given item.
 
         The bounding box is clipped on the boundaries of the tree
@@ -214,14 +204,14 @@ class Quadtree(Generic[T, D]):
         """
         return self._ids[item][2]
 
-    def find_inside(self, rect: Bounds) -> Set[T]:
+    def find_inside(self, rect: Bounds) -> set[T]:
         """Find all items in the given rectangle (x, y, with, height).
 
         Returns a set.
         """
         return set(self._bucket.find(rect, method=rectangle_contains))
 
-    def find_intersect(self, rect: Bounds) -> Set[T]:
+    def find_intersect(self, rect: Bounds) -> set[T]:
         """Find all items that intersect with the given rectangle (x, y, width,
         height).
 
@@ -250,8 +240,8 @@ class QuadtreeBucket(Generic[T]):
         self.bounds = bounds
         self.capacity = capacity
 
-        self.items: Dict[T, Bounds] = {}
-        self._buckets: List[QuadtreeBucket[T]] = []
+        self.items: dict[T, Bounds] = {}
+        self._buckets: list[QuadtreeBucket[T]] = []
 
     def add(self, item: T, bounds: Bounds) -> None:
         """Add an item to the quadtree.

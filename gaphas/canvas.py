@@ -28,7 +28,7 @@ To get connecting items (i.e. all lines connected to a class)::
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterable, Optional
+from typing import TYPE_CHECKING, Iterable
 
 import cairo
 from typing_extensions import Protocol
@@ -141,7 +141,7 @@ class Canvas:
         """
         return self._tree.get_children(None)
 
-    def get_parent(self, item: Item) -> Optional[Item]:
+    def get_parent(self, item: Item) -> Item | None:
         """See `tree.Tree.get_parent()`.
 
         >>> c = Canvas()
@@ -156,7 +156,7 @@ class Canvas:
         """
         return self._tree.get_parent(item)
 
-    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
+    def get_children(self, item: Item | None) -> Iterable[Item]:
         """See `tree.Tree.get_children()`.
 
         >>> c = Canvas()
@@ -284,21 +284,21 @@ class Canvas:
 
 
 class Traversable(Protocol):
-    def get_parent(self, item: Item) -> Optional[Item]:
+    def get_parent(self, item: Item) -> Item | None:
         ...
 
-    def get_children(self, item: Optional[Item]) -> Iterable[Item]:
+    def get_children(self, item: Item | None) -> Iterable[Item]:
         ...
 
 
-def ancestors(canvas: Traversable, item: Item) -> Iterable[Optional[Item]]:
+def ancestors(canvas: Traversable, item: Item) -> Iterable[Item | None]:
     parent = canvas.get_parent(item)
     while parent:
         yield parent
         parent = canvas.get_parent(parent)
 
 
-def all_children(canvas: Traversable, item: Optional[Item]) -> Iterable[Item]:
+def all_children(canvas: Traversable, item: Item | None) -> Iterable[Item]:
     children = canvas.get_children(item)
     for child in children:
         yield child
