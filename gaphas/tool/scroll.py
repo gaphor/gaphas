@@ -1,5 +1,6 @@
 from gi.repository import Gdk, Gtk
 
+from gaphas.tool.zoom import Zoom
 from gaphas.view import GtkView
 
 
@@ -9,6 +10,7 @@ def scroll_tools(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
 
 def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
     """Scroll tool recognized 2 finger scroll gestures."""
+    zoom = Zoom(view.matrix)
     ctrl = (
         Gtk.EventControllerScroll.new(
             view,
@@ -17,11 +19,11 @@ def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
         if Gtk.get_major_version() == 3
         else Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
     )
-    ctrl.connect("scroll", on_scroll, speed)
+    ctrl.connect("scroll", on_scroll, speed, zoom)
     return ctrl
 
 
-def on_scroll(controller, dx, dy, speed):
+def on_scroll(controller, dx, dy, speed, zoom):
     zoom_factor = 0.1
     view = controller.get_widget()
 
@@ -38,17 +40,13 @@ def on_scroll(controller, dx, dy, speed):
             y = event.y
         else:
             # Workaround: Gtk.EventController.get_current_event() causes SEGFAULT
+            view = controller.get_widget()
             x = view.get_width() / 2
             y = view.get_height() / 2
+        zoom.begin(x, y)
+
         d = 1 - dy * zoom_factor
-        m = view.matrix
-        sx = m[0]
-        sy = m[3]
-        ox = (m[4] - x) / sx
-        oy = (m[5] - y) / sy
-        m.translate(-ox, -oy)
-        m.scale(d, d)
-        m.translate(+ox, +oy)
+        zoom.update(d)
     else:
         view.hadjustment.set_value(dx * speed - view.hadjustment.get_value())
         view.vadjustment.set_value(dy * speed - view.vadjustment.get_value())
@@ -75,7 +73,7 @@ def pan_tool(view: GtkView) -> Gtk.GestureDrag:
     return gesture
 
 
-def on_drag_begin(gesture, start_x, start_y, pan_state):
+def on_drag_begin(gesture, _start_x, _start_y, pan_state):
     view = gesture.get_widget()
     m = view.matrix
     pan_state.pos = (m[4], m[5])
