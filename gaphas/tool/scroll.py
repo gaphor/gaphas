@@ -10,7 +10,6 @@ def scroll_tools(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
 
 def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
     """Scroll tool recognized 2 finger scroll gestures."""
-    zoom = Zoom(view.matrix)
     ctrl = (
         Gtk.EventControllerScroll.new(
             view,
@@ -19,11 +18,11 @@ def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
         if Gtk.get_major_version() == 3
         else Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
     )
-    ctrl.connect("scroll", on_scroll, speed, zoom)
+    ctrl.connect("scroll", on_scroll, speed)
     return ctrl
 
 
-def on_scroll(controller, dx, dy, speed, zoom):
+def on_scroll(controller, dx, dy, speed):
     view = controller.get_widget()
 
     modifiers = (
@@ -42,6 +41,7 @@ def on_scroll(controller, dx, dy, speed, zoom):
             view = controller.get_widget()
             x = view.get_width() / 2
             y = view.get_height() / 2
+        zoom = Zoom(view.matrix)
         zoom.begin(x, y)
 
         zoom_factor = 0.1

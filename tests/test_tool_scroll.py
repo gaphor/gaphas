@@ -1,7 +1,6 @@
 from gi.repository import Gtk
 
 from gaphas.tool.scroll import on_scroll, scroll_tool
-from gaphas.tool.zoom import Zoom
 
 
 def test_scroll_tool_returns_a_controller(view):
@@ -20,7 +19,7 @@ def test_offset_changes(view, scrolled_window):
     assert view._scrolling._hadjustment_handler_id
     assert view._scrolling._hadjustment_handler_id
 
-    on_scroll(tool, 10, 10, 1, Zoom(view.matrix))
+    on_scroll(tool, 10, 10, 1)
 
     assert view.matrix[4] == -10
     # Why is this value not set?
