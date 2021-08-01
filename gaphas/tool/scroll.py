@@ -24,7 +24,6 @@ def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
 
 
 def on_scroll(controller, dx, dy, speed, zoom):
-    zoom_factor = 0.1
     view = controller.get_widget()
 
     modifiers = (
@@ -45,6 +44,7 @@ def on_scroll(controller, dx, dy, speed, zoom):
             y = view.get_height() / 2
         zoom.begin(x, y)
 
+        zoom_factor = 0.1
         d = 1 - dy * zoom_factor
         zoom.update(d)
     else:
