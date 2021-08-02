@@ -33,7 +33,7 @@ def view(canvas):
     return view
 
 
-@pytest.fixture()
+@pytest.fixture
 def scrolled_window(view):
     scrolled_window = Gtk.ScrolledWindow()
     scrolled_window.add(
