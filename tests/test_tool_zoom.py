@@ -1,12 +1,12 @@
 import pytest
 from gi.repository import Gtk
 
-from gaphas.tool.zoom import ZoomData, on_begin, on_scale_changed, zoom_tool
+from gaphas.tool.zoom import Zoom, on_begin, on_scale_changed, zoom_tool
 
 
 @pytest.fixture
-def zoom_data():
-    zoom_data = ZoomData()
+def zoom_data(view):
+    zoom_data = Zoom(view.matrix)
     zoom_data.x0 = 0
     zoom_data.y0 = 0
     zoom_data.sx = 1
