@@ -1,4 +1,4 @@
-sphinx==4.1.2
+sphinx==4.2.0
 docutils==0.16
 Pygments==2.10.0
 sphinx-rtd-theme==0.5.2
