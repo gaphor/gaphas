@@ -2,7 +2,6 @@ from typing import Callable, Optional
 
 from gi.repository import Gtk
 
-from gaphas.decorators import g_async
 from gaphas.geometry import Rectangle
 from gaphas.matrix import Matrix
 
@@ -55,7 +54,6 @@ class Scrolling:
         else:
             raise AttributeError(f"Unknown property {prop.name}")
 
-    @g_async(single=True)
     def update_adjustments(self, width, height, bounds):
         # canvas limits (in view coordinates)
         c = Rectangle(*bounds)
@@ -68,7 +66,7 @@ class Scrolling:
         v = Rectangle(0, 0, width, height)
 
         # union of these limits gives scrollbar limits
-        u = c if v in c else c + v
+        u = c if v in c else (c + v)
         if self.hadjustment:
             self.hadjustment.set_value(v.x)
             self.hadjustment.set_lower(u.x)

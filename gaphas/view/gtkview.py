@@ -317,11 +317,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         dirty_items |= self.all_dirty_items()
         self.update_bounding_box(dirty_items)
-
-        allocation = self.get_allocation()
-        self._scrolling.update_adjustments(
-            allocation.width, allocation.height, self._qtree.soft_bounds
-        )
+        self.update_scrolling()
         self.update_back_buffer()
 
     def all_dirty_items(self) -> set[Item]:
@@ -373,6 +369,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                     w, h = c2v.transform_distance(bounds[2], bounds[3])
                     qtree.add(item=item, bounds=(x, y, w, h), data=bounds)
             self._matrix_changed = False
+
+    @g_async(single=True)
+    def update_scrolling(self) -> None:
+        allocation = self.get_allocation()
+        self._scrolling.update_adjustments(
+            allocation.width, allocation.height, self._qtree.soft_bounds
+        )
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
     def update_back_buffer(self) -> None:
