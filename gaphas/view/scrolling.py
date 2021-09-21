@@ -17,8 +17,8 @@ class Scrolling:
         self.vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
         self._hadjustment_handler_id = 0
         self._vadjustment_handler_id = 0
-        self._last_hvalue = 0.0
-        self._last_vvalue = 0.0
+        self._last_hvalue = 0
+        self._last_vvalue = 0
 
     def get_property(self, prop):
         if prop.name == "hadjustment":
@@ -55,42 +55,39 @@ class Scrolling:
             raise AttributeError(f"Unknown property {prop.name}")
 
     def update_adjustments(self, width, height, bounds):
+        """Update scroll bar values (adjustments in GTK), and reset the scroll
+        value to 0.
+
+        The value will change when a scroll bar is moved.
+        """
         # canvas limits (in view coordinates)
         c = Rectangle(*bounds)
-        c.x -= width * 0.7
-        c.width += width * 1.4
-        c.y -= height * 0.7
-        c.height += height * 1.4
+        c.expand(min(width, height) / 2)
+        u = c + Rectangle(0, 0, width, height)
 
-        # view limits
-        v = Rectangle(0, 0, width, height)
-
-        # union of these limits gives scrollbar limits
-        u = c if v in c else (c + v)
         if self.hadjustment:
-            self.hadjustment.set_value(v.x)
+            self.hadjustment.set_value(0)
             self.hadjustment.set_lower(u.x)
             self.hadjustment.set_upper(u.x1)
             self.hadjustment.set_step_increment(width // 10)
             self.hadjustment.set_page_increment(width)
             self.hadjustment.set_page_size(width)
+            self._last_hvalue = 0
 
         if self.vadjustment:
-            self.vadjustment.set_value(v.y)
+            self.vadjustment.set_value(0)
             self.vadjustment.set_lower(u.y)
             self.vadjustment.set_upper(u.y1)
             self.vadjustment.set_step_increment(height // 10)
             self.vadjustment.set_page_increment(height)
             self.vadjustment.set_page_size(height)
-
-        self._last_hvalue = v.x
-        self._last_vvalue = v.y
+            self._last_vvalue = 0
 
     def on_adjustment_changed(self, adj):
         """Change the transformation matrix of the view to reflect the value of
         the x/y adjustment (scrollbar)."""
         value = adj.get_value()
-        if value == 0.0:
+        if value == 0:
             return
 
         m = Matrix()
