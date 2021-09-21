@@ -43,7 +43,7 @@ class FreeHandCairoContext:
         offset = min(offset, 20)
 
         dev_x, dev_y = cr.user_to_device(x, y)
-        rand = Random((from_x, from_y, dev_x, dev_y, length, offset)).random
+        rand = Random(from_x + from_y + dev_x + dev_y + length + offset).random
 
         # Overshoot the destination a little, as one might if drawing with a pen.
         to_x = x + sloppiness * rand() * offset / 4
@@ -87,7 +87,9 @@ class FreeHandCairoContext:
         from_x, from_y = cr.get_current_point()
 
         dev_x, dev_y = cr.user_to_device(x3, y3)
-        rand = Random((from_x, from_y, dev_x, dev_y, x1, y1, x2, y2, x3, y3)).random
+        rand = Random(
+            from_x + from_y + dev_x + dev_y + x1 + y1 + x2 + y2 + x3 + y3
+        ).random
 
         r = rand()
         c1_x = from_x + r * (x1 - from_x)
