@@ -399,8 +399,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self._back_buffer_needs_resizing = False
 
             assert self._back_buffer
-            cr = cairo.Context(self._back_buffer)
 
+            cr = cairo.Context(self._back_buffer)
             cr.save()
             cr.set_operator(cairo.OPERATOR_CLEAR)
             cr.paint()
@@ -408,45 +408,49 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             Gtk.render_background(self.get_style_context(), cr, 0, 0, width, height)
 
-            items = self.get_items_in_rectangle((0, 0, width, height))
-
             cr.set_matrix(self.matrix.to_cairo())
             cr.save()
             cr.set_tolerance(PAINT_TOLERANCE)
+            items = self.get_items_in_rectangle((0, 0, width, height))
             self.painter.paint(list(items), cr)
             cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                for item in self.get_items_in_rectangle((0, 0, width, height)):
-                    try:
-                        b = self.get_item_bounding_box(item)
-                    except KeyError:
-                        pass  # No bounding box right now..
-                    else:
-                        cr.save()
-                        cr.identity_matrix()
-                        cr.set_source_rgb(0.8, 0, 0)
-                        cr.set_line_width(1.0)
-                        cr.rectangle(*b)
-                        cr.stroke()
-                        cr.restore()
+                self._debug_draw_bounding_box(cr, width, height)
 
             if DEBUG_DRAW_QUADTREE:
-
-                def draw_qtree_bucket(bucket: QuadtreeBucket) -> None:
-                    cr.rectangle(*bucket.bounds)
-                    cr.stroke()
-                    for b in bucket._buckets:
-                        draw_qtree_bucket(b)
-
-                cr.set_source_rgb(0, 0, 0.8)
-                cr.set_line_width(1.0)
-                draw_qtree_bucket(self._qtree._bucket)
+                self._debug_draw_quadtree(cr)
 
             if Gtk.get_major_version() == 3:
                 self.get_window().invalidate_rect(allocation, True)
             else:
                 self.queue_draw()
+
+    def _debug_draw_bounding_box(self, cr, width, height):
+        for item in self.get_items_in_rectangle((0, 0, width, height)):
+            try:
+                b = self.get_item_bounding_box(item)
+            except KeyError:
+                pass  # No bounding box right now..
+            else:
+                cr.save()
+                cr.identity_matrix()
+                cr.set_source_rgb(0.8, 0, 0)
+                cr.set_line_width(1.0)
+                cr.rectangle(*b)
+                cr.stroke()
+                cr.restore()
+
+    def _debug_draw_quadtree(self, cr):
+        def draw_qtree_bucket(bucket: QuadtreeBucket) -> None:
+            cr.rectangle(*bucket.bounds)
+            cr.stroke()
+            for b in bucket._buckets:
+                draw_qtree_bucket(b)
+
+        cr.set_source_rgb(0, 0, 0.8)
+        cr.set_line_width(1.0)
+        draw_qtree_bucket(self._qtree._bucket)
 
     def do_realize(self) -> None:
         Gtk.DrawingArea.do_realize(self)
