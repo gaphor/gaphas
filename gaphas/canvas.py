@@ -303,11 +303,3 @@ def all_children(canvas: Traversable, item: Item | None) -> Iterable[Item]:
     for child in children:
         yield child
         yield from all_children(canvas, child)
-
-
-# Additional tests in @observed methods
-__test__ = {
-    "Canvas.add": Canvas.add,
-    "Canvas.remove": Canvas.remove,
-    "Canvas.request_update": Canvas.request_update,
-}

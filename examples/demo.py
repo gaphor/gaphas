@@ -178,7 +178,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Add box")
 
-    def on_add_box_clicked(button):
+    def on_add_box_clicked(_button):
         apply_placement_tool_set(view, MyBox, 2)
 
     b.connect("clicked", on_add_box_clicked)
@@ -186,7 +186,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Add line")
 
-    def on_add_line_clicked(button):
+    def on_add_line_clicked(_button):
         apply_placement_tool_set(view, MyLine, -1)
 
     b.connect("clicked", on_add_line_clicked)
@@ -196,7 +196,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Zoom in")
 
-    def on_zoom_in_clicked(button):
+    def on_zoom_in_clicked(_button):
         view.zoom(1.2)
 
     b.connect("clicked", on_zoom_in_clicked)
@@ -204,7 +204,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Zoom out")
 
-    def on_zoom_out_clicked(button):
+    def on_zoom_out_clicked(_button):
         view.zoom(1 / 1.2)
 
     b.connect("clicked", on_zoom_out_clicked)
@@ -214,7 +214,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Split line")
 
-    def on_split_line_clicked(button):
+    def on_split_line_clicked(_button):
         selection = view.selection
         if isinstance(selection.focused_item, Line):
             segment = Segment(selection.focused_item, canvas)
@@ -225,7 +225,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Delete focused")
 
-    def on_delete_focused_clicked(button):
+    def on_delete_focused_clicked(_button):
         if view.selection.focused_item:
             canvas.remove(view.selection.focused_item)
 
@@ -236,7 +236,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Write demo.png")
 
-    def on_write_demo_png_clicked(button):
+    def on_write_demo_png_clicked(_button):
         assert view.model
         painter = ItemPainter()
 
@@ -293,19 +293,19 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
 
     b = Gtk.Button.new_with_label("Dump QTree")
 
-    def on_dump_qtree_clicked(button, li):
+    def on_dump_qtree_clicked(button):
         view._qtree.dump()
 
-    b.connect("clicked", on_dump_qtree_clicked, [0])
+    b.connect("clicked", on_dump_qtree_clicked)
     v.add(b)
 
     b = Gtk.Button.new_with_label("Reattach (in place)")
 
-    def on_reattach_clicked(button, li):
+    def on_reattach_clicked(button):
         view.model = None
         view.model = canvas
 
-    b.connect("clicked", on_reattach_clicked, [0])
+    b.connect("clicked", on_reattach_clicked)
     v.add(b)
 
     # Add the actual View:
@@ -375,9 +375,6 @@ def create_canvas(c=None):
 
 def main():
     # State handling (a.k.a. undo handlers)
-
-    def print_handler(event):
-        print("event:", event)
 
     c = Canvas()
 

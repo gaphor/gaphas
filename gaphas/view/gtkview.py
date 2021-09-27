@@ -477,7 +477,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             elif item in self._model.get_all_items():
                 self.request_update((item,))
 
-    def on_matrix_update(self, matrix, old_matrix_values):
+    def on_matrix_update(self, _matrix, _old_matrix_values):
         if not self._matrix_changed:
             self._matrix_changed = True
             self.update()

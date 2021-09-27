@@ -16,11 +16,11 @@ def text_extents(cr, text, font=None, multiline=False, padding=1):
     if multiline:
         width, height = 0, 0
         for line in text.split("\n"):
-            x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(line)
+            _x_bear, _y_bear, w, h, _x_adv, _y_adv = cr.text_extents(line)
             width = max(width, w)
             height += h + padding
     else:
-        x_bear, y_bear, width, height, x_adv, y_adv = cr.text_extents(text)
+        _x_bear, _y_bear, width, height, _x_adv, _y_adv = cr.text_extents(text)
         # width, height = width + x_bearing, height + y_bearing
 
     if font:
@@ -45,7 +45,7 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     if not text:
         return
 
-    x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+    x_bear, y_bear, w, h, _x_adv, _y_adv = cr.text_extents(text)
     if align_x == 0:
         x = 0.5 - (w / 2 + x_bear) + x
     elif align_x < 0:
@@ -62,20 +62,18 @@ def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):
     cr.show_text(text)
 
 
-def text_multiline(cr, x, y, text, padding=1):
+def text_multiline(cr, x, y, text):
     """Draw a string of text with embedded newlines.
 
     cr - cairo context
     x - leftmost x
     y - topmost y
     text - text to draw
-    padding - additional padding between lines.
     """
     if not text:
         return
-    # cr.move_to(x, y)
     for line in text.split("\n"):
-        x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+        _x_bear, _y_bear, _w, h, _x_adv, _y_adv = cr.text_extents(text)
         y += h
         cr.move_to(x, y)
         cr.show_text(line)
