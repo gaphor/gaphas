@@ -207,7 +207,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     @property
     def bounding_box(self) -> Rectangle:
         """The bounding box of the complete view, relative to the view port."""
-        return Rectangle(*self._qtree.soft_bounds)
+        bounds = Rectangle(*self._qtree.soft_bounds)
+        vx0, vy0 = self._matrix.transform_point(0, 0)
+        bounds += (vx0, vy0, 0, 0)
+        return bounds
 
     @property
     def hadjustment(self) -> Gtk.Adjustment:
@@ -374,7 +377,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def update_scrolling(self) -> None:
         allocation = self.get_allocation()
         self._scrolling.update_adjustments(
-            allocation.width, allocation.height, self._qtree.soft_bounds
+            allocation.width, allocation.height, self.bounding_box
         )
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
@@ -484,7 +487,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def on_resize(self, width: int, height: int) -> None:
         self._qtree.resize((0, 0, width, height))
-        self._scrolling.update_adjustments(width, height, self._qtree.soft_bounds)
+        self.update_scrolling()
         if self.get_realized():
             self._back_buffer_needs_resizing = True
             self.update_back_buffer()
