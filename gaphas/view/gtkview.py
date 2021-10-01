@@ -207,7 +207,10 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     @property
     def bounding_box(self) -> Rectangle:
         """The bounding box of the complete view, relative to the view port."""
-        return Rectangle(*self._qtree.soft_bounds)
+        bounds = Rectangle(*self._qtree.soft_bounds)
+        vx0, vy0 = self._matrix.transform_point(0, 0)
+        bounds += (vx0, vy0, 0, 0)
+        return bounds
 
     @property
     def hadjustment(self) -> Gtk.Adjustment:
@@ -374,7 +377,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def update_scrolling(self) -> None:
         allocation = self.get_allocation()
         self._scrolling.update_adjustments(
-            allocation.width, allocation.height, self._qtree.soft_bounds
+            allocation.width, allocation.height, self.bounding_box
         )
 
     @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
@@ -396,8 +399,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self._back_buffer_needs_resizing = False
 
             assert self._back_buffer
-            cr = cairo.Context(self._back_buffer)
 
+            cr = cairo.Context(self._back_buffer)
             cr.save()
             cr.set_operator(cairo.OPERATOR_CLEAR)
             cr.paint()
@@ -405,45 +408,49 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             Gtk.render_background(self.get_style_context(), cr, 0, 0, width, height)
 
-            items = self.get_items_in_rectangle((0, 0, width, height))
-
             cr.set_matrix(self.matrix.to_cairo())
             cr.save()
             cr.set_tolerance(PAINT_TOLERANCE)
+            items = self.get_items_in_rectangle((0, 0, width, height))
             self.painter.paint(list(items), cr)
             cr.restore()
 
             if DEBUG_DRAW_BOUNDING_BOX:
-                for item in self.get_items_in_rectangle((0, 0, width, height)):
-                    try:
-                        b = self.get_item_bounding_box(item)
-                    except KeyError:
-                        pass  # No bounding box right now..
-                    else:
-                        cr.save()
-                        cr.identity_matrix()
-                        cr.set_source_rgb(0.8, 0, 0)
-                        cr.set_line_width(1.0)
-                        cr.rectangle(*b)
-                        cr.stroke()
-                        cr.restore()
+                self._debug_draw_bounding_box(cr, width, height)
 
             if DEBUG_DRAW_QUADTREE:
-
-                def draw_qtree_bucket(bucket: QuadtreeBucket) -> None:
-                    cr.rectangle(*bucket.bounds)
-                    cr.stroke()
-                    for b in bucket._buckets:
-                        draw_qtree_bucket(b)
-
-                cr.set_source_rgb(0, 0, 0.8)
-                cr.set_line_width(1.0)
-                draw_qtree_bucket(self._qtree._bucket)
+                self._debug_draw_quadtree(cr)
 
             if Gtk.get_major_version() == 3:
                 self.get_window().invalidate_rect(allocation, True)
             else:
                 self.queue_draw()
+
+    def _debug_draw_bounding_box(self, cr, width, height):
+        for item in self.get_items_in_rectangle((0, 0, width, height)):
+            try:
+                b = self.get_item_bounding_box(item)
+            except KeyError:
+                pass  # No bounding box right now..
+            else:
+                cr.save()
+                cr.identity_matrix()
+                cr.set_source_rgb(0.8, 0, 0)
+                cr.set_line_width(1.0)
+                cr.rectangle(*b)
+                cr.stroke()
+                cr.restore()
+
+    def _debug_draw_quadtree(self, cr):
+        def draw_qtree_bucket(bucket: QuadtreeBucket) -> None:
+            cr.rectangle(*bucket.bounds)
+            cr.stroke()
+            for b in bucket._buckets:
+                draw_qtree_bucket(b)
+
+        cr.set_source_rgb(0, 0, 0.8)
+        cr.set_line_width(1.0)
+        draw_qtree_bucket(self._qtree._bucket)
 
     def do_realize(self) -> None:
         Gtk.DrawingArea.do_realize(self)
@@ -484,7 +491,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def on_resize(self, width: int, height: int) -> None:
         self._qtree.resize((0, 0, width, height))
-        self._scrolling.update_adjustments(width, height, self._qtree.soft_bounds)
+        self.update_scrolling()
         if self.get_realized():
             self._back_buffer_needs_resizing = True
             self.update_back_buffer()
