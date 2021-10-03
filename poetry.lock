@@ -243,14 +243,14 @@ python-versions = ">=3.6, <4"
 
 [[package]]
 name = "pygobject"
-version = "3.40.1"
+version = "3.42.0"
 description = "Python bindings for GObject Introspection"
 category = "main"
 optional = false
 python-versions = ">=3.6, <4"
 
 [package.dependencies]
-pycairo = ">=1.16.0"
+pycairo = ">=1.16,<2.0"
 
 [[package]]
 name = "pyparsing"
@@ -595,7 +595,7 @@ pycairo = [
     {file = "pycairo-1.20.1.tar.gz", hash = "sha256:1ee72b035b21a475e1ed648e26541b04e5d7e753d75ca79de8c583b25785531b"},
 ]
 pygobject = [
-    {file = "PyGObject-3.40.1.tar.gz", hash = "sha256:6fb599aa59ceb9dd05fafb0d72b3862943e7d5e85c8ef6c74856bc6d4321cbab"},
+    {file = "PyGObject-3.42.0.tar.gz", hash = "sha256:b9803991ec0b0b4175e81fee0ad46090fa7af438fe169348a9b18ae53447afcd"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
