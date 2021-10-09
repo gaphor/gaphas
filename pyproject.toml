@@ -83,11 +83,7 @@ commands = coverage erase
 """
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --doctest-glob='*.rst' --ignore=docs/conf.py"
-testpaths = [
-    "tests",
-    "docs",
-    ]
+testpaths = ["tests"]
 
 [tool.isort]
 multi_line_output = 3
