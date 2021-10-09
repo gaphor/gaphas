@@ -45,7 +45,7 @@ jobs:
           pip install poetry==$POETRY_VERSION
       - name: Install dependencies
         run: |
-          pip install tox tox-gh-actions coverage
+          pip install tox tox-gh-actions coverage[toml]
       - name: Test with tox
         run: tox
       - name: Code Climate Coverage Action
