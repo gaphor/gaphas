@@ -2,7 +2,7 @@ import pytest
 
 from gaphas.connections import Connections
 from gaphas.connector import Handle
-from gaphas.guide import Guide, GuidedItemMove
+from gaphas.guide import Guide, GuidedItemMove, find_closest
 from gaphas.item import Element, Line
 from gaphas.solver import WEAK
 
@@ -19,8 +19,7 @@ def test_find_closest(view, connections):
     set1 = [0, 10, 20]
     set2 = [2, 15, 30]
 
-    guider = GuidedItemMove(Element(connections), view)
-    d, closest = guider.find_closest(set1, set2)
+    d, closest = find_closest(set1, set2)
     assert 2.0 == d
     assert [2.0] == closest
 

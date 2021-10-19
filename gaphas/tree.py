@@ -159,7 +159,6 @@ class Tree(Generic[T]):
             atnode = siblings[index]  # type: ignore[index]
         except (TypeError, IndexError):
             index = len(siblings)
-            # self._add_to_nodes(node, parent)
             if parent:
                 try:
                     next_uncle = self.get_next_sibling(parent)
