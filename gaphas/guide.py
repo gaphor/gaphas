@@ -151,18 +151,6 @@ def get_view_dimensions(view):
     return allocation.width, allocation.height
 
 
-def queue_draw_guides(view):
-    try:
-        guides = view.guides
-    except AttributeError:
-        return
-
-    for x in guides.vertical():
-        view.update_back_buffer()
-    for y in guides.horizontal():
-        view.update_back_buffer()
-
-
 def find_closest(item_edges, edges, margin=MARGIN):
     delta = 0
     min_d = 1000
@@ -192,22 +180,21 @@ def update_guides(view, item, pos, vedges, hedges):
 
     newpos = px + dx, py + dy
 
-    queue_draw_guides(view)
-
     view.guides = Guides(edges_x, edges_y)
 
-    queue_draw_guides(view)
+    view.update_back_buffer()
 
     return newpos
 
 
 def reset_guides(view):
-    queue_draw_guides(view)
     try:
         del view.guides
     except AttributeError:
         # No problem if guides do not exist.
         pass
+    else:
+        view.update_back_buffer()
 
 
 @Move.register(Element)
