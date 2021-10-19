@@ -182,6 +182,34 @@ def find_closest(item_edges, edges, margin=MARGIN):
         return 0, ()
 
 
+def update_guides(view, item, pos, vedges, hedges):
+
+    px, py = pos
+    excluded_items = get_excluded_items(view, item)
+    w, h = get_view_dimensions(view)
+    dx, edges_x = find_vertical_guides(view, vedges, h, excluded_items)
+    dy, edges_y = find_horizontal_guides(view, hedges, w, excluded_items)
+
+    newpos = px + dx, py + dy
+
+    queue_draw_guides(view)
+
+    view.guides = Guides(edges_x, edges_y)
+
+    queue_draw_guides(view)
+
+    return newpos
+
+
+def reset_guides(view):
+    queue_draw_guides(view)
+    try:
+        del view.guides
+    except AttributeError:
+        # No problem if guides do not exist.
+        pass
+
+
 @Move.register(Element)
 class GuidedItemMove(ItemMove):
     """Move the item, lock position on any element that's located at the same
@@ -191,41 +219,23 @@ class GuidedItemMove(ItemMove):
         item = self.item
         view = self.view
 
-        transform = view.get_matrix_i2v(item).transform_point
-        w, h = get_view_dimensions(view)
-
         px, py = pos
         pdx, pdy = px - self.last_x, py - self.last_y
 
-        excluded_items = get_excluded_items(view, item)
-
+        transform = view.get_matrix_i2v(item).transform_point
         item_guide = Guide(item)
         item_vedges = [transform(x, 0)[0] + pdx for x in item_guide.vertical()]
-        dx, edges_x = find_vertical_guides(view, item_vedges, h, excluded_items)
-
         item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
-        dy, edges_y = find_horizontal_guides(view, item_hedges, w, excluded_items)
 
-        newpos = px + dx, py + dy
+        newpos = update_guides(view, item, pos, item_vedges, item_hedges)
 
         # Call super class, with new position
         sink = super().move(newpos)
 
-        queue_draw_guides(view)
-
-        view.guides = Guides(edges_x, edges_y)
-
-        queue_draw_guides(view)
-
         return sink
 
     def stop_move(self, pos):
-        queue_draw_guides(self.view)
-        try:
-            del self.view.guides
-        except AttributeError:
-            # No problem if guides do not exist.
-            pass
+        reset_guides(self.view)
 
 
 @HandleMove.register(Element)
@@ -247,36 +257,15 @@ class GuidedElementHandleMove(ElementHandleMove):
             assert model
 
             x, y = pos
-            v2i = view.get_matrix_v2i(item)
 
-            excluded_items = get_excluded_items(view, item)
+            newpos = update_guides(view, item, pos, (x,), (y,))
 
-            w, h = get_view_dimensions(view)
-            dx, edges_x = find_vertical_guides(view, (x,), h, excluded_items)
-            dy, edges_y = find_horizontal_guides(view, (y,), w, excluded_items)
-
-            newpos = x + dx, y + dy
-
-            x, y = v2i.transform_point(*newpos)
-
-            self.handle.pos = (x, y)
-
-            queue_draw_guides(view)
-
-            view.guides = Guides(edges_x, edges_y)
-
-            queue_draw_guides(view)
-
+            self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
             model.request_update(item)
 
     def stop_move(self, pos):
         super().stop_move(pos)
-        queue_draw_guides(self.view)
-        try:
-            del self.view.guides
-        except AttributeError:
-            # No problem if guides do not exist.
-            pass
+        reset_guides(self.view)
 
 
 class GuidePainter:
