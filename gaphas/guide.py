@@ -86,7 +86,7 @@ class Guides:
 MARGIN = 2
 
 
-def find_vertical_guides(view, item_vedges, pdx, height, excluded_items, margin=MARGIN):
+def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGIN):
     view = view
     i2v = view.get_matrix_i2v
     items = [
@@ -109,9 +109,7 @@ def find_vertical_guides(view, item_vedges, pdx, height, excluded_items, margin=
     return dx, edges_x
 
 
-def find_horizontal_guides(
-    view, item_hedges, pdy, width, excluded_items, margin=MARGIN
-):
+def find_horizontal_guides(view, item_hedges, width, excluded_items, margin=MARGIN):
     i2v = view.get_matrix_i2v
     items = [
         view.get_items_in_rectangle((0, y - margin, width, margin * 2))
@@ -203,10 +201,10 @@ class GuidedItemMove(ItemMove):
 
         item_guide = Guide(item)
         item_vedges = [transform(x, 0)[0] + pdx for x in item_guide.vertical()]
-        dx, edges_x = find_vertical_guides(view, item_vedges, pdx, h, excluded_items)
+        dx, edges_x = find_vertical_guides(view, item_vedges, h, excluded_items)
 
         item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
-        dy, edges_y = find_horizontal_guides(view, item_hedges, pdy, w, excluded_items)
+        dy, edges_y = find_horizontal_guides(view, item_hedges, w, excluded_items)
 
         newpos = px + dx, py + dy
 
@@ -254,15 +252,14 @@ class GuidedElementHandleMove(ElementHandleMove):
             excluded_items = get_excluded_items(view, item)
 
             w, h = get_view_dimensions(view)
-            dx, edges_x = find_vertical_guides(view, (x,), 0, h, excluded_items)
-            dy, edges_y = find_horizontal_guides(view, (y,), 0, w, excluded_items)
+            dx, edges_x = find_vertical_guides(view, (x,), h, excluded_items)
+            dy, edges_y = find_horizontal_guides(view, (y,), w, excluded_items)
 
             newpos = x + dx, y + dy
 
             x, y = v2i.transform_point(*newpos)
 
             self.handle.pos = (x, y)
-            # super(GuidedItemHandleInMotion, self).move(newpos)
 
             queue_draw_guides(view)
 
