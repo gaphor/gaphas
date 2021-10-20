@@ -1,4 +1,4 @@
-FROM fedora:33
+FROM fedora:34
 
 ENV TEST_GTK_VERSION "4.0"
 
