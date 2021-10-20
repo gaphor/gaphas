@@ -9,9 +9,9 @@ from gaphas.aspect import MoveType
 from gaphas.aspect.handlemove import HandleMove, ItemHandleMove, item_at_point
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
-from gaphas.item import Line, matrix_i2i
+from gaphas.item import Item, Line, matrix_i2i
 from gaphas.solver import WEAK
-from gaphas.view import Selection
+from gaphas.view import GtkView, Selection
 from gaphas.view.model import Model
 
 
@@ -227,11 +227,20 @@ def on_drag_end(gesture, offset_x, offset_y, segment_state):
         segment_state.reset()
 
 
-@HandleMove.register(Line)
-class LineHandleMove(ItemHandleMove):
+class LineSegmentMergeMixin:
+
+    view: GtkView
+    item: Item
+    handle: Handle
+
     def stop_move(self, pos):
-        super().stop_move(pos)
+        super().stop_move(pos)  # type: ignore[misc]
         maybe_merge_segments(self.view, self.item, self.handle)
+
+
+@HandleMove.register(Line)
+class LineHandleMove(LineSegmentMergeMixin, ItemHandleMove):
+    pass
 
 
 def maybe_split_segment(view, item, pos):
