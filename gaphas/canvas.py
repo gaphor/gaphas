@@ -28,10 +28,9 @@ To get connecting items (i.e. all lines connected to a class)::
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Protocol
 
 import cairo
-from typing_extensions import Protocol
 
 from gaphas import matrix, tree
 from gaphas.connections import Connection, Connections

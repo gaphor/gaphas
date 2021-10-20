@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Collection, Hashable
-
-from typing_extensions import Protocol, runtime_checkable
+from typing import Callable, Collection, Hashable, Protocol, runtime_checkable
 
 from gaphas.solver.variable import Variable
 

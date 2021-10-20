@@ -33,7 +33,6 @@ classifiers = [
 python = "^3.8"
 PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
-typing-extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2"

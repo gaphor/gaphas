@@ -2,9 +2,18 @@
 would in a database table, with indexes on the desired "columns."."""
 
 from functools import reduce
-from typing import Dict, Generic, Iterator, Sequence, Set, Tuple, Type, TypeVar
-
-from typing_extensions import Protocol, runtime_checkable
+from typing import (
+    Dict,
+    Generic,
+    Iterator,
+    Protocol,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    runtime_checkable,
+)
 
 T = TypeVar("T", bound=Tuple, covariant=True)
 

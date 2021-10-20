@@ -1,7 +1,5 @@
 from functools import singledispatch
-from typing import Callable, Optional
-
-from typing_extensions import Protocol
+from typing import Callable, Optional, Protocol
 
 from gaphas.connections import Connections
 from gaphas.connector import Handle, LinePort, Port

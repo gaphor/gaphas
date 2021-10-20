@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Collection, Iterable
-
-from typing_extensions import Protocol, runtime_checkable
+from typing import Collection, Iterable, Protocol, runtime_checkable
 
 from gaphas.connections import Connections
 from gaphas.item import Item

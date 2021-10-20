@@ -1,7 +1,6 @@
-from typing import List, Optional, Sequence, SupportsFloat, Tuple, TypeVar
+from typing import List, Optional, Protocol, Sequence, SupportsFloat, Tuple, TypeVar
 
 import cairo
-from typing_extensions import Protocol
 
 # A primitive position, tuple ``(x, y)``
 # Pos = Tuple[Union[float, SupportsFloat], Union[float, SupportsFloat]]

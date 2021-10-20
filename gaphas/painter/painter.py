@@ -6,9 +6,7 @@ Each painter takes care of a layer in the canvas (such as grid, items
 and handles).
 """
 
-from typing import Collection
-
-from typing_extensions import Protocol
+from typing import Collection, Protocol
 
 from gaphas.item import Item
 from gaphas.types import CairoContext
