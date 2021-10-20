@@ -11,7 +11,6 @@ def motion_event():
     return event
 
 
-@pytest.mark.skip
 def test_hovers_item(view, box, motion_event):
     tool = hover_tool(view)
     motion_event.x = 5
@@ -22,7 +21,6 @@ def test_hovers_item(view, box, motion_event):
     assert view.selection.hovered_item is box
 
 
-@pytest.mark.skip
 def test_handles_event(view, box, motion_event):
     tool = hover_tool(view)
     motion_event.x = 100
