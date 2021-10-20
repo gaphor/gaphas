@@ -1,5 +1,7 @@
 """Module implements guides when moving items and handles around."""
+from dataclasses import dataclass
 from functools import reduce, singledispatch
+from typing import List
 
 from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
 from gaphas.aspect.move import ItemMove, Move
@@ -17,11 +19,11 @@ class ItemGuide:
         self.item = item
 
     def horizontal(self):
-        """Return horizontal edges (on y axis)"""
+        """Return horizontal edges (on y axis) in item coordinates."""
         return ()
 
     def vertical(self):
-        """Return vertical edges (on x axis)"""
+        """Return vertical edges (on x axis) in item coordinates."""
         return ()
 
 
@@ -72,64 +74,39 @@ class LineGuide(ItemGuide):
                         yield h.pos.x
 
 
+@dataclass(frozen=True)
 class Guides:
-    def __init__(self, v, h):
-        self.v = v
-        self.h = h
-
-    def vertical(self):
-        return self.v
-
-    def horizontal(self):
-        return self.h
+    vertical: List[float]
+    horizontal: List[float]
 
 
 MARGIN = 2
 
 
 def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGIN):
-    view = view
-    i2v = view.get_matrix_i2v
-    items = [
+    items = (
         view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
         for x in item_vedges
-    ]
-
-    try:
-        guides = list(
-            map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)  # type: ignore[arg-type]
-        )
-    except TypeError:
-        guides = []
-
-    vedges = set()
-    for g in guides:
-        for x in g.vertical():
-            vedges.add(i2v(g.item).transform_point(x, 0)[0])
+    )
+    guides = map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+    i2v = view.get_matrix_i2v
+    vedges = {
+        i2v(g.item).transform_point(x, 0)[0] for g in guides for x in g.vertical()
+    }
     dx, edges_x = find_closest(item_vedges, vedges)
     return dx, edges_x
 
 
 def find_horizontal_guides(view, item_hedges, width, excluded_items, margin=MARGIN):
-    i2v = view.get_matrix_i2v
-    items = [
+    items = (
         view.get_items_in_rectangle((0, y - margin, width, margin * 2))
         for y in item_hedges
-    ]
-
-    try:
-        guides = list(
-            map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)  # type: ignore[arg-type]
-        )
-    except TypeError:
-        guides = []
-
-    # Translate edges to canvas or view coordinates
-    hedges = set()
-    for g in guides:
-        for y in g.horizontal():
-            hedges.add(i2v(g.item).transform_point(0, y)[1])
-
+    )
+    guides = map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+    i2v = view.get_matrix_i2v
+    hedges = {
+        i2v(g.item).transform_point(0, y)[1] for g in guides for y in g.horizontal()
+    }
     dy, edges_y = find_closest(item_hedges, hedges)
     return dy, edges_y
 
@@ -290,11 +267,11 @@ class GuidePainter:
             cr.identity_matrix()
             cr.set_line_width(1)
             cr.set_source_rgba(0.0, 0.0, 1.0, 0.6)
-            for g in guides.vertical():
+            for g in guides.vertical:
                 cr.move_to(g, 0)
                 cr.line_to(g, h)
                 cr.stroke()
-            for g in guides.horizontal():
+            for g in guides.horizontal:
                 cr.move_to(0, g)
                 cr.line_to(w, g)
                 cr.stroke()
