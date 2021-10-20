@@ -1,8 +1,23 @@
 from functools import singledispatch
+from typing import Protocol
 
 from gaphas.item import Item
 from gaphas.types import Pos
 from gaphas.view import GtkView
+
+
+class MoveType(Protocol):
+    def __init__(self, item: Item, view: GtkView):
+        ...
+
+    def start_move(self, pos: Pos) -> None:
+        ...
+
+    def move(self, pos: Pos) -> None:
+        ...
+
+    def stop_move(self, pos: Pos) -> None:
+        ...
 
 
 class ItemMove:

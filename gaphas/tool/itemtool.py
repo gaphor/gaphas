@@ -2,7 +2,6 @@ import logging
 from typing import Optional, Tuple, Union
 
 from gi.repository import Gdk, Gtk
-from typing_extensions import Protocol
 
 from gaphas.aspect import HandleMove, Move, item_at_point
 from gaphas.canvas import ancestors
@@ -13,20 +12,6 @@ from gaphas.types import Pos
 from gaphas.view import GtkView
 
 log = logging.getLogger(__name__)
-
-
-class MoveType(Protocol):
-    def __init__(self, item: Item, view: GtkView):
-        ...
-
-    def start_move(self, pos: Pos) -> None:
-        ...
-
-    def move(self, pos: Pos) -> None:
-        ...
-
-    def stop_move(self, pos: Pos) -> None:
-        ...
 
 
 def item_tool(view: GtkView) -> Gtk.GestureDrag:

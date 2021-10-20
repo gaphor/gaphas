@@ -5,12 +5,12 @@ from typing import Optional
 from cairo import ANTIALIAS_NONE
 from gi.repository import Gtk
 
-from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
+from gaphas.aspect import MoveType
+from gaphas.aspect.handlemove import HandleMove, ItemHandleMove, item_at_point
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
 from gaphas.solver import WEAK
-from gaphas.tool.itemtool import MoveType, item_at_point
 from gaphas.view import Selection
 from gaphas.view.model import Model
 
