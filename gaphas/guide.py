@@ -4,7 +4,8 @@ from functools import reduce, singledispatch
 from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
 from gaphas.aspect.move import ItemMove, Move
 from gaphas.canvas import all_children
-from gaphas.item import Element, Line
+from gaphas.connector import Handle
+from gaphas.item import Element, Item, Line
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
@@ -197,12 +198,16 @@ def reset_guides(view):
         view.update_back_buffer()
 
 
-@Move.register(Element)
-class GuidedItemMove(ItemMove):
+class GuidedItemMoveMixin:
     """Move the item, lock position on any element that's located at the same
     location."""
 
-    def move(self, pos):
+    view: GtkView
+    item: Item
+    last_x: float
+    last_y: float
+
+    def move(self, pos: Pos) -> None:
         item = self.item
         view = self.view
 
@@ -217,42 +222,53 @@ class GuidedItemMove(ItemMove):
         newpos = update_guides(view, item, pos, item_vedges, item_hedges)
 
         # Call super class, with new position
-        sink = super().move(newpos)
+        super().move(newpos)  # type: ignore[misc]
 
-        return sink
-
-    def stop_move(self, pos):
+    def stop_move(self, pos: Pos) -> None:
+        super().stop_move(pos)  # type: ignore[misc]
         reset_guides(self.view)
 
 
-@HandleMove.register(Element)
-class GuidedElementHandleMove(ElementHandleMove):
+@Move.register(Element)
+class GuidedItemMove(GuidedItemMoveMixin, ItemMove):
+    pass
+
+
+class GuidedItemHandleMoveMixin:
     """Move a handle and lock the position of other elements.
 
     Locks the position of another element that's located at the same
     position.
     """
 
+    view: GtkView
+    item: Item
+    handle: Handle
+
     def move(self, pos: Pos) -> None:
 
-        sink = super().move(pos)
+        super().move(pos)  # type: ignore[misc]
 
-        if not sink:
-            item = self.item
-            view = self.view
-            model = view.model
-            assert model
+        item = self.item
+        view = self.view
+        model = view.model
+        assert model
 
-            x, y = pos
+        x, y = pos
 
-            newpos = update_guides(view, item, pos, (x,), (y,))
+        newpos = update_guides(view, item, pos, (x,), (y,))
 
-            self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
-            model.request_update(item)
+        self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
+        model.request_update(item)
 
-    def stop_move(self, pos):
-        super().stop_move(pos)
+    def stop_move(self, pos: Pos) -> None:
+        super().stop_move(pos)  # type: ignore[misc]
         reset_guides(self.view)
+
+
+@HandleMove.register(Element)
+class GuidedElementHandleMove(GuidedItemHandleMoveMixin, ElementHandleMove):
+    pass
 
 
 class GuidePainter:
