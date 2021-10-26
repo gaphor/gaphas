@@ -1,6 +1,7 @@
 """Module implements guides when moving items and handles around."""
 from dataclasses import dataclass
-from functools import reduce, singledispatch
+from functools import singledispatch
+from itertools import chain
 from typing import List
 
 from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
@@ -85,10 +86,15 @@ MARGIN = 2
 
 def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGIN):
     items = (
-        view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
-        for x in item_vedges
+        set(
+            chain.from_iterable(
+                view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
+                for x in item_vedges
+            )
+        )
+        - excluded_items
     )
-    guides = map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+    guides = map(Guide, items)
     i2v = view.get_matrix_i2v
     vedges = {
         i2v(g.item).transform_point(x, 0)[0] for g in guides for x in g.vertical()
@@ -99,10 +105,15 @@ def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGI
 
 def find_horizontal_guides(view, item_hedges, width, excluded_items, margin=MARGIN):
     items = (
-        view.get_items_in_rectangle((0, y - margin, width, margin * 2))
-        for y in item_hedges
+        set(
+            chain.from_iterable(
+                view.get_items_in_rectangle((0, y - margin, width, margin * 2))
+                for y in item_hedges
+            )
+        )
+        - excluded_items
     )
-    guides = map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+    guides = map(Guide, items)
     i2v = view.get_matrix_i2v
     hedges = {
         i2v(g.item).transform_point(0, y)[1] for g in guides for y in g.horizontal()
