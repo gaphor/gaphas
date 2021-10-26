@@ -16,8 +16,9 @@ from gaphas.view import GtkView
 class ItemGuide:
     """Get edges on an item, on which we can align the items."""
 
-    def __init__(self, item):
+    def __init__(self, item, handle=None):
         self.item = item
+        self.handle = handle
 
     def horizontal(self):
         """Return horizontal edges (on y axis) in item coordinates."""
@@ -36,11 +37,15 @@ class ElementGuide(ItemGuide):
     """Guide to align Element items."""
 
     def horizontal(self):
+        if self.handle in self.item.handles():
+            return ()
         y = self.item.handles()[0].pos.y
         h = self.item.height
         return (y, y + h / 2, y + h)
 
     def vertical(self):
+        if self.handle in self.item.handles():
+            return ()
         x = self.item.handles()[0].pos.x
         w = self.item.width
         return (x, x + w / 2, x + w)
@@ -53,7 +58,9 @@ class LineGuide(ItemGuide):
     def horizontal(self):
         line = self.item
         if line.orthogonal:
-            if line.horizontal:
+            if self.handle in line.handles():
+                pass
+            elif line.horizontal:
                 for i, h in enumerate(line.handles()):
                     if i % 2 == 1:
                         yield h.pos.y
@@ -61,11 +68,15 @@ class LineGuide(ItemGuide):
                 for i, h in enumerate(line.handles()):
                     if i % 2 == 0 and i > 0:
                         yield h.pos.y
+        else:
+            yield from (h.pos.y for h in line.handles() if h is not self.handle)
 
     def vertical(self):
         line = self.item
         if line.orthogonal:
-            if line.horizontal:
+            if self.handle in line.handles():
+                pass
+            elif line.horizontal:
                 for i, h in enumerate(line.handles()):
                     if i % 2 == 0 and i > 0:
                         yield h.pos.x
@@ -73,6 +84,8 @@ class LineGuide(ItemGuide):
                 for i, h in enumerate(line.handles()):
                     if i % 2 == 1:
                         yield h.pos.x
+        else:
+            yield from (h.pos.x for h in line.handles() if h is not self.handle)
 
 
 @dataclass(frozen=True)
@@ -84,7 +97,9 @@ class Guides:
 MARGIN = 2
 
 
-def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGIN):
+def find_vertical_guides(
+    view, handle, item_vedges, height, excluded_items, margin=MARGIN
+):
     items = (
         set(
             chain.from_iterable(
@@ -94,7 +109,7 @@ def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGI
         )
         - excluded_items
     )
-    guides = map(Guide, items)
+    guides = (Guide(item, handle) for item in items)
     i2v = view.get_matrix_i2v
     vedges = {
         i2v(g.item).transform_point(x, 0)[0] for g in guides for x in g.vertical()
@@ -103,7 +118,9 @@ def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGI
     return dx, edges_x
 
 
-def find_horizontal_guides(view, item_hedges, width, excluded_items, margin=MARGIN):
+def find_horizontal_guides(
+    view, handle, item_hedges, width, excluded_items, margin=MARGIN
+):
     items = (
         set(
             chain.from_iterable(
@@ -113,7 +130,7 @@ def find_horizontal_guides(view, item_hedges, width, excluded_items, margin=MARG
         )
         - excluded_items
     )
-    guides = map(Guide, items)
+    guides = (Guide(item, handle) for item in items)
     i2v = view.get_matrix_i2v
     hedges = {
         i2v(g.item).transform_point(0, y)[1] for g in guides for y in g.horizontal()
@@ -159,13 +176,12 @@ def find_closest(item_edges, edges, margin=MARGIN):
         return 0, ()
 
 
-def update_guides(view, item, pos, vedges, hedges):
+def update_guides(view, handle, pos, vedges, hedges, excluded_items):
 
     px, py = pos
-    excluded_items = get_excluded_items(view, item)
     w, h = get_view_dimensions(view)
-    dx, edges_x = find_vertical_guides(view, vedges, h, excluded_items)
-    dy, edges_y = find_horizontal_guides(view, hedges, w, excluded_items)
+    dx, edges_x = find_vertical_guides(view, handle, vedges, h, excluded_items)
+    dy, edges_y = find_horizontal_guides(view, handle, hedges, w, excluded_items)
 
     newpos = px + dx, py + dy
 
@@ -207,7 +223,10 @@ class GuidedItemMoveMixin:
         item_vedges = [transform(x, 0)[0] + pdx for x in item_guide.vertical()]
         item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
 
-        newpos = update_guides(view, item, pos, item_vedges, item_hedges)
+        excluded_items = get_excluded_items(view, item)
+        newpos = update_guides(
+            view, None, pos, item_vedges, item_hedges, excluded_items
+        )
 
         # Call super class, with new position
         super().move(newpos)  # type: ignore[misc]
@@ -244,7 +263,7 @@ class GuidedItemHandleMoveMixin:
 
         x, y = pos
 
-        newpos = update_guides(view, item, pos, (x,), (y,))
+        newpos = update_guides(view, self.handle, pos, (x,), (y,), set())
 
         self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
         model.request_update(item)
