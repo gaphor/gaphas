@@ -9,7 +9,7 @@ state notification capabilities.
 
 from __future__ import annotations
 
-from typing import Callable, Tuple
+from typing import Callable, SupportsFloat, Tuple
 
 import cairo
 
@@ -101,10 +101,14 @@ class Matrix:
     def multiply(self, m: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix.multiply(m._matrix))
 
-    def transform_distance(self, dx: float, dy: float) -> tuple[float, float]:
+    def transform_distance(
+        self, dx: SupportsFloat, dy: SupportsFloat
+    ) -> tuple[float, float]:
         return self._matrix.transform_distance(dx, dy)  # type: ignore[no-any-return]
 
-    def transform_point(self, x: float, y: float) -> tuple[float, float]:
+    def transform_point(
+        self, x: SupportsFloat, y: SupportsFloat
+    ) -> tuple[float, float]:
         return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
 
     def inverse(self) -> Matrix:

@@ -28,11 +28,11 @@ def test_element_guide():
     e1 = Element(Connections())
     assert 10 == e1.width
     assert 10 == e1.height
-    guides = Guide(e1).horizontal()
+    guides = list(Guide(e1).horizontal())
     assert 0.0 == guides[0]
     assert 5.0 == guides[1]
     assert 10.0 == guides[2]
-    guides = Guide(e1).vertical()
+    guides = list(Guide(e1).vertical())
     assert 0.0 == guides[0]
     assert 5.0 == guides[1]
     assert 10.0 == guides[2]
@@ -46,14 +46,18 @@ def test_line_guide(line, canvas):
     canvas.update_now((line,))
 
     guides = list(Guide(line).horizontal())
-    assert 2 == len(guides)
-    assert 10.0 == guides[0]
-    assert 40.0 == guides[1]
+    assert len(line.handles()) == len(guides)
+    assert 0.0 == guides[0]
+    assert 10.0 == guides[1]
+    assert 10.0 == guides[2]
+    assert 40.0 == guides[3]
 
     guides = list(Guide(line).vertical())
-    assert 2 == len(guides)
+    assert len(line.handles()) == len(guides)
     assert 10.0 == guides[0]
-    assert 30.0 == guides[1]
+    assert 10.0 == guides[1]
+    assert 30.0 == guides[2]
+    assert 30.0 == guides[3]
 
 
 def test_line_guide_horizontal(line, canvas):
@@ -65,14 +69,10 @@ def test_line_guide_horizontal(line, canvas):
     canvas.update_now((line,))
 
     guides = list(Guide(line).horizontal())
-    assert 2 == len(guides)
+    assert len(line.handles()) == len(guides)
     assert 10.0 == guides[0]
-    assert 30.0 == guides[1]
-
-    guides = list(Guide(line).horizontal())
-    assert 2 == len(guides)
-    assert 10.0 == guides[0]
-    assert 30.0 == guides[1]
+    assert 10.0 == guides[1]
+    assert 30.0 == guides[2]
 
 
 def test_guide_item_in_motion(connections, canvas, view, window):

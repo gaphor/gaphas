@@ -1,8 +1,10 @@
 """Module implements guides when moving items and handles around."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from functools import singledispatch
 from itertools import chain
-from typing import List
+from typing import Iterable, SupportsFloat
 
 from gaphas.aspect.handlemove import ElementHandleMove, HandleMove, ItemHandleMove
 from gaphas.aspect.move import ItemMove, Move
@@ -16,15 +18,15 @@ from gaphas.view import GtkView
 class ItemGuide:
     """Get edges on an item, on which we can align the items."""
 
-    def __init__(self, item, handle=None):
+    def __init__(self, item: Item, handle: Handle | None = None):
         self.item = item
         self.handle = handle
 
-    def horizontal(self):
+    def horizontal(self) -> Iterable[SupportsFloat]:
         """Return horizontal edges (on y axis) in item coordinates."""
         return ()
 
-    def vertical(self):
+    def vertical(self) -> Iterable[SupportsFloat]:
         """Return vertical edges (on x axis) in item coordinates."""
         return ()
 
@@ -36,62 +38,50 @@ Guide = singledispatch(ItemGuide)
 class ElementGuide(ItemGuide):
     """Guide to align Element items."""
 
-    def horizontal(self):
-        if self.handle in self.item.handles():
+    def horizontal(self) -> Iterable[SupportsFloat]:
+        element = self.item
+        assert isinstance(element, Element)
+        if self.handle in element.handles():
             return ()
-        y = self.item.handles()[0].pos.y
-        h = self.item.height
-        return (y, y + h / 2, y + h)
+        y = element.handles()[0].pos.y
+        h = element.height
+        return [y, y + h / 2, y + h]
 
-    def vertical(self):
-        if self.handle in self.item.handles():
+    def vertical(self) -> Iterable[SupportsFloat]:
+        element = self.item
+        assert isinstance(element, Element)
+        if self.handle in element.handles():
             return ()
-        x = self.item.handles()[0].pos.x
-        w = self.item.width
-        return (x, x + w / 2, x + w)
+        x = element.handles()[0].pos.x
+        w = element.width
+        return [x, x + w / 2, x + w]
 
 
 @Guide.register(Line)
 class LineGuide(ItemGuide):
     """Guide for orthogonal lines."""
 
-    def horizontal(self):
+    def horizontal(self) -> Iterable[SupportsFloat]:
         line = self.item
-        if line.orthogonal:
-            if self.handle in line.handles():
-                pass
-            elif line.horizontal:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 1:
-                        yield h.pos.y
-            else:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 0 and i > 0:
-                        yield h.pos.y
+        assert isinstance(line, Line)
+        if line.orthogonal and self.handle in line.handles():
+            pass
         else:
             yield from (h.pos.y for h in line.handles() if h is not self.handle)
 
-    def vertical(self):
+    def vertical(self) -> Iterable[SupportsFloat]:
         line = self.item
-        if line.orthogonal:
-            if self.handle in line.handles():
-                pass
-            elif line.horizontal:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 0 and i > 0:
-                        yield h.pos.x
-            else:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 1:
-                        yield h.pos.x
+        assert isinstance(line, Line)
+        if line.orthogonal and self.handle in line.handles():
+            pass
         else:
             yield from (h.pos.x for h in line.handles() if h is not self.handle)
 
 
 @dataclass(frozen=True)
 class Guides:
-    vertical: List[float]
-    horizontal: List[float]
+    vertical: list[float]
+    horizontal: list[float]
 
 
 MARGIN = 2
@@ -176,7 +166,7 @@ def find_closest(item_edges, edges, margin=MARGIN):
         return 0, ()
 
 
-def update_guides(view, handle, pos, vedges, hedges, excluded_items):
+def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset()):
 
     px, py = pos
     w, h = get_view_dimensions(view)
@@ -263,7 +253,7 @@ class GuidedItemHandleMoveMixin:
 
         x, y = pos
 
-        newpos = update_guides(view, self.handle, pos, (x,), (y,), set())
+        newpos = update_guides(view, self.handle, pos, (x,), (y,))
 
         self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
         model.request_update(item)
