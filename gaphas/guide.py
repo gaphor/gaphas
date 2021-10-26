@@ -4,7 +4,7 @@ from functools import singledispatch
 from itertools import chain
 from typing import List
 
-from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
+from gaphas.aspect.handlemove import ElementHandleMove, HandleMove, ItemHandleMove
 from gaphas.aspect.move import ItemMove, Move
 from gaphas.canvas import all_children
 from gaphas.connector import Handle
@@ -256,6 +256,11 @@ class GuidedItemHandleMoveMixin:
 
 @HandleMove.register(Element)
 class GuidedElementHandleMove(GuidedItemHandleMoveMixin, ElementHandleMove):
+    pass
+
+
+@HandleMove.register(Line)
+class GuidedLineHandleMove(GuidedItemHandleMoveMixin, ItemHandleMove):
     pass
 
 
