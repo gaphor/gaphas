@@ -64,17 +64,13 @@ class LineGuide(ItemGuide):
     def horizontal(self) -> Iterable[SupportsFloat]:
         line = self.item
         assert isinstance(line, Line)
-        if line.orthogonal and self.handle in line.handles():
-            pass
-        else:
+        if not line.orthogonal or self.handle not in line.handles():
             yield from (h.pos.y for h in line.handles() if h is not self.handle)
 
     def vertical(self) -> Iterable[SupportsFloat]:
         line = self.item
         assert isinstance(line, Line)
-        if line.orthogonal and self.handle in line.handles():
-            pass
-        else:
+        if not line.orthogonal or self.handle not in line.handles():
             yield from (h.pos.x for h in line.handles() if h is not self.handle)
 
 
