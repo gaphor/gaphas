@@ -6,11 +6,12 @@ from cairo import ANTIALIAS_NONE
 from gi.repository import Gtk
 
 from gaphas.aspect import MoveType
-from gaphas.aspect.handlemove import HandleMove, item_at_point
+from gaphas.aspect.handlemove import HandleMove
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Item, Line, matrix_i2i
 from gaphas.solver import WEAK
+from gaphas.tool.itemtool import find_item_and_handle_at_point
 from gaphas.view import Selection
 from gaphas.view.model import Model
 
@@ -207,8 +208,11 @@ def segment_tool(view):
 def on_drag_begin(gesture, start_x, start_y, segment_state):
     view = gesture.get_widget()
     pos = (start_x, start_y)
-    item = item_at_point(view, pos)
-    handle = item and maybe_split_segment(view, item, pos)
+    item, handle = find_item_and_handle_at_point(view, pos)
+
+    if not handle:
+        handle = maybe_split_segment(view, item, pos) if item else None
+
     if handle:
         segment_state.moving = HandleMove(item, handle, view)
         segment_state.item = item
