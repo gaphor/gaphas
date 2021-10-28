@@ -22,7 +22,7 @@ from __future__ import annotations
 import operator
 from typing import Callable, Generic, Iterable, Tuple, TypeVar
 
-from gaphas.geometry import rectangle_clip, rectangle_contains, rectangle_intersects
+from gaphas.geometry import rectangle_contains, rectangle_intersects
 
 Bounds = Tuple[float, float, float, float]  # x, y, width, height
 
@@ -35,7 +35,7 @@ class Quadtree(Generic[T, D]):
 
     Rectangles use the same scheme throughout Gaphas: (x, y, width, height).
 
-    >>> qtree = Quadtree((0, 0, 100, 100))
+    >>> qtree = Quadtree()
     >>> for i in range(20):
     ...     qtree.add(f"{i}", ((i * 4) % 90, (i * 10) % 90, 10, 10))
     >>> len(qtree)
@@ -78,31 +78,26 @@ class Quadtree(Generic[T, D]):
     ['13', '14', '15', '16']
     """
 
-    def __init__(self, bounds: Bounds = (0, 0, 0, 0), capacity: int = 10) -> None:
+    def __init__(self, capacity: int = 10, resize_step: int = 100) -> None:
         """Create a new Quadtree instance.
 
-        Bounds is the boundaries of the quadtree. this is fixed and do not
-        change depending on the contents.
+        Capacity defines the number of elements in one tree bucket (default: 10).
 
-        Capacity defines the number of elements in one tree bucket (default: 10)
+        The resize_step defines the increments in which the quadtree will grow when items
+        are moved out of the current quadtree boundries.
         """
         self._capacity = capacity
-        self._bucket: QuadtreeBucket[T] = QuadtreeBucket(bounds, capacity)
+        self._resize_step = resize_step
+        self._bucket: QuadtreeBucket[T] = QuadtreeBucket(
+            (0, 0, resize_step, resize_step), capacity
+        )
 
-        # Easy lookup item->(bounds, data, clipped bounds)
-        self._ids: dict[T, tuple[Bounds, D, Bounds | None]] = {}
+        # Easy lookup item->(bounds, data)
+        self._ids: dict[T, tuple[Bounds, D]] = {}
 
     @property
     def bounds(self) -> Bounds:
         return self._bucket.bounds
-
-    def resize(self, bounds: Bounds) -> None:
-        """Resize the tree.
-
-        The tree structure is rebuild.
-        """
-        self._bucket = QuadtreeBucket(bounds, self._capacity)
-        self.rebuild()
 
     @property
     def soft_bounds(self) -> Bounds:
@@ -139,54 +134,66 @@ class Quadtree(Generic[T, D]):
         is moved to the right bucket. Data can be used to add some extra
         info to the item
         """
-        # Clip item bounds to fit in top-level bucket
-        # Keep original bounds in _ids, for reference
-        clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
+        if not rectangle_contains(bounds, self._bucket.bounds):
+            self.resize(bounds)
 
         if item in self._ids:
-            old_clip = self._ids[item][2]
-            if old_clip:
-                bucket = self._bucket.find_bucket(old_clip)
-                assert item in bucket.items
+            old_bounds = self._ids[item][0]
+            if old_bounds:
+                bucket = self._bucket.find_bucket(old_bounds)
+
                 # Fast lane, if item moved just a little it may still reside
                 # in the same bucket. We do not need to search from top-level.
-                if (
-                    bucket
-                    and clipped_bounds
-                    and rectangle_contains(clipped_bounds, bucket.bounds)
-                ):
-                    bucket.update(item, clipped_bounds)
-                    self._ids[item] = (bounds, data, clipped_bounds)
+                if bucket and rectangle_contains(bounds, bucket.bounds):
+                    bucket.update(item, bounds)
+                    self._ids[item] = (bounds, data)
                     return
                 elif bucket:
                     bucket.remove(item)
 
-        if clipped_bounds:
-            self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
-        self._ids[item] = (bounds, data, clipped_bounds)
+        self._bucket.find_bucket(bounds).add(item, bounds)
+        self._ids[item] = (bounds, data)
 
     def remove(self, item: T) -> None:
         """Remove an item from the tree."""
-        bounds, data, clipped_bounds = self._ids[item]
+        bounds, data = self._ids[item]
         del self._ids[item]
-        if clipped_bounds:
-            self._bucket.find_bucket(clipped_bounds).remove(item)
+        self._bucket.find_bucket(bounds).remove(item)
 
     def clear(self):
         """Remove all items from the tree."""
         self._bucket.clear()
         self._ids.clear()
 
+    def resize(self, bounds: Bounds) -> None:
+        """Resize the tree so `bounds` fits inside.
+
+        The QTree can only grow. The tree structure is rebuild.
+        """
+        resize_step = self._resize_step
+        x, y, w, h = self._bucket.bounds
+        while bounds[0] < x:
+            x -= resize_step
+            w += resize_step
+        while bounds[1] < y:
+            y -= resize_step
+            h += resize_step
+        while bounds[0] + bounds[2] > x + w:
+            w += resize_step
+        while bounds[1] + bounds[3] > y + h:
+            h += resize_step
+
+        self._bucket = QuadtreeBucket((x, y, w, h), self._capacity)
+        self.rebuild()
+
     def rebuild(self):
         """Rebuild the tree structure."""
         # Clean bucket and items:
         self._bucket.clear()
 
-        for item, (bounds, data, _) in dict(self._ids).items():
-            clipped_bounds = rectangle_clip(bounds, self._bucket.bounds)
-            if clipped_bounds:
-                self._bucket.find_bucket(clipped_bounds).add(item, clipped_bounds)
-            self._ids[item] = (bounds, data, clipped_bounds)
+        for item, (bounds, data) in dict(self._ids).items():
+            self._bucket.find_bucket(bounds).add(item, bounds)
+            self._ids[item] = (bounds, data)
 
     def get_bounds(self, item: T) -> Bounds:
         """Return the bounding box for the given item."""
@@ -195,14 +202,6 @@ class Quadtree(Generic[T, D]):
     def get_data(self, item: T) -> D:
         """Return the data for the given item, None if no data was provided."""
         return self._ids[item][1]
-
-    def get_clipped_bounds(self, item: T) -> Bounds | None:
-        """Return the bounding box for the given item.
-
-        The bounding box is clipped on the boundaries of the tree
-        (provided on construction or with resize()).
-        """
-        return self._ids[item][2]
 
     def find_inside(self, rect: Bounds) -> set[T]:
         """Find all items in the given rectangle (x, y, with, height).
@@ -249,7 +248,9 @@ class QuadtreeBucket(Generic[T]):
         The bucket is split when necessary. Items are otherwise added to
         this bucket, not some sub-bucket.
         """
-        assert rectangle_contains(bounds, self.bounds)
+        assert rectangle_contains(
+            bounds, self.bounds
+        ), f"{bounds} do not fit in {self.bounds}"
 
         if self._buckets or len(self.items) < self.capacity:
             self.items[item] = bounds
@@ -257,10 +258,6 @@ class QuadtreeBucket(Generic[T]):
 
         x, y, w, h = self.bounds
         rw, rh = w / 2.0, h / 2.0
-        if w == rw and h == rh:
-            self.items[item] = bounds
-            return
-
         cx, cy = x + rw, y + rh
         self._buckets = [
             QuadtreeBucket((x, y, rw, rh), self.capacity),

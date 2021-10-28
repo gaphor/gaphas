@@ -27,8 +27,6 @@ def connections(canvas):
 @pytest.fixture
 def view(canvas):
     view = GtkView(canvas)
-    # resize, as if a widget is configured
-    view._qtree.resize((0, 0, 400, 400))
     view.update()
     return view
 

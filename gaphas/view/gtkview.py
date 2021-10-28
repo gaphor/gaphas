@@ -489,8 +489,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._matrix_changed = True
             self.update()
 
-    def on_resize(self, width: int, height: int) -> None:
-        self._qtree.resize((0, 0, width, height))
+    def on_resize(self, _width: int, _height: int) -> None:
         self.update_scrolling()
         if self.get_realized():
             self._back_buffer_needs_resizing = True
