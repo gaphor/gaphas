@@ -93,7 +93,7 @@ class Quadtree(Generic[T, D]):
         )
 
         # Easy lookup item->(bounds, data)
-        self._ids: dict[T, tuple[Bounds, D]] = {}
+        self._ids: dict[T, tuple[Bounds, D | None]] = {}
 
     @property
     def bounds(self) -> Bounds:
@@ -127,7 +127,7 @@ class Quadtree(Generic[T, D]):
         y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
         return x0, y0, x1 - x0, y1 - y0
 
-    def add(self, item: T, bounds: Bounds, data: D) -> None:
+    def add(self, item: T, bounds: Bounds, data: D | None = None) -> None:
         """Add an item to the tree.
 
         If an item already exists, its bounds are updated and the item
@@ -199,7 +199,7 @@ class Quadtree(Generic[T, D]):
         """Return the bounding box for the given item."""
         return self._ids[item][0]
 
-    def get_data(self, item: T) -> D:
+    def get_data(self, item: T) -> D | None:
         """Return the data for the given item, None if no data was provided."""
         return self._ids[item][1]
 
