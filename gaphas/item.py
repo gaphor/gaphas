@@ -387,9 +387,10 @@ class Line(Matrices):
         '0.784'
         """
         hpos = [h.pos for h in self._handles]
-
+        p = (x, y)
         distance, _point = min(
-            map(distance_line_point, hpos[:-1], hpos[1:], [(x, y)] * (len(hpos) - 1))  # type: ignore[arg-type]
+            distance_line_point(start, end, p)  # type: ignore[arg-type]
+            for start, end in zip(hpos[:-1], hpos[1:])
         )
         fuzziness: float = self.fuzziness
         return max(0.0, distance - fuzziness)
