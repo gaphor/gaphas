@@ -263,15 +263,21 @@ class Line(Matrices):
     def tail(self) -> Handle:
         return self._handles[-1]
 
-    def _set_line_width(self, line_width: float) -> None:
+    @property
+    def line_width(self) -> float:
+        return self._line_width
+
+    @line_width.setter
+    def line_width(self, line_width: float) -> None:
         self._line_width = line_width
 
-    line_width = property(lambda s: s._line_width, _set_line_width)
+    @property
+    def fuzziness(self) -> float:
+        return self._fuzziness
 
-    def _set_fuzziness(self, fuzziness: float) -> None:
+    @fuzziness.setter
+    def fuzziness(self, fuzziness: float) -> None:
         self._fuzziness = fuzziness
-
-    fuzziness = property(lambda s: s._fuzziness, _set_fuzziness)
 
     def update_orthogonal_constraints(self, orthogonal: bool) -> None:
         """Update the constraints required to maintain the orthogonal line.
@@ -303,7 +309,12 @@ class Line(Matrices):
         """
         self._orthogonal_constraints = orthogonal_constraints
 
-    def _set_orthogonal(self, orthogonal: bool) -> None:
+    @property
+    def orthogonal(self) -> bool:
+        return bool(self._orthogonal_constraints)
+
+    @orthogonal.setter
+    def orthogonal(self, orthogonal: bool) -> None:
         """
         >>> a = Line()
         >>> a.orthogonal
@@ -313,12 +324,12 @@ class Line(Matrices):
             raise ValueError("Can't set orthogonal line with less than 3 handles")
         self.update_orthogonal_constraints(orthogonal)
 
-    orthogonal = property(lambda s: bool(s._orthogonal_constraints), _set_orthogonal)
+    @property
+    def horizontal(self) -> bool:
+        return self._horizontal
 
-    def _inner_set_horizontal(self, horizontal: bool) -> None:
-        self._horizontal = horizontal
-
-    def _set_horizontal(self, horizontal: bool) -> None:
+    @horizontal.setter
+    def horizontal(self, horizontal: bool) -> None:
         """
         >>> line = Line()
         >>> line.horizontal
@@ -327,10 +338,8 @@ class Line(Matrices):
         >>> line.horizontal
         False
         """
-        self._inner_set_horizontal(horizontal)
+        self._horizontal = horizontal
         self.update_orthogonal_constraints(self.orthogonal)
-
-    horizontal = property(lambda s: s._horizontal, _set_horizontal)
 
     def insert_handle(self, index: int, handle: Handle) -> None:
         self._handles.insert(index, handle)
@@ -392,8 +401,7 @@ class Line(Matrices):
             distance_line_point(start, end, p)  # type: ignore[arg-type]
             for start, end in zip(hpos[:-1], hpos[1:])
         )
-        fuzziness: float = self.fuzziness
-        return max(0.0, distance - fuzziness)
+        return max(0.0, distance - self.fuzziness)
 
     def draw_head(self, context: DrawContext) -> None:
         """Default head drawer: move cursor to the first handle."""
