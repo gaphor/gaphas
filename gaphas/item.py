@@ -434,6 +434,3 @@ class Line(Matrices):
         tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
         draw_line_end(self._handles[-1].pos, tail_angle, self.draw_tail)
         cr.stroke()
-
-
-__test__ = {"Line._set_orthogonal": Line._set_orthogonal}

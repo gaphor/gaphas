@@ -207,9 +207,3 @@ class JuggleError(AssertionError):
     Raised when constraint's variables are marking each other dirty
     forever.
     """
-
-
-__test__ = {
-    "Solver.add_constraint": Solver.add_constraint,
-    "Solver.remove_constraint": Solver.remove_constraint,
-}
