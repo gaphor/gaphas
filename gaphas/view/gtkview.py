@@ -124,9 +124,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._matrix = Matrix()
         self._painter: Painter = DefaultPainter(self)
         self._bounding_box_painter: ItemPainterType = ItemPainter(self._selection)
-        self._matrix_changed = False
 
-        self._qtree: Quadtree[Item, tuple[float, float, float, float]] = Quadtree()
+        # quadtree bounds are in canvas coordinates (not view!)
+        self._qtree: Quadtree[Item, None] = Quadtree()
 
         self._model: Model | None = None
         if model:
@@ -207,10 +207,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     @property
     def bounding_box(self) -> Rectangle:
         """The bounding box of the complete view, relative to the view port."""
-        bounds = Rectangle(*self._qtree.soft_bounds)
-        vx0, vy0 = self._matrix.transform_point(0, 0)
-        bounds += (vx0, vy0, 0, 0)
-        return bounds
+        return Rectangle(*transform_rectangle(self._matrix, self._qtree.soft_bounds))
 
     @property
     def hadjustment(self) -> Gtk.Adjustment:
@@ -224,7 +221,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def clamp_item(self, item):
         """Update adjustments so the item is located inside the view port."""
-        x, y, w, h = self._qtree.get_bounds(item)
+        x, y, w, h = self.get_item_bounding_box(item).tuple()
         self.hadjustment.clamp_page(x, x + w)
         self.vadjustment.clamp_page(y, y + h)
 
@@ -272,21 +269,24 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
     def get_items_in_rectangle(
         self, rect: Rect, contain: bool = False
     ) -> Iterable[Item]:
-        """Return the items in the rectangle 'rect'.
+        """Return the items in the rectangle 'rect' (in view coordinates).
 
         Items are automatically sorted in model's processing order.
         """
         assert self._model
+        crect = transform_rectangle(self._matrix.inverse(), rect)
         items = (
-            self._qtree.find_inside(rect)
+            self._qtree.find_inside(crect)
             if contain
-            else self._qtree.find_intersect(rect)
+            else self._qtree.find_intersect(crect)
         )
         return self._model.sort(items)
 
     def get_item_bounding_box(self, item: Item) -> Rectangle:
         """Get the bounding box for the item, in view coordinates."""
-        return Rectangle(*self._qtree.get_bounds(item))
+        return Rectangle(
+            *transform_rectangle(self._matrix, self._qtree.get_bounds(item))
+        )
 
     def request_update(
         self,
@@ -350,7 +350,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         coordinates."""
         painter = self._bounding_box_painter
         qtree = self._qtree
-        c2v = self._matrix
         for item in items:
             surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
             cr = cairo.Context(surface)
@@ -359,19 +358,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             painter.paint_item(item, cr)
             x, y, w, h = surface.ink_extents()
 
-            vx, vy = c2v.transform_point(x, y)
-            vw, vh = c2v.transform_distance(w, h)
-
-            qtree.add(item=item, bounds=(vx, vy, vw, vh), data=(x, y, w, h))
-
-        if self._matrix_changed and self._model:
-            for item in self._model.get_all_items():
-                if item not in items:
-                    bounds = self._qtree.get_data(item)
-                    x, y = c2v.transform_point(bounds[0], bounds[1])
-                    w, h = c2v.transform_distance(bounds[2], bounds[3])
-                    qtree.add(item=item, bounds=(x, y, w, h), data=bounds)
-            self._matrix_changed = False
+            qtree.add(item=item, bounds=(x, y, w, h))
 
     @g_async(single=True)
     def update_scrolling(self) -> None:
@@ -485,12 +472,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self.request_update((item,))
 
     def on_matrix_update(self, _matrix, _old_matrix_values):
-        if not self._matrix_changed:
-            self._matrix_changed = True
-            self.update()
+        self.update()
 
-    def on_resize(self, width: int, height: int) -> None:
-        self._qtree.resize((0, 0, width, height))
+    def on_resize(self, _width: int, _height: int) -> None:
         self.update_scrolling()
         if self.get_realized():
             self._back_buffer_needs_resizing = True
@@ -509,3 +493,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         cr.paint()
 
         return False
+
+
+def transform_rectangle(matrix: Matrix, rect: Rect) -> Rect:
+    x, y, w, h = rect
+
+    return matrix.transform_point(x, y) + matrix.transform_distance(w, h)

@@ -5,11 +5,15 @@ from gaphas.quadtree import Quadtree
 
 @pytest.fixture()
 def qtree():
-    qtree: Quadtree[str, None] = Quadtree((0, 0, 100, 100))
+    qtree: Quadtree[str, None] = Quadtree()
     for i in range(0, 100, 10):
         for j in range(0, 100, 10):
             qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=None)
     return qtree
+
+
+def test_initial_size(qtree):
+    assert qtree.bounds == (0, 0, 100, 100)
 
 
 def test_lookups(qtree):
@@ -80,24 +84,10 @@ def test_get_data(qtree):
             assert i + j == qtree.get_data(item=f"{i:d}x{j:d}")
 
 
-def test_clipped_bounds(qtree):
-    qtree.add(item=1, bounds=(-100, -100, 120, 120), data=None)
-    assert (0, 0, 20, 20) == qtree.get_clipped_bounds(item=1)
+def test_resize(qtree: Quadtree):
+    qtree.add("0x0", (20, 130, 60, 60), None)
 
-
-def test_resize_will_not_find_items_outside_bounds(qtree):
-    assert len(qtree.find_inside((0, 0, 100, 100))) == 100
-
-    qtree.resize((0, 0, 19, 19))
-    assert len(qtree.find_inside((0, 0, 100, 100))) == 4
-
-
-def test_many_items_on_same_position():
-    capacity = 10
-    qtree: Quadtree[int, None] = Quadtree((0, 0, 0, 0), capacity=10)
-
-    for i in range(0, capacity + 2):
-        qtree.add(item=i, bounds=(0, 0, 10, 10), data=None)
+    assert "0x0" in qtree.find_inside((0, 100, 100, 200))
 
 
 def test_dump_quadtree(qtree, capsys):
