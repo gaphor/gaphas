@@ -302,21 +302,12 @@ def distance_rectangle_point(rect: Rect, point: Point) -> float:
     >>> distance_rectangle_point((0, 0, 10, 10), (-1, 11))
     2
     """
-    dx = dy = 0.0
     px, py = point
     rx, ry, rw, rh = rect
+    dx = max(0.0, rx - px, px - (rx + rw))
+    dy = max(0.0, ry - py, py - (ry + rh))
 
-    if px < rx:
-        dx = rx - px
-    elif px > rx + rw:
-        dx = px - (rx + rw)
-
-    if py < ry:
-        dy = ry - py
-    elif py > ry + rh:
-        dy = py - (ry + rh)
-
-    return abs(dx) + abs(dy)
+    return dx + dy
 
 
 def point_on_rectangle(rect: Rect, point: Point, border: bool = False) -> Point:
