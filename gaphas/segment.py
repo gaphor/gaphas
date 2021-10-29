@@ -6,12 +6,13 @@ from cairo import ANTIALIAS_NONE
 from gi.repository import Gtk
 
 from gaphas.aspect import MoveType
-from gaphas.aspect.handlemove import HandleMove, ItemHandleMove, item_at_point
+from gaphas.aspect.handlemove import HandleMove
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Item, Line, matrix_i2i
 from gaphas.solver import WEAK
-from gaphas.view import GtkView, Selection
+from gaphas.tool.itemtool import find_item_and_handle_at_point
+from gaphas.view import Selection
 from gaphas.view.model import Model
 
 
@@ -181,6 +182,8 @@ class LineSegment:
 
 class SegmentState:
     moving: Optional[MoveType]
+    item: Optional[Item]
+    handle: Optional[Handle]
 
     def __init__(self):
         self.reset()
@@ -205,10 +208,15 @@ def segment_tool(view):
 def on_drag_begin(gesture, start_x, start_y, segment_state):
     view = gesture.get_widget()
     pos = (start_x, start_y)
-    item = item_at_point(view, pos)
-    handle = item and maybe_split_segment(view, item, pos)
+    item, handle = find_item_and_handle_at_point(view, pos)
+
+    if not handle:
+        handle = maybe_split_segment(view, item, pos) if item else None
+
     if handle:
         segment_state.moving = HandleMove(item, handle, view)
+        segment_state.item = item
+        segment_state.handle = handle
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
     else:
         gesture.set_state(Gtk.EventSequenceState.DENIED)
@@ -224,23 +232,10 @@ def on_drag_end(gesture, offset_x, offset_y, segment_state):
     if segment_state.moving:
         _, x, y = gesture.get_start_point()
         segment_state.moving.stop_move((x + offset_x, y + offset_y))
+        maybe_merge_segments(
+            gesture.get_widget(), segment_state.item, segment_state.handle
+        )
         segment_state.reset()
-
-
-class LineSegmentMergeMixin:
-
-    view: GtkView
-    item: Item
-    handle: Handle
-
-    def stop_move(self, pos):
-        super().stop_move(pos)  # type: ignore[misc]
-        maybe_merge_segments(self.view, self.item, self.handle)
-
-
-@HandleMove.register(Line)
-class LineHandleMove(LineSegmentMergeMixin, ItemHandleMove):
-    pass
 
 
 def maybe_split_segment(view, item, pos):

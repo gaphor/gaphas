@@ -1,9 +1,12 @@
 """Module implements guides when moving items and handles around."""
-from dataclasses import dataclass
-from functools import reduce, singledispatch
-from typing import List
+from __future__ import annotations
 
-from gaphas.aspect.handlemove import ElementHandleMove, HandleMove
+from dataclasses import dataclass
+from functools import singledispatch
+from itertools import chain
+from typing import Iterable, SupportsFloat
+
+from gaphas.aspect.handlemove import ElementHandleMove, HandleMove, ItemHandleMove
 from gaphas.aspect.move import ItemMove, Move
 from gaphas.canvas import all_children
 from gaphas.connector import Handle
@@ -15,14 +18,15 @@ from gaphas.view import GtkView
 class ItemGuide:
     """Get edges on an item, on which we can align the items."""
 
-    def __init__(self, item):
+    def __init__(self, item: Item, handle: Handle | None = None):
         self.item = item
+        self.handle = handle
 
-    def horizontal(self):
+    def horizontal(self) -> Iterable[SupportsFloat]:
         """Return horizontal edges (on y axis) in item coordinates."""
         return ()
 
-    def vertical(self):
+    def vertical(self) -> Iterable[SupportsFloat]:
         """Return vertical edges (on x axis) in item coordinates."""
         return ()
 
@@ -34,61 +38,64 @@ Guide = singledispatch(ItemGuide)
 class ElementGuide(ItemGuide):
     """Guide to align Element items."""
 
-    def horizontal(self):
-        y = self.item.handles()[0].pos.y
-        h = self.item.height
-        return (y, y + h / 2, y + h)
+    def horizontal(self) -> Iterable[SupportsFloat]:
+        element = self.item
+        assert isinstance(element, Element)
+        if self.handle in element.handles():
+            return ()
+        y = element.handles()[0].pos.y
+        h = element.height
+        return [y, y + h / 2, y + h]
 
-    def vertical(self):
-        x = self.item.handles()[0].pos.x
-        w = self.item.width
-        return (x, x + w / 2, x + w)
+    def vertical(self) -> Iterable[SupportsFloat]:
+        element = self.item
+        assert isinstance(element, Element)
+        if self.handle in element.handles():
+            return ()
+        x = element.handles()[0].pos.x
+        w = element.width
+        return [x, x + w / 2, x + w]
 
 
 @Guide.register(Line)
 class LineGuide(ItemGuide):
     """Guide for orthogonal lines."""
 
-    def horizontal(self):
+    def horizontal(self) -> Iterable[SupportsFloat]:
         line = self.item
-        if line.orthogonal:
-            if line.horizontal:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 1:
-                        yield h.pos.y
-            else:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 0 and i > 0:
-                        yield h.pos.y
+        assert isinstance(line, Line)
+        if not line.orthogonal or self.handle not in line.handles():
+            yield from (h.pos.y for h in line.handles() if h is not self.handle)
 
-    def vertical(self):
+    def vertical(self) -> Iterable[SupportsFloat]:
         line = self.item
-        if line.orthogonal:
-            if line.horizontal:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 0 and i > 0:
-                        yield h.pos.x
-            else:
-                for i, h in enumerate(line.handles()):
-                    if i % 2 == 1:
-                        yield h.pos.x
+        assert isinstance(line, Line)
+        if not line.orthogonal or self.handle not in line.handles():
+            yield from (h.pos.x for h in line.handles() if h is not self.handle)
 
 
 @dataclass(frozen=True)
 class Guides:
-    vertical: List[float]
-    horizontal: List[float]
+    vertical: list[float]
+    horizontal: list[float]
 
 
 MARGIN = 2
 
 
-def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGIN):
+def find_vertical_guides(
+    view, handle, item_vedges, height, excluded_items, margin=MARGIN
+):
     items = (
-        view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
-        for x in item_vedges
+        set(
+            chain.from_iterable(
+                view.get_items_in_rectangle((x - margin, 0, margin * 2, height))
+                for x in item_vedges
+            )
+        )
+        - excluded_items
     )
-    guides = map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+    guides = (Guide(item, handle) for item in items)
     i2v = view.get_matrix_i2v
     vedges = {
         i2v(g.item).transform_point(x, 0)[0] for g in guides for x in g.vertical()
@@ -97,12 +104,19 @@ def find_vertical_guides(view, item_vedges, height, excluded_items, margin=MARGI
     return dx, edges_x
 
 
-def find_horizontal_guides(view, item_hedges, width, excluded_items, margin=MARGIN):
+def find_horizontal_guides(
+    view, handle, item_hedges, width, excluded_items, margin=MARGIN
+):
     items = (
-        view.get_items_in_rectangle((0, y - margin, width, margin * 2))
-        for y in item_hedges
+        set(
+            chain.from_iterable(
+                view.get_items_in_rectangle((0, y - margin, width, margin * 2))
+                for y in item_hedges
+            )
+        )
+        - excluded_items
     )
-    guides = map(Guide, reduce(set.union, list(map(set, items))) - excluded_items)
+    guides = (Guide(item, handle) for item in items)
     i2v = view.get_matrix_i2v
     hedges = {
         i2v(g.item).transform_point(0, y)[1] for g in guides for y in g.horizontal()
@@ -148,13 +162,12 @@ def find_closest(item_edges, edges, margin=MARGIN):
         return 0, ()
 
 
-def update_guides(view, item, pos, vedges, hedges):
+def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset()):
 
     px, py = pos
-    excluded_items = get_excluded_items(view, item)
     w, h = get_view_dimensions(view)
-    dx, edges_x = find_vertical_guides(view, vedges, h, excluded_items)
-    dy, edges_y = find_horizontal_guides(view, hedges, w, excluded_items)
+    dx, edges_x = find_vertical_guides(view, handle, vedges, h, excluded_items)
+    dy, edges_y = find_horizontal_guides(view, handle, hedges, w, excluded_items)
 
     newpos = px + dx, py + dy
 
@@ -196,7 +209,10 @@ class GuidedItemMoveMixin:
         item_vedges = [transform(x, 0)[0] + pdx for x in item_guide.vertical()]
         item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
 
-        newpos = update_guides(view, item, pos, item_vedges, item_hedges)
+        excluded_items = get_excluded_items(view, item)
+        newpos = update_guides(
+            view, None, pos, item_vedges, item_hedges, excluded_items
+        )
 
         # Call super class, with new position
         super().move(newpos)  # type: ignore[misc]
@@ -233,7 +249,7 @@ class GuidedItemHandleMoveMixin:
 
         x, y = pos
 
-        newpos = update_guides(view, item, pos, (x,), (y,))
+        newpos = update_guides(view, self.handle, pos, (x,), (y,))
 
         self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
         model.request_update(item)
@@ -245,6 +261,11 @@ class GuidedItemHandleMoveMixin:
 
 @HandleMove.register(Element)
 class GuidedElementHandleMove(GuidedItemHandleMoveMixin, ElementHandleMove):
+    pass
+
+
+@HandleMove.register(Line)
+class GuidedLineHandleMove(GuidedItemHandleMoveMixin, ItemHandleMove):
     pass
 
 
