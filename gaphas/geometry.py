@@ -558,6 +558,23 @@ def intersect_line_line(
     return x, y
 
 
+def intersect_rectangle_line(
+    rect: Rect, line_start: Point, line_end: Point
+) -> set[Point]:
+    rx, ry, rw, rh = rect
+    side_starts = [(rx, ry), (rx + rw, ry), (rx + rw, ry + rh), (rx, ry + rh)]
+    side_ends = [(rx + rw, ry), (rx + rw, ry + rh), (rx, ry + rh), (rx, ry)]
+    return set(
+        filter(
+            None,
+            (
+                intersect_line_line(line_start, line_end, side_start, side_end)
+                for side_start, side_end in zip(side_starts, side_ends)
+            ),
+        )
+    )
+
+
 def rectangle_contains(inner: Rect, outer: Rect) -> bool:
     """Returns True if ``inner`` rect is contained in ``outer`` rect."""
     ix, iy, iw, ih = inner

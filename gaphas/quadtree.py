@@ -127,6 +127,10 @@ class Quadtree(Generic[T, D]):
         y1 = max(map(add, x_y_w_h[1], x_y_w_h[3]))
         return x0, y0, x1 - x0, y1 - y0
 
+    @property
+    def items(self):
+        return self._ids.keys()
+
     def add(self, item: T, bounds: Bounds, data: D | None = None) -> None:
         """Add an item to the tree.
 

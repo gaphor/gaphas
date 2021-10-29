@@ -341,6 +341,11 @@ class Line(Matrices):
         self._horizontal = horizontal
         self.update_orthogonal_constraints(self.orthogonal)
 
+    @property
+    def segments(self):
+        hpos = [h.pos for h in self._handles]
+        return zip(hpos, hpos[1:])
+
     def insert_handle(self, index: int, handle: Handle) -> None:
         self._handles.insert(index, handle)
 
@@ -395,11 +400,10 @@ class Line(Matrices):
         >>> f"{a.point(29, 29):.3f}"
         '0.784'
         """
-        hpos = [h.pos for h in self._handles]
         p = (x, y)
         distance, _point = min(
             distance_line_point(start, end, p)  # type: ignore[arg-type]
-            for start, end in zip(hpos[:-1], hpos[1:])
+            for start, end in self.segments
         )
         return max(0.0, distance - self.fuzziness)
 
