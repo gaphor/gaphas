@@ -117,7 +117,7 @@ def route(
     end: Pos,
     weight: Weight,
     heuristic: Heuristic = constant_heuristic(1),
-) -> list[Pos] | None:
+) -> list[Pos]:
     """Simple A* router/solver.
 
     This solver is tailored towards grids (mazes).
@@ -136,7 +136,7 @@ def route(
             path algorithm a la Dijkstra.
 
     Returns:
-        A list of the shortest path found, or None.
+        A list of the shortest path found in tuples (position, direction), or [].
     """
     open_nodes = [Node(None, start, (0, 0), 0, 0)]
     closed_positions = set()
@@ -159,9 +159,9 @@ def route(
         if current_node.position == end:
             return reconstruct_path(current_node)
 
-        for dir_x, dir_y in directions:
-            node_x = current_node.position[0] + dir_x
-            node_y = current_node.position[1] + dir_y
+        for direction in directions:
+            node_x = current_node.position[0] + direction[0]
+            node_y = current_node.position[1] + direction[1]
 
             w = weight(node_x, node_y, current_node)
             if w == "inf":
@@ -182,7 +182,7 @@ def route(
                 Node(
                     current_node,
                     node_position,
-                    (dir_x, dir_y),
+                    direction,
                     g,
                     g + heuristic(node_x, node_y),
                 )
@@ -191,13 +191,13 @@ def route(
         open_nodes.remove(current_node)
         closed_positions.add(current_node.position)
 
-    return None
+    return []
 
 
 def reconstruct_path(node: Node) -> list[Pos]:
     path = []
     current = node
     while current:
-        path.append(current.position)  # Add direction
+        path.append((current.position, current.direction))
         current = current.parent  # type: ignore[assignment]
     return path[::-1]

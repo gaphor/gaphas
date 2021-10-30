@@ -47,22 +47,22 @@ def test_maze():
         return (
             1
             if 0 <= x < len(_maze) and 0 <= y < len(_maze[x]) and not _maze[y][x]
-            else "inf"
+            else 10
         )
 
-    path = route(start, end, weight=weight, heuristic=manhattan_distance(*end))
-    dump_maze(_maze, path)
-    assert path == [
-        (0, 0),
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (3, 4),
-        (4, 5),
-        (5, 6),
-        (6, 6),
-        (7, 6),
-    ], path
+    path_and_dir = route(start, end, weight=weight, heuristic=manhattan_distance(*end))
+    dump_maze(_maze, [pd[0] for pd in path_and_dir])
+    assert path_and_dir == [
+        ((0, 0), (0, 0)),
+        ((1, 1), (1, 1)),
+        ((2, 2), (1, 1)),
+        ((3, 3), (1, 1)),
+        ((3, 4), (0, 1)),
+        ((4, 5), (1, 1)),
+        ((5, 6), (1, 1)),
+        ((6, 6), (1, 0)),
+        ((7, 6), (1, 0)),
+    ], path_and_dir
 
 
 def test_unsolvable_maze():
@@ -75,7 +75,7 @@ def test_unsolvable_maze():
         return 1 if 0 <= x < 4 and 0 <= y < 4 and not wall else "inf"
 
     path = route(start, end, weight=weight)
-    assert path is None, path
+    assert path == [], path
 
 
 def dump_maze(maze, path):
