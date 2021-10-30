@@ -4,7 +4,8 @@ Reroute lines when they cross elements and other lines.
 """
 from __future__ import annotations
 
-from operator import attrgetter
+from itertools import groupby
+from operator import attrgetter, itemgetter
 from typing import Callable, Iterable, Literal, NamedTuple, Tuple, Union
 
 from gaphas.geometry import intersect_rectangle_line
@@ -63,18 +64,24 @@ def update_colliding_lines(canvas: Model, qtree: Quadtree, grid_size: int = 20) 
         def weight(x, y, current_node):
             return 1
 
-        full_path = route(
+        path_with_direction = route(
             (start_x, start_y),
             (end_x, end_y),
             weight=weight,
             heuristic=manhattan_distance(end_x, end_y),
         )
-        full_path
+        path = turns_in_path(path_with_direction)
+        path
         # when moving items, do not update selected items
         # when moving a handle, selected items can be rerouted
-        # reduce path: find corner points to put handles
         # update handles on line with new points
         canvas.request_update(line)
+
+
+def turns_in_path(path_and_dir: list[tuple[Pos, Pos]]) -> Iterable[Pos]:
+    for _, group in groupby(path_and_dir, key=itemgetter(1)):
+        *_, (position, _) = group
+        yield position
 
 
 # Heuristics:
@@ -117,7 +124,7 @@ def route(
     end: Pos,
     weight: Weight,
     heuristic: Heuristic = constant_heuristic(1),
-) -> list[Pos]:
+) -> list[tuple[Pos, Pos]]:
     """Simple A* router/solver.
 
     This solver is tailored towards grids (mazes).
@@ -194,7 +201,7 @@ def route(
     return []
 
 
-def reconstruct_path(node: Node) -> list[Pos]:
+def reconstruct_path(node: Node) -> list[tuple[Pos, Pos]]:
     path = []
     current = node
     while current:

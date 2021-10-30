@@ -1,4 +1,4 @@
-from gaphas.collision import colliding_lines, manhattan_distance, route
+from gaphas.collision import colliding_lines, manhattan_distance, route, turns_in_path
 from gaphas.connections import Connections
 from gaphas.item import Element, Item, Line
 from gaphas.quadtree import Quadtree
@@ -91,3 +91,24 @@ def dump_maze(maze, path):
                 p = v
             print(p, end=" ")
         print()
+
+
+def test_find_turns_in_path():
+    path_and_dir = [
+        ((0, 0), (0, 0)),
+        ((1, 1), (1, 1)),
+        ((2, 2), (1, 1)),
+        ((3, 3), (1, 1)),
+        ((3, 4), (0, 1)),
+        ((4, 5), (1, 1)),
+        ((5, 6), (1, 1)),
+        ((6, 6), (1, 0)),
+        ((7, 6), (1, 0)),
+    ]
+
+    expected_path = [(0, 0), (3, 3), (3, 4), (5, 6), (7, 6)]
+    assert list(turns_in_path(path_and_dir)) == expected_path
+
+
+def test_find_turns_in_empty_path():
+    assert list(turns_in_path([])) == []
