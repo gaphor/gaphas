@@ -1,6 +1,6 @@
 """Allow for easily adding segments to lines."""
 from functools import singledispatch
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from cairo import ANTIALIAS_NONE
 from gi.repository import Gtk
@@ -23,7 +23,7 @@ class Segment:
 
     def split_segment(
         self, segment: int, count: int = 2
-    ) -> tuple[Sequence[Handle], Sequence[Port]]:
+    ) -> Tuple[Sequence[Handle], Sequence[Port]]:
         ...
 
     def split(self, pos: Point) -> Handle:
@@ -31,7 +31,7 @@ class Segment:
 
     def merge_segment(
         self, segment: int, count: int = 2
-    ) -> tuple[Sequence[Handle], Sequence[Port]]:
+    ) -> Tuple[Sequence[Handle], Sequence[Port]]:
         ...
 
 
