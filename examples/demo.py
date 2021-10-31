@@ -22,8 +22,12 @@ from gi.repository import Gtk  # noqa: isort:skip
 
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView
-from gaphas.collision import update_colliding_lines
-from gaphas.guide import GuidePainter
+from gaphas.aspect.handlemove import HandleMove, ItemHandleMove
+from gaphas.collision import (
+    CollisionAvoidingLineHandleMoveMixin,
+    update_colliding_lines,
+)
+from gaphas.guide import GuidedItemHandleMoveMixin, GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
     BoundingBoxPainter,
@@ -42,6 +46,7 @@ from gaphas.tool import (
     zoom_tool,
 )
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
+from gaphas.types import Pos
 from gaphas.util import text_extents, text_underline
 
 # Global undo list
@@ -62,6 +67,16 @@ def factory(view, cls):
         return item
 
     return wrapper
+
+
+@HandleMove.register(Line)
+class MyLineHandleMove(
+    CollisionAvoidingLineHandleMoveMixin, GuidedItemHandleMoveMixin, ItemHandleMove
+):
+    """Our custom line handle move, based on guides and (experimental)
+    collision avoidance."""
+
+    pass
 
 
 class MyBox(Box):

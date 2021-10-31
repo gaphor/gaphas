@@ -6,27 +6,33 @@ Limitations:
 
 - can only deal with normal lines (not orthogonal)
 - uses bounding box for grid occupancy (for element and line!)
+
+THIS FEATURE IS EXPERIMENTAL!
 """
 
 from __future__ import annotations
 
+import time
 from itertools import groupby
 from operator import attrgetter, itemgetter
 from typing import Callable, Iterable, Literal, NamedTuple, Tuple, Union
 
+from gaphas.decorators import g_async
 from gaphas.geometry import intersect_rectangle_line
 from gaphas.item import Item, Line
 from gaphas.quadtree import Quadtree
 from gaphas.segment import Segment
+from gaphas.types import Pos
+from gaphas.view.gtkview import GtkView
 from gaphas.view.model import Model
 
-Pos = Tuple[int, int]
+Tile = Tuple[int, int]
 
 
 class Node(NamedTuple):
     parent: object | None  # type should be Node
-    position: Pos
-    direction: Pos
+    position: Tile
+    direction: Tile
     g: int
     f: int
 
@@ -34,6 +40,33 @@ class Node(NamedTuple):
 Walker = Callable[[int, int], bool]
 Heuristic = Callable[[int, int], int]
 Weight = Callable[[int, int, Node], Union[int, Literal["inf"]]]
+
+
+def measure(func):
+    def _measure(*args, **kwargs):
+        start = time.time()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            print(func.__name__, time.time() - start)
+
+    return _measure
+
+
+class CollisionAvoidingLineHandleMoveMixin:
+    view: GtkView
+    item: Item
+
+    def move(self, pos: Pos) -> None:
+        super().move(pos)  # type: ignore[misc]
+        self.update_line_to_avoid_collisions()
+
+    @g_async(single=True)
+    def update_line_to_avoid_collisions(self):
+        model = self.view.model
+        assert model
+        assert isinstance(self.item, Line)
+        update_line_to_avoid_collisions(self.item, model, self.view._qtree)
 
 
 def colliding_lines(qtree: Quadtree) -> Iterable[tuple[Line, Item]]:
@@ -64,44 +97,55 @@ def colliding_lines(qtree: Quadtree) -> Iterable[tuple[Line, Item]]:
 
 def update_colliding_lines(model: Model, qtree: Quadtree, grid_size: int = 20) -> None:
     for line, _item in colliding_lines(qtree):
-        # find start and end pos in terms of the grid
-        matrix = line.matrix_i2c
-        start_x, start_y = (
-            int(v / grid_size) for v in matrix.transform_point(*line.head.pos)
+        update_line_to_avoid_collisions(line, model, qtree, grid_size)
+
+
+def update_line_to_avoid_collisions(
+    line: Line, model: Model, qtree: Quadtree, grid_size: int = 20
+) -> None:
+    # find start and end pos in terms of the grid
+    matrix = line.matrix_i2c
+    start_x, start_y = (
+        int(v / grid_size) for v in matrix.transform_point(*line.head.pos)
+    )
+    end_x, end_y = (int(v / grid_size) for v in matrix.transform_point(*line.tail.pos))
+    excluded_items: set[Item] = {line}
+    start_end_tiles = ((start_x, start_y), (end_x, end_y))
+
+    def weight(x, y, current_node):
+        direction_penalty = 0 if same_direction(x, y, current_node) else 1
+        diagonal_penalty = 0 if prefer_orthogonal(x, y, current_node) else 1
+        occupied_penalty = (
+            0
+            if (x, y) in start_end_tiles
+            or not tile_occupied(x, y, grid_size, qtree, excluded_items)
+            else 5
         )
-        end_x, end_y = (
-            int(v / grid_size) for v in matrix.transform_point(*line.tail.pos)
-        )
-        excluded_items: set[Item] = {line}
+        return 1 + direction_penalty + diagonal_penalty + occupied_penalty
 
-        def weight(x, y, current_node):
-            direction_penalty = 0 if same_direction(x, y, current_node) else 2
-            occupied_penalty = (
-                5 if tile_occupied(x, y, grid_size, qtree, excluded_items) else 0
-            )
-            return 1 + direction_penalty + occupied_penalty
+    path_with_direction = route(
+        (start_x, start_y),
+        (end_x, end_y),
+        weight=weight,
+        heuristic=manhattan_distance(end_x, end_y),
+    )
+    if not path_with_direction:
+        return
+    path = list(turns_in_path(path_with_direction))
 
-        path_with_direction = route(
-            (start_x, start_y),
-            (end_x, end_y),
-            weight=weight,
-            heuristic=manhattan_distance(end_x, end_y),
-        )
-        path = list(turns_in_path(path_with_direction))
+    segment = Segment(line, model)
+    while len(path) > len(line.handles()):
+        segment.split_segment(0)
+    while 2 < len(path) < len(line.handles()):
+        segment.merge_segment(0)
 
-        segment = Segment(line, model)
-        while len(path) > len(line.handles()):
-            segment.split_segment(0)
-        while len(path) < len(line.handles()):
-            segment.merge_segment(0)
+    imatrix = matrix.inverse()
+    for pos, handle in zip(path[1:-1], line.handles()[1:-1]):
+        cx = pos[0] * grid_size + grid_size / 2
+        cy = pos[1] * grid_size + grid_size / 2
+        handle.pos = imatrix.transform_point(cx, cy)
 
-        matrix.invert()
-        for pos, handle in zip(path[1:-1], line.handles()[1:-1]):
-            cx = pos[0] * grid_size + grid_size / 2
-            cy = pos[1] * grid_size + grid_size / 2
-            handle.pos = matrix.transform_point(cx, cy)
-
-        model.request_update(line)
+    model.request_update(line)
 
 
 def same_direction(x: int, y: int, node: Node) -> bool:
@@ -110,6 +154,10 @@ def same_direction(x: int, y: int, node: Node) -> bool:
     dir_y = y - node_pos[1]
     node_dir = node.direction
     return dir_x == node_dir[0] and dir_y == node_dir[1]
+
+
+def prefer_orthogonal(x: int, y: int, node: Node) -> bool:
+    return x == node.position[0] or y == node.position[1]
 
 
 def tile_occupied(
@@ -122,7 +170,7 @@ def tile_occupied(
     return bool(items)
 
 
-def turns_in_path(path_and_dir: list[tuple[Pos, Pos]]) -> Iterable[Pos]:
+def turns_in_path(path_and_dir: list[tuple[Tile, Tile]]) -> Iterable[Tile]:
     for _, group in groupby(path_and_dir, key=itemgetter(1)):
         *_, (position, _) = group
         yield position
@@ -153,11 +201,11 @@ def quadratic_distance(end_x, end_y):
 
 
 def route(
-    start: Pos,
-    end: Pos,
+    start: Tile,
+    end: Tile,
     weight: Weight,
     heuristic: Heuristic = constant_heuristic(1),
-) -> list[tuple[Pos, Pos]]:
+) -> list[tuple[Tile, Tile]]:
     """Simple A* router/solver.
 
     This solver is tailored towards grids (mazes).
@@ -234,7 +282,7 @@ def route(
     return []
 
 
-def reconstruct_path(node: Node) -> list[tuple[Pos, Pos]]:
+def reconstruct_path(node: Node) -> list[tuple[Tile, Tile]]:
     path = []
     current = node
     while current:

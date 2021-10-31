@@ -1,13 +1,13 @@
 """Allow for easily adding segments to lines."""
 from functools import singledispatch
-from typing import Optional
+from typing import Optional, Sequence
 
 from cairo import ANTIALIAS_NONE
 from gi.repository import Gtk
 
 from gaphas.aspect import MoveType
 from gaphas.aspect.handlemove import HandleMove
-from gaphas.connector import Handle, LinePort
+from gaphas.connector import Handle, LinePort, Port
 from gaphas.geometry import Point, distance_line_point, distance_point_point_fast
 from gaphas.item import Item, Line, matrix_i2i
 from gaphas.solver import WEAK
@@ -21,13 +21,17 @@ class Segment:
     def __init__(self, item, model):
         raise TypeError
 
-    def split_segment(self, segment: int, count: int = 2) -> None:
+    def split_segment(
+        self, segment: int, count: int = 2
+    ) -> tuple[Sequence[Handle], Sequence[Port]]:
         ...
 
     def split(self, pos: Point) -> Handle:
         ...
 
-    def merge_segment(self, segment: int, count: int = 2) -> None:
+    def merge_segment(
+        self, segment: int, count: int = 2
+    ) -> tuple[Sequence[Handle], Sequence[Port]]:
         ...
 
 
@@ -52,7 +56,6 @@ class LineSegment:
     def split_segment(self, segment, count=2):
         """Split one item segment into ``count`` equal pieces.
 
-        def split_segment(self, segment, count=2):
         Two lists are returned
 
           - list of created handles

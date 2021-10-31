@@ -81,12 +81,12 @@ def test_update_lines():
     update_colliding_lines(canvas, qtree)
     assert len(line.handles()) == 6
     assert [h.pos.tuple() for h in line.handles()] == [
-        (0, 50),
-        (10, 10),
-        (50, -30),
-        (210, -30),
-        (250, 10),
-        (200, 50),
+        (0.0, 50.0),
+        (10.0, 10.0),
+        (50.0, -30.0),
+        (230.0, -30.0),
+        (230.0, 30.0),
+        (200.0, 50.0),
     ]
 
 
