@@ -1,7 +1,13 @@
 """Collision avoiding.
 
 Reroute lines when they cross elements and other lines.
+
+Limitations:
+
+- can only deal with normal lines (not orthogonal)
+- uses bounding box for grid occupancy (for element and line!)
 """
+
 from __future__ import annotations
 
 from itertools import groupby
@@ -11,6 +17,7 @@ from typing import Callable, Iterable, Literal, NamedTuple, Tuple, Union
 from gaphas.geometry import intersect_rectangle_line
 from gaphas.item import Item, Line
 from gaphas.quadtree import Quadtree
+from gaphas.segment import Segment
 from gaphas.view.model import Model
 
 Pos = Tuple[int, int]
@@ -30,7 +37,9 @@ Weight = Callable[[int, int, Node], Union[int, Literal["inf"]]]
 
 
 def colliding_lines(qtree: Quadtree) -> Iterable[tuple[Line, Item]]:
-    lines = (item for item in qtree.items if isinstance(item, Line))
+    lines = (
+        item for item in qtree.items if isinstance(item, Line) and not item.orthogonal
+    )
     for line in lines:
         items = qtree.find_intersect(qtree.get_bounds(line))
         if not items:
@@ -53,16 +62,24 @@ def colliding_lines(qtree: Quadtree) -> Iterable[tuple[Line, Item]]:
                     break
 
 
-def update_colliding_lines(canvas: Model, qtree: Quadtree, grid_size: int = 20) -> None:
-    for line, item in colliding_lines(qtree):
+def update_colliding_lines(model: Model, qtree: Quadtree, grid_size: int = 20) -> None:
+    for line, _item in colliding_lines(qtree):
         # find start and end pos in terms of the grid
-        start_x = int(line.head.pos.x / grid_size)
-        start_y = int(line.head.pos.y / grid_size)
-        end_x = int(line.tail.pos.x / grid_size)
-        end_y = int(line.tail.pos.y / grid_size)
+        matrix = line.matrix_i2c
+        start_x, start_y = (
+            int(v / grid_size) for v in matrix.transform_point(*line.head.pos)
+        )
+        end_x, end_y = (
+            int(v / grid_size) for v in matrix.transform_point(*line.tail.pos)
+        )
+        excluded_items: set[Item] = {line}
 
         def weight(x, y, current_node):
-            return 1
+            direction_penalty = 0 if same_direction(x, y, current_node) else 2
+            occupied_penalty = (
+                5 if tile_occupied(x, y, grid_size, qtree, excluded_items) else 0
+            )
+            return 1 + direction_penalty + occupied_penalty
 
         path_with_direction = route(
             (start_x, start_y),
@@ -70,12 +87,39 @@ def update_colliding_lines(canvas: Model, qtree: Quadtree, grid_size: int = 20) 
             weight=weight,
             heuristic=manhattan_distance(end_x, end_y),
         )
-        path = turns_in_path(path_with_direction)
-        path
-        # when moving items, do not update selected items
-        # when moving a handle, selected items can be rerouted
-        # update handles on line with new points
-        canvas.request_update(line)
+        path = list(turns_in_path(path_with_direction))
+
+        segment = Segment(line, model)
+        while len(path) > len(line.handles()):
+            segment.split_segment(0)
+        while len(path) < len(line.handles()):
+            segment.merge_segment(0)
+
+        matrix.invert()
+        for pos, handle in zip(path[1:-1], line.handles()[1:-1]):
+            cx = pos[0] * grid_size + grid_size / 2
+            cy = pos[1] * grid_size + grid_size / 2
+            handle.pos = matrix.transform_point(cx, cy)
+
+        model.request_update(line)
+
+
+def same_direction(x: int, y: int, node: Node) -> bool:
+    node_pos = node.position
+    dir_x = x - node_pos[0]
+    dir_y = y - node_pos[1]
+    node_dir = node.direction
+    return dir_x == node_dir[0] and dir_y == node_dir[1]
+
+
+def tile_occupied(
+    x: int, y: int, grid_size: int, qtree: Quadtree, excluded_items: set[Item]
+) -> bool:
+    items = (
+        qtree.find_intersect((x * grid_size, y * grid_size, grid_size, grid_size))
+        - excluded_items
+    )
+    return bool(items)
 
 
 def turns_in_path(path_and_dir: list[tuple[Pos, Pos]]) -> Iterable[Pos]:
@@ -106,17 +150,6 @@ def quadratic_distance(end_x, end_y):
         return ((x - end_x) ** 2) + ((y - end_y) ** 2)
 
     return heuristic
-
-
-# Weight:
-
-
-def constant_weight(_node_x, _node_y, _node, cost=1):
-    return cost
-
-
-def prefer_orthogonal(node_x, node_y, node, cost=5):
-    return 1 if node_x[0] == node.position[0] or node_y[1] == node.position[1] else cost
 
 
 def route(

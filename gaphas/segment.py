@@ -8,7 +8,7 @@ from gi.repository import Gtk
 from gaphas.aspect import MoveType
 from gaphas.aspect.handlemove import HandleMove
 from gaphas.connector import Handle, LinePort
-from gaphas.geometry import distance_line_point, distance_point_point_fast
+from gaphas.geometry import Point, distance_line_point, distance_point_point_fast
 from gaphas.item import Item, Line, matrix_i2i
 from gaphas.solver import WEAK
 from gaphas.tool.itemtool import find_item_and_handle_at_point
@@ -21,13 +21,13 @@ class Segment:
     def __init__(self, item, model):
         raise TypeError
 
-    def split_segment(self, segment, count=2):
+    def split_segment(self, segment: int, count: int = 2) -> None:
         ...
 
-    def split(self, pos):
+    def split(self, pos: Point) -> Handle:
         ...
 
-    def merge_segment(self, segment, count=2):
+    def merge_segment(self, segment: int, count: int = 2) -> None:
         ...
 
 

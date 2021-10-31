@@ -22,6 +22,7 @@ from gi.repository import Gtk  # noqa: isort:skip
 
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas, GtkView
+from gaphas.collision import update_colliding_lines
 from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
@@ -230,6 +231,14 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
             canvas.remove(view.selection.focused_item)
 
     b.connect("clicked", on_delete_focused_clicked)
+    v.add(b)
+
+    b = Gtk.Button.new_with_label("Route lines")
+
+    def on_route_lines_clicked(_button):
+        update_colliding_lines(canvas, view._qtree)
+
+    b.connect("clicked", on_route_lines_clicked)
     v.add(b)
 
     v.add(Gtk.Label.new("Export:"))

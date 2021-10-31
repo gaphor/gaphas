@@ -1,4 +1,14 @@
-from gaphas.collision import colliding_lines, manhattan_distance, route, turns_in_path
+from gaphas.canvas import Canvas
+from gaphas.collision import (
+    Node,
+    colliding_lines,
+    manhattan_distance,
+    route,
+    same_direction,
+    tile_occupied,
+    turns_in_path,
+    update_colliding_lines,
+)
 from gaphas.connections import Connections
 from gaphas.item import Element, Item, Line
 from gaphas.quadtree import Quadtree
@@ -23,6 +33,61 @@ def test_colliding_lines():
     collisions = list(colliding_lines(qtree))
 
     assert (line, element) in collisions
+
+
+def test_prefer_same_direction():
+    node = Node(None, (0, 0), (1, 0), 0, 0)
+
+    assert same_direction(1, 0, node)
+    assert not same_direction(1, 1, node)
+
+
+def test_tile_occupied():
+    connections = Connections()
+    qtree: Quadtree[Item, None] = Quadtree()
+
+    line = Line(connections=connections)
+    line.head.pos = (0, 50)
+    line.tail.pos = (200, 50)
+
+    element = Element(connections=connections)
+    element.height = 100
+    element.width = 100
+    element.matrix.translate(50, 0)
+
+    qtree.add(line, (0, 50, 200, 50))
+    qtree.add(element, (50, 0, 150, 100))
+
+    assert not tile_occupied(0, 0, 20, qtree, {line})
+    assert tile_occupied(5, 1, 20, qtree, {line})
+
+
+def test_update_lines():
+    canvas = Canvas()
+    qtree: Quadtree[Item, None] = Quadtree()
+
+    line = Line(connections=canvas.connections)
+    line.head.pos = (0, 50)
+    line.tail.pos = (200, 50)
+
+    element = Element(connections=canvas.connections)
+    element.height = 100
+    element.width = 100
+    element.matrix.translate(50, 0)
+
+    qtree.add(line, (0, 50, 200, 50))
+    qtree.add(element, (50, 0, 150, 100))
+
+    update_colliding_lines(canvas, qtree)
+    assert len(line.handles()) == 6
+    assert [h.pos.tuple() for h in line.handles()] == [
+        (0, 50),
+        (10, 10),
+        (50, -30),
+        (210, -30),
+        (250, 10),
+        (200, 50),
+    ]
 
 
 def test_maze():
