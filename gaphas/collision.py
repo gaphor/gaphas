@@ -17,6 +17,7 @@ from itertools import groupby
 from operator import attrgetter, itemgetter
 from typing import Callable, Iterable, Literal, NamedTuple, Tuple, Union
 
+from gaphas.connections import Handle
 from gaphas.decorators import g_async
 from gaphas.geometry import intersect_rectangle_line
 from gaphas.item import Item, Line
@@ -56,10 +57,14 @@ def measure(func):
 class CollisionAvoidingLineHandleMoveMixin:
     view: GtkView
     item: Item
+    handle: Handle
 
     def move(self, pos: Pos) -> None:
         super().move(pos)  # type: ignore[misc]
-        self.update_line_to_avoid_collisions()
+        line = self.item
+        assert isinstance(line, Line)
+        if self.handle in (line.head, line.tail):
+            self.update_line_to_avoid_collisions()
 
     @g_async(single=True)
     def update_line_to_avoid_collisions(self):
