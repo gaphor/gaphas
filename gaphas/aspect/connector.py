@@ -53,8 +53,7 @@ class ItemConnector:
         )
         glue_pos = sink.glue(pos, secondary_pos)
         if glue_pos and self.allow(sink):
-            matrix.invert()
-            new_pos = matrix.transform_point(*glue_pos)
+            new_pos = matrix.inverse().transform_point(*glue_pos)
             handle.pos = new_pos
             return new_pos
         return None
