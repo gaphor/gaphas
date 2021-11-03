@@ -7,6 +7,6 @@ jobs:
     name: GTK 4
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
       - name: Build
         run: docker build -f .github/Dockerfile-gtk4 .
