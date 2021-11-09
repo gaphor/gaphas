@@ -19,10 +19,7 @@ It is also possible to relocate or remove items to the tree.
 
 The Quadtree itself is added as part of Gaphas' View. The view is aware of
 item's bounding boxes as it is responsible for user interaction. The Quadtree
-is set to the size of the window. As a result items which are part of the
-diagram, may be placed outside the window and thus will not be added to the
-quadtree. Item's that are partly in- and partly outside the window will be
-clipped.
+size is defined by its contents.
 
 Interface
 ---------
@@ -32,7 +29,7 @@ gaphas.
 
 Important properties:
 
-* bounds: boundaries of the canvas/view
+* bounds: boundaries of the canvas
 
 Methods for working with items in the quadtree:
 
@@ -44,10 +41,6 @@ Methods for working with items in the quadtree:
   2. Find all items within distance `d` of a point
   3. Find all items inside a rectangle
   4. Find all items inside or intersecting with a rectangle
-
-Methods working on the quadtree itself:
-
-* `resize(new_bounds)`: stretch the boundaries of the quadtree if necessary.
 
 Implementation
 --------------
