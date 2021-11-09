@@ -344,7 +344,7 @@ class Line(Matrices):
     @property
     def segments(self):
         hpos = [h.pos for h in self._handles]
-        return zip(hpos, hpos[1:])
+        return zip(tuple(hpos), tuple(hpos[1:]))
 
     def insert_handle(self, index: int, handle: Handle) -> None:
         self._handles.insert(index, handle)
