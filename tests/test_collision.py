@@ -8,8 +8,10 @@ from gaphas.collision import (
     tile_occupied,
     turns_in_path,
     update_colliding_lines,
+    update_line_to_avoid_collisions,
 )
 from gaphas.connections import Connections
+from gaphas.connector import Handle
 from gaphas.item import Element, Item, Line
 from gaphas.quadtree import Quadtree
 
@@ -60,6 +62,60 @@ def test_tile_occupied():
 
     assert not tile_occupied(0, 0, 20, qtree, {line})
     assert tile_occupied(5, 1, 20, qtree, {line})
+
+
+def test_solve_orthogonal_line():
+    canvas = Canvas()
+    qtree: Quadtree[Item, None] = Quadtree()
+
+    line = Line(connections=canvas.connections)
+    line.head.pos = (0, 0)
+    line.tail.pos = (200, 200)
+    line.insert_handle(1, Handle((100, 100)))
+    line.orthogonal = True
+
+    element = Element(connections=canvas.connections)
+    element.height = 150
+    element.width = 150
+    element.matrix.translate(50, 0)
+
+    qtree.add(line, (0, 0, 200, 200))
+    qtree.add(element, (50, 0, 200, 150))
+
+    update_line_to_avoid_collisions(line, canvas, qtree)
+    handles = line.handles()
+
+    assert not line.horizontal
+    assert handles[0].pos.tuple() == (0, 0)
+    assert handles[1].pos.tuple() == (0, 210)
+    assert handles[2].pos.tuple() == (200, 200)
+
+
+def test_solve_horizontal_orthogonal_line():
+    canvas = Canvas()
+    qtree: Quadtree[Item, None] = Quadtree()
+
+    line = Line(connections=canvas.connections)
+    line.head.pos = (0, 0)
+    line.tail.pos = (200, 200)
+    line.insert_handle(1, Handle((100, 100)))
+    line.orthogonal = True
+
+    element = Element(connections=canvas.connections)
+    element.height = 150
+    element.width = 150
+    element.matrix.translate(0, 50)
+
+    qtree.add(line, (0, 0, 200, 200))
+    qtree.add(element, (0, 50, 150, 200))
+
+    update_line_to_avoid_collisions(line, canvas, qtree)
+    handles = line.handles()
+
+    assert line.horizontal
+    assert handles[0].pos.tuple() == (0, 0)
+    assert handles[1].pos.tuple() == (210, 0)
+    assert handles[2].pos.tuple() == (200, 200)
 
 
 def test_update_lines():

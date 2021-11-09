@@ -116,6 +116,7 @@ def update_line_to_avoid_collisions(
     end_x, end_y = (int(v / grid_size) for v in matrix.transform_point(*line.tail.pos))
     excluded_items: set[Item] = {line}
     start_end_tiles = ((start_x, start_y), (end_x, end_y))
+    orthogonal = line.orthogonal
 
     def weight(x, y, current_node):
         direction_penalty = 0 if same_direction(x, y, current_node) else 1
@@ -133,15 +134,18 @@ def update_line_to_avoid_collisions(
         (end_x, end_y),
         weight=weight,
         heuristic=manhattan_distance(end_x, end_y),
+        orthogonal=orthogonal,
     )
-    if not path_with_direction:
+    if len(path_with_direction) < 2:
         return
     path = list(turns_in_path(path_with_direction))
+
+    min_handles = 3 if orthogonal else 2
 
     segment = Segment(line, model)
     while len(path) > len(line.handles()):
         segment.split_segment(0)
-    while 2 < len(path) < len(line.handles()):
+    while min_handles < len(path) < len(line.handles()):
         segment.merge_segment(0)
 
     imatrix = matrix.inverse()
@@ -149,6 +153,14 @@ def update_line_to_avoid_collisions(
         cx = pos[0] * grid_size + grid_size / 2
         cy = pos[1] * grid_size + grid_size / 2
         handle.pos = imatrix.transform_point(cx, cy)
+
+    if orthogonal:
+        _, dir = path_with_direction[1]
+        line.horizontal = dir == (1, 0)
+        if line.horizontal:
+            line.handles()[1].pos.y = line.handles()[0].pos.y
+        else:
+            line.handles()[1].pos.x = line.handles()[0].pos.x
 
     model.request_update(line)
 
@@ -210,6 +222,7 @@ def route(
     end: Tile,
     weight: Weight,
     heuristic: Heuristic = constant_heuristic(1),
+    orthogonal: bool = False,
 ) -> list[tuple[Tile, Tile]]:
     """Simple A* router/solver.
 
@@ -240,11 +253,15 @@ def route(
         (0, 1),
         (-1, 0),
         (1, 0),
-        (-1, -1),
-        (-1, 1),
-        (1, -1),
-        (1, 1),
     ]
+
+    if not orthogonal:
+        directions += [
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+            (1, 1),
+        ]
 
     while open_nodes:
         current_node = min(open_nodes, key=f)
