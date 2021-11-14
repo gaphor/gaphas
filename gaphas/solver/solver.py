@@ -196,11 +196,3 @@ def find_containing_constraint(
         ):
             return find_containing_constraint(cs, constraints)
     return None
-
-
-class JuggleError(AssertionError):
-    """Variable juggling exception.
-
-    Raised when constraint's variables are marking each other dirty
-    forever.
-    """
