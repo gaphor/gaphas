@@ -294,9 +294,10 @@ class Line(Matrices):
             return
 
         add = self._connections.add_constraint
+        # Use public `horizontal` field, so that property can be overwritten
         cons = [
             add(self, c)
-            for c in create_orthogonal_constraints(self._handles, self._horizontal)
+            for c in create_orthogonal_constraints(self._handles, self.horizontal)
         ]
         self._set_orthogonal_constraints(cons)
 
