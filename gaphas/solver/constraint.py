@@ -79,7 +79,7 @@ class BaseConstraint:
         return self._weakest[0][1]
 
     def mark_dirty(self, var: Variable) -> None:
-        """Mark variable v dirty and if possible move it to the end of
+        """Mark variable dirty and if possible move it to the end of
         Constraint.weakest list to maintain weakest variable invariants (see
         gaphas.solver module documentation)."""
 
