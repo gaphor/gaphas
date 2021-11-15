@@ -4,4 +4,4 @@ Pygments==2.10.0
 sphinx-rtd-theme==1.0.0
 sphinxcontrib-websupport==1.2.4
 tomlkit==0.7.2
-typing_extensions==3.10.0.2
+typing_extensions==4.0.0
