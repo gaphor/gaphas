@@ -1,8 +1,7 @@
 """Test constraint solver."""
-import pytest
 
 from gaphas.constraint import EqualsConstraint, EquationConstraint, LessThanConstraint
-from gaphas.solver import REQUIRED, JuggleError, MultiConstraint, Solver, Variable
+from gaphas.solver import REQUIRED, MultiConstraint, Solver, Variable
 from gaphas.solver.constraint import Constraint, ContainsConstraints
 
 
@@ -79,7 +78,7 @@ def test_minimal_size_constraint():
     assert 10 == v3
 
 
-def test_juggle_error_is_raised_when_constraints_can_not_be_resolved():
+def test_constraints_can_not_be_resolved():
     solver = Solver()
     a = Variable()
     b = Variable()
@@ -90,8 +89,10 @@ def test_juggle_error_is_raised_when_constraints_can_not_be_resolved():
     solver.add_constraint(EqualsConstraint(a, c))
     solver.add_constraint(EqualsConstraint(b, d))
 
-    with pytest.raises(JuggleError):
-        solver.solve()
+    solver.solve()
+
+    assert a.value == 40.0
+    assert b.value == 30.0
 
 
 def test_notify_for_nested_constraint():

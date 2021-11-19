@@ -44,11 +44,12 @@ class Solver:
     A constraint should have accompanying variables.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, resolve_limit: int = 16) -> None:
         # a dict of constraint -> name/variable mappings
         self._constraints: Set[Constraint] = set()
         self._marked_cons: List[Constraint] = []
         self._solving = False
+        self._resolve_limit = resolve_limit
         self._handlers: Set[Callable[[Constraint], None]] = set()
 
     def add_handler(self, handler: Callable[[Constraint], None]) -> None:
@@ -129,12 +130,8 @@ class Solver:
             if c in self._marked_cons:
                 self._marked_cons.remove(c)
             self._marked_cons.append(c)
-        else:
+        elif self._marked_cons.count(c) < self._resolve_limit:
             self._marked_cons.append(c)
-            if self._marked_cons.count(c) > 100:
-                raise JuggleError(
-                    f"Variable juggling detected, constraint {c} resolved {self._marked_cons.count(c)} times out of {len(self._marked_cons)}"
-                )
 
     def solve(self) -> None:
         """
@@ -199,11 +196,3 @@ def find_containing_constraint(
         ):
             return find_containing_constraint(cs, constraints)
     return None
-
-
-class JuggleError(AssertionError):
-    """Variable juggling exception.
-
-    Raised when constraint's variables are marking each other dirty
-    forever.
-    """
