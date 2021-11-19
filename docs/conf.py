@@ -11,26 +11,14 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-import sys
 from datetime import date
-from pathlib import Path
 from typing import Dict
-
-from tomlkit import parse
 
 # -- Project information -----------------------------------------------------
 
 project = "Gaphas"
 copyright = f"2006-{date.today().year}, Arjan J. Molenaar"
 author = "Arjan J. Molenaar"
-
-# The short X.Y version
-version = ""
-# The full version, including alpha/beta/rc tags
-project_dir = Path(__file__).resolve().parent.parent
-f = project_dir.joinpath("pyproject.toml")
-release = str(parse(f.read_text())["tool"]["poetry"]["version"])
-sys.path.insert(0, str(project_dir))
 
 # -- General configuration ---------------------------------------------------
 
@@ -142,9 +130,7 @@ latex_elements: Dict[str, str] = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, "Gaphas.tex", "Gaphas Documentation", "Arjan J. Molenaar", "manual")
-]
+latex_documents = [(master_doc, "Gaphas.tex", "Gaphas Documentation", author, "manual")]
 
 
 # -- Options for manual page output ------------------------------------------
