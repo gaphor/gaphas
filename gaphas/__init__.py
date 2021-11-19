@@ -38,4 +38,3 @@ limitations under the License.
 from gaphas.canvas import Canvas
 from gaphas.connector import Handle
 from gaphas.item import Element, Item, Line
-from gaphas.view import GtkView
