@@ -4,7 +4,8 @@ import pytest
 from gi.repository import GLib, Gtk
 
 from gaphas.canvas import Canvas
-from gaphas.view import GtkView, Selection
+from gaphas.selection import Selection
+from gaphas.view import GtkView
 
 
 @pytest.fixture(autouse=True)

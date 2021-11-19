@@ -3,8 +3,8 @@ from typing import Collection, Optional
 from cairo import LINE_JOIN_ROUND
 
 from gaphas.item import DrawContext, Item
+from gaphas.selection import Selection
 from gaphas.types import CairoContext
-from gaphas.view.selection import Selection
 
 
 class ItemPainter:

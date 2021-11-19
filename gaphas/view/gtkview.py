@@ -13,9 +13,9 @@ from gaphas.matrix import Matrix
 from gaphas.painter import DefaultPainter, ItemPainter
 from gaphas.painter.painter import ItemPainterType, Painter
 from gaphas.quadtree import Quadtree, QuadtreeBucket
+from gaphas.selection import Selection
 from gaphas.view.model import Model
 from gaphas.view.scrolling import Scrolling
-from gaphas.view.selection import Selection
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False

@@ -10,9 +10,9 @@ from gaphas.aspect.handlemove import HandleMove
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.item import Item, Line, matrix_i2i
+from gaphas.selection import Selection
 from gaphas.solver import WEAK
 from gaphas.tool.itemtool import find_item_and_handle_at_point
-from gaphas.view import Selection
 from gaphas.view.model import Model
 
 
