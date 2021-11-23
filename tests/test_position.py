@@ -17,12 +17,6 @@ def test_position(position):
     assert position[1] == pos.y
 
 
-def test_position_can_compare_with_tuple():
-    pos = Position(3, 3)
-
-    assert pos < (4, 4)
-
-
 def test_position_notifies_on_x_change(handler):
     pos = Position(3, 3)
     pos.add_handler(handler)
