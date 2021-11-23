@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Collection
 
+from cairo import Context as CairoContext
+
 from gaphas.item import Item
 from gaphas.painter.painter import Painter
-from gaphas.types import CairoContext
 
 
 class PainterChain:

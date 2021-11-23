@@ -5,12 +5,13 @@ from dataclasses import dataclass
 from math import atan2
 from typing import TYPE_CHECKING, Iterable, Protocol, Sequence, runtime_checkable
 
+from cairo import Context as CairoContext
+
 from gaphas.connector import Handle, LinePort, Port
 from gaphas.constraint import Constraint, EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
 from gaphas.matrix import Matrix
 from gaphas.solver import REQUIRED, VERY_STRONG, variable
-from gaphas.types import CairoContext
 
 if TYPE_CHECKING:
     from gaphas.connections import Connections

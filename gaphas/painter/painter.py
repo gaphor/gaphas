@@ -8,8 +8,9 @@ and handles).
 
 from typing import Collection, Protocol
 
+from cairo import Context as CairoContext
+
 from gaphas.item import Item
-from gaphas.types import CairoContext
 
 
 class Painter(Protocol):

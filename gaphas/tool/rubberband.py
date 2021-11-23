@@ -1,9 +1,9 @@
 from typing import Collection
 
+from cairo import Context as CairoContext
 from gi.repository import Gtk
 
 from gaphas.item import Item
-from gaphas.types import CairoContext
 
 
 class RubberbandState:

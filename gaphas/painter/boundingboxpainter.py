@@ -7,7 +7,6 @@ import cairo
 from gaphas.geometry import Rectangle
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
-from gaphas.types import CairoContext
 
 
 class BoundingBoxPainter:
@@ -25,15 +24,15 @@ class BoundingBoxPainter:
     ):
         self.item_painter = item_painter
 
-    def paint_item(self, item: Item, cr: CairoContext) -> None:
+    def paint_item(self, item: Item, cr: cairo.Context) -> None:
         self.item_painter.paint_item(item, cr)
 
-    def paint(self, items: Collection[Item], cr: CairoContext) -> None:
+    def paint(self, items: Collection[Item], cr: cairo.Context) -> None:
         """Draw the items, return the bounding boxes (in cairo device
         coordinates)."""
         self.item_painter.paint(items, cr)
 
-    def bounding_box(self, items: Collection[Item], cr: CairoContext) -> Rectangle:
+    def bounding_box(self, items: Collection[Item], cr: cairo.Context) -> Rectangle:
         """Get the unified bounding box of the rendered items."""
         surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
         cr = cairo.Context(surface)

@@ -13,9 +13,10 @@ from math import sqrt
 from random import Random
 from typing import Collection
 
+from cairo import Context as CairoContext
+
 from gaphas.item import Item
 from gaphas.painter.painter import ItemPainterType
-from gaphas.types import CairoContext
 
 
 class FreeHandCairoContext:

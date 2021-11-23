@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Collection
 
 from cairo import ANTIALIAS_NONE
+from cairo import Context as CairoContext
 
 from gaphas.item import Item
-from gaphas.types import CairoContext
 
 if TYPE_CHECKING:
     from gaphas.view import GtkView

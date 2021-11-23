@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Protocol, SupportsFloat, Tuple, TypeVar
 
-from cairo import Context as CairoContext  # noqa: F401
-
 # A primitive position, tuple ``(x, y)``
 # Pos = Tuple[Union[float, SupportsFloat], Union[float, SupportsFloat]]
 Pos = Tuple[float, float]

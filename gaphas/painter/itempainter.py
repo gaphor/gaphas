@@ -1,10 +1,10 @@
 from typing import Collection, Optional
 
 from cairo import LINE_JOIN_ROUND
+from cairo import Context as CairoContext
 
 from gaphas.item import DrawContext, Item
 from gaphas.selection import Selection
-from gaphas.types import CairoContext
 
 
 class ItemPainter:
