@@ -8,7 +8,7 @@ A point is represented as a tuple `(x, y)`.
 from __future__ import annotations
 
 from math import sqrt
-from typing import Iterable, Tuple
+from typing import Iterator, Tuple
 
 Point = Tuple[float, float]  # x, y
 Rect = Tuple[float, float, float, float]  # x, y, width, height
@@ -109,7 +109,7 @@ class Rectangle:
             return f"{self.__class__.__name__}({self.x}, {self.y}, {self.width}, {self.height})"
         return f"{self.__class__.__name__}()"
 
-    def __iter__(self) -> Iterable[float]:
+    def __iter__(self) -> Iterator[float]:
         """
         >>> tuple(Rectangle(1,2,3,4))
         (1, 2, 3, 4)
@@ -291,20 +291,12 @@ def distance_point_point_fast(point1: Point, point2: Point = (0.0, 0.0)) -> floa
     return abs(dx) + abs(dy)
 
 
-def distance_rectangle_point(rect: Rect, point: Point) -> float:
+def distance_rectangle_point(rect: Rect | Rectangle, point: Point) -> float:
     """Return the distance (fast) from a rectangle ``(x, y, width,height)`` to
-    a ``point``.
-
-    >>> distance_rectangle_point(Rectangle(0, 0, 10, 10), (11, -1))
-    2
-    >>> distance_rectangle_point((0, 0, 10, 10), (11, -1))
-    2
-    >>> distance_rectangle_point((0, 0, 10, 10), (-1, 11))
-    2
-    """
+    a ``point``."""
     dx = dy = 0.0
     px, py = point
-    rx, ry, rw, rh = rect
+    rx, ry, rw, rh = rect  # typing: ignore[misc]
 
     if px < rx:
         dx = rx - px
@@ -319,40 +311,17 @@ def distance_rectangle_point(rect: Rect, point: Point) -> float:
     return abs(dx) + abs(dy)
 
 
-def point_on_rectangle(rect: Rect, point: Point, border: bool = False) -> Point:
-    """
-    Return the point on which ``point`` can be projecten on the
-    rectangle.  ``border = True`` will make sure the point is bound to
+def point_on_rectangle(
+    rect: Rect | Rectangle, point: Point, border: bool = False
+) -> Point:
+    """Return the point on which ``point`` can be projecten on the rectangle.
+
+    ``border = True`` will make sure the point is bound to
     the border of the reactangle. Otherwise, if the point is in the
     rectangle, it's okay.
-
-    >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (11, -1))
-    (10, 0)
-    >>> point_on_rectangle((0, 0, 10, 10), (5, 12))
-    (5, 10)
-    >>> point_on_rectangle(Rectangle(0, 0, 10, 10), (12, 5))
-    (10, 5)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (3, 4))
-    (3, 4)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (0, 3))
-    (1, 3)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 3))
-    (4, 3)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (4, 9), border=True)
-    (4, 11)
-    >>> point_on_rectangle((1, 1, 10, 10), (4, 6), border=True)
-    (1, 6)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (5, 3), border=True)
-    (5, 1)
-    >>> point_on_rectangle(Rectangle(1, 1, 10, 10), (8, 4), border=True)
-    (11, 4)
-    >>> point_on_rectangle((1, 1, 10, 100), (5, 8), border=True)
-    (1, 8)
-    >>> point_on_rectangle((1, 1, 10, 100), (5, 98), border=True)
-    (5, 101)
     """
     px, py = point
-    rx, ry, rw, rh = tuple(rect)
+    rx, ry, rw, rh = rect
     x_inside = y_inside = False
 
     if px < rx:
@@ -384,18 +353,6 @@ def distance_line_point(
     begin and end point ``line_start`` and ``line_end``.
 
     A tuple is returned containing the distance and point on the line.
-
-    >>> distance_line_point((0., 0.), (2., 4.), point=(3., 4.))
-    (1.0, (2.0, 4.0))
-    >>> distance_line_point((0., 0.), (2., 4.), point=(-1., 0.))
-    (1.0, (0.0, 0.0))
-    >>> distance_line_point((0., 0.), (2., 4.), point=(1., 2.))
-    (0.0, (1.0, 2.0))
-    >>> d, p = distance_line_point((0., 0.), (2., 4.), point=(2., 2.))
-    >>> f"{d:.3f}"
-    '0.894'
-    >>> f"({p[0]:.3f}, {p[1]:.3f})"
-    '(1.200, 2.400)'
     """
     # The original end point:
     true_line_end = line_end
