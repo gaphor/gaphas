@@ -1,8 +1,31 @@
+import pytest
+
 from gaphas.geometry import (
+    distance_line_point,
     distance_rectangle_point,
     intersect_line_line,
     point_on_rectangle,
 )
+
+
+@pytest.mark.parametrize(
+    ["line_start", "line_end", "point"],
+    [
+        [(0, 0), (2, 2), (-1, 0)],
+        [(0, 0), (0, 0), (-1, 0)],
+        [(0, 0), (2, 2), (3, 2)],
+        [(0, 0), (2, 3), (1, 1)],
+    ],
+)
+def test_distance_line_point_does_not_return_inputs(line_start, line_end, point):
+    # Rationale: inputs can be of a different type (e.g. Position)
+    # but the function should always return a tuple.
+
+    _distance, point_on_line = distance_line_point(line_start, line_end, point)
+
+    assert point_on_line is not line_start
+    assert point_on_line is not line_end
+    assert point_on_line is not point
 
 
 def test_distance_rectangle_point():

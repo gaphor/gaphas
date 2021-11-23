@@ -408,16 +408,19 @@ def distance_line_point(
 
     # Both points are very near each other.
     if line_len_sqr < 0.0001:
-        return distance_point_point(point), line_start
+        return distance_point_point(point), (line_start[0], line_start[1])
 
     projlen = (line_end[0] * point[0] + line_end[1] * point[1]) / line_len_sqr
 
     if projlen < 0.0:
         # Closest point is the start of the line.
-        return distance_point_point(point), line_start
+        return distance_point_point(point), (line_start[0], line_start[1])
     elif projlen > 1.0:
         # Point has a projection after the line_end.
-        return distance_point_point(point, line_end), true_line_end
+        return distance_point_point(point, line_end), (
+            true_line_end[0],
+            true_line_end[1],
+        )
     else:
         # Projection is on the line. multiply the line_end with the projlen
         # factor to obtain the point on the line.
