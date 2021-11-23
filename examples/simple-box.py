@@ -6,9 +6,9 @@ import gi
 gi.require_version("Gtk", "4.0")  # noqa: isort:skip
 from gi.repository import Gtk  # noqa: isort:skip
 
-from gaphas import Canvas, GtkView, Line # noqa: isort:skip
+from gaphas import Canvas, Line # noqa: isort:skip
 from gaphas.tool import hover_tool, item_tool, scroll_tool, view_focus_tool, zoom_tool # noqa: isort:skip
-
+from gaphas.view import GtkView # noqa: isort:skip
 from examples.exampleitems import Box  # noqa: isort:skip
 # fmt: on
 

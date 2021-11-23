@@ -23,7 +23,7 @@ from gi.repository import GLib, Gtk  # noqa: isort:skip
 # fmt: on
 
 from examples.exampleitems import Box, Circle, Text
-from gaphas import Canvas, GtkView
+from gaphas import Canvas
 from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
@@ -44,6 +44,7 @@ from gaphas.tool import (
 )
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.util import text_extents, text_underline
+from gaphas.view import GtkView
 
 # Global undo list
 undo_list = []
