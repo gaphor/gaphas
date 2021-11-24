@@ -80,12 +80,10 @@ class Guides:
     horizontal: list[float]
 
 
-MARGIN = 2
+MARGIN = 4
 
 
-def find_vertical_guides(
-    view, handle, item_vedges, height, excluded_items, margin=MARGIN
-):
+def find_vertical_guides(view, handle, item_vedges, height, excluded_items, margin):
     items = (
         set(
             chain.from_iterable(
@@ -104,9 +102,7 @@ def find_vertical_guides(
     return dx, edges_x
 
 
-def find_horizontal_guides(
-    view, handle, item_hedges, width, excluded_items, margin=MARGIN
-):
+def find_horizontal_guides(view, handle, item_hedges, width, excluded_items, margin):
     items = (
         set(
             chain.from_iterable(
@@ -166,8 +162,10 @@ def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset())
 
     px, py = pos
     w, h = get_view_dimensions(view)
-    dx, edges_x = find_vertical_guides(view, handle, vedges, h, excluded_items)
-    dy, edges_y = find_horizontal_guides(view, handle, hedges, w, excluded_items)
+    dx, edges_x = find_vertical_guides(view, handle, vedges, h, excluded_items, MARGIN)
+    dy, edges_y = find_horizontal_guides(
+        view, handle, hedges, w, excluded_items, MARGIN
+    )
 
     newpos = px + dx, py + dy
 
