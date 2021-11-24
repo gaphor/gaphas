@@ -1,6 +1,6 @@
 import logging
 from functools import singledispatch
-from typing import Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 from gi.repository import Gdk, Gtk
 
@@ -71,15 +71,12 @@ class ItemHandleMove:
         if not handle.connectable:
             return None
 
-        connectable = item_at_point(view, pos, distance=distance, exclude=(item,))
-        if not connectable:
-            return None
+        for connectable in item_at_point(view, pos, distance=distance, exclude=(item,)):
+            connector = Connector(self.item, self.handle, connections)
+            sink = ConnectionSink(connectable)
 
-        connector = Connector(self.item, self.handle, connections)
-        sink = ConnectionSink(connectable)
-
-        if connector.glue(sink):
-            return sink
+            if connector.glue(sink):
+                return sink
 
         return None
 
@@ -160,7 +157,7 @@ def item_at_point(
     pos: Pos,
     distance: float = 0.5,
     exclude: Sequence[Item] = (),
-) -> Optional[Item]:
+) -> Iterable[Item]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:
@@ -182,5 +179,4 @@ def item_at_point(
             log.warning("Item distance is None for %s", item)
             continue
         if item_distance < distance:
-            return item
-    return None
+            yield item

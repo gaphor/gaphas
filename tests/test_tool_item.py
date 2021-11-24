@@ -72,8 +72,8 @@ def test_get_item_at_point(view, box):
     box.height = 50
     view.request_update((box,))
 
-    assert item_at_point(view, (10, 10)) is box
-    assert item_at_point(view, (60, 10)) is None
+    assert next(item_at_point(view, (10, 10)), None) is box  # type: ignore[call-overload]
+    assert next(item_at_point(view, (60, 10)), None) is None  # type: ignore[call-overload]
 
 
 def test_get_unselected_item_at_point(view, box):
@@ -81,8 +81,8 @@ def test_get_unselected_item_at_point(view, box):
     box.height = 50
     view.selection.select_items(box)
 
-    assert item_at_point(view, (10, 10)) is box
-    assert item_at_point(view, (10, 10), exclude=(box,)) is None
+    assert next(item_at_point(view, (10, 10)), None) is box  # type: ignore[call-overload]
+    assert next(item_at_point(view, (10, 10), exclude=(box,)), None) is None  # type: ignore[call-overload]
 
 
 def test_get_handle_at_point(view, canvas, connections):

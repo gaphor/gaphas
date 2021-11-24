@@ -26,4 +26,4 @@ def on_motion(ctrl, x, y):
 
 def find_item_at_point(view: GtkView, pos: Pos) -> Optional[Item]:
     item, handle = handle_at_point(view, pos)
-    return item or item_at_point(view, pos)
+    return item or next(item_at_point(view, pos), None)  # type: ignore[call-overload]

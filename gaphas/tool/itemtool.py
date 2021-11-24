@@ -80,7 +80,7 @@ def find_item_and_handle_at_point(
     view: GtkView, pos: Pos
 ) -> Tuple[Optional[Item], Optional[Handle]]:
     item, handle = handle_at_point(view, pos)
-    return item or item_at_point(view, pos), handle
+    return item or next(item_at_point(view, pos), None), handle  # type: ignore[call-overload]
 
 
 def moving_items(view):
