@@ -58,30 +58,32 @@ class Handle:
     pos: TypedProperty[Position, Position | SupportsFloatPos]
     pos = property(lambda s: s._pos, _set_pos, doc="The Handle's position")
 
-    def _set_connectable(self, connectable: bool) -> None:
+    @property
+    def connectable(self) -> bool:
+        """Can this handle actually connectect to a port?"""
+        return self._connectable
+
+    @connectable.setter
+    def connectable(self, connectable: bool) -> None:
         self._connectable = connectable
 
-    connectable = property(
-        lambda s: s._connectable,
-        _set_connectable,
-        doc="Can this handle actually connectect to a port?",
-    )
+    @property
+    def movable(self) -> bool:
+        """Can this handle be moved by a mouse pointer?"""
+        return self._movable
 
-    def _set_movable(self, movable: bool) -> None:
+    @movable.setter
+    def movable(self, movable: bool) -> None:
         self._movable = movable
 
-    movable = property(
-        lambda s: s._movable,
-        _set_movable,
-        doc="Can this handle be moved by a mouse pointer?",
-    )
+    @property
+    def visible(self) -> bool:
+        """Is this handle visible to the user?"""
+        return self._visible
 
-    def _set_visible(self, visible: bool) -> None:
+    @visible.setter
+    def visible(self, visible: bool) -> None:
         self._visible = visible
-
-    visible = property(
-        lambda s: s._visible, _set_visible, doc="Is this handle visible to the user?"
-    )
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
