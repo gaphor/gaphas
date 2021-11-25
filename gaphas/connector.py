@@ -88,7 +88,7 @@ class Handle:
 
     @property
     def glued(self) -> bool:
-        """Is this handle visible to the user?"""
+        """Is the handle being moved and about to be connected?"""
         return self._glued
 
     @glued.setter
