@@ -32,6 +32,7 @@ class ItemHandleMove:
         assert model
         cinfo = model.connections.get_connection(self.handle)
         if cinfo:
+            self.handle.glued = True
             model.connections.solver.remove_constraint(cinfo.constraint)
 
     def move(self, pos: Pos) -> None:
@@ -45,13 +46,14 @@ class ItemHandleMove:
 
         self.handle.pos = (x, y)
 
-        self.glue(pos)
+        self.handle.glued = bool(self.glue(pos))
 
         # do not request matrix update as matrix recalculation will be
         # performed due to item normalization if required
         view.model.request_update(item)
 
     def stop_move(self, pos: Pos) -> None:
+        self.handle.glued = False
         self.connect(pos)
 
     def glue(

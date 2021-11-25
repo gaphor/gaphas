@@ -45,8 +45,7 @@ class HandlePainter:
             # connected and not being moved, see HandleTool.on_button_press
             if get_connection(h):
                 r, g, b = 1.0, 0.0, 0.0
-            # connected but being moved, see HandleTool.on_button_press
-            elif get_connection(h):
+            elif h.glued:
                 r, g, b = 1, 0.6, 0
             elif h.movable:
                 r, g, b = 0, 1, 0

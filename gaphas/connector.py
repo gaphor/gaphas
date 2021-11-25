@@ -43,6 +43,7 @@ class Handle:
         self._connectable = connectable
         self._movable = movable
         self._visible = True
+        self._glued = False
 
     def _set_pos(self, pos: Position | SupportsFloatPos) -> None:
         """
@@ -84,6 +85,15 @@ class Handle:
     @visible.setter
     def visible(self, visible: bool) -> None:
         self._visible = visible
+
+    @property
+    def glued(self) -> bool:
+        """Is this handle visible to the user?"""
+        return self._glued
+
+    @glued.setter
+    def glued(self, glued: bool) -> None:
+        self._glued = glued
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
