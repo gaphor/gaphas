@@ -199,6 +199,7 @@ def segment_tool(view):
         else Gtk.GestureDrag.new()
     )
     segment_state = SegmentState()
+    gesture.set_propagation_phase(Gtk.PropagationPhase.TARGET)
     gesture.connect("drag-begin", on_drag_begin, segment_state)
     gesture.connect("drag-update", on_drag_update, segment_state)
     gesture.connect("drag-end", on_drag_end, segment_state)
@@ -210,8 +211,8 @@ def on_drag_begin(gesture, start_x, start_y, segment_state):
     pos = (start_x, start_y)
     item, handle = find_item_and_handle_at_point(view, pos)
 
-    if not handle:
-        handle = maybe_split_segment(view, item, pos) if item else None
+    if not handle and item is view.selection.focused_item:
+        handle = maybe_split_segment(view, item, pos)
 
     if handle:
         segment_state.moving = HandleMove(item, handle, view)
@@ -239,17 +240,13 @@ def on_drag_end(gesture, offset_x, offset_y, segment_state):
 
 
 def maybe_split_segment(view, item, pos):
-    item = view.selection.hovered_item
-    handle = None
-    if item is view.selection.focused_item:
-        try:
-            segment = Segment(item, view.model)
-        except TypeError:
-            pass
-        else:
-            cpos = view.matrix.inverse().transform_point(*pos)
-            handle = segment.split(cpos)
-    return handle
+    try:
+        segment = Segment(item, view.model)
+    except TypeError:
+        return None
+    else:
+        cpos = view.matrix.inverse().transform_point(*pos)
+        return segment.split(cpos)
 
 
 def maybe_merge_segments(view, item, handle):
