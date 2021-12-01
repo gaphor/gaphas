@@ -213,14 +213,14 @@ def on_drag_begin(gesture, start_x, start_y, segment_state):
 
     if not handle and item is view.selection.focused_item:
         handle = maybe_split_segment(view, item, pos)
+        if handle:
+            segment_state.moving = HandleMove(item, handle, view)
+            segment_state.item = item
+            segment_state.handle = handle
+            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+            return
 
-    if handle:
-        segment_state.moving = HandleMove(item, handle, view)
-        segment_state.item = item
-        segment_state.handle = handle
-        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
-    else:
-        gesture.set_state(Gtk.EventSequenceState.DENIED)
+    gesture.set_state(Gtk.EventSequenceState.DENIED)
 
 
 def on_drag_update(gesture, offset_x, offset_y, segment_state):
