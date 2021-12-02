@@ -165,11 +165,11 @@ testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-co
 
 [[package]]
 name = "gaphor"
-version = "2.7.0"
+version = "2.7.1"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
-python-versions = ">=3.9,<3.11"
+python-versions = ">=3.9,<4.0"
 
 [package.dependencies]
 gaphas = ">=3.1.0,<4.0.0"
@@ -858,8 +858,8 @@ filelock = [
     {file = "filelock-3.4.0.tar.gz", hash = "sha256:93d512b32a23baf4cac44ffd72ccf70732aeff7b8050fcaf6d3ec406d954baf4"},
 ]
 gaphor = [
-    {file = "gaphor-2.7.0-py3-none-any.whl", hash = "sha256:c727f58047380ad4a609f76b055ee9bcae3a8a29ade48a77c01d1b6b964d7a15"},
-    {file = "gaphor-2.7.0.tar.gz", hash = "sha256:3a1a2d7b0f6ddce1bacff3f6d825e162fdce20a2807d75e08c67de797cd440aa"},
+    {file = "gaphor-2.7.1-py3-none-any.whl", hash = "sha256:fc61918df54d1aa5b0ae2399030dea737b8f2a8a2ff546cd8884ae744a1fbdf5"},
+    {file = "gaphor-2.7.1.tar.gz", hash = "sha256:451770877bc7c185e5fc506f610287e168ca79e1430533df554eb2d296ff2fbc"},
 ]
 generic = [
     {file = "generic-1.0.1-py3-none-any.whl", hash = "sha256:e6be6d8490a2458c9f8e28e151c4f4a0687f40ac364da35578f7147b0220f264"},
