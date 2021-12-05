@@ -31,7 +31,17 @@ def item_tool(view: GtkView) -> Gtk.GestureDrag:
 
 class DragState:
     def __init__(self):
-        self.moving = set()
+        self.reset()
+
+    def reset(self):
+        self.moving_items = set()
+        self.moving_handle = None
+
+    @property
+    def moving(self):
+        yield from self.moving_items
+        if self.moving_handle:
+            yield self.moving_handle
 
 
 def on_drag_begin(gesture, start_x, start_y, drag_state):
@@ -73,9 +83,9 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
     gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
     if handle:
-        drag_state.moving = {HandleMove(item, handle, view)}
+        drag_state.moving_handle = HandleMove(item, handle, view)
     else:
-        drag_state.moving = set(moving_items(view))
+        drag_state.moving_items = set(moving_items(view))
 
     for moving in drag_state.moving:
         moving.start_move((start_x, start_y))
@@ -118,9 +128,10 @@ def on_drag_end(gesture, offset_x, offset_y, drag_state):
     _, x, y = gesture.get_start_point()
     for moving in drag_state.moving:
         moving.stop_move((x + offset_x, y + offset_y))
-        if hasattr(moving, "item") and hasattr(moving, "handle"):
-            maybe_merge_segments(gesture.get_widget(), moving.item, moving.handle)
-    drag_state.moving = set()
+    if drag_state.moving_handle:
+        moving = drag_state.moving_handle
+        maybe_merge_segments(gesture.get_widget(), moving.item, moving.handle)
+    drag_state.reset()
 
 
 def order_handles(handles):
