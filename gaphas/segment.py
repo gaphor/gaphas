@@ -1,34 +1,14 @@
 """Allow for easily adding segments to lines."""
-from functools import singledispatch
-from typing import Optional
 
 from cairo import ANTIALIAS_NONE
-from gi.repository import Gtk
 
-from gaphas.aspect import MoveType
-from gaphas.aspect.handlemove import HandleMove
 from gaphas.connector import Handle, LinePort
-from gaphas.geometry import distance_line_point, distance_point_point_fast
-from gaphas.item import Item, Line, matrix_i2i
+from gaphas.geometry import distance_point_point_fast
+from gaphas.item import Line, matrix_i2i
 from gaphas.selection import Selection
 from gaphas.solver import WEAK
-from gaphas.tool.itemtool import find_item_and_handle_at_point
+from gaphas.tool.itemtool import Segment
 from gaphas.view.model import Model
-
-
-@singledispatch
-class Segment:
-    def __init__(self, item, model):
-        raise TypeError
-
-    def split_segment(self, segment, count=2):
-        ...
-
-    def split(self, pos):
-        ...
-
-    def merge_segment(self, segment, count=2):
-        ...
 
 
 @Segment.register(Line)  # type: ignore
@@ -178,107 +158,6 @@ class LineSegment:
             constraint = port.constraint(item, handle, connected)
 
             model.connections.reconnect_item(item, handle, port, constraint=constraint)
-
-
-class SegmentState:
-    moving: Optional[MoveType]
-    item: Optional[Item]
-    handle: Optional[Handle]
-
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.moving = None
-
-
-def segment_tool(view):
-    gesture = (
-        Gtk.GestureDrag.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureDrag.new()
-    )
-    segment_state = SegmentState()
-    gesture.set_propagation_phase(Gtk.PropagationPhase.TARGET)
-    gesture.connect("drag-begin", on_drag_begin, segment_state)
-    gesture.connect("drag-update", on_drag_update, segment_state)
-    gesture.connect("drag-end", on_drag_end, segment_state)
-    return gesture
-
-
-def on_drag_begin(gesture, start_x, start_y, segment_state):
-    view = gesture.get_widget()
-    pos = (start_x, start_y)
-    item, handle = find_item_and_handle_at_point(view, pos)
-
-    if not handle and item is view.selection.focused_item:
-        handle = maybe_split_segment(view, item, pos)
-        if handle:
-            segment_state.moving = HandleMove(item, handle, view)
-            segment_state.item = item
-            segment_state.handle = handle
-            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
-            return
-
-    gesture.set_state(Gtk.EventSequenceState.DENIED)
-
-
-def on_drag_update(gesture, offset_x, offset_y, segment_state):
-    if segment_state.moving:
-        _, x, y = gesture.get_start_point()
-        segment_state.moving.move((x + offset_x, y + offset_y))
-
-
-def on_drag_end(gesture, offset_x, offset_y, segment_state):
-    if segment_state.moving:
-        _, x, y = gesture.get_start_point()
-        segment_state.moving.stop_move((x + offset_x, y + offset_y))
-        maybe_merge_segments(
-            gesture.get_widget(), segment_state.item, segment_state.handle
-        )
-        segment_state.reset()
-
-
-def maybe_split_segment(view, item, pos):
-    try:
-        segment = Segment(item, view.model)
-    except TypeError:
-        return None
-    else:
-        cpos = view.matrix.inverse().transform_point(*pos)
-        return segment.split(cpos)
-
-
-def maybe_merge_segments(view, item, handle):
-    handles = item.handles()
-
-    # don't merge using first or last handle
-    if handles[0] is handle or handles[-1] is handle:
-        return
-
-    # ensure at least three handles
-    handle_index = handles.index(handle)
-    segment = handle_index - 1
-
-    # cannot merge starting from last segment
-    if segment == len(item.ports()) - 1:
-        segment = -1
-    assert segment >= 0 and segment < len(item.ports()) - 1
-
-    before = handles[handle_index - 1]
-    after = handles[handle_index + 1]
-    d, p = distance_line_point(before.pos, after.pos, handle.pos)
-
-    if d > 2:
-        return
-
-    try:
-        Segment(item, view.model).merge_segment(segment)
-    except ValueError:
-        pass
-    else:
-        if handle:
-            view.model.request_update(item)
 
 
 class LineSegmentPainter:
