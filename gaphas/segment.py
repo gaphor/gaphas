@@ -160,6 +160,13 @@ class LineSegment:
             model.connections.reconnect_item(item, handle, port, constraint=constraint)
 
 
+def segment_tool(view):
+    print(
+        "WARNING: You're using segment_tool(). Remove all uses of segment_tool() from your code. It's handled by item_tool now."
+    )
+    return None
+
+
 class LineSegmentPainter:
     """This painter draws pseudo-handles on gaphas.item.Line objects. Each line
     can be split by dragging those points, which will result in a new handle.
