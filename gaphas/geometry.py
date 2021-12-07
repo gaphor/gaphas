@@ -516,14 +516,10 @@ def intersect_line_line(
     y_num = a2 * c1 - a1 * c2
     if not denom:
         return None  # ( COLLINEAR )
-    elif isinstance(denom, float):  # denom is float, use normal division
-        offset = abs(denom) / 2
-        x = ((x_num < 0) and (x_num - offset) or (x_num + offset)) / denom
-        y = ((y_num < 0) and (y_num - offset) or (y_num + offset)) / denom
-    else:  # denom is int, use integer division
-        offset = abs(denom) // 2
-        x = ((x_num < 0) and (x_num - offset) or (x_num + offset)) // denom
-        y = ((y_num < 0) and (y_num - offset) or (y_num + offset)) // denom
+
+    offset = abs(denom) / 2
+    x = ((x_num - offset) if (x_num < 0) else (x_num + offset)) / denom
+    y = ((y_num - offset) if (y_num < 0) else (y_num + offset)) / denom
     return x, y
 
 

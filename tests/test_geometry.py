@@ -93,10 +93,10 @@ def test_point_on_rectangle_border():
 
 
 def test_intersect_line_line():
-    assert intersect_line_line((3, 0), (8, 10), (0, 0), (10, 10)) == (6, 6)
-    assert intersect_line_line((0, 0), (10, 10), (3, 0), (8, 10)) == (6, 6)
-    assert intersect_line_line((0, 0), (10, 10), (8, 10), (3, 0)) == (6, 6)
-    assert intersect_line_line((8, 10), (3, 0), (0, 0), (10, 10)) == (6, 6)
+    assert intersect_line_line((3, 0), (8, 10), (0, 0), (10, 10)) == (6.5, 6.5)
+    assert intersect_line_line((0, 0), (10, 10), (3, 0), (8, 10)) == (6.5, 6.5)
+    assert intersect_line_line((0, 0), (10, 10), (8, 10), (3, 0)) == (6.5, 6.5)
+    assert intersect_line_line((8, 10), (3, 0), (0, 0), (10, 10)) == (6.5, 6.5)
 
 
 def test_intersect_line_line_not_crossing():
