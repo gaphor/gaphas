@@ -2,8 +2,8 @@
 
 import pytest
 
-from gaphas.aspect import Move
 from gaphas.item import Element
+from gaphas.move import Move
 
 
 @pytest.fixture()

@@ -1,4 +1,4 @@
-from gaphas.aspect.handlemove import ItemHandleMove
+from gaphas.handlemove import ItemHandleMove
 
 
 def test_can_connect(line, box, connections, view):

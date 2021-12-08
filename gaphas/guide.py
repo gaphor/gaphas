@@ -6,11 +6,11 @@ from functools import singledispatch
 from itertools import chain
 from typing import Iterable, SupportsFloat
 
-from gaphas.aspect.handlemove import ElementHandleMove, HandleMove, ItemHandleMove
-from gaphas.aspect.move import ItemMove, Move
 from gaphas.canvas import all_children
 from gaphas.connector import Handle
+from gaphas.handlemove import ElementHandleMove, HandleMove, ItemHandleMove
 from gaphas.item import Element, Item, Line
+from gaphas.move import ItemMove, Move
 from gaphas.types import Pos
 from gaphas.view import GtkView
 

@@ -2,8 +2,9 @@ from typing import Callable, Optional
 
 from gi.repository import Gtk
 
-from gaphas.aspect import HandleMove, MoveType
+from gaphas.handlemove import HandleMove
 from gaphas.item import Item
+from gaphas.move import MoveType
 from gaphas.view import GtkView
 
 FactoryType = Callable[[], Item]

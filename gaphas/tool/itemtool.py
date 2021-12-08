@@ -4,11 +4,12 @@ from typing import Optional, Tuple, Union
 
 from gi.repository import Gdk, Gtk
 
-from gaphas.aspect import HandleMove, Move, item_at_point
 from gaphas.canvas import ancestors
 from gaphas.connector import Handle
 from gaphas.geometry import distance_line_point, distance_point_point_fast
+from gaphas.handlemove import HandleMove, item_at_point
 from gaphas.item import Item
+from gaphas.move import Move
 from gaphas.types import Pos
 from gaphas.view import GtkView
 

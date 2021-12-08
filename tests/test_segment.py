@@ -1,7 +1,7 @@
 """Test segment aspects for items."""
 import pytest
 
-from gaphas.aspect import HandleMove
+from gaphas.handlemove import HandleMove
 from gaphas.item import Element
 from gaphas.segment import Line, Segment
 

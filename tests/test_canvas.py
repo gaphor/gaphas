@@ -2,6 +2,7 @@ import pytest
 
 from gaphas.canvas import Canvas
 from gaphas.connections import ConnectionError
+from gaphas.connector import ConnectionSink, Connector
 from gaphas.item import Element as Box
 from gaphas.item import Line
 from gaphas.matrix import Matrix
@@ -160,8 +161,6 @@ def test_disconnect_item_with_constraint_by_deleting_element():
 def test_remove_connected_item():
     """Test adding canvas constraint."""
     canvas = Canvas()
-
-    from gaphas.aspect import ConnectionSink, Connector
 
     l1 = Line(canvas.connections)
     canvas.add(l1)
