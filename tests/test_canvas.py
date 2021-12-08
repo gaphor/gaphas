@@ -6,7 +6,7 @@ from gaphas.connector import ConnectionSink, Connector
 from gaphas.item import Element as Box
 from gaphas.item import Line
 from gaphas.matrix import Matrix
-from gaphas.view.model import Model
+from gaphas.model import Model
 
 
 def test_canvas_is_a_view_model(canvas):

@@ -10,11 +10,11 @@ from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
+from gaphas.model import Model
 from gaphas.painter import DefaultPainter, ItemPainter
 from gaphas.painter.painter import ItemPainterType, Painter
 from gaphas.quadtree import Quadtree, QuadtreeBucket
 from gaphas.selection import Selection
-from gaphas.view.model import Model
 from gaphas.view.scrolling import Scrolling
 
 # Handy debug flag for drawing bounding boxes around the items.
@@ -35,9 +35,8 @@ BOUNDING_BOX_TOLERANCE = 1.0
 
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
-    """GTK+ widget for rendering a gaphas.view.model.Model to a screen.  The
-    view uses Tools to handle events and Painters to draw. Both are
-    configurable.
+    """GTK+ widget for rendering a gaphas.model.Model to a screen.  The view
+    uses Tools to handle events and Painters to draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,
     `vadjustment`) to be used for scrollbars.

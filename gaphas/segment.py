@@ -6,10 +6,10 @@ from gi.repository import Gtk
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
+from gaphas.model import Model
 from gaphas.selection import Selection
 from gaphas.solver import WEAK
 from gaphas.tool.itemtool import Segment
-from gaphas.view.model import Model
 
 
 @Segment.register(Line)  # type: ignore

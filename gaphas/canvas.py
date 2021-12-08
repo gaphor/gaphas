@@ -28,17 +28,15 @@ To get connecting items (i.e. all lines connected to a class)::
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterable, Protocol
+from typing import Iterable, Protocol
 
 import cairo
 
 from gaphas import matrix, tree
 from gaphas.connections import Connection, Connections
 from gaphas.decorators import nonrecursive
-
-if TYPE_CHECKING:
-    from gaphas.item import Item
-    from gaphas.view.model import View
+from gaphas.item import Item
+from gaphas.model import View
 
 
 def instant_cairo_context():
