@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import Callable, Iterator, NamedTuple
 
 from gaphas import table
-from gaphas.connector import Handle, Port
 from gaphas.constraint import Constraint
+from gaphas.handle import Handle
 from gaphas.item import Item
+from gaphas.port import Port
 from gaphas.solver import Solver
 
 

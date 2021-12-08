@@ -1,190 +1,180 @@
-"""Basic connectors such as Ports and Handles."""
-from __future__ import annotations
+from functools import singledispatch
+from typing import Callable, Optional, Protocol
 
-from typing import TYPE_CHECKING
-
-from gaphas.constraint import Constraint, LineConstraint, PositionConstraint
-from gaphas.geometry import distance_line_point, distance_point_point
-from gaphas.position import MatrixProjection, Position
-from gaphas.solver import NORMAL, MultiConstraint
-from gaphas.types import Pos, SupportsFloatPos, TypedProperty
-
-if TYPE_CHECKING:
-    from gaphas.item import Item
+from gaphas.connections import Connections
+from gaphas.geometry import intersect_line_line
+from gaphas.handle import Handle
+from gaphas.item import Element, Item, Line, matrix_i2i
+from gaphas.port import LinePort, PointPort, Port  # noqa F401
+from gaphas.solver import Constraint
+from gaphas.types import Pos, SupportsFloatPos
 
 
-class Handle:
-    """Handles are used to support modifications of Items.
+class ConnectionSinkType(Protocol):
+    item: Item
+    port: Optional[Port]
 
-    If the handle is connected to an item, the ``connected_to``
-    property should refer to the item. A ``disconnect`` handler should
-    be provided that handles all disconnect behaviour (e.g. clean up
-    constraints and ``connected_to``).
+    def __init__(self, item: Item, distance: float = 10):
+        ...
 
-    Note for those of you that use the Pickle module to persist a
-    canvas: The property ``disconnect`` should contain a callable
-    object (with __call__() method), so the pickle handler can also
-    pickle that. Pickle is not capable of pickling ``instancemethod``
-    or ``function`` objects.
-    """
+    def glue(
+        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
+    ) -> Optional[Pos]:
+        ...
 
-    def __init__(
-        self,
-        pos: Pos = (0, 0),
-        strength: int = NORMAL,
-        connectable: bool = False,
-        movable: bool = True,
-    ) -> None:
-        """Create a new handle.
-
-        Position is in item  coordinates.
-        """
-        self._pos = Position(pos[0], pos[1], strength)
-        self._connectable = connectable
-        self._movable = movable
-        self._visible = True
-        self._glued = False
-
-    def _set_pos(self, pos: Position | SupportsFloatPos) -> None:
-        """
-        Shortcut for ``handle.pos.pos = pos``
-
-        >>> h = Handle((10, 10))
-        >>> h.pos = (20, 15)
-        >>> h.pos
-        <Position object on (20, 15)>
-        """
-        self._pos.pos = pos
-
-    pos: TypedProperty[Position, Position | SupportsFloatPos]
-    pos = property(lambda s: s._pos, _set_pos, doc="The Handle's position")
-
-    @property
-    def connectable(self) -> bool:
-        """Can this handle actually connectect to a port?"""
-        return self._connectable
-
-    @connectable.setter
-    def connectable(self, connectable: bool) -> None:
-        self._connectable = connectable
-
-    @property
-    def movable(self) -> bool:
-        """Can this handle be moved by a mouse pointer?"""
-        return self._movable
-
-    @movable.setter
-    def movable(self, movable: bool) -> None:
-        self._movable = movable
-
-    @property
-    def visible(self) -> bool:
-        """Is this handle visible to the user?"""
-        return self._visible
-
-    @visible.setter
-    def visible(self, visible: bool) -> None:
-        self._visible = visible
-
-    @property
-    def glued(self) -> bool:
-        """Is the handle being moved and about to be connected?"""
-        return self._glued
-
-    @glued.setter
-    def glued(self, glued: bool) -> None:
-        self._glued = glued
-
-    def __str__(self) -> str:
-        return f"<{self.__class__.__name__} object on ({self._pos.x}, {self._pos.y})>"
-
-    __repr__ = __str__
+    def constraint(self, item: Item, handle: Handle) -> Constraint:
+        ...
 
 
-class Port:
-    """Port connectable part of an item.
+class ItemConnector:
+    """Connect or disconnect an item's handle to another item or port."""
 
-    The Item's handle connects to a port.
-    """
+    GLUE_DISTANCE = 10  # Glue distance in view points
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, item: Item, handle: Handle, connections: Connections):
+        self.item = item
+        self.handle = handle
+        self.connections = connections
 
-        self._connectable = True
+    def allow(self, sink):
+        return True
 
-    def _set_connectable(self, connectable: bool) -> None:
-        self._connectable = connectable
+    def secondary_handle(self) -> Optional[Handle]:
+        return None
 
-    connectable = property(lambda s: s._connectable, _set_connectable)
-
-    def glue(self, pos: SupportsFloatPos) -> tuple[Pos, float]:
-        """Get glue point on the port and distance to the port."""
-        raise NotImplementedError("Glue method not implemented")
-
-    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
-        """Create connection constraint between item's handle and glue item."""
-        raise NotImplementedError("Constraint method not implemented")
-
-
-class LinePort(Port):
-    """Port defined as a line between two handles."""
-
-    def __init__(self, start: Position, end: Position) -> None:
-        super().__init__()
-
-        self.start = start
-        self.end = end
-
-    def glue(self, pos: SupportsFloatPos) -> tuple[Pos, float]:
-        """Get glue point on the port and distance to the port.
-
-        >>> p1, p2 = (0.0, 0.0), (100.0, 100.0)
-        >>> port = LinePort(p1, p2)
-        >>> port.glue((50, 50))
-        ((50.0, 50.0), 0.0)
-        >>> port.glue((0, 10))
-        ((5.0, 5.0), 7.0710678118654755)
-        """
-        d, pl = distance_line_point(
-            self.start.tuple(), self.end.tuple(), (float(pos[0]), float(pos[1]))
+    def glue(self, sink: ConnectionSinkType) -> Optional[Pos]:
+        """Glue the Connector handle on the sink's port."""
+        handle = self.handle
+        item = self.item
+        matrix = matrix_i2i(item, sink.item)
+        pos = matrix.transform_point(*handle.pos)
+        secondary_handle = self.secondary_handle()
+        secondary_pos = (
+            matrix.transform_point(*secondary_handle.pos) if secondary_handle else None
         )
-        return pl, d
+        glue_pos = sink.glue(pos, secondary_pos)
+        if glue_pos and self.allow(sink):
+            matrix.invert()
+            new_pos = matrix.transform_point(*glue_pos)
+            handle.pos = new_pos
+            return new_pos
+        return None
 
-    def constraint(self, item: Item, handle: Handle, glue_item: Item) -> Constraint:
-        """Create connection line constraint between item's handle and the
-        port."""
-        start = MatrixProjection(self.start, glue_item.matrix_i2c)
-        end = MatrixProjection(self.end, glue_item.matrix_i2c)
-        point = MatrixProjection(handle.pos, item.matrix_i2c)
-        line = LineConstraint((start.pos, end.pos), point.pos)
-        return MultiConstraint(start, end, point, line)
+    def connect(self, sink: ConnectionSinkType) -> None:
+        """Connect the handle to a sink (item, port).
 
-
-class PointPort(Port):
-    """Port defined as a point."""
-
-    def __init__(self, point: Position) -> None:
-        super().__init__()
-        self.point = point
-
-    def glue(self, pos: SupportsFloatPos) -> tuple[Pos, float]:
-        """Get glue point on the port and distance to the port.
-
-        >>> h = Handle((10, 10))
-        >>> port = PointPort(h.pos)
-        >>> port.glue((10, 0))
-        (<Position object on (10, 10)>, 10.0)
+        Note that connect() also takes care of disconnecting in case a
+        handle is reattached to another element.
         """
-        point: tuple[float, float] = self.point.pos  # type: ignore[assignment]
-        d = distance_point_point(point, (float(pos[0]), float(pos[1])))
-        return point, d
 
-    def constraint(
-        self, item: Item, handle: Handle, glue_item: Item
-    ) -> MultiConstraint:
-        """Return connection position constraint between item's handle and the
-        port."""
-        origin = MatrixProjection(self.point, glue_item.matrix_i2c)
-        point = MatrixProjection(handle.pos, item.matrix_i2c)
-        c = PositionConstraint(origin.pos, point.pos)
-        return MultiConstraint(origin, point, c)
+        cinfo = self.connections.get_connection(self.handle)
+
+        # Already connected? disconnect first.
+        if cinfo:
+            self.disconnect()
+
+        if not self.glue(sink):
+            return
+
+        self.connect_handle(sink)
+
+    def connect_handle(
+        self, sink: ConnectionSinkType, callback: Optional[Callable[[], None]] = None
+    ) -> None:
+        """Create constraint between handle of a line and port of connectable
+        item.
+
+        :Parameters:
+         sink
+            Connectable item and port.
+         callback
+            Function to be called on disconnection.
+        """
+        handle = self.handle
+        item = self.item
+
+        constraint = sink.constraint(item, handle)
+
+        self.connections.connect_item(
+            item, handle, sink.item, sink.port, constraint, callback=callback
+        )
+
+    def disconnect(self) -> None:
+        """Disconnect the handle from the attached element."""
+        self.connections.disconnect_item(self.item, self.handle)
+
+
+Connector = singledispatch(ItemConnector)
+
+
+@Connector.register(Line)
+class LineConnector(ItemConnector):
+    def secondary_handle(self) -> Optional[Handle]:
+        item = self.item
+        handle = self.handle
+        handles = item.handles()
+        if len(handles) < 2:
+            return None
+        if handle is handles[0]:
+            return handles[1]
+        if handle is handles[-1]:
+            return handles[-2]
+        return None
+
+
+class ItemConnectionSink:
+    """Makes an item a sink.
+
+    A sink is another item that an item's handle is connected to like a
+    connectable item or port.
+    """
+
+    def __init__(self, item: Item, distance: float = 10) -> None:
+        self.item = item
+        self.distance = distance
+        self.port: Optional[Port] = None
+
+    def glue(
+        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
+    ) -> Optional[Pos]:
+        max_dist = self.distance
+        glue_pos = None
+        for p in self.item.ports():
+            if not p.connectable:
+                continue
+
+            g, d = p.glue(pos)
+
+            if d < max_dist:
+                max_dist = d
+                self.port = p
+                glue_pos = g
+        return glue_pos
+
+    def constraint(self, item: Item, handle: Handle) -> Constraint:
+        assert self.port, "constraint() can only be called after glue()"
+        return self.port.constraint(item, handle, self.item)
+
+
+ConnectionSink = singledispatch(ItemConnectionSink)
+
+
+@ConnectionSink.register(Element)
+class ElementConnectionSink(ItemConnectionSink):
+    def glue(
+        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
+    ) -> Optional[Pos]:
+        glue_pos = super().glue(pos, secondary_pos)
+        if glue_pos:
+            return glue_pos
+
+        if secondary_pos:
+            for p in self.item.ports()[:4]:
+                assert isinstance(p, LinePort)
+                point_on_line = intersect_line_line(
+                    pos, secondary_pos, p.start, p.end  # type: ignore[arg-type]
+                )
+                if point_on_line:
+                    return point_on_line
+
+        return None

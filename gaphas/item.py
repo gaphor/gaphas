@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Iterable, Protocol, Sequence, runtime_checkabl
 
 from cairo import Context as CairoContext
 
-from gaphas.connector import Handle, LinePort, Port
 from gaphas.constraint import Constraint, EqualsConstraint, constraint
 from gaphas.geometry import distance_line_point, distance_rectangle_point
+from gaphas.handle import Handle
 from gaphas.matrix import Matrix
+from gaphas.port import LinePort, Port
 from gaphas.solver import REQUIRED, VERY_STRONG, variable
 
 if TYPE_CHECKING:
