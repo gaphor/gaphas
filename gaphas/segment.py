@@ -1,6 +1,7 @@
 """Allow for easily adding segments to lines."""
 
 from cairo import ANTIALIAS_NONE
+from gi.repository import Gtk
 
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_point_point_fast
@@ -164,7 +165,11 @@ def segment_tool(view):
     print(
         "WARNING: You're using segment_tool(). Remove all uses of segment_tool() from your code. It's handled by item_tool now."
     )
-    return None
+    return (
+        Gtk.GestureDrag.new(view)
+        if Gtk.get_major_version() == 3
+        else Gtk.GestureDrag.new()
+    )
 
 
 class LineSegmentPainter:
