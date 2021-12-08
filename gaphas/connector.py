@@ -6,6 +6,7 @@ from gaphas.geometry import intersect_line_line
 from gaphas.handle import Handle
 from gaphas.item import Element, Item, Line, matrix_i2i
 from gaphas.port import LinePort, PointPort, Port  # noqa F401
+from gaphas.position import Position  # noqa F401
 from gaphas.solver import Constraint
 from gaphas.types import Pos, SupportsFloatPos
 
