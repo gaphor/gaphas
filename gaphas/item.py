@@ -103,7 +103,7 @@ class Element(Matrices):
         connections: Connections,
         width: float = 10,
         height: float = 10,
-        **kwargs: object
+        **kwargs: object,
     ) -> None:
         super().__init__(**kwargs)
         self._handles = [h(strength=VERY_STRONG) for h in [Handle] * 4]
