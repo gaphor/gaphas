@@ -124,9 +124,9 @@ def test_power():
     v = Variable(3)
     o = Variable(2)
 
-    assert v ** 2 == 9
-    assert 2 ** v == 8
-    assert v ** o == 9
+    assert v**2 == 9
+    assert 2**v == 8
+    assert v**o == 9
 
 
 def test_modulo():
