@@ -47,6 +47,9 @@ def on_scroll(controller, dx, dy, speed):
         zoom_factor = 0.1
         d = 1 - dy * zoom_factor
         zoom.update(d)
+    elif modifiers & Gdk.ModifierType.SHIFT_MASK:
+        view.hadjustment.set_value(dy * speed - view.hadjustment.get_value())
+        view.vadjustment.set_value(dx * speed - view.vadjustment.get_value())
     else:
         view.hadjustment.set_value(dx * speed - view.hadjustment.get_value())
         view.vadjustment.set_value(dy * speed - view.vadjustment.get_value())
