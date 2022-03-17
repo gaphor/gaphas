@@ -363,10 +363,10 @@ class Line(Matrices):
         used when initializing the line.
         """
         assert len(self._handles) >= 2, "Not enough segments"
-        self._ports = []
         handles = self._handles
-        for h1, h2 in zip(handles[:-1], handles[1:]):
-            self._ports.append(LinePort(h1.pos, h2.pos))
+        self._ports = [
+            LinePort(h1.pos, h2.pos) for h1, h2 in zip(handles[:-1], handles[1:])
+        ]
 
     def opposite(self, handle: Handle) -> Handle:
         """Given the handle of one end of the line, return the other end."""

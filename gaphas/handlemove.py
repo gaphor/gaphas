@@ -31,8 +31,7 @@ class ItemHandleMove:
         self.last_x, self.last_y = pos
         model = self.view.model
         assert model
-        cinfo = model.connections.get_connection(self.handle)
-        if cinfo:
+        if cinfo := model.connections.get_connection(self.handle):
             self.handle.glued = True
             model.connections.solver.remove_constraint(cinfo.constraint)
 
@@ -102,11 +101,7 @@ class ItemHandleMove:
         connections = model.connections
         connector = Connector(self.item, handle, connections)
 
-        # find connectable item and its port
-        sink = self.glue(pos)
-
-        # no new connectable item, then diconnect and exit
-        if sink:
+        if sink := self.glue(pos):
             connector.connect(sink)
         else:
             cinfo = connections.get_connection(handle)
