@@ -2,6 +2,7 @@ import math
 
 from gi.repository import Gtk
 
+from gaphas.handlemove import order_items
 from gaphas.tool.itemtool import (
     DragState,
     handle_at_point,
@@ -83,6 +84,30 @@ def test_get_unselected_item_at_point(view, box):
 
     assert next(item_at_point(view, (10, 10)), None) is box  # type: ignore[call-overload]
     assert next(item_at_point(view, (10, 10), exclude=(box,)), None) is None  # type: ignore[call-overload]
+
+
+def test_get_item_at_point_overlayed_by_bigger_item(view, canvas, connections):
+    """Hover tool only reacts on motion-notify events."""
+    below = Box(connections)
+    canvas.add(below)
+    above = Box(connections)
+    canvas.add(above)
+
+    below.width = 20
+    below.height = 20
+    above.matrix.translate(-40, -40)
+    above.width = 100
+    above.height = 100
+    view.request_update((below, above))
+
+    assert next(item_at_point(view, (10, 10)), None) is below  # type: ignore[call-overload]
+    assert next(item_at_point(view, (-1, -1)), None) is above  # type: ignore[call-overload]
+
+
+def test_order_by_distance():
+    m = [(0, ""), (10, ""), (-1, ""), (-3, ""), (5, ""), (4, "")]
+
+    assert [e[0] for e in order_items(m)] == [0, -1, -3, 4, 5, 10]
 
 
 def test_get_handle_at_point(view, canvas, connections):
