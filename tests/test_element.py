@@ -41,13 +41,13 @@ def test_resize_by_dragging_se_handle(canvas, box, count):
 def test_point(box):
     box.handles()[SE].pos = (100, 100)
 
-    assert box.point(50, 50) == 0
+    assert box.point(50, 50) == -50
 
 
 def test_point_with_moved_nw_handle(box):
     box.handles()[NW].pos = (-100, -100)
 
-    assert box.point(-50, -50) == 0
+    assert box.point(-50, -50) == -50
 
 
 def test_point_outside_box(box):

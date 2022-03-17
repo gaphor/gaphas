@@ -1,5 +1,6 @@
 import logging
 from functools import singledispatch
+from operator import itemgetter
 from typing import Iterable, Optional, Sequence
 
 from gi.repository import Gdk, Gtk
@@ -153,13 +154,12 @@ class ElementHandleMove(ItemHandleMove):
         ) if Gtk.get_major_version() == 3 else self.view.set_cursor(self.cursor)
 
 
-# Maybe make this an iterator? so extra checks can be done on the item
-def item_at_point(
+def item_distance(
     view: GtkView,
     pos: Pos,
     distance: float = 0.5,
     exclude: Sequence[Item] = (),
-) -> Iterable[Item]:
+) -> Iterable[tuple[float, Item]]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:
@@ -176,9 +176,41 @@ def item_at_point(
 
         v2i = view.get_matrix_v2i(item)
         ix, iy = v2i.transform_point(vx, vy)
-        item_distance = item.point(ix, iy)
-        if item_distance is None:
+        d = item.point(ix, iy)
+        if d is None:
             log.warning("Item distance is None for %s", item)
             continue
-        if item_distance < distance:
-            yield item
+        if d < distance:
+            yield d, item
+
+
+def order_items(distance_items, key=itemgetter(0)):
+    inside = []
+    outside = []
+    for e in distance_items:
+        if key(e) > 0:
+            outside.append(e)
+        else:
+            inside.append(e)
+
+    inside.sort(key=key, reverse=True)
+    outside.sort(key=key)
+    return inside + outside
+
+
+def item_at_point(
+    view: GtkView,
+    pos: Pos,
+    distance: float = 0.5,
+    exclude: Sequence[Item] = (),
+) -> Iterable[Item]:
+    """Return the topmost item located at ``pos`` (x, y).
+
+    Parameters:
+        - view: a view
+        - pos: Position, a tuple ``(x, y)`` in view coordinates
+        - selected: if False returns first non-selected item
+    """
+    return (
+        item for _d, item in order_items(item_distance(view, pos, distance, exclude))
+    )
