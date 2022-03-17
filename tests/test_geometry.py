@@ -5,6 +5,7 @@ import pytest
 from gaphas.geometry import (
     Rectangle,
     distance_line_point,
+    distance_rectangle_border_point,
     distance_rectangle_point,
     intersect_line_line,
     point_on_rectangle,
@@ -70,6 +71,14 @@ def test_distance_point_in_rectangle():
 
 def test_distance_with_negative_numbers_in_rectangle():
     assert distance_rectangle_point((-50, -100, 100, 100), (-17, -65)) == 0
+
+
+def test_distance_rectangle_border_point():
+    assert distance_rectangle_border_point((2, 0, 2, 2), (0, 0)) == 2
+    assert distance_rectangle_border_point(Rectangle(0, 0, 10, 10), (11, -1)) == 2
+    assert distance_rectangle_border_point((0, 0, 10, 10), (11, -1)) == 2
+    assert distance_rectangle_border_point((0, 0, 10, 10), (3, 4)) == -3
+    assert distance_rectangle_border_point((0, 0, 2, 2), (1, 1)) == -1
 
 
 def test_point_on_rectangle():
