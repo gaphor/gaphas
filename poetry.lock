@@ -131,6 +131,14 @@ python-versions = ">=3.6"
 toml = ["tomli"]
 
 [[package]]
+name = "darkdetect"
+version = "0.5.1"
+description = "Detect OS Dark Mode from Python"
+category = "main"
+optional = true
+python-versions = "*"
+
+[[package]]
 name = "distlib"
 version = "0.3.3"
 description = "Distribution utilities"
@@ -160,13 +168,14 @@ testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-co
 
 [[package]]
 name = "gaphor"
-version = "2.8.2"
+version = "2.9.1"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
 python-versions = ">=3.9,<4.0"
 
 [package.dependencies]
+darkdetect = ">=0.5.1,<0.6.0"
 gaphas = ">=3.1.0,<4.0.0"
 generic = ">=1.0.0,<2.0.0"
 jedi = ">=0.18.1,<0.19.0"
@@ -175,9 +184,9 @@ PyGObject = ">=3.30,<4.0"
 tinycss2 = ">=1.0.2,<2.0.0"
 
 [package.extras]
-pyinstall = ["pyinstaller (>=4.6,<5.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "poethepoet (>=0.10,<0.13)", "tomli (>=1.2,<2.0)"]
-poethepoet = ["poethepoet (>=0.10,<0.13)"]
-docs = ["sphinx (>=4.3,<5.0)", "sphinx-rtd-theme (>=1.0,<2.0)", "myst-parser (>=0.15,<0.17)"]
+pyinstall = ["pyinstaller (>=4.6,<5.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "poethepoet (>=0.10,<0.14)", "tomli (>=1.2,<3.0)"]
+poethepoet = ["poethepoet (>=0.10,<0.14)"]
+docs = ["sphinx (>=4.3,<5.0)", "sphinx-rtd-theme (>=1.0,<2.0)", "myst-parser (>=0.15,<0.18)"]
 
 [[package]]
 name = "generic"
@@ -882,6 +891,10 @@ coverage = [
     {file = "coverage-6.1.2-pp36.pp37.pp38-none-any.whl", hash = "sha256:eab14fdd410500dae50fd14ccc332e65543e7b39f6fc076fe90603a0e5d2f929"},
     {file = "coverage-6.1.2.tar.gz", hash = "sha256:d9a635114b88c0ab462e0355472d00a180a5fbfd8511e7f18e4ac32652e7d972"},
 ]
+darkdetect = [
+    {file = "darkdetect-0.5.1-py3-none-any.whl", hash = "sha256:bd96c0239875e2b81c6e542a35299aab2b20c7290f97f7b01a206071908a12b3"},
+    {file = "darkdetect-0.5.1.tar.gz", hash = "sha256:cabe9837529fa305dba740561306a16def52351fa852e5955934fe2447be1785"},
+]
 distlib = [
     {file = "distlib-0.3.3-py2.py3-none-any.whl", hash = "sha256:c8b54e8454e5bf6237cc84c20e8264c3e991e824ef27e8f1e81049867d861e31"},
     {file = "distlib-0.3.3.zip", hash = "sha256:d982d0751ff6eaaab5e2ec8e691d949ee80eddf01a62eaa96ddb11531fe16b05"},
@@ -895,8 +908,8 @@ filelock = [
     {file = "filelock-3.4.0.tar.gz", hash = "sha256:93d512b32a23baf4cac44ffd72ccf70732aeff7b8050fcaf6d3ec406d954baf4"},
 ]
 gaphor = [
-    {file = "gaphor-2.8.2-py3-none-any.whl", hash = "sha256:be4658c1ae9f944600a0c106ff045827ad91d8c9166ebba953480bee1ee8c272"},
-    {file = "gaphor-2.8.2.tar.gz", hash = "sha256:faaaac48b8dd636235f5fc5d7e438443d0e14d31dc7140e59783b9caab4b8b3d"},
+    {file = "gaphor-2.9.1-py3-none-any.whl", hash = "sha256:00ef81308f705ce52a0ae6069097089b2f91098eb20c4368f6481a63c6198d48"},
+    {file = "gaphor-2.9.1.tar.gz", hash = "sha256:21b720583f6472c2cfd74c99b911d7529120479dba5fadfd8f38d57a8f25ede5"},
 ]
 generic = [
     {file = "generic-1.0.1-py3-none-any.whl", hash = "sha256:e6be6d8490a2458c9f8e28e151c4f4a0687f40ac364da35578f7147b0220f264"},
