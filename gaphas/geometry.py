@@ -320,7 +320,7 @@ def distance_rectangle_point(rect: Rect | Rectangle, point: Point) -> float:
     """Return the distance (fast) from a rectangle ``(x, y, width,height)`` to
     a ``point``."""
     d = distance_rectangle_border_point(rect, point)
-    return 0 if d < 0 else d
+    return max(d, 0)
 
 
 def point_on_rectangle(
