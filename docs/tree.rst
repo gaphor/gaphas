@@ -5,4 +5,4 @@ Tree is an internal structure used by the default view model implementation (``g
 
 The tree is optimized for depth-first search.
 
-Source code: https://github.com/gaphor/gaphas/blob/master/gaphas/tree.py.
+Source code: https://github.com/gaphor/gaphas/blob/main/gaphas/tree.py.

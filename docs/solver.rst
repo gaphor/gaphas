@@ -34,4 +34,4 @@ slightly stronger than the not (or earlier) changed variable.
 
 ------
 
-The Solver can be found at: https://github.com/gaphor/gaphas/blob/master/gaphas/solver/, along with Variable and the Constraint base class.
+The Solver can be found at: https://github.com/gaphor/gaphas/blob/main/gaphas/solver/, along with Variable and the Constraint base class.

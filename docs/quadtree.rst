@@ -45,7 +45,7 @@ Methods for working with items in the quadtree:
 Implementation
 --------------
 
-The implementation of gaphas' Quadtree can be found at https://github.com/gaphor/gaphas/blob/master/gaphas/quadtree.py.
+The implementation of gaphas' Quadtree can be found at https://github.com/gaphor/gaphas/blob/main/gaphas/quadtree.py.
 
 Here's an example of the Quadtree in action (Gaphas' demo app with `gaphas.view.DEBUG_DRAW_QUADTREE` enabled):
 

@@ -10,7 +10,7 @@
 
 > Gaphas is the diagramming widget library for Python.
 
-![Gaphas Demo](https://raw.githubusercontent.com/gaphor/gaphas/master/docs/images/gaphas-demo.gif)
+![Gaphas Demo](https://raw.githubusercontent.com/gaphor/gaphas/main/docs/images/gaphas-demo.gif)
 
 Gaphas is a library that provides the user interface component (widget) for drawing diagrams. Diagrams can be drawn to screen and then easily exported to a variety of formats, including SVG and PDF. Want to build an app with chart-like diagrams? Then Gaphas is for you! Use this library to build a tree, network, flowchart, or other diagrams.
 
@@ -91,7 +91,7 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 
 1. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug.
     There is a [first-timers-only](https://github.com/gaphor/gaphas/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Afirst-timers-only) tag for issues that should be ideal for people who are not very familiar with the codebase yet.
-2. Fork [the repository](https://github.com/gaphor/gaphas) on GitHub to    start making your changes to the **master**       branch (or branch off of it).
+2. Fork [the repository](https://github.com/gaphor/gaphas) on GitHub to    start making your changes to the **main**       branch (or branch off of it).
 3. Write a test which shows that the bug was fixed or that the feature
    works as expected.
 4. Send a pull request and bug the maintainers until it gets merged and
