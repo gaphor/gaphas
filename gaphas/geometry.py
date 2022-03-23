@@ -291,24 +291,35 @@ def distance_point_point_fast(point1: Point, point2: Point = (0.0, 0.0)) -> floa
     return abs(dx) + abs(dy)
 
 
-def distance_rectangle_point(rect: Rect | Rectangle, point: Point) -> float:
+def distance_rectangle_border_point(rect: Rect | Rectangle, point: Point) -> float:
     """Return the distance (fast) from a rectangle ``(x, y, width,height)`` to
     a ``point``."""
     dx = dy = 0.0
     px, py = point
     rx, ry, rw, rh = rect  # typing: ignore[misc]
+    rx1 = rx + rw
+    ry1 = ry + rh
+
+    if rx < px < rx1 and ry < py < ry1:
+        return -min(px - rx, rx1 - px, py - ry, ry1 - py)
 
     if px < rx:
         dx = rx - px
-    elif px > rx + rw:
-        dx = px - (rx + rw)
+    elif px > rx1:
+        dx = px - rx1
 
     if py < ry:
         dy = ry - py
-    elif py > ry + rh:
-        dy = py - (ry + rh)
+    elif py > ry1:
+        dy = py - ry1
 
     return abs(dx) + abs(dy)
+
+
+def distance_rectangle_point(rect: Rect | Rectangle, point: Point) -> float:
+    """Return the distance (fast) from a rectangle ``(x, y, width,height)`` to
+    a ``point``."""
+    return max(0, distance_rectangle_border_point(rect, point))
 
 
 def point_on_rectangle(

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Iterable, Protocol, Sequence, runtime_checkabl
 from cairo import Context as CairoContext
 
 from gaphas.constraint import Constraint, EqualsConstraint, constraint
-from gaphas.geometry import distance_line_point, distance_rectangle_point
+from gaphas.geometry import distance_line_point, distance_rectangle_border_point
 from gaphas.handle import Handle
 from gaphas.matrix import Matrix
 from gaphas.port import LinePort, Port
@@ -206,7 +206,7 @@ class Element(Matrices):
         h = self._handles
         x0, y0 = h[NW].pos
         x1, y1 = h[SE].pos
-        return distance_rectangle_point((x0, y0, x1 - x0, y1 - y0), (x, y))
+        return distance_rectangle_border_point((x0, y0, x1 - x0, y1 - y0), (x, y))
 
     def draw(self, context: DrawContext) -> None:
         pass
@@ -363,10 +363,10 @@ class Line(Matrices):
         used when initializing the line.
         """
         assert len(self._handles) >= 2, "Not enough segments"
-        self._ports = []
         handles = self._handles
-        for h1, h2 in zip(handles[:-1], handles[1:]):
-            self._ports.append(LinePort(h1.pos, h2.pos))
+        self._ports = [
+            LinePort(h1.pos, h2.pos) for h1, h2 in zip(handles[:-1], handles[1:])
+        ]
 
     def opposite(self, handle: Handle) -> Handle:
         """Given the handle of one end of the line, return the other end."""
