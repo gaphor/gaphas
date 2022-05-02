@@ -6,7 +6,7 @@ on:
     types: [created, published]
 
 env:
-  POETRY_VERSION: 1.1.11
+  POETRY_VERSION: 1.1.13
 
 jobs:
   skip-check:
@@ -24,7 +24,7 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
       - name: Set up Python
         uses: actions/setup-python@v3.1.2
       - name: Lint with pre-commit
@@ -37,13 +37,13 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Use Python Dependency Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v3.0.2
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
