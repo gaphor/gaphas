@@ -42,7 +42,7 @@ pytest = "^7.1"
 pytest-cov = "^2.12"
 pytest-runner = "^6.0"
 black = "^22.3"
-pre-commit = "^2.18"
+pre-commit = "^2.19"
 tox = "^3.25"
 pytest-sugar = "^0.9.2"
 
