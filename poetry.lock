@@ -168,7 +168,7 @@ testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-co
 
 [[package]]
 name = "gaphor"
-version = "2.9.2"
+version = "2.10.0"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
@@ -184,7 +184,7 @@ PyGObject = ">=3.30,<4.0"
 tinycss2 = ">=1.0.2,<2.0.0"
 
 [package.extras]
-pyinstall = ["pyinstaller (>=4.6,<5.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "poethepoet (>=0.10,<0.14)", "tomli (>=1.2,<3.0)"]
+pyinstall = ["pyinstaller (>=4.6,<6.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "poethepoet (>=0.10,<0.14)", "tomli (>=1.2,<3.0)"]
 poethepoet = ["poethepoet (>=0.10,<0.14)"]
 docs = ["sphinx (>=4.3,<5.0)", "sphinx-rtd-theme (>=1.0,<2.0)", "myst-parser (>=0.15,<0.18)"]
 
@@ -908,8 +908,8 @@ filelock = [
     {file = "filelock-3.4.0.tar.gz", hash = "sha256:93d512b32a23baf4cac44ffd72ccf70732aeff7b8050fcaf6d3ec406d954baf4"},
 ]
 gaphor = [
-    {file = "gaphor-2.9.2-py3-none-any.whl", hash = "sha256:a61d25dd2cecff42b0d741a90bc66f64dadda9d3310eb8534c0d54413c95a433"},
-    {file = "gaphor-2.9.2.tar.gz", hash = "sha256:40f5fcb7882354a670c772ae5661862cac4ef27add3a7c2cabf7a482163abcbf"},
+    {file = "gaphor-2.10.0-py3-none-any.whl", hash = "sha256:ab9165980b4ab6c67bdd39ca1aac5f213a4968f38075c2e4beb0206b3dda6097"},
+    {file = "gaphor-2.10.0.tar.gz", hash = "sha256:ad5bf3bfbb3a4b7a8b01ef3a45e9ced04463678c4ccc04e9e286e6dd13c1bc60"},
 ]
 generic = [
     {file = "generic-1.0.1-py3-none-any.whl", hash = "sha256:e6be6d8490a2458c9f8e28e151c4f4a0687f40ac364da35578f7147b0220f264"},
