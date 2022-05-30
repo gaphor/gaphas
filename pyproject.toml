@@ -33,7 +33,7 @@ classifiers = [
 python = "^3.8"
 PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
-sphinx = { version = "^4.3", optional = true }
+sphinx = { version = ">=4.3,<6.0", optional = true }
 sphinx-rtd-theme = { version = "^1.0", optional = true }
 gaphor = { version = "^2.7", python = "^3.9, <3.11", optional = true }
 
