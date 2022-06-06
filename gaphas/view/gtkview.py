@@ -105,6 +105,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 | Gdk.EventMask.KEY_RELEASE_MASK
                 | Gdk.EventMask.SCROLL_MASK
                 | Gdk.EventMask.STRUCTURE_MASK
+                | Gdk.EventMask.SMOOTH_SCROLL_MASK
             )
             self.set_app_paintable(True)
         else:
