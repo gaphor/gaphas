@@ -39,7 +39,6 @@ from gaphas.tool import (
     item_tool,
     pan_tool,
     placement_tool,
-    scroll_tools,
     view_focus_tool,
     zoom_tool,
 )
@@ -139,7 +138,7 @@ def apply_placement_tool_set(view, item_type, handle_index):
     view.remove_all_controllers()
     tool = placement_tool(view, factory(view, item_type), handle_index)
     tool.connect("drag-end", unset_placement_tool)
-    view.add_controller(*scroll_tools(view))
+    view.add_controller(pan_tool(view))
     view.add_controller(zoom_tool(view))
     view.add_controller(view_focus_tool(view))
     view.add_controller(tool)
