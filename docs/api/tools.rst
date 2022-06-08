@@ -10,7 +10,7 @@ The event controllers are already configured.
 .. autofunction:: gaphas.tool.item_tool
 .. autofunction:: gaphas.tool.placement_tool
 .. autofunction:: gaphas.tool.rubberband_tool
-.. autofunction:: gaphas.tool.scroll_tool
+.. autofunction:: gaphas.tool.pan_tool
 .. autofunction:: gaphas.tool.zoom_tool
 
 

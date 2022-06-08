@@ -12,7 +12,7 @@ to actually use it, the ``segment`` module needs to be imported.
 
     >>> from gaphas.view import GtkView
     >>> from gaphas.painter import PainterChain, ItemPainter, HandlePainter
-    >>> from gaphas.tool import item_tool, scroll_tool, zoom_tool
+    >>> from gaphas.tool import item_tool, pan_tool, zoom_tool
     >>> from gaphas.segment import LineSegmentPainter
     >>> view = GtkView()
     >>> view.painter = (
@@ -22,5 +22,5 @@ to actually use it, the ``segment`` module needs to be imported.
     ...     .append(LineSegmentPainter(view.selection))
     ... )
     >>> view.add_controller(item_tool(view))
-    >>> view.add_controller(scroll_tool(view))
+    >>> view.add_controller(pan_tool(view))
     >>> view.add_controller(zoom_tool(view))
