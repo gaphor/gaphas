@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Set up Python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: '3.x'
       - name: Lint with pre-commit
@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Use Python Dependency Cache
