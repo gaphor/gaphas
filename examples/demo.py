@@ -37,7 +37,6 @@ from gaphas.segment import LineSegmentPainter
 from gaphas.tool import (
     hover_tool,
     item_tool,
-    pan_tool,
     placement_tool,
     view_focus_tool,
     zoom_tool,
@@ -122,7 +121,6 @@ def rubberband_state(view):
 def apply_default_tool_set(view):
     view.remove_all_controllers()
     view.add_controller(item_tool(view))
-    view.add_controller(pan_tool(view))
     view.add_controller(zoom_tool(view))
     view.add_controller(view_focus_tool(view))
 
@@ -138,7 +136,6 @@ def apply_placement_tool_set(view, item_type, handle_index):
     view.remove_all_controllers()
     tool = placement_tool(view, factory(view, item_type), handle_index)
     tool.connect("drag-end", unset_placement_tool)
-    view.add_controller(pan_tool(view))
     view.add_controller(zoom_tool(view))
     view.add_controller(view_focus_tool(view))
     view.add_controller(tool)
