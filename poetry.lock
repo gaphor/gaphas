@@ -357,7 +357,7 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pre-commit"
-version = "2.19.0"
+version = "2.20.0"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
 category = "dev"
 optional = false
@@ -774,7 +774,7 @@ docs = ["sphinx", "sphinx-rtd-theme", "gaphor"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e9abd3a36799eed962f38fd1f3e568eee6268753e9950f5c89811d38a530ba0a"
+content-hash = "e37837745b8e46b54306b2eaeadc4aedf14a53f71b66d505bd1874c48a3ae263"
 
 [metadata.files]
 alabaster = []
