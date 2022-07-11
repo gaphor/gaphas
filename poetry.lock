@@ -52,6 +52,17 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest", "pytest-flake8", "pytest-cov", "pytest-black (>=0.3.7)", "pytest-mypy", "pytest-checkdocs (>=2.4)", "pytest-enabler (>=1.0.1)"]
 
 [[package]]
+name = "better-exceptions"
+version = "0.3.3"
+description = "Pretty and helpful exceptions, automatically"
+category = "main"
+optional = true
+python-versions = "*"
+
+[package.dependencies]
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+
+[[package]]
 name = "black"
 version = "22.6.0"
 description = "The uncompromising code formatter."
@@ -168,14 +179,15 @@ testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-co
 
 [[package]]
 name = "gaphor"
-version = "2.10.0"
+version = "2.11.0"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
 python-versions = ">=3.9,<4.0"
 
 [package.dependencies]
-darkdetect = ">=0.5.1,<0.6.0"
+better-exceptions = ">=0.3.3,<0.4.0"
+darkdetect = ">=0.5.1,<0.7.0"
 gaphas = ">=3.1.0,<4.0.0"
 generic = ">=1.0.0,<2.0.0"
 jedi = ">=0.18.1,<0.19.0"
@@ -184,9 +196,9 @@ PyGObject = ">=3.30,<4.0"
 tinycss2 = ">=1.0.2,<2.0.0"
 
 [package.extras]
-pyinstall = ["pyinstaller (>=4.6,<6.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "poethepoet (>=0.10,<0.14)", "tomli (>=1.2,<3.0)"]
-poethepoet = ["poethepoet (>=0.10,<0.14)"]
-docs = ["sphinx (>=4.3,<5.0)", "sphinx-rtd-theme (>=1.0,<2.0)", "myst-parser (>=0.15,<0.18)"]
+pyinstall = ["pyinstaller (>=4.6,<6.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "poethepoet (>=0.10,<0.16)", "tomli (>=1.2,<3.0)"]
+poethepoet = ["poethepoet (>=0.10,<0.16)"]
+docs = ["sphinx (>=4.3,<6.0)", "sphinx-rtd-theme (>=1.0,<2.0)", "myst-parser (>=0.15,<0.19)"]
 
 [[package]]
 name = "generic"
@@ -782,6 +794,7 @@ atomicwrites = []
 attrs = []
 babel = []
 "backports.entry-points-selectable" = []
+better-exceptions = []
 black = []
 certifi = []
 cfgv = []
