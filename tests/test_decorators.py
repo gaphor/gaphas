@@ -101,7 +101,6 @@ def test_function_is_called_from_main_loop():
 
 
 def test_single_function_is_called_once():
-
     called: List[str] = []
 
     @in_main_context
@@ -135,7 +134,6 @@ def test_single_method_is_called_once_per_instance():
 
 
 def test_timeout_function():
-
     called: List[str] = []
 
     @in_main_context
