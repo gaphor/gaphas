@@ -159,7 +159,6 @@ def find_closest(item_edges, edges, margin=MARGIN):
 
 
 def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset()):
-
     px, py = pos
     w, h = get_view_dimensions(view)
     dx, edges_x = find_vertical_guides(view, handle, vedges, h, excluded_items, MARGIN)
