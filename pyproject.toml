@@ -41,7 +41,7 @@ gaphor = { version = "^2.7", python = "^3.9, <3.11", optional = true }
 pytest = "^7.1"
 pytest-cov = "^2.12"
 pytest-runner = "^6.0"
-black = "^22.6"
+black = "^22.8"
 pre-commit = "^2.20"
 tox = "^3.25"
 pytest-sugar = "^0.9.5"
