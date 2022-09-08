@@ -46,8 +46,8 @@ def test_scaling(zoom_data, view):
 
     on_scale_changed(tool, 1.2, zoom_data)
 
-    assert view.matrix[0] == 1.2
-    assert view.matrix[3] == 1.2
+    assert view.matrix[0] == pytest.approx(1.2)
+    assert view.matrix[3] == pytest.approx(1.2)
 
 
 def test_multiple_scaling_events(zoom_data, view):
@@ -57,8 +57,8 @@ def test_multiple_scaling_events(zoom_data, view):
     on_scale_changed(tool, 1.1, zoom_data)
     on_scale_changed(tool, 1.2, zoom_data)
 
-    assert view.matrix[0] == 1.2
-    assert view.matrix[3] == 1.2
+    assert view.matrix[0] == pytest.approx(1.2)
+    assert view.matrix[3] == pytest.approx(1.2)
 
 
 def test_scaling_with_unequal_scaling_factor(zoom_data, view):
@@ -69,8 +69,8 @@ def test_scaling_with_unequal_scaling_factor(zoom_data, view):
 
     on_scale_changed(tool, 1.2, zoom_data)
 
-    assert view.matrix[0] == 2.4
-    assert view.matrix[3] == 1.2
+    assert view.matrix[0] == pytest.approx(2.4)
+    assert view.matrix[3] == pytest.approx(1.2)
 
 
 def test_zoom_should_center_around_mouse_cursor(zoom_data, view):
@@ -81,8 +81,8 @@ def test_zoom_should_center_around_mouse_cursor(zoom_data, view):
 
     on_scale_changed(tool, 1.2, zoom_data)
 
-    assert view.matrix[4] == -20.0
-    assert view.matrix[5] == -10.0
+    assert view.matrix[4] == pytest.approx(-20.0)
+    assert view.matrix[5] == pytest.approx(-10.0)
 
 
 def test_zoom_out_should_be_limited_to_20_percent(zoom_data, view):
@@ -90,8 +90,8 @@ def test_zoom_out_should_be_limited_to_20_percent(zoom_data, view):
     view.add_controller(tool)
     on_scale_changed(tool, 0.0, zoom_data)
 
-    assert view.matrix[0] == 0.2
-    assert view.matrix[3] == 0.2
+    assert view.matrix[0] == pytest.approx(0.2)
+    assert view.matrix[3] == pytest.approx(0.2)
 
 
 def test_zoom_in_should_be_limited_to_20_times(zoom_data, view):
@@ -100,5 +100,5 @@ def test_zoom_in_should_be_limited_to_20_times(zoom_data, view):
 
     on_scale_changed(tool, 100.0, zoom_data)
 
-    assert view.matrix[0] == 20
-    assert view.matrix[3] == 20
+    assert view.matrix[0] == pytest.approx(20)
+    assert view.matrix[3] == pytest.approx(20)
