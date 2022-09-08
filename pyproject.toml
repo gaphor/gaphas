@@ -43,7 +43,7 @@ pytest-cov = "^2.12"
 pytest-runner = "^6.0"
 black = "^22.8"
 pre-commit = "^2.20"
-tox = "^3.25"
+tox = "^3.26"
 pytest-sugar = "^0.9.5"
 
 [tool.poetry.extras]
