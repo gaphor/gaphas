@@ -317,10 +317,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         dirty_items = self.all_dirty_items()
         model.update_now(dirty_items)
-
         dirty_items |= self.all_dirty_items()
+
+        old_bb = self._qtree.soft_bounds
         self.update_bounding_box(dirty_items)
-        self.update_scrolling()
+        if self._qtree.soft_bounds != old_bb:
+            self.update_scrolling()
         self.update_back_buffer()
 
     def all_dirty_items(self) -> set[Item]:
@@ -472,14 +474,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
                 self.request_update((item,))
 
     def on_matrix_update(self, matrix, old_matrix_values):
-        a = abs
-        m = matrix * Matrix(*old_matrix_values).inverse()
-        if (
-            a(m[0] - 1.0) > 1e06
-            or a(m[1]) > 1e-6
-            or a(m[2]) > 1e-6
-            or a(m[3] - 1.0) > 1e-6
-        ):
+        # Test if scale or rotation changed
+        if tuple(matrix)[:4] != old_matrix_values[:4]:
             self.update_scrolling()
         self.update_back_buffer()
 
