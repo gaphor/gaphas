@@ -471,8 +471,17 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             elif item in self._model.get_all_items():
                 self.request_update((item,))
 
-    def on_matrix_update(self, _matrix, _old_matrix_values):
-        self.update()
+    def on_matrix_update(self, matrix, old_matrix_values):
+        a = abs
+        m = matrix * Matrix(*old_matrix_values).inverse()
+        if (
+            a(m[0] - 1.0) > 1e06
+            or a(m[1]) > 1e-6
+            or a(m[2]) > 1e-6
+            or a(m[3] - 1.0) > 1e-6
+        ):
+            self.update_scrolling()
+        self.update_back_buffer()
 
     def on_resize(self, _width: int, _height: int) -> None:
         self.update_scrolling()

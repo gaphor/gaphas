@@ -22,5 +22,4 @@ def test_offset_changes(view, scrolled_window):
     on_scroll(tool, 10, 10, 1)
 
     assert view.matrix[4] == -10
-    # Why is this value not set?
-    assert view.matrix[5] == 0
+    assert view.matrix[5] == -10
