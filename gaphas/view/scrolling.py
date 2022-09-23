@@ -35,6 +35,8 @@ class Scrolling:
     def set_property(self, prop, value):
         if prop.name == "hadjustment":
             if value is not None:
+                if self.hadjustment and self._hadjustment_handler_id:
+                    self.hadjustment.disconnect(self._hadjustment_handler_id)
                 self.hadjustment = value
                 self._hadjustment_handler_id = self.hadjustment.connect(
                     "value-changed", self.on_adjustment_changed
@@ -42,6 +44,8 @@ class Scrolling:
                 self._scrolling_updated(Matrix())
         elif prop.name == "vadjustment":
             if value is not None:
+                if self.vadjustment and self._vadjustment_handler_id:
+                    self.vadjustment.disconnect(self._vadjustment_handler_id)
                 self.vadjustment = value
                 self._vadjustment_handler_id = self.vadjustment.connect(
                     "value-changed", self.on_adjustment_changed
