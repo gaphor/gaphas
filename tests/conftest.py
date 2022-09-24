@@ -27,7 +27,7 @@ def connections(canvas):
 @pytest.fixture
 def view(canvas):
     view = GtkView(canvas)
-    view.update()
+    # view.update()
     return view
 
 

@@ -1,18 +1,11 @@
 """Test cases for the View class."""
 
 import pytest
-from gi.repository import GLib, Gtk
+from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
 from gaphas.selection import Selection
 from gaphas.view import GtkView
-
-
-@pytest.fixture(autouse=True)
-def main_loop(window, box):
-    ctx = GLib.main_context_default()
-    while ctx.pending():
-        ctx.iteration()
 
 
 class CustomSelection(Selection):
@@ -79,35 +72,26 @@ def test_view_registration_2(view, canvas, window):
     assert len(canvas._registered_views) == 0
 
 
-@pytest.fixture
-def sc_view():
-    sc = Gtk.ScrolledWindow()
-    view = GtkView(Canvas())
-    sc.add(view) if Gtk.get_major_version() == 3 else sc.set_child(view)
-    view.update()
-    return view, sc
+def test_scroll_adjustments_signal(view, scrolled_window):
+    assert view.hadjustment
+    assert view.vadjustment
+    assert view.hadjustment.get_value() == 0.0
+    assert view.hadjustment.get_lower() == 0.0
+    assert view.hadjustment.get_upper() == 0.0
+    assert view.hadjustment.get_step_increment() == 0.0
+    assert view.hadjustment.get_page_increment() == 0.0
+    assert view.hadjustment.get_page_size() == 0.0
+    assert view.vadjustment.get_value() == 0.0
+    assert view.vadjustment.get_lower() == 0.0
+    assert view.vadjustment.get_upper() == 0.0
+    assert view.vadjustment.get_step_increment() == 0.0
+    assert view.vadjustment.get_page_increment() == 0.0
+    assert view.vadjustment.get_page_size() == 0.0
 
 
-def test_scroll_adjustments_signal(sc_view):
-    assert sc_view[0].hadjustment
-    assert sc_view[0].vadjustment
-    assert sc_view[0].hadjustment.get_value() == 0.0
-    assert sc_view[0].hadjustment.get_lower() == 0.0
-    assert sc_view[0].hadjustment.get_upper() == 0.0
-    assert sc_view[0].hadjustment.get_step_increment() == 0.0
-    assert sc_view[0].hadjustment.get_page_increment() == 0.0
-    assert sc_view[0].hadjustment.get_page_size() == 0.0
-    assert sc_view[0].vadjustment.get_value() == 0.0
-    assert sc_view[0].vadjustment.get_lower() == 0.0
-    assert sc_view[0].vadjustment.get_upper() == 0.0
-    assert sc_view[0].vadjustment.get_step_increment() == 0.0
-    assert sc_view[0].vadjustment.get_page_increment() == 0.0
-    assert sc_view[0].vadjustment.get_page_size() == 0.0
-
-
-def test_scroll_adjustments(sc_view):
-    assert sc_view[1].get_hadjustment() is sc_view[0].hadjustment
-    assert sc_view[1].get_vadjustment() is sc_view[0].vadjustment
+def test_scroll_adjustments(view, scrolled_window):
+    assert scrolled_window.get_hadjustment() is view.hadjustment
+    assert scrolled_window.get_vadjustment() is view.vadjustment
 
 
 def test_will_not_remove_lone_controller(view):
