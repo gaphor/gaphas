@@ -33,7 +33,7 @@ def test_item_removal(view, canvas, box):
     view.selection.focused_item = box
     canvas.remove(box)
 
-    assert len(list(canvas.get_all_items())) == 0
+    assert not list(canvas.get_all_items())
     assert len(view._qtree) == 0
 
 
