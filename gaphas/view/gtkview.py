@@ -86,7 +86,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             selection (Selection): optional selection object, in case the default
                 selection object (hover/select/focus) is not enough.
         """
-        Gtk.DrawingArea.__init__(self)
+        super().__init__()
 
         self._dirty_items: set[Item] = set()
 
