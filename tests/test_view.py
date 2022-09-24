@@ -79,7 +79,7 @@ def test_view_registration_2(view, canvas, window):
     assert len(canvas._registered_views) == 0
 
 
-@pytest.fixture()
+@pytest.fixture
 def sc_view():
     sc = Gtk.ScrolledWindow()
     view = GtkView(Canvas())
@@ -88,22 +88,21 @@ def sc_view():
     return view, sc
 
 
-@pytest.mark.skipif(Gtk.get_major_version() != 3, reason="Works only for GTK+ 3")
 def test_scroll_adjustments_signal(sc_view):
     assert sc_view[0].hadjustment
     assert sc_view[0].vadjustment
     assert sc_view[0].hadjustment.get_value() == 0.0
-    assert sc_view[0].hadjustment.get_lower() == -0.5
-    assert sc_view[0].hadjustment.get_upper() == 1.0
+    assert sc_view[0].hadjustment.get_lower() == 0.0
+    assert sc_view[0].hadjustment.get_upper() == 0.0
     assert sc_view[0].hadjustment.get_step_increment() == 0.0
-    assert sc_view[0].hadjustment.get_page_increment() == 1.0
-    assert sc_view[0].hadjustment.get_page_size() == 1.0
+    assert sc_view[0].hadjustment.get_page_increment() == 0.0
+    assert sc_view[0].hadjustment.get_page_size() == 0.0
     assert sc_view[0].vadjustment.get_value() == 0.0
-    assert sc_view[0].vadjustment.get_lower() == -0.5
-    assert sc_view[0].vadjustment.get_upper() == 1.0
+    assert sc_view[0].vadjustment.get_lower() == 0.0
+    assert sc_view[0].vadjustment.get_upper() == 0.0
     assert sc_view[0].vadjustment.get_step_increment() == 0.0
-    assert sc_view[0].vadjustment.get_page_increment() == 1.0
-    assert sc_view[0].vadjustment.get_page_size() == 1.0
+    assert sc_view[0].vadjustment.get_page_increment() == 0.0
+    assert sc_view[0].vadjustment.get_page_size() == 0.0
 
 
 def test_scroll_adjustments(sc_view):
