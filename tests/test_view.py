@@ -1,6 +1,5 @@
 """Test cases for the View class."""
 
-import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
@@ -61,9 +60,10 @@ def test_view_registration():
     assert len(canvas._registered_views) == 1
 
 
-@pytest.mark.skipif(Gtk.get_major_version() != 3, reason="Works only for GTK+ 3")
 def test_view_registration_2(view, canvas, window):
     """Test view registration and destroy when view is destroyed."""
+    window.show()
+
     assert len(canvas._registered_views) == 1
     assert view in canvas._registered_views
 

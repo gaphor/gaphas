@@ -166,6 +166,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if self._model:
             self._model.unregister_view(self)
             self._selection.clear()
+            self._dirty_items.clear()
             self._qtree.clear()
 
         self._model = model
@@ -451,11 +452,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def do_unrealize(self) -> None:
         if self._model:
-            self._model.unregister_view(self)
-
-        self._qtree.clear()
-
-        self._dirty_items.clear()
+            self.model = None
 
         Gtk.DrawingArea.do_unrealize(self)
 
