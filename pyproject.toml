@@ -73,6 +73,7 @@ deps =
 depends =
     {py38,py39,py310}: clean
     report: py38,py39,py310
+passenv = TEST_GTK_VERSION
 
 [testenv:report]
 deps = coverage[toml]

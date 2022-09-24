@@ -86,7 +86,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             selection (Selection): optional selection object, in case the default
                 selection object (hover/select/focus) is not enough.
         """
-        Gtk.DrawingArea.__init__(self)
+        super().__init__()
 
         self._dirty_items: set[Item] = set()
 
@@ -166,6 +166,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if self._model:
             self._model.unregister_view(self)
             self._selection.clear()
+            self._dirty_items.clear()
             self._qtree.clear()
 
         self._model = model
@@ -317,10 +318,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         dirty_items = self.all_dirty_items()
         model.update_now(dirty_items)
-
         dirty_items |= self.all_dirty_items()
+
+        old_bb = self._qtree.soft_bounds
         self.update_bounding_box(dirty_items)
-        self.update_scrolling()
+        if self._qtree.soft_bounds != old_bb:
+            self.update_scrolling()
         self.update_back_buffer()
 
     def all_dirty_items(self) -> set[Item]:
@@ -449,11 +452,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def do_unrealize(self) -> None:
         if self._model:
-            self._model.unregister_view(self)
-
-        self._qtree.clear()
-
-        self._dirty_items.clear()
+            self.model = None
 
         Gtk.DrawingArea.do_unrealize(self)
 
@@ -471,8 +470,11 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             elif item in self._model.get_all_items():
                 self.request_update((item,))
 
-    def on_matrix_update(self, _matrix, _old_matrix_values):
-        self.update()
+    def on_matrix_update(self, matrix, old_matrix_values):
+        # Test if scale or rotation changed
+        if tuple(matrix)[:4] != old_matrix_values[:4]:
+            self.update_scrolling()
+        self.update_back_buffer()
 
     def on_resize(self, _width: int, _height: int) -> None:
         self.update_scrolling()
