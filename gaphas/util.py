@@ -1,8 +1,16 @@
-"""Helper functions and classes for Cairo (drawing engine used by the
-canvas)."""
+"""Helper functions and classes for Cairo (drawing engine used by the canvas).
+
+WARNING: The module gaphas.util is deprecated and will be removed in a future version.
+"""
+import warnings
 from math import pi
 
 import cairo
+
+warnings.warn(
+    "The module gaphas.util is deprecated and will be removed in a future version.",
+    DeprecationWarning,
+)
 
 
 def text_extents(cr, text, font=None, multiline=False, padding=1):
