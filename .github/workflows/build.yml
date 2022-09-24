@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.10', '3.11.0-rc.2']
         gtk-version: ['3.0', '4.0']
     steps:
       - uses: actions/checkout@v3.0.2

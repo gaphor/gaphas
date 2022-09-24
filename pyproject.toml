@@ -53,14 +53,14 @@ docs = [ "sphinx", "sphinx-rtd-theme", "gaphor" ]
 legacy_tox_ini = """
 [tox]
 isolated_build = true
-envlist = clean, py38, py39, py310, report
+envlist = clean, py39, py310, py311, report
 tox_pyenv_fallback = false
 
 [gh-actions]
 python =
-    3.8: py38
     3.9: py39
     3.10: py310
+    3.11: py311
 
 [testenv]
 whitelist_externals =
@@ -71,8 +71,8 @@ deps =
     pytest
     pytest-cov
 depends =
-    {py38,py39,py310}: clean
-    report: py38,py39,py310
+    {py39,py310, py311}: clean
+    report: py39,py310,py311
 passenv = TEST_GTK_VERSION
 
 [testenv:report]
