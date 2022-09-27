@@ -171,15 +171,15 @@ testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-co
 
 [[package]]
 name = "gaphor"
-version = "2.11.0"
+version = "2.12.0"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
-python-versions = ">=3.9,<4.0"
+python-versions = ">=3.9,<3.11"
 
 [package.dependencies]
 better-exceptions = ">=0.3.3,<0.4.0"
-darkdetect = ">=0.5.1,<0.7.0"
+darkdetect = ">=0.5.1,<0.8.0"
 gaphas = ">=3.1.0,<4.0.0"
 generic = ">=1.0.0,<2.0.0"
 jedi = ">=0.18.1,<0.19.0"
@@ -188,9 +188,7 @@ PyGObject = ">=3.30,<4.0"
 tinycss2 = ">=1.0.2,<2.0.0"
 
 [package.extras]
-docs = ["myst-parser (>=0.15,<0.19)", "sphinx (>=4.3,<6.0)", "sphinx-rtd-theme (>=1.0,<2.0)"]
-poethepoet = ["poethepoet (>=0.10,<0.16)"]
-pyinstall = ["poethepoet (>=0.10,<0.16)", "pyinstaller (>=4.6,<6.0)", "pyinstaller-versionfile (>=2.0.0,<3.0.0)", "tomli (>=1.2,<3.0)"]
+docs = ["myst-parser (>=0.15,<0.19)", "sphinx (>=4.3,<5.2)", "sphinx-copybutton (>=0.5.0,<0.6.0)", "sphinx-rtd-theme (>=1.0,<2.0)"]
 
 [[package]]
 name = "generic"
@@ -914,8 +912,8 @@ filelock = [
     {file = "filelock-3.4.0.tar.gz", hash = "sha256:93d512b32a23baf4cac44ffd72ccf70732aeff7b8050fcaf6d3ec406d954baf4"},
 ]
 gaphor = [
-    {file = "gaphor-2.11.0-py3-none-any.whl", hash = "sha256:c961d51f21fc6ea395538404b3f84caff7b542b3c65efd145d472226b1de48ef"},
-    {file = "gaphor-2.11.0.tar.gz", hash = "sha256:4bf362d15cf177653647dc329ff84fb16e9f511d8540e502e856417dad73aea0"},
+    {file = "gaphor-2.12.0-py3-none-any.whl", hash = "sha256:eeb7bd52cde636e631108e766921b5514a7c3be8d1e7d99020527fde8b909c7e"},
+    {file = "gaphor-2.12.0.tar.gz", hash = "sha256:57a574da66e123a0123fd15445a54d337d9874d7f3d2f5b7bcbae3c0645cc90b"},
 ]
 generic = [
     {file = "generic-1.0.1-py3-none-any.whl", hash = "sha256:e6be6d8490a2458c9f8e28e151c4f4a0687f40ac364da35578f7147b0220f264"},
