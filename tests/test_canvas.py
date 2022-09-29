@@ -70,7 +70,7 @@ def test_disconnect_item_with_callback():
 
     events = []
 
-    def callback():
+    def callback(*args):
         events.append("called")
 
     c.connections.connect_item(
@@ -118,7 +118,7 @@ def test_disconnect_item_by_deleting_element():
 
     events = []
 
-    def callback():
+    def callback(*args):
         events.append("called")
 
     c.connections.connect_item(

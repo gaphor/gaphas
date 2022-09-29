@@ -80,7 +80,9 @@ class ItemConnector:
         self.connect_handle(sink)
 
     def connect_handle(
-        self, sink: ConnectionSinkType, callback: Optional[Callable[[], None]] = None
+        self,
+        sink: ConnectionSinkType,
+        callback: Optional[Callable[[Item, Handle, Item, Port], None]] = None,
     ) -> None:
         """Create constraint between handle of a line and port of connectable
         item.

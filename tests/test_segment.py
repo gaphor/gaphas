@@ -1,9 +1,10 @@
 """Test segment aspects for items."""
 import pytest
 
+from gaphas.connector import ItemConnectionSink, ItemConnector
 from gaphas.handlemove import HandleMove
-from gaphas.item import Element
-from gaphas.segment import Line, Segment
+from gaphas.item import Element, Line
+from gaphas.segment import Segment
 
 
 def test_segment_fails_for_element(canvas, connections):
@@ -327,3 +328,23 @@ def test_merge_orthogonal_line(canvas, connections):
 
     with pytest.raises(ValueError):
         Segment(line, canvas).merge_segment(1)
+
+
+def callback(_item, _handle, connected, port):
+    connected.ports().index(port)
+
+
+def test_update_callback_on_reconnect(canvas, connections):
+    line = Line(connections)
+    attached = Line(connections)
+    segment = Segment(line, canvas)
+
+    sink = ItemConnectionSink(line)
+    connector = ItemConnector(attached, attached.handles()[0], connections)
+
+    segment.split_segment(0)
+    connector.glue(sink)
+    connector.connect_handle(sink, callback)
+    segment.merge_segment(0)
+
+    connector.disconnect()

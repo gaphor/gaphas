@@ -28,7 +28,7 @@ class Connection(NamedTuple):
     connected: Item
     port: Port
     constraint: Constraint
-    callback: Callable[[], None]
+    callback: Callable[[Item, Handle, Item, Port], None]
 
 
 class ConnectionError(Exception):
@@ -91,7 +91,7 @@ class Connections:
         connected: Item,
         port: Port | None,
         constraint: Constraint | None = None,
-        callback: Callable[[], None] | None = None,
+        callback: Callable[[Item, Handle, Item, Port], None] | None = None,
     ) -> None:
         """Create a connection between two items. The connection is registered
         and the constraint is added to the constraint solver.
@@ -137,7 +137,7 @@ class Connections:
         connected: Item,
         port: Port,
         constraint: Constraint,
-        callback: Callable[[], None],
+        callback: Callable[[Item, Handle, Item, Port], None],
     ) -> None:
         """Perform the real disconnect."""
         # Same arguments as connect_item, makes reverser easy
@@ -145,7 +145,7 @@ class Connections:
             self._solver.remove_constraint(constraint)
 
         if callback:
-            callback()
+            callback(item, handle, connected, port)
 
         self._connections.delete(item, handle, connected, port, constraint, callback)
 
