@@ -90,6 +90,30 @@ def test_line_constraint(pos1):
     assert (Position(3, 4), Position(5, 6)) == c._line
 
 
+def test_line_constraint_with_horizontal_line():
+    """Test line creation constraint."""
+    line = (Position(0, 0), Position(4, 0))
+    point = Position(1, 0)
+    c = constraint(line=(point, line))
+
+    line[1].pos = (0, 4)
+    c.solve()
+
+    assert point.tuple() == (0.0, 1.0)
+
+
+def test_line_constraint_with_vertical_line():
+    """Test line creation constraint."""
+    line = (Position(0, 0), Position(0, 4))
+    point = Position(0, 1)
+    c = constraint(line=(point, line))
+
+    line[1].pos = (4, 0)
+    c.solve()
+
+    assert point.tuple() == (1.0, 0.0)
+
+
 def test_horizontal_constraint(pos1, pos2):
     """Test horizontal constraint creation."""
     c = constraint(horizontal=(pos1, pos2))

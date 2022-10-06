@@ -443,7 +443,10 @@ class LineConstraint(BaseConstraint):
         try:
             self.ratio_y = float(py.value - sy.value) / float(ey.value - sy.value)
         except ZeroDivisionError:
-            self.ratio_y = 0.0
+            self.ratio_y = self.ratio_x
+
+        if self.ratio_x == 0.0:
+            self.ratio_x = self.ratio_y
 
     def solve_for(self, var=None):
         self._solve()
