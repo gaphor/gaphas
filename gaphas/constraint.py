@@ -437,16 +437,12 @@ class LineConstraint(BaseConstraint):
         px, py = self._point
 
         try:
-            self.ratio_x = float(px.value - sx.value) / float(ex.value - sx.value)
+            self.ratio = float(px.value - sx.value) / float(ex.value - sx.value)
         except ZeroDivisionError:
-            self.ratio_x = 0.0
-        try:
-            self.ratio_y = float(py.value - sy.value) / float(ey.value - sy.value)
-        except ZeroDivisionError:
-            self.ratio_y = self.ratio_x
-
-        if self.ratio_x == 0.0:
-            self.ratio_x = self.ratio_y
+            try:
+                self.ratio = float(py.value - sy.value) / float(ey.value - sy.value)
+            except ZeroDivisionError:
+                self.ratio = 0.0
 
     def solve_for(self, var=None):
         self._solve()
@@ -472,8 +468,8 @@ class LineConstraint(BaseConstraint):
         ex, ey = self._line[1]
         px, py = self._point
 
-        x = sx.value + (ex.value - sx.value) * self.ratio_x
-        y = sy.value + (ey.value - sy.value) * self.ratio_y
+        x = sx.value + (ex.value - sx.value) * self.ratio
+        y = sy.value + (ey.value - sy.value) * self.ratio
 
         _update(px, x)
         _update(py, y)
