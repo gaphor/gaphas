@@ -19,7 +19,7 @@ import gi
 # fmt: off
 GTK4 = "-4" in sys.argv
 gi.require_version("Gtk", "4.0" if GTK4 else "3.0")  # noqa: isort:skip
-from gi.repository import GLib, Gtk  # noqa: isort:skip
+from gi.repository import Gtk  # noqa: isort:skip
 # fmt: on
 
 from examples.exampleitems import Box, Circle, Text
@@ -39,7 +39,7 @@ from gaphas.tool import (
     item_tool,
     placement_tool,
     view_focus_tool,
-    zoom_tool,
+    zoom_tools,
 )
 from gaphas.tool.itemtool import Segment
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
@@ -121,7 +121,8 @@ def rubberband_state(view):
 def apply_default_tool_set(view):
     view.remove_all_controllers()
     view.add_controller(item_tool(view))
-    view.add_controller(zoom_tool(view))
+    for tool in zoom_tools(view):
+        view.add_controller(tool)
     view.add_controller(view_focus_tool(view))
 
     view.add_controller(rubberband_tool(view, rubberband_state(view)))
@@ -136,7 +137,8 @@ def apply_placement_tool_set(view, item_type, handle_index):
     view.remove_all_controllers()
     tool = placement_tool(view, factory(view, item_type), handle_index)
     tool.connect("drag-end", unset_placement_tool)
-    view.add_controller(zoom_tool(view))
+    for tool in zoom_tools(view):
+        view.add_controller(tool)
     view.add_controller(view_focus_tool(view))
     view.add_controller(tool)
 
