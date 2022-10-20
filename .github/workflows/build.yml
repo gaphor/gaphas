@@ -68,7 +68,7 @@ jobs:
       - name: Test with tox
         run: TEST_GTK_VERSION=${{ matrix.gtk-version }} tox
       - name: Code Climate Coverage Action
-        uses: paambaati/codeclimate-action@v3.1.0
+        uses: paambaati/codeclimate-action@v3.1.1
         env:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
