@@ -123,10 +123,9 @@ class Matrix:
         return self._matrix
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Matrix):
-            return bool(self._matrix == other._matrix)
-        else:
-            return False
+        return (
+            bool(self._matrix == other._matrix) if isinstance(other, Matrix) else False
+        )
 
     def __getitem__(self, val: int) -> float:
         return self._matrix[val]  # type: ignore[index,no-any-return]

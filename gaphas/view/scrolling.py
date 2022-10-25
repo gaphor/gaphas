@@ -67,7 +67,7 @@ class Scrolling:
         # canvas limits (in view coordinates)
         c = Rectangle(*bounds)
         c.expand(min(width, height) / 2)
-        u = c + Rectangle(0, 0, width, height)
+        u = c + Rectangle(width=width, height=height)
 
         if self.hadjustment:
             self.hadjustment.set_value(0)

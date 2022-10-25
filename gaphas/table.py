@@ -1,6 +1,7 @@
 """Table is a storage class that can be used to store information, like one
 would in a database table, with indexes on the desired "columns."."""
 
+from contextlib import suppress
 from functools import reduce
 from typing import (
     Dict,
@@ -176,20 +177,18 @@ class Table(Generic[T]):
         if len(bad) == 1:
             raise KeyError(f"Invalid column {bad.pop()}")
         elif len(bad) > 1:
-            raise KeyError(f"Invalid columns {str(tuple(bad))}")
+            raise KeyError(f"Invalid columns {tuple(bad)}")
 
         bad = set(kv.keys()) - set(self._indexes)
         if len(bad) == 1:
             raise AttributeError(f"Column {bad.pop()} is not indexed")
         elif len(bad) > 1:
-            raise AttributeError(f"Columns {str(tuple(bad))} are not indexed")
+            raise AttributeError(f"Columns {tuple(bad)} are not indexed")
 
         r: Iterator[T] = iter([])
         items = tuple((n, v) for n, v in list(kv.items()) if v is not None)
         if all(v in index[n] for n, v in items):
             rows = (index[n][v] for n, v in items)
-            try:
+            with suppress(TypeError):
                 r = iter(reduce(set.intersection, rows))  # type: ignore[arg-type]
-            except TypeError:
-                pass
         return r

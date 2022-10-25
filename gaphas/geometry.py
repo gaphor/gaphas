@@ -139,7 +139,7 @@ class Rectangle:
             and self.x == other.x
             and self.y == other.y
             and self.width == other.width
-            and self.height == self.height
+            and self.height == other.height
         )
 
     def __add__(self, obj: Rectangle | Rect) -> Rectangle:
@@ -172,7 +172,7 @@ class Rectangle:
             x, y, width, height = obj  # type: ignore[misc]
         except ValueError:
             raise TypeError(
-                f"Can only add Rectangle or tuple (x, y, width, height), not {repr(obj)}."
+                f"Can only add Rectangle or tuple (x, y, width, height), not {obj!r}."
             )
         x1, y1 = x + width, y + height
         if self:
@@ -213,7 +213,7 @@ class Rectangle:
             x, y, width, height = obj  # type: ignore[misc]
         except ValueError:
             raise TypeError(
-                f"Can only subtract Rectangle or tuple (x, y, width, height), not {repr(obj)}."
+                f"Can only subtract Rectangle or tuple (x, y, width, height), not {obj!r}."
             )
         x1, y1 = x + width, y + height
 
@@ -263,7 +263,7 @@ class Rectangle:
                 (x, y) = (x1, y1) = obj  # type: ignore[misc]
             except ValueError:
                 raise TypeError(
-                    f"Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not {repr(obj)}."
+                    f"Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not {obj!r}."
                 )
         return x >= self.x and x1 <= self.x1 and y >= self.y and y1 <= self.y1
 

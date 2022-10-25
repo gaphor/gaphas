@@ -33,7 +33,7 @@ class RubberbandPainter:
             cairo.set_source_rgba(0.9, 0.9, 0.9, 0.3)
             cairo.fill_preserve()
             cairo.set_line_width(2.0)
-            cairo.set_dash((7.0, 5.0), 0)
+            cairo.set_dash((7.0, 5.0))
             cairo.set_source_rgba(0.5, 0.5, 0.7, 0.7)
             cairo.stroke()
 

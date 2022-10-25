@@ -37,7 +37,7 @@ def text_extents(cr, text, font=None, multiline=False, padding=1):
 
 
 def text_center(cr, x, y, text):
-    text_align(cr, x, y, text, align_x=0, align_y=0)
+    text_align(cr, x, y, text)
 
 
 def text_align(cr, x, y, text, align_x=0, align_y=0, padding_x=0, padding_y=0):

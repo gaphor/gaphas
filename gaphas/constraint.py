@@ -254,10 +254,12 @@ class EquationConstraint(BaseConstraint):
         argstring = ", ".join(
             [f"{arg}={value}" for (arg, value) in list(self._args.items())]
         )
-        if argstring:
-            return f"EquationConstraint({self._f.__code__.co_name}, {argstring})"
-        else:
-            return f"EquationConstraint({self._f.__code__.co_name})"
+
+        return (
+            f"EquationConstraint({self._f.__code__.co_name}, {argstring})"
+            if argstring
+            else f"EquationConstraint({self._f.__code__.co_name})"
+        )
 
     def __getattr__(self, name):
         """Used to extract function argument values."""

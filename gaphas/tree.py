@@ -1,4 +1,5 @@
 """Simple class containing the tree structure for the canvas items."""
+from contextlib import suppress
 from typing import Dict, Generic, Iterable, List, Optional, Sequence, TypeVar, Union
 
 T = TypeVar("T")
@@ -211,10 +212,8 @@ class Tree(Generic[T]):
         # Remove data entries:
         del self._children[node]
         self._nodes.remove(node)
-        try:
+        with suppress(KeyError):
             del self._parents[node]
-        except KeyError:
-            pass
 
     def remove(self, node: T) -> None:
         """Remove ``node`` from the tree.

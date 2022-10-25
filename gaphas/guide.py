@@ -152,10 +152,8 @@ def find_closest(item_edges, edges, margin=MARGIN):
                 closest = [e]
             elif d == min_d:
                 closest.append(e)
-    if min_d <= margin:
-        return delta, closest
-    else:
-        return 0, ()
+
+    return (delta, closest) if min_d <= margin else (0, ())
 
 
 def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset()):
