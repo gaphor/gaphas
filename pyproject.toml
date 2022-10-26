@@ -38,7 +38,7 @@ sphinx-rtd-theme = { version = "^1.0", optional = true }
 gaphor = { version = "^2.7", python = "^3.9, <3.11", optional = true }
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.1"
+pytest = "^7.2"
 pytest-cov = "^4.0"
 pytest-runner = "^6.0"
 black = "^22.10"
