@@ -1,5 +1,4 @@
 import logging
-from functools import singledispatch
 from typing import Optional, Tuple, Union
 
 from gi.repository import Gdk, Gtk
@@ -10,6 +9,7 @@ from gaphas.geometry import distance_line_point, distance_point_point_fast
 from gaphas.handlemove import HandleMove, item_at_point
 from gaphas.item import Item
 from gaphas.move import Move
+from gaphas.segment import Segment
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
@@ -189,21 +189,6 @@ def handle_at_point(
         if h:
             return item, h
     return None, None
-
-
-@singledispatch
-class Segment:
-    def __init__(self, item, model):
-        raise TypeError
-
-    def split_segment(self, segment, count=2):
-        ...
-
-    def split(self, pos):
-        ...
-
-    def merge_segment(self, segment, count=2):
-        ...
 
 
 def maybe_split_segment(view, item, pos):

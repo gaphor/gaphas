@@ -1,7 +1,8 @@
 """Allow for easily adding segments to lines."""
 
+from functools import singledispatch
+
 from cairo import ANTIALIAS_NONE
-from gi.repository import Gtk
 
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_point_point_fast
@@ -9,7 +10,21 @@ from gaphas.item import Line, matrix_i2i
 from gaphas.model import Model
 from gaphas.selection import Selection
 from gaphas.solver import WEAK
-from gaphas.tool.itemtool import Segment
+
+
+@singledispatch
+class Segment:
+    def __init__(self, item, model):
+        raise TypeError
+
+    def split_segment(self, segment, count=2):
+        ...
+
+    def split(self, pos):
+        ...
+
+    def merge_segment(self, segment, count=2):
+        ...
 
 
 @Segment.register(Line)  # type: ignore
@@ -165,11 +180,7 @@ def segment_tool(view):
     print(
         "WARNING: You're using segment_tool(). Remove all uses of segment_tool() from your code. It's handled by item_tool now."
     )
-    return (
-        Gtk.GestureDrag.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureDrag.new()
-    )
+    return None
 
 
 class LineSegmentPainter:
