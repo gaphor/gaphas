@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import logging
 from functools import singledispatch
 from operator import itemgetter
-from typing import Iterable, Optional, Sequence, Tuple
-
-from gi.repository import Gdk, Gtk
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 from gaphas.connector import ConnectionSink, ConnectionSinkType, Connector
 from gaphas.handle import Handle
 from gaphas.item import Element, Item
 from gaphas.types import Pos
-from gaphas.view import GtkView
+
+if TYPE_CHECKING:
+    from gaphas.view import GtkView
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +60,7 @@ class ItemHandleMove:
 
     def glue(
         self, pos: Pos, distance: int = GLUE_DISTANCE
-    ) -> Optional[ConnectionSinkType]:
+    ) -> ConnectionSinkType | None:
         """Glue to an item near a specific point.
 
         Returns a ConnectionSink or None.
@@ -120,7 +122,7 @@ class ElementHandleMove(ItemHandleMove):
 
     def __init__(self, item: Item, handle: Handle, view: GtkView):
         super().__init__(item, handle, view)
-        self.cursor: Optional[Gdk.Cursor] = None
+        self.cursor = None
 
     def start_move(self, pos: Pos) -> None:
         super().start_move(pos)
@@ -131,6 +133,8 @@ class ElementHandleMove(ItemHandleMove):
         super().stop_move(pos)
 
     def set_cursor(self) -> None:
+        from gi.repository import Gdk, Gtk
+
         index = self.item.handles().index(self.handle)
         if index < 4:
             display = self.view.get_display()
@@ -144,6 +148,8 @@ class ElementHandleMove(ItemHandleMove):
                 self.view.set_cursor(cursor)
 
     def reset_cursor(self) -> None:
+        from gi.repository import Gtk
+
         self.view.get_window().set_cursor(
             self.cursor
         ) if Gtk.get_major_version() == 3 else self.view.set_cursor(self.cursor)
@@ -154,7 +160,7 @@ def item_distance(
     pos: Pos,
     distance: float = 0.5,
     exclude: Sequence[Item] = (),
-) -> Iterable[Tuple[float, Item]]:
+) -> Iterable[tuple[float, Item]]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:
