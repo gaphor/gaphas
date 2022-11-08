@@ -44,7 +44,7 @@ pytest-runner = "^6.0"
 black = "^22.10"
 pre-commit = "^2.20"
 tox = "^3.27"
-pytest-sugar = "^0.9.5"
+pytest-sugar = "^0.9.6"
 
 [tool.poetry.extras]
 docs = [ "sphinx", "sphinx-rtd-theme", "gaphor" ]
