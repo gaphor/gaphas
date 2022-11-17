@@ -144,7 +144,7 @@ class Connections:
         if constraint:
             self._solver.remove_constraint(constraint)
 
-        if callback:
+        if callback is not None:
             callback(item, handle, connected, port)
 
         self._connections.delete(item, handle, connected, port, constraint, callback)
