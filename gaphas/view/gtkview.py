@@ -78,7 +78,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         ),
     }
 
-    def __init__(self, model: Model | None = None, selection: Selection = None):
+    def __init__(self, model: Model | None = None, selection: Selection | None = None):
         """Create a new view.
 
         Args:
