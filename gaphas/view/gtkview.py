@@ -115,7 +115,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         def alignment_updated(matrix: Matrix) -> None:
             if self._model:
-                self._matrix *= matrix  # type: ignore[misc]
+                self._matrix *= matrix
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -354,7 +354,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         painter = self._bounding_box_painter
         qtree = self._qtree
         for item in items:
-            surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
+            surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)
             cr = cairo.Context(surface)
             cr.set_tolerance(BOUNDING_BOX_TOLERANCE)
 
