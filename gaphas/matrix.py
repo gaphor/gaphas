@@ -112,12 +112,12 @@ class Matrix:
         return self._matrix.transform_point(x, y)  # type: ignore[no-any-return]
 
     def inverse(self) -> Matrix:
-        m = Matrix(matrix=cairo.Matrix(*self._matrix))  # type: ignore[misc]
+        m = Matrix(matrix=cairo.Matrix(*self._matrix))
         m.invert()
         return m
 
     def tuple(self) -> MatrixTuple:
-        return tuple(self)  # type: ignore[arg-type, assignment, return-value]
+        return tuple(self)  # type: ignore[arg-type, return-value]
 
     def to_cairo(self) -> cairo.Matrix:
         return self._matrix
@@ -128,7 +128,7 @@ class Matrix:
         )
 
     def __getitem__(self, val: int) -> float:
-        return self._matrix[val]  # type: ignore[index,no-any-return]
+        return self._matrix[val]  # type: ignore[no-any-return]
 
     def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self._matrix * other._matrix)
@@ -140,4 +140,4 @@ class Matrix:
         return self
 
     def __repr__(self) -> str:
-        return f"Matrix{tuple(self._matrix)}"  # type: ignore[arg-type]
+        return f"Matrix{tuple(self._matrix)}"

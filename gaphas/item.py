@@ -73,7 +73,7 @@ def matrix_i2i(from_item: Item, to_item: Item) -> Matrix:
 
 class Matrices:
     def __init__(self, **kwargs: object) -> None:
-        super().__init__(**kwargs)  # type: ignore[call-arg]
+        super().__init__(**kwargs)
         self._matrix = Matrix()
         self._matrix_i2c = Matrix()
 
@@ -420,7 +420,7 @@ class Line(Matrices):
         See Item.draw(context).
         """
 
-        def draw_line_end(pos, angle, draw):  # type: ignore[no-untyped-def]
+        def draw_line_end(pos, angle, draw):
             cr = context.cairo
             cr.save()
             try:
@@ -435,7 +435,7 @@ class Line(Matrices):
 
         h0, h1 = self._handles[:2]
         p0, p1 = h0.pos, h1.pos
-        head_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
+        head_angle = atan2(p1.y - p0.y, p1.x - p0.x)
         draw_line_end(self._handles[0].pos, head_angle, self.draw_head)
 
         for h in self._handles[1:-1]:
@@ -443,6 +443,6 @@ class Line(Matrices):
 
         h1, h0 = self._handles[-2:]
         p1, p0 = h1.pos, h0.pos
-        tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)  # type: ignore[assignment]
+        tail_angle = atan2(p1.y - p0.y, p1.x - p0.x)
         draw_line_end(self._handles[-1].pos, tail_angle, self.draw_tail)
         cr.stroke()

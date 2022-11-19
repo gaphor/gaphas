@@ -169,7 +169,7 @@ class Rectangle:
         TypeError: Can only add Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
-            x, y, width, height = obj  # type: ignore[misc]
+            x, y, width, height = obj
         except ValueError:
             raise TypeError(
                 f"Can only add Rectangle or tuple (x, y, width, height), not {obj!r}."
@@ -210,7 +210,7 @@ class Rectangle:
         TypeError: Can only subtract Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
-            x, y, width, height = obj  # type: ignore[misc]
+            x, y, width, height = obj
         except ValueError:
             raise TypeError(
                 f"Can only subtract Rectangle or tuple (x, y, width, height), not {obj!r}."
