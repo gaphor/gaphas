@@ -123,8 +123,9 @@ class Matrix:
         return self._matrix
 
     def __eq__(self, other: object) -> bool:
-        return (
-            bool(self._matrix == other._matrix) if isinstance(other, Matrix) else False
+        # sourcery skip: remove-unnecessary-cast
+        return bool(
+            self._matrix == other._matrix if isinstance(other, Matrix) else False
         )
 
     def __getitem__(self, val: int) -> float:
