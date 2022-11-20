@@ -172,13 +172,10 @@ class Solver:
             # Solve each constraint. Using a counter makes it
             # possible to also solve constraints that are marked as
             # a result of other variabled being solved.
-            n = 0
-            while n < len(marked_cons):
+            for n in range(len(marked_cons)):
                 c = marked_cons[n]
                 c.solve()
                 notify(c)
-                n += 1
-
             self._marked_cons = []
         finally:
             self._solving = False

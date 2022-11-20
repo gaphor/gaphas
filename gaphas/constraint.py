@@ -243,11 +243,11 @@ class EquationConstraint(BaseConstraint):
     def __init__(self, f, **args):
         super().__init__(*list(args.values()))
         self._f = f
-        self._args: Dict[str, Optional[Variable]] = {}
-
         # see important note on order of operations in __setattr__ below.
-        for arg in f.__code__.co_varnames[0 : f.__code__.co_argcount]:
-            self._args[arg] = None
+        self._args: Dict[str, Optional[Variable]] = {
+            arg: None for arg in f.__code__.co_varnames[: f.__code__.co_argcount]
+        }
+
         self._set(**args)
 
     def __repr__(self):
@@ -305,14 +305,8 @@ class EquationConstraint(BaseConstraint):
         """Newton's method solver."""
         # args = self._args
         close_runs = 10  # after getting close, do more passes
-        if args[arg]:
-            x0 = args[arg]
-        else:
-            x0 = 1
-        if x0 == 0:
-            x1 = 1
-        else:
-            x1 = x0 * 1.1
+        x0 = args[arg] or 1
+        x1 = 1 if x0 == 0 else x0 * 1.1
 
         def f(x):
             """function to solve."""
