@@ -340,9 +340,8 @@ class EquationConstraint(BaseConstraint):
             if slope == 0:
                 if close_flag:  # we're close but have zero slope, finish
                     break
-                else:
-                    log.warning("Zero slope and not close enough to solution")
-                    break
+                log.warning("Zero slope and not close enough to solution")
+                break
             x2 = x0 - fx0 / slope  # New 'x1'
             fx0 = fx1
             x0 = x1

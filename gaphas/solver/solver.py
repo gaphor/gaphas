@@ -190,9 +190,12 @@ def find_containing_constraint(
     if constraint in constraints:
         return constraint
 
-    for cs in constraints:
-        if isinstance(cs, ContainsConstraints) and find_containing_constraint(
-            constraint, cs.constraints
-        ):
-            return find_containing_constraint(cs, constraints)
-    return None
+    return next(
+        (
+            find_containing_constraint(cs, constraints)
+            for cs in constraints
+            if isinstance(cs, ContainsConstraints)
+            and find_containing_constraint(constraint, cs.constraints)
+        ),
+        None,
+    )
