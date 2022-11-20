@@ -247,7 +247,6 @@ class EquationConstraint(BaseConstraint):
             arg: None for arg in f.__code__.co_varnames[: f.__code__.co_argcount]
         }
 
-
         self._set(**args)
 
     def __repr__(self):
@@ -307,6 +306,7 @@ class EquationConstraint(BaseConstraint):
         close_runs = 10  # after getting close, do more passes
         x0 = args[arg] or 1
         x1 = 1 if x0 == 0 else x0 * 1.1
+
         def f(x):
             """function to solve."""
             args[arg] = x
