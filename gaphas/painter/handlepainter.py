@@ -33,7 +33,7 @@ class HandlePainter:
         assert model
         cairo.save()
         if not opacity:
-            opacity = (item is view.selection.focused_item) and 0.7 or 0.4
+            opacity = 0.7 if item is view.selection.focused_item else 0.4
 
         cairo.set_antialias(ANTIALIAS_NONE)
         cairo.set_line_width(1)

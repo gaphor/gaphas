@@ -103,10 +103,8 @@ class ItemHandleMove:
 
         if sink := self.glue(pos):
             connector.connect(sink)
-        else:
-            cinfo = connections.get_connection(handle)
-            if cinfo:
-                connector.disconnect()
+        elif connections.get_connection(handle):
+            connector.disconnect()
 
         model.request_update(self.item)
 
