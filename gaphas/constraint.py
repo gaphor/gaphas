@@ -241,13 +241,15 @@ class EquationConstraint(BaseConstraint):
     """
 
     def __init__(self, f, **args):
+        # sourcery skip: dict-comprehension, remove-redundant-slice-index
         super().__init__(*list(args.values()))
         self._f = f
         # see important note on order of operations in __setattr__ below.
-        self._args: Dict[str, Optional[Variable]] = {
-            arg: None for arg in f.__code__.co_varnames[: f.__code__.co_argcount]
-        }
+        self._args: Dict[str, Optional[Variable]] = {}
 
+        # see important note on order of operations in __setattr__ below.
+        for arg in f.__code__.co_varnames[0 : f.__code__.co_argcount]:
+            self._args[arg] = None
         self._set(**args)
 
     def __repr__(self):

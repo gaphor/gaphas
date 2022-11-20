@@ -133,7 +133,7 @@ class Solver:
         elif self._marked_cons.count(c) < self._resolve_limit:
             self._marked_cons.append(c)
 
-    def solve(self) -> None:
+    def solve(self) -> None:  # sourcery skip: while-to-for
         """
         Example:
 
@@ -171,12 +171,14 @@ class Solver:
 
             # Solve each constraint. Using a counter makes it
             # possible to also solve constraints that are marked as
-            # a result of other variabled being solved.
-            for n in range(len(marked_cons)):
+            # a result of other variables being solved.
+            # sourcery: skip
+            n = 0
+            while n < len(marked_cons):
                 c = marked_cons[n]
                 c.solve()
                 notify(c)
-            self._marked_cons = []
+                n += 1
         finally:
             self._solving = False
 
