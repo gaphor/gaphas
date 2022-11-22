@@ -84,7 +84,7 @@ class Quadtree(Generic[T, D]):
         Capacity defines the number of elements in one tree bucket (default: 10).
 
         The resize_step defines the increments in which the quadtree will grow when items
-        are moved out of the current quadtree boundries.
+        are moved out of the current quadtree boundaries.
         """
         self._capacity = capacity
         self._resize_step = resize_step
