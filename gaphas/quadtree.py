@@ -138,18 +138,16 @@ class Quadtree(Generic[T, D]):
             self.resize(bounds)
 
         if item in self._ids:
-            old_bounds = self._ids[item][0]
-            if old_bounds:
-                bucket = self._bucket.find_bucket(old_bounds)
-
-                # Fast lane, if item moved just a little it may still reside
-                # in the same bucket. We do not need to search from top-level.
-                if bucket and rectangle_contains(bounds, bucket.bounds):
-                    bucket.update(item, bounds)
-                    self._ids[item] = (bounds, data)
-                    return
-                elif bucket:
-                    bucket.remove(item)
+            if old_bounds := self._ids[item][0]:
+                if bucket := self._bucket.find_bucket(old_bounds):
+                    # Fast lane, if item moved just a little it may still reside
+                    # in the same bucket. We do not need to search from top-level.
+                    if rectangle_contains(bounds, bucket.bounds):
+                        bucket.update(item, bounds)
+                        self._ids[item] = (bounds, data)
+                        return
+                    else:
+                        bucket.remove(item)
 
         self._bucket.find_bucket(bounds).add(item, bounds)
         self._ids[item] = (bounds, data)
