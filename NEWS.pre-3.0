@@ -87,7 +87,7 @@
   (e.g. which elements are attached to some element).
   Added a Table class to support this functionality.
 - Added a timeout property on the @async decorator. The method is invoked
-  the amunt of milliseconds after the first invocation.
+  the amount of milliseconds after the first invocation.
 
 0.4.1
 ------

@@ -41,7 +41,7 @@ class BaseConstraint:
         self._variables = [v for v in variables if hasattr(v, "strength")]
 
         strength = min(v.strength for v in self._variables)
-        # manage weakest based on id, so variables are uniquely identifyable
+        # manage weakest based on id, so variables are uniquely identifiable
         self._weakest = [(id(v), v) for v in self._variables if v.strength == strength]
         self._handlers: set[Callable[[Constraint], None]] = set()
 
@@ -113,7 +113,7 @@ class BaseConstraint:
 
 
 class MultiConstraint:
-    """A constraint constaining constraints."""
+    """A constraint containing constraints."""
 
     def __init__(self, *constraints: Constraint):
         self._constraints = constraints
