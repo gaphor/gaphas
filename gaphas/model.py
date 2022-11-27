@@ -14,7 +14,7 @@ class View(Protocol):
         matrix_only_items: Collection[Item],
         removed_items: Collection[Item],
     ) -> None:
-        """Propagate update requests to the view.
+        """Propage update requests to the view.
 
         By invoking this method, the View will be made aware of state changes,
         that will either:

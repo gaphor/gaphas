@@ -80,4 +80,4 @@ decision on what should happen is done in the tool, the aspect which is then
 used to work on the item ensures a certain behaviour is performed.
 
 .. [#] as opposed to versions < 0.5, where tools could be shared among multiple views.
-.. [#] not the AOP term. The term aspect is coming from a paper by Dirk Riehe: The Tools and Materials metaphor https://wiki.c2.com/?ToolsAndMaterialsMetaphor..>.
+.. [#] not the AOP term. The term aspect is coming from a paper by Dirk Riehe: The Tools and Materials metaphore https://wiki.c2.com/?ToolsAndMaterialsMetaphor..>.

@@ -276,7 +276,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         assert view.model
         painter = ItemPainter()
 
-        # Update bounding boxes with a temporarily CairoContext
+        # Update bounding boxes with a temporaly CairoContext
         # (used for stuff like calculating font metrics)
         tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
         tmpcr = cairo.Context(tmpsurface)
