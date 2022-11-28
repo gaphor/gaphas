@@ -241,8 +241,10 @@ class EquationConstraint(BaseConstraint):
     """
 
     def __init__(self, f, **args):
+        # sourcery skip: dict-comprehension, remove-redundant-slice-index
         super().__init__(*list(args.values()))
         self._f = f
+        # see important note on order of operations in __setattr__ below.
         self._args: Dict[str, Optional[Variable]] = {}
 
         # see important note on order of operations in __setattr__ below.
@@ -305,14 +307,8 @@ class EquationConstraint(BaseConstraint):
         """Newton's method solver."""
         # args = self._args
         close_runs = 10  # after getting close, do more passes
-        if args[arg]:
-            x0 = args[arg]
-        else:
-            x0 = 1
-        if x0 == 0:
-            x1 = 1
-        else:
-            x1 = x0 * 1.1
+        x0 = args[arg] or 1
+        x1 = 1 if x0 == 0 else x0 * 1.1
 
         def f(x):
             """function to solve."""
@@ -340,9 +336,8 @@ class EquationConstraint(BaseConstraint):
             if slope == 0:
                 if close_flag:  # we're close but have zero slope, finish
                     break
-                else:
-                    log.warning("Zero slope and not close enough to solution")
-                    break
+                log.warning("Zero slope and not close enough to solution")
+                break
             x2 = x0 - fx0 / slope  # New 'x1'
             fx0 = fx1
             x0 = x1

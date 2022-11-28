@@ -34,7 +34,7 @@ class BoundingBoxPainter:
 
     def bounding_box(self, items: Collection[Item], cr: cairo.Context) -> Rectangle:
         """Get the unified bounding box of the rendered items."""
-        surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)  # type: ignore[arg-type]
+        surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)
         cr = cairo.Context(surface)
         self.paint(items, cr)
         return Rectangle(*surface.ink_extents())

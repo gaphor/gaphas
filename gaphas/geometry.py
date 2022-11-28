@@ -169,11 +169,12 @@ class Rectangle:
         TypeError: Can only add Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
-            x, y, width, height = obj  # type: ignore[misc]
-        except ValueError:
+            x, y, width, height = obj
+        except ValueError as e:
             raise TypeError(
                 f"Can only add Rectangle or tuple (x, y, width, height), not {obj!r}."
-            )
+            ) from e
+
         x1, y1 = x + width, y + height
         if self:
             ox1, oy1 = self.x + self.width, self.y + self.height
@@ -210,11 +211,12 @@ class Rectangle:
         TypeError: Can only subtract Rectangle or tuple (x, y, width, height), not 'aap'.
         """
         try:
-            x, y, width, height = obj  # type: ignore[misc]
-        except ValueError:
+            x, y, width, height = obj
+        except ValueError as e:
             raise TypeError(
                 f"Can only subtract Rectangle or tuple (x, y, width, height), not {obj!r}."
-            )
+            ) from e
+
         x1, y1 = x + width, y + height
 
         if self:
@@ -261,10 +263,11 @@ class Rectangle:
             # point
             try:
                 (x, y) = (x1, y1) = obj  # type: ignore[misc]
-            except ValueError:
+            except ValueError as e:
                 raise TypeError(
                     f"Should compare to Rectangle, tuple (x, y, width, height) or point (x, y), not {obj!r}."
-                )
+                ) from e
+
         return x >= self.x and x1 <= self.x1 and y >= self.y and y1 <= self.y1
 
 
@@ -567,6 +570,4 @@ def rectangle_clip(recta: Rect, rectb: Rect) -> Rect | None:
     y = max(ay, by)
     w = min(ax + aw, bx + bw) - x
     h = min(ay + ah, by + bh) - y
-    if w < 0 or h < 0:
-        return None
-    return (x, y, w, h)
+    return None if w < 0 or h < 0 else (x, y, w, h)

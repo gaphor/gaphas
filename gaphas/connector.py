@@ -68,10 +68,8 @@ class ItemConnector:
         handle is reattached to another element.
         """
 
-        cinfo = self.connections.get_connection(self.handle)
-
         # Already connected? disconnect first.
-        if cinfo:
+        if self.connections.get_connection(self.handle):
             self.disconnect()
 
         if not self.glue(sink):
@@ -120,9 +118,7 @@ class LineConnector(ItemConnector):
             return None
         if handle is handles[0]:
             return handles[1]
-        if handle is handles[-1]:
-            return handles[-2]
-        return None
+        return handles[-2] if handle is handles[-1] else None
 
 
 class ItemConnectionSink:
@@ -167,17 +163,15 @@ class ElementConnectionSink(ItemConnectionSink):
     def glue(
         self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
     ) -> Optional[Pos]:
-        glue_pos = super().glue(pos, secondary_pos)
-        if glue_pos:
+        if glue_pos := super().glue(pos, secondary_pos):
             return glue_pos
 
         if secondary_pos:
             for p in self.item.ports()[:4]:
                 assert isinstance(p, LinePort)
-                point_on_line = intersect_line_line(
+                if point_on_line := intersect_line_line(
                     pos, secondary_pos, p.start, p.end  # type: ignore[arg-type]
-                )
-                if point_on_line:
+                ):
                     return point_on_line
 
         return None
