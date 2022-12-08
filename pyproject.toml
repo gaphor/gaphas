@@ -38,7 +38,7 @@ pytest = "^7.2"
 pytest-cov = "^4.0"
 black = "^22.10"
 pre-commit = "^2.20"
-tox = "^3.27"
+tox = "^4.0"
 
 [tool.poetry.extras]
 docs = [ "sphinx", "sphinx-rtd-theme", "gaphor" ]
