@@ -2,12 +2,11 @@
 
 from functools import singledispatch
 
-from cairo import ANTIALIAS_NONE
-
 from gaphas.connector import Handle, LinePort
 from gaphas.geometry import distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
 from gaphas.model import Model
+from gaphas.painter.handlepainter import GREEN_4, draw_handle
 from gaphas.selection import Selection
 from gaphas.solver import WEAK
 
@@ -204,14 +203,5 @@ class LineSegmentPainter:
                 cx = (p1.x + p2.x) / 2
                 cy = (p1.y + p2.y) / 2
                 vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
-                cairo.save()
-                cairo.set_antialias(ANTIALIAS_NONE)
-                cairo.identity_matrix()
-                cairo.translate(vx, vy)
-                cairo.rectangle(-3, -3, 6, 6)
-                cairo.set_source_rgba(0, 0.5, 0, 0.4)
-                cairo.fill_preserve()
-                cairo.set_source_rgba(0.25, 0.25, 0.25, 0.6)
-                cairo.set_line_width(1)
-                cairo.stroke()
-                cairo.restore()
+                cairo.set_source_rgba(*GREEN_4, 0.4)
+                draw_handle(cairo, vx, vy, size=9.0, corner=1.5)
