@@ -2,13 +2,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Collection
 
-from cairo import ANTIALIAS_NONE
 from cairo import Context as CairoContext
 
 from gaphas.item import Item
 
 if TYPE_CHECKING:
     from gaphas.view import GtkView
+
+
+# Colors from the GNOME Palette
+RED_4 = (0.753, 0.110, 0.157)
+ORANGE_4 = (0.902, 0.380, 0)
+GREEN_4 = (0.180, 0.7608, 0.494)
+BLUE_4 = (0.110, 0.443, 0.847)
 
 
 class HandlePainter:
@@ -33,10 +39,7 @@ class HandlePainter:
         assert model
         cairo.save()
         if not opacity:
-            opacity = 0.7 if item is view.selection.focused_item else 0.4
-
-        cairo.set_antialias(ANTIALIAS_NONE)
-        cairo.set_line_width(1)
+            opacity = 0.9 if item is view.selection.focused_item else 0.6
 
         get_connection = model.connections.get_connection
         for h in item.handles():
@@ -44,28 +47,19 @@ class HandlePainter:
                 continue
             # connected and not being moved, see HandleTool.on_button_press
             if get_connection(h):
-                r, g, b = 1.0, 0.0, 0.0
+                color = RED_4
             elif h.glued:
-                r, g, b = 1, 0.6, 0
+                color = ORANGE_4
             elif h.movable:
-                r, g, b = 0, 1, 0
+                color = GREEN_4
             else:
-                r, g, b = 0, 0, 1
+                color = BLUE_4
 
             vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(*h.pos))
+            cairo.set_source_rgba(*color, opacity)
 
-            cairo.save()
-            cairo.identity_matrix()
-            cairo.translate(vx, vy)
-            cairo.rectangle(-4, -4, 8, 8)
-            cairo.set_source_rgba(r, g, b, opacity)
-            cairo.fill_preserve()
-            cairo.set_source_rgba(r / 4.0, g / 4.0, b / 4.0, opacity * 1.3)
-            cairo.stroke()
-            if h.connectable:
-                cairo.rectangle(-2, -2, 4, 4)
-                cairo.fill()
-            cairo.restore()
+            draw_handle(cairo, vx, vy)
+
         cairo.restore()
 
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
@@ -80,3 +74,31 @@ class HandlePainter:
         hovered = selection.hovered_item
         if hovered and hovered not in selection.selected_items:
             self._draw_handles(hovered, cairo, opacity=0.25)
+
+
+def draw_handle(
+    cairo: CairoContext, vx: float, vy: float, size: float = 12.0, corner: float = 2.0
+) -> None:
+    """Draw a handle with rounded corners."""
+    radius = size / 2.0
+    lower_right = size - corner
+
+    pi_05 = 0.5 * 3.142
+    pi = 3.142
+    pi_15 = 1.5 * 3.142
+
+    cairo.save()
+    cairo.identity_matrix()
+    cairo.translate(vx - radius, vy - radius)
+
+    cairo.move_to(0.0, corner)
+    cairo.arc(corner, corner, corner, pi, pi_15)
+    cairo.line_to(lower_right, 0.0)
+    cairo.arc(lower_right, corner, corner, pi_15, 0)
+    cairo.line_to(size, lower_right)
+    cairo.arc(lower_right, lower_right, corner, 0, pi_05)
+    cairo.line_to(corner, size)
+    cairo.arc(corner, lower_right, corner, pi_05, pi)
+    cairo.close_path()
+    cairo.fill()
+    cairo.restore()
