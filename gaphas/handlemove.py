@@ -3,11 +3,9 @@ from functools import singledispatch
 from operator import itemgetter
 from typing import Iterable, Optional, Sequence, Tuple
 
-from gi.repository import Gdk, Gtk
-
 from gaphas.connector import ConnectionSink, ConnectionSinkType, Connector
 from gaphas.handle import Handle
-from gaphas.item import Element, Item
+from gaphas.item import Item
 from gaphas.types import Pos
 from gaphas.view import GtkView
 
@@ -110,41 +108,6 @@ class ItemHandleMove:
 
 
 HandleMove = singledispatch(ItemHandleMove)
-
-
-@HandleMove.register(Element)
-class ElementHandleMove(ItemHandleMove):
-    CURSORS = ("nw-resize", "ne-resize", "se-resize", "sw-resize")
-
-    def __init__(self, item: Item, handle: Handle, view: GtkView):
-        super().__init__(item, handle, view)
-        self.cursor: Optional[Gdk.Cursor] = None
-
-    def start_move(self, pos: Pos) -> None:
-        super().start_move(pos)
-        self.set_cursor()
-
-    def stop_move(self, pos: Pos) -> None:
-        self.reset_cursor()
-        super().stop_move(pos)
-
-    def set_cursor(self) -> None:
-        index = self.item.handles().index(self.handle)
-        if index < 4:
-            display = self.view.get_display()
-            if Gtk.get_major_version() == 3:
-                cursor = Gdk.Cursor.new_from_name(display, self.CURSORS[index])
-                self.cursor = self.view.get_window().get_cursor()
-                self.view.get_window().set_cursor(cursor)
-            else:
-                cursor = Gdk.Cursor.new_from_name(self.CURSORS[index])
-                self.cursor = self.view.get_cursor()
-                self.view.set_cursor(cursor)
-
-    def reset_cursor(self) -> None:
-        self.view.get_window().set_cursor(
-            self.cursor
-        ) if Gtk.get_major_version() == 3 else self.view.set_cursor(self.cursor)
 
 
 def item_distance(

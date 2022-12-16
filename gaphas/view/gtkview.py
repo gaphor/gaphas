@@ -21,13 +21,6 @@ from gaphas.view.scrolling import Scrolling
 DEBUG_DRAW_BOUNDING_BOX = False
 DEBUG_DRAW_QUADTREE = False
 
-# The default cursor (use in case of a cursor reset)
-DEFAULT_CURSOR = (
-    Gdk.CursorType.LEFT_PTR
-    if Gtk.get_major_version() == 3
-    else Gdk.Cursor.new_from_name("default")
-)
-
 # The tolerance for Cairo. Bigger values increase speed and reduce accuracy
 # (default: 0.1)
 PAINT_TOLERANCE = 0.8

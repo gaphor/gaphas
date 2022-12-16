@@ -8,7 +8,7 @@ from typing import Iterable, SupportsFloat
 
 from gaphas.canvas import all_children
 from gaphas.connector import Handle
-from gaphas.handlemove import ElementHandleMove, HandleMove, ItemHandleMove
+from gaphas.handlemove import HandleMove, ItemHandleMove
 from gaphas.item import Element, Item, Line
 from gaphas.move import ItemMove, Move
 from gaphas.types import Pos
@@ -255,7 +255,7 @@ class GuidedItemHandleMoveMixin:
 
 
 @HandleMove.register(Element)
-class GuidedElementHandleMove(GuidedItemHandleMoveMixin, ElementHandleMove):
+class GuidedElementHandleMove(GuidedItemHandleMoveMixin, ItemHandleMove):
     pass
 
 
