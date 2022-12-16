@@ -1,8 +1,7 @@
 """Allow for easily adding segments to lines."""
 
-from __future__ import annotations
-
 from functools import singledispatch
+from typing import Optional
 
 from gaphas.connector import Handle, LinePort
 from gaphas.cursor import DEFAULT_CURSOR, LINE_CURSOR, cursor, line_hover
@@ -212,7 +211,7 @@ class LineSegmentPainter:
 
 
 @cursor.register
-def line_segment_hover(item: Line, handle: Handle | None, pos: Pos) -> str:
+def line_segment_hover(item: Line, handle: Optional[Handle], pos: Pos) -> str:
     if not handle:
         handles = item.handles()
         if any(
