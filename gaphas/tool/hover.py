@@ -1,7 +1,7 @@
 from gi.repository import Gdk, Gtk
 
 from gaphas.cursor import cursor
-from gaphas.tool.itemtool import handle_at_point, item_at_point
+from gaphas.tool.itemtool import find_item_and_handle_at_point
 from gaphas.view import GtkView
 
 
@@ -19,9 +19,13 @@ def hover_tool(view: GtkView) -> Gtk.EventController:
 def on_motion(ctrl, x, y):
     view = ctrl.get_widget()
     pos = (x, y)
-    item, handle = handle_at_point(view, pos)
-    view.selection.hovered_item = item or next(item_at_point(view, pos), None)  # type: ignore[call-overload]
-    set_cursor(view, cursor(item, handle))
+    item, handle = find_item_and_handle_at_point(view, pos)
+    view.selection.hovered_item = item
+
+    if item:
+        v2i = view.get_matrix_v2i(item)
+        pos = v2i.transform_point(x, y)
+    set_cursor(view, cursor(item, handle, pos))
 
 
 def set_cursor(view, cursor_name):

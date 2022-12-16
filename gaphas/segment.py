@@ -1,14 +1,18 @@
 """Allow for easily adding segments to lines."""
 
+from __future__ import annotations
+
 from functools import singledispatch
 
 from gaphas.connector import Handle, LinePort
+from gaphas.cursor import DEFAULT_CURSOR, LINE_CURSOR, cursor, line_hover
 from gaphas.geometry import distance_point_point_fast
 from gaphas.item import Line, matrix_i2i
 from gaphas.model import Model
 from gaphas.painter.handlepainter import GREEN_4, draw_handle
 from gaphas.selection import Selection
 from gaphas.solver import WEAK
+from gaphas.types import Pos
 
 
 @singledispatch
@@ -205,3 +209,19 @@ class LineSegmentPainter:
                 vx, vy = cairo.user_to_device(*item.matrix_i2c.transform_point(cx, cy))
                 cairo.set_source_rgba(*GREEN_4, 0.4)
                 draw_handle(cairo, vx, vy, size=9.0, corner=1.5)
+
+
+@cursor.register
+def line_segment_hover(item: Line, handle: Handle | None, pos: Pos) -> str:
+    if not handle:
+        handles = item.handles()
+        if any(
+            distance_point_point_fast(
+                pos, ((h1.pos.x + h2.pos.x) / 2, (h1.pos.y + h2.pos.y) / 2)
+            )
+            <= 4.5
+            for h1, h2 in zip(handles, handles[1:])
+        ):
+            return LINE_CURSOR
+        return DEFAULT_CURSOR
+    return line_hover(item, handle, pos)
