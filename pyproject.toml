@@ -39,12 +39,10 @@ pytest-cov = "^4.0"
 black = "^22.12"
 pre-commit = "^2.20"
 tox = "^4.0"
+pytest-archon = "^0.0.2"
 
 [tool.poetry.extras]
 docs = [ "sphinx", "sphinx-rtd-theme", "gaphor" ]
-
-[tool.poetry.group.dev.dependencies]
-pytest-archon = "^0.0.2"
 
 [tool.tox]
 legacy_tox_ini = """
