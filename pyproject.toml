@@ -59,7 +59,7 @@ python =
 whitelist_externals =
     xvfb-run
 commands =
-    xvfb-run pytest --cov --cov-append --cov-report=term-missing {posargs}
+    xvfb-run pytest --cov=gaphas --cov-append --cov-report=term-missing {posargs}
 deps =
     pytest
     pytest-cov
