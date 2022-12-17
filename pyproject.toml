@@ -43,6 +43,9 @@ tox = "^4.0"
 [tool.poetry.extras]
 docs = [ "sphinx", "sphinx-rtd-theme", "gaphor" ]
 
+[tool.poetry.group.dev.dependencies]
+pytest-archon = "^0.0.2"
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]

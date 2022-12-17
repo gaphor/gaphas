@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import singledispatch
 from itertools import chain
-from typing import Iterable, SupportsFloat
+from typing import TYPE_CHECKING, Iterable, SupportsFloat
 
 from gaphas.canvas import all_children
 from gaphas.connector import Handle
@@ -12,7 +12,9 @@ from gaphas.handlemove import HandleMove, ItemHandleMove
 from gaphas.item import Element, Item, Line
 from gaphas.move import ItemMove, Move
 from gaphas.types import Pos
-from gaphas.view import GtkView
+
+if TYPE_CHECKING:
+    from gaphas.view import GtkView
 
 
 class ItemGuide:

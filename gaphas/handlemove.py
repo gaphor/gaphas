@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 import logging
 from functools import singledispatch
 from operator import itemgetter
-from typing import Iterable, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 from gaphas.connector import ConnectionSink, ConnectionSinkType, Connector
 from gaphas.handle import Handle
 from gaphas.item import Item
 from gaphas.types import Pos
-from gaphas.view import GtkView
+
+if TYPE_CHECKING:
+    from gaphas.view import GtkView
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +60,7 @@ class ItemHandleMove:
 
     def glue(
         self, pos: Pos, distance: int = GLUE_DISTANCE
-    ) -> Optional[ConnectionSinkType]:
+    ) -> ConnectionSinkType | None:
         """Glue to an item near a specific point.
 
         Returns a ConnectionSink or None.
@@ -115,7 +119,7 @@ def item_distance(
     pos: Pos,
     distance: float = 0.5,
     exclude: Sequence[Item] = (),
-) -> Iterable[Tuple[float, Item]]:
+) -> Iterable[tuple[float, Item]]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:

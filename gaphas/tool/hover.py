@@ -28,10 +28,18 @@ def on_motion(ctrl, x, y):
     set_cursor(view, cursor(item, handle, pos))
 
 
+GTK3_CURSORS = {
+    "default": "left_ptr",
+    "move": "fleur",
+}
+
+
 def set_cursor(view, cursor_name):
     if Gtk.get_major_version() == 3:
         display = view.get_display()
-        cursor = Gdk.Cursor.new_from_name(display, cursor_name)
+        cursor = Gdk.Cursor.new_from_name(
+            display, GTK3_CURSORS.get(cursor_name, cursor_name)
+        )
         view.get_window().set_cursor(cursor)
     else:
         cursor = Gdk.Cursor.new_from_name(cursor_name)

@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from functools import singledispatch
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from gaphas.item import Item
 from gaphas.types import Pos
-from gaphas.view import GtkView
+
+if TYPE_CHECKING:
+    from gaphas.view import GtkView
 
 
 class MoveType(Protocol):

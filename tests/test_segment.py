@@ -1,4 +1,5 @@
 """Test segment aspects for items."""
+
 import pytest
 
 from gaphas.connector import ItemConnectionSink, ItemConnector
