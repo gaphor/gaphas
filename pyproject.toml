@@ -63,6 +63,7 @@ commands =
 deps =
     pytest
     pytest-cov
+    pytest-archon
 depends =
     {py39,py310, py311}: clean
     report: py39,py310,py311
