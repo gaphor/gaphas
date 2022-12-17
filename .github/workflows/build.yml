@@ -33,7 +33,7 @@ jobs:
       - name: Lint with pre-commit
         uses: pre-commit/action@v3.0.0
 
-  test:
+  build:
     needs: lint
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-22.04
@@ -43,6 +43,7 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
         gtk-version: ['3.0', '4.0']
+    name: build (python ${{ matrix.python-version }}, gtk ${{ matrix.gtk-version }})
     steps:
       - uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
