@@ -236,7 +236,6 @@ class GuidedItemHandleMoveMixin:
     handle: Handle
 
     def move(self, pos: Pos) -> None:
-
         super().move(pos)  # type: ignore[misc]
 
         item = self.item

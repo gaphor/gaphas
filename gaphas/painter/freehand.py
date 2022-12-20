@@ -20,7 +20,6 @@ from gaphas.painter.painter import ItemPainterType
 
 
 class FreeHandCairoContext:
-
     KAPPA = 0.5522847498
 
     def __init__(self, cr, sloppiness=0.5):
