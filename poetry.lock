@@ -607,7 +607,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "tox"
-version = "4.0.14"
+version = "4.0.15"
 description = "tox is a generic virtualenv management and test command line tool"
 category = "dev"
 optional = false
@@ -987,8 +987,8 @@ tomli = [
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 tox = [
-    {file = "tox-4.0.14-py3-none-any.whl", hash = "sha256:4e7e87ef5d1cf62f2b4413dd5ae5a940b24c0924627783b51c06c0e3d32ce225"},
-    {file = "tox-4.0.14.tar.gz", hash = "sha256:498a53c66ba8c1005d0bbee4fe4c477913d4f27cadd5c00bc972f04ed31f8b19"},
+    {file = "tox-4.0.15-py3-none-any.whl", hash = "sha256:2ecb6acee1a9e84fbc83c6aa5a8554b8c6e4048f07f4136b5e2669e5566429b1"},
+    {file = "tox-4.0.15.tar.gz", hash = "sha256:5017f6717b2199d7864addee5b6f4381517f64b669efe05753e61c80f0f324e9"},
 ]
 urllib3 = [
     {file = "urllib3-1.26.13-py2.py3-none-any.whl", hash = "sha256:47cc05d99aaa09c9e72ed5809b60e7ba354e64b59c9c173ac3018642d8bb41fc"},
