@@ -13,6 +13,7 @@ def hover_tool(view: GtkView) -> Gtk.EventController:
         else Gtk.EventControllerMotion.new()
     )
     ctrl.connect("motion", on_motion)
+    ctrl.cursor_name = ""
     return ctrl
 
 
@@ -25,7 +26,11 @@ def on_motion(ctrl, x, y):
     if item:
         v2i = view.get_matrix_v2i(item)
         pos = v2i.transform_point(x, y)
-    set_cursor(view, cursor(item, handle, pos))
+
+    cursor_name = cursor(item, handle, pos)
+    if cursor_name != ctrl.cursor_name:
+        set_cursor(view, cursor_name)
+        ctrl.cursor_name = cursor_name
 
 
 GTK3_CURSORS = {
