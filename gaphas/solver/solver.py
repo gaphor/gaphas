@@ -179,6 +179,8 @@ class Solver:
                 c.solve()
                 notify(c)
                 n += 1
+
+            self._marked_cons = []
         finally:
             self._solving = False
 
