@@ -36,51 +36,10 @@ gaphor = { version = "^2.7", python = "^3.9, <3.11", optional = true }
 [tool.poetry.dev-dependencies]
 pytest = "^7.2"
 pytest-cov = "^4.0"
-tox = "^4.0"
 pytest-archon = "^0.0.2"
 
 [tool.poetry.extras]
 docs = [ "sphinx", "sphinx-rtd-theme", "gaphor" ]
-
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-isolated_build = true
-envlist = clean, py39, py310, py311, report
-tox_pyenv_fallback = false
-
-[gh-actions]
-python =
-    3.9: py39
-    3.10: py310
-    3.11: py311
-
-[testenv]
-whitelist_externals =
-    xvfb-run
-commands =
-    xvfb-run pytest --cov=gaphas --cov-append --cov-report=term-missing {posargs}
-deps =
-    pytest
-    pytest-cov
-    pytest-archon
-depends =
-    {py39,py310, py311}: clean
-    report: py39,py310,py311
-passenv = TEST_GTK_VERSION
-
-[testenv:report]
-deps = coverage[toml]
-skip_install = true
-commands =
-    coverage report
-    coverage html
-
-[testenv:clean]
-deps = coverage[toml]
-skip_install = true
-commands = coverage erase
-"""
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
