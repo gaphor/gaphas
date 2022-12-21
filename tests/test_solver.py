@@ -141,3 +141,22 @@ def test_notify_for_double_nested_constraint():
     solver.solve()
 
     assert outer in events
+
+
+def test_needs_solving():
+    solver = Solver()
+    a = Variable()
+    b = Variable()
+    eq = EqualsConstraint(a, b)
+
+    solver.add_constraint(eq)
+    assert solver.needs_solving
+
+    solver.solve()
+    assert not solver.needs_solving
+
+    a.value = 3
+    assert solver.needs_solving
+
+    solver.solve()
+    assert not solver.needs_solving

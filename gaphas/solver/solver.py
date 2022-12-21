@@ -133,6 +133,11 @@ class Solver:
         elif self._marked_cons.count(c) < self._resolve_limit:
             self._marked_cons.append(c)
 
+    @property
+    def needs_solving(self) -> bool:
+        """Return if there are constraints that need solving."""
+        return bool(self._marked_cons)
+
     def solve(self) -> None:  # sourcery skip: while-to-for
         """
         Example:
@@ -164,6 +169,7 @@ class Solver:
         >>> c._value
         10.0
         """
+        # NB. marked_cons is updated during the solving process
         marked_cons = self._marked_cons
         notify = self._notify
         try:
