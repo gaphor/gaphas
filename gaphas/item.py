@@ -90,9 +90,13 @@ class Matrices:
 
 
 class Element(Matrices):
-    """An Element has 4 handles (for a start)::
+    """An Element has 4 handles (for a start):
 
-    NW +---+ NE    |   | SW +---+ SE
+    .. code-block:: text
+
+       NW +---+ NE
+          |   |
+       SW +---+ SE
     """
 
     min_width = variable(strength=REQUIRED, varname="_min_width")
