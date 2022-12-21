@@ -8,7 +8,7 @@ Tools are registered on the ``View``. They have some internal state (e.g. when a
 where a mouse button was pressed). Therefore tools can not be reused by
 different views [#]_.
 
-Tools are simply `Gtk.EventController` instances.
+Tools are simply `Gtk.EventController`_ instances.
 For a certain action to happen multiple user events are used. For example a
 click is a combination of a button press and button release event (only talking
 mouse clicks now). In most cases also some movement is done. A sequence of a
@@ -81,3 +81,5 @@ used to work on the item ensures a certain behaviour is performed.
 
 .. [#] as opposed to versions < 0.5, where tools could be shared among multiple views.
 .. [#] not the AOP term. The term aspect is coming from a paper by Dirk Riehe: The Tools and Materials metaphor https://wiki.c2.com/?ToolsAndMaterialsMetaphor..>.
+
+.. _Gtk.EventController: https://docs.gtk.org/gtk4/class.EventController.html

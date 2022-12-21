@@ -73,7 +73,7 @@ exclude_patterns = [
 pygments_style = None
 
 autodoc_member_order = "bysource"
-autodoc_mock_imports = ["cairo", "gi"]
+autodoc_mock_imports = ["cairo", "gi.repository.Gtk", "gi.repository.Gdk"]
 
 gaphor_models = "gaphor-canvas.gaphor"
 
@@ -83,6 +83,7 @@ gaphor_models = "gaphor-canvas.gaphor"
 # a list of builtin themes.
 #
 html_theme = "furo"
+html_title = "Gaphas"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

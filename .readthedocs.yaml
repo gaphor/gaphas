@@ -1,7 +1,7 @@
 version: 2
 formats: all
 build:
-  os: ubuntu-20.04
+  os: ubuntu-22.04
   tools:
     python: "3.9"
   apt_packages:
@@ -11,6 +11,7 @@ build:
   - gir1.2-gtksource-4  
 sphinx:
   configuration: docs/conf.py
+  fail_on_warning: true
 python:
   install:
   - method: pip

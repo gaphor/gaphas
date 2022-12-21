@@ -1,14 +1,10 @@
 Gaphas 3 Documentation
 ======================
 
-.. important:: This documentation is in the process of being updated for Gaphas 3.0.
-
-
 Gaphas is the diagramming widget library for Python.
 
 Gaphas has been built with extensibility in mind. It can be used for many
 drawing purposes, including vector drawing applications, and diagram drawing tools.
-
 
 The basic idea is:
 
@@ -28,12 +24,10 @@ Gaphas is released under the terms of the Apache Software License, version 2.0.
 * Git repository: https://github.com/gaphor/gaphas
 * Python Package index (PyPI): https://pypi.org/project/gaphas
 
-Table of Contents
-=================
-
 .. toctree::
    :caption: The basics
    :maxdepth: 1
+   :hidden:
 
    diagram
    tools
@@ -43,6 +37,7 @@ Table of Contents
 .. toctree::
    :caption: Advanced
    :maxdepth: 1
+   :hidden:
 
    guide
    segment
@@ -50,12 +45,14 @@ Table of Contents
 .. toctree::
    :caption: API
    :maxdepth: 2
+   :hidden:
 
    api
 
 .. toctree::
    :caption: Internals
    :maxdepth: 1
+   :hidden:
 
    quadtree
    table
