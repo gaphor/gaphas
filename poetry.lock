@@ -336,7 +336,7 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.
 
 [[package]]
 name = "pytest-archon"
-version = "0.0.2"
+version = "0.0.3"
 description = "Rule your architecture like a real developer"
 category = "dev"
 optional = false
@@ -344,21 +344,9 @@ python-versions = ">=3.8"
 
 [package.dependencies]
 pytest = ">=7.2"
-pytest-check = "*"
 
 [package.extras]
-dev = ["black", "coverage", "flake8", "mypy"]
-
-[[package]]
-name = "pytest-check"
-version = "1.3.0"
-description = "A pytest plugin that allows multiple failures per test."
-category = "dev"
-optional = false
-python-versions = ">3.7"
-
-[package.dependencies]
-pytest = "*"
+dev = ["black", "check-manifest", "check-wheel-contents", "coverage", "flake8", "mypy", "pyroma"]
 
 [[package]]
 name = "pytest-cov"
@@ -596,7 +584,7 @@ docs = ["sphinx", "furo", "gaphor"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "98ecca0c2c69983b025727467acaa2fb01b4bf83f51a225bbfa7eef25441dabe"
+content-hash = "52e544344caa011cffc3591d70c4b4a8b4f479080292c1c2f035d966170eb858"
 
 [metadata.files]
 alabaster = [
@@ -811,12 +799,8 @@ pytest = [
     {file = "pytest-7.2.0.tar.gz", hash = "sha256:c4014eb40e10f11f355ad4e3c2fb2c6c6d1919c73f3b5a433de4708202cade59"},
 ]
 pytest-archon = [
-    {file = "pytest-archon-0.0.2.tar.gz", hash = "sha256:d741d0571bc23d824fb57a436b27bbaa6e247d729896976d2a01dfbe2f7818a9"},
-    {file = "pytest_archon-0.0.2-py3-none-any.whl", hash = "sha256:75e35888b957435084150d2b2ddffc6fc5ba1ab76cbb4ecc007f831ffaf810cf"},
-]
-pytest-check = [
-    {file = "pytest-check-1.3.0.tar.gz", hash = "sha256:a387968d62525738cd9f36a528013316d7d915cf0ccf5be146a38e7fffa0bba9"},
-    {file = "pytest_check-1.3.0-py3-none-any.whl", hash = "sha256:87b9aa6dde0fff7968f7d703591c18f80d110c852affecf4d5be9fa75d9b1ef2"},
+    {file = "pytest-archon-0.0.3.tar.gz", hash = "sha256:e20150672c5a1d378e436845dbe73d5429738e17a8fa6d95cacca40d66eddf86"},
+    {file = "pytest_archon-0.0.3-py3-none-any.whl", hash = "sha256:3394c86053c80a23cb952a741fda92ebafd7057e0bc7dd23c1e5b4126de3ea91"},
 ]
 pytest-cov = [
     {file = "pytest-cov-4.0.0.tar.gz", hash = "sha256:996b79efde6433cdbd0088872dbc5fb3ed7fe1578b68cdbba634f14bb8dd0470"},
