@@ -238,8 +238,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         `Gtk.PropagationPhase.NONE` to ensure it's not invoked
         anymore.
 
-        NB. The controller is only really removed from the widget when it's destroyed!
-            This is a Gtk3 limitation.
+        NB. The controller is only really removed from the widget when
+        it's destroyed!
+        This is a Gtk3 limitation.
         """
         if Gtk.get_major_version() != 3:
             super().remove_controller(controller)

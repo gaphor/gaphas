@@ -24,7 +24,6 @@ class Painter(Protocol):
 class ItemPainterType(Protocol):
     def paint_item(self, item: Item, cairo: CairoContext) -> None:
         """Draw a single item."""
-
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         """Do the paint action (called from the View)."""
         pass

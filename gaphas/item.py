@@ -36,17 +36,13 @@ class Item(Protocol):
     @property
     def matrix(self) -> Matrix:
         """The "local", item-to-parent matrix."""
-
     @property
     def matrix_i2c(self) -> Matrix:
         """Matrix from item to toplevel."""
-
     def handles(self) -> Sequence[Handle]:
         """Return a list of handles owned by the item."""
-
     def ports(self) -> Sequence[Port]:
         """Return list of ports owned by the item."""
-
     def point(self, x: float, y: float) -> float:
         """Get the distance from a point (``x``, ``y``) to the item.
 
@@ -54,7 +50,6 @@ class Item(Protocol):
 
         A distance of 0 means the point is on the item.
         """
-
     def draw(self, context: DrawContext) -> None:
         """Render the item to a canvas view. Context contains the following
         attributes:
@@ -63,8 +58,6 @@ class Item(Protocol):
         * `selected`, `focused`, `hovered`: view state of items
           (True/False)
         """
-
-
 def matrix_i2i(from_item: Item, to_item: Item) -> Matrix:
     i2c = from_item.matrix_i2c
     c2i = to_item.matrix_i2c.inverse()
@@ -94,9 +87,9 @@ class Element(Matrices):
 
     .. code-block:: text
 
-       NW +---+ NE
-          |   |
-       SW +---+ SE
+    NW +---+ NE
+    |   |
+    SW +---+ SE
     """
 
     min_width = variable(strength=REQUIRED, varname="_min_width")
@@ -423,7 +416,6 @@ class Line(Matrices):
 
         See Item.draw(context).
         """
-
         def draw_line_end(pos, angle, draw):
             cr = context.cairo
             cr.save()

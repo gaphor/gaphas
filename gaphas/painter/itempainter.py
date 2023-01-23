@@ -32,6 +32,5 @@ class ItemPainter:
 
     def paint(self, items: Collection[Item], cairo: CairoContext) -> None:
         """Draw the items."""
-
         for item in items:
             self.paint_item(item, cairo)
