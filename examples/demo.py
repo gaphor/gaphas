@@ -57,7 +57,6 @@ def undo_handler(event):
 
 def factory(view, cls):
     """Simple canvas item factory."""
-
     def wrapper():
         item = cls(view.model.connections)
         view.model.add(item)

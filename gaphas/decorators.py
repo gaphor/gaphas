@@ -19,9 +19,11 @@ class g_async:
     Calling the async function from outside the gtk main loop will
     yield immediate execution.
 
-    A function can also be a generator. The generator will be fully executed.
+    A function can also be a generator. The generator will be fully
+    executed.
     If run in the main loop, an empty iterator will be returned.
-    A generator is "single" by default. Because of the nature of generators
+    A generator is "single" by default. Because of the nature of
+    generators
     the first invocation will run till completion.
     """
 

@@ -67,7 +67,6 @@ class ItemConnector:
         Note that connect() also takes care of disconnecting in case a
         handle is reattached to another element.
         """
-
         # Already connected? disconnect first.
         if self.connections.get_connection(self.handle):
             self.disconnect()

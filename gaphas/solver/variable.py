@@ -62,13 +62,16 @@ class variable:
 class Variable:
     """Representation of a variable in the constraint solver.
 
-    Each Variable has a ``value`` and a ``strength``. In a constraint the weakest
+    Each Variable has a ``value`` and a ``strength``. In a constraint
+    the weakest
     variables are changed.
 
-    You can even do some calculating with it. The Variable always represents a
+    You can even do some calculating with it. The Variable always
+    represents a
     float variable.
 
-    The ``variable`` decorator can be used to easily define variables in classes.
+    The ``variable`` decorator can be used to easily define variables in
+    classes.
     """
 
     def __init__(self, value: SupportsFloat = 0.0, strength: int = NORMAL):

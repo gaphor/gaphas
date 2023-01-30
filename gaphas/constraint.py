@@ -9,18 +9,18 @@ See classes' documentation below for constraints description and for
 examples of their usage.
 
 EqualsConstraint
-    Make 'a' and 'b' equal.
+Make 'a' and 'b' equal.
 LessThanConstraint
-    Ensure one variable stays smaller than another.
+Ensure one variable stays smaller than another.
 CenterConstraint
-    Ensures a Variable is kept between two other variables.
+Ensures a Variable is kept between two other variables.
 EquationConstraint
-    Solve a linear equation.
+Solve a linear equation.
 BalanceConstraint
-    Keeps three variables in line, maintaining a specific ratio.
+Keeps three variables in line, maintaining a specific ratio.
 LineConstraint
-    Solves the equation where a line is connected to a line or side at
-    a specific point.
+Solves the equation where a line is connected to a line or side at
+a specific point.
 
 New constraint class should derive from Constraint class abstract
 class and implement `Constraint.solve_for(Variable)` method to update

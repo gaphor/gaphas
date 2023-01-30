@@ -81,9 +81,11 @@ class Quadtree(Generic[T, D]):
     def __init__(self, capacity: int = 10, resize_step: int = 100) -> None:
         """Create a new Quadtree instance.
 
-        Capacity defines the number of elements in one tree bucket (default: 10).
+        Capacity defines the number of elements in one tree bucket
+        (default: 10).
 
-        The resize_step defines the increments in which the quadtree will grow when items
+        The resize_step defines the increments in which the quadtree
+        will grow when items
         are moved out of the current quadtree boundaries.
         """
         self._capacity = capacity
