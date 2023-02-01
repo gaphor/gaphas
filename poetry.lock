@@ -549,14 +549,14 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.
 
 [[package]]
 name = "pytest-archon"
-version = "0.0.3"
+version = "0.0.4"
 description = "Rule your architecture like a real developer"
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-archon-0.0.3.tar.gz", hash = "sha256:e20150672c5a1d378e436845dbe73d5429738e17a8fa6d95cacca40d66eddf86"},
-    {file = "pytest_archon-0.0.3-py3-none-any.whl", hash = "sha256:3394c86053c80a23cb952a741fda92ebafd7057e0bc7dd23c1e5b4126de3ea91"},
+    {file = "pytest-archon-0.0.4.tar.gz", hash = "sha256:5cfb23c8c80c01abc18261894fafa42f2e387ba05d812a89eeb3dc104e6c9e97"},
+    {file = "pytest_archon-0.0.4-py3-none-any.whl", hash = "sha256:be93b922943d94750d290db57f605bc698ab6e92f74e60022801a731b1fd3517"},
 ]
 
 [package.dependencies]
@@ -873,4 +873,4 @@ docs = ["sphinx", "furo", "gaphor"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "52e544344caa011cffc3591d70c4b4a8b4f479080292c1c2f035d966170eb858"
+content-hash = "10808514280a2ac6d76309d2c362917267601cd322fa2920b84a5bf3147f6113"
