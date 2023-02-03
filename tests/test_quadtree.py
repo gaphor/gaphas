@@ -1,3 +1,4 @@
+import itertools
 import pytest
 
 from gaphas.quadtree import Quadtree
@@ -6,9 +7,8 @@ from gaphas.quadtree import Quadtree
 @pytest.fixture()
 def qtree():
     qtree: Quadtree[str, None] = Quadtree()
-    for i in range(0, 100, 10):
-        for j in range(0, 100, 10):
-            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=None)
+    for i, j in itertools.product(range(0, 100, 10), range(0, 100, 10)):
+        qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=None)
     return qtree
 
 
@@ -17,21 +17,19 @@ def test_initial_size(qtree):
 
 
 def test_lookups(qtree):
-    for i in range(100, 10):
-        for j in range(100, 10):
-            assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
-                f"{i:d}x{j:d}"
-            ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
+    for i, j in itertools.product(range(100, 10), range(100, 10)):
+        assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
+            f"{i:d}x{j:d}"
+        ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
 
 
 def test_with_rectangles(qtree):
     assert len(qtree._ids) == 100, len(qtree._ids)
 
-    for i in range(100, 10):
-        for j in range(100, 10):
-            assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
-                f"{i:d}x{j:d}"
-            ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
+    for i, j in itertools.product(range(100, 10), range(100, 10)):
+        assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
+            f"{i:d}x{j:d}"
+        ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
 
 
 def test_moving_items(qtree):
@@ -49,7 +47,7 @@ def test_moving_items(qtree):
     assert len(qtree._bucket.items) == 0, qtree._bucket.items
     for i in range(4):
         assert len(qtree._bucket._buckets[i].items) == 9
-        for item, bounds in qtree._bucket._buckets[i].items.items():
+        for _item, bounds in qtree._bucket._buckets[i].items.items():
             assert qtree._bucket.find_bucket(bounds) is qtree._bucket._buckets[i]
         for j in range(4):
             assert len(qtree._bucket._buckets[i]._buckets[j].items) == 4
@@ -75,13 +73,11 @@ def test_moving_items(qtree):
 
 def test_get_data(qtree):
     """Test extra data added to a node."""
-    for i in range(0, 100, 10):
-        for j in range(0, 100, 10):
-            qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=i + j)
+    for i, j in itertools.product(range(0, 100, 10), range(0, 100, 10)):
+        qtree.add(item=f"{i:d}x{j:d}", bounds=(i, j, 10, 10), data=i + j)
 
-    for i in range(0, 100, 10):
-        for j in range(0, 100, 10):
-            assert i + j == qtree.get_data(item=f"{i:d}x{j:d}")
+    for i, j in itertools.product(range(0, 100, 10), range(0, 100, 10)):
+        assert i + j == qtree.get_data(item=f"{i:d}x{j:d}")
 
 
 def test_resize(qtree: Quadtree):
