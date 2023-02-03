@@ -22,7 +22,9 @@ class MockEvent:
 
 
 class MockGesture:
-    def __init__(self, view, event=MockEvent()):
+    def __init__(self, view, event=None):
+        if event is None:
+            event = MockEvent()
         self._view = view
         self._event = event
 
