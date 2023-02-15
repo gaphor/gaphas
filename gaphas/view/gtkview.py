@@ -302,7 +302,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if items or removed_items:
             self.update()
 
-    @g_async(single=True)
+    @g_async(single=True, priority=GLib.PRIORITY_DEFAULT)
     def update(self) -> None:
         """Update view status according to the items updated in the model."""
         model = self._model
