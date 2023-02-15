@@ -43,6 +43,7 @@ from gaphas.tool import (
 )
 from gaphas.tool.itemtool import Segment
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
+from gaphas.tool.scroll import pan_tool
 from gaphas.util import text_extents, text_underline
 from gaphas.view import GtkView
 
@@ -123,6 +124,7 @@ def apply_default_tool_set(view):
     view.add_controller(item_tool(view))
     for tool in zoom_tools(view):
         view.add_controller(tool)
+    view.add_controller(pan_tool(view))
     view.add_controller(view_focus_tool(view))
 
     view.add_controller(rubberband_tool(view, rubberband_state(view)))

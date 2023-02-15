@@ -1,6 +1,7 @@
 from gi.repository import Gdk, Gtk
 
 from gaphas.tool.zoom import Zoom
+from gaphas.tool.hover import set_cursor
 from gaphas.view import GtkView
 
 
@@ -60,7 +61,8 @@ class PanState:
         self.reset()
 
     def reset(self):
-        self.pos = None
+        self.h = 0
+        self.v = 0
 
 
 def pan_tool(view: GtkView) -> Gtk.GestureDrag:
@@ -69,22 +71,29 @@ def pan_tool(view: GtkView) -> Gtk.GestureDrag:
         if Gtk.get_major_version() == 3
         else Gtk.GestureDrag.new()
     )
-    gesture.set_button(2)
+    gesture.set_button(Gdk.BUTTON_MIDDLE)
     pan_state = PanState()
     gesture.connect("drag-begin", on_drag_begin, pan_state)
     gesture.connect("drag-update", on_drag_update, pan_state)
+    gesture.connect("drag-end", on_drag_end)
     return gesture
 
 
-def on_drag_begin(gesture, _start_x, _start_y, pan_state):
+def on_drag_begin(gesture, start_x, start_y, pan_state):
     view = gesture.get_widget()
-    m = view.matrix
-    pan_state.pos = (m[4], m[5])
+    pan_state.h = view.hadjustment.get_value()
+    pan_state.v = view.vadjustment.get_value()
+    set_cursor(view, "move")
     gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
 
 def on_drag_update(gesture, offset_x, offset_y, pan_state):
     view = gesture.get_widget()
-    m = view.matrix
-    x0, y0 = pan_state.pos
-    m.translate(x0 + offset_x - m[4], y0 + offset_y - m[5])
+    view.hadjustment.set_value(pan_state.h - offset_x)
+    view.vadjustment.set_value(pan_state.v - offset_y)
+    set_cursor(view, "move")
+
+
+def on_drag_end(gesture, _offset_x, _offset_y):
+    view = gesture.get_widget()
+    set_cursor(view, "default")
