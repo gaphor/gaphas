@@ -331,14 +331,14 @@ sphinx-basic-ng = "*"
 
 [[package]]
 name = "gaphor"
-version = "2.16.0"
+version = "2.17.0"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
 python-versions = ">=3.9,<3.12"
 files = [
-    {file = "gaphor-2.16.0-py3-none-any.whl", hash = "sha256:b5cc56bf4b956591fcba494bc4137d232ad3d40d23f6be39cf3703f4089b108e"},
-    {file = "gaphor-2.16.0.tar.gz", hash = "sha256:bc18245adf5b85ac532fb39328e8e00c571bae4a93f469bff2711d813c3df19c"},
+    {file = "gaphor-2.17.0-py3-none-any.whl", hash = "sha256:addb50fdfb89dbf2b6c59ff4608a23d9797b16c23fd729e9eea32db521246fb7"},
+    {file = "gaphor-2.17.0.tar.gz", hash = "sha256:9215be52ae87838a56502a5a0b49003c531fef7bc3b923e2a5fc7cbcc45bf738"},
 ]
 
 [package.dependencies]
