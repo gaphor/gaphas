@@ -10,6 +10,7 @@ import cairo
 warnings.warn(
     "The module gaphas.util is deprecated and will be removed in a future version.",
     DeprecationWarning,
+    stacklevel=1,
 )
 
 
