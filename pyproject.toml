@@ -30,7 +30,7 @@ python = ">=3.9,<3.12"
 PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
 sphinx = { version = ">=4.3,<7.0", optional = true }
-furo = { version = "^2022", optional = true }
+furo = { version = ">=2022,<2024", optional = true }
 gaphor = { version = "^2.15.0", python = "^3.9", optional = true }
 
 [tool.poetry.dev-dependencies]
