@@ -293,7 +293,7 @@ class Line(Matrices):
             self._connections.remove_constraint(self, c)
         del self._orthogonal_constraints[:]
 
-        if not self._orthogonal or len(self._handles) < 3:
+        if not self.orthogonal or len(self._handles) < 3:
             return
 
         add = self._connections.add_constraint
