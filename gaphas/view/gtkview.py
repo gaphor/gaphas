@@ -445,7 +445,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def do_unrealize(self) -> None:
         if self._model:
-            self.model = None
+            self._model.unregister_view(self)
 
         Gtk.DrawingArea.do_unrealize(self)
 
