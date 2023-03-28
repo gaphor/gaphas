@@ -258,8 +258,9 @@ class Line(Matrices):
 
         self._line_width = 2.0
         self._fuzziness = 0.0
-        self._orthogonal_constraints: list[Constraint] = []
         self._horizontal = False
+        self._orthogonal = False
+        self._orthogonal_constraints: list[Constraint] = []
 
     @property
     def head(self) -> Handle:
@@ -285,22 +286,17 @@ class Line(Matrices):
     def fuzziness(self, fuzziness: float) -> None:
         self._fuzziness = fuzziness
 
-    def update_orthogonal_constraints(self, orthogonal: bool) -> None:
-        """Update the constraints required to maintain the orthogonal line.
-
-        The actual constraints attribute (``_orthogonal_constraints``)
-        is observed, so the undo system will update the contents
-        properly
-        """
+    def update_orthogonal_constraints(self) -> None:
+        """Update the constraints required to maintain the orthogonal line."""
+        # Use public `horizontal` and `orthogonal` field, so properties can be overwritten
         for c in self._orthogonal_constraints:
             self._connections.remove_constraint(self, c)
         del self._orthogonal_constraints[:]
 
-        if not orthogonal:
+        if not self._orthogonal or len(self._handles) < 3:
             return
 
         add = self._connections.add_constraint
-        # Use public `horizontal` field, so that property can be overwritten
         cons = [
             add(self, c)
             for c in create_orthogonal_constraints(self._handles, self.horizontal)
@@ -318,7 +314,7 @@ class Line(Matrices):
 
     @property
     def orthogonal(self) -> bool:
-        return bool(self._orthogonal_constraints)
+        return self._orthogonal
 
     @orthogonal.setter
     def orthogonal(self, orthogonal: bool) -> None:
@@ -327,9 +323,8 @@ class Line(Matrices):
         >>> a.orthogonal
         False
         """
-        if orthogonal and len(self.handles()) < 3:
-            raise ValueError("Can't set orthogonal line with less than 3 handles")
-        self.update_orthogonal_constraints(orthogonal)
+        self._orthogonal = True
+        self.update_orthogonal_constraints()
 
     @property
     def horizontal(self) -> bool:
@@ -346,7 +341,7 @@ class Line(Matrices):
         False
         """
         self._horizontal = horizontal
-        self.update_orthogonal_constraints(self.orthogonal)
+        self.update_orthogonal_constraints()
 
     def insert_handle(self, index: int, handle: Handle) -> None:
         self._handles.insert(index, handle)

@@ -88,7 +88,7 @@ class LineSegment:
         do_split(segment, count)
 
         # force orthogonal constraints to be recreated
-        item.update_orthogonal_constraints(item.orthogonal)
+        item.update_orthogonal_constraints()
 
         self.recreate_constraints()
 
@@ -135,7 +135,7 @@ class LineSegment:
         item.insert_port(segment, port)
 
         # force orthogonal constraints to be recreated
-        item.update_orthogonal_constraints(item.orthogonal)
+        item.update_orthogonal_constraints()
 
         self.recreate_constraints()
         self.model.request_update(item)
