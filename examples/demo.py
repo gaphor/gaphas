@@ -17,8 +17,8 @@ import cairo
 import gi
 
 # fmt: off
-GTK4 = "-4" in sys.argv
-gi.require_version("Gtk", "4.0" if GTK4 else "3.0")  # noqa: isort:skip
+GTK3 = "-3" in sys.argv
+gi.require_version("Gtk", "3.0" if GTK3 else "4.0")  # noqa: isort:skip
 from gi.repository import Gtk  # noqa: isort:skip
 # fmt: on
 
@@ -168,18 +168,18 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     h = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
 
     def h_append(b):
-        h.append(b) if GTK4 else h.add(b)
+        h.add(b) if GTK3 else h.append(b)
 
-    w.set_child(h) if GTK4 else w.add(h)
+    w.add(h) if GTK3 else w.set_child(h)
 
     # VBox contains buttons that can be used to manipulate the canvas:
     v = Gtk.Box.new(Gtk.Orientation.VERTICAL, 6)
 
     def v_append(b):
-        v.append(b) if GTK4 else v.add(b)
+        v.add(b) if GTK3 else v.append(b)
 
     f = Gtk.Frame()
-    f.set_child(v) if GTK4 else f.add(v)
+    f.add(v) if GTK3 else f.set_child(v)
     h_append(f)
 
     v_append(Gtk.Label.new("Item placement:"))
@@ -323,13 +323,13 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
     view.set_size_request(150, 120)
     s = Gtk.ScrolledWindow.new()
     s.set_hexpand(True)
-    s.set_child(view) if GTK4 else s.add(view)
+    s.add(view) if GTK3 else s.set_child(view)
     h_append(s)
 
-    if GTK4:
-        w.show()
-    else:
+    if GTK3:
         w.show_all()
+    else:
+        w.show()
 
     w.connect("destroy", lambda w: app.quit())
 
