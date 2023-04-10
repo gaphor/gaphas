@@ -34,7 +34,7 @@ furo = { version = ">=2022,<2024", optional = true }
 gaphor = { version = "^2.15.0", python = "^3.9", optional = true }
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.2"
+pytest = "^7.3"
 pytest-cov = "^4.0"
 pytest-archon = "^0.0.4"
 
