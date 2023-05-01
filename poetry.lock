@@ -374,14 +374,14 @@ sphinx-basic-ng = "*"
 
 [[package]]
 name = "gaphor"
-version = "2.18.0"
+version = "2.18.1"
 description = "Gaphor is the simple modeling tool written in Python."
 category = "main"
 optional = true
 python-versions = ">=3.9,<3.12"
 files = [
-    {file = "gaphor-2.18.0-py3-none-any.whl", hash = "sha256:285bd28fc4272ef9d222a531b5a8d51744b9756bacce3032954526df6bbff196"},
-    {file = "gaphor-2.18.0.tar.gz", hash = "sha256:4ed5ac66f492206d84306087461f2833b47a88ee58776aab232da053cb6d0c5e"},
+    {file = "gaphor-2.18.1-py3-none-any.whl", hash = "sha256:e5ea7007eb9fc9ae0d95005e94da4ad11ee08529d1c2959cf0e0aeb220ba4e1f"},
+    {file = "gaphor-2.18.1.tar.gz", hash = "sha256:5408e7acc823d33c2e6775c2ba1e80f63a6b5147562b6de62af49031080290fa"},
 ]
 
 [package.dependencies]
@@ -398,7 +398,7 @@ pyobjc-framework-cocoa = {version = ">=9.0.1,<10.0.0", markers = "sys_platform =
 tinycss2 = ">=1.0.2,<2.0.0"
 
 [package.extras]
-docs = ["furo (>=2022,<2024)", "myst-nb (>=0.17.1,<0.18.0)", "sphinx (>=4.3,<6.0)", "sphinx-copybutton (>=0.5.0,<0.6.0)"]
+docs = ["furo (>=2022,<2024)", "myst-nb (>=0.17.1,<0.18.0)", "sphinx (>=4.3,<6.0)", "sphinx-copybutton (>=0.5.0,<0.6.0)", "sphinx-intl (>=2.1.0,<3.0.0)"]
 
 [[package]]
 name = "generic"
