@@ -18,7 +18,7 @@ repos:
       - id: check-toml
       - id: check-yaml
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.0.262'
+    rev: 'v0.0.263'
     hooks:
       - id: ruff
         args: [--fix]
