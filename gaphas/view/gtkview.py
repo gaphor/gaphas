@@ -17,6 +17,9 @@ from gaphas.quadtree import Quadtree, QuadtreeBucket
 from gaphas.selection import Selection
 from gaphas.view.scrolling import Scrolling
 
+if Gtk.get_major_version() != 3:
+    from gi.repository import Graphene
+
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
 DEBUG_DRAW_QUADTREE = False
@@ -103,7 +106,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self.set_app_paintable(True)
         else:
             self.set_focusable(True)
-            self.set_draw_func(GtkView.do_draw)
             self.connect_after("resize", GtkView.on_resize)
 
         def alignment_updated(matrix: Matrix) -> None:
@@ -363,52 +365,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             allocation.width, allocation.height, self.bounding_box
         )
 
-    @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
-    def update_back_buffer(self) -> None:
-        if Gtk.get_major_version() == 3:
-            surface = self.get_window()
-        else:
-            surface = self.get_native() and self.get_native().get_surface()
-
-        if self.model and surface:
-            allocation = self.get_allocation()
-            width = allocation.width
-            height = allocation.height
-
-            if not self._back_buffer or self._back_buffer_needs_resizing:
-                self._back_buffer = surface.create_similar_surface(
-                    cairo.Content.COLOR_ALPHA, width, height
-                )
-                self._back_buffer_needs_resizing = False
-
-            assert self._back_buffer
-
-            cr = cairo.Context(self._back_buffer)
-            cr.save()
-            cr.set_operator(cairo.OPERATOR_CLEAR)
-            cr.paint()
-            cr.restore()
-
-            Gtk.render_background(self.get_style_context(), cr, 0, 0, width, height)
-
-            cr.set_matrix(self.matrix.to_cairo())
-            cr.save()
-            cr.set_tolerance(PAINT_TOLERANCE)
-            items = self.get_items_in_rectangle((0, 0, width, height))
-            self.painter.paint(list(items), cr)
-            cr.restore()
-
-            if DEBUG_DRAW_BOUNDING_BOX:
-                self._debug_draw_bounding_box(cr, width, height)
-
-            if DEBUG_DRAW_QUADTREE:
-                self._debug_draw_quadtree(cr)
-
-            if Gtk.get_major_version() == 3:
-                self.get_window().invalidate_rect(allocation, True)
-            else:
-                self.queue_draw()
-
     def _debug_draw_bounding_box(self, cr, width, height):
         for item in self.get_items_in_rectangle((0, 0, width, height)):
             try:
@@ -477,17 +433,86 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         else:
             self._back_buffer = None
 
-    def do_draw(self, cr: cairo.Context, width: int = 0, height: int = 0) -> bool:
-        if not self._model:
+    if Gtk.get_major_version() == 3:
+
+        @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
+        def update_back_buffer(self) -> None:
+            surface = self.get_window()
+
+            if self.model and surface:
+                allocation = self.get_allocation()
+                width = allocation.width
+                height = allocation.height
+
+                if not self._back_buffer or self._back_buffer_needs_resizing:
+                    self._back_buffer = surface.create_similar_surface(
+                        cairo.Content.COLOR_ALPHA, width, height
+                    )
+                    self._back_buffer_needs_resizing = False
+
+                assert self._back_buffer
+
+                cr = cairo.Context(self._back_buffer)
+                cr.save()
+                cr.set_operator(cairo.OPERATOR_CLEAR)
+                cr.paint()
+                cr.restore()
+
+                Gtk.render_background(self.get_style_context(), cr, 0, 0, width, height)
+
+                cr.set_matrix(self.matrix.to_cairo())
+                cr.save()
+                cr.set_tolerance(PAINT_TOLERANCE)
+                items = self.get_items_in_rectangle((0, 0, width, height))
+                self.painter.paint(list(items), cr)
+                cr.restore()
+
+                if DEBUG_DRAW_BOUNDING_BOX:
+                    self._debug_draw_bounding_box(cr, width, height)
+
+                if DEBUG_DRAW_QUADTREE:
+                    self._debug_draw_quadtree(cr)
+
+                self.get_window().invalidate_rect(allocation, True)
+
+        def do_draw(self, cr: cairo.Context, width: int = 0, height: int = 0) -> bool:
+            if not self._model:
+                return False
+
+            if not self._back_buffer:
+                return False
+
+            cr.set_source_surface(self._back_buffer, 0, 0)
+            cr.paint()
+
             return False
 
-        if not self._back_buffer:
-            return False
+    else:
 
-        cr.set_source_surface(self._back_buffer, 0, 0)
-        cr.paint()
+        def update_back_buffer(self) -> None:
+            self.queue_draw()
 
-        return False
+        def do_snapshot(self, snapshot):
+            width = self.get_width()
+            height = self.get_height()
+            snapshot.render_background(self.get_style_context(), 0, 0, width, height)
+
+            if self.model:
+                r = Graphene.Rect()
+                r.init(0, 0, width, height)
+                cr = snapshot.append_cairo(r)
+                cr.set_matrix(self.matrix.to_cairo())
+                cr.save()
+                cr.set_tolerance(PAINT_TOLERANCE)
+                items = self.get_items_in_rectangle((0, 0, width, height))
+                self.painter.paint(list(items), cr)
+                cr.restore()
+
+                if DEBUG_DRAW_BOUNDING_BOX:
+                    self._debug_draw_bounding_box(cr, width, height)
+
+                if DEBUG_DRAW_QUADTREE:
+                    self._debug_draw_quadtree(cr)
 
 
 def transform_rectangle(matrix: Matrix, rect: Rect) -> Rect:
