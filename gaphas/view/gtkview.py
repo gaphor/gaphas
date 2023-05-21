@@ -493,11 +493,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self.queue_draw()
 
         def do_snapshot(self, snapshot):
-            width = self.get_width()
-            height = self.get_height()
-            snapshot.render_background(self.get_style_context(), 0, 0, width, height)
-
             if self.model:
+                width = self.get_width()
+                height = self.get_height()
                 r = Graphene.Rect()
                 r.init(0, 0, width, height)
                 cr = snapshot.append_cairo(r)
