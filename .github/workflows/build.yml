@@ -6,7 +6,7 @@ on:
     types: [created, published]
 
 env:
-  python_version: '3.11'
+  python-version: '3.11'
 
 jobs:
   lint:
@@ -16,12 +16,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4.6.1
         with:
-          python-version: ${{ env.python_version }}
+          python-version: ${{ env.python-version }}
       - name: Lint with pre-commit
         uses: pre-commit/action@v3.0.0
       - name: Check Poetry lock file integrity
         run: |
-          pipx install --python python${{ env.python_version }} --pip-args=--constraint=.github/constraints.txt poetry
+          pipx install --python python${{ env.python-version }} --pip-args=--constraint=.github/constraints.txt poetry
           poetry config virtualenvs.in-project true
           poetry check
 
@@ -64,14 +64,21 @@ jobs:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
           coverageCommand: poetry run coverage xml
-      - name: Build
-        run: poetry build
-      - name: Upload Assets (release only)
-        uses: AButler/upload-release-assets@v2.0
-        if: github.event_name == 'release' && matrix.python-version == '3.10' && matrix.gtk-version == '3.0'
-        with:
-          files: "dist/*"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish to PyPI (release only)
-        if: github.event_name == 'release' && matrix.python-version == '3.10' && matrix.gtk-version == '3.0'
-        run: poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
+
+  publish-to-pypi:
+    name: Publish to PyPI (release only)
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+    if: ${{ github.event_name == 'release' && matrix.python-version == env.python-version && matrix.gtk-version == '3.0' }}
+    steps:
+    - name: Create Source Dist and Wheel
+      if: ${{ matrix.python_version == env.python-version }}
+      run: poetry build
+    - name: Upload Assets (release only)
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: "dist/*"
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: pypa/gh-action-pypi-publish@release/v1
