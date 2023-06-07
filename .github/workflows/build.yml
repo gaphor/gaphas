@@ -6,7 +6,7 @@ on:
     types: [created, published]
 
 env:
-  POETRY_VERSION: 1.2.2
+  python_version: '3.11'
 
 jobs:
   lint:
@@ -16,9 +16,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4.6.1
         with:
-          python-version: '3.x'
+          python-version: ${{ env.python_version }}
       - name: Lint with pre-commit
         uses: pre-commit/action@v3.0.0
+      - name: Check Poetry lock file integrity
+        run: |
+          pipx install --python python${{ env.python_version }} --pip-args=--constraint=.github/constraints.txt poetry
+          poetry config virtualenvs.in-project true
+          poetry check
 
   build:
     needs: lint
@@ -47,8 +52,7 @@ jobs:
           sudo apt install -qq --no-install-recommends gir1.2-gtk-${{ matrix.gtk-version }} libgirepository1.0-dev
       - name: Install Poetry
         run: |
-          python -m pip install --upgrade pip
-          pip install poetry==$POETRY_VERSION
+          pipx install --python python${{ matrix.python-version }} --pip-args=--constraint=.github/constraints.txt poetry
           poetry config virtualenvs.in-project true
       - name: Install dependencies
         run: poetry install --no-interaction
