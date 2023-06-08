@@ -6,36 +6,27 @@ on:
     types: [created, published]
 
 env:
-  POETRY_VERSION: 1.2.2
+  python-version: '3.11'
 
 jobs:
-  skip-check:
-    runs-on: ubuntu-22.04
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5.3.0
-        with:
-          concurrent_skipping: 'same_content'
-          do_not_skip: '["release", "workflow_dispatch", "schedule"]'
-
   lint:
-    needs: skip-check
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3.5.2
       - name: Set up Python
         uses: actions/setup-python@v4.6.1
         with:
-          python-version: '3.x'
+          python-version: ${{ env.python-version }}
       - name: Lint with pre-commit
         uses: pre-commit/action@v3.0.0
+      - name: Check Poetry lock file integrity
+        run: |
+          pipx install --python python${{ env.python-version }} --pip-args=--constraint=.github/constraints.txt poetry
+          poetry config virtualenvs.in-project true
+          poetry check
 
   build:
     needs: lint
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -44,6 +35,9 @@ jobs:
         python-version: ['3.9', '3.10', '3.11']
         gtk-version: ['3.0', '4.0']
     name: build (python ${{ matrix.python-version }}, gtk ${{ matrix.gtk-version }})
+    outputs:
+      targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz
+      wheel: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
     steps:
       - uses: actions/checkout@v3.5.2
       - name: Set up Python ${{ matrix.python-version }}
@@ -61,9 +55,11 @@ jobs:
           sudo apt install -qq --no-install-recommends gir1.2-gtk-${{ matrix.gtk-version }} libgirepository1.0-dev
       - name: Install Poetry
         run: |
-          python -m pip install --upgrade pip
-          pip install poetry==$POETRY_VERSION
+          pipx install --python python${{ matrix.python-version }} --pip-args=--constraint=.github/constraints.txt poetry
           poetry config virtualenvs.in-project true
+      - name: Collect Project Data
+        id: meta
+        run: .github/scripts/metadata.sh
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Test
@@ -74,14 +70,36 @@ jobs:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
           coverageCommand: poetry run coverage xml
-      - name: Build
+      - name: Create Source Dist and Wheel
+        if: ${{ matrix.python_version == env.python_version }}
         run: poetry build
-      - name: Upload Assets (release only)
-        uses: AButler/upload-release-assets@v2.0
-        if: github.event_name == 'release' && matrix.python-version == '3.10' && matrix.gtk-version == '3.0'
+      - name: Upload gaphas-${{ steps.meta.output.version }}.tar.gz
+        if: ${{ matrix.python_version == env.python_version }}
+        uses: actions/upload-artifact@v3
         with:
-          files: "dist/*"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish to PyPI (release only)
-        if: github.event_name == 'release' && matrix.python-version == '3.10' && matrix.gtk-version == '3.0'
-        run: poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
+          name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
+          path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
+      - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
+        if: ${{ matrix.python_version == env.python_version }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
+          path: dist/gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
+
+  publish-to-pypi:
+    name: Publish to PyPI (release only)
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+    if: ${{ github.event_name == 'release' }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.targz }}
+          path: dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.wheel }}
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
