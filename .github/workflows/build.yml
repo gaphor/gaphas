@@ -12,7 +12,7 @@ jobs:
   lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
       - name: Set up Python
         uses: actions/setup-python@v4.6.1
         with:
@@ -39,7 +39,7 @@ jobs:
       targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz
       wheel: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4.6.1
         with:
