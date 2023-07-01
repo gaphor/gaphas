@@ -34,7 +34,6 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
-    "gaphor.extensions.sphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -74,8 +73,6 @@ pygments_style = None
 
 autodoc_member_order = "bysource"
 autodoc_mock_imports = ["cairo", "gi.repository.Gtk", "gi.repository.Gdk"]
-
-gaphor_models = "gaphor-canvas.gaphor"
 
 # -- Options for HTML output -------------------------------------------------
 
