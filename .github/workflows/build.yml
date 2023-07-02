@@ -8,17 +8,25 @@ on:
 env:
   python-version: '3.11'
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3.5.3
+      - name: Harden Runner
+        uses: step-security/harden-runner@55d479fb1c5bcad5a4f9099a5d9f37c8857b2845 # v2.4.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
       - name: Set up Python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@bd6b4b6205c4dbad673328db7b31b7fab9e241c0 # v4.6.1
         with:
           python-version: ${{ env.python-version }}
       - name: Lint with pre-commit
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
       - name: Check Poetry lock file integrity
         run: |
           pipx install --python python${{ env.python-version }} --pip-args=--constraint=.github/constraints.txt poetry
@@ -39,13 +47,18 @@ jobs:
       targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz
       wheel: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
     steps:
-      - uses: actions/checkout@v3.5.3
+      - name: Harden Runner
+        uses: step-security/harden-runner@55d479fb1c5bcad5a4f9099a5d9f37c8857b2845 # v2.4.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@bd6b4b6205c4dbad673328db7b31b7fab9e241c0 # v4.6.1
         with:
           python-version: ${{ matrix.python-version }}
       - name: Use Python Dependency Cache
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
@@ -65,7 +78,7 @@ jobs:
       - name: Test
         run: TEST_GTK_VERSION=${{ matrix.gtk-version }} xvfb-run poetry run pytest --cov=gaphas
       - name: Code Climate Coverage Action
-        uses: paambaati/codeclimate-action@v4.0.0
+        uses: paambaati/codeclimate-action@5f637ccd517bc8960de0fe59379dd922bcba9486 # v4.0.0
         env:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
@@ -75,13 +88,13 @@ jobs:
         run: poetry build
       - name: Upload gaphas-${{ steps.meta.output.version }}.tar.gz
         if: ${{ matrix.python_version == env.python_version }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
           path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
       - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
         if: ${{ matrix.python_version == env.python_version }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
           path: dist/gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
@@ -94,12 +107,17 @@ jobs:
       id-token: write
     if: ${{ github.event_name == 'release' }}
     steps:
-      - uses: actions/download-artifact@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@55d479fb1c5bcad5a4f9099a5d9f37c8857b2845 # v2.4.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ needs.build.outputs.targz }}
           path: dist
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ needs.build.outputs.wheel }}
           path: dist
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@f5622bde02b04381239da3573277701ceca8f6a0 # release/v1
