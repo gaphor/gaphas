@@ -31,7 +31,7 @@ BOUNDING_BOX_TOLERANCE = 1.0
 
 
 class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
-    """GTK+ widget for rendering a gaphas.model.Model to a screen.  The view
+    """GTK widget for rendering a gaphas.model.Model to a screen.  The view
     uses Tools to handle events and Painters to draw. Both are configurable.
 
     The widget already contains adjustment objects (`hadjustment`,

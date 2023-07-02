@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "gaphas"
 version = "3.11.2"
-description="Gaphas is a GTK+ based diagramming widget"
+description="Gaphas is a GTK diagramming widget"
 authors = [
     "Arjan J. Molenaar <gaphor@gmail.com>",
     "Dan Yeaw <dan@yeaw.me>"
