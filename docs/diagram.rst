@@ -8,21 +8,21 @@ A default implementation is provided by `gaphas.Canvas`.
 A view is rendered by Painters. Interaction is handled
 by Tools.
 
-.. diagram:: view
+.. image:: images/view.png
    :align: center
 
 Painting is done by painters. Each painter will paint a layer of the canvas.
 
-.. diagram:: painter
+.. image:: images/painter.png
    :align: center
 
 Besides the view, there is constraint based connection management.
 Constraints can be used within an item, and to connect different items.
 
-.. diagram:: connections
+.. image:: images/connections.png
    :align: center
 
 A default model and item implementations, a line and an element.
 
-.. diagram:: canvas
+.. image:: images/canvas.png
    :align: center

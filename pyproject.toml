@@ -31,7 +31,6 @@ PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
 sphinx = { version = ">=4.3,<8.0", optional = true }
 furo = { version = ">=2022,<2024", optional = true }
-gaphor = { version = "^2.15.0", python = "^3.9", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4"
@@ -39,7 +38,7 @@ pytest-cov = "^4.1"
 pytest-archon = "^0.0.4"
 
 [tool.poetry.extras]
-docs = [ "sphinx", "furo", "gaphor" ]
+docs = [ "sphinx", "furo" ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
