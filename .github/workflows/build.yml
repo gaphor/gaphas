@@ -32,7 +32,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
         gtk-version: ['3.0', '4.0']
     name: build (python ${{ matrix.python-version }}, gtk ${{ matrix.gtk-version }})
     outputs:
@@ -44,6 +44,7 @@ jobs:
         uses: actions/setup-python@v4.6.1
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
       - name: Use Python Dependency Cache
         uses: actions/cache@v3.3.1
         with:
