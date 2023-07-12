@@ -488,13 +488,13 @@ testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "no
 
 [[package]]
 name = "pytest-archon"
-version = "0.0.4"
+version = "0.0.5"
 description = "Rule your architecture like a real developer"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-archon-0.0.4.tar.gz", hash = "sha256:5cfb23c8c80c01abc18261894fafa42f2e387ba05d812a89eeb3dc104e6c9e97"},
-    {file = "pytest_archon-0.0.4-py3-none-any.whl", hash = "sha256:be93b922943d94750d290db57f605bc698ab6e92f74e60022801a731b1fd3517"},
+    {file = "pytest-archon-0.0.5.tar.gz", hash = "sha256:266359ef6f78b2b8fda8794d506881376dcbfd5a5834851c375da77377a26059"},
+    {file = "pytest_archon-0.0.5-py3-none-any.whl", hash = "sha256:2a4a689af9dddd18e86cf304c0743b2a060fd3bc9341c25a3d06a4e2ee681fe1"},
 ]
 
 [package.dependencies]
@@ -754,4 +754,4 @@ docs = ["furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4"
-content-hash = "ac89a9f97d5346fb0c33a06d4d2fb859590ce7b684455ac5dd7d82f3778ef8a1"
+content-hash = "313424078f7665931f0e1595fd4439b3be7cb47fcf5467767beaae9bc2f87367"
