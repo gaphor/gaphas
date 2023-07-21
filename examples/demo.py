@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# flake8: noqa E402
+# ruff: noqa: E402
 """A simple demo app.
 
 It sports a small canvas and some trivial operations:
@@ -18,8 +18,8 @@ import gi
 
 # fmt: off
 GTK3 = "-3" in sys.argv
-gi.require_version("Gtk", "3.0" if GTK3 else "4.0")  # noqa: isort:skip
-from gi.repository import Gtk  # noqa: isort:skip
+gi.require_version("Gtk", "3.0" if GTK3 else "4.0")
+from gi.repository import Gtk
 # fmt: on
 
 from examples.exampleitems import Box, Circle, Text

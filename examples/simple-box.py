@@ -1,15 +1,16 @@
 #!/usr/bin/env python
+# ruff: noqa: E402
 """A simple example containing two boxes and a line."""
 import gi
 
 # fmt: off
-gi.require_version("Gtk", "4.0")  # noqa: isort:skip
-from gi.repository import Gtk  # noqa: isort:skip
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk
 
-from gaphas import Canvas, Line # noqa: isort:skip
-from gaphas.tool import hover_tool, item_tool, view_focus_tool, zoom_tool # noqa: isort:skip
-from gaphas.view import GtkView # noqa: isort:skip
-from examples.exampleitems import Box  # noqa: isort:skip
+from gaphas import Canvas, Line
+from gaphas.tool import hover_tool, item_tool, view_focus_tool, zoom_tool
+from gaphas.view import GtkView
+from examples.exampleitems import Box
 # fmt: on
 
 

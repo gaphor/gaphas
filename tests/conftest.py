@@ -1,4 +1,4 @@
-# flake8: noqa F402
+# ruff: noqa: F402, E402
 import os
 
 import gi
