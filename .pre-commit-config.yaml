@@ -1,8 +1,10 @@
 repos:
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
     - id: codespell
+      additional_dependencies:
+      - tomli
   - repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
@@ -18,7 +20,7 @@ repos:
       - id: check-toml
       - id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.0.291'
+    rev: 'v0.0.292'
     hooks:
       - id: ruff
         args: [--fix]
