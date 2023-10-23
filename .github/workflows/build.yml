@@ -6,7 +6,7 @@ on:
     types: [created, published]
 
 env:
-  python-version: '3.11'
+  python-version: '3.12'
 
 permissions:
   contents: read
