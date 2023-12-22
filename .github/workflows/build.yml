@@ -87,14 +87,14 @@ jobs:
       - name: Create Source Dist and Wheel
         if: ${{ matrix.python-version == env.python-version }}
         run: poetry build
-      - name: Upload gaphas-${{ steps.meta.output.version }}.tar.gz
-        if: ${{ matrix.python-version == env.python-version }}
+      - name: Upload gaphas-${{ steps.meta.outputs.version }}.tar.gz
+        if: ${{ matrix.python-version == env.python-version && matrix.gtk-version == '4.0' }}
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
           path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
       - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
-        if: ${{ matrix.python-version == env.python-version }}
+        if: ${{ matrix.python-version == env.python-version && matrix.gtk-version == '4.0' }}
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
