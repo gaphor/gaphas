@@ -29,12 +29,6 @@ def on_motion(ctrl, x, y):
         ctrl.cursor_name = cursor_name
 
 
-GTK3_CURSORS = {
-    "default": "left_ptr",
-    "move": "fleur",
-}
-
-
 def set_cursor(view, cursor_name):
     cursor = Gdk.Cursor.new_from_name(cursor_name)
     view.set_cursor(cursor)
