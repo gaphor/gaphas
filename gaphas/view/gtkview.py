@@ -329,9 +329,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @g_async(single=True)
     def update_scrolling(self) -> None:
-        allocation = self.get_allocation()
         self._scrolling.update_adjustments(
-            allocation.width, allocation.height, self.bounding_box
+            self.get_width(), self.get_height(), self.bounding_box
         )
 
     def _debug_draw_bounding_box(self, cr, width, height):

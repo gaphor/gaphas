@@ -133,14 +133,6 @@ def get_excluded_items(view, item):
     return excluded_items
 
 
-def get_view_dimensions(view):
-    try:
-        allocation = view.get_allocation()
-    except AttributeError:
-        return 0, 0
-    return allocation.width, allocation.height
-
-
 def find_closest(item_edges, edges, margin=MARGIN):
     delta = 0
     min_d = 1000
@@ -160,10 +152,11 @@ def find_closest(item_edges, edges, margin=MARGIN):
 
 def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset()):
     px, py = pos
-    w, h = get_view_dimensions(view)
-    dx, edges_x = find_vertical_guides(view, handle, vedges, h, excluded_items, MARGIN)
+    dx, edges_x = find_vertical_guides(
+        view, handle, vedges, view.get_height(), excluded_items, MARGIN
+    )
     dy, edges_y = find_horizontal_guides(
-        view, handle, hedges, w, excluded_items, MARGIN
+        view, handle, hedges, view.get_width(), excluded_items, MARGIN
     )
 
     newpos = px + dx, py + dy
@@ -276,8 +269,6 @@ class GuidePainter:
             return
 
         view = self.view
-        allocation = view.get_allocation()
-        w, h = allocation.width, allocation.height
 
         cr.save()
         try:
@@ -286,11 +277,11 @@ class GuidePainter:
             cr.set_source_rgba(0.0, 0.0, 1.0, 0.6)
             for g in guides.vertical:
                 cr.move_to(g, 0)
-                cr.line_to(g, h)
+                cr.line_to(g, view.get_height())
                 cr.stroke()
             for g in guides.horizontal:
                 cr.move_to(0, g)
-                cr.line_to(w, g)
+                cr.line_to(view.get_width(), g)
                 cr.stroke()
         finally:
             cr.restore()

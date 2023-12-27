@@ -106,14 +106,13 @@ def moving_items(view):
 def on_drag_update(gesture, offset_x, offset_y, drag_state):
     _, sx, sy = gesture.get_start_point()
     view = gesture.get_widget()
-    allocation = view.get_allocation()
     x = sx + offset_x
     y = sy + offset_y
 
     for moving in drag_state.moving:
         moving.move((x, y))
 
-    if not (0 <= x <= allocation.width and 0 <= y <= allocation.height):
+    if not (0 <= x <= view.get_width() and 0 <= y <= view.get_height()):
         view.clamp_item(view.selection.focused_item)
 
 
