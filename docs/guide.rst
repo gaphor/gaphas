@@ -19,7 +19,7 @@ Guides consist of a couple of elements: aspects that hook into the item-drag cyc
     ...     .append(HandlePainter(view))
     ...     .append(GuidePainter(view))
     ... )
-    >>> view.add_controller(item_tool(view))
-    >>> view.add_controller(zoom_tool(view))
+    >>> view.add_controller(item_tool())
+    >>> view.add_controller(zoom_tool())
 
 You need to hook up the ``GuidePainter``. The aspect are loaded as soon as the module is loaded.

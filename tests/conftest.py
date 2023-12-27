@@ -1,5 +1,4 @@
 # ruff: noqa: F402, E402
-import os
 
 import gi
 

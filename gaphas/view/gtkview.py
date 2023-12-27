@@ -416,7 +416,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         else:
             self._back_buffer = None
 
-
     def update_back_buffer(self) -> None:
         self.queue_draw()
 

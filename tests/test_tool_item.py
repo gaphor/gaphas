@@ -41,8 +41,8 @@ class MockGesture:
         pass
 
 
-def test_should_create_a_gesture(view):
-    tool = item_tool(view)
+def test_should_create_a_gesture():
+    tool = item_tool()
 
     assert isinstance(tool, Gtk.Gesture)
 

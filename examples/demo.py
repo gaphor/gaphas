@@ -137,6 +137,7 @@ def text_underline(cr, x, y, text, offset=1.5):
     cr.rel_line_to(x_adv, 0)
     cr.stroke()
 
+
 def rubberband_state(view):
     try:
         return view.rubberband_state
@@ -147,14 +148,14 @@ def rubberband_state(view):
 
 def apply_default_tool_set(view):
     view.remove_all_controllers()
-    view.add_controller(item_tool(view))
-    for tool in zoom_tools(view):
+    view.add_controller(item_tool())
+    for tool in zoom_tools():
         view.add_controller(tool)
-    view.add_controller(pan_tool(view))
-    view.add_controller(view_focus_tool(view))
+    view.add_controller(pan_tool())
+    view.add_controller(view_focus_tool())
 
-    view.add_controller(rubberband_tool(view, rubberband_state(view)))
-    view.add_controller(hover_tool(view))
+    view.add_controller(rubberband_tool(rubberband_state(view)))
+    view.add_controller(hover_tool())
     return rubberband_state
 
 
@@ -163,12 +164,12 @@ def apply_placement_tool_set(view, item_type, handle_index):
         apply_default_tool_set(view)
 
     view.remove_all_controllers()
-    tool = placement_tool(view, factory(view, item_type), handle_index)
+    tool = placement_tool(factory(view, item_type), handle_index)
     tool.connect("drag-end", unset_placement_tool)
-    for tool in zoom_tools(view):
-        view.add_controller(tool)
-    view.add_controller(view_focus_tool(view))
     view.add_controller(tool)
+    for tool in zoom_tools():
+        view.add_controller(tool)
+    view.add_controller(view_focus_tool())
 
 
 def apply_painters(view):
@@ -283,9 +284,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         assert view.model
         painter = ItemPainter()
 
-        bounding_box = calculate_bounding_box(
-            painter, canvas.get_all_items()
-        )
+        bounding_box = calculate_bounding_box(painter, canvas.get_all_items())
 
         surface = cairo.ImageSurface(
             cairo.FORMAT_ARGB32, int(bounding_box.width), int(bounding_box.height)
@@ -422,8 +421,6 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-
     if "-p" in sys.argv:
         print("Profiling...")
         import hotshot

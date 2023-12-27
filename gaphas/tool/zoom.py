@@ -2,24 +2,24 @@ from __future__ import annotations
 
 from gi.repository import Gdk, Gtk
 
-from gaphas.view import GtkView
-
 
 class Zoom:
-    def __init__(self, matrix):
-        self.matrix = matrix
+    def __init__(self):
+        self.matrix = None
         self.x0 = 0
         self.y0 = 0
         self.sx = 1.0
         self.sy = 1.0
 
-    def begin(self, x0, y0):
+    def begin(self, matrix, x0, y0):
+        self.matrix = matrix
         self.x0 = x0
         self.y0 = y0
-        self.sx = self.matrix[0]
-        self.sy = self.matrix[3]
+        self.sx = matrix[0]
+        self.sy = matrix[3]
 
     def update(self, scale):
+        assert self.matrix
         if self.sx * scale < 0.2:
             scale = 0.2 / self.sx
         elif self.sx * scale > 20.0:
@@ -37,18 +37,18 @@ class Zoom:
         m.translate(+ox, +oy)
 
 
-def zoom_tools(
-    view: GtkView,
-) -> tuple[Gtk.GestureZoom] | tuple[Gtk.GestureZoom, Gtk.EventControllerScroll]:
-    return (zoom_tool(view), scroll_zoom_tool(view))
+def zoom_tools() -> (
+    tuple[Gtk.GestureZoom] | tuple[Gtk.GestureZoom, Gtk.EventControllerScroll]
+):
+    return zoom_tool(), scroll_zoom_tool()
 
 
-def zoom_tool(view: GtkView) -> Gtk.GestureZoom:
+def zoom_tool() -> Gtk.GestureZoom:
     """Create a zoom tool as a Gtk.Gesture.
 
     Note: we need to keep a reference to this gesture, or else it will be destroyed.
     """
-    zoom = Zoom(view.matrix)
+    zoom = Zoom()
     gesture = Gtk.GestureZoom.new()
     gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     gesture.connect("begin", on_begin, zoom)
@@ -61,15 +61,16 @@ def on_begin(
     sequence: None,
     zoom: Zoom,
 ) -> None:
+    view = gesture.get_widget()
     _, x0, y0 = gesture.get_point(sequence)
-    zoom.begin(x0, y0)
+    zoom.begin(view.matrix, x0, y0)
 
 
-def on_scale_changed(gesture: Gtk.GestureZoom, scale: float, zoom: Zoom) -> None:
+def on_scale_changed(_gesture: Gtk.GestureZoom, scale: float, zoom: Zoom) -> None:
     zoom.update(scale)
 
 
-def scroll_zoom_tool(view: GtkView) -> Gtk.EventControllerScroll:
+def scroll_zoom_tool() -> Gtk.EventControllerScroll:
     """Ctrl-scroll wheel zoom.
 
     GTK4 only.
@@ -91,8 +92,8 @@ def on_scroll(controller, _dx, dy):
     view = controller.get_widget()
     x = view.get_width() / 2
     y = view.get_height() / 2
-    zoom = Zoom(view.matrix)
-    zoom.begin(x, y)
+    zoom = Zoom()
+    zoom.begin(view.matrix, x, y)
 
     zoom_factor = 0.1
     d = 1 - dy * zoom_factor

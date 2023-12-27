@@ -38,7 +38,7 @@ class RubberbandPainter:
             cairo.stroke()
 
 
-def rubberband_tool(view, rubberband_state):
+def rubberband_tool(rubberband_state):
     """Rubberband selection tool.
 
     Should be used in conjunction with ``RubberbandPainter``.

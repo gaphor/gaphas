@@ -143,6 +143,7 @@ def text_multiline(cr, x, y, text):
         cr.move_to(x, y)
         cr.show_text(line)
 
+
 def path_ellipse(cr, x, y, width, height, angle=0):
     """Draw an ellipse.
 

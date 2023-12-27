@@ -16,7 +16,7 @@ from gaphas.view import GtkView
 log = logging.getLogger(__name__)
 
 
-def item_tool(view: GtkView) -> Gtk.GestureDrag:
+def item_tool() -> Gtk.GestureDrag:
     """Handle item movement and movement of handles."""
     gesture = Gtk.GestureDrag.new()
     drag_state = DragState()

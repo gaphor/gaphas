@@ -6,16 +6,17 @@ from gaphas.tool.zoom import Zoom, on_begin, on_scale_changed, zoom_tool
 
 @pytest.fixture
 def zoom_data(view):
-    zoom_data = Zoom(view.matrix)
+    zoom_data = Zoom()
     zoom_data.x0 = 0
     zoom_data.y0 = 0
     zoom_data.sx = 1
     zoom_data.sy = 1
+    zoom_data.begin(view.matrix, 0, 0)
     return zoom_data
 
 
 def test_can_create_zoom_tool(view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
 
     assert isinstance(tool, Gtk.Gesture)
@@ -41,7 +42,7 @@ def test_begin_state(zoom_data, view):
 
 
 def test_scaling(zoom_data, view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
 
     on_scale_changed(tool, 1.2, zoom_data)
@@ -51,7 +52,7 @@ def test_scaling(zoom_data, view):
 
 
 def test_multiple_scaling_events(zoom_data, view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
 
     on_scale_changed(tool, 1.1, zoom_data)
@@ -62,7 +63,7 @@ def test_multiple_scaling_events(zoom_data, view):
 
 
 def test_scaling_with_unequal_scaling_factor(zoom_data, view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
 
     zoom_data.sx = 2
@@ -74,7 +75,7 @@ def test_scaling_with_unequal_scaling_factor(zoom_data, view):
 
 
 def test_zoom_should_center_around_mouse_cursor(zoom_data, view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
     zoom_data.x0 = 100
     zoom_data.y0 = 50
@@ -86,8 +87,9 @@ def test_zoom_should_center_around_mouse_cursor(zoom_data, view):
 
 
 def test_zoom_out_should_be_limited_to_20_percent(zoom_data, view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
+
     on_scale_changed(tool, 0.0, zoom_data)
 
     assert view.matrix[0] == pytest.approx(0.2)
@@ -95,7 +97,7 @@ def test_zoom_out_should_be_limited_to_20_percent(zoom_data, view):
 
 
 def test_zoom_in_should_be_limited_to_20_times(zoom_data, view):
-    tool = zoom_tool(view)
+    tool = zoom_tool()
     view.add_controller(tool)
 
     on_scale_changed(tool, 100.0, zoom_data)

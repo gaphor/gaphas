@@ -2,14 +2,13 @@ from gi.repository import Gdk, Gtk
 
 from gaphas.tool.zoom import Zoom
 from gaphas.tool.hover import set_cursor
-from gaphas.view import GtkView
 
 
-def scroll_tools(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
-    return scroll_tool(view, speed), pan_tool(view)
+def scroll_tools(speed: int = 10) -> Gtk.EventControllerScroll:
+    return scroll_tool(speed), pan_tool()
 
 
-def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
+def scroll_tool(speed: int = 10) -> Gtk.EventControllerScroll:
     """Scroll tool recognized 2 finger scroll gestures."""
     ctrl = Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
     ctrl.connect("scroll", on_scroll, speed)
@@ -26,8 +25,8 @@ def on_scroll(controller, dx, dy, speed):
         view = controller.get_widget()
         x = view.get_width() / 2
         y = view.get_height() / 2
-        zoom = Zoom(view.matrix)
-        zoom.begin(x, y)
+        zoom = Zoom()
+        zoom.begin(view.matrix, x, y)
 
         zoom_factor = 0.1
         d = 1 - dy * zoom_factor
@@ -49,7 +48,7 @@ class PanState:
         self.v = 0
 
 
-def pan_tool(view: GtkView) -> Gtk.GestureDrag:
+def pan_tool() -> Gtk.GestureDrag:
     gesture = Gtk.GestureDrag.new()
     gesture.set_button(Gdk.BUTTON_MIDDLE)
     pan_state = PanState()

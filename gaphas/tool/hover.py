@@ -2,10 +2,9 @@ from gi.repository import Gdk, Gtk
 
 from gaphas.cursor import cursor
 from gaphas.tool.itemtool import find_item_and_handle_at_point
-from gaphas.view import GtkView
 
 
-def hover_tool(view: GtkView) -> Gtk.EventController:
+def hover_tool() -> Gtk.EventController:
     """Highlight the currently hovered item."""
     ctrl = Gtk.EventControllerMotion.new()
     ctrl.connect("motion", on_motion)
