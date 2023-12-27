@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Collection, Iterable
 
 import cairo
-from gi.repository import Graphene, Gdk, GLib, GObject, Gtk
+from gi.repository import Graphene, GLib, GObject, Gtk
 
 from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
@@ -207,29 +207,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.vadjustment.clamp_page(y, y + h)
 
     def add_controller(self, *controllers: Gtk.EventController) -> None:
-        """Add a controller.
-
-        A convenience method, so you have a place to store the event
-        controllers. Events controllers are linked to a widget (in GTK3)
-        on creation time, so calling this method is not necessary.
-        """
+        """Add a controller."""
         for controller in controllers:
             super().add_controller(controller)
         self._controllers.update(controllers)
 
     def remove_controller(self, controller: Gtk.EventController) -> bool:
-        """Remove a controller.
-
-        The event controller's propagation phase is set to
-        `Gtk.PropagationPhase.NONE` to ensure it's not invoked
-        anymore.
-
-        NB. The controller is only really removed from the widget when it's destroyed!
-            This is a Gtk3 limitation.
-        """
+        """Remove a controller."""
         super().remove_controller(controller)
         if controller in self._controllers:
-            controller.set_propagation_phase(Gtk.PropagationPhase.NONE)
             self._controllers.discard(controller)
             return True
         return False
@@ -387,13 +373,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._model.unregister_view(self)
 
         Gtk.DrawingArea.do_unrealize(self)
-
-    def do_configure_event(self, event: Gdk.EventConfigure) -> bool:
-        # GTK+ 3 only
-        allocation = self.get_allocation()
-        self.on_resize(allocation.width, allocation.height)
-
-        return False
 
     def on_selection_update(self, item: Item | None) -> None:
         if self._model:

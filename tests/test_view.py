@@ -104,7 +104,7 @@ def test_can_add_and_remove_controller(view):
     removed = view.remove_controller(ctrl)
 
     assert removed
-    assert ctrl.get_propagation_phase() == Gtk.PropagationPhase.NONE
+    assert ctrl not in view.observe_controllers()
 
 
 def test_can_remove_all_controllers(view):
@@ -113,4 +113,4 @@ def test_can_remove_all_controllers(view):
 
     view.remove_all_controllers()
 
-    assert ctrl.get_propagation_phase() == Gtk.PropagationPhase.NONE
+    assert ctrl not in view.observe_controllers()

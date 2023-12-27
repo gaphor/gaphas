@@ -71,10 +71,7 @@ def on_scale_changed(_gesture: Gtk.GestureZoom, scale: float, zoom: Zoom) -> Non
 
 
 def scroll_zoom_tool() -> Gtk.EventControllerScroll:
-    """Ctrl-scroll wheel zoom.
-
-    GTK4 only.
-    """
+    """Ctrl-scroll wheel zoom."""
     ctrl = Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
     ctrl.connect("scroll", on_scroll)
     return ctrl
