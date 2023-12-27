@@ -24,10 +24,10 @@ from gi.repository import Gtk
 
 from examples.exampleitems import Box, Circle, Text
 from gaphas import Canvas
+from gaphas.geometry import Rectangle
 from gaphas.guide import GuidePainter
 from gaphas.item import Line
 from gaphas.painter import (
-    BoundingBoxPainter,
     FreeHandPainter,
     HandlePainter,
     ItemPainter,
@@ -44,7 +44,6 @@ from gaphas.tool import (
 from gaphas.tool.itemtool import Segment
 from gaphas.tool.rubberband import RubberbandPainter, RubberbandState, rubberband_tool
 from gaphas.tool.scroll import pan_tool
-from gaphas.util import text_extents, text_underline
 from gaphas.view import GtkView
 
 # Global undo list
@@ -111,6 +110,34 @@ class UnderlineText(Text):
         text_underline(cr, 0, 0, "Some text(y)")
 
 
+def text_extents(cr, text, multiline=False):
+    """Simple way to determine the size of a piece of text."""
+    if not text:
+        return 0, 0
+
+    if multiline:
+        width, height = 0, 0
+        for line in text.split("\n"):
+            _x_bear, _y_bear, w, h, _x_adv, _y_adv = cr.text_extents(line)
+            width = max(width, w)
+            height += h
+    else:
+        _x_bear, _y_bear, width, height, _x_adv, _y_adv = cr.text_extents(text)
+        # width, height = width + x_bearing, height + y_bearing
+
+    return width, height
+
+
+def text_underline(cr, x, y, text, offset=1.5):
+    """Draw text with underline."""
+    x_bear, y_bear, w, h, x_adv, y_adv = cr.text_extents(text)
+    cr.move_to(x, y - y_bear)
+    cr.show_text(text)
+    cr.move_to(x, y - y_bear + offset)
+    cr.set_line_width(1.0)
+    cr.rel_line_to(x_adv, 0)
+    cr.stroke()
+
 def rubberband_state(view):
     try:
         return view.rubberband_state
@@ -156,6 +183,13 @@ def apply_painters(view):
         .append(RubberbandPainter(rubberband_state(view)))
     )
     view.bounding_box_painter = painter
+
+
+def calculate_bounding_box(painter, items):
+    surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)
+    cr = cairo.Context(surface)
+    painter.paint(items, cr)
+    return Rectangle(*surface.ink_extents())
 
 
 def create_window(canvas, title, zoom=1.0):  # noqa too complex
@@ -250,15 +284,9 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         assert view.model
         painter = ItemPainter()
 
-        # Update bounding boxes with a temporary CairoContext
-        # (used for stuff like calculating font metrics)
-        tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-        tmpcr = cairo.Context(tmpsurface)
-        bounding_box = BoundingBoxPainter(painter).bounding_box(
-            canvas.get_all_items(), tmpcr
+        bounding_box = calculate_bounding_box(
+            painter, canvas.get_all_items()
         )
-        tmpcr.show_page()
-        tmpsurface.flush()
 
         surface = cairo.ImageSurface(
             cairo.FORMAT_ARGB32, int(bounding_box.width), int(bounding_box.height)
@@ -278,15 +306,7 @@ def create_window(canvas, title, zoom=1.0):  # noqa too complex
         assert view.model
         painter = ItemPainter()
 
-        # Update bounding boxes with a temporarily CairoContext
-        # (used for stuff like calculating font metrics)
-        tmpsurface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-        tmpcr = cairo.Context(tmpsurface)
-        bounding_box = BoundingBoxPainter(painter).bounding_box(
-            canvas.get_all_items(), tmpcr
-        )
-        tmpcr.show_page()
-        tmpsurface.flush()
+        bounding_box = calculate_bounding_box(painter, canvas.get_all_items())
 
         surface = cairo.SVGSurface(
             "demo.svg", int(bounding_box.width), int(bounding_box.height)
