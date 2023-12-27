@@ -4,7 +4,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e9837cc647b72119fd11/test_coverage)](https://codeclimate.com/github/gaphor/gaphas/test_coverage)
 ![Docs build state](https://readthedocs.org/projects/gaphas/badge/?version=latest)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat)](https://github.com/RichardLitt/standard-readme)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/Gaphor/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Matrix](https://img.shields.io/badge/chat-on%20Matrix-success)](https://matrix.to/#/#gaphor_Lobby:gitter.im)
 [![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors)
 
 > Gaphas is the diagramming widget library for Python.

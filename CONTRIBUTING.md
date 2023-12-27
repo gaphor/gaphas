@@ -21,9 +21,9 @@ requests or writing code which can be incorporated into Gaphas itself.
 
 ### What we are not Looking For
 
-Please, don't use the issue tracker for support questions. Check whether the
+Please, don't use the issue tracker for support questions. Check whether 
 your question can be answered on the
-[Gaphor Gitter Channel](https://gitter.im/gaphor/Lobby).
+[Gaphor Matrix Channel](https://matrix.to/#/#gaphor_Lobby:gitter.im).
 
 # Ground Rules
 ### Responsibilities 
