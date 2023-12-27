@@ -80,7 +80,7 @@ If you haven't used poetry before, just run `pip install poetry`, and then run t
 4. Do the changes in your fork.
 5. If you like the change and think the project could use it:
     * Be sure you have the pre-commit hook installed above, it will ensure that
-    [Black](https://github.com/ambv/black) is automatically run on any changes for
+    [Ruff](https://docs.astral.sh/ruff/) is automatically run on any changes for
     consistent code formatting.
     * [Sign](https://help.github.com/articles/signing-commits/) your commits.
     * Note the Gaphas Code of Conduct.
