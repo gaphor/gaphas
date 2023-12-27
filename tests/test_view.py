@@ -45,13 +45,8 @@ def test_view_registration():
     view = GtkView(canvas)
     assert len(canvas._registered_views) == 1
 
-    if Gtk.get_major_version() == 3:
-        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
-        window.add(view)
-        window.show_all()
-    else:
-        window = Gtk.Window.new()
-        window.set_child(view)
+    window = Gtk.Window.new()
+    window.set_child(view)
 
     view.model = None
     assert len(canvas._registered_views) == 0
@@ -95,11 +90,7 @@ def test_scroll_adjustments(view, scrolled_window):
 
 
 def test_will_not_remove_lone_controller(view):
-    ctrl = (
-        Gtk.EventControllerMotion.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.EventControllerMotion.new()
-    )
+    ctrl = Gtk.EventControllerMotion.new()
 
     removed = view.remove_controller(ctrl)
 
@@ -107,11 +98,7 @@ def test_will_not_remove_lone_controller(view):
 
 
 def test_can_add_and_remove_controller(view):
-    ctrl = (
-        Gtk.EventControllerMotion.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.EventControllerMotion.new()
-    )
+    ctrl = Gtk.EventControllerMotion.new()
     view.add_controller(ctrl)
 
     removed = view.remove_controller(ctrl)
@@ -121,11 +108,7 @@ def test_can_add_and_remove_controller(view):
 
 
 def test_can_remove_all_controllers(view):
-    ctrl = (
-        Gtk.EventControllerMotion.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.EventControllerMotion.new()
-    )
+    ctrl = Gtk.EventControllerMotion.new()
     view.add_controller(ctrl)
 
     view.remove_all_controllers()

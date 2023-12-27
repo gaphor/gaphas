@@ -11,14 +11,7 @@ def scroll_tools(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
 
 def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
     """Scroll tool recognized 2 finger scroll gestures."""
-    ctrl = (
-        Gtk.EventControllerScroll.new(
-            view,
-            Gtk.EventControllerScrollFlags.BOTH_AXES,
-        )
-        if Gtk.get_major_version() == 3
-        else Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
-    )
+    ctrl = Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
     ctrl.connect("scroll", on_scroll, speed)
     return ctrl
 
@@ -26,22 +19,13 @@ def scroll_tool(view: GtkView, speed: int = 10) -> Gtk.EventControllerScroll:
 def on_scroll(controller, dx, dy, speed):
     view = controller.get_widget()
 
-    modifiers = (
-        Gtk.get_current_event_state()[1]
-        if Gtk.get_major_version() == 3
-        else controller.get_current_event_state()
-    )
+    modifiers = controller.get_current_event_state()
 
     if modifiers & Gdk.ModifierType.CONTROL_MASK:
-        if Gtk.get_major_version() == 3:
-            event = Gtk.get_current_event()
-            x = event.x
-            y = event.y
-        else:
-            # Workaround: Gtk.EventController.get_current_event() causes SEGFAULT
-            view = controller.get_widget()
-            x = view.get_width() / 2
-            y = view.get_height() / 2
+        # Workaround: Gtk.EventController.get_current_event() causes SEGFAULT
+        view = controller.get_widget()
+        x = view.get_width() / 2
+        y = view.get_height() / 2
         zoom = Zoom(view.matrix)
         zoom.begin(x, y)
 
@@ -66,11 +50,7 @@ class PanState:
 
 
 def pan_tool(view: GtkView) -> Gtk.GestureDrag:
-    gesture = (
-        Gtk.GestureDrag.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureDrag.new()
-    )
+    gesture = Gtk.GestureDrag.new()
     gesture.set_button(Gdk.BUTTON_MIDDLE)
     pan_state = PanState()
     gesture.connect("drag-begin", on_drag_begin, pan_state)

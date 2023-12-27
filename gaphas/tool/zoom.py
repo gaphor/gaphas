@@ -40,11 +40,7 @@ class Zoom:
 def zoom_tools(
     view: GtkView,
 ) -> tuple[Gtk.GestureZoom] | tuple[Gtk.GestureZoom, Gtk.EventControllerScroll]:
-    return (
-        (zoom_tool(view),)
-        if Gtk.get_major_version() == 3
-        else (zoom_tool(view), scroll_zoom_tool(view))
-    )
+    return (zoom_tool(view), scroll_zoom_tool(view))
 
 
 def zoom_tool(view: GtkView) -> Gtk.GestureZoom:
@@ -53,11 +49,7 @@ def zoom_tool(view: GtkView) -> Gtk.GestureZoom:
     Note: we need to keep a reference to this gesture, or else it will be destroyed.
     """
     zoom = Zoom(view.matrix)
-    gesture = (
-        Gtk.GestureZoom.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureZoom.new()
-    )
+    gesture = Gtk.GestureZoom.new()
     gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     gesture.connect("begin", on_begin, zoom)
     gesture.connect("scale-changed", on_scale_changed, zoom)
@@ -82,14 +74,7 @@ def scroll_zoom_tool(view: GtkView) -> Gtk.EventControllerScroll:
 
     GTK4 only.
     """
-    ctrl = (
-        Gtk.EventControllerScroll.new(
-            view,
-            Gtk.EventControllerScrollFlags.BOTH_AXES,
-        )
-        if Gtk.get_major_version() == 3
-        else Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
-    )
+    ctrl = Gtk.EventControllerScroll.new(Gtk.EventControllerScrollFlags.BOTH_AXES)
     ctrl.connect("scroll", on_scroll)
     return ctrl
 
@@ -97,11 +82,7 @@ def scroll_zoom_tool(view: GtkView) -> Gtk.EventControllerScroll:
 def on_scroll(controller, _dx, dy):
     view = controller.get_widget()
 
-    modifiers = (
-        Gtk.get_current_event_state()[1]
-        if Gtk.get_major_version() == 3
-        else controller.get_current_event_state()
-    )
+    modifiers = controller.get_current_event_state()
 
     if not modifiers & Gdk.ModifierType.CONTROL_MASK:
         return False

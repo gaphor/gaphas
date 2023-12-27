@@ -18,11 +18,7 @@ log = logging.getLogger(__name__)
 
 def item_tool(view: GtkView) -> Gtk.GestureDrag:
     """Handle item movement and movement of handles."""
-    gesture = (
-        Gtk.GestureDrag.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureDrag.new()
-    )
+    gesture = Gtk.GestureDrag.new()
     drag_state = DragState()
     gesture.connect("drag-begin", on_drag_begin, drag_state)
     gesture.connect("drag-update", on_drag_update, drag_state)
@@ -49,11 +45,7 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
     view = gesture.get_widget()
     pos = (start_x, start_y)
     selection = view.selection
-    modifiers = (
-        gesture.get_last_event(None).get_state()[1]
-        if Gtk.get_major_version() == 3
-        else gesture.get_current_event_state()
-    )
+    modifiers = gesture.get_current_event_state()
     item, handle = find_item_and_handle_at_point(view, pos)
 
     # Deselect all items unless CTRL or SHIFT is pressed
