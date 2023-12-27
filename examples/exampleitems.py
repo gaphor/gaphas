@@ -35,7 +35,7 @@ class Text(Matrices):
 
     def __init__(self, text=None, plain=False, multiline=False, align_x=1, align_y=-1):
         super().__init__()
-        self.text = text is None and "Hello" or text
+        self.text = "Hello" if text is None else text
         self.plain = plain
         self.multiline = multiline
         self.align_x = align_x
