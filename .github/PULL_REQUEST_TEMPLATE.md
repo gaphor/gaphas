@@ -4,8 +4,8 @@
 ### PR Checklist
 Please check if your PR fulfills the following requirements:
 
-- [ ] I have read, and am following the [Contributor guide](https://github.com/gaphor/gaphas/blob/main/CONTRIBUTING.md)
-- [ ] I have read and understand the [Code of Conduct](https://github.com/gaphor/gaphas/blob/main/CODE_OF_CONDUCT.md)
+- [ ] I have read and I am following the [Contributor guide](https://github.com/gaphor/gaphas/blob/main/CONTRIBUTING.md)
+- [ ] I have read and I understand the [Code of Conduct](https://github.com/gaphor/gaphas/blob/main/CODE_OF_CONDUCT.md)
 
 ### PR Type
 What kind of change does this PR introduce?

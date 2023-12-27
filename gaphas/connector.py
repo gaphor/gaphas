@@ -170,7 +170,10 @@ class ElementConnectionSink(ItemConnectionSink):
             for p in self.item.ports()[:4]:
                 assert isinstance(p, LinePort)
                 if point_on_line := intersect_line_line(
-                    pos, secondary_pos, p.start, p.end  # type: ignore[arg-type]
+                    pos,  # type: ignore[arg-type]
+                    secondary_pos,  # type: ignore[arg-type]
+                    p.start,  # type: ignore[arg-type]
+                    p.end,  # type: ignore[arg-type]
                 ):
                     return point_on_line
 
