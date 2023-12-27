@@ -79,11 +79,11 @@ class Solver:
 
         Example:
 
-        >>> from gaphas.constraint import EquationConstraint
+        >>> from gaphas.constraint import EqualsConstraint
         >>> s = Solver()
         >>> a, b = Variable(), Variable(2.0)
-        >>> s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
+        >>> s.add_constraint(EqualsConstraint(a, b))
+        EqualsConstraint(a=Variable(0, 20), b=Variable(2, 20))
         >>> len(s._constraints)
         1
         >>> a.value
@@ -100,24 +100,7 @@ class Solver:
         return constraint
 
     def remove_constraint(self, constraint: Constraint) -> None:
-        """Remove a constraint from the solver.
-
-        >>> from gaphas.constraint import EquationConstraint
-        >>> s = Solver()
-        >>> a, b = Variable(), Variable(2.0)
-        >>> c = s.add_constraint(EquationConstraint(lambda a, b: a -b, a=a, b=b))
-        >>> c
-        EquationConstraint(<lambda>, a=Variable(0, 20), b=Variable(2, 20))
-        >>> s.remove_constraint(c)
-        >>> s._marked_cons
-        []
-        >>> s._constraints
-        set()
-
-        Removing a constraint twice has no effect:
-
-        >>> s.remove_constraint(c)
-        """
+        """Remove a constraint from the solver."""
         assert constraint, f"No constraint ({constraint})"
         constraint.remove_handler(self.request_resolve_constraint)
         self._constraints.discard(constraint)
@@ -139,36 +122,7 @@ class Solver:
         return bool(self._marked_cons)
 
     def solve(self) -> None:  # sourcery skip: while-to-for
-        """
-        Example:
-
-        >>> from gaphas.constraint import EquationConstraint
-        >>> a, b, c = Variable(1.0), Variable(2.0), Variable(3.0)
-        >>> s = Solver()
-        >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=a, b=b))
-        EquationConstraint(<lambda>, a=Variable(1, 20), b=Variable(2, 20))
-        >>> a.value = 5.0
-        >>> s.solve()
-        >>> len(s._marked_cons)
-        0
-        >>> b._value
-        -5.0
-        >>> s.add_constraint(EquationConstraint(lambda a,b: a+b, a=b, b=c))
-        EquationConstraint(<lambda>, a=Variable(-5, 20), b=Variable(3, 20))
-        >>> len(s._constraints)
-        2
-        >>> len(s._marked_cons)
-        1
-        >>> b._value
-        -5.0
-        >>> s.solve()
-        >>> b._value
-        -3.0
-        >>> a.value = 10
-        >>> s.solve()
-        >>> c._value
-        10.0
-        """
+        """Solve (dirty) constraints."""
         # NB. marked_cons is updated during the solving process
         marked_cons = self._marked_cons
         notify = self._notify

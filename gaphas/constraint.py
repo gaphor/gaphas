@@ -14,8 +14,6 @@ LessThanConstraint
     Ensure one variable stays smaller than another.
 CenterConstraint
     Ensures a Variable is kept between two other variables.
-EquationConstraint
-    Solve a linear equation.
 BalanceConstraint
     Keeps three variables in line, maintaining a specific ratio.
 LineConstraint
@@ -28,10 +26,10 @@ a variable with appropriate value.
 """
 import logging
 import math
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 from gaphas.position import Position
-from gaphas.solver import BaseConstraint, Constraint, Variable
+from gaphas.solver import BaseConstraint, Constraint
 
 log = logging.getLogger(__name__)
 
@@ -213,137 +211,6 @@ class LessThanConstraint(BaseConstraint):
                 self.smaller.value = self.bigger.value - self.delta
             elif var is self.delta:
                 self.delta.value = self.bigger.value - self.smaller.value
-
-
-# Constants for the EquationConstraint
-ITERLIMIT = 1000  # iteration limit
-
-
-class EquationConstraint(BaseConstraint):
-    """Equation solver using attributes and introspection.
-
-    Takes a function, named arg value (opt.) and returns a Constraint
-    object Calling EquationConstraint.solve_for will solve the
-    equation for variable ``arg``, so that the outcome is 0.
-
-    >>> from gaphas.solver import Variable
-    >>> a, b, c = Variable(), Variable(4), Variable(5)
-    >>> cons = EquationConstraint(lambda a, b, c: a + b - c, a=a, b=b, c=c)
-    >>> cons.solve_for(a)
-    >>> a
-    Variable(1, 20)
-    >>> a.value = 3.4
-    >>> cons.solve_for(b)
-    >>> b
-    Variable(1.6, 20)
-
-    From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/303396
-    """
-
-    def __init__(self, f, **args):
-        # sourcery skip: dict-comprehension, remove-redundant-slice-index
-        super().__init__(*list(args.values()))
-        self._f = f
-        # see important note on order of operations in __setattr__ below.
-        self._args: Dict[str, Optional[Variable]] = {}
-
-        # see important note on order of operations in __setattr__ below.
-        for arg in f.__code__.co_varnames[0 : f.__code__.co_argcount]:
-            self._args[arg] = None
-        self._set(**args)
-
-    def __repr__(self):
-        argstring = ", ".join(
-            [f"{arg}={value}" for (arg, value) in list(self._args.items())]
-        )
-
-        return (
-            f"EquationConstraint({self._f.__code__.co_name}, {argstring})"
-            if argstring
-            else f"EquationConstraint({self._f.__code__.co_name})"
-        )
-
-    def __getattr__(self, name):
-        """Used to extract function argument values."""
-        self._args[name]
-        return self.solve_for(name)
-
-    def __setattr__(self, name, value):
-        """Sets function argument values."""
-        # Note - once self._args is created, no new attributes can
-        # be added to self.__dict__.  This is a good thing as it throws
-        # an exception if you try to assign to an arg which is inappropriate
-        # for the function in the solver.
-        if "_args" in self.__dict__:
-            if name in self._args:
-                self._args[name] = value
-            elif name in self.__dict__:
-                self.__dict__[name] = value
-            else:
-                raise KeyError(name)
-        else:
-            object.__setattr__(self, name, value)
-
-    def _set(self, **args):
-        """Sets values of function arguments."""
-        for arg in args:
-            self._args[arg]  # raise exception if arg not in _args
-            setattr(self, arg, args[arg])
-
-    def solve_for(self, var):
-        """Solve this constraint for the variable named 'arg' in the
-        constraint."""
-        args = {}
-        for nm, v in list(self._args.items()):
-            assert v
-            args[nm] = v.value
-            if v is var:
-                arg = nm
-        v = self._solve_for(arg, args)
-        if var.value != v:
-            var.value = v
-
-    def _solve_for(self, arg, args):
-        """Newton's method solver."""
-        # args = self._args
-        close_runs = 10  # after getting close, do more passes
-        x0 = args[arg] or 1
-        x1 = 1 if x0 == 0 else x0 * 1.1
-
-        def f(x):
-            """function to solve."""
-            args[arg] = x
-            return self._f(**args)
-
-        fx0 = f(x0)
-        n = 0
-        while True:  # Newton's method loop here
-            fx1 = f(x1)
-            if fx1 == 0 or x1 == x0:  # managed to nail it exactly
-                break
-            if abs(fx1 - fx0) < EPSILON:  # very close
-                close_flag = True
-                if close_runs == 0:  # been close several times
-                    break
-                else:
-                    close_runs -= 1  # try some more
-            else:
-                close_flag = False
-            if n > ITERLIMIT:
-                log.warning("Failed to converge; exceeded iteration limit")
-                break
-            slope = (fx1 - fx0) / (x1 - x0)
-            if slope == 0:
-                if close_flag:  # we're close but have zero slope, finish
-                    break
-                log.warning("Zero slope and not close enough to solution")
-                break
-            x2 = x0 - fx0 / slope  # New 'x1'
-            fx0 = fx1
-            x0 = x1
-            x1 = x2
-            n += 1
-        return x1
 
 
 class BalanceConstraint(BaseConstraint):
