@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Collection, Iterable
 
 import cairo
-from gi.repository import Gdk, GLib, GObject, Gtk
+from gi.repository import Graphene, GLib, GObject, Gtk
 
 from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
@@ -17,8 +17,6 @@ from gaphas.quadtree import Quadtree, QuadtreeBucket
 from gaphas.selection import Selection
 from gaphas.view.scrolling import Scrolling
 
-if Gtk.get_major_version() != 3:
-    from gi.repository import Graphene
 
 # Handy debug flag for drawing bounding boxes around the items.
 DEBUG_DRAW_BOUNDING_BOX = False
@@ -92,21 +90,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._controllers: set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
-        if Gtk.get_major_version() == 3:
-            self.add_events(
-                Gdk.EventMask.BUTTON_PRESS_MASK
-                | Gdk.EventMask.BUTTON_RELEASE_MASK
-                | Gdk.EventMask.POINTER_MOTION_MASK
-                | Gdk.EventMask.KEY_PRESS_MASK
-                | Gdk.EventMask.KEY_RELEASE_MASK
-                | Gdk.EventMask.SCROLL_MASK
-                | Gdk.EventMask.STRUCTURE_MASK
-                | Gdk.EventMask.SMOOTH_SCROLL_MASK
-            )
-            self.set_app_paintable(True)
-        else:
-            self.set_focusable(True)
-            self.connect_after("resize", GtkView.on_resize)
+        self.set_focusable(True)
+        self.connect_after("resize", GtkView.on_resize)
 
         def alignment_updated(matrix: Matrix) -> None:
             if self._model:
@@ -222,31 +207,15 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.vadjustment.clamp_page(y, y + h)
 
     def add_controller(self, *controllers: Gtk.EventController) -> None:
-        """Add a controller.
-
-        A convenience method, so you have a place to store the event
-        controllers. Events controllers are linked to a widget (in GTK3)
-        on creation time, so calling this method is not necessary.
-        """
-        if Gtk.get_major_version() != 3:
-            for controller in controllers:
-                super().add_controller(controller)
+        """Add a controller."""
+        for controller in controllers:
+            super().add_controller(controller)
         self._controllers.update(controllers)
 
     def remove_controller(self, controller: Gtk.EventController) -> bool:
-        """Remove a controller.
-
-        The event controller's propagation phase is set to
-        `Gtk.PropagationPhase.NONE` to ensure it's not invoked
-        anymore.
-
-        NB. The controller is only really removed from the widget when it's destroyed!
-            This is a Gtk3 limitation.
-        """
-        if Gtk.get_major_version() != 3:
-            super().remove_controller(controller)
+        """Remove a controller."""
+        super().remove_controller(controller)
         if controller in self._controllers:
-            controller.set_propagation_phase(Gtk.PropagationPhase.NONE)
             self._controllers.discard(controller)
             return True
         return False
@@ -360,9 +329,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     @g_async(single=True)
     def update_scrolling(self) -> None:
-        allocation = self.get_allocation()
         self._scrolling.update_adjustments(
-            allocation.width, allocation.height, self.bounding_box
+            self.get_width(), self.get_height(), self.bounding_box
         )
 
     def _debug_draw_bounding_box(self, cr, width, height):
@@ -405,13 +373,6 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
         Gtk.DrawingArea.do_unrealize(self)
 
-    def do_configure_event(self, event: Gdk.EventConfigure) -> bool:
-        # GTK+ 3 only
-        allocation = self.get_allocation()
-        self.on_resize(allocation.width, allocation.height)
-
-        return False
-
     def on_selection_update(self, item: Item | None) -> None:
         if self._model:
             if item is None:
@@ -433,84 +394,28 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         else:
             self._back_buffer = None
 
-    if Gtk.get_major_version() == 3:
+    def update_back_buffer(self) -> None:
+        self.queue_draw()
 
-        @g_async(single=True, priority=GLib.PRIORITY_HIGH_IDLE)
-        def update_back_buffer(self) -> None:
-            surface = self.get_window()
+    def do_snapshot(self, snapshot):
+        if self.model:
+            width = self.get_width()
+            height = self.get_height()
+            r = Graphene.Rect()
+            r.init(0, 0, width, height)
+            cr = snapshot.append_cairo(r)
+            cr.set_matrix(self.matrix.to_cairo())
+            cr.save()
+            cr.set_tolerance(PAINT_TOLERANCE)
+            items = self.get_items_in_rectangle((0, 0, width, height))
+            self.painter.paint(list(items), cr)
+            cr.restore()
 
-            if self.model and surface:
-                allocation = self.get_allocation()
-                width = allocation.width
-                height = allocation.height
+            if DEBUG_DRAW_BOUNDING_BOX:
+                self._debug_draw_bounding_box(cr, width, height)
 
-                if not self._back_buffer or self._back_buffer_needs_resizing:
-                    self._back_buffer = surface.create_similar_surface(
-                        cairo.Content.COLOR_ALPHA, width, height
-                    )
-                    self._back_buffer_needs_resizing = False
-
-                assert self._back_buffer
-
-                cr = cairo.Context(self._back_buffer)
-                cr.save()
-                cr.set_operator(cairo.OPERATOR_CLEAR)
-                cr.paint()
-                cr.restore()
-
-                Gtk.render_background(self.get_style_context(), cr, 0, 0, width, height)
-
-                cr.set_matrix(self.matrix.to_cairo())
-                cr.save()
-                cr.set_tolerance(PAINT_TOLERANCE)
-                items = self.get_items_in_rectangle((0, 0, width, height))
-                self.painter.paint(list(items), cr)
-                cr.restore()
-
-                if DEBUG_DRAW_BOUNDING_BOX:
-                    self._debug_draw_bounding_box(cr, width, height)
-
-                if DEBUG_DRAW_QUADTREE:
-                    self._debug_draw_quadtree(cr)
-
-                self.get_window().invalidate_rect(allocation, True)
-
-        def do_draw(self, cr: cairo.Context, width: int = 0, height: int = 0) -> bool:
-            if not self._model:
-                return False
-
-            if not self._back_buffer:
-                return False
-
-            cr.set_source_surface(self._back_buffer, 0, 0)
-            cr.paint()
-
-            return False
-
-    else:
-
-        def update_back_buffer(self) -> None:
-            self.queue_draw()
-
-        def do_snapshot(self, snapshot):
-            if self.model:
-                width = self.get_width()
-                height = self.get_height()
-                r = Graphene.Rect()
-                r.init(0, 0, width, height)
-                cr = snapshot.append_cairo(r)
-                cr.set_matrix(self.matrix.to_cairo())
-                cr.save()
-                cr.set_tolerance(PAINT_TOLERANCE)
-                items = self.get_items_in_rectangle((0, 0, width, height))
-                self.painter.paint(list(items), cr)
-                cr.restore()
-
-                if DEBUG_DRAW_BOUNDING_BOX:
-                    self._debug_draw_bounding_box(cr, width, height)
-
-                if DEBUG_DRAW_QUADTREE:
-                    self._debug_draw_quadtree(cr)
+            if DEBUG_DRAW_QUADTREE:
+                self._debug_draw_quadtree(cr)
 
 
 def transform_rectangle(matrix: Matrix, rect: Rect) -> Rect:

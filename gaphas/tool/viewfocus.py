@@ -1,14 +1,10 @@
 from gi.repository import Gtk
 
 
-def view_focus_tool(view):
+def view_focus_tool():
     """This little tool ensures the view grabs focus when a mouse press or
     touch event happens."""
-    gesture = (
-        Gtk.GestureSingle(widget=view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureSingle()
-    )
+    gesture = Gtk.GestureSingle()
     gesture.connect("begin", on_begin)
     return gesture
 

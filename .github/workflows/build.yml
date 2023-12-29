@@ -41,7 +41,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']
-        gtk-version: ['3.0', '4.0']
+        gtk-version: ['4.0']
     name: build (python ${{ matrix.python-version }}, gtk ${{ matrix.gtk-version }})
     outputs:
       targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz

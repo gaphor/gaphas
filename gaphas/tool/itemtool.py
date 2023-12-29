@@ -16,13 +16,9 @@ from gaphas.view import GtkView
 log = logging.getLogger(__name__)
 
 
-def item_tool(view: GtkView) -> Gtk.GestureDrag:
+def item_tool() -> Gtk.GestureDrag:
     """Handle item movement and movement of handles."""
-    gesture = (
-        Gtk.GestureDrag.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureDrag.new()
-    )
+    gesture = Gtk.GestureDrag.new()
     drag_state = DragState()
     gesture.connect("drag-begin", on_drag_begin, drag_state)
     gesture.connect("drag-update", on_drag_update, drag_state)
@@ -49,11 +45,7 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
     view = gesture.get_widget()
     pos = (start_x, start_y)
     selection = view.selection
-    modifiers = (
-        gesture.get_last_event(None).get_state()[1]
-        if Gtk.get_major_version() == 3
-        else gesture.get_current_event_state()
-    )
+    modifiers = gesture.get_current_event_state()
     item, handle = find_item_and_handle_at_point(view, pos)
 
     # Deselect all items unless CTRL or SHIFT is pressed
@@ -114,14 +106,13 @@ def moving_items(view):
 def on_drag_update(gesture, offset_x, offset_y, drag_state):
     _, sx, sy = gesture.get_start_point()
     view = gesture.get_widget()
-    allocation = view.get_allocation()
     x = sx + offset_x
     y = sy + offset_y
 
     for moving in drag_state.moving:
         moving.move((x, y))
 
-    if not (0 <= x <= allocation.width and 0 <= y <= allocation.height):
+    if not (0 <= x <= view.get_width() and 0 <= y <= view.get_height()):
         view.clamp_item(view.selection.focused_item)
 
 
