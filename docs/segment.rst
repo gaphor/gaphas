@@ -21,5 +21,5 @@ to actually use it, the ``segment`` module needs to be imported.
     ...     .append(HandlePainter(view))
     ...     .append(LineSegmentPainter(view.selection))
     ... )
-    >>> view.add_controller(item_tool(view))
-    >>> view.add_controller(zoom_tool(view))
+    >>> view.add_controller(item_tool())
+    >>> view.add_controller(zoom_tool())

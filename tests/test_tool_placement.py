@@ -13,15 +13,15 @@ def tool_factory(connections):
     return tool_factory
 
 
-def test_can_create_placement_tool(view, tool_factory):
-    tool = placement_tool(view, tool_factory, 2)
+def test_can_create_placement_tool(tool_factory):
+    tool = placement_tool(tool_factory, 2)
 
     assert isinstance(tool, Gtk.Gesture)
 
 
 def test_create_new_element(view, tool_factory, window):
     state = PlacementState(tool_factory, 2)
-    tool = placement_tool(view, tool_factory, 2)
+    tool = placement_tool(tool_factory, 2)
     view.add_controller(tool)
 
     on_drag_begin(tool, 0, 0, state)

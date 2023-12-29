@@ -1,12 +1,9 @@
 # ruff: noqa: F402, E402
-import os
 
 import gi
 
-TEST_GTK_VERSION = os.getenv("TEST_GTK_VERSION", "3.0")
-
-gi.require_version("Gdk", TEST_GTK_VERSION)
-gi.require_version("Gtk", TEST_GTK_VERSION)
+gi.require_version("Gdk", "4.0")
+gi.require_version("Gtk", "4.0")
 
 
 import pytest
@@ -44,22 +41,15 @@ def view(canvas):
 @pytest.fixture
 def scrolled_window(view):
     scrolled_window = Gtk.ScrolledWindow()
-    scrolled_window.add(
-        view
-    ) if Gtk.get_major_version() == 3 else scrolled_window.set_child(view)
+    scrolled_window.set_child(view)
     view.update()
     return scrolled_window
 
 
 @pytest.fixture
 def window(view):
-    if Gtk.get_major_version() == 3:
-        window = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
-        window.add(view)
-        window.show_all()
-    else:
-        window = Gtk.Window.new()
-        window.set_child(view)
+    window = Gtk.Window.new()
+    window.set_child(view)
     yield window
     window.destroy()
 

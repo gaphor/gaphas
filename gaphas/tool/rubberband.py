@@ -38,16 +38,12 @@ class RubberbandPainter:
             cairo.stroke()
 
 
-def rubberband_tool(view, rubberband_state):
+def rubberband_tool(rubberband_state):
     """Rubberband selection tool.
 
     Should be used in conjunction with ``RubberbandPainter``.
     """
-    gesture = (
-        Gtk.GestureDrag.new(view)
-        if Gtk.get_major_version() == 3
-        else Gtk.GestureDrag.new()
-    )
+    gesture = Gtk.GestureDrag.new()
     gesture.connect("drag-begin", on_drag_begin, rubberband_state)
     gesture.connect("drag-update", on_drag_update, rubberband_state)
     gesture.connect("drag-end", on_drag_end, rubberband_state)
