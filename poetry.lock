@@ -783,4 +783,4 @@ docs = ["furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4"
-content-hash = "2ad1778d5f36c91c295d4f09ae4ce5523041689e043ca93430ce52c48a70d803"
+content-hash = "f9416599ae9bfa0ad6c76afa84809e5f955db359688a4d2b220731efc90b3427"

@@ -79,7 +79,7 @@ jobs:
       - name: Test
         run: TEST_GTK_VERSION=${{ matrix.gtk-version }} xvfb-run poetry run pytest --cov=gaphas
       - name: Code Climate Coverage Action
-        uses: paambaati/codeclimate-action@4cace242c6e0a2dd554bbb3cc12c58047d8af3e5 # v5.0.0
+        uses: paambaati/codeclimate-action@a1831d7162ea1fbc612ffe5fb3b90278b7999d59 # v5.0.0
         env:
           CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
         with:
@@ -113,11 +113,11 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+      - uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
           name: ${{ needs.build.outputs.targz }}
           path: dist
-      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+      - uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
           name: ${{ needs.build.outputs.wheel }}
           path: dist
