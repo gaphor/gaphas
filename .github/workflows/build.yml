@@ -41,8 +41,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']
-        gtk-version: ['4.0']
-    name: build (python ${{ matrix.python-version }}, gtk ${{ matrix.gtk-version }})
+    name: build python ${{ matrix.python-version }}
     outputs:
       targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz
       wheel: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
@@ -66,7 +65,7 @@ jobs:
       - name: Install Ubuntu Dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -qq --no-install-recommends gir1.2-gtk-${{ matrix.gtk-version }} libgirepository1.0-dev
+          sudo apt install -qq --no-install-recommends gir1.2-gtk-4.0 libgirepository1.0-dev
       - name: Install Poetry
         run: |
           pipx install --python python${{ matrix.python-version }} --pip-args=--constraint=.github/constraints.txt poetry
@@ -77,7 +76,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Test
-        run: TEST_GTK_VERSION=${{ matrix.gtk-version }} xvfb-run poetry run pytest --cov=gaphas
+        run: xvfb-run poetry run pytest --cov=gaphas
       - name: Code Climate Coverage Action
         uses: paambaati/codeclimate-action@a1831d7162ea1fbc612ffe5fb3b90278b7999d59 # v5.0.0
         env:
@@ -88,13 +87,13 @@ jobs:
         if: ${{ matrix.python-version == env.python-version }}
         run: poetry build
       - name: Upload gaphas-${{ steps.meta.outputs.version }}.tar.gz
-        if: ${{ matrix.python-version == env.python-version && matrix.gtk-version == '4.0' }}
+        if: ${{ matrix.python-version == env.python-version }}
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
           path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
       - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
-        if: ${{ matrix.python-version == env.python-version && matrix.gtk-version == '4.0' }}
+        if: ${{ matrix.python-version == env.python-version }}
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
