@@ -88,13 +88,13 @@ jobs:
         run: poetry build
       - name: Upload gaphas-${{ steps.meta.outputs.version }}.tar.gz
         if: ${{ matrix.python-version == env.python-version }}
-        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v4.1.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
           path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
       - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
         if: ${{ matrix.python-version == env.python-version }}
-        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v4.1.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
           path: dist/gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
