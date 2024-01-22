@@ -1,6 +1,6 @@
 """Test constraint solver."""
 
-from gaphas.constraint import EqualsConstraint, EquationConstraint, LessThanConstraint
+from gaphas.constraint import EqualsConstraint, LessThanConstraint
 from gaphas.solver import REQUIRED, MultiConstraint, Solver, Variable
 from gaphas.solver.constraint import Constraint, ContainsConstraints
 
@@ -16,24 +16,18 @@ def test_weakest_list_order():
     solver = Solver()
     a = Variable(1, 30)
     b = Variable(2, 10)
-    c = Variable(3, 10)
-    c_eq = EquationConstraint(lambda a, b, c: a + b + c, a=a, b=b, c=c)
+    c_eq = EqualsConstraint(a, b)
     solver.add_constraint(c_eq)
     a.value = 4
 
     b.value = 5
-    assert c_eq.weakest() == c
+    assert c_eq.weakest() == b
 
-    b.value = 6
-    assert c_eq.weakest() == c
-
-    # b changed above, now change a - all weakest variables changed return the
-    # oldest changed variable
-    c.value = 6
+    a.value = 6
     assert c_eq.weakest() == b
 
     b.value = 6
-    assert c_eq.weakest() == c
+    assert c_eq.weakest() == a
 
 
 def test_minimal_size_constraint():
