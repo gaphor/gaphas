@@ -30,7 +30,7 @@ python = ">=3.9,<4"
 PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
 sphinx = { version = ">=4.3,<8.0", optional = true }
-furo = { version = ">=2022,<2024", optional = true }
+furo = { version = ">=2022,<2025", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0"
