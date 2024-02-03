@@ -10,13 +10,12 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-from datetime import date
 from typing import Dict
 
 # -- Project information -----------------------------------------------------
 
 project = "Gaphas"
-copyright = f"2006-{date.today().year}, Arjan J. Molenaar"
+copyright = "2006, Arjan J. Molenaar"
 author = "Arjan J. Molenaar"
 
 # -- General configuration ---------------------------------------------------
