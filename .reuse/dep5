@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Gaphas
+Upstream-Contact: Arjan Molenaar <gaphor@gmail.com>
+Source: https://github.com/gaphor/gaphas
+
+Files: *
+Copyright: 2006 Arjan Molenaar and Dan Yeaw
+License: Apache-2.0
+
+Files: gaphas/geometry.py
+Copyright: Mukesh Prasad, Arjan Molenaar, and Dan Yeaw
+License: Apache-2.0

@@ -102,6 +102,6 @@ See [the contributing file](CONTRIBUTING.md)!
 
 Copyright © Arjan Molenaar and Dan Yeaw
 
-Licensed under the [Apache License 2.0](LICENSE).
+Licensed under the [Apache License 2.0](LICENSES/Apache-2.0.txt).
 
 Summary: You can do what you like with Gaphas, as long as you include the required notices. This permissive license contains a patent license from the contributors of the code.
