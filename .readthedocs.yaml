@@ -6,12 +6,12 @@ build:
     python: "3.9"
   apt_packages:
   - libgirepository1.0-dev
+  jobs:
+    pre_install:
+    - python -m pip install --constraint=.github/constraints.txt poetry
+    - poetry config virtualenvs.create false
+    post_install:
+    - poetry install --with docs
 sphinx:
   configuration: docs/conf.py
   fail_on_warning: false
-python:
-  install:
-  - method: pip
-    path: .
-    extra_requirements:
-    - docs
