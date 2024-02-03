@@ -29,16 +29,18 @@ classifiers = [
 python = ">=3.9,<4"
 PyGObject = "^3.38.0"
 pycairo = "^1.20.0"
-sphinx = { version = ">=4.3,<8.0", optional = true }
-furo = { version = ">=2022,<2025", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0"
 pytest-cov = "^4.1"
 pytest-archon = "^0.0.6"
 
-[tool.poetry.extras]
-docs = [ "sphinx", "furo" ]
+[tool.poetry.group.docs]
+optional=true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = ">=4.3,<8.0"
+furo = ">=2022,<2025"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
