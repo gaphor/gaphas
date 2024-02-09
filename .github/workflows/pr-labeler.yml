@@ -18,6 +18,6 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: TimonVS/pr-labeler-action@8b99f404a073744885d8021d1de4e40c6eaf38e2 # v4.1.1
+      - uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
