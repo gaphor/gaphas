@@ -481,26 +481,30 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pygobject"
-version = "3.46.0"
+version = "3.48.1"
 description = "Python bindings for GObject Introspection"
 optional = false
-python-versions = ">=3.8, <4"
+python-versions = "<4,>=3.8"
 files = [
-    {file = "PyGObject-3.46.0.tar.gz", hash = "sha256:481437b05af0a66b7c366ea052710eb3aacbb979d22d30b797f7ec29347ab1e6"},
+    {file = "pygobject-3.48.1.tar.gz", hash = "sha256:2c4cd7c805ee9e727904172423a7519338017fd7e122b62218ac211627436875"},
 ]
 
 [package.dependencies]
-pycairo = ">=1.16,<2.0"
+pycairo = ">=1.16"
+
+[package.extras]
+dev = ["flake8", "pytest", "pytest-cov"]
+docs = ["sphinx (>=4.0,<5.0)", "sphinx-rtd-theme (>=0.5,<2.0)"]
 
 [[package]]
 name = "pytest"
-version = "8.1.0"
+version = "8.1.1"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-8.1.0-py3-none-any.whl", hash = "sha256:ee32db7af8de4629a455806befa90559f307424c07b8413ccfc30bf5b221dd7e"},
-    {file = "pytest-8.1.0.tar.gz", hash = "sha256:f8fa04ab8f98d185113ae60ea6d79c22f8143b14bc1caeced44a0ab844928323"},
+    {file = "pytest-8.1.1-py3-none-any.whl", hash = "sha256:2a8386cfc11fa9d2c50ee7b2a57e7d898ef90470a7a34c4b949ff59662bb78b7"},
+    {file = "pytest-8.1.1.tar.gz", hash = "sha256:ac978141a75948948817d360297b7aae0fcb9d6ff6bc9ec6d514b85d5a65c044"},
 ]
 
 [package.dependencies]
