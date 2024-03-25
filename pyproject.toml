@@ -32,7 +32,7 @@ pycairo = "^1.20.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.1"
-pytest-cov = "^4.1"
+pytest-cov = "^5.0"
 pytest-archon = "^0.0.6"
 
 [tool.poetry.group.docs]
