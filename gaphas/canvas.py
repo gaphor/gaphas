@@ -34,7 +34,6 @@ import cairo
 
 from gaphas import matrix, tree
 from gaphas.connections import Connection, Connections
-from gaphas.decorators import nonrecursive
 from gaphas.item import Item
 from gaphas.model import View
 
@@ -232,7 +231,6 @@ class Canvas:
         """Schedule only the matrix to be updated."""
         self.request_update(item)
 
-    @nonrecursive
     def update_now(self, dirty_items):
         """Perform an update of the items that requested an update."""
         try:

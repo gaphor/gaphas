@@ -101,30 +101,3 @@ class g_async:
                 self.source(async_wrapper).attach()
 
         return wrapper
-
-
-def nonrecursive(func):
-    """Enforce a function or method is not executed recursively:
-
-    >>> class A(object):
-    ...     @nonrecursive
-    ...     def a(self, x=1):
-    ...         print(x)
-    ...         self.a(x+1)
-    >>> A().a()
-    1
-    >>> A().a()
-    1
-    """
-    m = threading.Lock()
-
-    def wrapper(*args, **kwargs):
-        """Decorate function with a mutex that prohibits recursive
-        execution."""
-        if m.acquire(False):
-            try:
-                return func(*args, **kwargs)
-            finally:
-                m.release()
-
-    return wrapper
