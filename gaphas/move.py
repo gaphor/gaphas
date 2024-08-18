@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class MoveType(Protocol):
+    item: Item
+
     def __init__(self, item: Item, view: GtkView):
         ...
 
