@@ -7,6 +7,7 @@ gi.require_version("Gtk", "4.0")
 
 
 import pytest
+import pytest_asyncio
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
@@ -32,17 +33,18 @@ def connections(canvas):
     return canvas.connections
 
 
-@pytest.fixture
-def view(canvas):
-    # view.update()
-    return GtkView(canvas)
+@pytest_asyncio.fixture
+async def view(canvas):
+    view = GtkView(canvas)
+    await view.update()
+    return view
 
 
-@pytest.fixture
-def scrolled_window(view):
+@pytest_asyncio.fixture
+async def scrolled_window(view):
     scrolled_window = Gtk.ScrolledWindow()
     scrolled_window.set_child(view)
-    view.update()
+    await view.update()
     return scrolled_window
 
 
@@ -54,10 +56,11 @@ def window(view):
     window.destroy()
 
 
-@pytest.fixture
-def box(canvas, connections):
+@pytest_asyncio.fixture
+async def box(canvas, connections, view):
     box = Box(connections)
     canvas.add(box)
+    await view.update()
     return box
 
 

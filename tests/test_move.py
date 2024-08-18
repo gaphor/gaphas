@@ -11,7 +11,8 @@ def item(connections):
     return Element(connections)
 
 
-def test_selection_move(canvas, view, item):
+@pytest.mark.asyncio
+async def test_selection_move(canvas, view, item):
     """Test the Selection role methods."""
     canvas.add(item)
     mover = Move(item, view)

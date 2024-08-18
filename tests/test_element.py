@@ -23,7 +23,8 @@ def test_box_handle_order(box):
 
 
 @pytest.mark.parametrize("count", [1, 2, 10, 99])
-def test_resize_by_dragging_se_handle(canvas, box, count):
+@pytest.mark.asyncio
+async def test_resize_by_dragging_se_handle(canvas, box, count):
     h_nw, h_ne, h_se, h_sw = box.handles()
 
     for _ in range(count):

@@ -123,7 +123,8 @@ def test_ports_after_split(canvas, line):
     assert old_ports[1] == line.ports()[2]
 
 
-def test_constraints_after_split(canvas, connections, line, view):
+@pytest.mark.asyncio
+async def test_constraints_after_split(canvas, connections, line, view):
     """Test if constraints are recreated after line split."""
     # Connect line2 to self.line
     line2 = Line(connections)
@@ -189,7 +190,8 @@ def test_params_error_exc(canvas, connections):
 # Test Line Merging
 
 
-def test_merge_first_single(line, canvas, view):
+@pytest.mark.asyncio
+async def test_merge_first_single(line, canvas, view):
     """Test single line merging starting from 1st segment."""
     line.handles()[1].pos = (20, 0)
     segment = Segment(line, canvas)
@@ -223,7 +225,8 @@ def test_merge_first_single(line, canvas, view):
     assert (20, 0) == port.end.pos
 
 
-def test_constraints_after_merge(canvas, connections, line, view):
+@pytest.mark.asyncio
+async def test_constraints_after_merge(canvas, connections, line, view):
     """Test if constraints are recreated after line merge."""
     line2 = Line(connections)
     canvas.add(line2)
@@ -231,7 +234,7 @@ def test_constraints_after_merge(canvas, connections, line, view):
 
     canvas.request_update(line)
     canvas.request_update(line2)
-    view.update()
+    await view.update()
 
     HandleMove(line2, head, view).connect((25, 25))
     cinfo = connections.get_connection(head)

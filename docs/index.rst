@@ -57,7 +57,6 @@ Gaphas is released under the terms of the Apache Software License, version 2.0.
    quadtree
    table
    tree
-   decorators
 
 .. _Cairo: https://cairographics.org
 .. _Model-View-Controller: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller

@@ -10,13 +10,16 @@ It sports a small canvas and some trivial operations:
  - Delete focused item
  - Exports to SVG and PNG
 """
+import asyncio
 import math
 import sys
 
 import cairo
 import gi
+from gi.events import GLibEventLoopPolicy
 
 # fmt: off
+
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 # fmt: on
@@ -417,6 +420,7 @@ def main():
 
     app.connect("activate", activate)
 
+    asyncio.set_event_loop_policy(GLibEventLoopPolicy())
     app.run()
 
 
