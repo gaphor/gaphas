@@ -57,7 +57,7 @@ def test_view_registration():
 
 def test_view_registration_2(view, canvas, window):
     """Test view registration and destroy when view is destroyed."""
-    window.show()
+    window.present()
 
     assert len(canvas._registered_views) == 1
     assert view in canvas._registered_views
