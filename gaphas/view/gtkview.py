@@ -93,9 +93,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.set_focusable(True)
         self.connect_after("resize", GtkView.on_resize)
 
-        def alignment_updated(matrix: Matrix) -> None:
+        def alignment_updated(x: float | None, y: float | None) -> None:
             if self._model:
-                self._matrix *= matrix
+                if x is not None:
+                    self.matrix.set(x0=-x)
+                if y is not None:
+                    self.matrix.set(y0=-y)
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -327,10 +330,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             qtree.add(item=item, bounds=(x, y, w, h))
 
-    @g_async(single=True)
     def update_scrolling(self) -> None:
         self._scrolling.update_adjustments(
-            self.get_width(), self.get_height(), self.bounding_box
+            self.get_width(), self.get_height(), self._qtree.soft_bounds
         )
 
     def _debug_draw_bounding_box(self, cr, width, height):
