@@ -61,12 +61,12 @@ class Scrolling:
     def update_position(self, x: float, y: float) -> None:
         if self.hadjustment and not isclose(self.hadjustment.get_value(), x):
             self.hadjustment.handler_block(self._hadjustment_handler_id)
-            self.hadjustment.set_value(x)
+            self.hadjustment.set_value(-x)
             self.hadjustment.handler_unblock(self._hadjustment_handler_id)
 
         if self.vadjustment and not isclose(self.vadjustment.get_value(), y):
             self.vadjustment.handler_block(self._vadjustment_handler_id)
-            self.vadjustment.set_value(y)
+            self.vadjustment.set_value(-y)
             self.vadjustment.handler_unblock(self._vadjustment_handler_id)
 
     def update_adjustments(self, width: int, height: int, bounds: Rectangle) -> None:
@@ -94,7 +94,7 @@ class Scrolling:
             self.vadjustment.set_page_size(height)
 
     def on_hadjustment_changed(self, adj):
-        self._scrolling_updated(adj.get_value(), None)
+        self._scrolling_updated(-adj.get_value(), None)
 
     def on_vadjustment_changed(self, adj):
-        self._scrolling_updated(None, adj.get_value())
+        self._scrolling_updated(None, -adj.get_value())

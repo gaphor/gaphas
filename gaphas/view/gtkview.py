@@ -96,9 +96,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         def alignment_updated(x: float | None, y: float | None) -> None:
             if self._model:
                 if x is not None:
-                    self.matrix.set(x0=-x)
+                    self.matrix.set(x0=x)
                 if y is not None:
-                    self.matrix.set(y0=-y)
+                    self.matrix.set(y0=y)
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -388,7 +388,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         # Test if scale or rotation changed
         if tuple(matrix)[:4] != old_matrix_values[:4]:
             self.update_scrolling()
-        self._scrolling.update_position(-matrix[4], -matrix[5])
+        self._scrolling.update_position(matrix[4], matrix[5])
         self.update_back_buffer()
 
     def on_resize(self, _width: int, _height: int) -> None:
