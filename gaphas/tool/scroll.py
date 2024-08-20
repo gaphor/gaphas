@@ -60,16 +60,15 @@ def pan_tool() -> Gtk.GestureDrag:
 
 def on_drag_begin(gesture, start_x, start_y, pan_state):
     view = gesture.get_widget()
-    pan_state.h = view.hadjustment.get_value()
-    pan_state.v = view.vadjustment.get_value()
+    pan_state.h = view.matrix[4]
+    pan_state.v = view.matrix[5]
     set_cursor(view, "move")
     gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
 
 def on_drag_update(gesture, offset_x, offset_y, pan_state):
     view = gesture.get_widget()
-    view.hadjustment.set_value(pan_state.h - offset_x)
-    view.vadjustment.set_value(pan_state.v - offset_y)
+    view.matrix.set(x0=pan_state.h + offset_x, y0=pan_state.v + offset_y)
     set_cursor(view, "move")
 
 
