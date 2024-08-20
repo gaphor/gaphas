@@ -24,9 +24,10 @@ New constraint class should derive from Constraint class abstract
 class and implement `Constraint.solve_for(Variable)` method to update
 a variable with appropriate value.
 """
+from __future__ import annotations
+
 import logging
 import math
-from typing import Optional, Tuple
 
 from gaphas.position import Position
 from gaphas.solver import BaseConstraint, Constraint
@@ -35,13 +36,14 @@ log = logging.getLogger(__name__)
 
 
 def constraint(
-    horizontal: Optional[Tuple[Position, Position]] = None,
-    vertical: Optional[Tuple[Position, Position]] = None,
-    left_of: Optional[Tuple[Position, Position]] = None,
-    above: Optional[Tuple[Position, Position]] = None,
-    line: Optional[Tuple[Position, Tuple[Position, Position]]] = None,
+    *,
+    horizontal: tuple[Position, Position] | None = None,
+    vertical: tuple[Position, Position] | None = None,
+    left_of: tuple[Position, Position] | None = None,
+    above: tuple[Position, Position] | None = None,
+    line: tuple[Position, tuple[Position, Position]] | None = None,
     delta: float = 0.0,
-    align: Optional[float] = None,
+    align: float | None = None,
 ) -> Constraint:
     """Utility (factory) method to create item's internal constraint between
     two positions or between a position and a line.
@@ -67,7 +69,7 @@ def constraint(
         line=(p, l)
         Keep position ``p`` on line ``l``.
     """
-    cc: Optional[Constraint]
+    cc: Constraint | None
     if horizontal:
         p1, p2 = horizontal
         cc = EqualsConstraint(p1[1], p2[1], delta)

@@ -1,6 +1,8 @@
 """Simple class containing the tree structure for the canvas items."""
+from __future__ import annotations
+
 from contextlib import suppress
-from typing import Dict, Generic, Iterable, List, Optional, Sequence, TypeVar, Union
+from typing import Generic, Iterable, Sequence, TypeVar
 
 T = TypeVar("T")
 
@@ -16,19 +18,19 @@ class Tree(Generic[T]):
     def __init__(self) -> None:
         # List of nodes in the tree, sorted in the order they ought to be
         # rendered
-        self._nodes: List[T] = []
+        self._nodes: list[T] = []
 
         # Per entry a list of children is maintained.
-        self._children: Dict[Union[T, None], List[T]] = {None: []}
+        self._children: dict[T | None, list[T]] = {None: []}
 
         # For easy and fast lookups, also maintain a child -> parent mapping
-        self._parents: Dict[T, T] = {}
+        self._parents: dict[T, T] = {}
 
     @property
     def nodes(self) -> Sequence[T]:
         return list(self._nodes)
 
-    def get_parent(self, node: T) -> Optional[T]:
+    def get_parent(self, node: T) -> T | None:
         """Return the parent item of ``node``.
 
         >>> tree = Tree()
@@ -39,7 +41,7 @@ class Tree(Generic[T]):
         """
         return self._parents.get(node)
 
-    def get_children(self, node: Optional[T]) -> Iterable[T]:
+    def get_children(self, node: T | None) -> Iterable[T]:
         """Return all child objects of ``node``.
 
         >>> tree = Tree()
@@ -53,7 +55,7 @@ class Tree(Generic[T]):
         """
         return self._children[node]
 
-    def get_siblings(self, node: T) -> List[T]:
+    def get_siblings(self, node: T) -> list[T]:
         """Get all siblings of ``node``, including ``node``.
 
         >>> tree = Tree()
@@ -150,7 +152,7 @@ class Tree(Generic[T]):
         return (n for n in self._nodes if n in items_set)
 
     def _add_to_nodes(
-        self, node: T, parent: Optional[T], index: Optional[int] = None
+        self, node: T, parent: T | None, index: int | None = None
     ) -> None:
         """Helper method to place nodes on the right location in the nodes list
         Called only from add() and move()"""
@@ -175,9 +177,7 @@ class Tree(Generic[T]):
         else:
             nodes.insert(nodes.index(atnode), node)
 
-    def _add(
-        self, node: T, parent: Optional[T] = None, index: Optional[int] = None
-    ) -> None:
+    def _add(self, node: T, parent: T | None = None, index: int | None = None) -> None:
         """Helper method for both add() and move()."""
         assert node not in self._nodes
 
@@ -195,9 +195,7 @@ class Tree(Generic[T]):
         if parent:
             self._parents[node] = parent
 
-    def add(
-        self, node: T, parent: Optional[T] = None, index: Optional[int] = None
-    ) -> None:
+    def add(self, node: T, parent: T | None = None, index: int | None = None) -> None:
         """Add node to the tree. parent is the parent node, which may be None
         if the item should be added to the root item.
 
@@ -225,7 +223,7 @@ class Tree(Generic[T]):
             self.remove(c)
         self._remove(node)
 
-    def _reparent_nodes(self, node: T, parent: Optional[T]) -> None:
+    def _reparent_nodes(self, node: T, parent: T | None) -> None:
         """Helper for move().
 
         The _children and _parent trees can be left intact as far as
@@ -237,7 +235,7 @@ class Tree(Generic[T]):
         for c in self._children[node]:
             self._reparent_nodes(c, node)
 
-    def move(self, node: T, parent: Optional[T], index: Optional[int] = None) -> None:
+    def move(self, node: T, parent: T | None, index: int | None = None) -> None:
         """Set new parent for a ``node``. ``Parent`` can be ``None``,
         indicating it's added to the top.
 

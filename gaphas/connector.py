@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from functools import singledispatch
-from typing import Callable, Optional, Protocol
+from typing import Callable, Protocol
 
 from gaphas.connections import Connections
 from gaphas.geometry import intersect_line_line
@@ -13,14 +15,14 @@ from gaphas.types import Pos, SupportsFloatPos
 
 class ConnectionSinkType(Protocol):
     item: Item
-    port: Optional[Port]
+    port: Port | None
 
     def __init__(self, item: Item, distance: float = 10):
         ...
 
     def glue(
-        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
-    ) -> Optional[Pos]:
+        self, pos: SupportsFloatPos, secondary_pos: SupportsFloatPos | None = None
+    ) -> Pos | None:
         ...
 
     def constraint(self, item: Item, handle: Handle) -> Constraint:
@@ -40,10 +42,10 @@ class ItemConnector:
     def allow(self, sink):
         return True
 
-    def secondary_handle(self) -> Optional[Handle]:
+    def secondary_handle(self) -> Handle | None:
         return None
 
-    def glue(self, sink: ConnectionSinkType) -> Optional[Pos]:
+    def glue(self, sink: ConnectionSinkType) -> Pos | None:
         """Glue the Connector handle on the sink's port."""
         handle = self.handle
         item = self.item
@@ -80,7 +82,7 @@ class ItemConnector:
     def connect_handle(
         self,
         sink: ConnectionSinkType,
-        callback: Optional[Callable[[Item, Handle, Item, Port], None]] = None,
+        callback: Callable[[Item, Handle, Item, Port], None] | None = None,
     ) -> None:
         """Create constraint between handle of a line and port of connectable
         item.
@@ -110,7 +112,7 @@ Connector = singledispatch(ItemConnector)
 
 @Connector.register(Line)
 class LineConnector(ItemConnector):
-    def secondary_handle(self) -> Optional[Handle]:
+    def secondary_handle(self) -> Handle | None:
         item = self.item
         handle = self.handle
         handles = item.handles()
@@ -131,11 +133,11 @@ class ItemConnectionSink:
     def __init__(self, item: Item, distance: float = 10) -> None:
         self.item = item
         self.distance = distance
-        self.port: Optional[Port] = None
+        self.port: Port | None = None
 
     def glue(
-        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
-    ) -> Optional[Pos]:
+        self, pos: SupportsFloatPos, secondary_pos: SupportsFloatPos | None = None
+    ) -> Pos | None:
         max_dist = self.distance
         glue_pos = None
         for p in self.item.ports():
@@ -161,8 +163,8 @@ ConnectionSink = singledispatch(ItemConnectionSink)
 @ConnectionSink.register(Element)
 class ElementConnectionSink(ItemConnectionSink):
     def glue(
-        self, pos: SupportsFloatPos, secondary_pos: Optional[SupportsFloatPos] = None
-    ) -> Optional[Pos]:
+        self, pos: SupportsFloatPos, secondary_pos: SupportsFloatPos | None = None
+    ) -> Pos | None:
         if glue_pos := super().glue(pos, secondary_pos):
             return glue_pos
 

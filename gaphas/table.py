@@ -1,29 +1,26 @@
 """Table is a storage class that can be used to store information, like one
 would in a database table, with indexes on the desired "columns."."""
-
+from __future__ import annotations
 from contextlib import suppress
 from functools import reduce
 from typing import (
-    Dict,
     Generic,
     Iterator,
     Protocol,
     Sequence,
-    Set,
-    Tuple,
     Type,
     TypeVar,
     runtime_checkable,
 )
 
-T = TypeVar("T", bound=Tuple, covariant=True)
+T = TypeVar("T", bound=tuple, covariant=True)
 
 
 @runtime_checkable
 class NamedTupleish(Protocol):
-    _fields: Tuple[str, ...]
+    _fields: tuple[str, ...]
 
-    def _make(self, *args: object) -> Tuple[object, ...]:
+    def _make(self, *args: object) -> tuple[object, ...]:
         ...
 
 
@@ -48,7 +45,7 @@ class Table(Generic[T]):
         self._fields: Sequence[str] = fields
 
         # create data structure, which acts as cache
-        self._index: Dict[str, Dict[object, Set[object]]] = {n: {} for n in fields}
+        self._index: dict[str, dict[object, set[object]]] = {n: {} for n in fields}
 
     @property
     def columns(self) -> Type[T]:

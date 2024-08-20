@@ -9,11 +9,11 @@ state notification capabilities.
 
 from __future__ import annotations
 
-from typing import Callable, SupportsFloat, Tuple
+from typing import Callable, SupportsFloat
 
 import cairo
 
-MatrixTuple = Tuple[float, float, float, float, float, float]
+Matrixtuple = tuple[float, float, float, float, float, float]
 
 
 class Matrix:
@@ -34,31 +34,31 @@ class Matrix:
         matrix: cairo.Matrix | None = None,
     ) -> None:
         self._matrix = matrix or cairo.Matrix(xx, yx, xy, yy, x0, y0)
-        self._handlers: set[Callable[[Matrix, MatrixTuple], None]] = set()
+        self._handlers: set[Callable[[Matrix, Matrixtuple], None]] = set()
 
     def add_handler(
         self,
-        handler: Callable[[Matrix, MatrixTuple], None],
+        handler: Callable[[Matrix, Matrixtuple], None],
     ) -> None:
         self._handlers.add(handler)
 
     def remove_handler(
         self,
-        handler: Callable[[Matrix, MatrixTuple], None],
+        handler: Callable[[Matrix, Matrixtuple], None],
     ) -> None:
         self._handlers.discard(handler)
 
-    def notify(self, old: MatrixTuple) -> None:
+    def notify(self, old: Matrixtuple) -> None:
         for handler in self._handlers:
             handler(self, old)
 
     def invert(self) -> None:
-        old: MatrixTuple = self.tuple()
+        old: Matrixtuple = self.tuple()
         self._matrix.invert()
         self.notify(old)
 
     def rotate(self, radians: float) -> None:
-        old: MatrixTuple = self.tuple()
+        old: Matrixtuple = self.tuple()
         self._matrix.rotate(radians)
         self.notify(old)
 
@@ -68,7 +68,7 @@ class Matrix:
         self.notify(old)
 
     def translate(self, tx: float, ty: float) -> None:
-        old: MatrixTuple = self.tuple()
+        old: Matrixtuple = self.tuple()
         self._matrix.translate(tx, ty)
         self.notify(old)
 
@@ -116,7 +116,7 @@ class Matrix:
         m.invert()
         return m
 
-    def tuple(self) -> MatrixTuple:
+    def tuple(self) -> Matrixtuple:
         return tuple(self)  # type: ignore[arg-type, return-value]
 
     def to_cairo(self) -> cairo.Matrix:
@@ -135,7 +135,7 @@ class Matrix:
         return Matrix(matrix=self._matrix * other._matrix)
 
     def __imul__(self, other: Matrix) -> Matrix:
-        old: MatrixTuple = self.tuple()
+        old: Matrixtuple = self.tuple()
         self._matrix *= other._matrix
         self.notify(old)
         return self

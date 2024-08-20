@@ -11,7 +11,7 @@ See: http://stevehanov.ca/blog/index.php?id=33 and
 """
 from math import sqrt
 from random import Random
-from typing import Collection
+from collections.abc import Collection
 
 from cairo import Context as CairoContext
 
