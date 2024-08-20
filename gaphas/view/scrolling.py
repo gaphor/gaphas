@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+from math import isclose
 from typing import Callable
 
 from gi.repository import Gtk
 
 from gaphas.geometry import Rectangle
-from gaphas.matrix import Matrix
 
 
 class Scrolling:
     """Contains Gtk.Adjustment and related code."""
 
-    def __init__(self, scrolling_updated: Callable[[Matrix], None]) -> None:
+    def __init__(
+        self, scrolling_updated: Callable[[float | None, float | None], None]
+    ) -> None:
         self._scrolling_updated = scrolling_updated
         self.hadjustment: Gtk.Adjustment | None = None
         self.vadjustment: Gtk.Adjustment | None = None
@@ -19,8 +21,6 @@ class Scrolling:
         self.vscroll_policy: Gtk.ScrollablePolicy | None = None
         self._hadjustment_handler_id = 0
         self._vadjustment_handler_id = 0
-        self._last_hvalue = 0
-        self._last_vvalue = 0
 
     def get_property(self, prop):
         if prop.name == "hadjustment":
@@ -41,18 +41,16 @@ class Scrolling:
                     self.hadjustment.disconnect(self._hadjustment_handler_id)
                 self.hadjustment = value
                 self._hadjustment_handler_id = self.hadjustment.connect(
-                    "value-changed", self.on_adjustment_changed
+                    "value-changed", self.on_hadjustment_changed
                 )
-                self._scrolling_updated(Matrix())
         elif prop.name == "vadjustment":
             if value is not None:
                 if self.vadjustment and self._vadjustment_handler_id:
                     self.vadjustment.disconnect(self._vadjustment_handler_id)
                 self.vadjustment = value
                 self._vadjustment_handler_id = self.vadjustment.connect(
-                    "value-changed", self.on_adjustment_changed
+                    "value-changed", self.on_vadjustment_changed
                 )
-                self._scrolling_updated(Matrix())
         elif prop.name == "hscroll-policy":
             self.hscroll_policy = value
         elif prop.name == "vscroll-policy":
@@ -60,9 +58,19 @@ class Scrolling:
         else:
             raise AttributeError(f"Unknown property {prop.name}")
 
+    def update_position(self, x: float, y: float) -> None:
+        if self.hadjustment and not isclose(self.hadjustment.get_value(), x):
+            self.hadjustment.handler_block(self._hadjustment_handler_id)
+            self.hadjustment.set_value(-x)
+            self.hadjustment.handler_unblock(self._hadjustment_handler_id)
+
+        if self.vadjustment and not isclose(self.vadjustment.get_value(), y):
+            self.vadjustment.handler_block(self._vadjustment_handler_id)
+            self.vadjustment.set_value(-y)
+            self.vadjustment.handler_unblock(self._vadjustment_handler_id)
+
     def update_adjustments(self, width: int, height: int, bounds: Rectangle) -> None:
-        """Update scroll bar values (adjustments in GTK), and reset the scroll
-        value to 0.
+        """Update scroll bar values (adjustments in GTK).
 
         The value will change when a scroll bar is moved.
         """
@@ -72,36 +80,21 @@ class Scrolling:
         u = c + Rectangle(width=width, height=height)
 
         if self.hadjustment:
-            self.hadjustment.set_value(0)
             self.hadjustment.set_lower(u.x)
             self.hadjustment.set_upper(u.x1)
             self.hadjustment.set_step_increment(width // 10)
             self.hadjustment.set_page_increment(width)
             self.hadjustment.set_page_size(width)
-            self._last_hvalue = 0
 
         if self.vadjustment:
-            self.vadjustment.set_value(0)
             self.vadjustment.set_lower(u.y)
             self.vadjustment.set_upper(u.y1)
             self.vadjustment.set_step_increment(height // 10)
             self.vadjustment.set_page_increment(height)
             self.vadjustment.set_page_size(height)
-            self._last_vvalue = 0
 
-    def on_adjustment_changed(self, adj):
-        """Change the transformation matrix of the view to reflect the value of
-        the x/y adjustment (scrollbar)."""
-        value = adj.get_value()
-        if value == 0:
-            return
+    def on_hadjustment_changed(self, adj):
+        self._scrolling_updated(-adj.get_value(), None)
 
-        m = Matrix()
-        if adj is self.hadjustment:
-            m.translate(self._last_hvalue - value, 0)
-            self._last_hvalue = value
-        elif adj is self.vadjustment:
-            m.translate(0, self._last_vvalue - value)
-            self._last_vvalue = value
-
-        self._scrolling_updated(m)
+    def on_vadjustment_changed(self, adj):
+        self._scrolling_updated(None, -adj.get_value())

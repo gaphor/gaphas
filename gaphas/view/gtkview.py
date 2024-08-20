@@ -1,6 +1,7 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
+from math import isclose
 from collections.abc import Collection, Iterable
 
 import cairo
@@ -93,9 +94,12 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self.set_focusable(True)
         self.connect_after("resize", GtkView.on_resize)
 
-        def alignment_updated(matrix: Matrix) -> None:
+        def alignment_updated(x: float | None, y: float | None) -> None:
             if self._model:
-                self._matrix *= matrix
+                if x is not None:
+                    self.matrix.set(x0=x)
+                if y is not None:
+                    self.matrix.set(y0=y)
 
         self._scrolling = Scrolling(alignment_updated)
 
@@ -327,11 +331,13 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
             qtree.add(item=item, bounds=(x, y, w, h))
 
-    @g_async(single=True)
     def update_scrolling(self) -> None:
-        self._scrolling.update_adjustments(
-            self.get_width(), self.get_height(), self.bounding_box
-        )
+        matrix = Matrix(*self._matrix)  # type: ignore[misc]
+        # When zooming the bounding box to view size, disregard current scroll offsets
+        matrix.set(x0=0, y0=0)
+        bounds = Rectangle(*transform_rectangle(matrix, self._qtree.soft_bounds))
+
+        self._scrolling.update_adjustments(self.get_width(), self.get_height(), bounds)
 
     def _debug_draw_bounding_box(self, cr, width, height):
         for item in self.get_items_in_rectangle((0, 0, width, height)):
@@ -382,8 +388,9 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def on_matrix_update(self, matrix, old_matrix_values):
         # Test if scale or rotation changed
-        if tuple(matrix)[:4] != old_matrix_values[:4]:
+        if not all(map(isclose, matrix, old_matrix_values[:4])):
             self.update_scrolling()
+        self._scrolling.update_position(matrix[4], matrix[5])
         self.update_back_buffer()
 
     def on_resize(self, _width: int, _height: int) -> None:
