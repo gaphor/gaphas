@@ -1,6 +1,7 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
+from math import isclose
 from collections.abc import Collection, Iterable
 
 import cairo
@@ -332,6 +333,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def update_scrolling(self) -> None:
         matrix = Matrix(*self._matrix)  # type: ignore[misc]
+        # When zooming the bounding box to view size, disregard current scroll offsets
         matrix.set(x0=0, y0=0)
         bounds = Rectangle(*transform_rectangle(matrix, self._qtree.soft_bounds))
 
@@ -386,7 +388,7 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
 
     def on_matrix_update(self, matrix, old_matrix_values):
         # Test if scale or rotation changed
-        if tuple(matrix)[:4] != old_matrix_values[:4]:
+        if not all(map(isclose, matrix, old_matrix_values[:4])):
             self.update_scrolling()
         self._scrolling.update_position(matrix[4], matrix[5])
         self.update_back_buffer()
