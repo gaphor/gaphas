@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import functools
 import time
-from typing import List
 
 import pytest
 from gi.repository import GLib
@@ -62,7 +63,7 @@ def test_in_main_context():
 
 
 def test_function_is_called_when_not_in_main_loop():
-    called: List[str] = []
+    called: list[str] = []
 
     async_function(called, "called")
 
@@ -70,7 +71,7 @@ def test_function_is_called_when_not_in_main_loop():
 
 
 def test_generator_is_called_when_not_in_main_loop():
-    called: List[str] = []
+    called: list[str] = []
 
     for _ in generator_function(called, ["one", "two"]):
         pass
@@ -80,7 +81,7 @@ def test_generator_is_called_when_not_in_main_loop():
 
 @in_main_context
 def test_function_is_not_called_directly_in_main_loop():
-    called: List[str] = []
+    called: list[str] = []
 
     async_function(called, "called")
 
@@ -88,7 +89,7 @@ def test_function_is_not_called_directly_in_main_loop():
 
 
 def test_function_is_called_from_main_loop():
-    called: List[str] = []
+    called: list[str] = []
 
     @in_main_context
     def fn():
@@ -101,7 +102,7 @@ def test_function_is_called_from_main_loop():
 
 
 def test_single_function_is_called_once():
-    called: List[str] = []
+    called: list[str] = []
 
     @in_main_context
     def fn():
@@ -134,7 +135,7 @@ def test_single_method_is_called_once_per_instance():
 
 
 def test_timeout_function():
-    called: List[str] = []
+    called: list[str] = []
 
     @in_main_context
     def fn():
@@ -151,7 +152,7 @@ def test_timeout_function():
 
 
 def test_run_generator_to_completion():
-    called: List[str] = []
+    called: list[str] = []
 
     @in_main_context
     def fn():
@@ -164,7 +165,7 @@ def test_run_generator_to_completion():
 
 
 def test_run_first_generator_to_completion():
-    called: List[str] = []
+    called: list[str] = []
 
     @in_main_context
     def fn():

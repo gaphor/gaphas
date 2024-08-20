@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Protocol, SupportsFloat, Tuple, TypeVar
+from typing import Protocol, SupportsFloat, TypeVar
 
 # A primitive position, tuple ``(x, y)``
 # Pos = Tuple[Union[float, SupportsFloat], Union[float, SupportsFloat]]
-Pos = Tuple[float, float]
-SupportsFloatPos = Tuple[SupportsFloat, SupportsFloat]
+Pos = tuple[float, float]
+SupportsFloatPos = tuple[SupportsFloat, SupportsFloat]
 
 GetT = TypeVar("GetT", covariant=True)
 SetT = TypeVar("SetT", contravariant=True)

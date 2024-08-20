@@ -1,4 +1,4 @@
-from typing import Collection
+from collections.abc import Collection
 
 from cairo import Context as CairoContext
 from gi.repository import Gtk

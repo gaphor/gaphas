@@ -1,4 +1,6 @@
-from typing import Callable, Optional
+from __future__ import annotations
+
+from collections.abc import Callable
 
 from gi.repository import Gtk
 
@@ -23,7 +25,7 @@ class PlacementState:
     def __init__(self, factory: FactoryType, handle_index: int):
         self.factory = factory
         self.handle_index = handle_index
-        self.moving: Optional[MoveType] = None
+        self.moving: MoveType | None = None
 
 
 def on_drag_begin(gesture, start_x, start_y, placement_state):

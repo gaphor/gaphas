@@ -1,4 +1,6 @@
-from typing import Callable, Collection, Optional, Set
+from __future__ import annotations
+
+from collections.abc import Callable, Collection
 
 from gaphas.item import Item
 
@@ -6,20 +8,20 @@ from gaphas.item import Item
 class Selection:
     def __init__(self):
         super().__init__()
-        self._selected_items: Set[Item] = set()
-        self._focused_item: Optional[Item] = None
-        self._hovered_item: Optional[Item] = None
-        self._handlers: Set[Callable[[Optional[Item]], None]] = set()
+        self._selected_items: set[Item] = set()
+        self._focused_item: Item | None = None
+        self._hovered_item: Item | None = None
+        self._handlers: set[Callable[[Item | None], None]] = set()
 
-    def add_handler(self, handler: Callable[[Optional[Item]], None]) -> None:
+    def add_handler(self, handler: Callable[[Item | None], None]) -> None:
         """Add a callback handler, triggered when a constraint is resolved."""
         self._handlers.add(handler)
 
-    def remove_handler(self, handler: Callable[[Optional[Item]], None]) -> None:
+    def remove_handler(self, handler: Callable[[Item | None], None]) -> None:
         """Remove a previously assigned handler."""
         self._handlers.discard(handler)
 
-    def notify(self, item: Optional[Item]) -> None:
+    def notify(self, item: Item | None) -> None:
         for handler in self._handlers:
             handler(item)
 
@@ -57,11 +59,11 @@ class Selection:
         self.focused_item = None
 
     @property
-    def focused_item(self) -> Optional[Item]:
+    def focused_item(self) -> Item | None:
         return self._focused_item
 
     @focused_item.setter
-    def focused_item(self, item: Optional[Item]) -> None:
+    def focused_item(self, item: Item | None) -> None:
         if item:
             self.select_items(item)
 
@@ -70,11 +72,11 @@ class Selection:
             self.notify(item)
 
     @property
-    def hovered_item(self) -> Optional[Item]:
+    def hovered_item(self) -> Item | None:
         return self._hovered_item
 
     @hovered_item.setter
-    def hovered_item(self, item: Optional[Item]) -> None:
+    def hovered_item(self, item: Item | None) -> None:
         if item is not self._hovered_item:
             self._hovered_item = item
             self.notify(item)

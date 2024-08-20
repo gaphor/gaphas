@@ -1,4 +1,6 @@
-from typing import Collection, Optional
+from __future__ import annotations
+
+from collections.abc import Collection
 
 from cairo import LINE_JOIN_ROUND
 from cairo import Context as CairoContext
@@ -8,7 +10,7 @@ from gaphas.selection import Selection
 
 
 class ItemPainter:
-    def __init__(self, selection: Optional[Selection] = None) -> None:
+    def __init__(self, selection: Selection | None = None) -> None:
         self.selection = selection or Selection()
 
     def paint_item(self, item: Item, cairo: CairoContext) -> None:

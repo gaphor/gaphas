@@ -20,11 +20,11 @@ as a Q-tree. All forms of Quadtrees share some common features:
 from __future__ import annotations
 
 import operator
-from typing import Callable, Generic, Iterable, Tuple, TypeVar
+from typing import Callable, Generic, Iterable, TypeVar
 
-from gaphas.geometry import rectangle_contains, rectangle_intersects
+from gaphas.geometry import rectangle_contains, rectangle_intersects, Rect
 
-Bounds = Tuple[float, float, float, float]  # x, y, width, height
+Bounds = Rect
 
 T = TypeVar("T")
 D = TypeVar("D")

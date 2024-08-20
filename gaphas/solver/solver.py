@@ -32,8 +32,10 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
+from __future__ import annotations
+
 import functools
-from typing import Callable, Collection, List, Optional, Set
+from collections.abc import Callable, Collection
 
 from gaphas.solver.constraint import Constraint, ContainsConstraints
 
@@ -46,11 +48,11 @@ class Solver:
 
     def __init__(self, resolve_limit: int = 16) -> None:
         # a dict of constraint -> name/variable mappings
-        self._constraints: Set[Constraint] = set()
-        self._marked_cons: List[Constraint] = []
+        self._constraints: set[Constraint] = set()
+        self._marked_cons: list[Constraint] = []
         self._solving = False
         self._resolve_limit = resolve_limit
-        self._handlers: Set[Callable[[Constraint], None]] = set()
+        self._handlers: set[Callable[[Constraint], None]] = set()
 
     def add_handler(self, handler: Callable[[Constraint], None]) -> None:
         """Add a callback handler, triggered when a constraint is resolved."""
@@ -147,7 +149,7 @@ class Solver:
 
 def find_containing_constraint(
     constraint: Constraint, constraints: Collection[Constraint]
-) -> Optional[Constraint]:
+) -> Constraint | None:
     if constraint in constraints:
         return constraint
 

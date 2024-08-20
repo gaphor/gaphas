@@ -8,10 +8,10 @@ A point is represented as a tuple `(x, y)`.
 from __future__ import annotations
 
 from math import sqrt
-from typing import Iterator, Tuple
+from collections.abc import Iterator
 
-Point = Tuple[float, float]  # x, y
-Rect = Tuple[float, float, float, float]  # x, y, width, height
+Point = tuple[float, float]  # x, y
+Rect = tuple[float, float, float, float]  # x, y, width, height
 
 
 class Rectangle:

@@ -1,7 +1,7 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
-from typing import Collection, Iterable
+from collections.abc import Collection, Iterable
 
 import cairo
 from gi.repository import Graphene, GLib, GObject, Gtk

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import logging
-from typing import Optional, Tuple, Union
 
 from gi.repository import Gdk, Gtk
 
@@ -86,7 +87,7 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
 
 def find_item_and_handle_at_point(
     view: GtkView, pos: Pos
-) -> Tuple[Optional[Item], Optional[Handle]]:
+) -> tuple[Item | None, Handle | None]:
     item, handle = handle_at_point(view, pos)
     return item or next(item_at_point(view, pos), None), handle  # type: ignore[call-overload]
 
@@ -135,7 +136,7 @@ def order_handles(handles):
 
 def handle_at_point(
     view: GtkView, pos: Pos, distance: int = 6
-) -> Union[Tuple[Item, Handle], Tuple[None, None]]:
+) -> tuple[Item, Handle] | tuple[None, None]:
     """Look for a handle at ``pos`` and return the tuple (item, handle)."""
 
     def find(item):

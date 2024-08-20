@@ -1,4 +1,6 @@
-from typing import Callable, Optional
+from __future__ import annotations
+
+from typing import Callable
 
 from gi.repository import Gtk
 
@@ -11,10 +13,10 @@ class Scrolling:
 
     def __init__(self, scrolling_updated: Callable[[Matrix], None]) -> None:
         self._scrolling_updated = scrolling_updated
-        self.hadjustment: Optional[Gtk.Adjustment] = None
-        self.vadjustment: Optional[Gtk.Adjustment] = None
-        self.hscroll_policy: Optional[Gtk.ScrollablePolicy] = None
-        self.vscroll_policy: Optional[Gtk.ScrollablePolicy] = None
+        self.hadjustment: Gtk.Adjustment | None = None
+        self.vadjustment: Gtk.Adjustment | None = None
+        self.hscroll_policy: Gtk.ScrollablePolicy | None = None
+        self.vscroll_policy: Gtk.ScrollablePolicy | None = None
         self._hadjustment_handler_id = 0
         self._vadjustment_handler_id = 0
         self._last_hvalue = 0
@@ -58,7 +60,7 @@ class Scrolling:
         else:
             raise AttributeError(f"Unknown property {prop.name}")
 
-    def update_adjustments(self, width, height, bounds):
+    def update_adjustments(self, width: int, height: int, bounds: Rectangle) -> None:
         """Update scroll bar values (adjustments in GTK), and reset the scroll
         value to 0.
 
