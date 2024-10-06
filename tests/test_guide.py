@@ -75,7 +75,8 @@ def test_line_guide_horizontal(line, canvas):
     assert 30.0 == guides[2]
 
 
-def test_guide_item_in_motion(connections, canvas, view, window):
+@pytest.mark.asyncio
+async def test_guide_item_in_motion(connections, canvas, view, window):
     e1 = Element(connections)
     e2 = Element(connections)
     e3 = Element(connections)
@@ -88,6 +89,8 @@ def test_guide_item_in_motion(connections, canvas, view, window):
 
     e2.matrix.translate(40, 40)
     canvas.request_update(e2)
+    await view.update()
+
     assert 40 == e2.matrix[4]
     assert 40 == e2.matrix[5]
 
@@ -108,7 +111,8 @@ def test_guide_item_in_motion(connections, canvas, view, window):
     assert 20 == e3.matrix[5]
 
 
-def test_guide_item_in_motion_2(connections, canvas, view):
+@pytest.mark.asyncio
+async def test_guide_item_in_motion_2(connections, canvas, view):
     e1 = Element(connections)
     e2 = Element(connections)
     e3 = Element(connections)
@@ -121,6 +125,8 @@ def test_guide_item_in_motion_2(connections, canvas, view):
 
     e2.matrix.translate(40, 40)
     canvas.request_update(e2)
+    await view.update()
+
     assert 40 == e2.matrix[4]
     assert 40 == e2.matrix[5]
 

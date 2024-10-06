@@ -1,7 +1,10 @@
+import pytest
+
 from gaphas.tool.hover import hover_tool, on_motion
 
 
-def test_hovers_item(view, box):
+@pytest.mark.asyncio
+async def test_hovers_item(view, box):
     tool = hover_tool()
     view.add_controller(tool)
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gaphas"
-version = "4.1.1"
+version = "5.0.0"
 description="Gaphas is a GTK diagramming widget"
 authors = [
     "Arjan J. Molenaar <gaphor@gmail.com>",
@@ -27,13 +27,14 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4"
-PyGObject = "^3.38.0"
+PyGObject = "^3.50"
 pycairo = "^1.20.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.3"
 pytest-cov = "^5.0"
 pytest-archon = "^0.0.6"
+pytest-asyncio = "^0.23.8"
 
 [tool.poetry.group.docs]
 optional=true

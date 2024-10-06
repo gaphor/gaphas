@@ -1,5 +1,6 @@
 import math
 
+import pytest
 from gi.repository import Gtk
 
 from gaphas.handlemove import order_items
@@ -47,7 +48,8 @@ def test_should_create_a_gesture():
     assert isinstance(tool, Gtk.Gesture)
 
 
-def test_select_item_on_click(view, box, window):
+@pytest.mark.asyncio
+async def test_select_item_on_click(view, box, window):
     tool = MockGesture(view)
     drag_state = DragState()
     selection = view.selection
@@ -58,7 +60,8 @@ def test_select_item_on_click(view, box, window):
     assert box in selection.selected_items
 
 
-def test_start_move_handle_on_click(view, box, window):
+@pytest.mark.asyncio
+async def test_start_move_handle_on_click(view, box, window):
     tool = MockGesture(view)
     drag_state = DragState()
 
@@ -69,7 +72,8 @@ def test_start_move_handle_on_click(view, box, window):
     assert next(iter(drag_state.moving)).handle is box.handles()[0]
 
 
-def test_get_item_at_point(view, box):
+@pytest.mark.asyncio
+async def test_get_item_at_point(view, box):
     """Hover tool only reacts on motion-notify events."""
     box.width = 50
     box.height = 50
@@ -79,7 +83,8 @@ def test_get_item_at_point(view, box):
     assert next(item_at_point(view, (60, 10)), None) is None  # type: ignore[call-overload]
 
 
-def test_get_unselected_item_at_point(view, box):
+@pytest.mark.asyncio
+async def test_get_unselected_item_at_point(view, box):
     box.width = 50
     box.height = 50
     view.selection.select_items(box)
@@ -88,7 +93,8 @@ def test_get_unselected_item_at_point(view, box):
     assert next(item_at_point(view, (10, 10), exclude=(box,)), None) is None  # type: ignore[call-overload]
 
 
-def test_get_item_at_point_overlayed_by_bigger_item(view, canvas, connections):
+@pytest.mark.asyncio
+async def test_get_item_at_point_overlayed_by_bigger_item(view, canvas, connections):
     """Hover tool only reacts on motion-notify events."""
     below = Box(connections)
     canvas.add(below)
@@ -101,6 +107,7 @@ def test_get_item_at_point_overlayed_by_bigger_item(view, canvas, connections):
     above.width = 100
     above.height = 100
     view.request_update((below, above))
+    await view.update()
 
     assert next(item_at_point(view, (10, 10)), None) is below  # type: ignore[call-overload]
     assert next(item_at_point(view, (-1, -1)), None) is above  # type: ignore[call-overload]
@@ -112,26 +119,30 @@ def test_order_by_distance():
     assert [e[0] for e in order_items(m)] == [0, -1, -3, 4, 5, 10]
 
 
-def test_get_handle_at_point(view, canvas, connections):
+@pytest.mark.asyncio
+async def test_get_handle_at_point(view, canvas, connections):
     box = Box(connections)
     box.min_width = 20
     box.min_height = 30
     box.matrix.translate(20, 20)
     box.matrix.rotate(math.pi / 1.5)
     canvas.add(box)
+    await view.update()
 
     i, h = handle_at_point(view, (20, 20))
     assert i is box
     assert h is box.handles()[0]
 
 
-def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
+@pytest.mark.asyncio
+async def test_get_handle_at_point_at_pi_div_2(view, canvas, connections):
     box = Box(connections)
     box.min_width = 20
     box.min_height = 30
     box.matrix.translate(20, 20)
     box.matrix.rotate(math.pi / 2)
     canvas.add(box)
+    await view.update()
 
     i, h = handle_at_point(view, (20, 20))
     assert i is box

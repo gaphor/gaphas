@@ -1,5 +1,6 @@
 """Test cases for the View class."""
 
+import pytest
 from gi.repository import Gtk
 
 from gaphas.canvas import Canvas
@@ -27,17 +28,21 @@ def test_custom_selection_setter():
     assert view.selection is custom_selection
 
 
-def test_item_removal(view, canvas, box):
+@pytest.mark.asyncio
+async def test_item_removal(view, canvas, box):
+    await view.update()
     assert len(list(canvas.get_all_items())) == len(view._qtree)
 
     view.selection.focused_item = box
     canvas.remove(box)
+    await view.update()
 
     assert not list(canvas.get_all_items())
     assert len(view._qtree) == 0
 
 
-def test_view_registration():
+@pytest.mark.asyncio
+async def test_view_registration():
     canvas = Canvas()
 
     # GTK view does register for updates though
@@ -55,7 +60,8 @@ def test_view_registration():
     assert len(canvas._registered_views) == 1
 
 
-def test_view_registration_2(view, canvas, window):
+@pytest.mark.asyncio
+async def test_view_registration_2(view, canvas, window):
     """Test view registration and destroy when view is destroyed."""
     window.present()
 
@@ -67,7 +73,8 @@ def test_view_registration_2(view, canvas, window):
     assert len(canvas._registered_views) == 0
 
 
-def test_scroll_adjustments_signal(view, scrolled_window):
+@pytest.mark.asyncio
+async def test_scroll_adjustments_signal(view, scrolled_window):
     assert view.hadjustment
     assert view.vadjustment
     assert view.hadjustment.get_value() == 0.0
@@ -84,12 +91,14 @@ def test_scroll_adjustments_signal(view, scrolled_window):
     assert view.vadjustment.get_page_size() == 0.0
 
 
-def test_scroll_adjustments(view, scrolled_window):
+@pytest.mark.asyncio
+async def test_scroll_adjustments(view, scrolled_window):
     assert scrolled_window.get_hadjustment() is view.hadjustment
     assert scrolled_window.get_vadjustment() is view.vadjustment
 
 
-def test_will_not_remove_lone_controller(view):
+@pytest.mark.asyncio
+async def test_will_not_remove_lone_controller(view):
     ctrl = Gtk.EventControllerMotion.new()
 
     removed = view.remove_controller(ctrl)

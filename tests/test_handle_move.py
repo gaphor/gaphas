@@ -1,14 +1,18 @@
+import pytest
+
 from gaphas.handlemove import ItemHandleMove
 
 
-def test_can_connect(line, box, connections, view):
+@pytest.mark.asyncio
+async def test_can_connect(line, box, connections, view):
     handle_move = ItemHandleMove(line, line.head, view)
     handle_move.connect((0, 0))
 
     assert connections.get_connection(line.head)
 
 
-def test_handle_is_connected_and_constraint_removed_when_moved(
+@pytest.mark.asyncio
+async def test_handle_is_connected_and_constraint_removed_when_moved(
     line, box, connections, view
 ):
     handle_move = ItemHandleMove(line, line.head, view)
@@ -21,7 +25,8 @@ def test_handle_is_connected_and_constraint_removed_when_moved(
     assert constraint not in connections.solver.constraints
 
 
-def test_connected_item_can_disconnect(line, box, connections, view):
+@pytest.mark.asyncio
+async def test_connected_item_can_disconnect(line, box, connections, view):
     handle_move = ItemHandleMove(line, line.head, view)
     handle_move.connect((0, 0))
 
@@ -35,7 +40,8 @@ def test_connected_item_can_disconnect(line, box, connections, view):
     assert orig_constraint not in connections.solver.constraints
 
 
-def test_connected_item_can_reconnect(line, box, connections, view):
+@pytest.mark.asyncio
+async def test_connected_item_can_reconnect(line, box, connections, view):
     handle_move = ItemHandleMove(line, line.head, view)
     handle_move.connect((0, 0))
 

@@ -1,13 +1,13 @@
 """This module contains everything to display a model on a screen."""
 from __future__ import annotations
 
+import asyncio
 from math import isclose
 from collections.abc import Collection, Iterable
 
 import cairo
-from gi.repository import Graphene, GLib, GObject, Gtk
+from gi.repository import Graphene, GObject, Gtk
 
-from gaphas.decorators import g_async
 from gaphas.geometry import Rect, Rectangle
 from gaphas.item import Item
 from gaphas.matrix import Matrix
@@ -88,6 +88,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         self._back_buffer: cairo.Surface | None = None
         self._back_buffer_needs_resizing = True
 
+        self._update_task: asyncio.Task | None = None
+
         self._controllers: set[Gtk.EventController] = set()
 
         self.set_can_focus(True)
@@ -152,6 +154,8 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
             self._selection.clear()
             self._dirty_items.clear()
             self._qtree.clear()
+            if self._update_task:
+                self._update_task.cancel()
 
         self._model = model
 
@@ -277,22 +281,31 @@ class GtkView(Gtk.DrawingArea, Gtk.Scrollable):
         if items or removed_items:
             self.update()
 
-    @g_async(single=True, priority=GLib.PRIORITY_DEFAULT)
-    def update(self) -> None:
+    def update(self) -> asyncio.Task:
         """Update view status according to the items updated in the model."""
-        model = self._model
-        if not model:
-            return
 
-        dirty_items = self.all_dirty_items()
-        model.update_now(dirty_items)
-        dirty_items |= self.all_dirty_items()
+        async def _update():
+            model = self._model
+            if not model:
+                return
 
-        old_bb = self._qtree.soft_bounds
-        self.update_bounding_box(dirty_items)
-        if self._qtree.soft_bounds != old_bb:
-            self.update_scrolling()
-        self.update_back_buffer()
+            dirty_items = self.all_dirty_items()
+            model.update_now(dirty_items)
+            dirty_items |= self.all_dirty_items()
+
+            old_bb = self._qtree.soft_bounds
+            self.update_bounding_box(dirty_items)
+            if self._qtree.soft_bounds != old_bb:
+                self.update_scrolling()
+            self.update_back_buffer()
+
+        def clear_task(task):
+            self._update_task = None
+
+        if not self._update_task:
+            self._update_task = asyncio.create_task(_update())
+            self._update_task.add_done_callback(clear_task)
+        return self._update_task
 
     def all_dirty_items(self) -> set[Item]:
         """Return all dirty items, clearing the marked items."""
