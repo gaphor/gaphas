@@ -17,6 +17,7 @@ as a Q-tree. All forms of Quadtrees share some common features:
 
 (From Wikipedia, the free encyclopedia)
 """
+
 from __future__ import annotations
 
 import operator

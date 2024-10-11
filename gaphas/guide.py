@@ -1,4 +1,5 @@
 """Module implements guides when moving items and handles around."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

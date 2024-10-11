@@ -1,4 +1,5 @@
 """Simple class containing the tree structure for the canvas items."""
+
 from __future__ import annotations
 
 from contextlib import suppress

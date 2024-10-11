@@ -17,16 +17,13 @@ class ConnectionSinkType(Protocol):
     item: Item
     port: Port | None
 
-    def __init__(self, item: Item, distance: float = 10):
-        ...
+    def __init__(self, item: Item, distance: float = 10): ...
 
     def glue(
         self, pos: SupportsFloatPos, secondary_pos: SupportsFloatPos | None = None
-    ) -> Pos | None:
-        ...
+    ) -> Pos | None: ...
 
-    def constraint(self, item: Item, handle: Handle) -> Constraint:
-        ...
+    def constraint(self, item: Item, handle: Handle) -> Constraint: ...
 
 
 class ItemConnector:
