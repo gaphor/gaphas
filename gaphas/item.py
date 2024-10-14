@@ -1,4 +1,5 @@
 """Basic items."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

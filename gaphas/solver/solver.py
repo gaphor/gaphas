@@ -32,6 +32,7 @@ every constraint is being asked to solve itself
 (`constraint.Constraint.solve_for()` method) changing appropriate
 variables to make the constraint valid again.
 """
+
 from __future__ import annotations
 
 import functools

@@ -2,6 +2,7 @@
 
 These items are used in various tests.
 """
+
 from math import pi
 
 from gaphas.connector import Handle

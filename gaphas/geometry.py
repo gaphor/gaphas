@@ -5,6 +5,7 @@ intersections).
 
 A point is represented as a tuple `(x, y)`.
 """
+
 from __future__ import annotations
 
 from math import sqrt

@@ -1,4 +1,5 @@
 """This module contains everything to display a model on a screen."""
+
 from __future__ import annotations
 
 import asyncio

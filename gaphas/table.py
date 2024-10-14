@@ -1,5 +1,6 @@
 """Table is a storage class that can be used to store information, like one
 would in a database table, with indexes on the desired "columns."."""
+
 from __future__ import annotations
 from contextlib import suppress
 from functools import reduce
@@ -20,8 +21,7 @@ T = TypeVar("T", bound=tuple, covariant=True)
 class NamedTupleish(Protocol):
     _fields: tuple[str, ...]
 
-    def _make(self, *args: object) -> tuple[object, ...]:
-        ...
+    def _make(self, *args: object) -> tuple[object, ...]: ...
 
 
 class Table(Generic[T]):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # ruff: noqa: E402
 """A simple example containing two boxes and a line."""
+
 import gi
 
 # fmt: off

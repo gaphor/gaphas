@@ -83,8 +83,9 @@ exclude = [
     "dist",
     "__init__.py",
 ]
-ignore = ["E501", "B905", "B019"]
 line-length = 88
+[tool.ruff.lint]
+ignore = ["E501", "B905", "B019"]
 select = [
     "B",
     "B9",
@@ -94,11 +95,11 @@ select = [
     "W",
 ]
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 18
 
 [tool.codespell]
-skip = 'README.md'
+skip = 'README.md, CODE_OF_CONDUCT.md'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -10,6 +10,7 @@ It sports a small canvas and some trivial operations:
  - Delete focused item
  - Exports to SVG and PNG
 """
+
 import asyncio
 import math
 import sys

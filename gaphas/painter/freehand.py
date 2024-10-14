@@ -9,6 +9,7 @@
 See: http://stevehanov.ca/blog/index.php?id=33 and
      http://stevehanov.ca/blog/index.php?id=93
 """
+
 from math import sqrt
 from random import Random
 from collections.abc import Collection

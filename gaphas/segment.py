@@ -1,4 +1,5 @@
 """Allow for easily adding segments to lines."""
+
 from __future__ import annotations
 
 from functools import singledispatch
@@ -20,14 +21,11 @@ class Segment:
     def __init__(self, item, model):
         raise TypeError
 
-    def split_segment(self, segment, count=2):
-        ...
+    def split_segment(self, segment, count=2): ...
 
-    def split(self, pos):
-        ...
+    def split(self, pos): ...
 
-    def merge_segment(self, segment, count=2):
-        ...
+    def merge_segment(self, segment, count=2): ...
 
 
 @Segment.register(Line)  # type: ignore

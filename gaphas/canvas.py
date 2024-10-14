@@ -279,11 +279,9 @@ class Canvas:
 
 
 class Traversable(Protocol):
-    def get_parent(self, item: Item) -> Item | None:
-        ...
+    def get_parent(self, item: Item) -> Item | None: ...
 
-    def get_children(self, item: Item | None) -> Iterable[Item]:
-        ...
+    def get_children(self, item: Item | None) -> Iterable[Item]: ...
 
 
 def ancestors(canvas: Traversable, item: Item) -> Iterable[Item | None]:
