@@ -32,7 +32,7 @@ pycairo = "^1.20.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3"
-pytest-cov = "^5.0"
+pytest-cov = ">=5,<7"
 pytest-archon = "^0.0.6"
 pytest-asyncio = ">=0.23.8,<0.25.0"
 
