@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
@@ -42,7 +42,7 @@ jobs:
 
   build:
     needs: lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     strategy:
@@ -123,7 +123,7 @@ jobs:
   publish-to-pypi:
     name: Publish to PyPI (release only)
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       id-token: write
     if: ${{ github.event_name == 'release' }}
