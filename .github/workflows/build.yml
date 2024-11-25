@@ -6,7 +6,7 @@ on:
     types: [created, published]
 
 env:
-  python-version: '3.12'
+  python-version: '3.13'
 
 permissions:
   contents: read
@@ -47,7 +47,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     name: build python ${{ matrix.python-version }}
     outputs:
       targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz
