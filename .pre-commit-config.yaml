@@ -1,21 +1,21 @@
 repos:
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: 193cd7d27cd571f79358af09a8fb8997e54f8fff  # frozen: v2.3.0
     hooks:
     - id: codespell
       additional_dependencies:
       - tomli
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: f56614daa94d5cd733d3b7004c5df9caad267b4a  # frozen: v1.13.0
     hooks:
       - id: mypy
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
     hooks:
       - id: check-toml
       - id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.6.9'
+    rev: '0710b94280408eef12748cde4782972942370ad2'  # frozen: v0.8.0
     hooks:
       - id: ruff
         args: [--fix]
