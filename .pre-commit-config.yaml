@@ -6,7 +6,7 @@ repos:
       additional_dependencies:
       - tomli
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 648203cec3e499b9eff54a24d6cf4b25ce02eb1e  # frozen: v1.14.0
+    rev: bbc3dc1f890007061f18f17e2334f216ea9e5df7  # frozen: v1.14.1
     hooks:
       - id: mypy
   - repo: https://github.com/pre-commit/pre-commit-hooks
