@@ -247,9 +247,9 @@ class QuadtreeBucket(Generic[T]):
         The bucket is split when necessary. Items are otherwise added to
         this bucket, not some sub-bucket.
         """
-        assert rectangle_contains(
-            bounds, self.bounds
-        ), f"{bounds} do not fit in {self.bounds}"
+        assert rectangle_contains(bounds, self.bounds), (
+            f"{bounds} do not fit in {self.bounds}"
+        )
 
         if self._buckets or len(self.items) < self.capacity:
             self.items[item] = bounds

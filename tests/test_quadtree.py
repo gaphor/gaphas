@@ -18,18 +18,18 @@ def test_initial_size(qtree):
 
 def test_lookups(qtree):
     for i, j in itertools.product(range(100, 10), range(100, 10)):
-        assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
-            f"{i:d}x{j:d}"
-        ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
+        assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [f"{i:d}x{j:d}"], (
+            qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
+        )
 
 
 def test_with_rectangles(qtree):
     assert len(qtree._ids) == 100, len(qtree._ids)
 
     for i, j in itertools.product(range(100, 10), range(100, 10)):
-        assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [
-            f"{i:d}x{j:d}"
-        ], qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
+        assert qtree.find_intersect(rect=(i + 1, j + 1, 1, 1)) == [f"{i:d}x{j:d}"], (
+            qtree.find_intersect(rect=(i + 1, j + 1, 1, 1))
+        )
 
 
 def test_moving_items(qtree):
