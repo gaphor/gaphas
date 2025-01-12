@@ -1,18 +1,13 @@
-[tool.poetry]
+[project]
 name = "gaphas"
 version = "5.0.0"
 description="Gaphas is a GTK diagramming widget"
 authors = [
-    "Arjan J. Molenaar <gaphor@gmail.com>",
-    "Dan Yeaw <dan@yeaw.me>"
+    { name = "Arjan Molenaar", email = "gaphor@gmail.com" },
+    { name = "Dan Yeaw", email = "dan@yeaw.me" },
 ]
-license = "Apache-2.0"
 
 readme = "README.md"
-
-homepage = "https://gaphas.readthedocs.io/"
-repository = "https://github.com/gaphor/gaphas"
-documentation = "https://gaphas.readthedocs.io/"
 
 keywords = ["gtk", "diagram", "gaphas"]
 
@@ -25,16 +20,26 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<4"
-PyGObject = "^3.50"
-pycairo = "^1.20.0"
+requires-python = ">=3.9,<4.0"
+
+dependencies = [
+    "PyGObject>=3.50",
+    "pycairo>=1.20.0",
+]
+
+[project.urls]
+homepage = "https://gaphas.readthedocs.io/"
+repository = "https://github.com/gaphor/gaphas"
+documentation = "https://gaphas.readthedocs.io/"
+
+[tool.poetry]
+requires-poetry = ">=2.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3"
-pytest-cov = ">=5,<7"
-pytest-archon = "^0.0.6"
-pytest-asyncio = ">=0.23.8,<0.26.0"
+pytest = ">=8.3"
+pytest-cov = ">=5"
+pytest-archon = ">=0.0.6"
+pytest-asyncio = ">=0.23.8"
 
 [tool.poetry.group.docs]
 optional=true
@@ -102,6 +107,5 @@ max-complexity = 18
 skip = 'README.md, CODE_OF_CONDUCT.md'
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
