@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/codespell-project/codespell
-    rev: db0100e9569b92719311a5bf6727ca1bb4664409  # frozen: v2.4.0
+    rev: 63c8f8312b7559622c0d82815639671ae42132ac  # frozen: v2.4.1
     hooks:
     - id: codespell
       additional_dependencies:
@@ -15,7 +15,7 @@ repos:
       - id: check-toml
       - id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: '73413df07b4ab0bf103ca1ae73c7cec5c0ace593'  # frozen: v0.9.2
+    rev: '36b36942c52d8ce8ae6314461f2d86b1fda158e3'  # frozen: v0.9.3
     hooks:
       - id: ruff
         args: [--fix]
