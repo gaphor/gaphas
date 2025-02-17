@@ -14,6 +14,8 @@ repos:
     hooks:
       - id: check-toml
       - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: '\.gaphor'
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: '895ebb389825c29bd4e0addcf7579d6c69d199cc'  # frozen: v0.9.6
     hooks:
