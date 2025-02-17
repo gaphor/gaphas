@@ -131,4 +131,3 @@ showing any activity.
 
 # Community
 You can chat with the Gaphas community on gitter: https://gitter.im/Gaphor/Lobby.
-
