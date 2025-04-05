@@ -151,8 +151,7 @@ def find_closest(item_edges, edges, margin=MARGIN):
     return (delta, closest) if min_d <= margin else (0, ())
 
 
-def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset()):
-    px, py = pos
+def update_guides(view, handle, vedges, hedges, excluded_items=frozenset()):
     dx, edges_x = find_vertical_guides(
         view, handle, vedges, view.get_height(), excluded_items, MARGIN
     )
@@ -160,13 +159,11 @@ def update_guides(view, handle, pos, vedges, hedges, excluded_items=frozenset())
         view, handle, hedges, view.get_width(), excluded_items, MARGIN
     )
 
-    newpos = px + dx, py + dy
-
     view.guides = Guides(edges_x, edges_y)
 
     view.update_back_buffer()
 
-    return newpos
+    return dx, dy
 
 
 def reset_guides(view):
@@ -201,12 +198,10 @@ class GuidedItemMoveMixin:
         item_hedges = [transform(0, y)[1] + pdy for y in item_guide.horizontal()]
 
         excluded_items = get_excluded_items(view, item)
-        newpos = update_guides(
-            view, None, pos, item_vedges, item_hedges, excluded_items
-        )
+        dx, dy = update_guides(view, None, item_vedges, item_hedges, excluded_items)
 
         # Call super class, with new position
-        super().move(newpos)  # type: ignore[misc]
+        super().move((pos[0] + dx, pos[1] + dy))  # type: ignore[misc]
 
     def stop_move(self, pos: Pos) -> None:
         super().stop_move(pos)  # type: ignore[misc]
@@ -238,10 +233,9 @@ class GuidedItemHandleMoveMixin:
         assert model
 
         x, y = pos
+        dx, dy = update_guides(view, self.handle, (x,), (y,))
 
-        newpos = update_guides(view, self.handle, pos, (x,), (y,))
-
-        self.handle.pos = view.get_matrix_v2i(item).transform_point(*newpos)
+        self.handle.pos = view.get_matrix_v2i(item).transform_point(x + dx, y + dy)
         model.request_update(item)
 
     def stop_move(self, pos: Pos) -> None:
