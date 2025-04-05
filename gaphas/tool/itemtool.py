@@ -34,6 +34,8 @@ class DragState:
     def reset(self):
         self.moving_items = set()
         self.moving_handle = None
+        self.start_x = 0
+        self.start_y = 0
 
     @property
     def moving(self):
@@ -76,6 +78,9 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
     selection.focused_item = item
     gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
+    drag_state.start_x = start_x
+    drag_state.start_y = start_y
+
     if handle:
         drag_state.moving_handle = HandleMove(item, handle, view)
     else:
@@ -105,10 +110,9 @@ def moving_items(view):
 
 
 def on_drag_update(gesture, offset_x, offset_y, drag_state):
-    _, sx, sy = gesture.get_start_point()
     view = gesture.get_widget()
-    x = sx + offset_x
-    y = sy + offset_y
+    x = drag_state.start_x + offset_x
+    y = drag_state.start_y + offset_y
 
     for moving in drag_state.moving:
         moving.move((x, y))
@@ -118,9 +122,8 @@ def on_drag_update(gesture, offset_x, offset_y, drag_state):
 
 
 def on_drag_end(gesture, offset_x, offset_y, drag_state):
-    _, x, y = gesture.get_start_point()
     for moving in drag_state.moving:
-        moving.stop_move((x + offset_x, y + offset_y))
+        moving.stop_move((drag_state.start_x + offset_x, drag_state.start_y + offset_y))
     if drag_state.moving_handle:
         moving = drag_state.moving_handle
         maybe_merge_segments(gesture.get_widget(), moving.item, moving.handle)

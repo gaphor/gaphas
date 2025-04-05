@@ -26,6 +26,8 @@ class PlacementState:
         self.factory = factory
         self.handle_index = handle_index
         self.moving: MoveType | None = None
+        self.start_x = 0
+        self.start_y = 0
 
 
 def on_drag_begin(gesture, start_x, start_y, placement_state):
@@ -40,17 +42,21 @@ def on_drag_begin(gesture, start_x, start_y, placement_state):
 
     handle = item.handles()[placement_state.handle_index]
     if handle.movable:
+        placement_state.start_x = start_x
+        placement_state.start_y = start_y
         placement_state.moving = HandleMove(item, handle, view)
         placement_state.moving.start_move((start_x, start_y))
 
 
 def on_drag_update(gesture, offset_x, offset_y, placement_state):
     if placement_state.moving:
-        _, x, y = gesture.get_start_point()
-        placement_state.moving.move((x + offset_x, y + offset_y))
+        placement_state.moving.move(
+            (placement_state.start_x + offset_x, placement_state.start_y + offset_y)
+        )
 
 
 def on_drag_end(gesture, offset_x, offset_y, placement_state):
     if placement_state.moving:
-        _, x, y = gesture.get_start_point()
-        placement_state.moving.stop_move((x + offset_x, y + offset_y))
+        placement_state.moving.stop_move(
+            (placement_state.start_x + offset_x, placement_state.start_y + offset_y)
+        )
