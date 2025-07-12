@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Callable, Union
 
 from gi.repository import Gdk, Gtk
 
@@ -17,11 +18,24 @@ from gaphas.view import GtkView
 log = logging.getLogger(__name__)
 
 
-def item_tool() -> Gtk.GestureDrag:
+def default_find_item_and_handle_at_point(
+    view: GtkView, pos: Pos
+) -> Union[tuple[Item, Union[Handle, None]], tuple[None, None]]:
+    item, handle = handle_at_point(view, pos)
+    return item or next(item_at_point(view, pos), None), handle  # type: ignore[return-value]
+
+
+def item_tool(
+    find_item_and_handle_at_point: Callable[
+        [GtkView, Pos], tuple[Item, Handle | None] | tuple[None, None]
+    ] = default_find_item_and_handle_at_point,
+) -> Gtk.GestureDrag:
     """Handle item movement and movement of handles."""
     gesture = Gtk.GestureDrag.new()
     drag_state = DragState()
-    gesture.connect("drag-begin", on_drag_begin, drag_state)
+    gesture.connect(
+        "drag-begin", on_drag_begin, drag_state, find_item_and_handle_at_point
+    )
     gesture.connect("drag-update", on_drag_update, drag_state)
     gesture.connect("drag-end", on_drag_end, drag_state)
     return gesture
@@ -44,7 +58,7 @@ class DragState:
             yield self.moving_handle
 
 
-def on_drag_begin(gesture, start_x, start_y, drag_state):
+def on_drag_begin(gesture, start_x, start_y, drag_state, find_item_and_handle_at_point):
     view = gesture.get_widget()
     pos = (start_x, start_y)
     selection = view.selection
@@ -88,13 +102,6 @@ def on_drag_begin(gesture, start_x, start_y, drag_state):
 
     for moving in drag_state.moving:
         moving.start_move((start_x, start_y))
-
-
-def find_item_and_handle_at_point(
-    view: GtkView, pos: Pos
-) -> tuple[Item | None, Handle | None]:
-    item, handle = handle_at_point(view, pos)
-    return item or next(item_at_point(view, pos), None), handle  # type: ignore[call-overload]
 
 
 def moving_items(view):

@@ -10,6 +10,7 @@ from gaphas.tool.itemtool import (
     item_at_point,
     item_tool,
     on_drag_begin,
+    default_find_item_and_handle_at_point,
 )
 from tests.conftest import Box
 
@@ -54,7 +55,7 @@ async def test_select_item_on_click(view, box, window):
     drag_state = DragState()
     selection = view.selection
 
-    on_drag_begin(tool, 0, 0, drag_state)
+    on_drag_begin(tool, 0, 0, drag_state, default_find_item_and_handle_at_point)
 
     assert box is selection.focused_item
     assert box in selection.selected_items
@@ -65,7 +66,7 @@ async def test_start_move_handle_on_click(view, box, window):
     tool = MockGesture(view)
     drag_state = DragState()
 
-    on_drag_begin(tool, 0, 0, drag_state)
+    on_drag_begin(tool, 0, 0, drag_state, default_find_item_and_handle_at_point)
 
     assert drag_state.moving
     assert next(iter(drag_state.moving)).item is box
@@ -79,8 +80,8 @@ async def test_get_item_at_point(view, box):
     box.height = 50
     view.request_update((box,))
 
-    assert next(item_at_point(view, (10, 10)), None) is box  # type: ignore[call-overload]
-    assert next(item_at_point(view, (60, 10)), None) is None  # type: ignore[call-overload]
+    assert next(item_at_point(view, (10, 10)), None) is box
+    assert next(item_at_point(view, (60, 10)), None) is None
 
 
 @pytest.mark.asyncio
@@ -89,8 +90,8 @@ async def test_get_unselected_item_at_point(view, box):
     box.height = 50
     view.selection.select_items(box)
 
-    assert next(item_at_point(view, (10, 10)), None) is box  # type: ignore[call-overload]
-    assert next(item_at_point(view, (10, 10), exclude=(box,)), None) is None  # type: ignore[call-overload]
+    assert next(item_at_point(view, (10, 10)), None) is box
+    assert next(item_at_point(view, (10, 10), exclude=(box,)), None) is None
 
 
 @pytest.mark.asyncio
@@ -109,8 +110,8 @@ async def test_get_item_at_point_overlayed_by_bigger_item(view, canvas, connecti
     view.request_update((below, above))
     await view.update()
 
-    assert next(item_at_point(view, (10, 10)), None) is below  # type: ignore[call-overload]
-    assert next(item_at_point(view, (-1, -1)), None) is above  # type: ignore[call-overload]
+    assert next(item_at_point(view, (10, 10)), None) is below
+    assert next(item_at_point(view, (-1, -1)), None) is above
 
 
 def test_order_by_distance():

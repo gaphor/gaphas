@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from functools import singledispatch
 from operator import itemgetter
-from typing import TYPE_CHECKING, Iterable, Sequence
+from typing import TYPE_CHECKING, Iterable, Sequence, Iterator
 
 from gaphas.connector import ConnectionSink, ConnectionSinkType, Connector
 from gaphas.handle import Handle
@@ -163,7 +163,7 @@ def item_at_point(
     pos: Pos,
     distance: float = 0.5,
     exclude: Sequence[Item] = (),
-) -> Iterable[Item]:
+) -> Iterator[Item]:
     """Return the topmost item located at ``pos`` (x, y).
 
     Parameters:
