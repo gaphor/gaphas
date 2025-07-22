@@ -25,6 +25,10 @@ def default_find_item_and_handle_at_point(
     return item or next(item_at_point(view, pos), None), handle  # type: ignore[return-value]
 
 
+# Backwards compatibility:
+find_item_and_handle_at_point = default_find_item_and_handle_at_point
+
+
 def item_tool(
     find_item_and_handle_at_point: Callable[
         [GtkView, Pos], tuple[Item, Handle | None] | tuple[None, None]
