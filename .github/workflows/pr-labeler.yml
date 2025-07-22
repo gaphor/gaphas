@@ -1,7 +1,7 @@
-name: PR Labeler
+name: "Pull Request Labeler"
 on:
-  pull_request_target:
-    types: [opened]
+  # pull_request_target is not considered safe, but only updates PRs in our case.
+  - pull_request_target
 
 permissions:
   contents: read
@@ -9,19 +9,21 @@ permissions:
 jobs:
   pr-labeler:
     permissions:
-      pull-requests: write  # for TimonVS/pr-labeler-action to add labels in PR
+      contents: read
+      pull-requests: write
     runs-on: ubuntu-24.04
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
+          disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
             *.githubusercontent.com:443
             ghcr.io
 
-      - uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5.0.0
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: false
