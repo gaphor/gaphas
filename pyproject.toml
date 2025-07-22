@@ -1,6 +1,6 @@
 [project]
 name = "gaphas"
-version = "5.1.0"
+version = "5.1.1"
 description="Gaphas is a GTK diagramming widget"
 authors = [
     { name = "Arjan Molenaar", email = "gaphor@gmail.com" },
