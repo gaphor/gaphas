@@ -1,7 +1,7 @@
 # Gaphas
 [![Build state](https://github.com/gaphor/gaphas/workflows/build/badge.svg)](https://github.com/gaphor/gaphas/actions)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e9837cc647b72119fd11/maintainability)](https://codeclimate.com/github/gaphor/gaphas/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/e9837cc647b72119fd11/test_coverage)](https://codeclimate.com/github/gaphor/gaphas/test_coverage)
+[![Maintainability](https://qlty.sh/gh/gaphor/projects/gaphas/maintainability.svg)](https://qlty.sh/gh/gaphor/projects/gaphas)
+[![Code Coverage](https://qlty.sh/gh/gaphor/projects/gaphas/coverage.svg)](https://qlty.sh/gh/gaphor/projects/gaphas)
 ![Docs build state](https://readthedocs.org/projects/gaphas/badge/?version=latest)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat)](https://github.com/RichardLitt/standard-readme)
 [![Matrix](https://img.shields.io/badge/chat-on%20Matrix-success)](https://matrix.to/#/#gaphor_Lobby:gitter.im)
