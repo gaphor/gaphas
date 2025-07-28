@@ -61,9 +61,8 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             azure.archive.ubuntu.com:80
-            api.codeclimate.com:443
-            codeclimate.com:443
-            d3iz1jjs17r6kg.cloudfront.net:443
+            qlty.sh/d/coverage:443
+            qlty-releases.s3.amazonaws.com:443
             files.pythonhosted.org:443
             pypi.org:443
             github.com:443
@@ -101,13 +100,14 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Test
-        run: xvfb-run poetry run pytest --cov=gaphas
-      # - name: Code Climate Coverage Action
-      #   uses: paambaati/codeclimate-action@f429536ee076d758a24705203199548125a28ca7 # v9.0.0
-      #   env:
-      #     CC_TEST_REPORTER_ID: 195e9f83022747c8eefa3ec9510dd730081ef111acd99c98ea0efed7f632ff8a
-      #   with:
-      #     coverageCommand: poetry run coverage xml
+        run: |
+          xvfb-run poetry run pytest --cov=gaphas
+          poetry run coverage lcov
+      - name: Upload Code Coverage to Qlty.sh
+        uses: qltysh/qlty-action/coverage@v1
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: coverage.lcov
       - name: Create Source Dist and Wheel
         if: ${{ matrix.python-version == env.python-version }}
         run: poetry build
