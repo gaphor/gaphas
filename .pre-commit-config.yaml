@@ -10,14 +10,14 @@ repos:
     hooks:
       - id: mypy
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
         exclude: '\.gaphor'
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: '4cbc74d53fe5634e58e0e65db7d28939c9cec3f7'  # frozen: v0.12.7
+    rev: '455f64b32459518aa82ec33b63f799ed048d65a9'  # frozen: v0.12.8
     hooks:
       - id: ruff
         args: [--fix]
