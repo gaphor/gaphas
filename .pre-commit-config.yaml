@@ -6,7 +6,7 @@ repos:
       additional_dependencies:
       - tomli
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 412de98d50e846f31ea6f4b0ad036f2c24a7a024  # frozen: v1.17.1
+    rev: 30f435a17e4833cfc546d0c2bff4ec75d815f739  # frozen: v1.18.1
     hooks:
       - id: mypy
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -17,7 +17,7 @@ repos:
       - id: end-of-file-fixer
         exclude: '\.gaphor'
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: '60ef368a6f48dfb4317651017f66dbb055241a6c'  # frozen: v0.12.12
+    rev: '13a6bda8ea7612b3aec844ded16569d424b9a1ab'  # frozen: v0.13.0
     hooks:
       - id: ruff
         args: [--fix]
