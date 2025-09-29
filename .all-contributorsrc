@@ -106,7 +106,18 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "cjmayo",
+      "name": "Chris Mayo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/921089?v=4",
+      "profile": "https://github.com/cjmayo",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "commitType": "docs",
+  "commitConvention": "angular"
 }
