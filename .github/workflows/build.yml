@@ -104,7 +104,7 @@ jobs:
           xvfb-run poetry run pytest --cov=gaphas
           poetry run coverage lcov
       - name: Upload Code Coverage to Qlty.sh
-        uses: qltysh/qlty-action/coverage@v2
+        uses: qltysh/qlty-action/coverage@a19242102d17e497f437d7466aa01b528537e899 # v2.2.0
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: coverage.lcov
