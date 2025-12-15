@@ -8,7 +8,7 @@ build:
   - libgirepository-2.0-dev
   jobs:
     pre_install:
-    - python -m pip install --constraint=.github/constraints.txt poetry
+    - python -m pip install --constraint=.github/github-requirements.txt poetry
     - poetry config virtualenvs.create false
     post_install:
     - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs

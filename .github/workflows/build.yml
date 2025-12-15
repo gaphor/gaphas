@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -27,18 +27,18 @@ jobs:
             *.githubusercontent.com:443
             ghcr.io
 
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Set up Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.python-version }}
       - name: Lint with pre-commit
-        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+        run: pipx run --pip-args='--constraint=.github/github-requirements.txt' pre-commit run --all-files
       - name: Check REUSE compliance
         run: pip install reuse && python -m reuse lint
       - name: Check Poetry lock file integrity
         run: |
-          python${{ env.python-version }} -m pip install --constraint=.github/constraints.txt poetry
+          python${{ env.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
           poetry check
 
@@ -56,7 +56,7 @@ jobs:
       wheel: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -75,14 +75,14 @@ jobs:
             packages.microsoft.com:443
             ppa.launchpadcontent.net:443
 
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
       - name: Use Python Dependency Cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
@@ -92,7 +92,7 @@ jobs:
           sudo apt-get install -qq --no-install-recommends gir1.2-gtk-4.0 libgirepository-2.0-dev libcairo2-dev
       - name: Install Poetry
         run: |
-          python${{ matrix.python-version }} -m pip install --constraint=.github/constraints.txt poetry
+          python${{ matrix.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
       - name: Collect Project Data
         id: meta
@@ -104,7 +104,7 @@ jobs:
           xvfb-run poetry run pytest --cov=gaphas
           poetry run coverage lcov
       - name: Upload Code Coverage to Qlty.sh
-        uses: qltysh/qlty-action/coverage@v2
+        uses: qltysh/qlty-action/coverage@a19242102d17e497f437d7466aa01b528537e899 # v2.2.0
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: coverage.lcov
@@ -113,13 +113,13 @@ jobs:
         run: poetry build
       - name: Upload gaphas-${{ steps.meta.outputs.version }}.tar.gz
         if: ${{ matrix.python-version == env.python-version }}
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
           path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
       - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
         if: ${{ matrix.python-version == env.python-version }}
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
           path: dist/gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
@@ -133,7 +133,7 @@ jobs:
     if: ${{ github.event_name == 'release' }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -143,11 +143,11 @@ jobs:
             *.githubusercontent.com:443
             ghcr.io:443
 
-      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: ${{ needs.build.outputs.targz }}
           path: dist
-      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: ${{ needs.build.outputs.wheel }}
           path: dist
