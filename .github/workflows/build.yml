@@ -33,12 +33,12 @@ jobs:
         with:
           python-version: ${{ env.python-version }}
       - name: Lint with pre-commit
-        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+        run: pipx run --pip-args='--constraint=.github/github-requirements.txt' pre-commit run --all-files
       - name: Check REUSE compliance
         run: pip install reuse && python -m reuse lint
       - name: Check Poetry lock file integrity
         run: |
-          python${{ env.python-version }} -m pip install --constraint=.github/constraints.txt poetry
+          python${{ env.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
           poetry check
 
@@ -92,7 +92,7 @@ jobs:
           sudo apt-get install -qq --no-install-recommends gir1.2-gtk-4.0 libgirepository-2.0-dev libcairo2-dev
       - name: Install Poetry
         run: |
-          python${{ matrix.python-version }} -m pip install --constraint=.github/constraints.txt poetry
+          python${{ matrix.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
       - name: Collect Project Data
         id: meta
