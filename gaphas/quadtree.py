@@ -155,9 +155,13 @@ class Quadtree(Generic[T, D]):
 
     def remove(self, item: T) -> None:
         """Remove an item from the tree."""
-        bounds, data = self._ids[item]
-        del self._ids[item]
-        self._bucket.find_bucket(bounds).remove(item)
+        try:
+            bounds, _data = self._ids[item]
+            del self._ids[item]
+        except KeyError:
+            pass  # Element does not exist
+        else:
+            self._bucket.find_bucket(bounds).remove(item)
 
     def clear(self):
         """Remove all items from the tree."""
