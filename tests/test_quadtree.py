@@ -86,6 +86,14 @@ def test_resize(qtree: Quadtree):
     assert "0x0" in qtree.find_inside((0, 100, 100, 200))
 
 
+def test_remove_unknown_item(qtree: Quadtree):
+    qtree = Quadtree()
+    qtree.remove("unknown_item")
+
+    with pytest.raises(KeyError):
+        qtree.get_bounds("unknown_item")
+
+
 def test_dump_quadtree(qtree, capsys):
     qtree.dump()
     captured = capsys.readouterr()
