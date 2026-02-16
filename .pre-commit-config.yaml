@@ -17,7 +17,7 @@ repos:
       - id: end-of-file-fixer
         exclude: '\.gaphor'
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: '45ef068da5f21267bb2a7ec4a623092959f09ce5'  # frozen: v0.14.14
+    rev: '0470f7c8a653e950f7cc5a653204ceb3fde4c02a'  # frozen: v0.15.0
     hooks:
       - id: ruff
         args: [--fix]
