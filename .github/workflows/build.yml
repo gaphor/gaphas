@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -56,7 +56,7 @@ jobs:
       wheel: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -113,13 +113,13 @@ jobs:
         run: poetry build
       - name: Upload gaphas-${{ steps.meta.outputs.version }}.tar.gz
         if: ${{ matrix.python-version == env.python-version }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: gaphas-${{ steps.meta.outputs.version }}.tar.gz
           path: dist/gaphas-${{ steps.meta.outputs.version }}.tar.gz
       - name: Upload gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
         if: ${{ matrix.python-version == env.python-version }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
           path: dist/gaphas-${{ steps.meta.outputs.version }}-py3-none-any.whl
@@ -133,7 +133,7 @@ jobs:
     if: ${{ github.event_name == 'release' }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -151,4 +151,4 @@ jobs:
         with:
           name: ${{ needs.build.outputs.wheel }}
           path: dist
-      - uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # release/v1
+      - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
