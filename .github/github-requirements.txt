@@ -1,2 +1,2 @@
-poetry==2.3.3
+poetry==2.3.4
 pre-commit==4.5.0
