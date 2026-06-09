@@ -36,7 +36,7 @@ documentation = "https://gaphas.readthedocs.io/"
 requires-poetry = ">=2.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = ">=8.3"
+pytest = ">=9.0.3"
 pytest-cov = ">=7.1.0"
 pytest-archon = ">=0.0.6"
 pytest-asyncio = ">=0.23.8"
