@@ -236,7 +236,7 @@ class Canvas:
         try:
             # keep it here, since we need up to date matrices for the solver
             for d in dirty_items:
-                d.matrix_i2c.set(*self.get_matrix_i2c(d))
+                d.matrix_i2c.set(*self.get_matrix_i2c(d).tuple())
 
             # solve all constraints
             self._connections.solve()

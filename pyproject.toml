@@ -56,7 +56,7 @@ addopts = ["--import-mode=importlib"]
 source = ["gaphas"]
 
 [tool.mypy]
-python_version = 3.9
+python_version = 3.11
 warn_return_any = true
 warn_unused_configs = true
 warn_redundant_casts = true
@@ -70,11 +70,7 @@ explicit_package_bases = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = [
-    "cairo",
-    "gi.*",
-    "hotshot.*",
-]
+module = ["cairo", "gi.*", "hotshot.*"]
 ignore_missing_imports = true
 warn_unreachable = true
 
