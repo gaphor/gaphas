@@ -40,6 +40,7 @@ jobs:
         run: |
           python${{ env.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
+          poetry config installer.parallel false
           poetry check
 
   build:
@@ -94,6 +95,7 @@ jobs:
         run: |
           python${{ matrix.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
+          poetry config installer.parallel false
       - name: Collect Project Data
         id: meta
         run: .github/scripts/metadata.sh
