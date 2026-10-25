@@ -1,6 +1,6 @@
 [project]
 name = "gaphas"
-version = "5.1.2"
+version = "5.1.3"
 description="Gaphas is a GTK diagramming widget"
 authors = [
     { name = "Arjan Molenaar", email = "gaphor@gmail.com" },
@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 
 dependencies = [
     "PyGObject>=3.58.1",
