@@ -85,7 +85,7 @@ async def test_get_item_at_point(view, box):
 
 
 @pytest.mark.asyncio
-async def test_get_unselected_item_at_point(view, box):
+async def test_get_unselected_item_at_point(view, box: Box):
     box.width = 50
     box.height = 50
     view.selection.select_items(box)

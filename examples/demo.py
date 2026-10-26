@@ -50,7 +50,7 @@ from gaphas.tool.scroll import pan_tool
 from gaphas.view import GtkView
 
 # Global undo list
-undo_list = []
+undo_list: list = []
 
 
 def undo_handler(event):

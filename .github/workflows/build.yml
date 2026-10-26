@@ -6,14 +6,14 @@ on:
     types: [created, published]
 
 env:
-  python-version: '3.14'
+  python-version: '3.15'
 
 permissions:
   contents: read
 
 jobs:
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
@@ -40,16 +40,17 @@ jobs:
         run: |
           python${{ env.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
+          poetry config installer.parallel false
           poetry check
 
   build:
     needs: lint
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.11', '3.12', '3.13', '3.14', '3.15']
     name: build python ${{ matrix.python-version }}
     outputs:
       targz: gaphas-${{ steps.meta.outputs.version }}.tar.gz
@@ -94,6 +95,7 @@ jobs:
         run: |
           python${{ matrix.python-version }} -m pip install --constraint=.github/github-requirements.txt poetry
           poetry config virtualenvs.in-project true
+          poetry config installer.parallel false
       - name: Collect Project Data
         id: meta
         run: .github/scripts/metadata.sh
@@ -127,7 +129,7 @@ jobs:
   publish-to-pypi:
     name: Publish to PyPI (release only)
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       id-token: write
     if: ${{ github.event_name == 'release' }}

@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/codespell-project/codespell
-    rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
+    rev: 57b21406f092110c18776e39b0bda50d37c945c8  # frozen: v2.4.3
     hooks:
     - id: codespell
       additional_dependencies:
       - tomli
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: a66e98df7b4aeeb3724184b332785976d062b92e  # frozen: v1.19.1
+    rev: 2834ec6639549dd6796205c8f011dedcd587288b  # frozen: v2.4.0
     hooks:
       - id: mypy
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -17,7 +17,7 @@ repos:
       - id: end-of-file-fixer
         exclude: '\.gaphor'
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'aca6d4c8045a504e2812ea4bedff1d0a09e437bc'  # frozen: v0.15.8
+    rev: 'f368fb366ff7f2f808dd324b83a6d32267799e19'  # frozen: v0.17.2
     hooks:
       - id: ruff
         args: [--fix]
