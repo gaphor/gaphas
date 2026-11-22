@@ -1,8 +1,16 @@
 from __future__ import annotations
 
+import enum
 from collections.abc import Callable, Collection
 
 from gaphas.item import Item
+
+
+class SelectionFlags(enum.Flag):
+    SELECTED = enum.auto()
+    FOCUSED = enum.auto()
+    HOVERED = enum.auto()
+    ALL = SELECTED | FOCUSED | HOVERED
 
 
 class Selection:
@@ -11,19 +19,30 @@ class Selection:
         self._selected_items: set[Item] = set()
         self._focused_item: Item | None = None
         self._hovered_item: Item | None = None
-        self._handlers: set[Callable[[Item | None], None]] = set()
+        self._handlers: set[tuple[SelectionFlags, Callable[[Item | None], None]]] = (
+            set()
+        )
 
-    def add_handler(self, handler: Callable[[Item | None], None]) -> None:
+    def add_handler(
+        self,
+        handler: Callable[[Item | None], None],
+        flags: SelectionFlags = SelectionFlags.ALL,
+    ) -> None:
         """Add a callback handler, triggered when a constraint is resolved."""
-        self._handlers.add(handler)
+        self._handlers.add((flags, handler))
 
     def remove_handler(self, handler: Callable[[Item | None], None]) -> None:
         """Remove a previously assigned handler."""
-        self._handlers.discard(handler)
+        to_be_discarded = [e for e in self._handlers if e[1] == handler]
+        for e in to_be_discarded:
+            self._handlers.discard(e)
 
-    def notify(self, item: Item | None) -> None:
-        for handler in self._handlers:
-            handler(item)
+    def notify(
+        self, item: Item | None, flags: SelectionFlags = SelectionFlags.ALL
+    ) -> None:
+        for flag, handler in self._handlers:
+            if flags in flag:
+                handler(item)
 
     def clear(self):
         self._selected_items.clear()
